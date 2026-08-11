@@ -11,7 +11,9 @@
 #   skill: nixos-context7-gate
 #   note: "CrowdSec runs as native systemd agent (NO Docker). Caddy talks to the
 #          local agent via crowdsec-appsec plugin at http://127.0.0.1:8081.
-#          Replaces Unraid Docker-CrowdSec on NixOS migration."
+#          Caddy-Plugin (caddy-cs-bouncer) wird in 511-caddy.nix via
+#          pkgs.caddy.withPlugins eincompiliert — hash=lib.fakeHash, vor erstem
+#          Build via nix build ersetzen. Replaces Unraid Docker-CrowdSec."
 # context7:
 #   - query: "services.crowdsec enable configuration settings example"
 #     library: /nixos/nixpkgs

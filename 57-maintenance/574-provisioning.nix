@@ -30,9 +30,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       ConditionPathExists = "!/var/lib/mediNix-provisioned";
     };
     serviceConfig = lib.mkMerge [
-      # network-Profil: braucht HTTP-Zugang zu 127.0.0.1:{arr-ports} für API-Calls
-      # (script hätte PrivateNetwork=true → Loopback blockiert → stiller Fehlschlag)
-      (import ../lib/hardening-profiles.nix { inherit lib; }).network
+      # client-Profil: HTTP-Requests zu 127.0.0.1 (API-Calls), kein Port-Binding
+      # (network hätte CAP_NET_BIND_SERVICE — unnötig für Provisioning-Skript)
+      (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "media";

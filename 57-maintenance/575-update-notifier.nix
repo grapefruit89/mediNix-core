@@ -35,17 +35,15 @@ in lib.mkIf cfg.enable {
   systemd.services.mediNix-update-notifier = {
     description = "Check mediNix-core flake for updates (notify only, no auto-update)";
     serviceConfig = lib.mkMerge [
-      # script-Profil: PrivateNetwork=false (braucht Internet für flake metadata + localhost für ntfy)
-      (import ../lib/hardening-profiles.nix { inherit lib; }).script // {
-        PrivateNetwork = false;
-      }
+      # client-Profil: HTTP-Requests (flake metadata + ntfy), kein Port-Binding
+      (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "media";
         Group = "media";
       }
     ];
-    path = [ pkgs.nix pkgs.jq pkgs.curl ];
+    path = [ pkgs.nix pkgs.jq pkgs.curl ];  # nix + jq + curl explizit in PATH
     script = ''
       set -euo pipefail
       # Remote lastModified (GitHub HEAD von mediNix-core)

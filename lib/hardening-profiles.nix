@@ -101,6 +101,15 @@ network = base // {
   CapabilityBoundingSet  = "CAP_NET_BIND_SERVICE";
 } // networkPolicy.proxy;  # Caddy = Proxy, darf alles
 
+# ── Client-Skripte (HTTP-Requests, kein Port-Binding) ──────────────────────
+# Wie script, aber PrivateNetwork=false (HTTP zu 127.0.0.1 erlaubt)
+# Kein CAP_NET_BIND_SERVICE — binden keine Ports
+client = base // {
+  MemoryDenyWriteExecute = true;
+  PrivateDevices         = true;
+  PrivateNetwork         = false;
+};
+
 # ── Bash-Skripte (Mover, Maintenance-Timer) ────────────────────────────────
 script = base // {
   MemoryDenyWriteExecute = true;
