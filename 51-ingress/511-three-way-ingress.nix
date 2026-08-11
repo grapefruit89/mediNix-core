@@ -1,5 +1,5 @@
 # ---
-# id: "512-three-way-ingress"
+# id: "511-three-way-ingress"
 # title: "Automatic 3-way Ingress (.local / .m7c5 / .m7c5.de)"
 # domain: 50
 # folder: 51-ingress
@@ -10,6 +10,7 @@
 #   adr: ADR-5043
 # provides: []
 # requires: ["511-caddy"]
+# note: Caddy ingress logic, belongs to 511 (Caddy), not 512 (Pocket ID)
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -19,7 +20,7 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
-# 51-ingress/512-three-way-ingress.nix — Automatic 3-way access
+# 51-ingress/511-three-way-ingress.nix — Automatic 3-way access
 { config, lib, pkgs, ... }:
 
 let
