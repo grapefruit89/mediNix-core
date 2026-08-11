@@ -8,29 +8,35 @@
 # last_reviewed: 2026-08-11
 # links:
 #   adr: ADR-5120
-# provides: [pocket-id]
+# provides: ["pocket-id", "oidc"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: [5120]
 # upstream_docs: ["https://pocketid.org/docs/"]
 # forum_links: []
 # upstream_github: "https://github.com/pocket-id/pocket-id"
 # nixpkgs_attr: "services.pocket-id"
-# state_dir: "/var/lib/pocket-id"
+# state_dir: "/var/lib/pocket-id-5120"
 # uds_socket: false
 # systemd_hardened: true
 # ---
+
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP
+# ADR-5120: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).
+# Aktiv wenn cfg.pocketId.enable ODER ingress.auth.mode=forward-auth.
+# GID 5000 (media) für Bibliotheks-Zugriff. Keine direkte WAN-Exposition:
+# Caddy macht forward_auth zu 127.0.0.1:5120.
 { lib, pkgs, config, ... }:
 
 let
-  cfg = config.grapefruitMedia.pocketId;
+  cfg = config.grapefruitMedia;
   svc = (import ../lib/registry.nix { inherit lib; }).pocketId;
+  active = cfg.pocketId.enable || cfg.ingress.auth.mode == "forward-auth";
 in
-{
+lib.mkIf (cfg.enable && active) {
+
   services.pocket-id = {
     enable = true;
-    # UID/GID from decimal framework: Port=Nummer*10, GID=5000
-    user = "pocketid";
+    user  = "pocket-id";
     group = "media";  # shared GID 5000 per ADR-0000
   };
 
@@ -38,18 +44,27 @@ in
   systemd.services.pocket-id = {
     serviceConfig = {
       ProtectSystem = "strict";
-      PrivateTmp = true;
+      PrivateTmp    = true;
       NoNewPrivileges = true;
       RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
-      ReadWritePaths = [ svc.stateDir ];
+      ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
     };
   };
 
-  # Allowed port for Pocket ID (via Caddy, not directly exposed)
-  networking.firewall.allowedTCPPorts = [ svc.port ];
+  users.users.pocket-id = {
+    uid = svc.uid;
+    group = "media";
+    isSystemUser = true;
+    home = "/var/lib/pocket-id-5120";
+    createHome = true;
+  };
+
+  # Caddy forward_auth upstream zeigt auf Pocket ID (wenn ingress aktiv)
+  # (Konfiguration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
 }
 
-# Gold-Standard (from ADR-5120 / CLAUDE.md):
-# - Pocket ID is OIDC IdP, Caddy does forward_auth to it
-# - Never expose 5120 directly; Caddy terminates TLS + forwards
-# - GID 5000 (media) shared across mediNix services for library access
+# Gold-Standard (ADR-5120):
+# - Pocket ID ist OIDC IdP, Caddy macht forward_auth zu ihr
+# - Nie 5120 direkt exponieren; Caddy terminiert TLS + forwards
+# - GID 5000 (media) shared across mediNix services für library access
+# - UID 5120 isomorph (512 × 10)
