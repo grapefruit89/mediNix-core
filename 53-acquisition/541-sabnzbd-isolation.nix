@@ -1,5 +1,5 @@
 # ---
-# id: "531-sabnzbd-isolation"
+# id: "541-sabnzbd-isolation"
 # title: "SABnzbd systemd-native Isolation (no docker)"
 # domain: 50
 # folder: 53-acquisition
@@ -21,7 +21,7 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-# 53-acquisition/531-sabnzbd-isolation.nix — SABnzbd systemd isolation (no docker)
+# 53-acquisition/541-sabnzbd-isolation.nix — SABnzbd systemd isolation (no docker)
 # Source: mediNix vector store (chat history), pattern-score 0.69
 # VERIFY services.sabnzbd.* options via Context7 / nixos.org before deploy
 { lib, config, ... }:

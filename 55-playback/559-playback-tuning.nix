@@ -12,7 +12,7 @@
 #     - path: Nix Files/modules/50-media/default.nix
 # provides: []
 # requires: []
-# ports: [5510]
+# ports: []
 # upstream_docs: []
 # forum_links: []
 # upstream_github: ''

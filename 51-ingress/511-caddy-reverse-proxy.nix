@@ -1,5 +1,5 @@
 # ---
-# id: "513-caddy-reverse-proxy"
+# id: "511-caddy-reverse-proxy"
 # title: "Caddy Reverse Proxy + secure_headers Convention"
 # domain: 50
 # folder: 51-ingress
@@ -21,7 +21,7 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
-# 51-ingress/513-caddy-reverse-proxy.nix — Caddy reverse proxy + secure headers
+# 51-ingress/511-caddy-reverse-proxy.nix — Caddy reverse proxy + secure headers
 # Source: mediNix vector store (chat history), pattern-score 0.69
 # VERIFY caddy adapter / reverse_proxy directive via Context7 before deploy
 { lib, config, ... }:
