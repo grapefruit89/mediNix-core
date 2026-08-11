@@ -151,6 +151,9 @@ in
         '';
       };
     };
+    updateNotifier = {
+      enable = lib.mkEnableOption "Daily check for mediNix-core updates (ntfy notify, NO auto-update)";
+    };
     feishin = {
       enable  = lib.mkEnableOption "Feishin SPA (static files)";
       package = mkPackageOption "feishin";
@@ -294,6 +297,17 @@ in
           type    = lib.types.str;
           default = "mediNix";
           description = "ntfy topic name for mediNix notifications.";
+        };
+      };
+      crowdsec = {
+        enable = lib.mkEnableOption "CrowdSec native WAF/IPS agent (no Docker)";
+        enrollKeyFile = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          description = ''
+            Path to CrowdSec enrollment token file (LoadCredentialEncrypted).
+            Wenn null: lokaler Standalone-Modus (kein Central-Sync).
+          '';
         };
       };
     };

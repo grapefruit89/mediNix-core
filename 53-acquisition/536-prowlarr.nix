@@ -21,30 +21,28 @@ let
   uid  = 5360;
   gid  = 5000;
   stateDir = "/var/lib/prowlarr-${toString port}";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  mkService = import ../lib/service-factory.nix { inherit lib config; };
 in
 {
-  users.users.prowlarr = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
-  };
   users.groups.media.gid = gid;
 
-  systemd.services.prowlarr = {
+  # Prowlarr: indexiert nur, braucht SABnzbd nicht direkt (Arr holen sich von ihm)
+  systemd.services.prowlarr = (mkService {
+    name = "prowlarr";
+    port = port;
+    uid = uid;
+    execStart = "${pkgs.prowlarr}/bin/Prowlarr -nobrowser -data=${stateDir}";
+    stateDir = stateDir;
+    profile = "dotnet";
+    allowedPeers = [ "sabnzbd" ];
+    extraConfig = {
+      UMask          = "002";
+      ReadWritePaths = [ stateDir ];
+    };
+  }).systemd.services.prowlarr // {
     after    = [ "network-online.target" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      profiles.dotnet
-      {
-        User           = "prowlarr";
-        Group          = "media";
-        ExecStart      = "${pkgs.prowlarr}/bin/Prowlarr -nobrowser -data=${stateDir}";
-        StateDirectory = "prowlarr-${toString port}";
-        UMask          = "002";
-        ReadWritePaths = [ stateDir ];
-      }
-    ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { PROWLARR_API_KEY_FILE = cfg.apiKeyFile; })
       (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })

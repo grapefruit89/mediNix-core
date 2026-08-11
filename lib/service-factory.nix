@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-0000, ADR-5050
 # provides: ["mkService"]
-# requires: ["./hardening-profiles.nix"]
+# requires: ["./hardening-profiles.nix", "./registry.nix"]
 # ports: []
 # upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # ---
@@ -21,6 +21,18 @@
 
 let
   profiles = import ./hardening-profiles.nix { inherit lib; };
+  registry = (import ./registry.nix { inherit lib; }).services;
+
+  # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
+  # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.
+  mkPeerIsolation = selfName: allowedPeers:
+    let
+      allStateDirs = lib.mapAttrsToList (n: svc:
+        lib.optional (svc.stateDir != null && n != selfName && !(lib.elem n allowedPeers))
+          svc.stateDir
+      ) registry;
+    in
+      lib.flatten allStateDirs;
 in
 { name            # service name (kebab-case)
 , port            # port number from registry
@@ -28,6 +40,7 @@ in
 , execStart       # the start command as string
 , stateDir        # e.g. "/var/lib/jellyfin-5510"
 , profile ? "base" # hardening profile name (from registry.hardeningProfile)
+, allowedPeers ? [] # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
 , extraConfig ? {} # additional serviceConfig fields (service-specific deviations)
 }:
 {
@@ -46,7 +59,11 @@ in
         StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
         RuntimeDirectory = name;
       }
-      # 3) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
+      # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
+      (lib.optionalAttrs (allowedPeers != []) {
+        InaccessiblePaths = mkPeerIsolation name allowedPeers;
+      })
+      # 4) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
       extraConfig
     ];
   };

@@ -24,31 +24,30 @@ let
   uid  = 5320;
   gid  = 5000;
   stateDir = "/var/lib/sonarr-${toString port}";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  mkService = import ../lib/service-factory.nix { inherit lib config; };
 in
 {
-  users.users.sonarr = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
-  };
   users.groups.media.gid = gid;
 
-  systemd.services.sonarr = {
+  # Factory: dotnet-Profil (MemoryDenyWriteExecute=false, internet-Policy)
+  # allowedPeers: Sonarr braucht SABnzbd (Download) + Prowlarr (Indexer)
+  systemd.services.sonarr = (mkService {
+    name = "sonarr";
+    port = port;
+    uid = uid;
+    execStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
+    stateDir = stateDir;
+    profile = "dotnet";
+    allowedPeers = [ "sabnzbd" "prowlarr" ];
+    extraConfig = {
+      User           = "sonarr";  # Factory setzt User=name, hier redundant sicher
+      UMask          = "002";     # Arr-Stack braucht 002 für Gruppen-Schreibrechte
+      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+    };
+  }).systemd.services.sonarr // {
     after    = [ "network-online.target" "prowlarr.service" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      # Zentrales .NET-Hardening-Profil (ADR-5050) — keine per-Modul Duplikate
-      profiles.dotnet
-      {
-        User           = "sonarr";
-        Group          = "media";
-        ExecStart      = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
-        StateDirectory = "sonarr-${toString port}";
-        UMask          = "002";
-        ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
-      }
-    ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { SONARR_API_KEY_FILE = cfg.apiKeyFile; })
       (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })

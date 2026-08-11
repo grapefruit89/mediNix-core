@@ -24,40 +24,35 @@ let
   uid  = 5410;
   gid  = 5000;
   stateDir = "/var/lib/sabnzbd-${toString port}";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  mkService = import ../lib/service-factory.nix { inherit lib config; };
 in
 {
-  users.users.sabnzbd = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
-  };
   users.groups.media.gid = gid;
 
-  systemd.services.sabnzbd = {
-    after = [ "network-online.target" ];
-    requires = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      # Python-Profil: MemoryDenyWriteExecute=true, PrivateDevices=true
-      profiles.python
-      {
-        Type = "simple";
-        ExecStart = "${pkgs.sabnzbd}/bin/sabnzbd -b 0 -f ${stateDir}/sabnzbd.ini --host 127.0.0.1 --port ${toString port}";
-        User = "sabnzbd";
-        Group = "media";
-        UMask = "002";
-        # Harvester #992: SABnzbd needs time to graceful-stop, else kill loop
-        TimeoutStopSec = 30;
-        StateDirectory = "sabnzbd-${toString port}";
-        ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
-      }
+  systemd.services.sabnzbd = (mkService {
+    name = "sabnzbd";
+    port = port;
+    uid = uid;
+    execStart = "${pkgs.sabnzbd}/bin/sabnzbd -b 0 -f ${stateDir}/sabnzbd.ini --host 127.0.0.1 --port ${toString port}";
+    stateDir = stateDir;
+    profile = "python";  # MemoryDenyWriteExecute=true, loopback-only (VPN-ns)
+    allowedPeers = [];   # SABnzbd spricht nicht mit fremden State-Dirs
+    extraConfig = {
+      Type = "simple";
+      UMask = "002";
+      # Harvester #992: SABnzbd needs time to graceful-stop, else kill loop
+      TimeoutStopSec = 30;
+      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
       # VPN confinement (ADR-5410): route only via WireGuard ns, no clearnet leak
       (lib.mkIf svc.usenet-confinement.enable {
         NetworkNamespacePath = "/run/netns/${svc.vpn.interface}";
         BindReadOnlyPaths = [ "/etc/usenet-resolv.conf:/etc/resolv.conf" ];
-      })
-    ];
-    # API-Key via LoadCredentialEncrypted (ADR-5000: keine inline secrets)
+      });
+    };
+  }).systemd.services.sabnzbd // {
+    after = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
     environment = lib.mkIf (cfg.apiKeyFile != null) {
       SABNZBD_API_KEY_FILE = cfg.apiKeyFile;
     };

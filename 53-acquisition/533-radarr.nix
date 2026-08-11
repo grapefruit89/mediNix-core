@@ -23,30 +23,27 @@ let
   uid  = 5330;
   gid  = 5000;
   stateDir = "/var/lib/radarr-${toString port}";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  mkService = import ../lib/service-factory.nix { inherit lib config; };
 in
 {
-  users.users.radarr = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
-  };
   users.groups.media.gid = gid;
 
-  systemd.services.radarr = {
+  systemd.services.radarr = (mkService {
+    name = "radarr";
+    port = port;
+    uid = uid;
+    execStart = "${pkgs.radarr}/bin/Radarr -nobrowser -data=${stateDir}";
+    stateDir = stateDir;
+    profile = "dotnet";
+    allowedPeers = [ "sabnzbd" "prowlarr" ];
+    extraConfig = {
+      UMask          = "002";
+      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+    };
+  }).systemd.services.radarr // {
     after    = [ "network-online.target" "prowlarr.service" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      profiles.dotnet
-      {
-        User           = "radarr";
-        Group          = "media";
-        ExecStart      = "${pkgs.radarr}/bin/Radarr -nobrowser -data=${stateDir}";
-        StateDirectory = "radarr-${toString port}";
-        UMask          = "002";
-        ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
-      }
-    ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { RADARR_API_KEY_FILE = cfg.apiKeyFile; })
       (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })

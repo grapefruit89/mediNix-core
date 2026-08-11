@@ -21,30 +21,27 @@ let
   uid  = 5340;
   gid  = 5000;
   stateDir = "/var/lib/readarr-${toString port}";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  mkService = import ../lib/service-factory.nix { inherit lib config; };
 in
 {
-  users.users.readarr = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
-  };
   users.groups.media.gid = gid;
 
-  systemd.services.readarr = {
+  systemd.services.readarr = (mkService {
+    name = "readarr";
+    port = port;
+    uid = uid;
+    execStart = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
+    stateDir = stateDir;
+    profile = "dotnet";
+    allowedPeers = [ "sabnzbd" "prowlarr" ];
+    extraConfig = {
+      UMask          = "002";
+      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+    };
+  }).systemd.services.readarr // {
     after    = [ "network-online.target" "prowlarr.service" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      profiles.dotnet
-      {
-        User           = "readarr";
-        Group          = "media";
-        ExecStart      = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
-        StateDirectory = "readarr-${toString port}";
-        UMask          = "002";
-        ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
-      }
-    ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { READARR_API_KEY_FILE = cfg.apiKeyFile; })
       (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })
