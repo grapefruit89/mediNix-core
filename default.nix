@@ -1,11 +1,11 @@
 # ---
 # id: "50-mediNix-default"
-# title: "mediNix Master Boilerplate (SSoT, imports all decades)"
+# title: "mediNix Master Boilerplate (SSoT, auto-imports all decades)"
 # domain: 50
 # folder: 50-media
 # status: active
 # complexity: 5
-# last_reviewed: 2026-08-10
+# last_reviewed: 2026-08-11
 # links:
 #   adr: ADR-5043
 # provides: ["options.grapefruitMedia"]
@@ -13,34 +13,38 @@
 # ports: []
 # upstream_docs: []
 # forum_links: []
-# upstream_github: "https://github.com/grapefruit89/mediNix"
+# upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # nixpkgs_attr: ""
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: false
 # ---
 # 50-mediNix Master Boilerplate (SSoT)
+#
+# Auto-import: every XX-domain/NNN-*.nix module is imported automatically.
+# No hardcoded import list — adding a module file is enough. This is the
+# "flat auto-import" pattern (ADR-0000 §9, avoids nested folder breakage).
 { lib, pkgs, config, ... }:
 
 let
   cfg = config.grapefruitMedia;
+
+  # Discover all domain directories (XX-*) and import their NNN-*.nix modules.
+  domainDirs = lib.filterAttrs (n: t: t == "directory" && builtins.match "[0-9]{2}-.*" n != null)
+    (builtins.readDir ./.);
+
+  importModules = dir:
+    let
+      files = builtins.readDir (./. + "/${dir}");
+      moduleFiles = lib.filterAttrs (n: t: t == "regular" && builtins.match "[0-9]{3}-.*\\.nix" n != null)
+        files;
+    in
+      map (n: ./${dir}/${n}) (lib.attrNames moduleFiles);
+
+  allModules = lib.flatten (map importModules (lib.attrNames domainDirs));
 in
 {
-  imports = [
-    ./51-ingress/512-three-way-ingress.nix
-    ./52-security/522-service-slimming.nix
-    ./52-security/523-nftables-hardening.nix
-    ./52-security/524-kernel-hardening.nix
-    ./53-acquisition/default.nix
-    ./54-transfer/541-mover.nix
-    ./55-playback/551-jellyfin.nix
-    ./56-requests/561-feishin.nix
-    ./57-maintenance/571-sqlite-optimize.nix
-    ./59-guardrails/591-rollout-stages.nix
-    ./59-guardrails/593-no-password-auth.nix
-    ./59-guardrails/594-backup-ssh.nix
-    ./59-guardrails/595-ssh-assertions.nix
-  ];
+  imports = allModules;
 
   options.grapefruitMedia = {
     enable = lib.mkEnableOption "mediNix Media Stack";
