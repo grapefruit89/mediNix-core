@@ -1,5 +1,5 @@
 # ---
-# id: "593-no-password-auth"
+# id: "594-no-password-auth"
 # title: "SSH Keys-only, no PasswordAuthentication"
 # domain: 50
 # folder: 59-guardrails
@@ -19,7 +19,7 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
-# 59-guardrails/593-no-password-auth.nix — No passwords, SSH keys only
+# 59-guardrails/594-no-password-auth.nix — No passwords, SSH keys only
 { config, lib, pkgs, ... }:
 
 {

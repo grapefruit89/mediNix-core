@@ -1,0 +1,43 @@
+# mediNix-core — q958 Onboarding Checklist
+
+Vor dem ersten `nixos-rebuild switch` auf q958 (192.168.2.73) — strukturell
+vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
+
+## Vor dem ersten Build
+
+- [ ] `security.acme` in der Host-Config konfiguriert (DNS-01, Cloudflare API-Token, Wildcard `*.m7c5.de`)
+- [ ] `/var/lib/acme/m7c5.de/` existiert mit `cert.pem` + `key.pem` (von Lego erzeugt)
+- [ ] Tier-B Pfad gemountet: `${cfg.storage.mediaRoot}/downloads/` auf SSD (für SABnzbd temp)
+- [ ] Tier-C Pfad gemountet: `${cfg.storage.mediaRoot}/library/` auf HDD-Array (finale Mediathek)
+- [ ] `${cfg.storage.metadataDir}` zeigt auf SSD (nicht HDD — Jellyfin/ABS Metadaten sind I/O-heavy)
+- [ ] systemd-credentials für API-Keys vorbereitet: `systemd-creds encrypt apikey.txt apikey.cred`
+- [ ] `cfg.vpn.interface` gesetzt wenn `usenet-confinement.enable` (WireGuard ns muss existieren)
+- [ ] `cfg.secrets.*ApiKeyFile` Pfade zeigen auf die `.cred`-Dateien (LoadCredentialEncrypted)
+- [ ] SSH-Keys für `media-admin` + `backup` User in `security.emergencyUser.sshKeys` / `security.backupSsh.sshKeys`
+
+## Nach dem ersten Build
+
+- [ ] `nix flake check .#checks.x86_64-linux.nixos-check` — darf nicht fehlschlagen
+- [ ] `systemctl status jellyfin-5510 audiobookshelf-5520 navidrome-5530 feishin-5540`
+- [ ] Caddy erreichbar: `curl -I https://jellyfin.m7c5.de`
+- [ ] Sonarr: `curl -I http://127.0.0.1:5320` (LAN only — von außen blockiert durch Caddy `internal`-Template)
+- [ ] ntfy (falls `observability.ntfy.enable`): `curl -I https://ntfy.m7c5.de`
+- [ ] 574-provisioning abgewartet: `journalctl -u mediNix-provisioning` (registriert SABnzbd + Prowlarr in *arr)
+- [ ] Arr-Apps: Settings → Connect → Ntfy manuell eintragen (Server `http://127.0.0.1:5810`, Topic aus `observability.ntfy.topic`)
+
+## Bekannte Fallstricke
+
+- **Jellyfin:** Admin-Passwort aus `cfg.secrets.jellyfinAdminPasswordFile` — Datei muss vor Start existieren (LoadCredentialEncrypted). Ohne Datei: Jellyfin startet, aber Web-UI blockiert beim First-Run.
+- **SABnzbd:** startet mit `-b 0` (kein daemon-fork) — `Type=simple` ist korrekt, nicht `forking`. `TimeoutStopSec=30` (Harvester #992: graceful-stop sonst kill-loop).
+- **Audiobookshelf:** Port=5520 via Env-Var `PORT` gesetzt, NICHT in der App-Config. App bindet sonst 8000.
+- **Navidrome:** `media`-group via `extraGroups = mkAfter [ "media" ]` — sonst leere Bibliothek OHNE Fehlermeldung (stiller Fail).
+- **Feishin:** statische SPA, kein Prozess. Caddy `file_server` + `try_files {path} /index.html` Pflicht für Deep-Links. Braucht Backend (Navidrome/Jellyfin).
+- **Hardening:** alle Dienste nutzen `lib/hardening-profiles.nix` (dotnet/python/nodejs/network/script). `PrivateDevices=false` NUR bei Jellyfin (VA-API /dev/dri). `MemoryDenyWriteExecute=false` bei .NET/Node (JIT). `PrivateNetwork=true` bei `script`-Profil — daher 574-provisioning nutzt `network` (braucht Loopback für API-Calls).
+- **Split-DNS:** stream-Dienste (Jellyfin/ABS/Navidrome) brauchen lokalen DNS-Override auf Server-LAN-IP (Hairpin-NAT vermeiden). Host-side via Router (Speedport Custom-DNS) oder Blocky/AdGuard. mediNix-core macht das nicht (ADR-5115, note).
+
+## Anti-Lockout (kritisch bei Remote-Deploy)
+
+- `594-no-password-auth.nix`: `PasswordAuthentication=false`, SSH-Keys only (kein `jarvis ALL=(ALL) NOPASSWD:ALL` — das war ein Bug, entfernt).
+- `595-backup-ssh.nix`: 2. SSH-Dienst Port 2222 (LAN reachable, keys only) für Notfälle.
+- `521-nftables.nix`: Port 22 + 2222 in `allowedTCPPorts`. Nie `IPAddressDeny=[any]` (blockiert Loopback).
+- Immer `nixos-rebuild boot` statt `switch` bei Unsicherheit — bei Boot-Fail rollt Grub zurück.

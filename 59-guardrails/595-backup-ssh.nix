@@ -1,5 +1,5 @@
 # ---
-# id: "594-backup-ssh"
+# id: "595-backup-ssh"
 # title: "Backup-SSH — read-only SSH access for State-Dir backups (rsync/pull)"
 # domain: 50
 # folder: 59-guardrails
@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5000, ADR-21-security-hardening
 # provides: []
-# requires: ["593-no-password-auth"]
+# requires: ["594-no-password-auth"]
 # ports: []
 # upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # ---
