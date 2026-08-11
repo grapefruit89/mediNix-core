@@ -1,0 +1,53 @@
+# ---
+# id: "573-exportarr"
+# title: "Exportarr — Prometheus Exporters for *arr Stack (per-instance)"
+# domain: 57
+# folder: 57-maintenance
+# status: active
+# complexity: 4
+# last_reviewed: 2026-08-11
+# links:
+#   adr: ADR-5043
+#   skill: nixos-context7-gate
+# context7:
+#   - query: "systemd.services serviceConfig example"
+#     library: /websites/nixos_manual_nixos_unstable
+#     snippet: "systemd.services.<name> = { serviceConfig.ExecStart = ...; }"
+# ---
+{ config, lib, pkgs, ... }:
+
+let
+  cfg = config.grapefruitMedia.maintenance.exporters;
+  svc = config.grapefruitMedia;
+
+  # Arr-Dienste die einen Exporter bekommen (Port = Serviceport + 1000)
+  arrExporters = [
+    { name = "sonarr";   port = 5320; }
+    { name = "radarr";   port = 5330; }
+    { name = "readarr";  port = 5340; }
+    { name = "lidarr";   port = 5350; }
+    { name = "prowlarr"; port = 5360; }
+  ];
+
+  mkExporter = e: lib.mkIf (cfg.enable && svc.services.${e.name}.enable) {
+    "exportarr-${e.name}" = {
+      description = "Exportarr Prometheus Exporter for ${e.name}";
+      after = [ "network-online.target" "${e.name}-${toString e.port}.service" ];
+      requires = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.exportarr}/bin/exportarr ${e.name} --port ${toString (e.port + 1000)} --url http://127.0.0.1:${toString e.port}";
+        User = "media";
+        Group = "media";
+        UMask = "002";
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        PrivateTmp = true;
+        NoNewPrivileges = true;
+      };
+      # API-Key via EnvironmentFile (ADR-5000)
+      environmentFile = lib.mkIf (svc.services.${e.name}.apiKeyFile != null)
+        svc.services.${e.name}.apiKeyFile;
+    };
+  };
+in lib.mkMerge (map mkExporter arrExporters)
