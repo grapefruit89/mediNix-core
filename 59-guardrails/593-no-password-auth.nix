@@ -34,6 +34,7 @@
   };
 
   security.sudo.extraConfig = ''
-    jarvis ALL=(ALL) NOPASSWD:ALL
+    # media-admin + backup users get restricted sudo via 593-emergency-user / 594-backup-ssh
+    # NO global NOPASSWD:ALL — portables Modul darf keinen hardcoded User mit vollen Rechten
   '';
 }

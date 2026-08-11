@@ -139,6 +139,18 @@ in
       enable           = lib.mkEnableOption "Prometheus exporters for Arr stack";
       lidarr.enable    = lib.mkEnableOption "Enable metrics exporter for Lidarr";
     };
+    mover = {
+      enable = lib.mkEnableOption "Tier-B cleanup (remove already-imported downloads)";
+      retentionDays = lib.mkOption {
+        type    = lib.types.int;
+        default = 7;
+        description = ''
+          Anzahl Tage nach denen importierte Downloads auf Tier B (SSD) gelöscht
+          werden. Sonarr/Radarr importieren selbst (Tier B -> Tier C HDD).
+          Hardlinks SSD<->HDD unmöglich -> Copy, daher Tier B hier aufräumen.
+        '';
+      };
+    };
     feishin = {
       enable  = lib.mkEnableOption "Feishin SPA (static files)";
       package = mkPackageOption "feishin";
@@ -237,6 +249,51 @@ in
             L1 ({service}.local) ohne forward_auth, auch bei auth.mode=forward-auth.
             .local ist reines LAN (RFC 6762), physische Grenze = Sicherheitsgrenze.
           '';
+        };
+      };
+    };
+
+    # --- Security (guardrails) ---
+    security = {
+      enable = lib.mkOption {
+        type    = lib.types.bool;
+        default = true;
+        description = "Enable mediNix security guardrails (assertions, no-password-auth).";
+      };
+      emergencyUser = {
+        enable = lib.mkEnableOption "media-admin emergency user (restricted sudo)";
+        sshKeys = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "SSH public keys for media-admin user.";
+        };
+      };
+      backupSsh = {
+        enable = lib.mkEnableOption "read-only backup SSH user (rsync pull of State-Dirs)";
+        sshKeys = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "SSH public keys for backup user.";
+        };
+      };
+    };
+
+    # --- Observability (Notifications) ---
+    observability = {
+      ntfy = {
+        enable = lib.mkEnableOption "ntfy.sh push notifications for Arr stack + Jellyfin";
+        baseUrl = lib.mkOption {
+          type    = lib.types.str;
+          default = "https://ntfy.sh";
+          description = ''
+            ntfy server URL. Default ntfy.sh (free, no self-host) oder
+            self-hosted (services.ntfy-sh auf Port 5810, caddyClass=public).
+          '';
+        };
+        topic = lib.mkOption {
+          type    = lib.types.str;
+          default = "mediNix";
+          description = "ntfy topic name for mediNix notifications.";
         };
       };
     };

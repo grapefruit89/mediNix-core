@@ -1,6 +1,6 @@
 # ---
 # id: "543-mover"
-# title: "Smart Mover — shifts completed downloads to library (systemd timer, every 15m)"
+# title: "Tier-B Cleanup — deletes already-imported downloads older than retentionDays"
 # domain: 54
 # folder: 54-transfer
 # status: active
@@ -9,6 +9,9 @@
 # links:
 #   adr: ADR-5410
 #   skill: nixos-context7-gate
+#   note: "Sonarr/Radarr do the import (Tier B SSD -> Tier C HDD) themselves.
+#          Hardlinks cross-FS impossible (SSD vs HDD) -> copy, so download stays
+#          on Tier B until this cleanup removes it. No 'mv downloads -> library'."
 # context7:
 #   - query: "systemd.timers OnCalendar example interval"
 #     library: /websites/nixos_manual_nixos_unstable
@@ -17,23 +20,21 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.storage;
-  mediaRoot = cfg.mediaRoot;
-  completeDir = "${mediaRoot}/downloads/complete";
-  libraryDir  = "${mediaRoot}/library";
-in
-{
+  cfg = config.grapefruitMedia.maintenance.mover;
+  svc = config.grapefruitMedia;
+  completeDir = "${svc.storage.mediaRoot}/downloads/complete";
+in lib.mkIf cfg.enable {
   # Systemd Timer (ADR-5000: event/timer-driven, no legacy cron)
-  systemd.timers.media-mover = {
+  systemd.timers.tier-b-cleanup = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = "*:0/15";  # alle 15 Minuten
+      OnCalendar = "*:0/15";  # alle 15 Minuten prüfen
       Persistent = true;
     };
   };
 
-  systemd.services.media-mover = {
-    description = "Move completed downloads to media library";
+  systemd.services.tier-b-cleanup = {
+    description = "Tier-B Cleanup: remove already-imported downloads older than ${toString cfg.retentionDays}d";
     serviceConfig = {
       Type = "oneshot";
       User = "media";
@@ -42,25 +43,21 @@ in
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
-      ReadWritePaths = [ mediaRoot ];
+      ReadWritePaths = [ completeDir ];
     };
     script = ''
       set -euo pipefail
       COMPLETE="${completeDir}"
-      LIBRARY="${libraryDir}"
+      [ -d "$COMPLETE" ] || exit 0
 
-      if [ ! -d "$COMPLETE" ]; then
-        exit 0
-      fi
-
-      mkdir -p "$LIBRARY"
-
-      # Verschiebe Ordner/Dateien von complete nach library, vermeide partial moves (.partial, etc.)
-      find "$COMPLETE" -mindepth 1 -maxdepth 1 ! -name '*.partial' ! -name '.*' | while read -r item; do
-        if [ -e "$item" ]; then
-          mv -u "$item" "$LIBRARY/"
-        fi
-      done
+      # Entferne Dateien/Ordner die älter als retentionDays sind.
+      # Sonarr/Radarr importieren selbst (Tier B -> Tier C). Was älter als X Tage
+      # ist, gilt als importiert + sicher auf Tier C -> Tier B freimachen.
+      # Kein Hardlink möglich (SSD vs HDD) -> copy, daher hier Aufräumen.
+      find "$COMPLETE" -mindepth 1 -mtime +${toString cfg.retentionDays} -print0 \
+        | while IFS= read -r -d '' item; do
+            rm -rf "$item"
+          done
     '';
   };
 }

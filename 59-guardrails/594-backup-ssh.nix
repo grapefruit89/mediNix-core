@@ -1,44 +1,45 @@
 # ---
 # id: "594-backup-ssh"
-# title: "Backup SSH Daemon (Port 2222, key-only)"
+# title: "Backup-SSH — read-only SSH access for State-Dir backups (rsync/pull)"
 # domain: 50
 # folder: 59-guardrails
 # status: active
-# complexity: 2
-# last_reviewed: 2026-08-10
+# complexity: 3
+# last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-23-dropbear-rescue
+#   adr: ADR-5000, ADR-21-security-hardening
 # provides: []
-# requires: []
-# ports: [2222]
-# upstream_docs: []
-# forum_links: []
-# upstream_github: ""
-# nixpkgs_attr: "systemd.services.sshd-backup"
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: true
+# requires: ["593-no-password-auth"]
+# ports: []
+# upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # ---
-# 59-guardrails/594-backup-ssh.nix — Backup SSH on Port 2222
 { config, lib, pkgs, ... }:
 
-{
-  systemd.services.sshd-backup = {
-    description = "Backup SSH Service (Port 2222)";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.openssh}/bin/sshd -D -f ${pkgs.writeText "sshd-backup" ''
-        Port 2222
-        ListenAddress 0.0.0.0
-        PasswordAuthentication no
-        PermitRootLogin no
-        AllowUsers jarvis
-        PidFile /run/sshd-backup.pid
-      ''}";
-      Restart = "always";
-    };
+let
+  cfg = config.grapefruitMedia.security.backupSsh;
+  # Alle State-Dirs die für Backup freigegeben sind (read-only)
+  stateDirs = [
+    "/var/lib/jellyfin-5510" "/var/lib/audiobookshelf-5520" "/var/lib/navidrome-5530"
+    "/var/lib/sonarr-5320" "/var/lib/radarr-5330" "/var/lib/readarr-5340"
+    "/var/lib/lidarr-5350" "/var/lib/prowlarr-5360" "/var/lib/sabnzbd-5410"
+    "/var/lib/jellyseerr-5610" "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600"
+  ];
+in lib.mkIf cfg.enable {
+  users.users.backup = {
+    isSystemUser = true;
+    group = "media";
+    home = "/var/empty";
+    shell = pkgs.bash;
+    openssh.authorizedKeys.keys = cfg.sshKeys;
   };
+  users.groups.media.gid = 5000;
 
-  networking.firewall.allowedTCPPorts = [ 2222 ];
+  # Read-only SSH: nur rsync/ cat erlaubt, kein shell-write
+  services.openssh.extraConfig = ''
+    Match User backup
+      ForceCommand /run/current-system/sw/bin/bash -c 'exec rsync --server --sender -vlogDtpre.iLsfxC --read-only . ${lib.concatStringsSep " " stateDirs}'
+      AllowTcpForwarding no
+      PermitOpen none
+      X11Forwarding no
+  '';
 }

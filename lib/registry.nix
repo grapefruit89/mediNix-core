@@ -74,6 +74,9 @@ in
 
     # Requests (folder 56)
     jellyseerr = mkService "jellyseerr" 561 "public";
+
+    # Observability (folder 58)
+    ntfy = mkService "ntfy" 581 "public";
   };
 
   # For backward compat: only services with a port
