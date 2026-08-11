@@ -1,0 +1,27 @@
+# Nix build artifacts
+/result
+result
+*.drv
+
+# Nix store references (should not be committed)
+/nix/
+
+# Secrets / credentials
+*.key
+*.age
+secrets/
+*.env
+
+# Editor / OS
+.DS_Store
+*.swp
+*~
+
+# Local overrides (portable core must stay clean)
+compat-my.nix
+my-*.nix
+
+# Python venv / scripts (if accidentally placed here)
+__pycache__/
+*.pyc
+venv/

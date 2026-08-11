@@ -1,0 +1,99 @@
+# ---
+# id: "553-navidrome"
+# domain: "50"
+# status: "active"
+# layer: 4
+# purpose: "Navidrome Music Server (Subsonic API)"
+# provides: [navidrome]
+# requires: [grapefruitMedia.storage, grapefruitMedia.secrets]
+# ports: [5530]
+# state_dir: "/var/lib/navidrome"
+# tags: [navidrome, music, subsonic]
+# ---
+{
+  config,
+  lib,
+  ...
+}:
+let
+  cfgGlobal = config.grapefruitMedia;
+  cfg = cfgGlobal.navidrome;
+  factory = import ../lib/service-factory.nix { inherit lib; };
+  memory = import ../lib/memory-policy.nix {
+    inherit lib;
+    ramGB = cfgGlobal.hardware.ramGB;
+  };
+  inherit (cfgGlobal) domain;
+  # P0-1/P1-2: OIDC-DiscoveryUrl braucht eine echte Domain. Ohne Domain wird der
+  # gesamte Oidc-Block weggelassen statt eine https://auth.null-URL zu bauen.
+  hasDomain = domain != null && domain != "";
+  port = cfgGlobal.ports.navidrome;
+  mediaRoot = cfgGlobal.storage.mediaRoot;
+  storageReady = cfgGlobal.storage.enable;
+in
+{
+  config = lib.mkIf (cfgGlobal.enable && cfg.enable) (
+    lib.mkMerge [
+      {
+        services.navidrome = {
+          enable = true;
+          package = lib.mkIf (cfgGlobal.navidrome.package != null) cfgGlobal.navidrome.package;
+          settings = {
+            Address = "127.0.0.1";
+            Port = port;
+            DataFolder = "/var/lib/navidrome";
+            MusicFolder = lib.mkIf storageReady "${mediaRoot}/music";
+          }
+          // lib.optionalAttrs hasDomain {
+            Oidc = {
+              DiscoveryUrl = "https://auth.${domain}/.well-known/openid-configuration";
+              AutoRegister = true;
+              Scopes = "openid profile email";
+            };
+          };
+        };
+
+        # -Prefix: systemd ignoriert fehlende Datei → Navidrome startet ohne OIDC bis Secrets gesetzt
+        # Navidrome MUSS in die Media-Gruppe.
+        #
+        # 2026-07-20 gemessen: es war als einziger Wiedergabe-Dienst NICHT
+        # drin (Gruppen: navidrome). Dass es trotzdem an die Musik kam, lag
+        # allein daran, dass /data/media/music mit drwxrwxr-x fuer ALLE lesbar
+        # war -- also an einer zu weiten Berechtigung, nicht an korrekter
+        # Konfiguration.
+        #
+        # Sobald jemand die Rechte enger zieht (o-rx), was der Sinn eines
+        # Gruppenmodells ist, faellt Navidrome aus. Und es schreibt selbst
+        # nichts in die Bibliothek, weshalb der Fehler auch beim Testen nicht
+        # auffaellt -- er zeigt sich erst, wenn die Rechte stimmen.
+        #
+        # Alle anderen Dienste machen es bereits so:
+        #   530-beschaffung:88     extraGroups = [ "media" ]
+        #   541-sabnzbd:56       extraGroups = [ "media" ]
+        #   552-audiobookshelf   group = "media"
+        #   551-jellyfin:220     users.users.jellyfin.extraGroups
+        users.users.navidrome.extraGroups = lib.mkAfter [ "media" ];
+
+        systemd.services.navidrome.serviceConfig.EnvironmentFile = [
+          "-${cfgGlobal.secrets.navidromeOidcFile}"
+        ];
+      }
+
+      (factory.mkService {
+        inherit config;
+        name = "navidrome";
+        inherit port;
+        persistDirs = [ "/var/lib/navidrome" ];
+        readWritePaths = [
+          "/var/lib/navidrome"
+        ]
+        ++ lib.optionals storageReady [ "${mediaRoot}/music" ];
+        memoryPolicy = memory.navidrome { };
+      })
+
+      (lib.mkIf storageReady {
+        systemd.tmpfiles.rules = [ "d ${mediaRoot}/music 0775 navidrome media -" ];
+      })
+    ]
+  );
+}
