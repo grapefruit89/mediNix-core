@@ -1,49 +1,38 @@
-# ---
-# id: "50-mediNix-flake"
-# title: "mediNix Flake (portable module entrypoint)"
-# domain: 50
-# folder: 50-media
-# status: active
-# complexity: 2
-# last_reviewed: 2026-08-10
-# links:
-#   adr: ADR-5043
-# provides: ["flake"]
-# requires: []
-# ports: []
-# upstream_docs: []
-# forum_links: []
-# upstream_github: "https://github.com/grapefruit89/mediNix"
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: false
-# ---
 {
-  description = "mediNix Media Stack (Portable NixOS Module)";
+  description = "mediNix-core — Portable NixOS Media Stack Module";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url  = "github:numtide/flake-utils";
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
+    let
+      overlay = _: _: { };  # Zukünftige Pakete hier
+    in
+    {
+      # Das Hauptprodukt: importierbar als nixosModules.default
+      nixosModules.default = import ./default.nix;
+      nixosModules.mediNix = import ./default.nix;  # Alias für Abwärtskompatibilität
+
+      overlays.default = overlay;
+    }
+    // flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = nixpkgs.legacyPackages.${system};
       in {
-        # Check configuration (dry-build without hardware)
-        nixosConfigurations.check = nixpkgs.lib.nixosSystem {
+        # CI-Check: dry-build ohne echte Hardware
+        checks.nixos-check = (nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
-            ./default.nix
+            self.nixosModules.default
             {
-              # Dummy hardware for check
+              grapefruitMedia.enable = true;
               boot.loader.grub.enable = false;
-              fileSystems."/" = { device = "dummy"; fsType = "tmpfs"; };
+              fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+              system.stateVersion = "24.11";
             }
           ];
-        };
+        }).config.system.build.toplevel;
       }
     );
 }
