@@ -28,3 +28,18 @@ Jellyfin is the primary media player. Jellyfin-Start depends on `jellyfin.db`
 ## Gold-Standard (from CLACDE.md)
 > "Jellyfin-Start=jellyfin.db; seccomp braucht SystemCallErrorNumber=EPERM"
 > → Hardening detail baked into mkService factory (ADR-5050).
+
+## Operational Notes (migrated from CLAUDE.md, ports corrected 5510)
+- **Timing-Bug:** Jellyfin entscheidet an Migrationsstand ob Installation existiert.
+  preStart bricht ab solange `/var/lib/jellyfin-5510/data/jellyfin.db` fehlt.
+  Vorgaben (config) greifen erst ab 2. Start. Marker = Datenbank, NICHT Config-File
+  (config/migrations.xml ist versionsinstabil, database.xml ist stabil).
+- **`/var/cache/jellyfin` muss via `systemd.tmpfiles.rules` existieren** (nicht im
+  preStart install — dem fehlt CAP_CHOWN). Sonst: `status=226/NAMESPACE` Mount-Fail.
+- **GPU/VA-API:** `PrivateDevices=false` (Factory mkForce) — sonst kein /dev/dri sichtbar.
+  `SupplementaryGroups=["video"]`. tmpfs `/transcode:size=4G` für HW-Transcode
+  (sonst HDD-Transcode tötet Performance).
+- **Nicht Version verdächtigen:** 10.11.11 + 10.10.7 scheiterten identisch an
+  verschiedenen Tabellen — Ursache war eigener preStart, nicht Upstream.
+- **Verify:** `systemctl show jellyfin -p NRestarts --value` (0), `ss -tlnp | grep jellyfin`
+  (:5510 nicht :8096), `curl -s -o /dev/null -w '%{http_code}' http://jellyfin.local`

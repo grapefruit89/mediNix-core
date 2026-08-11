@@ -32,3 +32,10 @@ access — CLACDE.md gold-standard for *arr-like services.
 > (`chmod o-rx` auf Musikverzeichnis bricht Zugriff, mit Gruppe nicht).
 > → Ein Dienst, der läuft, beweist nicht, dass deine Änderung ihn zum Laufen
 > gebracht hat. Nimm die Bedingung weg und prüfe, ob es bricht.
+
+## Operational Notes (migrated from CLAUDE.md, ports corrected 5530)
+- **Feishin-Kopplung:** `554-feishin` spricht Navidrome-API. Wer hier Port/Adresse
+  ändert, muss `serverUrl` in Feishin mitziehen (siehe ADR-5530/5540).
+- **OIDC:** via EnvironmentFile `ND_OIDC_CLIENT_ID_FILE` (ADR-5000: keine inline secrets).
+- **Music read-only:** BindReadOnlyPaths für mediaRoot/music reicht (Navidrome schreibt
+  nur Metadata in StateDir).
