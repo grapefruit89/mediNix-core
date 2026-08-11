@@ -27,14 +27,18 @@
 { lib, ... }:
 
 let
-  mkService = name: number: {
+  # caddyClass: how Caddy exposes the service (ADR-5110 final schema)
+  #   stream   → WAN, Cloudflare NOT proxied, flush_interval -1, no compression
+  #   internal → LAN only, DDNS → router IP, external IPs blocked
+  #   public   → LAN + WAN, compression, no streaming timeouts
+  #   none     → no Caddy vHost (e.g. cloudflare-dns)
+  mkService = name: number: class: {
     inherit name;
     num    = number;
     port   = number * 10;        # Port = Number × 10 (ADR-5043)
     uid    = number * 10;         # UID = Port (isomorph)
     gid    = 5000;               # shared mediNix media group
-    wan    = false;
-    stream = false;
+    caddyClass = class;
   };
   mkNoPort = name: number: {
     inherit name;
@@ -42,33 +46,34 @@ let
     port   = null;               # no network service
     uid    = null;
     gid    = 5000;
+    caddyClass = "none";
   };
 in
 {
   services = {
     # Ingress (folder 51)
-    caddy          = mkService "caddy" 511;
-    pocket-id      = mkService "pocket-id" 512;
+    caddy          = mkService "caddy" 511 "stream";
+    pocket-id      = mkService "pocket-id" 512 "public";
     cloudflare-dns = mkNoPort "cloudflare-dns" 513;
 
     # Acquisition (*arr stack — folder 53)
-    sonarr   = mkService "sonarr" 532;
-    radarr   = mkService "radarr" 533;
-    readarr  = mkService "readarr" 534;
-    lidarr   = mkService "lidarr" 535;
-    prowlarr = mkService "prowlarr" 536;
+    sonarr   = mkService "sonarr" 532 "internal";
+    radarr   = mkService "radarr" 533 "internal";
+    readarr  = mkService "readarr" 534 "internal";
+    lidarr   = mkService "lidarr" 535 "internal";
+    prowlarr = mkService "prowlarr" 536 "internal";
 
     # Transfer (folder 54)
-    sabnzbd  = mkService "sabnzbd" 541 // { stream = true; };
+    sabnzbd  = mkService "sabnzbd" 541 "internal";
 
     # Playback (folder 55)
-    jellyfin       = mkService "jellyfin" 551 // { stream = true; wan = true; };
-    audiobookshelf = mkService "audiobookshelf" 552;
-    navidrome      = mkService "navidrome" 553;
-    feishin        = mkService "feishin" 554;
+    jellyfin       = mkService "jellyfin" 551 "stream";
+    audiobookshelf = mkService "audiobookshelf" 552 "stream";
+    navidrome      = mkService "navidrome" 553 "stream";
+    feishin        = mkService "feishin" 554 "stream";
 
     # Requests (folder 56)
-    jellyseerr = mkService "jellyseerr" 561;
+    jellyseerr = mkService "jellyseerr" 561 "public";
   };
 
   # For backward compat: only services with a port
