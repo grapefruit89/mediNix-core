@@ -1,6 +1,6 @@
 # ---
 # id: "523-ssh"
-# title: "SSH additive Match-Blocks (keine globalen SSH-Änderungen)"
+# title: "SSH additive Match-Blocks (keine globalen SSH-Änderungen, portabel)"
 # domain: 52
 # folder: 52-security
 # status: active
@@ -20,14 +20,13 @@ let
   cfg = config.grapefruitMedia;
 in
 {
-  # NIEMALS globale SSH-Änderungen hier. Port 22 ist SSoT (ADR-21).
-  # Wir fügen nur additive Match-Blöcke hinzu wenn cfg.enable.
-  # Wenn leer: lieber nichts als etwas Falsches → mkIf.
+  # PORTABEL: kein SSH-Hardening im Modul. SSH-Hardening (LAN-Restriktion, key-only)
+  # gehört in die Host-Config des Consumers, nicht in mediNix-core.
+  # Wir lassen extraConfig leer — nur mkIf-Gate, damit künftige optionale
+  # Match-Blöcke hier Landen KÖNNTEN, aber standardmäßig: nichts.
+  # (Keine hardcoded IP/CIDR — bricht Portabilität.)
   services.openssh.extraConfig = lib.mkIf cfg.ssh.hardening.enable ''
-    # mediNix: LAN-only restriction für nicht-LAN-Quellen (Defence-in-Depth)
-    Match Address 192.168.2.0/24
-      PasswordAuthentication no
-    Match All
-      # keine globalen Overrides — nur Bestätigung dass key-only default gilt
+    # Intentionally empty: SSH hardening is host responsibility, not module scope.
+    # Add host-specific Match blocks in the consumer's configuration.nix.
   '';
 }
