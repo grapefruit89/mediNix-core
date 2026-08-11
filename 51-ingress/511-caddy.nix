@@ -74,11 +74,14 @@ let
         '';
       }.${svc.caddyClass};
 
-      tlsDirective = {
-        "off"      = "";
-        "internal" = "tls internal";
-        "custom"   = "tls ${ing.tls.certFile} ${ing.tls.keyFile}";
-      }.${ing.tls.mode};
+      tlsDirective =
+        if ing.tls.acmeHost != null then
+          "tls /var/lib/acme/${ing.tls.acmeHost}/cert.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
+        else if ing.tls.mode == "custom" then
+          "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
+        else if ing.tls.mode == "internal" then
+          "tls internal"
+        else "";
     in ''
       ${name}.${cfg.domain} {
         ${tlsDirective}

@@ -195,6 +195,21 @@ in
           default = null;
           example = "/var/lib/acme/example.com/key.pem";
         };
+        # TLS via security.acme (Lego, DNS-01 via Cloudflare) auf dem Host.
+        # mediNix-core liest nur das fertige Zertifikat, macht KEIN ACME selbst.
+        acmeHost = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "m7c5.de";
+          description = ''
+            Hostname des security.acme-Zertifikats auf dem Host.
+            Wenn gesetzt: Caddy nutzt /var/lib/acme/{acmeHost}/cert.pem
+            und /var/lib/acme/{acmeHost}/key.pem automatisch.
+            Setzt tls.mode implizit auf "custom".
+            security.acme wird vom Host konfiguriert (DNS-01 via Cloudflare),
+            NICHT von mediNix-core. mediNix-core liest nur das fertige Zertifikat.
+          '';
+        };
       };
       auth = {
         mode = lib.mkOption {
