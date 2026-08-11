@@ -1,5 +1,5 @@
 # ---
-# id: "541-mover"
+# id: "543-mover"
 # title: "Smart Mover SSD(Tier B) -> HDD(Tier C), event-driven"
 # domain: 50
 # folder: 54-transfer
@@ -19,7 +19,7 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-# 54-transfer/541-mover.nix — Smart Mover (SSD to HDD)
+# 54-transfer/543-mover.nix — Smart Mover (SSD to HDD)
 { lib, pkgs, config, ... }:
 
 {
