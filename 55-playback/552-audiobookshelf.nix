@@ -7,7 +7,7 @@
 # complexity: 4
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5520
+#   adr: ADR-5520, ADR-5050
 #   skill: nixos-context7-gate
 #   gold: CLAUDE.md (seccomp SIGSYS → SystemCallErrorNumber=EPERM; 200 expected)
 # context7:
@@ -25,6 +25,7 @@ let
   gid  = 5000;
   stateDir   = "/var/lib/audiobookshelf-${toString port}";
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 {
   users.users.audiobookshelf = {
@@ -37,22 +38,20 @@ in
     after = [ "network-online.target" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.audiobookshelf}/bin/audiobookshelf";
-      User = "audiobookshelf";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      StateDirectory = "audiobookshelf-${toString port}";
-      # Tier 2 metadata (rw) + Tier 3 media (rw, ABS writes covers)
-      ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
-      # CLAUDE.md gold: seccomp SIGSYS kills silently → EPERM instead
-      SystemCallFilter = [ "@system-service" ];
-      SystemCallErrorNumber = "EPERM";
-    };
+    serviceConfig = lib.mkMerge [
+      # nodejs-Profil: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
+      profiles.nodejs
+      {
+        ExecStart = "${pkgs.audiobookshelf}/bin/audiobookshelf";
+        User = "audiobookshelf";
+        Group = "media";
+        UMask = "002";
+        StateDirectory = "audiobookshelf-${toString port}";
+        # Tier 2 metadata (rw) + Tier 3 media (rw, ABS writes covers)
+        ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
+        # CLAUDE.md gold: seccomp SIGSYS kills silently → EPERM via Profil (base)
+      }
+    ];
     environment = {
       PORT = toString port;
       CONFIG_PATH = stateDir;

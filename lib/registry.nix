@@ -32,51 +32,55 @@ let
   #   internal → LAN only, DDNS → router IP, external IPs blocked
   #   public   → LAN + WAN, compression, no streaming timeouts
   #   none     → no Caddy vHost (e.g. cloudflare-dns)
-  mkService = name: number: class: {
+  # profile: systemd-hardening profile from lib/hardening-profiles.nix
+  #   (base | dotnet | dotnet-gpu | python | nodejs | network | script)
+  mkService = name: number: class: profile: {
     inherit name;
     num    = number;
     port   = number * 10;        # Port = Number × 10 (ADR-5043)
     uid    = number * 10;         # UID = Port (isomorph)
     gid    = 5000;               # shared mediNix media group
     caddyClass = class;
+    hardeningProfile = profile;
   };
-  mkNoPort = name: number: {
+  mkNoPort = name: number: profile: {
     inherit name;
     num    = number;
     port   = null;               # no network service
     uid    = null;
     gid    = 5000;
     caddyClass = "none";
+    hardeningProfile = profile;
   };
 in
 {
   services = {
     # Ingress (folder 51)
-    caddy          = mkService "caddy" 511 "stream";
-    pocket-id      = mkService "pocket-id" 512 "public";
-    cloudflare-dns = mkNoPort "cloudflare-dns" 513;
+    caddy          = mkService "caddy" 511 "stream" "network";
+    pocket-id      = mkService "pocket-id" 512 "public" "network";
+    cloudflare-dns = mkNoPort "cloudflare-dns" 513 "script";
 
-    # Acquisition (*arr stack — folder 53)
-    sonarr   = mkService "sonarr" 532 "internal";
-    radarr   = mkService "radarr" 533 "internal";
-    readarr  = mkService "readarr" 534 "internal";
-    lidarr   = mkService "lidarr" 535 "internal";
-    prowlarr = mkService "prowlarr" 536 "internal";
+    # Acquisition (*arr stack — folder 53) — all .NET
+    sonarr   = mkService "sonarr" 532 "internal" "dotnet";
+    radarr   = mkService "radarr" 533 "internal" "dotnet";
+    readarr  = mkService "readarr" 534 "internal" "dotnet";
+    lidarr   = mkService "lidarr" 535 "internal" "dotnet";
+    prowlarr = mkService "prowlarr" 536 "internal" "dotnet";
 
-    # Transfer (folder 54)
-    sabnzbd  = mkService "sabnzbd" 541 "internal";
+    # Transfer (folder 54) — Python
+    sabnzbd  = mkService "sabnzbd" 541 "internal" "python";
 
-    # Playback (folder 55)
-    jellyfin       = mkService "jellyfin" 551 "stream";
-    audiobookshelf = mkService "audiobookshelf" 552 "stream";
-    navidrome      = mkService "navidrome" 553 "stream";
-    feishin        = mkService "feishin" 554 "stream";
+    # Playback (folder 55) — Jellyfin GPU, rest nodejs/network
+    jellyfin       = mkService "jellyfin" 551 "stream" "dotnet-gpu";
+    audiobookshelf = mkService "audiobookshelf" 552 "stream" "nodejs";
+    navidrome      = mkService "navidrome" 553 "stream" "nodejs";
+    feishin        = mkService "feishin" 554 "stream" "network";
 
-    # Requests (folder 56)
-    jellyseerr = mkService "jellyseerr" 561 "public";
+    # Requests (folder 56) — .NET
+    jellyseerr = mkService "jellyseerr" 561 "public" "dotnet";
 
-    # Observability (folder 58)
-    ntfy = mkService "ntfy" 581 "public";
+    # Observability (folder 58) — Go binary, network port-binding
+    ntfy = mkService "ntfy" 581 "public" "network";
   };
 
   # For backward compat: only services with a port

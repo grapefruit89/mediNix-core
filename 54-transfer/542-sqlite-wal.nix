@@ -40,11 +40,15 @@ in
       ++ lib.optional svc.services.readarr.enable "readarr.service"
       ++ lib.optional svc.services.lidarr.enable "lidarr.service";
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";  # needs write to state dirs
-      UMask = "002";
-    };
+    serviceConfig = lib.mkMerge [
+      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type = "oneshot";
+        User = "root";  # needs write to state dirs
+        UMask = "002";
+      }
+    ];
     script = ''
       set -euo pipefail
       for dir in ${lib.concatStringsSep " " arrStateDirs}; do

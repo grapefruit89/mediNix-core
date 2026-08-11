@@ -36,15 +36,17 @@ in
 
   systemd.services.sqlite-optimize = {
     description = "Weekly SQLite PRAGMA optimize + WAL checkpoint";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "media";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      PrivateTmp = true;
-      ReadWritePaths = arrStateDirs;
-    };
+    serviceConfig = lib.mkMerge [
+      # script-Profil: PrivateNetwork=true, MemoryDenyWriteExecute=true (bash)
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type = "oneshot";
+        User = "media";
+        Group = "media";
+        UMask = "002";
+        ReadWritePaths = arrStateDirs;
+      }
+    ];
     script = ''
       set -euo pipefail
       for dir in ${lib.concatStringsSep " " arrStateDirs}; do

@@ -7,57 +7,46 @@
 # complexity: 4
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-0000
+#   adr: ADR-0000, ADR-5050
 # provides: ["mkService"]
-# requires: []
+# requires: ["./hardening-profiles.nix"]
 # ports: []
-# upstream_docs: []
-# forum_links: []
 # upstream_github: "https://github.com/grapefruit89/mediNix-core"
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: true
 # ---
-
+#
 # lib/service-factory.nix — Systemd-native Service Factory
 # Generates a systemd service from a descriptor attrset. No docker, no netns.
+# Hardening comes from lib/hardening-profiles.nix (profile selected in registry).
 { lib, config, ... }:
 
+let
+  profiles = import ./hardening-profiles.nix { inherit lib; };
+in
 { name            # service name (kebab-case)
 , port            # port number from registry
 , uid             # UID from registry
 , execStart       # the start command as string
 , stateDir        # e.g. "/var/lib/jellyfin-5510"
-, extraConfig ? {} # additional serviceConfig fields
+, profile ? "base" # hardening profile name (from registry.hardeningProfile)
+, extraConfig ? {} # additional serviceConfig fields (service-specific deviations)
 }:
 {
   systemd.services."${name}" = {
     wantedBy = [ "multi-user.target" ];
-    after    = [ "network.target" ];
+    after    = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
     serviceConfig = lib.mkMerge [
+      # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
+      (profiles.${profile} or profiles.base)
+      # 2) Service-spezifische Basis (User/Exec/State)
       {
         User             = "${name}";
         Group            = "media";
         ExecStart        = execStart;
         StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
         RuntimeDirectory = name;
-        # systemd Hardening Baseline (ADR-5050)
-        NoNewPrivileges       = true;
-        ProtectSystem         = "strict";
-        ProtectHome           = true;
-        PrivateTmp            = true;
-        PrivateDevices        = true;  # per-service overridable
-        ProtectKernelModules  = true;
-        ProtectKernelTunables = true;
-        RestrictNamespaces   = true;
-        RestrictRealtime     = true;
-        LockPersonality      = true;
-        MemoryDenyWriteExecute = true;
-        SystemCallFilter      = "@system-service";
-        Restart              = "on-failure";
-        RestartSec           = "5s";
       }
+      # 3) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
       extraConfig
     ];
   };

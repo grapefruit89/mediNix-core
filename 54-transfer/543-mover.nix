@@ -35,16 +35,17 @@ in lib.mkIf cfg.enable {
 
   systemd.services.tier-b-cleanup = {
     description = "Tier-B Cleanup: remove already-imported downloads older than ${toString cfg.retentionDays}d";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "media";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      ReadWritePaths = [ completeDir ];
-    };
+    serviceConfig = lib.mkMerge [
+      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type = "oneshot";
+        User = "media";
+        Group = "media";
+        UMask = "002";
+        ReadWritePaths = [ completeDir ];
+      }
+    ];
     script = ''
       set -euo pipefail
       COMPLETE="${completeDir}"

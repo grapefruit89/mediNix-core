@@ -29,15 +29,20 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       # Idempotent: nur wenn Flag NICHT existiert
       ConditionPathExists = "!/var/lib/mediNix-provisioned";
     };
-    serviceConfig = {
-      Type = "oneshot";
-      User = "media";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      PrivateTmp = true;
-      ReadWritePaths = [ "/var/lib" ];
-    };
+    serviceConfig = lib.mkMerge [
+      # script-Profil: PrivateNetwork=true (curl braucht Netz — aber wir lassen es,
+      # da es nur localhost ist; Profile hat PrivateNetwork=true, hier überschrieben)
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script // {
+        PrivateNetwork = false;  # localhost API calls (127.0.0.1)
+      }
+      {
+        Type = "oneshot";
+        User = "media";
+        Group = "media";
+        UMask = "002";
+        ReadWritePaths = [ "/var/lib" ];
+      }
+    ];
     path = [ pkgs.curl pkgs.jq ];
     script = ''
       set -euo pipefail

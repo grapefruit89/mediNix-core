@@ -39,17 +39,18 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
     description = "Cloudflare DDNS Sync (mediNix-core)";
     wantedBy = [ "multi-user.target" ];
     after    = [ "network.target" ];
-    serviceConfig = {
-      Type            = "oneshot";
-      User            = "cloudflare-ddns";
-      Group           = "media";
-      NoNewPrivileges = true;
-      ProtectSystem   = "strict";
-      PrivateTmp      = true;
-      # Token aus systemd-credentials (ADR-5000)
-      LoadCredentialEncrypted = lib.mkIf (ddns.tokenCredential != null)
-        "cf-ddns-token:${ddns.tokenCredential}";
-    };
+    serviceConfig = lib.mkMerge [
+      # script-Profil: PrivateNetwork=true, MemoryDenyWriteExecute=true
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type            = "oneshot";
+        User            = "cloudflare-ddns";
+        Group           = "media";
+        # Token aus systemd-credentials (ADR-5000)
+        LoadCredentialEncrypted = lib.mkIf (ddns.tokenCredential != null)
+          "cf-ddns-token:${ddns.tokenCredential}";
+      }
+    ];
     # Token alternativ via EnvironmentFile (agenix/sops-nix)
     environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
     script = ''

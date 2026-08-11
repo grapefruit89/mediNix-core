@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5530
+#   adr: ADR-5530, ADR-5050
 #   skill: nixos-context7-gate
 #   gold: CLAUDE.md (media group via mkAfter — sonst silent empty library)
 # context7:
@@ -24,6 +24,7 @@ let
   uid  = 5530;
   gid  = 5000;
   stateDir = "/var/lib/navidrome-${toString port}";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 {
   users.users.navidrome = {
@@ -38,20 +39,20 @@ in
     after = [ "network-online.target" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml";
-      User = "navidrome";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      StateDirectory = "navidrome-${toString port}";
-      # Tier 1 state + Tier 3 music (read-only)
-      ReadWritePaths = [ stateDir ];
-      BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
-    };
+    serviceConfig = lib.mkMerge [
+      # nodejs-Profil: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
+      profiles.nodejs
+      {
+        ExecStart = "${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml";
+        User = "navidrome";
+        Group = "media";
+        UMask = "002";
+        StateDirectory = "navidrome-${toString port}";
+        # Tier 1 state + Tier 3 music (read-only)
+        ReadWritePaths = [ stateDir ];
+        BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
+      }
+    ];
     # OIDC via EnvironmentFile (ADR-5000: keine inline secrets)
     environment = lib.mkIf (cfg.oidcFile != null) {
       ND_OIDC_CLIENT_ID_FILE = cfg.oidcFile;

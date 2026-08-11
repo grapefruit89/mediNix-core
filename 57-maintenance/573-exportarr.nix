@@ -35,16 +35,16 @@ let
       after = [ "network-online.target" "${e.name}-${toString e.port}.service" ];
       requires = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        ExecStart = "${pkgs.exportarr}/bin/exportarr ${e.name} --port ${toString (e.port + 1000)} --url http://127.0.0.1:${toString e.port}";
-        User = "media";
-        Group = "media";
-        UMask = "002";
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        PrivateTmp = true;
-        NoNewPrivileges = true;
-      };
+      serviceConfig = lib.mkMerge [
+        # network-Profil: Go-Binary, Port-Binding via CAP_NET_BIND_SERVICE
+        (import ../lib/hardening-profiles.nix { inherit lib; }).network
+        {
+          ExecStart = "${pkgs.exportarr}/bin/exportarr ${e.name} --port ${toString (e.port + 1000)} --url http://127.0.0.1:${toString e.port}";
+          User = "media";
+          Group = "media";
+          UMask = "002";
+        }
+      ];
       # API-Key via EnvironmentFile (ADR-5000)
       environmentFile = lib.mkIf (svc.services.${e.name}.apiKeyFile != null)
         svc.services.${e.name}.apiKeyFile;

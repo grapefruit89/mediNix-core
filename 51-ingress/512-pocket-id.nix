@@ -40,15 +40,17 @@ lib.mkIf (cfg.enable && active) {
     group = "media";  # shared GID 5000 per ADR-0000
   };
 
-  # Hardening baseline (ADR-5050)
+  # Hardening: network-Profil (CAP_NET_BIND_SERVICE für 5120, PrivateDevices=true)
   systemd.services.pocket-id = {
-    serviceConfig = {
-      ProtectSystem = "strict";
-      PrivateTmp    = true;
-      NoNewPrivileges = true;
-      RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
-      ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
-    };
+    serviceConfig = lib.mkMerge [
+      (import ../lib/hardening-profiles.nix { inherit lib; }).network
+      {
+        User  = "pocket-id";
+        Group = "media";
+        RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
+        ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
+      }
+    ];
   };
 
   users.users.pocket-id = {

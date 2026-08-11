@@ -108,20 +108,17 @@ in lib.mkIf (cfg.enable && ing.enable) {
     description = "Caddy Media Ingress (mediNix-core standalone)";
     wantedBy    = [ "multi-user.target" ];
     after       = [ "network.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.caddy}/bin/caddy run --config /run/caddy-media/Caddyfile";
-      RuntimeDirectory = "caddy-media";
-      StateDirectory   = "caddy-media";
-      User  = "caddy-media";
-      Group = "media";
-      CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
-      AmbientCapabilities   = "CAP_NET_BIND_SERVICE";
-      NoNewPrivileges = true;
-      ProtectSystem   = "strict";
-      PrivateTmp      = true;
-      RestrictNamespaces = true;
-      LockPersonality = true;
-    };
+    serviceConfig = lib.mkMerge [
+      # network-Profil: CAP_NET_BIND_SERVICE, PrivateDevices=true
+      (import ../lib/hardening-profiles.nix { inherit lib; }).network
+      {
+        ExecStart = "${pkgs.caddy}/bin/caddy run --config /run/caddy-media/Caddyfile";
+        RuntimeDirectory = "caddy-media";
+        StateDirectory   = "caddy-media";
+        User  = "caddy-media";
+        Group = "media";
+      }
+    ];
   };
 
   users.users.caddy-media = lib.mkIf (!useGlobal) {

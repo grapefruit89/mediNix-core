@@ -35,6 +35,13 @@ in
 {
   # Für jeden aktiven Dienst mit ApiKeyFile: LoadCredentialEncrypted injizieren.
   # (Context7-verifiziert: serviceConfig.LoadCredential[Encrypted] = ["name:path"])
+  #
+  # KOMPATIBILITÄT mit ProtectSystem=strict (aus hardening-profiles):
+  # LoadCredentialEncrypted mounted Secrets in /run/credentials/<unit>/ (tmpfs,
+  # read-only für den Prozess). ProtectSystem=strict macht nur /usr,/boot,/etc
+  # read-only — /run bleibt beschreibbar. KEINE Konflikte. systemd verwaltet
+  # das Credential-Mount vor dem ExecStart, daher sieht der Dienst nur
+  # /run/credentials/.../name-api-key, nicht die Original-Datei auf Disk.
   config.systemd.services = lib.mapAttrs' (name: path:
     lib.nameValuePair "mediNix-${name}" {
       serviceConfig.LoadCredentialEncrypted = [ "${name}-api-key:${path}" ];

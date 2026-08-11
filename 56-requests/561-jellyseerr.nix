@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5610
+#   adr: ADR-5610, ADR-5050
 #   skill: nixos-context7-gate
 #   repo-harvest: Fallenbagel/jellyseerr (Node.js, default port 5055 → 5610)
 # context7:
@@ -24,6 +24,7 @@ let
   uid  = 5610;
   gid  = 5000;
   stateDir = "/var/lib/jellyseerr-${toString port}";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 {
   users.users.jellyseerr = {
@@ -36,21 +37,20 @@ in
     after = [ "network-online.target" "jellyfin-5510.service" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.jellyseerr}/bin/jellyseerr --port ${toString port} --host 127.0.0.1";
-      User = "jellyseerr";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      StateDirectory = "jellyseerr-${toString port}";
-      ReadWritePaths = [ stateDir ];
-      # Node.js → seccomp SIGSYS riskant, EPERM statt kill (CLAUDE.md gold, ADR-5050)
-      SystemCallErrorNumber = "EPERM";
-      # caddyClass=public from registry → LAN+WAN, compression (handled by 511-caddy)
-    };
+    serviceConfig = lib.mkMerge [
+      # .NET-Profil: MemoryDenyWriteExecute=false (JIT), PrivateDevices=true
+      # SystemCallErrorNumber=EPERM kommt aus base-Profil (kein SIGSYS-Kill)
+      profiles.dotnet
+      {
+        ExecStart = "${pkgs.jellyseerr}/bin/jellyseerr --port ${toString port} --host 127.0.0.1";
+        User = "jellyseerr";
+        Group = "media";
+        UMask = "002";
+        StateDirectory = "jellyseerr-${toString port}";
+        ReadWritePaths = [ stateDir ];
+        # caddyClass=public from registry → LAN+WAN, compression (handled by 511-caddy)
+      }
+    ];
     # Env-File via EnvironmentFile (ADR-5000: keine inline secrets)
     environmentFile = lib.mkIf (cfg.envFile != null) cfg.envFile;
   };

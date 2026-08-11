@@ -43,20 +43,20 @@ in lib.mkIf cfg.enable {
     description = "Recyclarr TRaSH-Guides sync";
     after = [ "network-online.target" ] ++ lib.optional svc.services.sonarr.enable "sonarr-5320.service"
       ++ lib.optional svc.services.radarr.enable "radarr-5330.service";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "recyclarr";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      StateDirectory = "recyclarr-${toString cfg.port}";
-      ReadWritePaths = [ stateDir ];
-      # Harvester #911: multi-instance split bug → sync each instance separately
-      # via -i flag in script loop (nicht bare `recyclarr sync`)
-    };
+    serviceConfig = lib.mkMerge [
+      # network-Profil: braucht Netz für API-Sync, MemoryDenyWriteExecute=true (Go/.NET)
+      (import ../lib/hardening-profiles.nix { inherit lib; }).network
+      {
+        Type = "oneshot";
+        User = "recyclarr";
+        Group = "media";
+        UMask = "002";
+        StateDirectory = "recyclarr-${toString cfg.port}";
+        ReadWritePaths = [ stateDir ];
+        # Harvester #911: multi-instance split bug → sync each instance separately
+        # via -i flag in script loop (nicht bare `recyclarr sync`)
+      }
+    ];
     environment = {
       RECYCLARR_CONFIG = "${stateDir}/recyclarr.yml";
     };

@@ -7,7 +7,7 @@
 # complexity: 4
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5410
+#   adr: ADR-5410, ADR-5050
 #   skill: nixos-context7-gate
 #   repo-harvest: sabnzbd/sabnzbd (no unix socket; -b 0 not -d for systemd; TimeoutStopSec loop #992)
 # context7:
@@ -24,6 +24,7 @@ let
   uid  = 5410;
   gid  = 5000;
   stateDir = "/var/lib/sabnzbd-${toString port}";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 {
   users.users.sabnzbd = {
@@ -37,6 +38,8 @@ in
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
+      # Python-Profil: MemoryDenyWriteExecute=true, PrivateDevices=true
+      profiles.python
       {
         Type = "simple";
         ExecStart = "${pkgs.sabnzbd}/bin/sabnzbd -b 0 -f ${stateDir}/sabnzbd.ini --host 127.0.0.1 --port ${toString port}";
@@ -45,12 +48,6 @@ in
         UMask = "002";
         # Harvester #992: SABnzbd needs time to graceful-stop, else kill loop
         TimeoutStopSec = 30;
-        # Harvester: no unix socket support — TCP on loopback only (never 0.0.0.0)
-        PrivateDevices = true;  # no hardware needed
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        PrivateTmp = true;
-        NoNewPrivileges = true;
         StateDirectory = "sabnzbd-${toString port}";
         ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
       }

@@ -7,13 +7,13 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5320
+#   adr: ADR-5320, ADR-5050
 #   skill: nixos-context7-gate
-#   repo-harvest: Sonarr/Sonarr (sonarr.service: -data=/var/lib/sonarr, UMask=002; issues #7442/.NET6 EOL, #7686 remote-path perms)
+#   repo-harvest: Sonarr/Sonarr (sonarr.service: -data=/var/lib/sonarr, UMask=002)
 # context7:
-#   - query: "systemd.services serviceConfig ProtectSystem StateDirectory example"
+#   - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
 #     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "StateDirectory + ProtectSystem=strict + ReadWritePaths"
+#     snippet: "NoNewPrivileges=true, ProtectSystem=strict, MemoryDenyWriteExecute valid"
 # ---
 { config, lib, pkgs, ... }:
 
@@ -23,35 +23,32 @@ let
   port = 5320;  # 532 × 10
   uid  = 5320;
   gid  = 5000;
+  stateDir = "/var/lib/sonarr-${toString port}";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 {
   users.users.sonarr = {
-    uid = uid;
-    group = "media";
-    extraGroups = [ "media" ];
-    home = "/var/lib/sonarr-${toString port}";
-    isSystemUser = true;
+    uid = uid; group = "media"; extraGroups = [ "media" ];
+    home = stateDir; isSystemUser = true;
   };
   users.groups.media.gid = gid;
 
   systemd.services.sonarr = {
-    after = [ "network-online.target" "prowlarr.service" ];
+    after    = [ "network-online.target" "prowlarr.service" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=/var/lib/sonarr-${toString port}";
-      User = "sonarr";
-      Group = "media";
-      UMask = "002";
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      StateDirectory = "sonarr-${toString port}";
-      ReadWritePaths = [ "/var/lib/sonarr-${toString port}" config.grapefruitMedia.storage.mediaRoot ];
-      # AUTH: External wenn Auth-Proxy present (Pocket ID / Caddy forward-auth)
-      # Sonarr liest AUTH__METHOD aus env (Servarr-Pattern)
-    };
+    serviceConfig = lib.mkMerge [
+      # Zentrales .NET-Hardening-Profil (ADR-5050) — keine per-Modul Duplikate
+      profiles.dotnet
+      {
+        User           = "sonarr";
+        Group          = "media";
+        ExecStart      = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
+        StateDirectory = "sonarr-${toString port}";
+        UMask          = "002";
+        ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+      }
+    ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { SONARR_API_KEY_FILE = cfg.apiKeyFile; })
       (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })

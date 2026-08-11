@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5810
+#   adr: ADR-5810, ADR-5050
 #   skill: nixos-context7-gate
 #   repo-harvest: ntfy.sh (Go binary, native arr/Jellyfin support)
 # context7:
@@ -24,6 +24,7 @@ let
   uid  = 5810;
   gid  = 5000;
   stateDir = "/var/lib/ntfy-sh-${toString port}";
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in lib.mkIf cfg.enable {
   users.users.ntfy = {
     uid = uid; group = "media"; extraGroups = [ "media" ];
@@ -39,6 +40,9 @@ in lib.mkIf cfg.enable {
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
     };
+    # network-Profil: CAP_NET_BIND_SERVICE für Port 80/443 (falls direkt exposed),
+    # MemoryDenyWriteExecute=true (Go braucht das nicht), PrivateDevices=true
+    serviceConfig = lib.mkMerge [ profiles.network { User = "ntfy"; Group = "media"; } ];
   };
 
   # caddyClass=public → LAN+WAN erreichbar (notifications from mobile)
