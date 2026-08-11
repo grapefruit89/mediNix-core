@@ -9,6 +9,7 @@ Records). Module-local patterns stay in the `.nix` files themselves.
 | ADR | Dienst | Port | Title | Status |
 |-----|--------|------|-------|--------|
 | [ADR-0000](ADR-0000-dezimalrahmen-verfassung.md) | — | — | VERFASSUNG: Dezimalrahmen Nummernschema | accepted |
+| [ADR-0001](ADR-0001-source-repository-registry.md) | — | — | Source Repository Registry (grapefruit89 nix-repos) | active |
 | [ADR-21](ADR-21-ssh-port-policy.md) | — | 22 | SSH canonical port 22 (high ports deprecated) | active |
 | [ADR-5000](ADR-5000-secret-management.md) | 500 | 5000 | sops-nix → systemd-credentials migration | active |
 | [ADR-5010](ADR-5010-nixgrok-architecture-review.md) | 501 | 5010 | Nix-Grok arch review, isomorphism validated | active |
