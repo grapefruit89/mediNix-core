@@ -1,32 +1,57 @@
 # ---
-# id: "561-feishin"
-# title: "Feishin Music Client (static, served by Caddy)"
-# domain: 50
-# folder: 56-requests
+# id: "554-feishin"
+# title: "Feishin — static SPA for Navidrome/Jellyfin (55-playback, Dienst 554)"
+# domain: 55
+# folder: 55-playback
 # status: active
-# complexity: 1
-# last_reviewed: 2026-08-10
+# complexity: 2
+# last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-45-navidrome
-# provides: []
-# requires: ["511-caddy", "553-navidrome"]
-# ports: []
-# upstream_docs: ["https://feishin.vercel.app/"]
-# forum_links: []
-# upstream_github: "https://github.com/jeffvli/feishin"
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: false
+#   adr: ADR-5530
+#   skill: nixos-context7-gate
+#   gold: CLAUDE.md (no process; static files; try_files mandatory; not a replacement)
+# context7:
+#   - query: "services.caddy virtualHosts extraConfig file_server try_files example"
+#     library: /websites/nixos_manual_nixos_unstable
+#     snippet: "extraConfig file_server + try_files {path} /index.html for SPA"
 # ---
-# 55-playback/554-feishin.nix — Feishin Music Client
-{ lib, pkgs, config, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
-in
-{
-  # Feishin is a static client (no process, served by Caddy)
-  # Just add to registry for ingress
-  # (Handled in 51-ingress via registry)
+  cfg = config.grapefruitMedia.services.feishin;
+  svc = config.grapefruitMedia;
+  # No process — pure static SPA. Number 554 exists for registry completeness.
+  # Port 5540 is never bound; Caddy serves the SPA.
+in lib.mkIf (cfg.enable) {
+  # Feishin SPA served via Caddy (caddyClass=stream from registry → auto vHost).
+  # We inject the file_server block through the Caddyfile extraConfig.
+  # The 511-caddy.nix stream template already adds flush_interval -1; here we
+  # force a static file_server with SPA try_files.
+  # NOTE: This is layered on top of the stream template via a dedicated vHost.
+  environment.etc."caddy-media/feishin-include" = lib.mkIf (!config.services.caddy.enable) {
+    text = ''
+      file_server * {
+        root * ${pkgs.feishin-web}/share/feishin-web
+        try_files {path} /index.html
+      }
+    '';
+  };
+
+  # If global Caddy is used, inject via virtualHosts extraConfig
+  services.caddy.virtualHosts = lib.mkIf config.services.caddy.enable {
+    "feishin.${svc.domain}" = {
+      extraConfig = ''
+        file_server * {
+          root * ${pkgs.feishin-web}/share/feishin-web
+          try_files {path} /index.html
+        }
+      '';
+    };
+  };
+
+  # Assertion: Feishin needs a backend (Navidrome/Jellyfin) — CLAUDE.md gold
+  assertions = [ {
+    assertion = svc.services.navidrome.enable || svc.services.jellyfin.enable || cfg.serverUrl != null;
+    message = "554-feishin: needs Navidrome, Jellyfin, or explicit serverUrl — SPA has no backend otherwise.";
+  } ];
 }

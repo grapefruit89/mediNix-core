@@ -1,103 +1,63 @@
 # ---
 # id: "552-audiobookshelf"
-# domain: "50"
-# status: "active"
-# layer: 4
-# purpose: "Audiobookshelf Audiobook/Podcast Server"
-# provides: [audiobookshelf]
-# requires: [grapefruitMedia.storage, grapefruitMedia.hardware]
-# ports: [5520]
-# state_dir: "/var/lib/audiobookshelf"
-# tags: [audiobookshelf, audiobooks, streaming]
+# title: "Audiobookshelf — Audiobooks & Podcasts (55-playback, Dienst 552)"
+# domain: 55
+# folder: 55-playback
+# status: active
+# complexity: 4
+# last_reviewed: 2026-08-11
+# links:
+#   adr: ADR-5520
+#   skill: nixos-context7-gate
+#   gold: CLAUDE.md (seccomp SIGSYS → SystemCallErrorNumber=EPERM; 200 expected)
+# context7:
+#   - query: "systemd.services serviceConfig SystemCallErrorNumber SystemCallFilter example"
+#     library: /websites/nixos_manual_nixos_unstable
+#     snippet: "SystemCallFilter + SystemCallErrorNumber=EPERM to avoid silent SIGSYS kill"
 # ---
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
+
 let
-  cfgGlobal = config.grapefruitMedia;
-  cfg = cfgGlobal.audiobookshelf;
-  factory = import ../lib/service-factory.nix { inherit lib; };
-  memory = import ../lib/memory-policy.nix {
-    inherit lib;
-    ramGB = cfgGlobal.hardware.ramGB;
-  };
-  port = cfgGlobal.ports.audiobookshelf;
-  mediaRoot = cfgGlobal.storage.mediaRoot;
-  storageReady = cfgGlobal.storage.enable;
+  cfg = config.grapefruitMedia.services.audiobookshelf;
+  svc = config.grapefruitMedia;
+  port = 5520;  # 552 × 10
+  uid  = 5520;
+  gid  = 5000;
+  stateDir   = "/var/lib/audiobookshelf-${toString port}";
+  metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
 in
 {
-  config = lib.mkIf (cfgGlobal.enable && cfg.enable) (
-    lib.mkMerge [
-      {
-        services.audiobookshelf = {
-          enable = true;
-          host = "127.0.0.1";
-          inherit port;
-          group = "media";
-          package = lib.mkIf (cfgGlobal.audiobookshelf.package != null) cfgGlobal.audiobookshelf.package;
-        };
+  users.users.audiobookshelf = {
+    uid = uid; group = "media"; extraGroups = [ "media" ];
+    home = stateDir; isSystemUser = true;
+  };
+  users.groups.media.gid = gid;
 
-        users.users.audiobookshelf.extraGroups = lib.mkAfter [
-          "media"
-          "video"
-          "render"
-        ];
-
-        hardware.graphics = lib.mkIf cfg.enableQuickSync {
-          enable = lib.mkDefault true;
-          extraPackages = with pkgs; [
-            intel-media-driver
-            intel-compute-runtime-legacy1
-          ];
-        };
-      }
-
-      (factory.mkService {
-        inherit config;
-        name = "audiobookshelf";
-        inherit port;
-        hardeningProfile = "node";
-        persistDirs = [ "/var/lib/audiobookshelf" ];
-        privateDevices = !cfg.enableQuickSync;
-        readWritePaths = [
-          "/var/lib/audiobookshelf"
-        ]
-        ++ lib.optionals storageReady [
-          "${mediaRoot}/books"
-          "${mediaRoot}/audiobooks"
-          "${mediaRoot}/podcasts"
-        ];
-        memoryPolicy = memory.audiobookshelf { };
-        extraSystemd = {
-          Restart = lib.mkForce "on-failure";
-        }
-        // lib.optionalAttrs cfg.enableQuickSync {
-          PrivateDevices = lib.mkForce false;
-          DeviceAllow = [
-            "/dev/dri rw"
-            "/dev/dri/card0 rw"
-            "/dev/dri/renderD128 rw"
-          ];
-        };
-      })
-
-      (lib.mkIf cfg.enableQuickSync {
-        systemd.services.audiobookshelf.environment = {
-          LIBVA_DRIVER_NAME = "iHD";
-          LIBVA_DRIVERS_PATH = "${pkgs.intel-media-driver}/lib/dri";
-        };
-      })
-
-      (lib.mkIf storageReady {
-        systemd.tmpfiles.rules = [
-          "d ${mediaRoot}/books 0775 audiobookshelf media -"
-          "d ${mediaRoot}/audiobooks 0775 audiobookshelf media -"
-          "d ${mediaRoot}/podcasts 0775 audiobookshelf media -"
-        ];
-      })
-    ]
-  );
+  systemd.services.audiobookshelf = {
+    after = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.audiobookshelf}/bin/audiobookshelf";
+      User = "audiobookshelf";
+      Group = "media";
+      UMask = "002";
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+      StateDirectory = "audiobookshelf-${toString port}";
+      # Tier 2 metadata (rw) + Tier 3 media (rw, ABS writes covers)
+      ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
+      # CLAUDE.md gold: seccomp SIGSYS kills silently → EPERM instead
+      SystemCallFilter = [ "@system-service" ];
+      SystemCallErrorNumber = "EPERM";
+    };
+    environment = {
+      PORT = toString port;
+      CONFIG_PATH = stateDir;
+      METADATA_PATH = metadataDir;
+      AUDIOBOOKS_PATH = "${svc.storage.mediaRoot}/audiobooks";
+    };
+  };
 }

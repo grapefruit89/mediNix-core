@@ -1,47 +1,66 @@
 # ---
 # id: "551-jellyfin"
-# title: "Jellyfin Media Server (QSV, native systemd)"
-# domain: 50
+# title: "Jellyfin — Media Playback (55-playback, Dienst 551)"
+# domain: 55
 # folder: 55-playback
 # status: active
 # complexity: 4
-# last_reviewed: 2026-08-10
+# last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-50-media
-# provides: []
-# requires: ["lib/registry", "lib/service-factory"]
-# ports: [5510]
-# upstream_docs: ["https://jellyfin.org/docs/"]
-# forum_links: []
-# upstream_github: "https://github.com/jellyfin/jellyfin"
-# nixpkgs_attr: "services.jellyfin"
-# state_dir: "/var/lib/jellyfin"
-# uds_socket: false
-# systemd_hardened: true
+#   adr: ADR-5510
+#   skill: nixos-context7-gate
+#   unraid_ref: jellyfin container --tmpfs /transcode:size=4G --group-add video
+# context7:
+#   - query: "systemd.services serviceConfig TemporaryFileSystem tmpfs RuntimeDirectory example"
+#     library: /websites/nixos_manual_nixos_unstable
+#     snippet: "serviceConfig.TemporaryFileSystem + SupplementaryGroups (video) valid"
 # ---
-# 55-playback/551-jellyfin.nix — Jellyfin Media Server
-{ lib, pkgs, config, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
-  svc = (import ../lib/registry.nix { inherit lib; }).jellyfin;
+  cfg = config.grapefruitMedia.services.jellyfin;
+  svc = config.grapefruitMedia;
+  port = 5510;  # 551 × 10
+  uid  = 5510;
+  gid  = 5000;
+  stateDir   = "/var/lib/jellyfin-${toString port}";
+  metadataDir = "${svc.storage.metadataDir}/jellyfin";
 in
 {
-  services.jellyfin = {
-    enable = true;
-    user = svc.name;
-    group = "media";
+  users.users.jellyfin = {
+    uid = uid; group = "media"; extraGroups = [ "media" "video" ];
+    home = stateDir; isSystemUser = true;
   };
+  users.groups.media.gid = gid;
 
   systemd.services.jellyfin = {
+    after = [ "network-online.target" ];
+    requires = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      # Isolation: Loopback only (Jellyfin needs 127.0.0.1 for metadata APIs)
-      RestrictNetworkInterfaces = [ "lo" ];
-      # Hardware acceleration (optional, auto-detected)
-      DeviceAllow = [ "/dev/dri/card0" "/dev/dri/renderD128" ];
+      ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir ${metadataDir} --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
+      User = "jellyfin";
+      Group = "media";
+      UMask = "002";
+      # Jellyfin-Harvest: /dev/dri (VA-API GPU) MUST be visible
+      PrivateDevices = false;
+      SupplementaryGroups = [ "video" ];
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+      StateDirectory = "jellyfin-${toString port}";
+      # Tier 3 (HDD media) read-only — reicht
+      ReadWritePaths = [ stateDir metadataDir ];
+      BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
+      # Docker --tmpfs /transcode:size=4G → tmpfs for HW-transcode
+      TemporaryFileSystem = "/transcode:size=4G";
+      RuntimeDirectory = "jellyfin-transcode";
+    };
+    environment = {
+      JELLYFIN_PublishedServerUrl = "https://jellyfin.${svc.domain}";
+      # HW-transcode temp dir
+      JELLYFIN_TRANSCODE_DIR = "/transcode";
     };
   };
-
-  # Open ports for Jellyfin (via Caddy, not directly)
-  networking.firewall.allowedTCPPorts = [ svc.port ];
 }
