@@ -29,6 +29,16 @@ vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
 
 - **CrowdSec:** Caddy-Plugin-Hash (`caddy-cs-bouncer`) muss vor erstem Build via `nix build` ermittelt und in `511-caddy.nix` (`services.caddy.package` bei `observability.crowdsec.enable`) eingetragen werden. Aktuell `lib.fakeHash` als Platzhalter — Build-Fehler zeigt den korrekten Hash. Nur nötig wenn `observability.crowdsec.enable = true`.
 
+  Hash ermitteln (einmalig auf q958):
+  ```bash
+  nix build --impure --expr \
+    '(import <nixpkgs> {}).caddy.withPlugins {
+      plugins = ["github.com/crowdsecurity/caddy-cs-bouncer@latest"];
+      hash = "";
+    }' 2>&1 | grep "got:"
+  ```
+  Den ausgegebenen Hash in `511-caddy.nix` (`hash = "..."`) eintragen.
+
 - **Jellyfin:** Admin-Passwort aus `cfg.secrets.jellyfinAdminPasswordFile` — Datei muss vor Start existieren (LoadCredentialEncrypted). Ohne Datei: Jellyfin startet, aber Web-UI blockiert beim First-Run.
 - **SABnzbd:** startet mit `-b 0` (kein daemon-fork) — `Type=simple` ist korrekt, nicht `forking`. `TimeoutStopSec=30` (Harvester #992: graceful-stop sonst kill-loop).
 - **Audiobookshelf:** Port=5520 via Env-Var `PORT` gesetzt, NICHT in der App-Config. App bindet sonst 8000.

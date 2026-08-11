@@ -41,6 +41,9 @@ in lib.mkIf cfg.enable {
         Type = "oneshot";
         User = "media";
         Group = "media";
+        # nix flake metadata braucht nix-Daemon-Socket (ProtectSystem=strict
+        # + PrivateTmp blocken /nix/var/nix/daemon-socket sonst)
+        BindReadOnlyPaths = [ "/nix/var/nix/daemon-socket" ];
       }
     ];
     path = [ pkgs.nix pkgs.jq pkgs.curl ];  # nix + jq + curl explizit in PATH
