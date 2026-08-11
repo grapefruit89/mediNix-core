@@ -21,42 +21,377 @@
 # ---
 # 50-mediNix Master Boilerplate (SSoT)
 #
-# Auto-import: every XX-domain/NNN-*.nix module is imported automatically.
-# No hardcoded import list — adding a module file is enough. This is the
-# "flat auto-import" pattern (ADR-0000 §9, avoids nested folder breakage).
+# Portable module entrypoint. Auto-imports every XX-domain/NNN-*.nix module
+# (flat structure, ADR-0000 §9). No hardcoded import list.
+#
+# Options API ported from grapefruit89/mediNix (709-line default.nix), made
+# portable: no my.* references, all paths/domains via options (Regel 3).
 { lib, pkgs, config, ... }:
 
 let
   cfg = config.grapefruitMedia;
 
-  # Discover all domain directories (XX-*) and import their NNN-*.nix modules.
-  domainDirs = lib.filterAttrs (n: t: t == "directory" && builtins.match "[0-9]{2}-.*" n != null)
-    (builtins.readDir ./.);
+  # Helper: optional package override (null = nixpkgs default)
+  mkPackageOption = svc: lib.mkOption {
+    type        = lib.types.nullOr lib.types.package;
+    default     = null;
+    defaultText = lib.literalExpression "null";
+    description = ''
+      Optionales Paket-Override für ${svc}.
+      null = NixOS-Modul-Default aus nixpkgs.
+    '';
+  };
 
-  importModules = dir:
+  # Auto-import: every XX-domain/NNN-*.nix module
+  moduleFiles =
     let
-      files = builtins.readDir (./. + "/${dir}");
-      moduleFiles = lib.filterAttrs (n: t: t == "regular" && builtins.match "[0-9]{3}-.*\\.nix" n != null)
-        files;
+      entries        = builtins.readDir ./.;
+      isModuleDir    = n: t: t == "directory" && builtins.match "^[0-9]{2}-.*" n != null;
+      dirs           = builtins.attrNames (lib.filterAttrs isModuleDir entries);
+      importFromDir  = dir:
+        let
+          files = builtins.readDir (./. + "/${dir}");
+          moduleFiles = lib.filterAttrs
+            (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null)
+            files;
+        in
+          map (n: ./${dir}/${n}) (lib.attrNames moduleFiles);
     in
-      map (n: ./${dir}/${n}) (lib.attrNames moduleFiles);
-
-  allModules = lib.flatten (map importModules (lib.attrNames domainDirs));
+      lib.flatten (map importFromDir dirs);
 in
 {
-  imports = allModules;
+  imports = moduleFiles;
 
   options.grapefruitMedia = {
-    enable = lib.mkEnableOption "mediNix Media Stack";
-    storage.mediaRoot = lib.mkOption {
-      type = lib.types.str;
-      default = "/data/media";
+    enable = lib.mkEnableOption "Standalone Media Stack Module";
+
+    domain = lib.mkOption {
+      type    = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "media.example.com";
+      description = ''
+        Optionale Unicast-Base-Domain für die L2-vHosts ({service}.{domain}).
+        null = KEINE L2-Namen. L1-mDNS ({service}.local) läuft unabhängig immer.
+        WICHTIG: NIEMALS auf .local enden — .local ist Multicast-DNS (RFC 6762).
+      '';
     };
-    ports = lib.mkOption {
-      type = lib.types.attrs;
-      # SSoT: every port is derived from the registry (ADR-5043: Number × 10).
-      default = builtins.mapAttrs (_: svc: svc.port)
-        (import ./lib/registry.nix { inherit lib; });
+
+    # --- Service enable + package overrides ---
+    jellyfin = {
+      enable  = lib.mkEnableOption "Jellyfin Media Server";
+      package = mkPackageOption "jellyfin";
+    };
+    jellyseerr = {
+      enable  = lib.mkEnableOption "Jellyseerr Request Manager";
+      package = mkPackageOption "jellyseerr";
+    };
+    sonarr = {
+      enable  = lib.mkEnableOption "Sonarr TV Series Manager";
+      package = mkPackageOption "sonarr";
+    };
+    radarr = {
+      enable  = lib.mkEnableOption "Radarr Movies Manager";
+      package = mkPackageOption "radarr";
+    };
+    readarr = {
+      enable  = lib.mkEnableOption "Readarr Books Manager";
+      package = mkPackageOption "readarr";
+    };
+    prowlarr = {
+      enable  = lib.mkEnableOption "Prowlarr Indexer Proxy";
+      package = mkPackageOption "prowlarr";
+    };
+    sabnzbd = {
+      enable  = lib.mkEnableOption "SABnzbd Usenet Downloader";
+      package = mkPackageOption "sabnzbd";
+    };
+    audiobookshelf = {
+      enable  = lib.mkEnableOption "Audiobookshelf Server";
+      package = mkPackageOption "audiobookshelf";
+      enableQuickSync = lib.mkOption {
+        type        = lib.types.bool;
+        default     = true;
+        description = ''
+          NOTE (misnomer): enableQuickSync benennt Intel QSV Transcode-Mapping.
+          In mediNix-core zeigt dies korrekt auf Audiobookshelf-Hardware-Zugriff,
+          NICHT auf Jellyfin (ursprünglicher Fehler im Quell-Repo, hier korrigiert).
+        '';
+      };
+    };
+    navidrome = {
+      enable  = lib.mkEnableOption "Navidrome Music Server";
+      package = mkPackageOption "navidrome";
+    };
+    lidarr = {
+      enable  = lib.mkEnableOption "Lidarr Music Download Manager";
+      package = mkPackageOption "lidarr";
+    };
+    recyclarr = {
+      enable  = lib.mkEnableOption "Recyclarr custom format synchronization";
+      package = mkPackageOption "recyclarr";
+      schedule = lib.mkOption {
+        type    = lib.types.str;
+        default = "daily";
+        description = "Systemd calendar interval for Recyclarr runs.";
+      };
+    };
+    exporters = {
+      enable           = lib.mkEnableOption "Prometheus exporters for Arr stack";
+      lidarr.enable    = lib.mkEnableOption "Enable metrics exporter for Lidarr";
+    };
+    feishin = {
+      enable  = lib.mkEnableOption "Feishin SPA (static files)";
+      package = mkPackageOption "feishin";
+    };
+    pocketId = {
+      enable  = lib.mkEnableOption "Pocket ID OIDC Provider";
+      package = mkPackageOption "pocket-id";
+    };
+    usenet-confinement.enable = lib.mkEnableOption
+      "Run Usenet stack (SABnzbd/Prowlarr) isolated under WireGuard VPN interface";
+
+    authProxyPresent = lib.mkOption {
+      type        = lib.types.bool;
+      default     = false;
+      description = ''
+        true = Forward-Auth-Proxy (oauth2-proxy, Pocket-ID, Authentik) aktiv.
+        Dann AUTH__METHOD=External für *arr. false = Forms-Auth.
+        NIEMALS true ohne echten Proxy (Fail-Open-Risk).
+      '';
+    };
+
+    # --- Chameleon Ingress ---
+    ingress = {
+      enable = lib.mkOption {
+        type    = lib.types.bool;
+        default = true;
+        description = "Enable Caddy ingress mapping (reverse proxying).";
+      };
+      mode = lib.mkOption {
+        type    = lib.types.enum [ "auto" "global" "standalone" ];
+        default = "auto";
+        description = ''
+          auto: Hook into global caddy if config.services.caddy.enable, else standalone.
+          global: Force injection into global Caddy.
+          standalone: Force standalone caddy-media on port 80/443.
+        '';
+      };
+      tls = {
+        mode = lib.mkOption {
+          type    = lib.types.enum [ "off" "internal" "custom" ];
+          default = "off";
+          description = ''
+            off: HTTP :80 only. internal: HTTP :80 + HTTPS :443 (Caddy CA).
+            custom: HTTPS :443 with external cert (certFile + keyFile).
+          '';
+        };
+        certFile = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/acme/example.com/cert.pem";
+        };
+        keyFile = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/acme/example.com/key.pem";
+        };
+      };
+      auth = {
+        mode = lib.mkOption {
+          type    = lib.types.enum [ "none" "forward-auth" ];
+          default = "none";
+        };
+        forwardAuthUpstream = lib.mkOption {
+          type    = lib.types.str;
+          default = "";
+          example = "http://127.0.0.1:4180";
+        };
+        forwardAuthUri = lib.mkOption {
+          type    = lib.types.str;
+          default = "/oauth2/auth";
+        };
+        skipPaths = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "/metrics" "/health" ];
+        };
+        localBypass = lib.mkOption {
+          type    = lib.types.bool;
+          default = true;
+          description = ''
+            L1 ({service}.local) ohne forward_auth, auch bei auth.mode=forward-auth.
+            .local ist reines LAN (RFC 6762), physische Grenze = Sicherheitsgrenze.
+          '';
+        };
+      };
+    };
+
+    # --- DNS ---
+    dns = {
+      mode = lib.mkOption {
+        type    = lib.types.enum [ "host" "standalone" ];
+        default = "host";
+        description = ''
+          host: Modul liefert nur Tier-Listen + vHost-Namen. DDNS/ACME macht Host.
+          standalone: Eigenes DDNS (513-cloudflare-dns.nix) dabei.
+        '';
+      };
+      hostnames = lib.mkOption {
+        type    = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = { navidrome = "music"; };
+      };
+      ddns = {
+        enable    = lib.mkEnableOption "Eigener dynamischer DNS-Sync (standalone only)";
+        zone      = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "example.com";
+        };
+        interval  = lib.mkOption {
+          type    = lib.types.str;
+          default = "5m";
+        };
+        tokenCredential = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/credstore.encrypted/CF_DDNS_API_TOKEN.cred";
+        };
+        tokenFile = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/run/secrets/cloudflare_ddns_token";
+        };
+      };
+    };
+
+    # --- Declarative Ports (SSoT from registry) ---
+    ports = lib.mapAttrs
+      (name: default: lib.mkOption {
+        type        = lib.types.port;
+        inherit default;
+        description = "Port für ${name}. Abgeleitet: Num × 10 (ADR-5043).";
+      })
+      (import ./lib/registry.nix { inherit lib; }).ports;
+
+    # --- Hardware ---
+    hardware = {
+      ramGB = lib.mkOption {
+        type    = lib.types.int;
+        default = 16;
+      };
+      accel = lib.mkOption {
+        type    = lib.types.enum [ "auto" "intel" "amd" "nvidia" "vaapi" "none" ];
+        default = "auto";
+        description = ''
+          Hardwarebeschleunigung für Transkodierung. Eine Angabe → DeviceAllow,
+          Pakete, Gruppen, ffmpeg-Methode. auto leitet aus Host-Config ab.
+        '';
+      };
+      renderDevice = lib.mkOption {
+        type    = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "/dev/dri/renderD129";
+      };
+    };
+
+    locale = {
+      language = lib.mkOption { type = lib.types.str; default = "en"; };
+      default  = lib.mkOption { type = lib.types.str; default = "en_US.UTF-8"; };
+    };
+
+    storage = {
+      enable     = lib.mkOption { type = lib.types.bool; default = true; };
+      mediaRoot  = lib.mkOption {
+        type        = lib.types.path;
+        default     = "/data";
+        description = "Base directory for media storage downloads/library.";
+      };
+      metadataDir = lib.mkOption {
+        type        = lib.types.path;
+        default     = "/var/lib/media-metadata";
+        description = "Base directory for heavy metadata artwork stores.";
+      };
+    };
+
+    onDemand = {
+      enable         = lib.mkOption { type = lib.types.bool; default = false; };
+      internalOffset = lib.mkOption { type = lib.types.int;  default = 1000; };
+      idleTimeoutSec = lib.mkOption { type = lib.types.int;  default = 900; };
+    };
+
+    discovery = {
+      mdns = {
+        enable       = lib.mkOption { type = lib.types.bool; default = true; };
+        openFirewall = lib.mkOption { type = lib.types.bool; default = true; };
+      };
+    };
+
+    vpn = {
+      interface = lib.mkOption {
+        type    = lib.types.str;
+        default = "privado";
+        description = "Interface name of the WireGuard sandbox interface.";
+      };
+      dns = lib.mkOption {
+        type    = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "10.8.0.1" ];
+        description = ''
+          DNS-Server für Usenet-Sandbox. LEER default (kein stiller Public-DNS).
+          Assertion erzwingt explizite Setzung bei usenet-confinement.
+        '';
+      };
+    };
+
+    secrets = {
+      secretsDir = lib.mkOption {
+        type        = lib.types.str;
+        default     = "/var/lib/media-secrets";
+        description = "Base path for all internal and generated secrets.";
+      };
+      arrApiKeyFile = lib.mkOption {
+        type    = lib.types.str;
+        default = "${cfg.secrets.secretsDir}/arr-apikey";
+      };
+      sonarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      radarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      prowlarrApiKeyFile  = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      lidarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      readarrApiKeyFile   = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      jellyseerrApiKeyFile = lib.mkOption {
+        type    = lib.types.str;
+        default = "${cfg.secrets.secretsDir}/jellyseerr_api_key";
+      };
+      sabnzbdApiKeyFile = lib.mkOption {
+        type    = lib.types.str;
+        default = "${cfg.secrets.secretsDir}/sabnzbd_api_key";
+      };
+      jellyfinAdminPasswordFile = lib.mkOption {
+        type    = lib.types.str;
+        default = "${cfg.secrets.secretsDir}/jellyfin_admin_password";
+      };
+      navidromeOidcFile = lib.mkOption {
+        type    = lib.types.path;
+        default = "${cfg.secrets.secretsDir}/navidrome-oidc.env";
+      };
+      jellyseerrEnvFile = lib.mkOption {
+        type    = lib.types.path;
+        default = "${cfg.secrets.secretsDir}/jellyseerr.env";
+      };
+      autoGenerate = lib.mkOption {
+        type        = lib.types.bool;
+        default     = false;
+        description = "Generate shared Arr API key + per-service env at boot.";
+      };
+    };
+
+    persist = {
+      enable     = lib.mkEnableOption "Hook state paths into local impermanence bindings";
+      extraPaths = lib.mkOption {
+        type    = lib.types.listOf lib.types.str;
+        default = [ ];
+      };
     };
   };
 
