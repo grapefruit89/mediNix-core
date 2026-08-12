@@ -27,6 +27,11 @@ let
     "INV-06" = "stream-Dienste sind niemals ohne TLS WAN-erreichbar.";
     "INV-07" = "Kein Dienst mit /dev/dri-Bedarf hat PrivateDevices = true.";
     "INV-SECRET" = "Kein Secret landet im Nix-Store. Alle Pfade via .cred-Dateien (TPM).";
+    "INV-VPN-02" = "vpn.dns existiert nicht — nur vpn.dnsServers. Phantom-Option verhindern.";
+    "INV-TLS-02" = "acmeHost gesetzt → TLS-Direktive muss in global UND standalone Caddy-Mode erscheinen.";
+    "INV-UMASK-01" = "dotnet-Profil-Dienste müssen UMask=0002 haben (Arr braucht Gruppen-Schreibrecht).";
+    "INV-BIND-01" = "Jellyfin muss explizit auf 127.0.0.1 binden — nie auf 0.0.0.0.";
+    "INV-SEC-01" = "Kein Secret darf via $(cat) direkt in curl-Commandline expandiert werden.";
   };
 
   # Errors: konfigurationsabhängige Fehler (User hat was falsch gesetzt).

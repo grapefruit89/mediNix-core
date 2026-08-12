@@ -212,6 +212,12 @@ in
     usenet-confinement.enable = lib.mkEnableOption
       "Run Usenet stack (SABnzbd/Prowlarr) isolated under WireGuard VPN interface";
 
+    maintenance = {
+      provisioning = {
+        enable = lib.mkEnableOption "API-Provisioning (register SABnzbd/Prowlarr/Root-Folders in *arr)";
+      };
+    };
+
     authProxyPresent = lib.mkOption {
       type        = lib.types.bool;
       default     = false;

@@ -106,10 +106,21 @@ in lib.mkIf (cfg.enable && ing.enable) {
   });
   services.caddy.virtualHosts = lib.mkIf useGlobal
     (lib.mapAttrs (n: svc: {
-      extraConfig = (lib.getAttr svc.caddyClass {
-        stream   = "encode off\nreverse_proxy http://127.0.0.1:${toString svc.port} {\n  flush_interval -1\n  transport http {\n    read_timeout 300s\n    write_timeout 300s\n  }\n}";
-        internal = "@blocked not remote_ip private_ranges\nabort @blocked\nencode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
-        public   = "encode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
+      # P0-5 FIX: tlsDirective im Global-Mode einbauen (fehlte → keine TLS für acmeHost-vHosts)
+      # Konsistent mit standalone mkVHost (Zeile 77-84): raw tls-Directive via extraConfig
+      extraConfig = let
+        tlsDirective =
+          if ing.tls.acmeHost != null then
+            "tls /var/lib/acme/${ing.tls.acmeHost}/cert.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
+          else if ing.tls.mode == "custom" then
+            "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
+          else if ing.tls.mode == "internal" then
+            "tls internal"
+          else "";
+      in (lib.getAttr svc.caddyClass {
+        stream   = "${tlsDirective}\nencode off\nreverse_proxy http://127.0.0.1:${toString svc.port} {\n  flush_interval -1\n  transport http {\n    read_timeout 300s\n    write_timeout 300s\n  }\n}";
+        internal = "${tlsDirective}\n@blocked not remote_ip private_ranges\nabort @blocked\nencode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
+        public   = "${tlsDirective}\nencode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
       });
     }) enabledServices);
 

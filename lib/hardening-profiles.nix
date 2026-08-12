@@ -72,6 +72,7 @@ base = {
 dotnet = base // {
   MemoryDenyWriteExecute = false;
   PrivateDevices         = true;   # keine Hardware nötig
+  UMask                  = "0002";  # P0-6 FIX: Arr-Stack braucht Gruppen-Schreibrechte (0027 aus base reicht nicht)
 } // networkPolicy.internet;  # Indexer-Suche braucht Internet
 
 # ── .NET mit GPU (Jellyfin) ─────────────────────────────────────────────────

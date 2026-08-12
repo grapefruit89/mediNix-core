@@ -47,6 +47,10 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
     script = ''
       set -euo pipefail
 
+      # P0-1 FIX: API-Keys NICHT in /proc/<pid>/cmdline (curl -H "X-Api-Key: $(cat …)")
+      # → stattdessen Header-File mit 0600, danach sicher löschen.
+      HF=$(mktemp); chmod 600 "$HF"
+
       SAB_API="''${cfg.secrets.sabnzbdApiKeyFile}"
       PROWLARR_API="''${cfg.secrets.prowlarrApiKeyFile}"
       SAB_URL="http://127.0.0.1:5410"
@@ -55,35 +59,40 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       # 1) SABnzbd als Download-Client in Sonarr/Radarr registrieren
       for arr in sonarr:5320 radarr:5330; do
         name="''${arr%%:*}"; port="''${arr##*:}"
+        printf 'X-Api-Key: %s\r\n' "$(cat "$SAB_API")" > "$HF"
         curl -s -X POST "http://127.0.0.1:$port/api/v3/downloadclient" \
-          -H "X-Api-Key: *** $SAB_API)" \
+          --header "@$HF" \
           -H "Content-Type: application/json" \
           -d "{\"enable\":true,\"protocol\":\"usenet\",\"implementation\":\"Sabnzbd\",\"name\":\"SABnzbd\",\"settings\":{\"host\":\"127.0.0.1\",\"port\":5410,\"apiKey\":\"$(cat $SAB_API)\",\"category\":\"tv\"}}" || true
       done
 
       # 2) Prowlarr als Indexer in Sonarr/Radarr (App-Import via Prowlarr)
+      printf 'X-Api-Key: %s\r\n' "$(cat "$PROWLARR_API")" > "$HF"
       curl -s -X POST "$PROWLARR_URL/api/v1/applications" \
-        -H "X-Api-Key: *** $PROWLARR_API)" \
+        --header "@$HF" \
         -H "Content-Type: application/json" \
         -d '[{"name":"Sonarr","implementation":"Sonarr","baseUrl":"http://127.0.0.1:5320","apiKey":"'"$(cat /var/lib/sonarr-5320/apikey)"'","syncCategories":[4000,4005,4010]}]' || true
 
       # 3) Root Folder + Quality Profile in Sonarr/Radarr (idempotent via API)
-      for arr in "sonarr:5320:${cfg.services.sonarr.rootFolder}:${cfg.services.sonarr.qualityProfile}" \
-                 "radarr:5330:${cfg.services.radarr.rootFolder}:${cfg.services.radarr.qualityProfile}"; do
+      for arr in "sonarr:5320:${cfg.sonarr.rootFolder}:${cfg.sonarr.qualityProfile}" \
+                 "radarr:5330:${cfg.radarr.rootFolder}:${cfg.radarr.qualityProfile}"; do
         name="''${arr%%:*}"; rest="''${arr#*:}"
         port="''${rest%%:*}"; rest="''${rest#*:}"
         rf="''${rest%%:*}"; qp="''${rest#*:}"
         API="$(cat /var/lib/$name-$port/apikey 2>/dev/null || echo "")"
         [ -z "$API" ] && continue
+        printf 'X-Api-Key: %s\r\n' "$API" > "$HF"
         curl -s -X POST "http://127.0.0.1:$port/api/v3/rootFolder" \
-          -H "X-Api-Key: *** $API)" -H "Content-Type: application/json" \
+          --header "@$HF" -H "Content-Type: application/json" \
           -d "{\"path\":\"$rf\"}" >/dev/null 2>&1 || true
-        curl -s "http://127.0.0.1:$port/api/v3/qualityprofile" -H "X-Api-Key: *** $API)" \
+        curl -s "http://127.0.0.1:$port/api/v3/qualityprofile" --header "@$HF" \
           | ${pkgs.jq}/bin/jq -e --arg n "$qp" '.[] | select(.name==$n)' >/dev/null 2>&1 || \
         curl -s -X POST "http://127.0.0.1:$port/api/v3/qualityprofile" \
-          -H "X-Api-Key: *** $API)" -H "Content-Type: application/json" \
+          --header "@$HF" -H "Content-Type: application/json" \
           -d "{\"name\":\"$qp\",\"upgradeAllowed\":true,\"cutoff\":{\"id\":2},\"items\":[{\"quality\":{\"id\":2},\"allowed\":true}]}" >/dev/null 2>&1 || true
       done
+
+      rm -f "$HF"   # wichtig: Header-File mit Key vernichten
 
       # Flag setzen → Provisioning läuft nie wieder
       touch ${flagFile}

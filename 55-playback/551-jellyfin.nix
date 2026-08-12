@@ -65,6 +65,8 @@ in
       JELLYFIN_PublishedServerUrl = "https://jellyfin.${svc.domain}";
       # HW-transcode temp dir
       JELLYFIN_TRANSCODE_DIR = "/transcode";
+      # INV-BIND-01: Jellyfin explizit auf 127.0.0.1 binden (nie 0.0.0.0)
+      JELLYFIN_NetworkConfiguration__LocalNetworkAddresses = "127.0.0.1";
     } // lib.optionalAttrs (svc.hardware.accel != "none") {
       # Intel QuickSync VA-API (Topic-21: fehlende Env-Vars). Aus accel ableiten, nicht hardcoden.
       LIBVA_DRIVER_NAME = {

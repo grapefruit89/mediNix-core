@@ -15,7 +15,7 @@ in
 
   # Test-Assertionen: Unit vorhanden + Port in Registry korrekt
   # (Diese Checks laufen zur Build-Zeit — wenn die Unit fehlt, bricht der Build)
-  config = lib.mkIf (cfg.enable && cfg.services.navidrome.enable) {
+  config = lib.mkIf (cfg.enable && cfg.navidrome.enable) {
     # 1) Navidrome-Systemd-Unit muss existieren
     systemd.services.${navidromeUnit} = {
       # Reine Existenz-Prüfung (wird durch navidrome-Modul befriedigt)

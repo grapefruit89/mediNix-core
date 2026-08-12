@@ -14,8 +14,12 @@ in {
          in lib.all (svc: svc.port == null || svc.port == svc.num * 10)
               (lib.attrValues registry.services)))
 
-      # INV-02: Binding (Runtime-Garantie, hier statisch als true-eval deklariert)
-      (reg.mkInvariant "INV-02" true)  # Alle Dienste binden auf 127.0.0.1 (durch Caddy/Ingress/Factory erzwungen)
+      # INV-02: Binding — Jellyfin muss explizit auf 127.0.0.1 binden (nie 0.0.0.0)
+      (reg.mkInvariant "INV-02"
+        (!cfg.jellyfin.enable ||
+         (config.systemd.services ? "jellyfin-5510" &&
+          config.systemd.services."jellyfin-5510".environment ?
+          "JELLYFIN_NetworkConfiguration__LocalNetworkAddresses")))
 
       # INV-03: GID 5000 = media für alle Core-Mediendienste in der Registry
       (reg.mkInvariant "INV-03"
@@ -34,6 +38,18 @@ in {
 
       # INV-07: Jellyfin VA-API braucht PrivateDevices = false
       (reg.mkInvariant "INV-07" (!cfg.jellyfin.enable || !(config.systemd.services.jellyfin.serviceConfig.PrivateDevices or false)))
+
+      # INV-VPN-02: vpn.dns (ohne Servers) darf nicht existieren — nur vpn.dnsServers
+      (reg.mkInvariant "INV-VPN-02" (!(cfg.vpn ? dns)))
+
+      # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
+      (reg.mkInvariant "INV-UMASK-01"
+        (let dotnetServices = [ "sonarr-5320" "radarr-5330" "readarr-5340"
+                                "lidarr-5350" "prowlarr-5360" "jellyseerr-5610" "jellyfin-5510" ];
+         in lib.all (svc:
+           !(config.systemd.services ? ${svc}) ||
+           config.systemd.services.${svc}.serviceConfig.UMask == "0002")
+         dotnetServices))
 
       # INV-SECRET: Kein Secret-Pfad im Nix-Store
       (reg.mkInvariant "INV-SECRET"
