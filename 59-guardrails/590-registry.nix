@@ -26,6 +26,7 @@ let
     "INV-05" = "Kein Secret liegt im Nix-Store (/nix/store/).";
     "INV-06" = "stream-Dienste sind niemals ohne TLS WAN-erreichbar.";
     "INV-07" = "Kein Dienst mit /dev/dri-Bedarf hat PrivateDevices = true.";
+    "INV-SECRET" = "Kein Secret landet im Nix-Store. Alle Pfade via .cred-Dateien (TPM).";
   };
 
   # Errors: konfigurationsabhängige Fehler (User hat was falsch gesetzt).

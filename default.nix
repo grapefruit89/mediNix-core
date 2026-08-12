@@ -95,6 +95,15 @@ in
           ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
           MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.'';
       };
+      # Jellyfin Admin (First-Run Bootstrap) — TPM-cred Workflow
+      adminPasswordCredential = lib.mkOption {
+        type    = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Jellyfin Admin-Passwort.
+          Wird via LoadCredentialEncrypted als mediNix-jellyfin-admin gemountet.
+        '';
+      };
     };
     jellyseerr = {
       enable  = lib.mkEnableOption "Jellyseerr Request Manager";
@@ -127,6 +136,21 @@ in
     sabnzbd = {
       enable  = lib.mkEnableOption "SABnzbd Usenet Downloader";
       package = mkPackageOption "sabnzbd";
+      # SABnzbd Usenet-Provider (wurde vergessen!)
+      serverCredentialFile = lib.mkOption {
+        type    = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Pfad zur systemd-credential-Datei (.cred) mit Usenet-Server-Credentials.
+          Format der entschlüsselten Datei:
+            HOST=news.provider.com
+            PORT=563
+            USER=meinuser
+            PASS=meinpasswort
+            SSL=1
+          Erfordert: systemd-creds encrypt --with-key=tpm2+host (siehe ONBOARDING.md).
+        '';
+      };
     };
     audiobookshelf = {
       enable  = lib.mkEnableOption "Audiobookshelf Server";
@@ -360,6 +384,16 @@ in
         interval  = lib.mkOption {
           type    = lib.types.str;
           default = "5m";
+        };
+        # Cloudflare Token (für DDNS + ACME) — TPM-cred Workflow
+        cloudflareTokenCredential = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          description = ''
+            Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Cloudflare API Token.
+            Wird via LoadCredentialEncrypted als mediNix-cf-token gemountet.
+            Erforderlich für DDNS + ACME (security.acme).
+          '';
         };
         tokenCredential = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;

@@ -15,6 +15,46 @@ vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
 - [ ] `cfg.secrets.*ApiKeyFile` Pfade zeigen auf die `.cred`-Dateien (LoadCredentialEncrypted)
 - [ ] SSH-Keys für `media-admin` + `backup` User in `security.emergencyUser.sshKeys` / `security.backupSsh.sshKeys`
 
+## Secrets einrichten (einmalig auf q958)
+
+Alle Secrets werden mit **TPM2 verschlüsselt** und als `.cred`-Dateien gespeichert.
+Die `.cred`-Dateien können ins Repo — sie sind ohne DIESES TPM wertlos.
+
+### Workflow
+```bash
+# 1. Secret als Plaintext vorbereiten (nur kurz, dann löschen)
+echo "mein-cloudflare-token" > /tmp/cf-token.txt
+
+# 2. Mit TPM verschlüsseln
+systemd-creds encrypt --with-key=tpm2+host \
+  /tmp/cf-token.txt \
+  /var/lib/systemd/credential.d/mediNix-cf-token.cred
+
+# 3. Plaintext löschen
+shred -u /tmp/cf-token.txt
+
+# 4. In configuration.nix referenzieren (nie den Inhalt!)
+grapefruitMedia.dns.cloudflareTokenCredential =
+  "/var/lib/systemd/credential.d/mediNix-cf-token.cred";
+```
+
+### Secrets-Liste (alle verschlüsseln)
+| Datei | Inhalt |
+|-------|--------|
+| mediNix-cf-token.cred | Cloudflare API Token |
+| mediNix-wg-privkey.cred | WireGuard Private Key |
+| mediNix-sabnzbd-server.cred | Usenet-Provider Credentials |
+| mediNix-jellyfin-admin.cred | Jellyfin Admin-Passwort |
+| mediNix-sonarr-apikey.cred | Sonarr API Key |
+| mediNix-radarr-apikey.cred | Radarr API Key |
+| mediNix-prowlarr-apikey.cred | Prowlarr API Key |
+| mediNix-pocketid-secret.cred | Pocket-ID OIDC Secret |
+| mediNix-crowdsec-enroll.cred | CrowdSec Enrollment Key |
+
+### INV-SECRET (Build-Zeit-Garantie)
+Kein Secret-Pfad darf im Nix-Store liegen (`/nix/store/...`). `599-cross-domain.nix`
+prüft das via `INV-SECRET` Invariante. Violation → Build-Abbruch.
+
 ## Nach dem ersten Build
 
 - [ ] `nix flake check .#checks.x86_64-linux.nixos-check` — darf nicht fehlschlagen

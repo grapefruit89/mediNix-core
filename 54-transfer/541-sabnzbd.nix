@@ -66,9 +66,16 @@ in
             "/run/sabnzbd-tmp"
           ];
         }
+        # SABnzbd Usenet-Provider-Credentials (TPM-verschlüsselt)
+        (lib.mkIf (cfg.serverCredentialFile != null) {
+          LoadCredentialEncrypted = [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ];
+        })
       ];
       environment = {
         SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
+      } // lib.mkIf (cfg.serverCredentialFile != null) {
+        # SABnzbd liest Credential-Datei via Env (Format: HOST/PORT/USER/PASS/SSL)
+        SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";
       } // lib.mkIf (cfg.apiKeyFile != null) {
         SABNZBD_API_KEY_FILE = cfg.apiKeyFile;
       };

@@ -34,6 +34,24 @@ in {
 
       # INV-07: Jellyfin VA-API braucht PrivateDevices = false
       (reg.mkInvariant "INV-07" (!cfg.jellyfin.enable || !(config.systemd.services.jellyfin.serviceConfig.PrivateDevices or false)))
+
+      # INV-SECRET: Kein Secret-Pfad im Nix-Store
+      (reg.mkInvariant "INV-SECRET"
+        (let paths = [
+          cfg.dns.cloudflareTokenCredential
+          cfg.sabnzbd.serverCredentialFile
+          cfg.jellyfin.adminPasswordCredential
+          cfg.secrets.sonarrApiKeyFile
+          cfg.secrets.radarrApiKeyFile
+          cfg.secrets.prowlarrApiKeyFile
+          cfg.secrets.lidarrApiKeyFile
+          cfg.secrets.readarrApiKeyFile
+          cfg.secrets.jellyseerrApiKeyFile
+          cfg.secrets.sabnzbdApiKeyFile
+          cfg.secrets.navidromeOidcFile
+          cfg.secrets.jellyseerrEnvFile
+        ];
+        in lib.all (p: p == null || !(lib.hasPrefix "/nix/store/" p)) paths))
     ];
   };
 }
