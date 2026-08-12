@@ -22,7 +22,7 @@ let
 in lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "One-time provisioning: register SABnzbd + Prowlarr + Root Folders in *arr via API";
-    after = [ "network-online.target" "sabnzbd-5410.service" "prowlarr-5360.service"
+    after = [ "network.target" "sabnzbd-5410.service" "prowlarr-5360.service"
               "sonarr-5320.service" "radarr-5330.service" ];
     wantedBy = [ "multi-user.target" ];
     unitConfig = {

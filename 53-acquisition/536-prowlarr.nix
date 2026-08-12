@@ -22,6 +22,8 @@ let
   gid  = 5000;
   stateDir = "/var/lib/prowlarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
+  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
   users.groups.media.gid = gid;
@@ -40,12 +42,28 @@ in
       ReadWritePaths = [ stateDir ];
     };
   }).systemd.services.prowlarr // {
-    after    = [ "network-online.target" ];
-    requires = [ "network-online.target" ];
+    after    = [ "network.target" ];
+    requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { PROWLARR_API_KEY_FILE = cfg.apiKeyFile; })
-      (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })
+      (arrSettings.mkProwlarr {
+        server = {
+          port        = port;
+          bindAddress = "127.0.0.1";
+          urlBase     = "";
+        };
+        auth = {
+          method   = if svc.authProxyPresent then "External" else "Forms";
+          required = "Enabled";
+        };
+        app = {
+          theme        = "dark";
+          instanceName = "Prowlarr";
+        };
+        log.level        = "info";
+        update.mechanism = "BuiltIn";
+      })
     ];
   };
 

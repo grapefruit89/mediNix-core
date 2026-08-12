@@ -22,6 +22,8 @@ let
   gid  = 5000;
   stateDir = "/var/lib/lidarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
+  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
   users.groups.media.gid = gid;
@@ -39,12 +41,28 @@ in
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
   }).systemd.services.lidarr // {
-    after    = [ "network-online.target" "prowlarr.service" ];
-    requires = [ "network-online.target" ];
+    after    = [ "network.target" "prowlarr.service" ];
+    requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
       (lib.mkIf (cfg.apiKeyFile != null) { LIDARR_API_KEY_FILE = cfg.apiKeyFile; })
-      (lib.mkIf svc.authProxyPresent { "AUTH__METHOD" = "External"; })
+      (arrSettings.mkLidarr {
+        server = {
+          port        = port;
+          bindAddress = "127.0.0.1";
+          urlBase     = "";
+        };
+        auth = {
+          method   = if svc.authProxyPresent then "External" else "Forms";
+          required = "Enabled";
+        };
+        app = {
+          theme        = "dark";
+          instanceName = "Lidarr";
+        };
+        log.level        = "info";
+        update.mechanism = "BuiltIn";
+      })
     ];
   };
 

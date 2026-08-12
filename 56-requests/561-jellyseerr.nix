@@ -25,6 +25,8 @@ let
   gid  = 5000;
   stateDir = "/var/lib/jellyseerr-${toString port}";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
   users.users.jellyseerr = {
@@ -34,8 +36,8 @@ in
   users.groups.media.gid = gid;
 
   systemd.services.jellyseerr = {
-    after = [ "network-online.target" "jellyfin-5510.service" ];
-    requires = [ "network-online.target" ];
+    after = [ "network.target" "jellyfin-5510.service" ];
+    requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
       # .NET-Profil: MemoryDenyWriteExecute=false (JIT), PrivateDevices=true
@@ -53,5 +55,23 @@ in
     ];
     # Env-File via EnvironmentFile (ADR-5000: keine inline secrets)
     environmentFile = lib.mkIf (cfg.envFile != null) cfg.envFile;
+    # .NET declarative settings (Port/Bind/Auth) via Env Vars
+    environment = arrSettings.mkJellyseerr {
+      server = {
+        port        = port;
+        bindAddress = "127.0.0.1";
+        urlBase     = "";
+      };
+      auth = {
+        method   = if svc.authProxyPresent then "External" else "Forms";
+        required = "Enabled";
+      };
+      app = {
+        theme        = "dark";
+        instanceName = "Jellyseerr";
+      };
+      log.level        = "info";
+      update.mechanism = "BuiltIn";
+    };
   };
 }
