@@ -76,8 +76,9 @@ in
     navidrome      = mkService "navidrome" 553 "stream" "nodejs";
     feishin        = mkService "feishin" 554 "stream" "network";
 
-    # Requests (folder 56) — .NET
+    # Requests (folder 56) — .NET + Python (Bazarr)
     jellyseerr = mkService "jellyseerr" 561 "public" "dotnet";
+    bazarr     = mkService "bazarr"     562 "internal" "python";
 
     # Observability (folder 58) — Go binary, network port-binding
     ntfy = mkService "ntfy" 581 "public" "network";

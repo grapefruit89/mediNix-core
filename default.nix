@@ -65,6 +65,14 @@ in
   options.grapefruitMedia = {
     enable = lib.mkEnableOption "Standalone Media Stack Module";
 
+    cli = {
+      enable = lib.mkOption {
+        type    = lib.types.bool;
+        default = true;
+        description = "medinix CLI-Tool installieren (check/repair/status/vpn/secrets).";
+      };
+    };
+
     domain = lib.mkOption {
       type    = lib.types.nullOr lib.types.str;
       default = null;
@@ -91,6 +99,10 @@ in
     jellyseerr = {
       enable  = lib.mkEnableOption "Jellyseerr Request Manager";
       package = mkPackageOption "jellyseerr";
+    };
+    bazarr = {
+      enable  = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
+      package = mkPackageOption "bazarr";
     };
     sonarr = {
       enable  = lib.mkEnableOption "Sonarr TV Series Manager";
@@ -503,5 +515,16 @@ in
 
   config = lib.mkIf cfg.enable {
     users.groups.media = { gid = 5000; };
+
+    # mediNix Health CLI (Build-Zeit aus Registry generiert)
+    environment.systemPackages = lib.mkIf cfg.cli.enable [
+      (pkgs.callPackage ./packages/mediNix-cli {
+        inherit lib;
+        registryJson = builtins.toJSON (import ./lib/registry.nix { inherit lib; }).services;
+        mediaRoot   = cfg.storage.mediaRoot;
+        metadataDir = cfg.storage.metadataDir;
+        mediaDomain = cfg.domain or "";
+      })
+    ];
   };
 }
