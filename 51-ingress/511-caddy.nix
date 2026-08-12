@@ -96,9 +96,11 @@ in lib.mkIf (cfg.enable && ing.enable) {
   # Chameleon: Global Caddy vorhanden → virtualHosts injizieren
   # CrowdSec: Caddy-Plugin eincompilieren (nixpkgs: pkgs.caddy.withPlugins)
   # WICHTIG: hash via `nix build` ermitteln vor erstem Build (siehe 582-crowdsec.nix)
+  # Plugin: github.com/hslatman/caddy-crowdsec-bouncer (korrekter Caddy-CrowdSec-Bouncer,
+  #   verifiziert via Vektor-DB Topic-Sweep — crowdsecurity/caddy-cs-bouncer ist veraltet)
   services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
     plugins = [
-      "github.com/crowdsecurity/caddy-cs-bouncer@latest"
+      "github.com/hslatman/caddy-crowdsec-bouncer@latest"
     ];
     hash = lib.fakeHash;  # Vor erstem Build via nix build ersetzen (Build-Fehler zeigt korrekten Hash)
   });

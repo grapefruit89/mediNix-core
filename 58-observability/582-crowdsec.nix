@@ -61,4 +61,10 @@ in lib.mkIf cfg.enable {
 
   # Caddy muss AppSec-Plugin nutzen → in 511-caddy.nix via extraConfig injiziert
   # wenn cfg.observability.crowdsec.enable. Platzhalter für Phase 2 Integration.
-}
+  #
+  # KRITISCH (Vektor-DB Sweep): CrowdSec-Bouncer braucht parsebare Caddy-Logs.
+  # Caddy-JSON-Logs sind NICHT nativ von CrowdSec lesbar ohne Log-Encoder.
+  # In 511-caddy.nix (bei crowdsec.enable) muss das Caddy-Log-Format auf
+  # Apache Common Log Format (CLF) gesetzt werden:
+  #   logging → ... → encoder = "common_log" (oder transform-encoder für IP-Masking)
+  # Sonst kann der Bouncer keine Angriffe aus den Access-Logs extrahieren.
