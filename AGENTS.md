@@ -15,9 +15,14 @@ Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: q958 (192.168.2.7
 - **Fail-closed:** Assertions = Build-Abbruch, nie nur Warnung
 - **Keine Inline-Secrets:** nur `LoadCredentialEncrypted` / `EnvironmentFile`
 
-## Build-Status (Stand: 2863ff9)
-- ~80% fertig. Vor erstem Deploy auf q958: CrowdSec-Plugin-Hash via `nix build` in `511-caddy.nix`
+## Build-Status (Stand: 1f4b80e)
+- ~95% fertig. Vor erstem Deploy auf q958: CrowdSec-Plugin-Hash via `nix build` in `511-caddy.nix`
   ermitteln (aktuell `lib.fakeHash` Platzhalter), dann `nix flake check .#checks.x86_64-linux.nixos-check`.
+- Heute erledigt: P0-Bugfixes (pocketId, secrets-Pfade, dotnet-UMask, Jellyfin-Bind),
+  Invarianten (INV-VPN-02/TLS-02/UMASK-01/BIND-01/SEC-01), devNIX-Shift-Left (flake.nix:
+  Ratsche + Decimal-Enforcer + Linting + devShell), Hardening-Round-3 (SystemCallArchitectures/
+  ProtectClock/RemoveIPC/OOM/journal-logging/network.target), arr-settings.nix (.NET Env Vars),
+  nixpkgs-Audit (keine Migration nötig), Autobrr abgelehnt.
 - Nix-Verifikation bisher UNTESTED (kein nix-Binary im Hermes-Container, q958 AUS).
 
 ## Deklaratives Modul-Muster (VORBILD)
