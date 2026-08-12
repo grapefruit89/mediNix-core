@@ -42,22 +42,26 @@ let
     '';
   };
 
-  # Auto-import: every XX-domain/NNN-*.nix module
+  # Auto-import: every XX-domain/NNN-*.nix module (lib.pipe für Idiomatik)
   moduleFiles =
     let
-      entries        = builtins.readDir ./.;
-      isModuleDir    = n: t: t == "directory" && builtins.match "^[0-9]{2}-.*" n != null;
-      dirs           = builtins.attrNames (lib.filterAttrs isModuleDir entries);
-      importFromDir  = dir:
+      entries     = builtins.readDir ./.;
+      isModuleDir = n: t: t == "directory" && builtins.match "^[0-9]{2}-.*" n != null;
+      importFromDir = dir:
         let
           files = builtins.readDir (./. + "/${dir}");
-          moduleFiles = lib.filterAttrs
-            (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null)
-            files;
         in
-          map (n: ./${dir}/${n}) (lib.attrNames moduleFiles);
+        map (n: ./. + "/${dir}/${n}")
+          (builtins.attrNames (lib.filterAttrs
+            (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null)
+            files));
     in
-      lib.flatten (map importFromDir dirs);
+    lib.pipe entries [
+      (lib.filterAttrs isModuleDir)
+      builtins.attrNames
+      (map importFromDir)
+      lib.flatten
+    ];
 in
 {
   imports = moduleFiles;

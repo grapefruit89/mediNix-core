@@ -28,28 +28,12 @@ let
     "/var/lib/lidarr-5350"
     "/var/lib/sabnzbd-5410"
   ];
-in
-{
-  # Event-driven WAL tuning: oneshot after each Arr service starts.
-  # No legacy cron (ADR-5000 compliant).
-  systemd.services.sqlite-wal-tune = {
-    description = "Apply SQLite WAL pragmas to all *arr databases";
-    after = [ "network-online.target" ] ++ lib.optional svc.services.prowlarr.enable "prowlarr.service"
-      ++ lib.optional svc.services.sonarr.enable "sonarr.service"
-      ++ lib.optional svc.services.radarr.enable "radarr.service"
-      ++ lib.optional svc.services.readarr.enable "readarr.service"
-      ++ lib.optional svc.services.lidarr.enable "lidarr.service";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
-      (import ../lib/hardening-profiles.nix { inherit lib; }).script
-      {
-        Type = "oneshot";
-        User = "root";  # needs write to state dirs
-        UMask = "002";
-      }
-    ];
-    script = ''
+  # writeShellApplication: ShellCheck läuft beim Build (ADR-5050) → fängt
+  # Bash-Fehler vor dem Deploy (z.B. unquoted vars, pipefail-issues)
+  walScript = pkgs.writeShellApplication {
+    name         = "sqlite-wal-tune";
+    runtimeInputs = [ pkgs.sqlite ];
+    text = ''
       set -euo pipefail
       # page_size = 4096 (optimal für moderne SSDs) nur beim ersten Anlegen setzbar,
       # daher hier nicht geändert (wird von Arr-Diensten beim Init gesetzt).
@@ -70,5 +54,28 @@ in
         fi
       done
     '';
+  };
+in
+{
+  # Event-driven WAL tuning: oneshot after each Arr service starts.
+  # No legacy cron (ADR-5000 compliant).
+  systemd.services.sqlite-wal-tune = {
+    description = "Apply SQLite WAL pragmas to all *arr databases";
+    after = [ "network.target" ] ++ lib.optional svc.services.prowlarr.enable "prowlarr.service"
+      ++ lib.optional svc.services.sonarr.enable "sonarr.service"
+      ++ lib.optional svc.services.radarr.enable "radarr.service"
+      ++ lib.optional svc.services.readarr.enable "readarr.service"
+      ++ lib.optional svc.services.lidarr.enable "lidarr.service";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = lib.mkMerge [
+      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type = "oneshot";
+        User = "root";  # needs write to state dirs
+        UMask = "002";
+        ExecStart = lib.getExe walScript;
+      }
+    ];
   };
 }
