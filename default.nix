@@ -427,16 +427,25 @@ in
     vpn = {
       interface = lib.mkOption {
         type    = lib.types.str;
-        default = "privado";
-        description = "Interface name of the WireGuard sandbox interface.";
+        default = "";
+        example = "privado";
+        description = ''
+          Name des WireGuard-Interfaces auf dem Host (z.B. "privado", "wg0").
+          Das Interface muss vom Host-System bereitgestellt werden
+          (systemd-networkd routeTables oder wg-quick).
+          mediNix-core erstellt KEIN Interface — es nutzt es nur.
+          Empfohlen: UID-basiertes Routing via systemd-networkd routeTables
+          (siehe Nix-Grok modules/10-network/1096-vpn.nix als Referenz).
+          Leer (default) = kein confinement, auch wenn usenet-confinement.enable.
+        '';
       };
-      dns = lib.mkOption {
+      dnsServers = lib.mkOption {
         type    = lib.types.listOf lib.types.str;
         default = [ ];
         example = [ "10.8.0.1" ];
         description = ''
-          DNS-Server für Usenet-Sandbox. LEER default (kein stiller Public-DNS).
-          Assertion erzwingt explizite Setzung bei usenet-confinement.
+          DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
+          Assertion erzwingt explizite Setzung bei usenet-confinement.enable.
         '';
       };
     };

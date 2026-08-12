@@ -29,3 +29,13 @@ Ports: SABnzbd 5410 (decimal framework ADR-5043).
 > "Tailscale SABnzbd Not Reachable" — the recurring failure mode is VPN routing
 > breaking LAN access. systemd RestrictNetworkInterfaces + nftables domain
 > kill-switch solves it without netns overhead.
+
+## Referenz-Implementierung (UID-Routing)
+Das Usenet-Confinement in `52-security/525-usenet-confinement.nix` nutzt
+**UID-basiertes Routing** statt netns: Der Host (systemd-networkd routeTables
+oder wg-quick) routet alle Pakete der Usenet-UIDs (SABnzbd 5410, Prowlarr 5360)
+durch die VPN-Tabelle. Kein Namespace, kein Port-Mapping, Loopback zwischen
+Arr-Stack weiterhin funktionsfähig.
+
+Referenz: Nix-Grok `modules/10-network/1096-vpn.nix` (das Original-Muster für
+UID-Routing + event-driven Leak-Check via systemd.path auf carrier/operstate).
