@@ -50,7 +50,9 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **ADR-5043**: Assertion Quality Standard (was/warum/fix, fail-closed, jeder Bug → Invariante)
 - **ADMIN-HANDOFF.md**: saubere Trennung Host-Verantwortung vs. Modul (Binary-Cache, Impermanence, Tier-HW, SSH/TPM)
 - **Legacy-Bereinigung**: 57-maintenance/jellyfin.nix, profiles.nix, prowlarr.nix, seerr.nix, settings.nix gelöscht
-  (inert, referenzierten alte `services.X` Namenswelt statt Factory `X-NUM`)
+  (inert, kein NNN-Präfix → nicht auto-importiert; veraltete Arrangement-Logik vor der Factory-Umstellung)
+- **574-provisioning.nix**: `after =`-Unit-Namen korrigiert (waren `sonarr-5320.service` etc.,
+  echte Factory-Units sind `sonarr.service` — Port steckt nur in StateDirectory, nicht im Unit-Namen)
 
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
