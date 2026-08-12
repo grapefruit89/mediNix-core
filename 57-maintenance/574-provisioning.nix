@@ -18,7 +18,7 @@
 
 let
   cfg = config.grapefruitMedia;
-  flagFile = "/var/lib/mediNix-provisioned";
+  flagFile = "/var/lib/mediNix-state/provisioned";  # in StateDirectory (beschreibbar, 0750)
 in lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "One-time provisioning: register SABnzbd + Prowlarr in *arr via API";
@@ -27,7 +27,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
     wantedBy = [ "multi-user.target" ];
     unitConfig = {
       # Idempotent: nur wenn Flag NICHT existiert
-      ConditionPathExists = "!/var/lib/mediNix-provisioned";
+      ConditionPathExists = "!/var/lib/mediNix-state/provisioned";
     };
     serviceConfig = lib.mkMerge [
       # client-Profil: HTTP-Requests zu 127.0.0.1 (API-Calls), kein Port-Binding
@@ -38,7 +38,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
         User = "media";
         Group = "media";
         UMask = "002";
-        ReadWritePaths = [ "/var/lib" ];
+        StateDirectory = "mediNix-state";       # /var/lib/mediNix-state (0750 via Factory base)
+        StateDirectoryMode = "0750";
+        ReadWritePaths = [ "/var/lib/mediNix-state" ];
       }
     ];
     path = [ pkgs.curl pkgs.jq ];

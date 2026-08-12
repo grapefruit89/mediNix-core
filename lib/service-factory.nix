@@ -57,6 +57,7 @@ in
         Group            = "media";
         ExecStart        = execStart;
         StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
+        StateDirectoryMode = "0750";  # owner rw, group media r, world nichts (NIXH-40-MED)
         RuntimeDirectory = name;
       }
       # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)

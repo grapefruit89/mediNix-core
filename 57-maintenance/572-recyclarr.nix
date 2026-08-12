@@ -44,8 +44,8 @@ in lib.mkIf cfg.enable {
     after = [ "network-online.target" ] ++ lib.optional svc.services.sonarr.enable "sonarr-5320.service"
       ++ lib.optional svc.services.radarr.enable "radarr-5330.service";
     serviceConfig = lib.mkMerge [
-      # network-Profil: braucht Netz für API-Sync, MemoryDenyWriteExecute=true (Go/.NET)
-      (import ../lib/hardening-profiles.nix { inherit lib; }).network
+      # client-Profil: braucht Loopback für Sonarr/Radarr API-Calls (script hätte PrivateNetwork=true)
+      (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "recyclarr";
