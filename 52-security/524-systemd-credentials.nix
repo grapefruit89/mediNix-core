@@ -19,15 +19,17 @@
 let
   cfg = config.grapefruitMedia;
   # Map: dienstname -> secret-pfad-option (nur wenn aktiviert + pfad gesetzt)
+  # ACHTUNG: Pfade liegen unter cfg.secrets.* (NICHT cfg.services.<name>.apiKeyFile — gibt's nicht!)
+  # Jellyfin nutzt jellyfinAdminPasswordFile (kein apiKeyFile).
   secretMap = {
-    sonarr      = cfg.services.sonarr.apiKeyFile or null;
-    radarr      = cfg.services.radarr.apiKeyFile or null;
-    prowlarr    = cfg.services.prowlarr.apiKeyFile or null;
-    lidarr      = cfg.services.lidarr.apiKeyFile or null;
-    readarr     = cfg.services.readarr.apiKeyFile or null;
-    sabnzbd     = cfg.services.sabnzbd.apiKeyFile or null;
-    jellyfin    = cfg.services.jellyfin.apiKeyFile or null;
-    jellyseerr  = cfg.services.jellyseerr.apiKeyFile or null;
+    sonarr      = cfg.secrets.sonarrApiKeyFile or null;
+    radarr      = cfg.secrets.radarrApiKeyFile or null;
+    prowlarr    = cfg.secrets.prowlarrApiKeyFile or null;
+    lidarr      = cfg.secrets.lidarrApiKeyFile or null;
+    readarr     = cfg.secrets.readarrApiKeyFile or null;
+    sabnzbd     = cfg.secrets.sabnzbdApiKeyFile or null;
+    jellyfin    = cfg.secrets.jellyfinAdminPasswordFile or null;
+    jellyseerr  = cfg.secrets.jellyseerrApiKeyFile or null;
   };
   # Filtere: nur aktive Dienste mit gesetztem Pfad
   activeSecrets = lib.filterAttrs (name: path: path != null && (cfg.services.${name}.enable or false)) secretMap;

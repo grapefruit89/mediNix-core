@@ -74,7 +74,7 @@ in
     jellyfin       = mkService "jellyfin" 551 "stream" "dotnet-gpu";
     audiobookshelf = mkService "audiobookshelf" 552 "stream" "nodejs";
     navidrome      = mkService "navidrome" 553 "stream" "nodejs";
-    feishin        = mkService "feishin" 554 "stream" "network";
+    feishin        = mkNoPort "feishin" 554 "network";
 
     # Requests (folder 56) — .NET + Python (Bazarr)
     jellyseerr = mkService "jellyseerr" 561 "public" "dotnet";

@@ -29,7 +29,7 @@
 
 let
   cfg = config.grapefruitMedia;
-  svc = (import ../lib/registry.nix { inherit lib; }).pocketId;
+  svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
   active = cfg.pocketId.enable || cfg.ingress.auth.mode == "forward-auth";
 in
 lib.mkIf (cfg.enable && active) {
