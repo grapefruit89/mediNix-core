@@ -95,6 +95,19 @@ Alle kritischen Fehlkonfigurationen brechen den Build (`config.assertions`, ADR-
 forward-auth ohne Proxy, VPN ohne DNS, TLS-Konflikte, DDNS ohne Token.
 Soft-Warnings: firewall aus, stream ohne TLS, .NET-EOL.
 
+## Host-Admin-Verantwortung
+
+mediNIX-core ist portabel — bestimmte Dinge (Binary-Cache, Impermanence, Tier-Hardware,
+SSH-Hardening, TPM-Secrets) sind **Host-Entscheidungen**. Siehe `ADMIN-HANDOFF.md`
+für die vollständige Checkliste nach dem Flake-Import.
+
+## Referenzen
+
+- **Golden Handbook** (mynixos-knowledge-base): Umfassende Homelab-Doku mit 60+ Guides
+  (Backup-Strategien, Caddy-Deep-Dive, Kernel-Hardening, Monitoring). Inspirations-Quelle,
+  nicht Teil von mediNIX-core: `docs/ARCH-57-golden-handbook.md` im Knowledge-Base-ZIP.
+- **ADR-5043**: Assertion Quality Standard (fail-closed, was/warum/fix Format).
+
 ## Verzeichnis
 
 - `default.nix` — Options-API (`grapefruitMedia.*`), auto-import aller Module via `readDir`+regex

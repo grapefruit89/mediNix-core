@@ -66,6 +66,26 @@ in {
 `packages/mediNix-cli/default.nix` → `medinix` (check/repair/status/vpn/secrets).
 Build-Zeit aus `lib/registry.nix` generiert (registryJson). Tier-Pfade + Domain als Parameter.
 
+## Security-Prinzip (Pareto-Hardening)
+"So sicher wie möglich, aber KISS." Ziel: 90-95% Absicherung mit 20% Aufwand.
+Beispiel: VPN-Killswitch via UID-Routing (billig, robust) statt netns (komplex, fragil).
+Keine 100%-Goldplating-Complexity. Fail-closed bleibt (Assertions brechen den Build).
+Siehe ADR-5050 (systemd-hardening-baseline) + lib/hardening-profiles.nix.
+
+## Host-Admin-Verantwortung (mediNIX-core macht DAS NICHT)
+mediNIX-core ist ein portables Modul. Folgende Punkte sind **Host-Entscheidungen** und
+müssen vom Admin auf q958 selbst konfiguriert werden (siehe ADMIN-HANDOFF.md):
+- **Binary-Cache:** `nix.settings.substituters` mit Fallback-Caches setzen (cache.nixos.org +
+  optional eigener). ZIEL: NICHTS wird auf q958 kompiliert. Nur absoluter Notfall-Build erlaubt.
+- **Impermanence:** Root auf tmpfs / persist-Modul — Architektur-Entscheidung, nicht Modul-Sache.
+- **Tier-Hardware-Zuordnung:** Welche Platte ist NVMe/SSD/HDD (ABC-Tiering) — Host-Config.
+- **SSH-Hardening, TPM-Secrets, nftables-Baseline:** Host-seitig (mediNIX liefert nur Module).
+
+## Roadmap (nicht vor erstem Deploy)
+- INV-STORE-xx: State-Pfad-Whitelist als Guardrail (Alarm bei neuem Pfad außerhalb Tier-Liste).
+  Build-Time-Cheap, hoher Effekt — Impermanence-Whitelist-Ansatz.
+- ADMIN-HANDOFF.md: saubere Übergabe der Host-Verantwortlichkeiten an den Admin.
+
 ## Tests
 `tests/smoke-test.nix` → `checks.mediNix-smoke` in `flake.nix` (Navidrome Unit + Port-Isomorphie).
 

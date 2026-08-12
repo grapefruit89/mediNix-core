@@ -31,7 +31,10 @@ let
     "INV-TLS-02" = "acmeHost gesetzt → TLS-Direktive muss in global UND standalone Caddy-Mode erscheinen.";
     "INV-UMASK-01" = "dotnet-Profil-Dienste müssen UMask=0002 haben (Arr braucht Gruppen-Schreibrecht).";
     "INV-BIND-01" = "Jellyfin muss explizit auf 127.0.0.1 binden — nie auf 0.0.0.0.";
-    "INV-SEC-01" = "Kein Secret darf via $(cat) direkt in curl-Commandline expandiert werden.";
+    "INV-SEC-01"   = "Kein Secret darf via \$(cat) direkt in curl-Commandline expandiert werden.";
+    "INV-TECH-01"  = "Docker ist verboten. mediNix-core nutzt systemd-native. Siehe NO-CONTAINERS.md";
+    "INV-TECH-02"  = "Podman ist verboten. Gleicher Grund wie INV-TECH-01.";
+    "INV-TECH-03"  = "cron ist verboten. Nutze systemd.timers.";
   };
 
   # Errors: konfigurationsabhängige Fehler (User hat was falsch gesetzt).
