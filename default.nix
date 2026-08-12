@@ -220,6 +220,24 @@ in
       provisioning = {
         enable = lib.mkEnableOption "API-Provisioning (register SABnzbd/Prowlarr/Root-Folders in *arr)";
       };
+      backup = {
+        enable = lib.mkEnableOption "Restic-Backup mit DB-Safety (stoppt Dienste vor Backup)";
+        repository = lib.mkOption {
+          type    = lib.types.str;
+          default = "";
+          description = "Restic repository (local path, sftp:, s3:, ...). Host-Config.";
+        };
+        passwordFile = lib.mkOption {
+          type    = lib.types.str;
+          default = "";
+          description = "Path to restic password file (LoadCredentialEncrypted).";
+        };
+        schedule = lib.mkOption {
+          type    = lib.types.str;
+          default = "02:00";
+          description = "systemd OnCalendar for backup timer.";
+        };
+      };
     };
 
     authProxyPresent = lib.mkOption {
@@ -367,6 +385,9 @@ in
           '';
         };
       };
+      runtimeGuard = lib.mkEnableOption "Stündlicher Runtime-Check (nftables/0.0.0.0-bind/VPN-Interface) via ntfy";
+      driftDetection = lib.mkEnableOption "30-Min-Ticker: State-Dir-Permissions + Tier-Mounts via ntfy";
+      postBootWatchdog = lib.mkEnableOption "Einmalig 180s nach Boot: failed Services neustarten via ntfy";
     };
 
     # --- DNS ---
