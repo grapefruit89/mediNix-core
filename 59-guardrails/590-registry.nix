@@ -22,7 +22,7 @@ let
     "INV-01" = "Port = ServiceNumber × 10. Verletzung bedeutet Dezimalrahmen-Bruch.";
     "INV-02" = "Alle Dienste binden auf 127.0.0.1. Niemals 0.0.0.0 im WAN.";
     "INV-03" = "GID 5000 = media. Kein Dienst nutzt eine andere Media-GID.";
-    "INV-04" = "usenet-confinement aktiv → vpn.interface ≠ \"\" und vpn.dns ≠ [].";
+    "INV-04" = "usenet-confinement aktiv → vpn.interface ≠ \"\" und vpn.dnsServers ≠ [].";
     "INV-05" = "Kein Secret liegt im Nix-Store (/nix/store/).";
     "INV-06" = "stream-Dienste sind niemals ohne TLS WAN-erreichbar.";
     "INV-07" = "Kein Dienst mit /dev/dri-Bedarf hat PrivateDevices = true.";

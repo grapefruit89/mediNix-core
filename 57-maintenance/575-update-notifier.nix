@@ -58,7 +58,7 @@ in lib.mkIf cfg.enable {
 
       if [ "$current" != "$local" ] && [ "$current" != "0" ]; then
         msg="mediNix-core Update verfügbar (remote=$current, local=$local) — bitte nixos-rebuild ausführen"
-        curl -s -d "$msg" "http://127.0.0.1:${toString ntfyPort}/${ntfyTopic}" || true
+        curl -s -d "$msg" "http://192.168.2.250:${toString ntfyPort}/${ntfyTopic}" || true
         echo "$msg"
       else
         echo "mediNix-core ist aktuell (local=$local)"
