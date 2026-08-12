@@ -10,7 +10,7 @@
     let
       overlay = _: _: { };  # Zukünftige Pakete hier
       # Registry als JSON für Build-Zeit-Embedding (CLI-Tool)
-      registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs.lib) lib; }).services;
+      registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
 
       # ── devNIX-Pattern: mkCheck (CI wird rot, nie der Baum) ───────────────
       # Helper: lässt ein Werkzeug über dem Repo laufen. --check/--fail ändert
@@ -128,9 +128,9 @@
         '') .${system};
 
         # ── Formatter + devShell (Priorität 3) ──────────────────────────────
-        formatter.${system} = pkgs.nixfmt-rfc-style;
+        formatter = pkgs.nixfmt-rfc-style;
 
-        devShells.${system}.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             nixfmt-rfc-style  # nix fmt
             statix            # statix check .
