@@ -530,11 +530,11 @@ in
         default = "${cfg.secrets.secretsDir}/jellyfin_admin_password";
       };
       navidromeOidcFile = lib.mkOption {
-        type    = lib.types.path;
+        type    = lib.types.str;
         default = "${cfg.secrets.secretsDir}/navidrome-oidc.env";
       };
       jellyseerrEnvFile = lib.mkOption {
-        type    = lib.types.path;
+        type    = lib.types.str;
         default = "${cfg.secrets.secretsDir}/jellyseerr.env";
       };
       autoGenerate = lib.mkOption {

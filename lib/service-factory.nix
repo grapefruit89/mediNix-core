@@ -46,9 +46,15 @@ in
 {
   systemd.services."${name}" = {
     wantedBy = [ "multi-user.target" ];
-    after    = [ "network-online.target" ];
-    requires = [ "network-online.target" ];
+    after    = [ "network.target" ];
+    requires = [ "network.target" ];
     serviceConfig = lib.mkMerge [
+      # 0) Standard-Logging: alles in Journal (kein /var/log-File, kein stdout-Verlust)
+      {
+        SyslogIdentifier = name;
+        StandardOutput   = "journal";
+        StandardError    = "journal";
+      }
       # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
       (profiles.${profile} or profiles.base)
       # 2) Service-spezifische Basis (User/Exec/State)

@@ -52,6 +52,11 @@ base = {
   LockPersonality       = true;
   SystemCallFilter      = "@system-service";
   SystemCallErrorNumber = "EPERM";  # statt SIGSYS (stiller Tod)
+  SystemCallArchitectures = "native";  # nur native Syscall-Architektur (kein i386 etc.)
+  ProtectClock          = true;   # UTC-Hardware-Clock schützen
+  ProtectHostname       = true;   # Hostname-Änderungen verweigern
+  RemoveIPC             = true;   # POSIX-IPC Objekte nach Exit aufräumen
+  OOMScoreAdjust        = 500;    # Dienste zuerst vom OOM-Killer erwischen
   CapabilityBoundingSet = "";
   AmbientCapabilities   = "";
   Restart               = "on-failure";
@@ -100,6 +105,7 @@ network = base // {
   PrivateDevices         = true;
   AmbientCapabilities    = "CAP_NET_BIND_SERVICE";
   CapabilityBoundingSet  = "CAP_NET_BIND_SERVICE";
+  OOMScoreAdjust         = -500;   # Caddy/ntfy: letzte die OOM-Killer erwischt (Proxy muss überleben)
 } // networkPolicy.proxy;  # Caddy = Proxy, darf alles
 
 # ── Client-Skripte (HTTP-Requests, kein Port-Binding) ──────────────────────
