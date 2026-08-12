@@ -51,11 +51,21 @@ in
     ];
     script = ''
       set -euo pipefail
+      # page_size = 4096 (optimal für moderne SSDs) nur beim ersten Anlegen setzbar,
+      # daher hier nicht geändert (wird von Arr-Diensten beim Init gesetzt).
       for dir in ${lib.concatStringsSep " " arrStateDirs}; do
         if [ -d "$dir" ]; then
           find "$dir" -name '*.db' -type f | while read -r db; do
-            ${pkgs.sqlite}/bin/sqlite3 "$db" \
-              "PRAGMA journal_mode=WAL; PRAGMA cache_size=-20000; PRAGMA synchronous=NORMAL; PRAGMA temp_store=MEMORY;"
+            ${pkgs.sqlite}/bin/sqlite3 "$db" "
+              PRAGMA journal_mode=WAL;
+              PRAGMA synchronous=NORMAL;
+              PRAGMA cache_size=-20000;
+              PRAGMA temp_store=MEMORY;
+              PRAGMA mmap_size=268435456;
+              PRAGMA journal_size_limit=67108864;
+              PRAGMA wal_autocheckpoint=1000;
+              PRAGMA busy_timeout=5000;
+            "
           done
         fi
       done
