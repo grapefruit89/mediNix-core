@@ -80,6 +80,13 @@ in
     jellyfin = {
       enable  = lib.mkEnableOption "Jellyfin Media Server";
       package = mkPackageOption "jellyfin";
+      adminPasswordFile = lib.mkOption {
+        type    = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
+          ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
+          MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.'';
+      };
     };
     jellyseerr = {
       enable  = lib.mkEnableOption "Jellyseerr Request Manager";

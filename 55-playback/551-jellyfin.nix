@@ -29,7 +29,7 @@ let
 in
 {
   users.users.jellyfin = {
-    uid = uid; group = "media"; extraGroups = [ "media" "video" ];
+    uid = uid; group = "media"; extraGroups = [ "media" "video" "render" ];  # render für /dev/dri (Vektor-DB Finding Topic-21)
     home = stateDir; isSystemUser = true;
   };
   users.groups.media.gid = gid;
@@ -46,7 +46,9 @@ in
         User = "jellyfin";
         Group = "media";
         UMask = "002";
-        SupplementaryGroups = [ "video" ];
+        SupplementaryGroups = [ "video" "render" ];  # render-Gruppe für DRI-Zugriff (Topic-21)
+        # Explizites DeviceAllow statt nur PrivateDevices=false (Topic-21: "zu restriktiv sonst")
+        DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
         StateDirectory = "jellyfin-${toString port}";
         # Tier 3 (HDD media) read-only — reicht
         ReadWritePaths = [ stateDir metadataDir ];
@@ -54,12 +56,28 @@ in
         # Docker --tmpfs /transcode:size=4G → tmpfs for HW-transcode
         TemporaryFileSystem = "/transcode:size=4G";
         RuntimeDirectory = "jellyfin-transcode";
+        # Admin-Passwort via systemd-creds (ADR-5510: Jellyfin speichert First-Run in DB, Passwort VOR Start da sein)
+        LoadCredentialEncrypted = lib.mkIf (cfg.adminPasswordFile != null)
+          [ "jellyfin-admin-pw:${cfg.adminPasswordFile}" ];
       }
     ];
     environment = {
       JELLYFIN_PublishedServerUrl = "https://jellyfin.${svc.domain}";
       # HW-transcode temp dir
       JELLYFIN_TRANSCODE_DIR = "/transcode";
+    } // lib.optionalAttrs (svc.hardware.accel != "none") {
+      # Intel QuickSync VA-API (Topic-21: fehlende Env-Vars). Aus accel ableiten, nicht hardcoden.
+      LIBVA_DRIVER_NAME = {
+        "auto"   = "iHD";
+        "intel"  = "iHD";
+        "vaapi"  = "iHD";
+        "amd"    = "radeonsi";
+        "nvidia" = null;  # NVENC nutzt CUDA, kein VA-API
+      }.${svc.hardware.accel} or null;
+      VDPAU_DRIVER = "va_gl";
+    } // lib.mkIf (cfg.adminPasswordFile != null) {
+      # Jellyfin liest Admin-Passwort aus Env beim First-Run
+      JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin-admin-pw/jellyfin-admin-pw";
     };
   };
 }
