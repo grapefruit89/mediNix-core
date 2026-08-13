@@ -88,12 +88,19 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       # Resolve API Token
       if [ -f "$CREDENTIALS_DIRECTORY/cf-ddns-token" ]; then
-        TOKEN=$(cat "$CREDENTIALS_DIRECTORY/cf-ddns-token")
+        TOKEN_FILE="$CREDENTIALS_DIRECTORY/cf-ddns-token"
       elif [ -n "''${CF_API_TOKEN_FILE:-}" ] && [ -f "$CF_API_TOKEN_FILE" ]; then
-        TOKEN=$(cat "$CF_API_TOKEN_FILE")
+        TOKEN_FILE="$CF_API_TOKEN_FILE"
       else
         echo "FATAL: Cloudflare API token not found." >&2
         exit 1
+      fi
+      
+      # Unterstütze sowohl reinen Text (alt) als auch CF_DNS_API_TOKEN=... (für ACME Kompatibilität)
+      if grep -q "^CF_DNS_API_TOKEN=" "$TOKEN_FILE"; then
+        TOKEN=$(grep "^CF_DNS_API_TOKEN=" "$TOKEN_FILE" | cut -d'=' -f2-)
+      else
+        TOKEN=$(cat "$TOKEN_FILE")
       fi
 
       echo "Fetching current IPs..."

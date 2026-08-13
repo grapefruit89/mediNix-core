@@ -31,7 +31,8 @@ let
   ) registry;
 
   # Sichere LAN-CIDRs. Wenn der User in der Config nichts angibt, nutzen wir restriktive Defaults.
-  trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "fd00::/8" ];
+  # Groq P1: 100.64.0.0/10 hinzugefügt, damit Tailscale-Clients nicht von Caddy geblockt werden.
+  trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
   # ── Zentrale Template Engine (Red-Team Fixes angewandt) ─────────
@@ -117,7 +118,8 @@ in lib.mkIf (cfg.enable && ing.enable) {
     serviceConfig = lib.mkMerge [
       (import ../lib/hardening-profiles.nix { inherit lib; }).network
       {
-        ExecStart = "${pkgs.caddy}/bin/caddy run --config /run/caddy-media/Caddyfile";
+        # Groq P0: Path must be /etc/caddy-media/Caddyfile, not /run/...
+        ExecStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
         RuntimeDirectory = "caddy-media";
         StateDirectory   = "caddy-media";
         User  = "caddy-media";
