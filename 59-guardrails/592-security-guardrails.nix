@@ -19,8 +19,21 @@ lib.mkIf cfg.enable {
   assertions = [
     # INV-SECRET: Kein Secret-Pfad im Nix-Store
     (reg.mkInvariant "INV-SECRET"
-      (let sopsSecrets = lib.attrValues config.sops.secrets;
-       in lib.all (s: !(lib.hasPrefix "/nix/store" s.path)) sopsSecrets))
+      (let paths = [
+        cfg.dns.cloudflareTokenCredential
+        cfg.sabnzbd.serverCredentialFile
+        cfg.jellyfin.adminPasswordCredential
+        cfg.secrets.sonarrApiKeyFile
+        cfg.secrets.radarrApiKeyFile
+        cfg.secrets.prowlarrApiKeyFile
+        cfg.secrets.lidarrApiKeyFile
+        cfg.secrets.readarrApiKeyFile
+        cfg.secrets.jellyseerrApiKeyFile
+        cfg.secrets.sabnzbdApiKeyFile
+        cfg.secrets.navidromeOidcFile
+        cfg.secrets.jellyseerrEnvFile
+      ] ++ (lib.mapAttrsToList (_: s: s.path) config.sops.secrets);
+      in lib.all (p: p == null || !(lib.hasPrefix "/nix/store/" p)) paths))
 
     # INV-TECH-01..03: Verbotene Technologien strukturell unmöglich machen
     (reg.mkInvariant "INV-TECH-01" (!config.virtualisation.docker.enable))
@@ -31,20 +44,4 @@ lib.mkIf cfg.enable {
     (reg.mkInvariant "INV-FW-01" (config.networking.nftables.enable))
   ];
 
-  # Security-Enforcement: Emergency User (früher 593)
-  users.groups.media.gid = 5000;
-  security.sudo.extraConfig =
-    let
-      registry = import ../lib/registry.nix { inherit lib; };
-      restartCmds = lib.mapAttrsToList
-        (_: svc: "/run/current-system/sw/bin/systemctl restart ${if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name}.service")
-        registry.services;
-      cmdString = lib.concatStringsSep ", \\\n                                           " restartCmds;
-    in ''
-      %media-admin ALL=(root) NOPASSWD: ${cmdString}
-      %media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status *
-    '';
-
-  # Security-Enforcement: No-Password Auth (früher 594)
-  security.sudo.wheelNeedsPassword = false;
 }

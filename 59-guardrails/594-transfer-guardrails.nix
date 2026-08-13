@@ -19,7 +19,9 @@ lib.mkIf cfg.enable {
   assertions = [
     # Transfer-spezifische Checks
     (reg.mkErrorDoc "VPN-001" (cfg.usenet-confinement.enable -> cfg.vpn.interface != "") "5410")
+    (reg.mkErrorDoc "VPN-002" (cfg.usenet-confinement.enable -> cfg.vpn.dnsServers != []) "5410")
     (reg.mkErrorDoc "VPN-003" (cfg.usenet-confinement.enable -> (cfg.sabnzbd.enable || cfg.prowlarr.enable)) "5410")
+    (reg.mkErrorDoc "VPN-005" (cfg.usenet-confinement.enable -> !(cfg.vpn.wgConf != null && lib.hasPrefix "/nix/store/" cfg.vpn.wgConf)) "5410")
 
     # INV-VPN-02: vpn.dns darf nicht existieren
     (reg.mkInvariant "INV-VPN-02" (!(cfg.vpn ? dns)))

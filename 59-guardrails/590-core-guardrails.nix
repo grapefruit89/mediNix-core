@@ -17,6 +17,18 @@ let
 in
 lib.mkIf cfg.enable {
   assertions = [
+    # INV-01: Port = ServiceNumber × 10 (Dezimalrahmen SSoT aus lib/registry.nix)
+    (reg.mkInvariant "INV-01"
+      (let registry = import ../lib/registry.nix { inherit lib; };
+       in lib.all (svc: svc.port == null || svc.port == svc.number * 10)
+            (lib.attrValues registry.services)))
+
+    # INV-02: Binding — Jellyfin muss explizit auf 127.0.0.1 binden (nie 0.0.0.0)
+    (reg.mkInvariant "INV-02"
+      (!cfg.jellyfin.enable ||
+       (config.systemd.services ? "jellyfin-5510" &&
+        config.systemd.services."jellyfin-5510".environment.JELLYFIN_NetworkConfiguration__LocalNetworkAddresses or "" == "127.0.0.1")))
+
     # INV-03: GID 5000 = media für alle Core-Mediendienste in der Registry
     (reg.mkInvariant "INV-03"
       (let registry = import ../lib/registry.nix { inherit lib; };
@@ -26,11 +38,15 @@ lib.mkIf cfg.enable {
     # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
     (reg.mkInvariant "INV-UMASK-01"
       (let registry = import ../lib/registry.nix { inherit lib; };
-           dotnetServices = lib.mapAttrsToList (_: svc: if svc.port != null then "${svc.name}-${toString svc.port}.service" else "${svc.name}.service")
-                              (lib.filterAttrs (_: svc: svc.hardeningProfile == "dotnet" || svc.hardeningProfile == "dotnet-gpu") registry.services);
+           dotnetServices = lib.filterAttrs (_: svc: svc.hardeningProfile == "dotnet" || svc.hardeningProfile == "dotnet-gpu") registry.services;
        in lib.all (svc:
-         !(config.systemd.services ? ${svc}) ||
-         config.systemd.services.${svc}.serviceConfig.UMask or "" == "0002")
-       dotnetServices))
+         let 
+           unitName = if svc.port != null then "${svc.name}-${toString svc.port}.service" else "${svc.name}.service";
+           isEnabled = cfg.${svc.name}.enable or false;
+         in 
+           !isEnabled ||
+           (config.systemd.services ? ${unitName} &&
+            config.systemd.services.${unitName}.serviceConfig.UMask or "" == "0002")
+       ) (lib.attrValues dotnetServices)))
   ];
 }
