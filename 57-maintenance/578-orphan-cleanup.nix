@@ -42,6 +42,9 @@ lib.mkIf (svc.enable && cfg.enable) {
         Group = "media";
         UMask = "002";
         ReadWritePaths = [ incompleteDir completeDir ];
+        # Journal-Rate-Limit: bei Permission/IO-Fehlern kein Log-IO-Sturm
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
       }
     ];
     script = ''

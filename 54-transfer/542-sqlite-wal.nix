@@ -73,6 +73,9 @@ lib.mkIf (svc.enable && cfg.enable) {
         User = "root";  # needs write to state dirs
         UMask = "002";
         ExecStart = lib.getExe optimizeScript;
+        # Journal-Rate-Limit: bei DB-Lock-Schleife kein Log-IO-Sturm
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
       }
     ];
   };

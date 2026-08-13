@@ -66,7 +66,14 @@ lib.mkIf (cfg.enable && cfg.observability.driftDetection) {
   };
 
   systemd.services.mediNix-drift-detection = {
-    serviceConfig = profiles.script // { Type = "oneshot"; };
+    serviceConfig = lib.mkMerge [
+      profiles.script
+      {
+        Type = "oneshot";
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
+      }
+    ];
     path = [ pkgs.findutils pkgs.coreutils pkgs.curl pkgs.util-linux ];
     script = "${lib.getExe script}";
   };

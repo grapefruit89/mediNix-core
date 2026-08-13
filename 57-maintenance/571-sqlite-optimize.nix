@@ -45,6 +45,9 @@ in
         Group = "media";
         UMask = "002";
         ReadWritePaths = arrStateDirs;
+        # Journal-Rate-Limit: bei DB-Fehlerschleife kein Log-IO-Sturm
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
       }
     ];
     script = ''

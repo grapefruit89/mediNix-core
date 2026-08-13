@@ -28,7 +28,7 @@ in lib.mkIf cfg.enable {
   systemd.timers.tier-b-cleanup = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = "*:0/15";  # alle 15 Minuten prüfen
+      OnCalendar = "*:0/30";  # alle 30 Minuten (IO-Schonung vs. 15-Min-Dauerfeuer)
       Persistent = true;
     };
   };

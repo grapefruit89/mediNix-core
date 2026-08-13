@@ -120,6 +120,11 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **590-registry.nix**: INV-04/INV-BIND-01 Messages entfernt. INV-VPN-01/03/04/05 + [POLICY]-INV-VPN-05
   Messages ergänzt (Deutsch: was kaputt + was setzen + ADMIN-HANDOFF-Verweis).
 
+## Phase 11 — Timer/IO-Staffelung + Journal-Rate-Limits
+- **543-mover.nix**: `*:0/15` → `*:0/30` (halbe Frequenz, IO-Schonung auf Tier-B).
+- **571/577/578/542**: `RateLimitBurst=5` + `RateLimitIntervalSec=30s` in serviceConfig
+  (Journal-Drossel bei Fehlerschleifen — kein Log-IO-Sturm). 577 auf mkMerge umgestellt.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
