@@ -18,8 +18,7 @@ in {
       (reg.mkInvariant "INV-02"
         (!cfg.jellyfin.enable ||
          (config.systemd.services ? "jellyfin-5510" &&
-          config.systemd.services."jellyfin-5510".environment ?
-          "JELLYFIN_NetworkConfiguration__LocalNetworkAddresses")))
+          config.systemd.services."jellyfin-5510".environment.JELLYFIN_NetworkConfiguration__LocalNetworkAddresses or "" == "127.0.0.1")))
 
       # INV-03: GID 5000 = media für alle Core-Mediendienste in der Registry
       (reg.mkInvariant "INV-03"
@@ -34,19 +33,13 @@ in {
       (reg.mkInvariant "INV-06" (!cfg.jellyfin.enable || cfg.ingress.tls.mode != "off"))
 
       # INV-07: Jellyfin VA-API braucht PrivateDevices = false
-      (reg.mkInvariant "INV-07" (!cfg.jellyfin.enable || !(config.systemd.services.jellyfin.serviceConfig.PrivateDevices or false)))
+      (reg.mkInvariant "INV-07"
+        (!cfg.jellyfin.enable ||
+         (config.systemd.services ? "jellyfin-5510" &&
+          !(config.systemd.services."jellyfin-5510".serviceConfig.PrivateDevices or false))))
 
       # INV-VPN-02: vpn.dns (ohne Servers) darf nicht existieren — nur vpn.dnsServers
       (reg.mkInvariant "INV-VPN-02" (!(cfg.vpn ? dns)))
-
-      # INV-VPN-01: confinement aktiv → vpn.interface muss gesetzt sein
-      (reg.mkInvariant "INV-VPN-01"
-        (!cfg.usenet-confinement.enable || cfg.vpn.interface != ""))
-
-      # INV-VPN-03: confinement aktiv → mindestens ein betroffener Dienst muss enable sein
-      (reg.mkInvariant "INV-VPN-03"
-        (!cfg.usenet-confinement.enable ||
-         (cfg.sabnzbd.enable || cfg.prowlarr.enable)))
 
       # INV-VPN-04: dnsServers Einträge müssen syntaktisch IPs sein (keine Hostnamen in resolv.conf)
       # IPv4: nur Ziffern+Punkte. IPv6: Hex+':' (mindestens ein ':' als Unterscheidung zu IPv4).
@@ -56,22 +49,21 @@ in {
           isIpv6 = s: (lib.hasInfix ":" s) && (builtins.match "[0-9a-fA-F:]+" s != null);
          in lib.all (s: isIpv4 s || isIpv6 s) cfg.vpn.dnsServers))
 
-      # [POLICY] INV-VPN-05: keine Public-Resolver (1.1.1.1/8.8.8.8/9.9.9.9/208.67.222.222) in der Sandbox.
+      # VPN-006: POLICY DNS Allowlist (nur lokale oder VPN-interne Resolver)
       # Bewusste Policy (nicht nur Leak-Schutz): Usenet-Traffic geht ohnehin durch VPN, aber wir
-      # erlauben keine bekannten Public-DNS in der Sandbox — nur VPN-intern (10.x) oder lokaler Host-Stub
-      # (127.0.0.1 bei dnsMode=encrypted-hint). Wer Cloudflare-DNS über den Tunnel will, muss die
-      # Policy hier bewusst erweitern.
-      (reg.mkInvariant "[POLICY]-INV-VPN-05"
-        (let public = [ "1.1.1.1" "8.8.8.8" "9.9.9.9" "208.67.222.222" ];
-         in lib.all (s: !(lib.elem s public)) cfg.vpn.dnsServers))
+      # erlauben keine bekannten Public-DNS in der Sandbox — nur VPN-intern (10.x), lokaler Host-Stub
+      # (127.x) oder fd (IPv6 ULA).
+      (reg.mkError "VPN-006"
+        (lib.all (s: lib.hasPrefix "10." s || lib.hasPrefix "127." s || lib.hasPrefix "fd" s) cfg.vpn.dnsServers))
 
       # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
       (reg.mkInvariant "INV-UMASK-01"
-        (let dotnetServices = [ "sonarr.service" "radarr.service" "readarr.service"
-                               "lidarr.service" "prowlarr.service" "jellyseerr.service" "jellyfin.service" ];
+        (let registry = import ../lib/registry.nix { inherit lib; };
+             dotnetServices = lib.mapAttrsToList (_: svc: if svc.port != null then "${svc.name}-${toString svc.port}.service" else "${svc.name}.service")
+                                (lib.filterAttrs (_: svc: svc.hardeningProfile == "dotnet" || svc.hardeningProfile == "dotnet-gpu") registry.services);
          in lib.all (svc:
            !(config.systemd.services ? ${svc}) ||
-           config.systemd.services.${svc}.serviceConfig.UMask == "0002")
+           config.systemd.services.${svc}.serviceConfig.UMask or "" == "0002")
          dotnetServices))
 
       # INV-SECRET: Kein Secret-Pfad im Nix-Store

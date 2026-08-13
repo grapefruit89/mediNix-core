@@ -18,12 +18,12 @@
 let
   cfg = config.grapefruitMedia.security.backupSsh;
   # Alle State-Dirs die für Backup freigegeben sind (read-only)
-  stateDirs = [
-    "/var/lib/jellyfin-5510" "/var/lib/audiobookshelf-5520" "/var/lib/navidrome-5530"
-    "/var/lib/sonarr-5320" "/var/lib/radarr-5330" "/var/lib/readarr-5340"
-    "/var/lib/lidarr-5350" "/var/lib/prowlarr-5360" "/var/lib/sabnzbd-5410"
-    "/var/lib/jellyseerr-5610" "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600"
-  ];
+  # Generiert primär dynamisch aus der Registry, plus manuelle Ausnahmen (ntfy-sh, recyclarr)
+  registry = import ../lib/registry.nix { inherit lib; };
+  registryDirs = lib.mapAttrsToList
+    (_: svc: "/var/lib/${if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name}")
+    (lib.filterAttrs (n: _: n != "ntfy") registry.services);
+  stateDirs = registryDirs ++ [ "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600" ];
 in lib.mkIf cfg.enable {
   users.users.backup = {
     isSystemUser = true;

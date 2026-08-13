@@ -29,14 +29,15 @@ in lib.mkIf cfg.enable {
   users.groups.media.gid = 5000;
 
   # Eingeschränktes sudo: NUR systemctl restart der mediNix-Services
-  security.sudo.extraConfig = ''
-    %media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl restart jellyfin-5510.service, \
-                                           /run/current-system/sw/bin/systemctl restart sabnzbd-5410.service, \
-                                           /run/current-system/sw/bin/systemctl restart sonarr-5320.service, \
-                                           /run/current-system/sw/bin/systemctl restart radarr-5330.service, \
-                                           /run/current-system/sw/bin/systemctl restart prowlarr-5360.service, \
-                                           /run/current-system/sw/bin/systemctl restart jellyseerr-5610.service, \
-                                           /run/current-system/sw/bin/systemctl restart ntfy-5810.service
-    %media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status *
-  '';
+  security.sudo.extraConfig =
+    let
+      registry = import ../lib/registry.nix { inherit lib; };
+      restartCmds = lib.mapAttrsToList
+        (_: svc: "/run/current-system/sw/bin/systemctl restart ${if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name}.service")
+        registry.services;
+      cmdString = lib.concatStringsSep ", \\\n                                           " restartCmds;
+    in ''
+      %media-admin ALL=(root) NOPASSWD: ${cmdString}
+      %media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status *
+    '';
 }

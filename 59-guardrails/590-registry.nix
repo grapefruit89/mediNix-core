@@ -90,13 +90,6 @@ let
       fix = "Nur IP-Adressen eintragen";
       ref = "ADR-0000";
     };
-    "[POLICY]-INV-VPN-05" = {
-      what = "POLICY: keine Public-Resolver (1.1.1.1/8.8.8.8/9.9.9.9/208.67.222.222) in der Sandbox.";
-      expected = "VPN-interne oder lokale (127.0.0.1) Resolver";
-      found = "Public-Resolver konfiguriert";
-      fix = "Public DNS aus vpn.dnsServers entfernen";
-      ref = "ADR-0000";
-    };
     "INV-TLS-02" = {
       what = "acmeHost gesetzt → TLS-Direktive muss in global UND standalone Caddy-Mode erscheinen.";
       expected = "TLS in beiden Scopes";
@@ -168,6 +161,13 @@ let
       expected = "wgConf außerhalb des Stores";
       found = "/nix/store/ Prefix";
       fix = "wgConf-Pfad auf einen State-Ordner setzen";
+      ref = "5410";
+    };
+    "VPN-006" = {
+      what = "POLICY: DNS Allowlist für die Sandbox (nur lokale oder VPN-interne Resolver).";
+      expected = "IPs beginnend mit 10.x, 127.x oder fd (IPv6)";
+      found = "Nicht erlaubter (Public) Resolver konfiguriert";
+      fix = "Nur erlaubte DNS-Netze verwenden oder Policy in 599-cross-domain.nix erweitern";
       ref = "5410";
     };
     "TLS-001" = {
