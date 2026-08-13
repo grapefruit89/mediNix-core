@@ -48,10 +48,4 @@ in
     ${pkgs.nftables}/bin/nft add rule inet nixos-fw input tcp dport ${toString servicePortFrom}-${toString servicePortTo} drop 2>/dev/null || true
   '';
 
-  # Optional: WireGuard-Killswitch für SABnzbd (usenet-confinement)
-  # SABnzbd (541) darf nur durch wg-Interface routen (ADR-5410).
-  networking.firewall.extraCommands = lib.mkIf cfg.usenet-confinement.enable (lib.mkAfter ''
-    # SABnzbd VPN confinement: nur wg0, kein clearnet leak
-    ${pkgs.nftables}/bin/nft 'add rule inet nixos-fw output oifname != "wg0" tcp dport 5410 drop' 2>/dev/null || true
-  '');
 }
