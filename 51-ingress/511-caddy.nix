@@ -71,12 +71,11 @@ let
             }
           }
         '';
-        # Internal: LAN only via explizite trustedCidrs (P1.4), mit authBlock (P0.1)
+        # Internal: LAN only via explizite trustedCidrs (P1.4), keine Auth da LAN das Boundary ist
         internal = ''
           @blocked not remote_ip ${trustedCidrsStr}
           abort @blocked
           encode zstd gzip
-          ${authBlock}
           reverse_proxy http://127.0.0.1:${port}
         '';
         # Public: LAN + WAN, compression, mit authBlock (P0.1)

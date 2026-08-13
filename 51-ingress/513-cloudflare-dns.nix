@@ -182,14 +182,17 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       for domain in $STREAM_DOMAINS; do
         update_record "$domain" "$WAN_IP" "false"
+        sleep 0.5
       done
 
       for domain in $PUBLIC_DOMAINS; do
         update_record "$domain" "$WAN_IP" "true"
+        sleep 0.5
       done
 
       for domain in $LAN_DOMAINS; do
         update_record "$domain" "$LAN_IP" "false"
+        sleep 0.5
       done
 
       echo "DDNS sync completed successfully."
