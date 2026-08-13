@@ -1,16 +1,17 @@
-# ---
-# id: "ADR-5043"
-# title: "Assertion Quality Standard (fail-closed, readable what/why/fix)"
-# domain: 59
-# folder: 59-guardrails
-# status: active
-# complexity: 2
-# last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-0000 (fail-closed Prinzip), ADR-5050 (systemd-hardening-baseline)
-#   skill: medinix-assertion-quality
-#   repo-harvest: mynixos-knowledge-base (GUIDE-58-seven-quality-gates, Tor 4 SRE-Hardening)
-# ---
+---
+id: "ADR-5043"
+title: "Assertion Quality Standard (fail-closed, readable what/why/fix)"
+domain: 50
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - core
+  - governance
+links:
+  adr: ADR-0000 (fail-closed Prinzip), ADR-5050 (systemd-hardening-baseline)
+  skill: medinix-assertion-quality
+---
 
 # ADR-5043 — Assertion Quality Standard
 

@@ -62,25 +62,11 @@ let
       fix = "systemd LoadCredential nutzen";
       ref = "ADR-0000";
     };
-    "INV-VPN-01" = {
-      what = "usenet-confinement.enable erfordert vpn.interface.";
-      expected = "vpn.interface gesetzt";
-      found = "vpn.interface ist leer";
-      fix = "Host: WireGuard anlegen und grapefruitMedia.vpn.interface setzen.";
-      ref = "ADR-0000";
-    };
     "INV-VPN-02" = {
       what = "vpn.dns existiert nicht — nur vpn.dnsServers. Phantom-Option verhindern.";
       expected = "vpn.dnsServers verwenden";
       found = "vpn.dns ist definiert";
       fix = "Option auf vpn.dnsServers umbenennen";
-      ref = "ADR-0000";
-    };
-    "INV-VPN-03" = {
-      what = "usenet-confinement aktiv → mindestens ein betroffener Dienst muss enable sein.";
-      expected = "sabnzbd oder prowlarr aktiviert";
-      found = "Kein Usenet-Dienst aktiv";
-      fix = "Dienste aktivieren oder usenet-confinement ausschalten";
       ref = "ADR-0000";
     };
     "INV-VPN-04" = {
@@ -130,6 +116,20 @@ let
       expected = "Jeder vHost hat caddyClass != none in der Registry";
       found = "Manueller vHost konfiguriert";
       fix = "Dienst in lib/registry.nix eintragen";
+      ref = "ADR-0000";
+    };
+    "INV-DNS-01" = {
+      what = "Verschlüsseltes DNS (DoT) muss aktiv sein, um Leaks zu verhindern.";
+      expected = "dnsovertls = true oder opportunistic";
+      found = "DoT ist aus oder fehlt";
+      fix = "services.resolved.dnsovertls aktivieren";
+      ref = "ADR-0000";
+    };
+    "INV-FW-01" = {
+      what = "NFTables Firewall muss aktiv sein (für VPN UID Kill-Switch).";
+      expected = "networking.nftables.enable = true";
+      found = "Firewall aus";
+      fix = "nftables aktivieren";
       ref = "ADR-0000";
     };
   };
@@ -232,6 +232,13 @@ let
       found = "Möglicher HDD-Pfad";
       fix = "Auf schnellen Speicher verschieben";
       ref = "5010";
+    };
+    "STORE-003" = {
+      what = "sqlite.backupDir darf nicht im Nix-Store liegen.";
+      expected = "Backup außerhalb von /nix/store";
+      found = "Pfad beginnt mit /nix/store/";
+      fix = "Einen Pfad in /var/lib oder sops-nix verwenden";
+      ref = "5720";
     };
   };
 
