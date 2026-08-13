@@ -50,15 +50,6 @@ let
         done
 
       echo "Mover done"
-
-      # 3. Optional: Jellyfin Library-Scan nach Move (nur ohne mergerfs nötig)
-      ${lib.optionalString cfg.jellyfinRefreshAfterMove ''
-        if [ -n "''${JELLYFIN_API_KEY:-}" ] && [ -n "''${JELLYFIN_URL:-}" ]; then
-          curl -s -H "X-Emby-Token: $JELLYFIN_API_KEY" \
-            "$JELLYFIN_URL/Library/Refresh" || true
-          echo "Mover: Jellyfin Library-Scan getriggert"
-        fi
-      ''}
     '';
   };
 in
@@ -89,8 +80,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
   };
 
   # systemd.path als Klingel: feuert bei Aktivität unter stagingDir, nicht nach Uhr.
-  # Nur wenn trigger = "path" (default). Bei "manual" nur systemctl start.
-  systemd.paths.mediNix-mover = lib.mkIf (cfg.trigger == "path") {
+  systemd.paths.mediNix-mover = {
     wantedBy = [ "paths.target" ];
     pathConfig = {
       PathChanged = cfg.stagingDir;

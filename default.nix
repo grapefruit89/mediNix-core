@@ -196,21 +196,11 @@ in
         type = lib.types.enum [ "ondemand" "off" ];
         default = "ondemand";
         description = ''
-          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + Trigger).
+          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + systemd.path-Klingel).
           Kein Calendar-Timer als Haupttaktgeber — HDD soll schlafen dürfen.
           "off": Mover komplett inaktiv.
         '';
       };
-      trigger = lib.mkOption {
-        type = lib.types.enum [ "path" "manual" ];
-        default = "path";
-        description = ''
-          "path": systemd.path beobachtet stagingDir (PathChanged) und startet den Mover bei
-          Dateisystem-Aktivität — Klingel ohne Uhr. minFreeGb bleibt die Bremse.
-          "manual": kein systemd.path; Mover nur per `systemctl start` (z.B. SABnzbd-Hook).
-        '';
-      };
-      minFreeGb = lib.mkOption {
         type = lib.types.int;
         default = 20;
         description = ''
@@ -245,21 +235,10 @@ in
         '';
       };
       action = lib.mkOption {
-        type = lib.types.enum [ "move" "copy" ];
+        type = lib.types.enum [ "move" ];
         default = "move";
         description = ''
-          "move": Datei nach HDD verschieben, SSD wieder frei (Hardlink SSD↔HDD unmöglich — cross-device).
-          "copy": SSD behält Working-Copy (doppelter Platzbedarf, nur für explizite "digitale Kopie").
-        '';
-      };
-      jellyfinRefreshAfterMove = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Nach erfolgreichem Move: Jellyfin Library-Scan via API auslösen (ScheduledTasks trigger).
-          Nur nötig wenn KEIN Host-mergerfs — bei move ohne Union "springen" physische Pfade,
-          Jellyfin kennt den neuen Ort sonst nicht. Bei mergerfs (stabiler logischer Pfad) YAGNI.
-          Braucht jellyfin.enable + Admin-API-Zugang (Secret via grapefruitMedia.secrets.jellyfinApiKeyFile).
+          "move": Datei nach HDD verschieben, SSD wird frei (Hardlink SSD↔HDD unmöglich — cross-device).
         '';
       };
     };
@@ -610,18 +589,9 @@ in
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
           Assertion erzwingt explizite Setzung bei usenet-confinement.enable.
-          Bei dnsMode = "encrypted-hint" zeigen diese auf lokale Host-Stubs
-          (z.B. 127.0.0.1 wenn Host stubby/cloudflared/nextdns lokal bindet).
-        '';
-      };
-      dnsMode = lib.mkOption {
-        type    = lib.types.enum [ "vpn-plain" "encrypted-hint" ];
-        default = "vpn-plain";
-        description = ''
-          vpn-plain: Modul schreibt resolv.conf mit dnsServers in die Sandbox (VPN-interner DNS).
-          encrypted-hint: Modul setzt KEINE DoT/DoH-Implementation selbst. Stattdessen dokumentiert
-          es, dass der Host encrypted DNS liefern muss und dnsServers auf die vom Host bereitgestellten
-          lokalen Stubs zeigen sollen (z.B. 127.0.0.1). mediNix implementiert keinen DoT-Client.
+          Für encrypted DNS: Host liefert lokale Stubs (z.B. 127.0.0.1 via stubby/cloudflared/
+          nextdns) und dnsServers zeigt darauf — mediNix implementiert keinen DoT-Client.
+          Siehe ADMIN-HANDOFF §4a.
         '';
       };
     };

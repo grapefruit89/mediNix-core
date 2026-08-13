@@ -155,6 +155,14 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
   sonst oft hintereinander starten. StartLimit = echte Bremse für Re-Starts.
 - **ADMIN-HANDOFF §3a**: StartLimit vermerkt (Klarstellung Journal-Limit ≠ Start-Limit).
 
+## Phase 13 — Feature-Creep-Welle 1 (Oberfläche verkleinern)
+- **default.nix**: `jellyfinRefreshAfterMove` gelöscht (API-Key-Gefrickel ohne Creds-Anbindung = toter Code).
+  `mover.action` = nur noch `move` (`copy` raus — widerspricht SSD-frei).
+  `mover.trigger` (path/manual enum) gelöscht — systemd.path läuft bei `mover.enable = true`.
+  `vpn.dnsMode` gelöscht — reine Doku/Semantik, keine Codepfad-Änderung; Info nach ADMIN-HANDOFF §4a.
+- **543-mover.nix**: Jellyfin-Refresh-Skriptblock raus, systemd.path ohne trigger-mkIf.
+- **ADMIN-HANDOFF**: §3a (Mover quiet, keine Jellyfin-API), §4a (dnsMode weg, encrypted DNS = Host-Sache).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

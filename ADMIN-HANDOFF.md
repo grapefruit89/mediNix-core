@@ -77,16 +77,16 @@ mediNIX-core definiert nur **logische** Pfade (`lib/abc-tiering.nix`):
 ### 3a. Mover (ondemand, kein Timer)
 `mover.enable` + `mover.mode = "ondemand"` (Default). Kein Calendar-Timer — die HDD soll
 schlafen. Der Mover ist ein `systemd`-oneshot (`mediNix-mover`), der **nur bei Bedarf** läuft:
-- **Trigger:** `mover.trigger = "path"` (Default) erzeugt eine `systemd.path`-Unit die `stagingDir`
-  per `PathChanged`/`DirectoryNotEmpty` beobachtet — Klingel ohne Uhr. `minFreeGb` im Script bleibt
-  die Bremse (bei genug Platz: exit 0, HDD bleibt in Ruhe). Alternativ `trigger = "manual"` + Host-Hook
-  (`ExecPost` in SABnzbd-Unit). Path = Klingel, minFreeGb = Bremse, Whitelist+move = Aktion.
-  Service-Unit hat `StartLimitBurst=3`/`StartLimitIntervalSec=60` (begrenzt reale Starts, nicht nur
+- **Trigger:** `systemd.path` beobachtet `stagingDir` (PathChanged/DirectoryNotEmpty) = Klingel
+  ohne Uhr — aktiv sobald `mover.enable = true`. `minFreeGb` im Script bleibt die Bremse
+  (bei genug Platz: exit 0, HDD bleibt in Ruhe). Wer nur manuell will: Mover per
+  `systemctl start mediNix-mover` starten (Path-Unit unabhängig abschalten falls gewünscht).
+- **Action:** nur `move` (SSD frei, HDD = kanonisch). Kein `copy` (doppelter Platz, widerspricht Ziel).
+- **Optional Jellyfin-Refresh:** nicht im Modul. Bei move ohne Host-mergerfs "springen" physische
+  Pfade — Jellyfin muss dann neu scannen (UI/_arr→Jellyfin Connect). Mit mergerfs (stabiler
+  logischer Pfad) entfällt das. Modul bleibt quiet, kein API-Key-Gefrickel an der Unit.
+- Service-Unit hat `StartLimitBurst=3`/`StartLimitIntervalSec=60` (begrenzt reale Starts, nicht nur
   Logs — Journal-RateLimit drosselt nur Log-IO).
-- **Optional Jellyfin-Refresh:** `mover.jellyfinRefreshAfterMove = true` löst nach erfolgreichem Move
-  einen Jellyfin Library-Scan via API aus (braucht `secrets.jellyfinApiKeyFile` + Jellyfin-URL).
-  Nur nötig **ohne** Host-mergerfs — bei move ohne Union "springen" physische Pfade. Mit mergerfs
-  (stabiler logischer Pfad) YAGNI.
 - Im Script: `df`-Check auf `mover.stagingDir` — erst wenn freier Platz < `mover.minFreeGb`
   werden Dateien (Whitelist `mover.mediaExtensions`, >= 50MB) nach `mover.archiveDir`
   verschoben (`action = "move"`, SSD wird frei; Hardlink SSD↔HDD unmöglich — cross-device).
@@ -143,12 +143,14 @@ mediNIX-core schreibt nur `resolv.conf` mit `vpn.dnsServers` in die Sandbox
 Drei Varianten für `vpn.dnsServers`:
 - **Variante A (VPN-Provider-DNS):** `dnsServers = [ "10.8.0.1" ]` (VPN-interner Resolver, nur tunnel-intern)
 - **Variante B (Host-DoT-Stub):** Host betreibt stubby/cloudflared/nextdns lokal auf 127.0.0.1
-  → `dnsServers = [ "127.0.0.1" ]` + `dnsMode = "encrypted-hint"` + confinement
+  → `dnsServers = [ "127.0.0.1" ]` + confinement
 - **Variante C (networkd-DNS):** WireGuard-Interface bekommt DNS via systemd-networkd
-  → Modul konsumiert nur die Adressen, Host setzt `cfg.vpn.dnsServers` entsprechend
+  → Modul konsumiert nur die Adressen, Host setzt `vpn.dnsServers` entsprechend
 
-`dnsMode` ändert **keinen** Codepfad — 525 baut resolv.conf immer gleich aus `dnsServers`.
-`dnsMode` ist nur Semantik/Doku: es deklariert welche DNS-Lieferung der Host wählt.
+Hinweis: Es gibt KEINE `dnsMode`-Option mehr. Das Modul baut resolv.conf immer gleich aus
+`dnsServers` — encrypted DNS ist reine Host-Entscheidung (DoT-Stub auf 127.0.0.1 oder
+VPN-Provider-DNS). Kein Codepfad hängt an einer Mode-Angabe.
+
 ### 4b. Runtime-Verify & ipify-Abhängigkeit (Ergänzung, kein Ersatz)
 Der eigentliche Kill-Switch ist **systemd `RestrictNetworkInterfaces`** plus **Host-UID-Policy-Routing**.
 Der Verify-Service (`usenet-vpn-verify.service` in 525) ist eine **ergänzende Laufzeit-Prüfung**
