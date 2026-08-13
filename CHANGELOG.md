@@ -70,6 +70,17 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **B2 RuntimeDirectory**: SABnzbd (`/run/sabnzbd-tmp`) + Jellyfin (`/transpile-transcode` tmpfs)
   bereits implementiert — dokumentiert, kein Neu-Bau nötig.
 
+## Phase 6 — Encrypted DNS + VPN-Kill-Switch (fail-closed)
+- **dnsMode Option** (`vpn.dnsMode` = vpn-plain / encrypted-hint): Modul implementiert keinen DoT-Client,
+  Host liefert encrypted DNS (Variante A/B/C in ADMIN-HANDOFF §4a).
+- **INV-VPN-01**: confinement → vpn.interface ≠ "" (Build-Bruch).
+- **INV-VPN-03**: confinement → sabnzbd + prowlarr müssen enable sein (kein totes Confinement).
+- **INV-VPN-04**: dnsServers müssen syntaktisch IPs sein (keine Hostnamen in resolv.conf).
+- **INV-VPN-05**: kein hardcoded Public-DNS (1.1.1.1/8.8.8.8) als Modul-Vorgabe (INV-04/02 bereits vorhanden).
+- **525-usenet-confinement.nix**: RestrictNetworkInterfaces=[lo,vpnIf] + BindReadOnlyPaths (eigene resolv.conf)
+  + InaccessiblePaths=[/sys/class/net] + echter IP-Leak-Check (Host-IP vs VPN-Interface via ipify) bereits vorhanden.
+- **ADMIN-HANDOFF §4a**: Encrypted DNS Varianten (VPN-Provider / Host-DoT-Stub / networkd) dokumentiert.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

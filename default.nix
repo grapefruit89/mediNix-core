@@ -549,6 +549,18 @@ in
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
           Assertion erzwingt explizite Setzung bei usenet-confinement.enable.
+          Bei dnsMode = "encrypted-hint" zeigen diese auf lokale Host-Stubs
+          (z.B. 127.0.0.1 wenn Host stubby/cloudflared/nextdns lokal bindet).
+        '';
+      };
+      dnsMode = lib.mkOption {
+        type    = lib.types.enum [ "vpn-plain" "encrypted-hint" ];
+        default = "vpn-plain";
+        description = ''
+          vpn-plain: Modul schreibt resolv.conf mit dnsServers in die Sandbox (VPN-interner DNS).
+          encrypted-hint: Modul setzt KEINE DoT/DoH-Implementation selbst. Stattdessen dokumentiert
+          es, dass der Host encrypted DNS liefern muss und dnsServers auf die vom Host bereitgestellten
+          lokalen Stubs zeigen sollen (z.B. 127.0.0.1). mediNix implementiert keinen DoT-Client.
         '';
       };
     };

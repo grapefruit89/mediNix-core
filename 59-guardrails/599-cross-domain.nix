@@ -42,6 +42,27 @@ in {
       # INV-VPN-02: vpn.dns (ohne Servers) darf nicht existieren — nur vpn.dnsServers
       (reg.mkInvariant "INV-VPN-02" (!(cfg.vpn ? dns)))
 
+      # INV-VPN-01: confinement aktiv → vpn.interface muss gesetzt sein
+      (reg.mkInvariant "INV-VPN-01"
+        (!cfg.usenet-confinement.enable || cfg.vpn.interface != ""))
+
+      # INV-VPN-03: confinement aktiv → betroffene Dienste müssen enable sein (kein totes Confinement)
+      (reg.mkInvariant "INV-VPN-03"
+        (!cfg.usenet-confinement.enable ||
+         (cfg.sabnzbd.enable && cfg.prowlarr.enable)))
+
+      # INV-VPN-04: dnsServers Einträge müssen syntaktisch IPs sein (keine Hostnamen in resolv.conf)
+      (reg.mkInvariant "INV-VPN-04"
+        (let
+          isIp = s: (lib.hasInfix "." s) && (builtins.match "[0-9.]+" s != null
+                    || builtins.match "[0-9a-fA-F:]+" s != null);
+         in lib.all isIp cfg.vpn.dnsServers))
+
+      # INV-VPN-05: Kein hardcoded Public-DNS (1.1.1.1/8.8.8.8/9.9.9.9) als Modul-Vorgabe im Usenet-Pfad
+      (reg.mkInvariant "INV-VPN-05"
+        (let public = [ "1.1.1.1" "8.8.8.8" "9.9.9.9" "208.67.222.222" ];
+         in lib.all (s: !(lib.elem s public)) cfg.vpn.dnsServers))
+
       # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
       (reg.mkInvariant "INV-UMASK-01"
         (let dotnetServices = [ "sonarr-5320" "radarr-5330" "readarr-5340"

@@ -61,6 +61,22 @@ Bei `usenet-confinement.enable` baut mediNIX-core die systemd-Unit-Isolation
 
 Keine festen Interface-Namen als Modul-Default — der Host setzt sie.
 
+### 4a. Encrypted DNS (DoT/DoH) — Host liefert, Modul implementiert NICHTS
+mediNIX-core schreibt nur `resolv.conf` mit `vpn.dnsServers` in die Sandbox
+(`RestrictNetworkInterfaces = [ "lo" vpnIf ]` + `BindReadOnlyPaths` auf eigene resolv.conf).
+**Kein DoT/DoH-Daemon im Modul** (stubby/unbound/cloudflared bleiben Host-Territorium).
+
+Drei Varianten für `vpn.dnsServers`:
+- **Variante A (VPN-Provider-DNS):** `dnsServers = [ "10.8.0.1" ]` (VPN-interner Resolver, nur tunnel-intern)
+- **Variante B (Host-DoT-Stub):** Host betreibt stubby/cloudflared/nextdns lokal auf 127.0.0.1
+  → `dnsServers = [ "127.0.0.1" ]` + `dnsMode = "encrypted-hint"` + confinement
+- **Variante C (networkd-DNS):** WireGuard-Interface bekommt DNS via systemd-networkd
+  → Modul konsumiert nur die Adressen, Host setzt `cfg.vpn.dnsServers` entsprechend
+
+mediNIX implementiert keinen DoT-Client. Fail-closed: `usenet-confinement.enable` ohne
+`vpn.dnsServers` → Build bricht (INV-04 / INV-VPN-02). Kein Fallback auf 1.1.1.1/8.8.8.8
+(INV-VPN-05 verbietet hardcoded Public-DNS als Modul-Vorgabe).
+
 ---
 
 ## 5. ACME / TLS-Zertifikatspfade
