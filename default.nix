@@ -219,18 +219,20 @@ in
       };
       stagingDir = lib.mkOption {
         type = lib.types.path;
-        default = "/var/lib/mediNix-staging";
+        default = "/data/downloads";
         description = ''
           Quell-Pfad auf Tier-B (SSD): importierte/complette Downloads die bei Platzmangel auf HDD wandern.
+          Andockpunkt an storage.mediaRoot (Default: ''${storage.mediaRoot}/downloads).
           Host: Mountpoint der SSD-Staging-SSD.
         '';
       };
       archiveDir = lib.mkOption {
         type = lib.types.path;
-        default = "/var/lib/mediNix-archive";
+        default = "/data/library";
         description = ''
           Ziel-Pfad auf Tier-C (HDD): nur echte Mediendateien (siehe mediaExtensions).
           Streaming-Dienste dürfen von hier lesen.
+          Andockpunkt an storage.mediaRoot (Default: ''${storage.mediaRoot}/library).
         '';
       };
       action = lib.mkOption {

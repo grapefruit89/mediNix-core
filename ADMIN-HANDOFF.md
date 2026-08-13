@@ -77,11 +77,16 @@ mediNIX-core definiert nur **logische** Pfade (`lib/abc-tiering.nix`):
 ### 3a. Mover (ondemand, kein Timer)
 `mover.enable` + `mover.mode = "ondemand"` (Default). Kein Calendar-Timer — die HDD soll
 schlafen. Der Mover ist ein `systemd`-oneshot (`mediNix-mover`), der **nur bei Bedarf** läuft:
-- Trigger: Host ruft `systemctl start mediNix-mover` (z.B. SABnzbd Post-Download-Hook) oder manuell.
+- **Trigger (PFLICHT):** Host muss den Start auslösen — empfohlen SABnzbd Post-Download-Hook:
+  `ExecPost = [ "/run/current-system/sw/bin/systemctl start mediNix-mover" ]` in der SABnzbd-Unit
+  (oder manuell `systemctl start mediNix-mover`). Ohne Hook startet der Mover nie automatisch —
+  die SSD läuft erst voll, bis jemand von Hand eingreift.
 - Im Script: `df`-Check auf `mover.stagingDir` — erst wenn freier Platz < `mover.minFreeGb`
-  werden Dateien mit `mover.mediaExtensions` (mkv/mp4/m4b/mp3/flac/…) nach `mover.archiveDir`
+  werden Dateien (Whitelist `mover.mediaExtensions`, >= 50MB) nach `mover.archiveDir`
   verschoben (`action = "move"`, SSD wird frei; Hardlink SSD↔HDD unmöglich — cross-device).
-- Metadaten (NFO/JPG/Poster/DB) bleiben auf der SSD-Arbeitsseite.
+- **Library-Pfade:** Bei `action = "move"` ändert sich der physische Ort der Datei. **Ohne**
+  Host-mergerfs (gleicher logischer Pfad) müssen Sonarr/Radarr/Jellyfin neu scannen, sonst
+  zeigen Imports/Streams auf tote Pfade. Mit mergerfs (§3b) bleibt der logische Pfad stabil.
 - Playback-Dienste (Jellyfin/Audiobookshelf/Navidrome/Feishin) dürfen Tier-C lesen (Streaming);
   *arr/Indexer/Download halten die HDD nicht wach.
 

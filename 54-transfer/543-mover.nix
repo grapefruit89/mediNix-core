@@ -39,15 +39,14 @@ let
       fi
       echo "Mover: SSD knapp ($(($FREE_KB/1024)) MB frei) → verschiebe Media nach $ARCHIVE"
 
-      # 2. Nur Whitelist-Extensions, nur größere Dateien (>= 50MB), rekursiv
+      # 2. Nur Whitelist-Extensions UND >= 50MB, rekursiv, korrekt geklammert
       mkdir -p "$ARCHIVE"
-      find "$STAGING" -type f -size +50M ${lib.concatMapStringsSep " " (e: " -o -name '*${e}'") cfg.mediaExtensions} \
+      find "$STAGING" -type f -size +50M \( ${lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions} \) \
         | while read -r f; do
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
           mkdir -p "$(dirname "$dest")"
           ${if cfg.action == "move" then "mv -f" else "cp -f"} "$f" "$dest"
-          ${if cfg.action == "move" then "rm -f \"$f\"" else ""}
         done
 
       echo "Mover done"

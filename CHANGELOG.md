@@ -134,6 +134,14 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **ADMIN-HANDOFF §3a/§3b**: Mover-Handoff (Trigger, Whitelist, Playback-darf-HDD-lesen) +
   mergerfs-Beispiel (Host-seitig, NICHT im Modul — Portabilität).
 
+## Phase 12b — Mover find-Fix + mediaRoot-Defaults + Hook-Handoff
+- **543-mover.nix**: find-Logik geklammert (`-size +50M \( -name … -o … \)` — Precedence-Fix,
+  sonst matchten alle Whitelist-Dateien egal Größe). Überflüssiges `rm` nach `mv` entfernt.
+- **default.nix**: `stagingDir`/`archiveDir` Defaults an `storage.mediaRoot` angedockt
+  (`/data/downloads`, `/data/library` statt `/var/lib/mediNix-*`).
+- **ADMIN-HANDOFF §3a**: Hook-Pflicht (SABnzbd ExecPost → systemctl start mediNix-mover)
+  + Library-Pfad-Warnung (ohne mergerfs neu scannen nötig).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
