@@ -81,12 +81,20 @@ Fertig nur wenn z. B.:
 - confinement ohne interface/dns → Eval-Fehler (wo vorgesehen)
 - rg auf private Host-Namen in *.nix sauber (nur generische examples)
 - Unit-/StateDir-Konventionen eingehalten
-- ADMIN-HANDOFF höchstens Minimal-Schnittstelle
-- kurzer CHANGELOG bei sichtbarem Verhalten
+**Verifikation (TDD-light, kein Ritual):**
+- Wo ein Nix-Check-Host verfügbar ist: `nix eval` / `nix flake check` nach dem Patch ausführen.
+- Betroffene Assertions benennen (nicht nur "Patch gelesen → fertig" behaupten).
+- Kein "fertig" allein aus dem eigenen Patch-Review — echte Eval schlägt mehr als Lesen.
+- Kein Check-Host / q958 AUS: ehrlich melden "Check nicht gelaufen — P0 bleibt offen". Nicht fake-grün.
 
 ---
 
-## Report-Format (Pflicht vor dem Patch)
+## Antwortstil (Caveman-light)
+
+- Knapp. Kein Geplänkel, kein Höflichkeitsroman.
+- Erst Report-Format (Ist/Lücke/Plan/Nicht/Abnahme), dann Diff/Befehl.
+- Erklärungen nur wenn für Abnahme oder Trade-off nötig.
+- Code bleibt unangetastet — nur Prosa kürzer. KISS auf Kommunikationsebene.
 
 Ist:     <Datei/Verhalten mit Beleg>
 Lücke:   <was wirklich fehlt>

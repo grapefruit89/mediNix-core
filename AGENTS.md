@@ -93,7 +93,12 @@ Keine verstreuten Host-Hinweise hier. Flake evaluiert ohne jede Host-Annahme.
 ## Skills (Hermes)
 - `medinix-implement-discipline` (devops/): **BEI JEDEM mediNIX-Code-Task LADEN** — Pipeline
   (Karpathy lesen → Ponytail-Leiter → NixOS-Idiom → Surgical → Abnahme), Priorität #1 Safety.
-  Report-Format (Ist/Lücke/Plan/Nicht/Abnahme) PFLICHT vor Patch.
+  Report-Format (Ist/Lücke/Plan/Nicht/Abnahme) PFLICHT vor Patch. Phase E: Verifikation
+  (flake check wo möglich, sonst ehrlich "P0 offen"). Antwortstil: knapp (Caveman-light).
 - `karpathy-coding-principles` (immer aktiv bei Implementierung)
 - `nixos-context7-gate` (NixOS-Optionen verifizieren — `libraryId` nicht `libraryName`)
 - `nixos-decimal-audit` (Nummern-Duplikate prüfen — erkennt KEINE Präfix-Kollision bei gleicher 3-stelliger Nummer!)
+
+## Commits
+Conventional Commits: `feat|fix|refactor|docs|chore|test` als Prefix, atomar, ein Thema pro Commit.
+Kein "Update" / "stuff". Reverts nach Hermes-Fehlern: `revert: <ursprüngliche Message>`.
