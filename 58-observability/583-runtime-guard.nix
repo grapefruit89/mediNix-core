@@ -40,10 +40,14 @@ let
         curl -s -d "RUNTIME ALERT: Dienst bindet auf 0.0.0.0! $BAD" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
 
-      # 3. VPN-Interface UP wenn confinement aktiv?
+      # 3. VPN-Interface UP und Route aktiv, wenn confinement aktiv?
       IFACE="${toString cfg.vpn.interface}"
-      if [ -n "$IFACE" ] && ! ip link show "$IFACE" >/dev/null 2>&1; then
-        curl -s -d "RUNTIME ALERT: VPN-Interface $IFACE DOWN!" "$NTFY" || echo "NTFY Notification failed" >&2
+      if [ -n "$IFACE" ]; then
+        if ! ip link show "$IFACE" >/dev/null 2>&1; then
+          curl -s -d "RUNTIME ALERT: VPN-Interface $IFACE DOWN!" "$NTFY" || echo "NTFY Notification failed" >&2
+        elif ! ip route show table all dev "$IFACE" | grep -q "default"; then
+          curl -s -d "RUNTIME ALERT: VPN-Interface $IFACE UP, aber keine Default-Route aktiv!" "$NTFY" || echo "NTFY Notification failed" >&2
+        fi
       fi
 
       echo "Runtime-Guard OK"
