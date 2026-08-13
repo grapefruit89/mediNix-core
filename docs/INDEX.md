@@ -49,3 +49,4 @@ Alle Architecture Decision Records. Sortiert nach Domain.
 - [ADR-5720](ADR-5720-backup-strategy.md) — Backup Strategy (draft)
 
 ## Total: 28 ADRs (0000–5720 inkl. 21, 5115)
+- [ADR-5410](ADR-5410-usenet-confinement.md) - Usenet Confinement (VPN Kill-Switch)
