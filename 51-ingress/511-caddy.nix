@@ -5,7 +5,7 @@
 # folder: 51-ingress
 # status: active
 # complexity: 4
-# last_reviewed: 2026-08-11
+# last_reviewed: 2026-08-13
 # links:
 #   adr: ADR-5110
 #   skill: nixos-context7-gate
@@ -13,7 +13,7 @@
 #   - query: "services.caddy virtualHosts extraConfig reverse_proxy configuration"
 #     library: /websites/nixos_manual_nixos_unstable
 #     snippet: "virtualHosts.<host>.extraConfig + hostName for Caddyfile injection"
-#   - note: "flush_interval + remote_ip private_ranges are Caddyfile syntax (caddyserver.com), not NixOS options"
+#   - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
 # ---
 # 51-ingress/511-caddy.nix — Chameleon Caddy Ingress
 # ADR-5110: genau EINE Caddy-Instanz (inject global | standalone caddy-media).
@@ -30,14 +30,16 @@ let
     cfg.${n}.enable or false && svc.port != null && svc.caddyClass != "none"
   ) registry;
 
-  # ── 4 Templates ───────────────────────────────────────────────
-  # stream   → WAN, Cloudflare NOT proxied, flush_interval -1, no compression
-  # internal → LAN only, external IPs blocked via remote_ip private_ranges
-  # public   → LAN + WAN, compression, normal timeouts
-  # none     → kein vHost (gefiltert oben)
-  mkVHost = name: svc:
+  # Sichere LAN-CIDRs. Wenn der User in der Config nichts angibt, nutzen wir restriktive Defaults.
+  trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "fd00::/8" ];
+  trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
+
+  # ── Zentrale Template Engine (Red-Team Fixes angewandt) ─────────
+  # Diese Funktion baut die Konfiguration für GOBAL und STANDALONE identisch zusammen.
+  mkVHostConfig = n: svc:
     let
       port = toString svc.port;
+      
       authBlock = if ing.auth.mode == "forward-auth" then ''
         forward_auth ${ing.auth.forwardAuthUpstream} {
           uri ${ing.auth.forwardAuthUri}
@@ -46,8 +48,18 @@ let
         }
       '' else "";
 
+      tlsDirective =
+        if ing.tls.acmeHost != null then
+          # Red-Team P1.8: Nutze fullchain.pem statt cert.pem
+          "tls /var/lib/acme/${ing.tls.acmeHost}/fullchain.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
+        else if ing.tls.mode == "custom" then
+          "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
+        else if ing.tls.mode == "internal" then
+          "tls internal"
+        else "";
+
       classBlock = {
-        # Streaming: flush -1 (no buffering), 300s timeouts, no compression
+        # Streaming: flush -1 (no buffering), 300s timeouts, no compression, no auth
         stream = ''
           encode off
           reverse_proxy http://127.0.0.1:${port} {
@@ -58,70 +70,43 @@ let
             }
           }
         '';
-        # Internal: block all non-private IPs (LAN only)
+        # Internal: LAN only via explizite trustedCidrs (P1.4), mit authBlock (P0.1)
         internal = ''
-          @blocked not remote_ip private_ranges
+          @blocked not remote_ip ${trustedCidrsStr}
           abort @blocked
           encode zstd gzip
           ${authBlock}
           reverse_proxy http://127.0.0.1:${port}
         '';
-        # Public: LAN + WAN, compression, normal timeouts
+        # Public: LAN + WAN, compression, mit authBlock (P0.1)
         public = ''
           encode zstd gzip
           ${authBlock}
           reverse_proxy http://127.0.0.1:${port}
         '';
       }.${svc.caddyClass};
+    in 
+      "${tlsDirective}\n${classBlock}";
 
-      tlsDirective =
-        if ing.tls.acmeHost != null then
-          "tls /var/lib/acme/${ing.tls.acmeHost}/cert.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
-        else if ing.tls.mode == "custom" then
-          "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
-        else if ing.tls.mode == "internal" then
-          "tls internal"
-        else "";
-    in ''
-      ${name}.${cfg.domain} {
-        ${tlsDirective}
-        ${classBlock}
-      }
-    '';
-
-  caddyConfig = lib.concatStringsSep "\n" (lib.mapAttrsToList mkVHost enabledServices);
+  # Standalone Config String
+  caddyConfigStr = lib.concatStringsSep "\n" (lib.mapAttrsToList (n: svc: ''
+    ${n}.${cfg.domain} {
+      ${mkVHostConfig n svc}
+    }
+  '') enabledServices);
 
 in lib.mkIf (cfg.enable && ing.enable) {
 
   # Chameleon: Global Caddy vorhanden → virtualHosts injizieren
-  # CrowdSec: Caddy-Plugin eincompilieren (nixpkgs: pkgs.caddy.withPlugins)
-  # WICHTIG: hash via `nix build` ermitteln vor erstem Build (siehe 582-crowdsec.nix)
-  # Plugin: github.com/hslatman/caddy-crowdsec-bouncer (korrekter Caddy-CrowdSec-Bouncer,
-  #   verifiziert via Vektor-DB Topic-Sweep — crowdsecurity/caddy-cs-bouncer ist veraltet)
+  # CrowdSec Plugin via caddy.withPlugins
   services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
-    plugins = [
-      "github.com/hslatman/caddy-crowdsec-bouncer@latest"
-    ];
-    hash = lib.fakeHash;  # Vor erstem Build via nix build ersetzen (Build-Fehler zeigt korrekten Hash)
+    plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
+    hash = lib.fakeHash; 
   });
+
   services.caddy.virtualHosts = lib.mkIf useGlobal
-    (lib.mapAttrs (n: svc: {
-      # P0-5 FIX: tlsDirective im Global-Mode einbauen (fehlte → keine TLS für acmeHost-vHosts)
-      # Konsistent mit standalone mkVHost (Zeile 77-84): raw tls-Directive via extraConfig
-      extraConfig = let
-        tlsDirective =
-          if ing.tls.acmeHost != null then
-            "tls /var/lib/acme/${ing.tls.acmeHost}/cert.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
-          else if ing.tls.mode == "custom" then
-            "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
-          else if ing.tls.mode == "internal" then
-            "tls internal"
-          else "";
-      in (lib.getAttr svc.caddyClass {
-        stream   = "${tlsDirective}\nencode off\nreverse_proxy http://127.0.0.1:${toString svc.port} {\n  flush_interval -1\n  transport http {\n    read_timeout 300s\n    write_timeout 300s\n  }\n}";
-        internal = "${tlsDirective}\n@blocked not remote_ip private_ranges\nabort @blocked\nencode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
-        public   = "${tlsDirective}\nencode zstd gzip\nreverse_proxy http://127.0.0.1:${toString svc.port}";
-      });
+    (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
+      extraConfig = mkVHostConfig n svc;
     }) enabledServices);
 
   # Standalone: Eigenen caddy-media Service starten
@@ -130,44 +115,46 @@ in lib.mkIf (cfg.enable && ing.enable) {
     wantedBy    = [ "multi-user.target" ];
     after       = [ "network.target" ];
     serviceConfig = lib.mkMerge [
-      # network-Profil: CAP_NET_BIND_SERVICE, PrivateDevices=true
       (import ../lib/hardening-profiles.nix { inherit lib; }).network
       {
         ExecStart = "${pkgs.caddy}/bin/caddy run --config /run/caddy-media/Caddyfile";
         RuntimeDirectory = "caddy-media";
         StateDirectory   = "caddy-media";
         User  = "caddy-media";
-        Group = "media";
+        Group = "caddy-media";
       }
     ];
   };
 
   users.users.caddy-media = lib.mkIf (!useGlobal) {
     uid = 5110;
-    group = "media";
+    group = "caddy-media";
     isSystemUser = true;
     home = "/var/lib/caddy-media";
     createHome = true;
   };
-
-  environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
-    text = caddyConfig;
+  
+  users.groups.caddy-media = lib.mkIf (!useGlobal) {
+    gid = 5110;
   };
 
-  # mDNS: Avahi-Einträge für .local wenn discovery.mdns.enable
+  environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
+    text = caddyConfigStr;
+  };
+
+  # mDNS: Avahi-Einträge für .local
   services.avahi = lib.mkIf cfg.discovery.mdns.enable {
     enable  = true;
     publish = { enable = true; userServices = true; addresses = true; };
   };
 
-  # Firewall: nur Caddy-Ports öffnen (Dienste binden 127.0.0.1)
+  # Firewall: nur Caddy-Ports öffnen
   networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal)
     (if ing.tls.mode == "off" then [ 80 ] else [ 80 443 ]);
 }
 
-# Gold-Standard (ADR-5110):
-# - Chameleon: nie zwei Caddy-Instanzen, nie Port 80/443 doppelt
-# - caddyClass steuert Template: stream/internal/public/none
-# - .local ist mDNS (Avahi userServices=true required)
-# - forward_auth nur bei auth.mode=forward-auth + authProxyPresent
-# - standalone nutzt UID 5110 (isomorph), GID 5000 (media)
+# Gold-Standard (ADR-5110, Red-Team Assessed):
+# - Chameleon: nie zwei Caddy-Instanzen, Security-Policies für Global und Standalone sind 100% identisch
+# - remote_ip nutzt explizite trustedCidrs (nicht einfach pauschal private_ranges)
+# - Hostnamen werden streng aus dem Registry-Key `n` abgeleitet, nicht aus name
+# - fullchain.pem wird bevorzugt, um Chain-Probleme zu verhindern

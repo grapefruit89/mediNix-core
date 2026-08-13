@@ -45,11 +45,12 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       # E-Mail-Adresse für Let's Encrypt (wichtig für Ablaufwarnungen)
       email = "admin@${cfg.domain}"; 
       
-      # Die Gruppe muss der Caddy-Gruppe entsprechen, damit Caddy die Zertifikate lesen kann
-      group = "media"; 
+      # P0.3: Wildcard-Key darf niemals der ganzen "media" Gruppe gehören (Blast Radius).
+      # Gehört exklusiv dem Caddy-Prozess.
+      group = if config.services.caddy.enable then config.services.caddy.group else "caddy-media"; 
       
       # Reload-Befehl für Caddy nach einem Zertifikats-Update
-      reloadServices = [ "caddy.service" "caddy-media.service" ];
+      reloadServices = if config.services.caddy.enable then [ "caddy.service" ] else [ "caddy-media.service" ];
     };
 
     certs.${acmeHost} = {

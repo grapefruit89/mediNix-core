@@ -98,14 +98,12 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       echo "Fetching current IPs..."
       # Dynamische WAN IP Ermittlung
-      WAN_IP=$(curl -s4 https://ifconfig.me || curl -s4 https://api.ipify.org)
+      WAN_IP=$(curl -s4 --fail-with-body https://ifconfig.me || curl -s4 --fail-with-body https://api.ipify.org)
       if [ -z "$WAN_IP" ]; then
         echo "FATAL: Could not determine WAN IP." >&2
         exit 1
       fi
       
-      # Dynamische LAN IP Ermittlung (IP des Default-Gateways / primäres Interface)
-      # ip route get 8.8.8.8 extracts the source IP used for internet access (which is the LAN IP of this server)
       LAN_IP=$(ip -4 route get 8.8.8.8 | grep -oP 'src \K\S+')
       if [ -z "$LAN_IP" ]; then
         echo "FATAL: Could not determine LAN IP." >&2
@@ -116,9 +114,9 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       echo "Detected LAN IP: $LAN_IP"
 
       # Get Zone ID
-      ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE" \
+      ZONE_ID=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE" \
         -H "Authorization: Bearer $TOKEN" \
-        -H "Content-Type: application/json" | jq -r '.result[0].id')
+        -H "Content-Type: application/json" | jq -e -r 'if .success then .result[0].id else empty end')
 
       if [ "$ZONE_ID" = "null" ] || [ -z "$ZONE_ID" ]; then
         echo "FATAL: Could not find Zone ID for $ZONE." >&2
@@ -130,7 +128,22 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         local ip="$2"
         
         echo "Processing $record_name -> $ip"
-        local record_info=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=A" \
+        
+        # IPv6 (AAAA) radikal löschen, um IPv6 Leaks zu verhindern (P0.2)
+        local aaaa_records=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=AAAA" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/json")
+        if echo "$aaaa_records" | jq -e '.success' > /dev/null; then
+          for id in $(echo "$aaaa_records" | jq -r '.result[].id'); do
+            echo "  Deleting leaking AAAA record $id..."
+            curl -s --fail-with-body -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Content-Type: application/json" > /dev/null
+          done
+        fi
+
+        # IPv4 (A) updaten
+        local record_info=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=A" \
           -H "Authorization: Bearer $TOKEN" \
           -H "Content-Type: application/json")
           
@@ -139,16 +152,16 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         
         if [ -z "$record_id" ]; then
           echo "  Record not found. Creating..."
-          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+          curl -s --fail-with-body -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false}' > /dev/null
+            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false,"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
         elif [ "$current_ip" != "$ip" ]; then
           echo "  IP changed ($current_ip -> $ip). Updating..."
-          curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$record_id" \
+          curl -s --fail-with-body -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$record_id" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false}' > /dev/null
+            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false,"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
         else
           echo "  IP matches. No update needed."
         fi
