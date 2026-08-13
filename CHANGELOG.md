@@ -90,6 +90,23 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **ADMIN-HANDOFF §4**: von "baue dir uid rules" reduziert auf "Interface existiert + Name + DNS + Test".
   Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
 
+## Phase 7 — Policy-Routing ins Modul gezogen (ADMIN-HANDOFF auf Minimum)
+- **526-vpn-policy-routing.nix** (NEU): UID-basiertes Policy-Routing deklarativ im Modul.
+  Tabellen (UID=5410/5360) + routingPolicyRules (uidrange → lookup) + Default-Route
+  `dev ${vpn.interface}` + fail-closed `unreachable`. Kein netns, kein Host-ip-rule-Kochrezept.
+  Parametrisiert durch vpn.interface + Registry-UIDs. mkIf confinement.enable && vpn.interface != "".
+- **ADMIN-HANDOFF §4**: von "baue dir uid rules" reduziert auf "Interface existiert + Name + DNS + Test".
+  Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
+
+## Phase 8 — Private Benennungen bereinigt (portabel, keine Hausnamen als Default)
+- **default.nix**: `vpn.interface` example `privado` → `wg0`; Domain example `m7c5.de` → `example.com`.
+- **mediNix-cli/default.nix**: VPN-Heuristic `privado|wg|vpn` → `wg|vpn` (privado aus Code entfernt).
+- **README.md**: Quickstart-Beispiel `m7c5.de` → `example.com`.
+- **AGENTS.md**: q958-Kontext als "physischer Deploy-Host, aber portabel" neutralisiert.
+- **rg-Scan**: `*.nix` sauber (kein privado/q958/m7c5/192.168). Nur generische Examples (wg0, 10.8.0.1, example.com).
+- Bewusst unverändert: docs/*.md ADRs (historische m7c5.de-Entscheidungen bleiben), docs/ONBOARDING.md
+  (q958-spezifisches Deploy-Handoff, bewusst host-spezifisch).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

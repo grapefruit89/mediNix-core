@@ -316,7 +316,7 @@ in
         acmeHost = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;
           default = null;
-          example = "m7c5.de";
+        example = "example.com";
           description = ''
             Hostname des security.acme-Zertifikats auf dem Host.
             Wenn gesetzt: Caddy nutzt /var/lib/acme/{acmeHost}/cert.pem
@@ -531,9 +531,9 @@ in
       interface = lib.mkOption {
         type    = lib.types.str;
         default = "";
-        example = "privado";
+        example = "wg0";
         description = ''
-          Name des WireGuard-Interfaces auf dem Host (z.B. "privado", "wg0").
+          Name des WireGuard-Interfaces auf dem Host (z.B. "wg0").
           Das Interface muss vom Host-System bereitgestellt werden
           (systemd-networkd routeTables oder wg-quick).
           mediNix-core erstellt KEIN Interface — es nutzt es nur.

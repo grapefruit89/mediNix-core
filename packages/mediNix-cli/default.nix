@@ -201,7 +201,7 @@ pkgs.writeShellApplication {
 
     cmd_vpn() {
       echo "[VPN Killswitch]"
-      iface=$(ip route show table all 2>/dev/null | grep -oE 'dev [a-z0-9]+' | grep -iE 'privado|wg|vpn' | head -1 | awk '{print $2}')
+      iface=$(ip route show table all 2>/dev/null | grep -oE 'dev [a-z0-9]+' | grep -iE 'wg|vpn' | head -1 | awk '{print $2}')
       if [ -n "$iface" ]; then
         echo "  Interface: $iface"
         if ip link show "$iface" >/dev/null 2>&1; then

@@ -5,6 +5,7 @@
 ## Projekt
 Portables NixOS Media-Stack-Modul. Repo: `github:grapefruit89/mediNix-core`, Branch `main`.
 Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: q958 (192.168.2.73, AUS bis Freigabe).
+Hinweis: q958 ist der physische Deploy-Host (Homelab), aber mediNIX-core bleibt ohne jede Host-Annahme portabel.
 
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
 - **Dezimalrahmen:** Port = ServiceNum × 10 | UID = Port | GID = 5000

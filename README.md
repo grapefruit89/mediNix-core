@@ -59,8 +59,8 @@ keine Hardcoded-IPs.
         {
           grapefruitMedia = {
             enable     = true;
-            domain     = "m7c5.de";
-            ingress.tls.acmeHost = "m7c5.de";  # liest /var/lib/acme/m7c5.de/ (Host: security.acme)
+            domain     = "example.com";
+            ingress.tls.acmeHost = "example.com";  # liest /var/lib/acme/example.com/ (Host: security.acme)
             jellyfin.enable        = true;
             audiobookshelf.enable  = true;
             navidrome.enable       = true;
