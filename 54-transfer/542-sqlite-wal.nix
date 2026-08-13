@@ -1,80 +1,78 @@
 # ---
 # id: "542-sqlite-wal"
-# title: "SQLite WAL Tuning for *arr Stack (event-driven, no cron)"
+# title: "SQLite WAL Tuning + periodic optimize/ANALYZE for *arr/SABnzbd/Jellyfin"
 # domain: 54
 # folder: 54-transfer
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-11
+# last_reviewed: 2026-08-12
 # links:
-#   adr: ADR-5700
+#   adr: ADR-5700 (sqlite), ADR-5043
 #   skill: nixos-context7-gate
-#   repo-harvest: Prowlarr/Prowlarr #1614 (SQLite WAL cache size=-20000; journal mode=Wal)
+#   repo-harvest: Prowlarr/Prowlarr #1614 (WAL cache_size=-20000)
 # context7:
-#   - query: "systemd.services oneshot ExecStartPost example"
+#   - query: "systemd.services oneshot ExecStartPost timer example"
 #     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "oneshot service via Type=oneshot + script"
+#     snippet: "oneshot service via Type=oneshot + script + timer"
 # ---
 { config, lib, pkgs, ... }:
 
 let
+  cfg = config.grapefruitMedia.maintenance.sqliteOptimize;
   svc = config.grapefruitMedia;
-  # Alle Arr-State-Dirs (ADR-0000 §4: Port = Num × 10)
-  arrStateDirs = [
-    "/var/lib/prowlarr-5360"
-    "/var/lib/sonarr-5320"
-    "/var/lib/radarr-5330"
-    "/var/lib/readarr-5340"
-    "/var/lib/lidarr-5350"
-    "/var/lib/sabnzbd-5410"
-  ];
-  # writeShellApplication: ShellCheck läuft beim Build (ADR-5050) → fängt
-  # Bash-Fehler vor dem Deploy (z.B. unquoted vars, pipefail-issues)
-  walScript = pkgs.writeShellApplication {
-    name         = "sqlite-wal-tune";
-    runtimeInputs = [ pkgs.sqlite ];
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+
+  # StateDirectory-Pfade aus Registry ableiten (ADR-0000: /var/lib/${name}-${port})
+  # Nur Dienste die in cfg.services gelistet sind + aktiv.
+  stateDirs = lib.mapAttrsToList
+    (n: s: "/var/lib/${n}-${toString s.port}")
+    (lib.filterAttrs (n: _: lib.elem n cfg.services) registry);
+
+  optimizeScript = pkgs.writeShellApplication {
+    name = "sqlite-optimize";
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils ];
     text = ''
       set -euo pipefail
-      # page_size = 4096 (optimal für moderne SSDs) nur beim ersten Anlegen setzbar,
-      # daher hier nicht geändert (wird von Arr-Diensten beim Init gesetzt).
-      for dir in ${lib.concatStringsSep " " arrStateDirs}; do
-        if [ -d "$dir" ]; then
-          find "$dir" -name '*.db' -type f | while read -r db; do
-            ${pkgs.sqlite}/bin/sqlite3 "$db" "
-              PRAGMA journal_mode=WAL;
-              PRAGMA synchronous=NORMAL;
-              PRAGMA cache_size=-20000;
-              PRAGMA temp_store=MEMORY;
-              PRAGMA mmap_size=268435456;
-              PRAGMA journal_size_limit=67108864;
-              PRAGMA wal_autocheckpoint=1000;
-              PRAGMA busy_timeout=5000;
-            "
-          done
-        fi
+      for dir in ${lib.concatStringsSep " " stateDirs}; do
+        [ -d "$dir" ] || continue
+        find "$dir" -name '*.db' -type f | while read -r db; do
+          ${pkgs.sqlite}/bin/sqlite3 "$db" "
+            PRAGMA journal_mode=WAL;
+            PRAGMA synchronous=NORMAL;
+            PRAGMA cache_size=-20000;
+            PRAGMA temp_store=MEMORY;
+            PRAGMA mmap_size=268435456;
+            PRAGMA journal_size_limit=67108864;
+            PRAGMA wal_autocheckpoint=1000;
+            PRAGMA busy_timeout=5000;
+            PRAGMA optimize;
+            PRAGMA ANALYZE;
+            PRAGMA incremental_vacuum;
+          " || true  # kein harter Fail wenn DB gesperrt
+        done
       done
+      echo "SQLite optimize done"
     '';
   };
 in
-{
-  # Event-driven WAL tuning: oneshot after each Arr service starts.
-  # No legacy cron (ADR-5000 compliant).
-  systemd.services.sqlite-wal-tune = {
-    description = "Apply SQLite WAL pragmas to all *arr databases";
-    after = [ "network.target" ] ++ lib.optional svc.services.prowlarr.enable "prowlarr.service"
-      ++ lib.optional svc.services.sonarr.enable "sonarr.service"
-      ++ lib.optional svc.services.radarr.enable "radarr.service"
-      ++ lib.optional svc.services.readarr.enable "readarr.service"
-      ++ lib.optional svc.services.lidarr.enable "lidarr.service";
-    wantedBy = [ "multi-user.target" ];
+lib.mkIf (svc.enable && cfg.enable) {
+  systemd.timers.mediNix-sqlite-optimize = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = cfg.schedule;
+      Persistent = true;
+    };
+  };
+
+  systemd.services.mediNix-sqlite-optimize = {
+    description = "Periodic SQLite WAL + optimize/ANALYZE for media services";
     serviceConfig = lib.mkMerge [
-      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "root";  # needs write to state dirs
         UMask = "002";
-        ExecStart = lib.getExe walScript;
+        ExecStart = lib.getExe optimizeScript;
       }
     ];
   };

@@ -49,7 +49,7 @@ in
     };
 
     systemd.services.sabnzbd = {
-      after = [ "network-online.target" ];
+      after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = lib.mkMerge [
         (import ../lib/hardening-profiles.nix { inherit lib; }).python

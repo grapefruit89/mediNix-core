@@ -45,6 +45,16 @@ let
         curl -s -d "WARNING: Tier-B ($DOWNLOADS) nicht gemountet!" "$NTFY" || true
       fi
 
+      # 4. Konfigurierte Secret-Dateien vorhanden + nicht leer (Inhalt NICHT loggen)
+      for sec in "${toString cfg.secrets.sabnzbdApiKeyFile}" \
+                 "${toString cfg.secrets.prowlarrApiKeyFile}" \
+                 "${toString cfg.secrets.jellyfinAdminPasswordFile}" \
+                 "${toString cfg.secrets.navidromeOidcFile}"; do
+        if [ -n "$sec" ] && { [ ! -f "$sec" ] || [ ! -s "$sec" ]; }; then
+          curl -s -d "DRIFT: Secret fehlt/leer: $sec" "$NTFY" || true
+        fi
+      done
+
       echo "Drift-Detection OK"
     '';
   };

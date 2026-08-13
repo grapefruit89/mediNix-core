@@ -238,6 +238,32 @@ in
           description = "systemd OnCalendar for backup timer.";
         };
       };
+      sqliteOptimize = {
+        enable = lib.mkEnableOption "Periodisches SQLite optimize/ANALYZE für Arr/SABnzbd/Jellyfin";
+        schedule = lib.mkOption {
+          type    = lib.types.str;
+          default = "weekly";
+          description = "systemd OnCalendar for optimize timer (default: weekly).";
+        };
+        services = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ "sonarr" "radarr" "prowlarr" "lidarr" "readarr" "sabnzbd" "jellyfin" ];
+          description = "SQLite-Nutzer deren DBs optimiert werden (Registry-Namen).";
+        };
+      };
+      orphanCleanup = {
+        enable = lib.mkEnableOption "Orphan/Incomplete Cleanup (SABnzbd incomplete + verwaiste Fragmente)";
+        schedule = lib.mkOption {
+          type    = lib.types.str;
+          default = "daily";
+          description = "systemd OnCalendar for cleanup timer (default: daily).";
+        };
+        minAgeDays = lib.mkOption {
+          type    = lib.types.int;
+          default = 7;
+          description = "Mindestalter (Tage) bevor incomplete/Fragmente gelöscht werden.";
+        };
+      };
     };
 
     authProxyPresent = lib.mkOption {

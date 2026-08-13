@@ -54,6 +54,19 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **574-provisioning.nix**: `after =`-Unit-Namen korrigiert (waren `sonarr-5320.service` etc.,
   echte Factory-Units sind `sonarr.service` — Port steckt nur in StateDirectory, nicht im Unit-Namen)
 
+## Phase 5 — Quick-Wins (SQLite/Timer/Cleanup)
+- **542-sqlite-wal.nix**: zu `maintenance.sqliteOptimize` umgebaut (Optionen enable/schedule/services).
+  Erweitert um PRAGMA optimize/ANALYZE/incremental_vacuum (WAL-Pragmas bleiben). StateDirs aus
+  Registry abgeleitet (kein Hardcoding), timer-getrieben (weekly default). Robust gegen gesperrte DBs.
+- **578-orphan-cleanup.nix** (NEU): SABnzbd incomplete + leere Fragmente unter mediaRoot/downloads
+  entfernen (age > minAgeDays). Hart: nur Pfade unter storage.mediaRoot, nie Library.
+- **577-drift-detection.nix**: Secret-Datei-Check ergänzt (konfigurierte Pfade, Inhalt nicht geloggt).
+- **541-sabnzbd.nix**: network-online.target → network.target (Konsistenz). RuntimeDirectory (tmpfs)
+  für incomplete/temp bereits vorhanden.
+- **551-jellyfin.nix**: TemporaryFileSystem=/transcode (tmpfs) + RuntimeDirectory bereits vorhanden.
+- **B2 RuntimeDirectory**: SABnzbd (`/run/sabnzbd-tmp`) + Jellyfin (`/transpile-transcode` tmpfs)
+  bereits implementiert — dokumentiert, kein Neu-Bau nötig.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
