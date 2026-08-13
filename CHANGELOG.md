@@ -173,6 +173,15 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **543-mover.nix**: `StartLimitBurst`/`StartLimitIntervalSec` von `serviceConfig` nach `unitConfig`
   verschoben. In `[Service]` sind sie wirkungslos — Start-Limits gehören in `[Unit]`.
 
+## Phase 14 — Security-Review: 524 Unit-Namen-Bug gefixt
+- **524-systemd-credentials.nix**: `mediNix-${name}` → plain `${name}` (Unit = sonarr.service, nicht
+  mediNix-sonarr). Sonst landete LoadCredentialEncrypted in nicht-existierender Unit → Secrets
+  nie gemountet (stiller Build-Erfolg, Sicherheits-Lücke). SSoT = lib/service-factory.nix Z47.
+- **Fabrik-Review (Anhang vpn-killswitch.nix)**: architektonisch stark (eBPF+UID-Routing+Canary+
+  Localhost-Relay-Block), aber: (1) konkurriert mit 526-vpn-policy-routing.nix (doppeltes
+  Routing), (2) StartLimitBurst=0 bei non-oneshot Service gefährlich, (3) mkForce-Konflikt bei
+  parallelem 526. Entscheidung nötig vor Integration ins Repo.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

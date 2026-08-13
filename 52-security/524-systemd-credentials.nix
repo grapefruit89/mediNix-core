@@ -32,20 +32,16 @@ let
     jellyseerr  = cfg.secrets.jellyseerrApiKeyFile or null;
   };
   # Filtere: nur aktive Dienste mit gesetztem Pfad
+  # WICHTIG: Unit-Namen = plain kebab-case (sonarr.service, nicht mediNix-sonarr).
+  # SSoT: lib/service-factory.nix Zeile 47 baut systemd.services."${name}".
+  # StateDirectory hat den Port (sonarr-5320), die Unit NICHT.
   activeSecrets = lib.filterAttrs (name: path: path != null && (cfg.services.${name}.enable or false)) secretMap;
 in
 {
   # Für jeden aktiven Dienst mit ApiKeyFile: LoadCredentialEncrypted injizieren.
-  # (Context7-verifiziert: serviceConfig.LoadCredential[Encrypted] = ["name:path"])
-  #
-  # KOMPATIBILITÄT mit ProtectSystem=strict (aus hardening-profiles):
-  # LoadCredentialEncrypted mounted Secrets in /run/credentials/<unit>/ (tmpfs,
-  # read-only für den Prozess). ProtectSystem=strict macht nur /usr,/boot,/etc
-  # read-only — /run bleibt beschreibbar. KEINE Konflikte. systemd verwaltet
-  # das Credential-Mount vor dem ExecStart, daher sieht der Dienst nur
-  # /run/credentials/.../name-api-key, nicht die Original-Datei auf Disk.
+  # Unit = plain name (z.B. "sonarr"), NICHT "mediNix-${name}" — sonst trifft es keine echte Unit.
   config.systemd.services = lib.mapAttrs' (name: path:
-    lib.nameValuePair "mediNix-${name}" {
+    lib.nameValuePair "${name}" {
       serviceConfig.LoadCredentialEncrypted = [ "${name}-api-key:${path}" ];
     }
   ) activeSecrets;
