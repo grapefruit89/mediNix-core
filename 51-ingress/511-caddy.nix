@@ -34,10 +34,20 @@ let
   # Groq P1: 100.64.0.0/10 hinzugefügt, damit Tailscale-Clients nicht von Caddy geblockt werden.
   trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
+  
+  # Cloudflare IPs (IPv4 & IPv6) für trusted_proxies
+  cloudflareIps = [
+    "173.245.48.0/20" "103.21.244.0/22" "103.22.200.0/22" "103.31.4.0/22" 
+    "141.101.64.0/18" "108.162.192.0/18" "190.93.240.0/20" "188.114.96.0/20" 
+    "197.234.240.0/22" "198.41.128.0/17" "162.158.0.0/15" "104.16.0.0/13" 
+    "104.24.0.0/14" "172.64.0.0/13" "131.0.72.0/22"
+    "2400:cb00::/32" "2606:4700::/32" "2803:f800::/32" "2405:b500::/32" 
+    "2405:8100::/32" "2a06:98c0::/29" "2c0f:f248::/32"
+  ];
+  cloudflareIpsStr = builtins.concatStringsSep " " cloudflareIps;
 
-  # ── Zentrale Template Engine (Red-Team Fixes angewandt) ─────────
-  # Diese Funktion baut die Konfiguration für GOBAL und STANDALONE identisch zusammen.
-  mkVHostConfig = n: svc:
+  # Basis-Generierung für den jeweiligen Dienst
+  mkBaseConfig = n: svc:
     let
       port = toString svc.port;
       
@@ -49,17 +59,7 @@ let
         }
       '' else "";
 
-      tlsDirective =
-        if ing.tls.acmeHost != null then
-          # Red-Team P1.8: Nutze fullchain.pem statt cert.pem
-          "tls /var/lib/acme/${ing.tls.acmeHost}/fullchain.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
-        else if ing.tls.mode == "custom" then
-          "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
-        else if ing.tls.mode == "internal" then
-          "tls internal"
-        else "";
-
-      classBlock = {
+    in {
         # Streaming: flush -1 (no buffering), 300s timeouts, no compression, no auth
         stream = ''
           encode off
@@ -85,13 +85,39 @@ let
           reverse_proxy http://127.0.0.1:${port}
         '';
       }.${svc.caddyClass};
+
+  # ── Zentrale Template Engine (Red-Team Fixes angewandt) ─────────
+  # Diese Funktion baut die Konfiguration für GOBAL und STANDALONE identisch zusammen.
+  mkVHostConfig = n: svc:
+    let
+      tlsDirective =
+        if ing.tls.acmeHost != null then
+          # Red-Team P1.8: Nutze fullchain.pem statt cert.pem
+          "tls /var/lib/acme/${ing.tls.acmeHost}/fullchain.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
+        else if ing.tls.mode == "custom" then
+          "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
+        else if ing.tls.mode == "internal" then
+          "tls internal"
+        else "";
     in 
-      "${tlsDirective}\n${classBlock}";
+      "${tlsDirective}\n${mkBaseConfig n svc}";
+
+  # Spezielles Template für .local (ohne TLS, rein HTTP)
+  mkVHostConfigLocal = n: svc: mkBaseConfig n svc;
 
   # Standalone Config String
-  caddyConfigStr = lib.concatStringsSep "\n" (lib.mapAttrsToList (n: svc: ''
+  caddyConfigStr = ''
+    {
+      servers {
+        trusted_proxies static ${cloudflareIpsStr}
+      }
+    }
+  '' + lib.concatStringsSep "\n" (lib.mapAttrsToList (n: svc: ''
     ${n}.${cfg.domain} {
       ${mkVHostConfig n svc}
+    }
+    http://${n}.local {
+      ${mkVHostConfigLocal n svc}
     }
   '') enabledServices);
 
@@ -104,10 +130,21 @@ in lib.mkIf (cfg.enable && ing.enable) {
     hash = lib.fakeHash; 
   });
 
+  services.caddy.globalConfig = lib.mkIf useGlobal ''
+    servers {
+      trusted_proxies static ${cloudflareIpsStr}
+    }
+  '';
+
   services.caddy.virtualHosts = lib.mkIf useGlobal
-    (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
-      extraConfig = mkVHostConfig n svc;
-    }) enabledServices);
+    (lib.mkMerge [
+      (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
+        extraConfig = mkVHostConfig n svc;
+      }) enabledServices)
+      (lib.mapAttrs' (n: svc: lib.nameValuePair "http://${n}.local" {
+        extraConfig = mkVHostConfigLocal n svc;
+      }) enabledServices)
+    ]);
 
   # Standalone: Eigenen caddy-media Service starten
   systemd.services.caddy-media = lib.mkIf (!useGlobal) {
