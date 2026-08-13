@@ -91,6 +91,9 @@ Keine verstreuten Host-Hinweise hier. Flake evaluiert ohne jede Host-Annahme.
 - nixarr (Vergleich: unser UID-Routing > deren netns) | nixflix (deklarative API-Provisioning)
 
 ## Skills (Hermes)
+- `medinix-implement-discipline` (devops/): **BEI JEDEM mediNIX-Code-Task LADEN** — Pipeline
+  (Karpathy lesen → Ponytail-Leiter → NixOS-Idiom → Surgical → Abnahme), Priorität #1 Safety.
+  Report-Format (Ist/Lücke/Plan/Nicht/Abnahme) PFLICHT vor Patch.
 - `karpathy-coding-principles` (immer aktiv bei Implementierung)
 - `nixos-context7-gate` (NixOS-Optionen verifizieren — `libraryId` nicht `libraryName`)
 - `nixos-decimal-audit` (Nummern-Duplikate prüfen — erkennt KEINE Präfix-Kollision bei gleicher 3-stelliger Nummer!)
