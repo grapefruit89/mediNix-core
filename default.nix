@@ -196,9 +196,18 @@ in
         type = lib.types.enum [ "ondemand" "off" ];
         default = "ondemand";
         description = ''
-          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + optional Host-Post-Hook).
+          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + Trigger).
           Kein Calendar-Timer als Haupttaktgeber — HDD soll schlafen dürfen.
           "off": Mover komplett inaktiv.
+        '';
+      };
+      trigger = lib.mkOption {
+        type = lib.types.enum [ "path" "manual" ];
+        default = "path";
+        description = ''
+          "path": systemd.path beobachtet stagingDir (PathChanged) und startet den Mover bei
+          Dateisystem-Aktivität — Klingel ohne Uhr. minFreeGb bleibt die Bremse.
+          "manual": kein systemd.path; Mover nur per `systemctl start` (z.B. SABnzbd-Hook).
         '';
       };
       minFreeGb = lib.mkOption {
@@ -241,6 +250,16 @@ in
         description = ''
           "move": Datei nach HDD verschieben, SSD wieder frei (Hardlink SSD↔HDD unmöglich — cross-device).
           "copy": SSD behält Working-Copy (doppelter Platzbedarf, nur für explizite "digitale Kopie").
+        '';
+      };
+      jellyfinRefreshAfterMove = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Nach erfolgreichem Move: Jellyfin Library-Scan via API auslösen (ScheduledTasks trigger).
+          Nur nötig wenn KEIN Host-mergerfs — bei move ohne Union "springen" physische Pfade,
+          Jellyfin kennt den neuen Ort sonst nicht. Bei mergerfs (stabiler logischer Pfad) YAGNI.
+          Braucht jellyfin.enable + Admin-API-Zugang (Secret via grapefruitMedia.secrets.jellyfinApiKeyFile).
         '';
       };
     };

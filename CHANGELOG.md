@@ -142,6 +142,13 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **ADMIN-HANDOFF §3a**: Hook-Pflicht (SABnzbd ExecPost → systemctl start mediNix-mover)
   + Library-Pfad-Warnung (ohne mergerfs neu scannen nötig).
 
+## Phase 12c — Mover Path-Unit (Klingel) + Jellyfin-Refresh-Option
+- **543-mover.nix**: `systemd.paths.mediNix-mover` (PathChanged + DirectoryNotEmpty auf stagingDir)
+  als Klingel ohne Uhr. `trigger` = "path" (default) erzeugt die Path-Unit; "manual" nur systemctl.
+  Optionaler Jellyfin Library-Scan nach Move (API, nur bei `jellyfinRefreshAfterMove`).
+- **default.nix**: `trigger` (path/manual) + `jellyfinRefreshAfterMove` (bool, default false).
+- **ADMIN-HANDOFF §3a**: Path-Unit-Doku (Klingel/Bremse-Modell) + Jellyfin-Refresh nur ohne mergerfs.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

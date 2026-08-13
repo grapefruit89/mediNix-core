@@ -77,10 +77,14 @@ mediNIX-core definiert nur **logische** Pfade (`lib/abc-tiering.nix`):
 ### 3a. Mover (ondemand, kein Timer)
 `mover.enable` + `mover.mode = "ondemand"` (Default). Kein Calendar-Timer — die HDD soll
 schlafen. Der Mover ist ein `systemd`-oneshot (`mediNix-mover`), der **nur bei Bedarf** läuft:
-- **Trigger (PFLICHT):** Host muss den Start auslösen — empfohlen SABnzbd Post-Download-Hook:
-  `ExecPost = [ "/run/current-system/sw/bin/systemctl start mediNix-mover" ]` in der SABnzbd-Unit
-  (oder manuell `systemctl start mediNix-mover`). Ohne Hook startet der Mover nie automatisch —
-  die SSD läuft erst voll, bis jemand von Hand eingreift.
+- **Trigger:** `mover.trigger = "path"` (Default) erzeugt eine `systemd.path`-Unit die `stagingDir`
+  per `PathChanged`/`DirectoryNotEmpty` beobachtet — Klingel ohne Uhr. `minFreeGb` im Script bleibt
+  die Bremse (bei genug Platz: exit 0, HDD bleibt in Ruhe). Alternativ `trigger = "manual"` + Host-Hook
+  (`ExecPost` in SABnzbd-Unit). Path = Klingel, minFreeGb = Bremse, Whitelist+move = Aktion.
+- **Optional Jellyfin-Refresh:** `mover.jellyfinRefreshAfterMove = true` löst nach erfolgreichem Move
+  einen Jellyfin Library-Scan via API aus (braucht `secrets.jellyfinApiKeyFile` + Jellyfin-URL).
+  Nur nötig **ohne** Host-mergerfs — bei move ohne Union "springen" physische Pfade. Mit mergerfs
+  (stabiler logischer Pfad) YAGNI.
 - Im Script: `df`-Check auf `mover.stagingDir` — erst wenn freier Platz < `mover.minFreeGb`
   werden Dateien (Whitelist `mover.mediaExtensions`, >= 50MB) nach `mover.archiveDir`
   verschoben (`action = "move"`, SSD wird frei; Hardlink SSD↔HDD unmöglich — cross-device).
