@@ -44,6 +44,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5020 knowledge extraction pipeline](adr/ADR-50-knowledge-extraction-pipeline.md)
 - [ADR 5000 native services over docker](adr/ADR-50-native-services-over-docker.md)
 - [ADR 5010 nixgrok architecture review](adr/ADR-50-nixgrok-architecture-review.md)
+- [Assertion Quality Standard (fail-closed, readable what/why/fix)](adr/ADR-5043-assertion-quality.md)
 - [ADR 5110 caddy reverse proxy](adr/ADR-51-caddy-reverse-proxy.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-51-cloudflare-dns-no-proxy.md)
 - [ADR 5120 lightweight identity pocketid](adr/ADR-51-lightweight-identity-pocketid.md)
