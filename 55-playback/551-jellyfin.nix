@@ -79,7 +79,7 @@ in
       VDPAU_DRIVER = "va_gl";
     } // lib.mkIf (cfg.adminPasswordFile != null) {
       # Jellyfin liest Admin-Passwort aus Env beim First-Run
-      JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin-admin-pw/jellyfin-admin-pw";
+      JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin/jellyfin-admin-pw";
     };
   };
 }

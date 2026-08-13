@@ -55,7 +55,7 @@ in
           urlBase     = "";
         };
         auth = {
-          method   = if svc.authProxyPresent then "External" else "Forms";
+          method   = "Forms";
           required = "Enabled";
         };
         app = {
