@@ -1,0 +1,191 @@
+---
+id: "PATTERN-50-num-filter"
+title: "PATTERN 5000 num filter"
+domain: 50
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - core
+links:
+  adr: ""
+  repo-harvest: ""
+---
+<div align="center">
+
+# nix-filter
+
+<img src="nix-filter.svg" height="150"/>
+
+**small self-contained source filtering lib**
+
+*A <a href="https://numtide.com/">numtide</a> project.*
+
+<p>
+<img alt="Static Badge" src="https://img.shields.io/badge/Status-beta-orange">
+<a href="https://github.com/numtide/nix-filter/actions/workflows/nix.yml"><img src="https://github.com/numtide/nix-filter/actions/workflows/nix.yml/badge.svg"/></a>
+<a href="https://app.element.io/#/room/#home:numtide.com"><img src="https://img.shields.io/badge/Support-%23numtide-blue"/></a>
+</p>
+
+</div>
+
+When using nix within a project, developers often use `src = ./.;` for a
+project like this:
+
+```nix
+{ stdenv }:
+stdenv.mkDerivation {
+  name = "my-project";
+  src = ./.;
+}
+```
+
+This works but has an issue; on each build, nix will copy the whole project
+source code into the /nix/store. Including the `.git` folder and any temporary
+files left over by the editor.
+
+The main workaround is to use either `builtins.fetchGit ./.` or one of the
+many gitignore filter projects but this is not precise enough. If the
+project README changes, it should not rebuild the project. If the nix code
+changes, it should not rebuild the project.
+
+This project is a small library that makes it easy to filter in and out what
+files should go into a nix derivation.
+
+## Example usage
+
+nix-filter works best for projects where the files needed for a build are easy
+to match. Using it with only an `exclude` argument will likely not reduce the
+reasons for rebuilds by a lot. Here's an Example:
+
+```nix
+{ stdenv, nix-filter }:
+stdenv.mkDerivation {
+  name = "my-project";
+  src = nix-filter {
+    root = ./.;
+    # If no include is passed, it will include all the paths.
+    include = [
+      # Include the "src" path relative to the root.
+      "src"
+      # Include this specific path. The path must be under the root.
+      ./package.json
+      # Include all files with the .js extension
+      (nix-filter.matchExt "js")
+    ];
+
+    # Works like include, but the reverse.
+    exclude = [
+      ./main.js
+    ];
+  };
+}
+```
+
+# Usage
+
+Import this folder. Eg:
+
+```nix
+let
+  nix-filter = import ./path/to/nix-filter;
+in
+ # ...
+```
+
+The top-level is a functor that takes:
+* `root` of type `path`: pointing to the root of the source to add to the
+    /nix/store.
+* `name` of type `string` (optional): the name of the derivation (defaults to
+    "source")
+* `include` of type `list(string|path|matcher)` (optional): a list of patterns to
+    include (defaults to all).
+* `exclude` of type `list(string|path|matcher)` (optional): a list of patterns to
+    exclude (defaults to none).
+
+The `include` and `exclude` take a matcher, and automatically convert the `string`
+and `path` types to a matcher.
+
+The matcher is a function that takes a `path` and `type` and returns `true` if
+the pattern matches.
+
+The flake usage is like this:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
+    nix-filter.url = "github:numtide/nix-filter";
+  };
+  outputs = { self, nixpkgs, nix-filter }:
+    let
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      # Avoid calling it nix-filter as it may result in an infinite recursion
+      filter = nix-filter.lib;
+     # ....
+    in
+    {
+      # ...
+    };
+}
+```
+
+## Builtin matchers
+
+The functor also contains a number of matchers:
+
+* `nix-filter.matchExt`: `ext` -> returns a function that matches the given file extension.
+* `nix-filter.inDirectory`: `directory` -> returns a function that matches a directory and
+    any path inside of it.
+* `nix-filter.isDirectory`: matches all paths that are directories
+
+## Combining matchers
+
+* `and`: `a -> b -> c`
+  combines the result of two matchers into a new matcher.
+* `or_`: `a -> b -> c`
+  combines the result of two matchers into a new matcher.
+
+NOTE: `or` is a keyword in nix, which is why we use a variation here.
+
+REMINDER: both, `include` & `exlude` already XOR elements, so `or_` is
+not useful at the top level.
+
+# Design notes
+
+This solution uses `builtins.path { path, name, filter ? path: type: true }`
+under the hood, which ships with Nix.
+
+While traversing the filesystem, starting from `path`, it will call `filter`
+on each file and folder recursively. If the `filter` returns `false` then the
+file or folder is ignored. If a folder is ignored, it won't recurse into it
+anymore.
+
+Because of that, it makes it difficult to implement recursive glob matchers.
+Something like `**/*.js` would necessarily have to add every folder, to be
+able to traverse them. And those empty folders will end-up in the output.
+
+If we want to control rebuild, it's important to have a fixed set of folders.
+
+One possibility is to use a two-pass system, where first all the folders are
+being added, and then the empty ones are being filtered out. But all of this
+happens at Nix evaluation time. Nix evaluation is already slow enough like
+that.
+
+That's why nix-filter is asking the users to explicitly list all the folders
+that they want to `include`, and using only an `exclude` is not recommended.
+
+# Future development
+
+Add more matchers.
+
+# Related projects
+
+* globset - a superior implementation that is compatible with nixpkgs
+    filesets. See https://github.com/pdtpartners/globset
+* nixpkgs' `lib.cleanSourceWith`.
+* All the git-based solutions. See https://github.com/hercules-ci/gitignore.nix#comparison
+
+# License
+
+Copyright (c) 2021 Numtide under the MIT.

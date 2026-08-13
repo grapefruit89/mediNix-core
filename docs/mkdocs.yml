@@ -1,0 +1,39 @@
+site_name: mediNix-core Knowledge Base
+site_description: Aviation-Grade Self-Hosting Architecture Documentation
+docs_dir: .
+site_dir: ../site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - meta
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - tags

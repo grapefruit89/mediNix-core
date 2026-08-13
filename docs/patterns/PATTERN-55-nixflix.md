@@ -1,0 +1,152 @@
+---
+id: "PATTERN-55-nixflix"
+title: "PATTERN 5000 nixflix"
+domain: 55
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - nixflix
+  - playback
+links:
+  adr: ""
+  repo-harvest: ""
+---
+# 🎬 Pattern Mining: nixflix
+
+## 🚀 SRE-Nuggets (Hardware & Flakes)
+- **Transcoding:** Nutzt spezialisierte iHD-Treiber-Mapping Patterns für Intel QuickSync.
+- **Flake-Integration:** Saubere Trennung der Medien-Dienste via Flake-Inputs.
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/kiriwalawren/nixflix/refs/heads/main/docs/assets/logo.svg" width="250px"/>
+  <div>Nixflix</div>
+  <div>
+    <a href="https://github.com/kiriwalawren/nixflix/issues">
+        <img src="https://img.shields.io/github/issues/kiriwalawren/nixflix?color=f5a97f&labelColor=303446&style=for-the-badge">
+    </a>
+    <a href="https://github.com/kiriwalawren/nixflix/stargazers">
+        <img src="https://img.shields.io/github/stars/kiriwalawren/nixflix?color=c6a0f6&labelColor=303446&style=for-the-badge">
+    </a>
+    <a href="https://github.com/kiriwalawren/nixflix">
+        <img src="https://img.shields.io/github/repo-size/kiriwalawren/nixflix?color=ea999c&labelColor=303446&style=for-the-badge">
+    </a>
+    <a href="https://github.com/kiriwalawren/nixflix/blob/main/LICENSE">
+        <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=GPL-3&logoColor=ca9ee6&colorA=313244&colorB=a6da95"/>
+    </a>
+    <a href="https://nixos.org">
+        <img src="https://img.shields.io/badge/NixOS-unstable-blue.svg?style=for-the-badge&labelColor=303446&logo=NixOS&logoColor=white&color=91D7E3">
+    </a>
+  </div>
+  <a href="https://builtwithnix.org">
+      <img src="https://builtwithnix.org/badge.svg"/>
+  </a>
+</h1>
+
+Nixflix is a declarative media server configuration manager for NixOS. The aim of the project is to automate
+all of the connective tissue required to get get Starr and Jellyfin services ([Sonarr](https://github.com/Sonarr/Sonarr), [Radarr](https://github.com/Radarr/Radarr), [Lidarr](https://github.com/Lidarr/Lidarr), [Prowlarr](https://github.com/Prowlarr/Prowlarr), [Jellyfin](https://github.com/jellyfin/jellyfin), [Jellyseerr](https://github.com/seerr-team/seerr)) working
+together. I want users to be able to configure this module and it just works.
+
+**This project is alpha-almost-beta-software. Please expect breaking changes until the [1.0 milestone](https://github.com/kiriwalawren/nixflix/milestone/1) is achieved.**
+
+## Why Nixflix?
+
+Dreading the thought of configuring a media server from scratch. Again...
+
+Nixflix makes it so you never have to again!
+
+Managing media server configuration can be very painful:
+
+- **No version control** for settings
+- **Tedious navigation** through UI systems
+- **And annoying interservice** Configuration
+
+All of these services have APIs, surely we can use this to automate the whole thing.
+
+Nixflix is:
+
+- ✅ **Opionated** — Don't you hate having to think for yourself?
+- ✅ **API-based** — Nixflix uses official REST APIs of each service (with a couple minor exceptions)
+- ✅ **Idempotent** — All services safely execute repeatedly
+- ✅ **Commanding** — Your code is _the_ source of truth, no need to fear drift
+
+## Features
+
+- **Media Server Stack**: Pre-configured modules for Sonarr, Radarr, Lidarr, and Prowlarr
+- **Declarative API Configuration**: Configure services declaratively via NixOS options, automatically applied through their REST APIs
+- **PostgreSQL Integration**: Optional PostgreSQL backend for all Arr services
+- **Mullvad VPN Integration**: Built-in support for Mullvad VPN with kill switch and custom DNS
+- **Flexible Directory Management**: Configurable media and state directories with automatic setup
+- **Service Dependencies**: Configure custom systemd service dependencies
+- **Optional Nginx Reverse Proxy**: Configurable nginx integration for all services
+- **Unified Theming**: All supported services can be themed to look the same, powered by [theme.park](https://docs.theme-park.dev/)
+- [**TRaSH Guides**](https://trash-guides.info): Default configuration follows TRaSH guidelines
+
+### Upcoming Features
+
+- [ ] Jellyfin Plugin Configuration
+- [X] Torrent client integration
+- [X] qBittorrent Client Configuration
+- [ ] Jellystat configuration
+- [ ] Media Removal Automation
+- [ ] Subtitle Management
+
+## Documentation
+
+Checkout the [documentation](https://kiriwalawren.github.io/nixflix/) to get started.
+
+## Services
+
+### Starr Stack
+
+All Arr services (Sonarr, Radarr, Lidarr, Prowlarr) support:
+
+- API-based configuration
+- PostgreSQL integration
+- Nginx reverse proxy
+- Automatic directory creation
+- Root folder management
+- Custom media directories
+
+### Jellyfin
+
+- Basic server management
+- Libraries are automatically configured based on elected media managers
+
+### Jellyseerr
+
+- Media request management
+- Automatic integration with Starr services
+- Automatic integration with Jellyfin libraries
+
+### SABnzbd
+
+- Automatic integration with Starr services
+
+### qBittorrent
+
+- Automatic integration with Starr services
+
+### Mullvad VPN
+
+- Automatic authentication
+- Custom DNS servers
+- Kill switch (lockdown mode)
+- Location selection
+- Auto-connect on startup
+
+## Development
+
+```bash
+# Enter development shell
+nix develop
+
+# Format code
+nix fmt
+
+# Check formatting and linting
+nix flake check
+```
+
+## License
+
+GNU General Public License
