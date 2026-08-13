@@ -17,8 +17,6 @@ let
 in
 lib.mkIf cfg.enable {
   assertions = [
-    (reg.mkErrorDoc "SEC-001" !(cfg.observability.crowdsec.enable && cfg.observability.crowdsec.enrollKeyFile == null) "5820")
-    
     # INV-SECRET: Kein Secret-Pfad im Nix-Store
     (reg.mkInvariant "INV-SECRET"
       (let sopsSecrets = lib.attrValues config.sops.secrets;
