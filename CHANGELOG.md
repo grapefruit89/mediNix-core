@@ -82,6 +82,14 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **ADMIN-HANDOFF**: §4 netns-Formulierung korrigiert (UID-Routing + routeTables, KEIN NetworkNamespacePath),
   §4b Verify/ipify als Ergänzung (nicht Ersatz) eingeordnet, dnsMode-Semantik geklärt.
 
+## Phase 7 — Policy-Routing ins Modul gezogen (ADMIN-HANDOFF auf Minimum)
+- **526-vpn-policy-routing.nix** (NEU): UID-basiertes Policy-Routing deklarativ im Modul.
+  Tabellen (UID=5410/5360) + routingPolicyRules (uidrange → lookup) + Default-Route
+  `dev ${vpn.interface}` + fail-closed `unreachable`. Kein netns, kein Host-ip-rule-Kochrezept.
+  Parametrisiert durch vpn.interface + Registry-UIDs. mkIf confinement.enable && vpn.interface != "".
+- **ADMIN-HANDOFF §4**: von "baue dir uid rules" reduziert auf "Interface existiert + Name + DNS + Test".
+  Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

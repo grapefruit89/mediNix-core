@@ -53,17 +53,19 @@ mediNIX-core definiert nur **logische** Pfade (`lib/abc-tiering.nix`):
 ---
 
 ## 4. VPN-Interface + UID-Routing (Usenet-Sandbox)
-Bei `usenet-confinement.enable` baut mediNIX-core die systemd-Unit-Isolation
-(**UID-Routing + RestrictNetworkInterfaces**, bewusst KEIN netns/NetworkNamespacePath).
-Der Host muss liefern:
-- Das WireGuard-Interface (z.B. `wg0`) + VPN-Keys
-- `cfg.vpn.dnsServers` (explizit, keine stillen Defaults — Assertion erzwingt das)
-- `cfg.vpn.interface` (Name des VPN-Interfaces)
-- **UID-Policy-Routing / routeTables** für die betroffenen UIDs (sabnzbd=5410, prowlarr=5360):
-  der Host routet alle Pakete dieser UIDs durch die VPN-Tabelle. mediNIX erfindet KEIN
-  `networking.interfaces` und kein `systemd.network` Routing — nur konsumieren + asserten.
+**Policy-Routing wohnt im Modul** (`526-vpn-policy-routing.nix`): UID-basierte Routing-Tabellen
+(= UID: 5410 SABnzbd, 5360 Prowlarr) + `routingPolicyRules` (uidrange → lookup Tabelle) +
+Default-Route `dev ${vpn.interface}` + fail-closed `unreachable` in der Tabelle. Kein netns,
+kein Host-ip-rule-Kochrezept. Modul erfindet KEIN `networking.interfaces`.
 
-Keine festen Interface-Namen als Modul-Default — der Host setzt sie.
+**Host liefert nur:**
+- Das WireGuard-Interface (z.B. `wg0`) + VPN-Keys (Host-Secret-Store)
+- `grapefruitMedia.vpn.interface = "wg0";` (Name des Interfaces)
+- `grapefruitMedia.vpn.dnsServers = [ "10.8.0.1" ];` (oder `127.0.0.1` bei DoT-Stub)
+- `grapefruitMedia.sabnzbd.enable = true;` + `grapefruitMedia.prowlarr.enable = true;`
+
+**Test:** Interface down → als `sabnzbd`-User darf kein Byte raus (`curl` als sabnzbd-User schlägt fehl,
+DNS darf nicht resolven). Fail-closed: confinement an ohne interface/dns → Build bricht.
 
 ### 4a. Encrypted DNS (DoT/DoH) — Host liefert, Modul implementiert NICHTS
 mediNIX-core schreibt nur `resolv.conf` mit `vpn.dnsServers` in die Sandbox
