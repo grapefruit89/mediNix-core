@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5430 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
 #   skill: medinix-implement-discipline
-#   note: "Kein Calendar-Timer. HDD schläft. Trigger = Füllstand-Check + optional Host-Post-Hook."
+#   note: "Kein Calendar-Timer. HDD schläft. systemd.path ist Klingel, minFreeGb ist Bremse."
 # ---
 { config, lib, pkgs, ... }:
 
@@ -46,7 +46,7 @@ let
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
           mkdir -p "$(dirname "$dest")"
-          ${if cfg.action == "move" then "mv -f" else "cp -f"} "$f" "$dest"
+          mv -f "$f" "$dest"
         done
 
       echo "Mover done"
@@ -54,18 +54,13 @@ let
   };
 in
 lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
-  # KEIN systemd.timers — HDD soll schlafen, kein Calendar-Taktgeber.
-  # Trigger: systemd.path beobachtet stagingDir (PathChanged) = Klingel ohne Uhr (default).
-  # minFreeGb im Script = Bremse (nichts tun wenn genug frei). Optional manuell/Hook via trigger="manual".
+  # systemd.services mit StartLimit + Hardening
   systemd.services.mediNix-mover = {
     description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
     serviceConfig = lib.mkMerge [
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
-        # StartLimit: begrenzt reale Service-Starts (nicht nur Logs!) — Path-Unit kann sonst
-        # bei geschwätzigem Staging oft hintereinander starten. Journal-RateLimit (unten)
-        # drosselt nur Log-IO, nicht Starts.
         StartLimitBurst = 3;
         StartLimitIntervalSec = 60;
         User = "media";

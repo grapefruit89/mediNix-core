@@ -163,6 +163,12 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **543-mover.nix**: Jellyfin-Refresh-Skriptblock raus, systemd.path ohne trigger-mkIf.
 - **ADMIN-HANDOFF**: §3a (Mover quiet, keine Jellyfin-API), §4a (dnsMode weg, encrypted DNS = Host-Sache).
 
+## Phase 13b — Welle-1-Reste + Native-Audit
+- **543-mover.nix**: `mv -f` only (kein `cp`/action-Zweig mehr). StartLimit direkt in serviceConfig.
+  trigger/manual-Kommentar entfernt. Script aufgeräumt.
+- **Native-Audit**: rg auf sops/rclone/cron/iptables/docker/inotifywait/NetworkNamespacePath —
+  nur bewusste Kommentare/Host-Referenzen (sops-nix als Host-Secret-Helfer OK, hybrid).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
