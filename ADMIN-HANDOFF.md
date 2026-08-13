@@ -81,6 +81,8 @@ schlafen. Der Mover ist ein `systemd`-oneshot (`mediNix-mover`), der **nur bei B
   per `PathChanged`/`DirectoryNotEmpty` beobachtet — Klingel ohne Uhr. `minFreeGb` im Script bleibt
   die Bremse (bei genug Platz: exit 0, HDD bleibt in Ruhe). Alternativ `trigger = "manual"` + Host-Hook
   (`ExecPost` in SABnzbd-Unit). Path = Klingel, minFreeGb = Bremse, Whitelist+move = Aktion.
+  Service-Unit hat `StartLimitBurst=3`/`StartLimitIntervalSec=60` (begrenzt reale Starts, nicht nur
+  Logs — Journal-RateLimit drosselt nur Log-IO).
 - **Optional Jellyfin-Refresh:** `mover.jellyfinRefreshAfterMove = true` löst nach erfolgreichem Move
   einen Jellyfin Library-Scan via API aus (braucht `secrets.jellyfinApiKeyFile` + Jellyfin-URL).
   Nur nötig **ohne** Host-mergerfs — bei move ohne Union "springen" physische Pfade. Mit mergerfs

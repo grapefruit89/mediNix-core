@@ -149,6 +149,12 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **default.nix**: `trigger` (path/manual) + `jellyfinRefreshAfterMove` (bool, default false).
 - **ADMIN-HANDOFF §3a**: Path-Unit-Doku (Klingel/Bremse-Modell) + Jellyfin-Refresh nur ohne mergerfs.
 
+## Phase 12d — Mover StartLimit (echte Starts drosseln)
+- **543-mover.nix**: `StartLimitBurst=3` + `StartLimitIntervalSec=60` an Service-Unit ergänzt.
+  Journal-RateLimit drosselt nur Logs, nicht Starts — bei geschwätzigem Staging könnte Path-Unit
+  sonst oft hintereinander starten. StartLimit = echte Bremse für Re-Starts.
+- **ADMIN-HANDOFF §3a**: StartLimit vermerkt (Klarstellung Journal-Limit ≠ Start-Limit).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

@@ -72,6 +72,11 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
+        # StartLimit: begrenzt reale Service-Starts (nicht nur Logs!) — Path-Unit kann sonst
+        # bei geschwätzigem Staging oft hintereinander starten. Journal-RateLimit (unten)
+        # drosselt nur Log-IO, nicht Starts.
+        StartLimitBurst = 3;
+        StartLimitIntervalSec = 60;
         User = "media";
         Group = "media";
         UMask = "002";
