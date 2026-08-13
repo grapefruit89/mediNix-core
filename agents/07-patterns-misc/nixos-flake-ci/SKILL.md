@@ -164,8 +164,8 @@ Before committing `writeShellApplication` / `lib.getExe` usage, query
 to confirm `lib.getExe` syntax (it is correct, but the gate is cheap).
 
 ## Relationship to other skills
-Overlaps conceptually with `nixos-build-gate` (curator-managed). This skill
+Overlaps conceptually with `medinix-build-gate` (curator-managed). This skill
 focuses on the *flake-level* shift-left tooling (ratsche, linters,
-writeShellApplication); `nixos-build-gate` owns the pre-commit assertion
+writeShellApplication); `medinix-build-gate` owns the pre-commit assertion
 sequence. Keep them complementary — do not duplicate the decimal-audit here
-(that lives in `nixos-decimal-audit`).
+(that lives in `medinix-audit-suite`).

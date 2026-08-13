@@ -10,7 +10,7 @@ license: MIT
 
 ## Trigger
 Use when `nix flake check`, `nixos-rebuild dry-run`, or `switch` fails on
-`/opt/data/50-mediNix/`. For module creation use `medinix-new-module`; for the
+`/opt/data/50-mediNix/`. For module creation use `medinix-module-author`; for the
 pre-commit gate use `medinix-pre-commit`.
 
 ## 1. Deployment routine (always dry-run first)

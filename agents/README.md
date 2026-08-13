@@ -1,28 +1,43 @@
-# 00-agents-helper
+# mediNix-core Agents
 
-Hermes-Agent Skills für das mediNIX-core Projekt. Diese Skills sind das "Agent-Handwerkszeug"
-für NixOS/mediNIX-Entwicklung, Reviews, Audits und Homelab-Operationen.
+Dieses Verzeichnis enthält die orchestrierten KI-Skills für das mediNix-core Projekt.
+Die Skills sind nach einem klaren Dezimalrahmen organisiert (01 bis 07).
 
-## Struktur
+## 🗂️ Struktur & Kategorien
 
-Alle Skills sind eigenständig (kein built-in Hermes-Bundle). Jeder Ordner hat eine `SKILL.md`.
+- **`01-discipline/`**: Verhaltens- und Prozess-Disziplin (z.B. `medinix-implement-discipline`).
+- **`02-medinix-core/`**: Kern-Authoring-Regeln (Dezimalrahmen, Conventions, `medinix-module-author`).
+- **`03-gates-audits/`**: Quality Gates und Code-Audits (`medinix-build-gate`, `medinix-audit-suite`).
+- **`04-knowledge-vector/`**: Die Wissensextraktions-Pipeline (`medinix-knowledge-pipeline`).
+- **`05-ops-deploy/`**: Host-spezifische Ops-Scripte (Achtung: oftmals unportabel).
+- **`06-kanban/`**: Kanban-Orchestrierung.
+- **`07-patterns-misc/`**: Vermischte Patterns und CI-Gates.
+- **`shared/`**: Gemeinsame Werkzeuge (`scripts/`) und Referenzen (`references/`), die von den Skills genutzt werden.
 
-### mediNIX-core / NixOS
-- `medinix-*` — mediNIX-spezifische Workflows (Implementierung, Dezimalrahmen, Guardrails, Audits)
-- `nixos-*` — generische NixOS-Tools (Context7-Gate, Decimal-Audit, Flake-CI, Repo-Harvest, Safe-Deployment)
-- `karpathy-coding-principles` — Grundprinzipien für KI-Coding (lesen → surgical → verify)
-- `medianix-integrator` — Gold-Standard Integration aus Vektor-Wissensbasis
-- `unraid-ssh-access` — Tower/Unraid SSH aus Hermes-Container
-- `ram-aware-vector-index`, `vector-db-enrichment`, `json-to-vector-db` — Vektor-Wissenbasis-Tools
-- `kanban-orchestrator`, `kanban-worker` — Task-Decomposition
-- `hermes-session-checkpoint`, `webhook-subscriptions` — Agent-Operationen
+## 🛠️ Loading Matrix (Wann lade ich was?)
 
-## Nutzung
+Nutze die folgende Matrix, um zu entscheiden, welche Skills für welchen Task relevant sind:
 
-In Hermes: `skill_view(name="medinix-implement-discipline")` etc.
-Bei mediNIX-Code-Tasks ist `medinix-implement-discipline` PFLICHT (Pipeline + Report-Format).
+### 1. "Baue ein neues Service-Modul / Integriere Code"
+Lade in dieser Reihenfolge:
+1. `medinix-implement-discipline` (Für das Behavior & Anti-Halluzination)
+2. `medinix-module-author` (Für die Modul-Regeln)
 
-## Hinweis
+### 2. "Ich bin fertig und will committen"
+Lade:
+1. `medinix-build-gate` (Führt dich durch Context7, Portability und Audit)
+2. `medinix-audit-suite` (Die eigentlichen Scan-Tools)
 
-Diese Skills sind bewusst NICHT Teil des portablen mediNIX-core Flake — sie sind
-Entwicklungs-Werkzeug, kein Runtime-Code.
+### 3. "Wir haben Eval- oder Build-Fehler"
+Lade:
+1. `medinix-implement-discipline` (Denke nach, bevor du blind fixt)
+2. `medinix-debug-nix`
+
+### 4. "Extrahiere Chat-JSON in den Vector-Store" ODER "Suche im Vector-Store"
+Lade:
+1. `medinix-knowledge-pipeline` (Regelt den Build- UND Retrieval-Prozess)
+
+### 5. "Mache einen Architektur-Review / Feature-Creep-Check"
+Lade:
+1. `medinix-feature-creep-audit`
+2. `medinix-governance`

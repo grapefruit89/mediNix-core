@@ -10,7 +10,7 @@ license: MIT
 
 ## Trigger
 Run this gate BEFORE claiming "done" / before any `git commit` on
-`/opt/data/50-mediNix/`. For creating a module use `medinix-new-module`; for
+`/opt/data/50-mediNix/`. For creating a module use `medinix-module-author`; for
 build failures use `medinix-debug-nix`.
 
 ## 1. Decimal inconsistency scan (after renames/structure changes)
@@ -60,7 +60,7 @@ ls CLAUDE.md compat-my.nix handoff-*.md 2>/dev/null && echo FAIL || echo OK  # n
 
 ## 5. Context7 gate
 Every NixOS option added since last commit MUST be Context7-verified
-(`nixos-context7-gate`). No unverified options in the diff.
+(`medinix-build-gate`). No unverified options in the diff.
 
 ## 6. Language rule
 All `.nix` files, inline comments, and ADRs are ENGLISH. Chat is German.
@@ -69,7 +69,7 @@ All `.nix` files, inline comments, and ADRs are ENGLISH. Chat is German.
 Every module/PR must pass these gates before "done". Derived from
 GUIDE-58-seven-quality-gates (mynixos-knowledge-base), adopted 2026-08-12.
 1. **Community-Goldstandard** — Abgleich mit nixpkgs/modules. Nutzen wir beste bekannte Patterns?
-2. **API-Accuracy** — Jede neue NixOS-Option via Context7 verifiziert (nixos-context7-gate).
+2. **API-Accuracy** — Jede neue NixOS-Option via Context7 verifiziert (medinix-build-gate).
    Keine Deprecations, keine halluzinierten Optionen.
 3. **SSoT-Compliance** — Strikte Bindung an lib/registry.nix (Port/UID/GID) + default.nix (Optionen).
    Keine Hardcoded-Werte (Portabilitäts-K.O.-Kriterium).

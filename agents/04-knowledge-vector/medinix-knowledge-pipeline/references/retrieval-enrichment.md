@@ -1,6 +1,6 @@
 # Vector-DB Retrieval & Gold-Enrichment (learned 2026-08-12, updated 2026-08-12)
 
-The store built by json-to-vector-db / ram-aware-vector-index is queried in TWO ways.
+The store built by medinix-knowledge-pipeline is queried in TWO ways.
 They are NOT equivalent.
 
 ## 1. The MCP `nixos_vec` path (convenient, INCOMPLETE)

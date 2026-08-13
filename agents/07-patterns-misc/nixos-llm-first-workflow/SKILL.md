@@ -78,11 +78,11 @@ Leichte Warnungen (kein Abbruch):
 ## Fokus-Regel (Single-Repo Disziplin)
 - **Nur mediNix (50-media) fokussieren.** User korrigierte: "kognitiv bei der Geschichte Media PC bleiben... kein zweites, drittes Repo aufmachen".
 - **Kein Abschweifen:** Repos wie `devNIX`, `Nix-Grok`, `NixmitGROK` nur als **Gold-Standard Quellen** nutzen, nicht als eigene Projekte.
-- **Gold-Standards extrahieren:** Mit Skill `nixos-repo-audit` (siehe unten) Patterns aus anderen Repos ziehen und in `/opt/data/50-mediNix/` integrieren.
+- **Gold-Standards extrahieren:** Mit Skill `medinix-audit-suite` (siehe unten) Patterns aus anderen Repos ziehen und in `/opt/data/50-mediNix/` integrieren.
 - **Arbeitsbereich:** `/opt/data/50-mediNix/` (Boilerplate), `/opt/data/docs/` (Doku), `/opt/data/github_repos/mediNix/` (Original-Repo). Keine neuen Repos eröffnen.
 
 ## Skill-basierte Audit-Pipeline
-- **Skill `nixos-repo-audit`** (user-owned, via `hermes curator adopt nixos-repo-audit` für Updates) ist der empfohlene Workflow für Repo-Analysen.
+- **Skill `medinix-audit-suite`** (user-owned, via `hermes curator adopt medinix-audit-suite` für Updates) ist der empfohlene Workflow für Repo-Analysen.
 - **Ablauf:** Repo klonen → Struktur prüfen (Dezimalrahmen) → Gold-Standards extrahieren (Isomorphie, Anti-Lockout, systemd Isolation, SQLite Tuning, Provisionierung) → Bewerten (für mediNix brauchbar?) → Integrieren in Boilerplate.
 - **Output:** ADR in `/opt/data/docs/ADR/`, Dateien in `/opt/data/50-mediNix/` aktualisiert.
 

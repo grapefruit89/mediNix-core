@@ -1,7 +1,7 @@
 # mediNix Repo-Harvester Findings (kondensiert, 2026-08-11)
 
 Quelle: GitHub-Issues + Docker/README der Upstream-Repos, extrahiert via
-`nixos-repo-harvester` Skill vor dem Schreiben der mediNix-core Module.
+`medinix-knowledge-pipeline` Skill vor dem Schreiben der mediNix-core Module.
 
 ## Sonarr (532)
 - **Harvester:** `sonarr.service` nutzt `-data=/var/lib/sonarr`, `UMask=002`, User=sonarr

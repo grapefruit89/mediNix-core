@@ -9,7 +9,7 @@ This is the SSoT constitution for the 50-mediNix media-stack module. The
 operational workflows have been split into three focused skills — load the
 relevant one for the task:
 
-- **`medinix-new-module`** — creating a new service module (number, path,
+- **`medinix-module-author`** — creating a new service module (number, path,
   hardening, portability checklist).
 - **`medinix-pre-commit`** — the gate before `git commit` / "fertig"
   (decimal scans, structural dup check, portability grep, git safety net).
@@ -28,7 +28,7 @@ Shared reference files (read directly, do not duplicate) live in
 - `references/audit-cross-validation.md` — verified P0 bugs (pocketId, secrets
   path), DeepSeek phantom (vpn.dns), P0/P1/P2 levels.
 - `templates/boilerplate-tree.md` — canonical directory tree.
-- `../../shared/scripts/scan_inconsistencies.py` / `../../shared/scripts/scan_duplicates.py`.
+- `../../shared/../../shared/scripts/scan_inconsistencies.py` / `../../shared/../../shared/scripts/scan_duplicates.py`.
 
 ## Pfad-Disziplin (hart)
 - NEVER write to `/opt/data/knowledge/` (external docs, read-only).

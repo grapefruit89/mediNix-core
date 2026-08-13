@@ -69,12 +69,12 @@ auto-import). Flatten: copy contents up, delete nested dir. Each service gets it
 own ADR with the full UID/GID/Port/ADR-prefix row above.
 
 ## Consistency + duplicate scan (run before declaring done)
-1. `../../shared/scripts/scan_inconsistencies.py` — walks the repo, checks every `NNN-*.nix`
+1. `../../shared/../../shared/scripts/scan_inconsistencies.py` — walks the repo, checks every `NNN-*.nix`
    against its header `ports:` and flags 4-digit ports, ports ≠ file-num×10,
    out-of-range domain blocks. Only known false-positives (`default.nix`,
    `flake.nix`, `lib/*`, firewall ports 22/80/443/2222 which are not service
    ports) may remain.
-2. `../../shared/scripts/scan_duplicates.py` — full duplicate probe: same filename in different
+2. `../../shared/../../shared/scripts/scan_duplicates.py` — full duplicate probe: same filename in different
    paths, content-identical files (sha256), SAME Dienstnummer in multiple files,
    same NIXMETA `id`. Real collisions found this session: `541-mover.nix` (SABnzbd
    number, belongs in 54-transfer) → renamed `543-mover.nix`; and two Caddy files
@@ -122,6 +122,6 @@ constitution, wins over local assumptions), `mediNix` (gold configs +
 CLAUDE.md gold-standards), `mynixos-v5` (advanced SSO/SSoT patterns).
 
 ## Support files
-- `../../shared/scripts/scan_inconsistencies.py` — deterministic consistency probe (run it).
-- `../../shared/scripts/scan_duplicates.py` — duplicate/collision probe (run it too).
+- `../../shared/../../shared/scripts/scan_inconsistencies.py` — deterministic consistency probe (run it).
+- `../../shared/../../shared/scripts/scan_duplicates.py` — duplicate/collision probe (run it too).
 - `references/service-map.md` — full service map + derivation recap.

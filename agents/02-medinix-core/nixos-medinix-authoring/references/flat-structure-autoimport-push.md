@@ -29,7 +29,7 @@ in { imports = allModules; ... }
   `55-playback/default.nix`) is REDUNDANT with the master → delete.
 
 ## 3. Number collision scan (run after EVERY rename/struct change)
-`../../shared/scripts/scan_duplicates.py` catches: same Dienstnummer claimed by >1 file (real bug:
+`../../shared/../../shared/scripts/scan_duplicates.py` catches: same Dienstnummer claimed by >1 file (real bug:
 `541-mover.nix` collided with SABnzbd `541-sabnzbd-isolation.nix` → moved mover to
 `543-mover.nix`, free slot in 54-transfer), content-identical files (sha256 dupes),
 same NIXMETA `# id:` in multiple files.
