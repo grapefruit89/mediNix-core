@@ -113,6 +113,13 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
   `pruneOpts` (7daily/4weekly/6monthly) + excludes (Transcodes/Caches/incomplete).
 - **ADMIN-HANDOFF §2a**: Restic-Restore-Hinweis (init/snapshots/restore einzelnes StateDir).
 
+## Phase 10 — Assertions konsolidiert (Doppelungen weg, Messages scharf)
+- **599-cross-domain.nix**: INV-04 entfernt (redundant mit INV-VPN-01+02). INV-UMASK-01 Unit-Namen
+  korrigiert (`sonarr-5320` → `sonarr.service`, plain). INV-VPN-05 → `[POLICY]-INV-VPN-05` (Label).
+- **592-security.nix**: INV-BIND-01 entfernt (Duplikat zu INV-02 in 599). SSoT = 599.
+- **590-registry.nix**: INV-04/INV-BIND-01 Messages entfernt. INV-VPN-01/03/04/05 + [POLICY]-INV-VPN-05
+  Messages ergänzt (Deutsch: was kaputt + was setzen + ADMIN-HANDOFF-Verweis).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

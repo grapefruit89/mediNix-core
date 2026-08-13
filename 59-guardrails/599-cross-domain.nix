@@ -27,9 +27,6 @@ in {
          in lib.all (svc: svc.gid == 5000)
               (lib.attrValues registry.services)))
 
-      # INV-04: usenet-confinement Konsistenz
-      (reg.mkInvariant "INV-04" (!cfg.usenet-confinement.enable || (cfg.vpn.interface != "" && cfg.vpn.dnsServers != [])))
-
       # INV-05: Keine Secrets im Nix-Store
       (reg.mkInvariant "INV-05" (!(cfg.vpn.wgConf != null && lib.hasPrefix "/nix/store/" (cfg.vpn.wgConf or ""))))
 
@@ -59,19 +56,19 @@ in {
           isIpv6 = s: (lib.hasInfix ":" s) && (builtins.match "[0-9a-fA-F:]+" s != null);
          in lib.all (s: isIpv4 s || isIpv6 s) cfg.vpn.dnsServers))
 
-      # INV-VPN-05: POLICY — keine Public-Resolver (1.1.1.1/8.8.8.8/9.9.9.9/208.67.222.222) in der Sandbox.
+      # [POLICY] INV-VPN-05: keine Public-Resolver (1.1.1.1/8.8.8.8/9.9.9.9/208.67.222.222) in der Sandbox.
       # Bewusste Policy (nicht nur Leak-Schutz): Usenet-Traffic geht ohnehin durch VPN, aber wir
       # erlauben keine bekannten Public-DNS in der Sandbox — nur VPN-intern (10.x) oder lokaler Host-Stub
       # (127.0.0.1 bei dnsMode=encrypted-hint). Wer Cloudflare-DNS über den Tunnel will, muss die
       # Policy hier bewusst erweitern.
-      (reg.mkInvariant "INV-VPN-05"
+      (reg.mkInvariant "[POLICY]-INV-VPN-05"
         (let public = [ "1.1.1.1" "8.8.8.8" "9.9.9.9" "208.67.222.222" ];
          in lib.all (s: !(lib.elem s public)) cfg.vpn.dnsServers))
 
       # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
       (reg.mkInvariant "INV-UMASK-01"
-        (let dotnetServices = [ "sonarr-5320" "radarr-5330" "readarr-5340"
-                                "lidarr-5350" "prowlarr-5360" "jellyseerr-5610" "jellyfin-5510" ];
+        (let dotnetServices = [ "sonarr.service" "radarr.service" "readarr.service"
+                               "lidarr.service" "prowlarr.service" "jellyseerr.service" "jellyfin.service" ];
          in lib.all (svc:
            !(config.systemd.services ? ${svc}) ||
            config.systemd.services.${svc}.serviceConfig.UMask == "0002")
