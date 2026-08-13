@@ -141,3 +141,10 @@ Ask (do not proceed) when ANY of the following is true:
 - A security invariant would need to be relaxed to fulfil the request.
 
 When asking: present the interpretations as numbered options. Do not ask open-ended questions.
+
+---
+
+## 7. Workspace Hygiene
+
+- **No loose scripts in the root directory:** If you need to create a temporary Python or bash script for a task, NEVER place it in the root of the repository.
+- Use the `scripts/` directory for permanent tools. For temporary AI throwaway scripts, use a `scratch/` directory or delete them immediately after use. Keep the repository root clean.
