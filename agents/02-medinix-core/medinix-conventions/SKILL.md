@@ -112,6 +112,6 @@ see `references/query-vector-store.md`.
   Beschaffung" is nonsense — anchors live on container decades only).
 - When extracting "ports" from chat/export text, cross-check against ADR-0000's map
   before writing them as fact. Chat authors guess numbers; the Verfassung is truth.
-- Verfassung detail bank: `references/dezimalrahmen-adr-0000.md`.
+- Verfassung detail bank: `../../shared/references/dezimalrahmen-adr-0000.md`.
 - Robust long-running job pattern (setsid + PID-file, no pkill self-match):
   `references/robust-long-job-wrapper.sh` — use for any multi-hour Tower build.

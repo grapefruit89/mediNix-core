@@ -15,7 +15,7 @@ build failures use `medinix-debug-nix`.
 
 ## 1. Decimal inconsistency scan (after renames/structure changes)
 ```bash
-python3 /opt/data/scripts/scan_inconsistencies.py
+python3 ../../shared/scripts/scan_inconsistencies.py
 ```
 Flags: wrong Dienstnummer in filename (e.g. 513-Caddy vs 511), wrong `ports:`
 in header (must = filename×10), non-zero-ending 4-digit ports, folder/file
@@ -25,7 +25,7 @@ port), SSH/firewall ports (22/443/2222).
 
 ## 2. Duplicate / collision scan
 ```bash
-python3 /opt/data/scripts/scan_duplicates.py
+python3 ../../shared/scripts/scan_duplicates.py
 ```
 Checks: same filename in different paths, sha256-identical files, SAME
 Dienstnummer in multiple files, same NIXMETA `id`.
@@ -92,6 +92,6 @@ GUIDE-58-seven-quality-gates (mynixos-knowledge-base), adopted 2026-08-12.
   `GIT_SSH_COMMAND="ssh -i /opt/data/.ssh/<key> -o IdentitiesOnly=yes -o StrictHostKeyChecking=no" git push ...`.
 
 ## References
-- `../nixos-medinix-authoring/scripts/scan_inconsistencies.py`
-- `../nixos-medinix-authoring/scripts/scan_duplicates.py`
+- `../../shared/scripts/scan_inconsistencies.py`
+- `../../shared/scripts/scan_duplicates.py`
 - `../nixos-medinix-authoring/references/dezimalrahmen-naming.md`

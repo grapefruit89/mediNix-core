@@ -28,7 +28,7 @@ Shared reference files (read directly, do not duplicate) live in
 - `references/audit-cross-validation.md` — verified P0 bugs (pocketId, secrets
   path), DeepSeek phantom (vpn.dns), P0/P1/P2 levels.
 - `templates/boilerplate-tree.md` — canonical directory tree.
-- `scripts/scan_inconsistencies.py` / `scripts/scan_duplicates.py`.
+- `../../shared/scripts/scan_inconsistencies.py` / `../../shared/scripts/scan_duplicates.py`.
 
 ## Pfad-Disziplin (hart)
 - NEVER write to `/opt/data/knowledge/` (external docs, read-only).

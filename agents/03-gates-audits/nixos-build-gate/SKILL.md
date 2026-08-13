@@ -38,7 +38,7 @@ Use `in:title,body` queries instead:
 - Mover = Tier-B cleanup: `find <complete> -mtime +retentionDays -delete` (default 7d), via `cfg.maintenance.mover.retentionDays`.
 
 ## 6. decimal-audit gap
-- `nixos-decimal-audit` references/ has only `scan_duplicates.py`; `scan_inconsistencies.py` is at `/opt/data/scripts/`. Run both.
+- `nixos-decimal-audit` Both scripts are located in `../../shared/scripts/`. Run both.
 - After every commit: audit. Num-dupes ~5–7 = known false-positives (service numbers in text); ignore.
 
 ## 7. patch-tool newline corruption (general)

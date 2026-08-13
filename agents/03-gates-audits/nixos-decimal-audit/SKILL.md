@@ -28,8 +28,8 @@ Prüft die Dezimalrahmen-Invarianten (ADR-0000) auf Verletzungen.
 
 ## Verwendung
 ```bash
-python3 ~/.hermes/skills/nixos-decimal-audit/references/scan_duplicates.py
-python3 ~/.hermes/skills/nixos-decimal-audit/references/scan_inconsistencies.py
+python3 ../../shared/scripts/scan_duplicates.py
+python3 ../../shared/scripts/scan_inconsistencies.py
 ```
 
 ROOT in beiden Skripten ist hart auf `/opt/data/50-mediNix` gesetzt — bei anderem Pfad anpassen.
