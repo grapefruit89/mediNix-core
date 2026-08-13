@@ -53,7 +53,10 @@ in lib.mkIf cfg.enable {
     };
     script = ''
       if [ ! -f /var/lib/crowdsec/enrolled ]; then
-        ${pkgs.crowdsec}/bin/cscli enroll --token "$(cat /run/credentials/crowdsec-enroll/crowdsec-enroll)" || true
+        if ! ${pkgs.crowdsec}/bin/cscli enroll --token "$(cat /run/credentials/crowdsec-enroll/crowdsec-enroll)"; then
+          echo "CrowdSec enrollment failed!" >&2
+          exit 1
+        fi
         touch /var/lib/crowdsec/enrolled
       fi
     '';

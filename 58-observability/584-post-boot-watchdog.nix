@@ -17,6 +17,13 @@ let
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfy = "http://127.0.0.1:5810/mediNix-boot";
 
+  registry = import ../lib/registry.nix { inherit lib; };
+  # Alle Dienste aus der Registry (mit und ohne Port)
+  allUnits = lib.mapAttrsToList
+    (_: svc: if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name)
+    registry.services;
+  unitList = lib.concatStringsSep " " allUnits;
+
   script = pkgs.writeShellApplication {
     name = "mediNix-boot-watchdog";
     runtimeInputs = [ pkgs.systemd pkgs.curl ];
@@ -26,21 +33,24 @@ let
       REPORT=""
 
       # Prüfe alle bekannten mediNix-Services
-      for unit in jellyfin-5510 audiobookshelf-5520 navidrome-5530 \
-                  sonarr-5320 radarr-5330 prowlarr-5360 sabnzbd-5410; do
+      for unit in ${unitList}; do
         if systemctl is-enabled --quiet "$unit.service" 2>/dev/null; then
           if ! systemctl is-active --quiet "$unit.service" 2>/dev/null; then
             echo "Post-Boot: $unit fehlgeschlagen, starte neu..."
-            systemctl start "$unit.service" 2>/dev/null || true
-            REPORT="$REPORT $unit(restarted)"
+            if systemctl start "$unit.service" 2>/dev/null; then
+              REPORT="$REPORT $unit(restarted)"
+            else
+              echo "Fehler beim Neustart von $unit" >&2
+              REPORT="$REPORT $unit(FAILED)"
+            fi
           fi
         fi
       done
 
       if [ -n "$REPORT" ]; then
-        curl -s -d "Boot-Watchdog: Services neu gestartet:$REPORT" "$NTFY" || true
+        curl -s -d "Boot-Watchdog: Services neu gestartet:$REPORT" "$NTFY" || echo "NTFY Notification failed" >&2
       else
-        curl -s -d "Boot-Watchdog: Alle Services OK nach 180s" "$NTFY" || true
+        curl -s -d "Boot-Watchdog: Alle Services OK nach 180s" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
     '';
   };

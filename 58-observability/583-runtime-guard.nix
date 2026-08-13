@@ -17,6 +17,11 @@ let
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfy = "http://127.0.0.1:5810/mediNix-runtime";
 
+  registry = import ../lib/registry.nix { inherit lib; };
+  # Hole alle Ports aus der Registry für den 0.0.0.0 Check
+  portsList = lib.mapAttrsToList (_: svc: toString svc.port) (lib.filterAttrs (_: svc: svc.port != null) registry.services);
+  portsRegex = lib.concatStringsSep "|" portsList;
+
   script = pkgs.writeShellApplication {
     name = "mediNix-runtime-guard";
     runtimeInputs = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps ];
@@ -26,19 +31,19 @@ let
 
       # 1. nftables-Regeln noch aktiv?
       if ! nft list ruleset 2>/dev/null | grep -q "mediNix-ingress"; then
-        curl -s -d "RUNTIME ALERT: nftables mediNix-Regeln fehlen!" "$NTFY" || true
+        curl -s -d "RUNTIME ALERT: nftables mediNix-Regeln fehlen!" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
 
       # 2. Dienste binden auf 127.0.0.1 (nicht 0.0.0.0)?
-      BAD=$(ss -tlnp 2>/dev/null | grep -E "0\.0\.0\.0:5[0-9]{3}" || true)
+      BAD=$(ss -tlnp 2>/dev/null | grep -E "0\.0\.0\.0:(${portsRegex})\b" || true)
       if [ -n "$BAD" ]; then
-        curl -s -d "RUNTIME ALERT: Dienst bindet auf 0.0.0.0! $BAD" "$NTFY" || true
+        curl -s -d "RUNTIME ALERT: Dienst bindet auf 0.0.0.0! $BAD" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
 
       # 3. VPN-Interface UP wenn confinement aktiv?
       IFACE="${toString cfg.vpn.interface}"
       if [ -n "$IFACE" ] && ! ip link show "$IFACE" >/dev/null 2>&1; then
-        curl -s -d "RUNTIME ALERT: VPN-Interface $IFACE DOWN!" "$NTFY" || true
+        curl -s -d "RUNTIME ALERT: VPN-Interface $IFACE DOWN!" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
 
       echo "Runtime-Guard OK"
