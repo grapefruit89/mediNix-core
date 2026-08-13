@@ -46,19 +46,24 @@ in {
       (reg.mkInvariant "INV-VPN-01"
         (!cfg.usenet-confinement.enable || cfg.vpn.interface != ""))
 
-      # INV-VPN-03: confinement aktiv → betroffene Dienste müssen enable sein (kein totes Confinement)
+      # INV-VPN-03: confinement aktiv → mindestens ein betroffener Dienst muss enable sein
       (reg.mkInvariant "INV-VPN-03"
         (!cfg.usenet-confinement.enable ||
-         (cfg.sabnzbd.enable && cfg.prowlarr.enable)))
+         (cfg.sabnzbd.enable || cfg.prowlarr.enable)))
 
       # INV-VPN-04: dnsServers Einträge müssen syntaktisch IPs sein (keine Hostnamen in resolv.conf)
+      # IPv4: nur Ziffern+Punkte. IPv6: Hex+':' (mindestens ein ':' als Unterscheidung zu IPv4).
       (reg.mkInvariant "INV-VPN-04"
         (let
-          isIp = s: (lib.hasInfix "." s) && (builtins.match "[0-9.]+" s != null
-                    || builtins.match "[0-9a-fA-F:]+" s != null);
-         in lib.all isIp cfg.vpn.dnsServers))
+          isIpv4 = s: builtins.match "[0-9]+(\\.[0-9]+){3}" s != null;
+          isIpv6 = s: (lib.hasInfix ":" s) && (builtins.match "[0-9a-fA-F:]+" s != null);
+         in lib.all (s: isIpv4 s || isIpv6 s) cfg.vpn.dnsServers))
 
-      # INV-VPN-05: Kein hardcoded Public-DNS (1.1.1.1/8.8.8.8/9.9.9.9) als Modul-Vorgabe im Usenet-Pfad
+      # INV-VPN-05: POLICY — keine Public-Resolver (1.1.1.1/8.8.8.8/9.9.9.9/208.67.222.222) in der Sandbox.
+      # Bewusste Policy (nicht nur Leak-Schutz): Usenet-Traffic geht ohnehin durch VPN, aber wir
+      # erlauben keine bekannten Public-DNS in der Sandbox — nur VPN-intern (10.x) oder lokaler Host-Stub
+      # (127.0.0.1 bei dnsMode=encrypted-hint). Wer Cloudflare-DNS über den Tunnel will, muss die
+      # Policy hier bewusst erweitern.
       (reg.mkInvariant "INV-VPN-05"
         (let public = [ "1.1.1.1" "8.8.8.8" "9.9.9.9" "208.67.222.222" ];
          in lib.all (s: !(lib.elem s public)) cfg.vpn.dnsServers))

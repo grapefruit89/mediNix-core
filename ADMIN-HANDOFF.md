@@ -54,10 +54,14 @@ mediNIX-core definiert nur **logische** Pfade (`lib/abc-tiering.nix`):
 
 ## 4. VPN-Interface + UID-Routing (Usenet-Sandbox)
 Bei `usenet-confinement.enable` baut mediNIX-core die systemd-Unit-Isolation
-(UID-Routing via `NetworkNamespacePath`). Der Host muss liefern:
+(**UID-Routing + RestrictNetworkInterfaces**, bewusst KEIN netns/NetworkNamespacePath).
+Der Host muss liefern:
 - Das WireGuard-Interface (z.B. `wg0`) + VPN-Keys
 - `cfg.vpn.dnsServers` (explizit, keine stillen Defaults — Assertion erzwingt das)
 - `cfg.vpn.interface` (Name des VPN-Interfaces)
+- **UID-Policy-Routing / routeTables** für die betroffenen UIDs (sabnzbd=5410, prowlarr=5360):
+  der Host routet alle Pakete dieser UIDs durch die VPN-Tabelle. mediNIX erfindet KEIN
+  `networking.interfaces` und kein `systemd.network` Routing — nur konsumieren + asserten.
 
 Keine festen Interface-Namen als Modul-Default — der Host setzt sie.
 
@@ -73,9 +77,16 @@ Drei Varianten für `vpn.dnsServers`:
 - **Variante C (networkd-DNS):** WireGuard-Interface bekommt DNS via systemd-networkd
   → Modul konsumiert nur die Adressen, Host setzt `cfg.vpn.dnsServers` entsprechend
 
-mediNIX implementiert keinen DoT-Client. Fail-closed: `usenet-confinement.enable` ohne
-`vpn.dnsServers` → Build bricht (INV-04 / INV-VPN-02). Kein Fallback auf 1.1.1.1/8.8.8.8
-(INV-VPN-05 verbietet hardcoded Public-DNS als Modul-Vorgabe).
+`dnsMode` ändert **keinen** Codepfad — 525 baut resolv.conf immer gleich aus `dnsServers`.
+`dnsMode` ist nur Semantik/Doku: es deklariert welche DNS-Lieferung der Host wählt.
+### 4b. Runtime-Verify & ipify-Abhängigkeit (Ergänzung, kein Ersatz)
+Der eigentliche Kill-Switch ist **systemd `RestrictNetworkInterfaces`** plus **Host-UID-Policy-Routing**.
+Der Verify-Service (`usenet-vpn-verify.service` in 525) ist eine **ergänzende Laufzeit-Prüfung**
+(gleicht Host-IP vs. VPN-IP via ipify ab und stoppt Usenet-Stack bei Leak-Gefahr).
+Einschränkung: Verbraucht externe HTTPS-Anfrage (ipify) und braucht Netz. Daher:
+- Der Kill-Switch funktioniert rein lokal ohne ipify (durch RestrictNetworkInterfaces).
+- Verify ist nur eine defensive Zusatzschicht. Im reinen Offline-Betrieb ohne ipify-Zugang
+  kann Verify fehlschlagen, auch wenn der Tunnel steht. (Kann bei Bedarf angepasst werden).
 
 ---
 

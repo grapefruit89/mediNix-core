@@ -74,12 +74,13 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **dnsMode Option** (`vpn.dnsMode` = vpn-plain / encrypted-hint): Modul implementiert keinen DoT-Client,
   Host liefert encrypted DNS (Variante A/B/C in ADMIN-HANDOFF §4a).
 - **INV-VPN-01**: confinement → vpn.interface ≠ "" (Build-Bruch).
-- **INV-VPN-03**: confinement → sabnzbd + prowlarr müssen enable sein (kein totes Confinement).
-- **INV-VPN-04**: dnsServers müssen syntaktisch IPs sein (keine Hostnamen in resolv.conf).
-- **INV-VPN-05**: kein hardcoded Public-DNS (1.1.1.1/8.8.8.8) als Modul-Vorgabe (INV-04/02 bereits vorhanden).
+- **INV-VPN-03**: confinement → mindestens ein betroffener Dienst enable (sabnzbd || prowlarr).
+- **INV-VPN-04**: dnsServers IPv4/IPv6-sauber (getrennte Mengen, kein hasInfix "." mehr).
+- **INV-VPN-05**: POLICY — keine Public-Resolver in Sandbox (bewusste Policy, nicht nur Leak-Schutz).
 - **525-usenet-confinement.nix**: RestrictNetworkInterfaces=[lo,vpnIf] + BindReadOnlyPaths (eigene resolv.conf)
   + InaccessiblePaths=[/sys/class/net] + echter IP-Leak-Check (Host-IP vs VPN-Interface via ipify) bereits vorhanden.
-- **ADMIN-HANDOFF §4a**: Encrypted DNS Varianten (VPN-Provider / Host-DoT-Stub / networkd) dokumentiert.
+- **ADMIN-HANDOFF**: §4 netns-Formulierung korrigiert (UID-Routing + routeTables, KEIN NetworkNamespacePath),
+  §4b Verify/ipify als Ergänzung (nicht Ersatz) eingeordnet, dnsMode-Semantik geklärt.
 
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
