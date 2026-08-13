@@ -19,6 +19,7 @@
 let
   cfg = config.grapefruitMedia;
   reg = import ./590-registry.nix { inherit lib; };
+  servicesReg = import ../lib/registry.nix { inherit lib; };
 in
 lib.mkIf cfg.enable {
   assertions = [
@@ -29,7 +30,7 @@ lib.mkIf cfg.enable {
         # Alle Registry-Hosts die einen Caddy-vHost bekommen (caddyClass != none)
         registryHosts = lib.mapAttrsToList
           (n: s: "${n}.${cfg.domain}")
-          (lib.filterAttrs (_: s: s.caddyClass != "none") reg.services);
+          (lib.filterAttrs (_: s: s.caddyClass != "none") servicesReg.services);
         # Alle aktuell konfigurierten Caddy-vHosts
         configHosts = lib.attrNames (config.services.caddy.virtualHosts or { });
       in

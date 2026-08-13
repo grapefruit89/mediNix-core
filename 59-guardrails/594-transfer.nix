@@ -7,9 +7,8 @@ in {
     assertions = [
       (reg.mkErrorDoc "VPN-001" (cfg.vpn.interface != "") "5410")
       (reg.mkErrorDoc "VPN-002" (cfg.vpn.dnsServers != []) "5410")
+      (reg.mkErrorDoc "VPN-003" (cfg.sabnzbd.enable || cfg.prowlarr.enable) "5410")
       (reg.mkErrorDoc "VPN-005" (!(cfg.vpn.wgConf != null && lib.hasPrefix "/nix/store/" cfg.vpn.wgConf)) "5410")
     ];
-    warnings = lib.optional (!cfg.sabnzbd.enable && !cfg.prowlarr.enable)
-      reg.errors.VPN-003;
   };
 }
