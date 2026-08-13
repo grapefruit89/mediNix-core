@@ -37,6 +37,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 ### Architecture Decision Records
 
 - [ADR 0000 dezimalrahmen verfassung](adr/ADR-00-dezimalrahmen-verfassung.md)
+- [NIXMETA V3.0 Header Standard](adr/ADR-00-nixmeta-v3-header.md)
 - [ADR 0001 source repository registry](adr/ADR-00-source-repository-registry.md)
 - [ADR 5040 dezimalrahmen port ableitung](adr/ADR-50-dezimalrahmen-port-ableitung.md)
 - [ADR 5030 flake module patterns](adr/ADR-50-flake-module-patterns.md)
