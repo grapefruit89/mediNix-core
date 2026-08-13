@@ -1,3 +1,16 @@
+---
+id: "NO-CONTAINERS"
+title: "NO CONTAINERS"
+domain: 50
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - general
+links:
+  adr: ""
+  repo-harvest: ""
+---
 # Warum keine Container in mediNix-core
 
 ## Entscheidung

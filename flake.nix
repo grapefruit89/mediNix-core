@@ -130,14 +130,35 @@
         # ── Formatter + devShell (Priorität 3) ──────────────────────────────
         formatter = pkgs.nixfmt-rfc-style;
 
+        # Knowledge Base Build
+        packages.docs = pkgs.stdenv.mkDerivation {
+          name = "medinix-docs";
+          src = ./.;
+          buildInputs = [ pkgs.mkdocs pkgs.python3Packages.mkdocs-material ];
+          buildPhase = ''
+            cd docs
+            mkdocs build --site-dir ../site
+            cd ..
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp -r site/* $out/
+          '';
+        };
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            nixfmt-rfc-style  # nix fmt
-            statix            # statix check .
-            deadnix           # deadnix --fail .
-            nix-tree          # Dependency-Visualizer
+            nixfmt-rfc-style
+            statix
+            deadnix
+            nix-tree
             jq
+            mkdocs
+            python3Packages.mkdocs-material
           ];
+          shellHook = ''
+            echo "Run 'cd docs && mkdocs serve' to view the knowledge base."
+          '';
         };
       }
     );

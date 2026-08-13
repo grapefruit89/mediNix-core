@@ -1,3 +1,16 @@
+---
+id: "ONBOARDING"
+title: "ONBOARDING"
+domain: 50
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - general
+links:
+  adr: ""
+  repo-harvest: ""
+---
 # mediNix-core — q958 Onboarding Checklist
 
 Vor dem ersten `nixos-rebuild switch` auf q958 (192.168.2.73) — strukturell

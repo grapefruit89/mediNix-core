@@ -1,3 +1,16 @@
+---
+id: "INDEX"
+title: "INDEX"
+domain: 50
+status: active
+complexity: 2
+last_reviewed: 2026-08-12
+tags:
+  - general
+links:
+  adr: ""
+  repo-harvest: ""
+---
 # ADR Index — mediNix-core
 
 Alle Architecture Decision Records. Sortiert nach Domain.
