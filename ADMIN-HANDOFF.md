@@ -28,7 +28,7 @@ Ergebnis via `nix copy --to ssh://root@<host>`.
 
 ---
 
-## 2. Impermanence / Persist-Pfade
+## 2. Impermanence / Persist-Pfade + Backup
 mediNIX-core erzwingt KEINE Impermanence. Stateless-Root ist Host-Entscheidung.
 Wenn gewünscht:
 - `tmpfs` auf `/` (oder impermanence-Flake)
@@ -38,6 +38,30 @@ Wenn gewünscht:
 
 **Geplant (Roadmap, nicht im Modul):** `INV-STORE-xx` Guardrail — Build bricht wenn ein
 State-Pfad außerhalb der Tier-Whitelist auftaucht (Impermanence-Whitelist-Ansatz).
+
+### 2a. Restic-Backup (opt-in: `maintenance.backup.enable`)
+Modul: `576-backup.nix`. Sichert nur die Media-StateDirs (`/var/lib/<name>-<port>`)
++ `secretsDir` — **nicht** blind ganz `/var/lib` (Ballast). Vor dem Backup werden die
+Dienste gestoppt (DB-Safety, Pre/Post via `systemctl stop/start <plain-unit>`).
+Retention: 7 täglich / 4 wöchentlich / 6 monatlich (`pruneOpts`).
+Transcodes/Caches/incomplete ausgeschlossen.
+
+**Host liefert:** `maintenance.backup.repository` (z.B. `/mnt/backup/restic` oder SFTP)
++ `maintenance.backup.passwordFile` (Pfad zur restic-Key-Datei, TPM/Host-Secret).
+Ohne beide → Assertion bricht Build.
+
+**Restore (Beispiel):**
+```
+# Repository initialisieren (einmalig auf Host):
+restic -r <repository> --password-file <pwfile> init
+# Snapshots auflisten:
+restic -r <repository> --password-file <pwfile> snapshots
+# Einzelnes StateDir restoren (Dienst vorher stoppen!):
+systemctl stop sonarr
+restic -r <repository> --password-file <pwfile> restore latest \
+  --target / --include /var/lib/sonarr-5320
+systemctl start sonarr
+```
 
 ---
 

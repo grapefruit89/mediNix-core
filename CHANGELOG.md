@@ -107,6 +107,12 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - Bewusst unverändert: docs/*.md ADRs (historische m7c5.de-Entscheidungen bleiben), docs/ONBOARDING.md
   (q958-spezifisches Deploy-Handoff, bewusst host-spezifisch).
 
+## Phase 9 — 576-backup gehärtet (Unit-Namen + enge Pfade + Retention)
+- **576-backup.nix**: Unit-Namen in Pre/Post korrigiert (`sonarr-5320` → `sonarr.service`, plain).
+  `paths` aus Registry-StateDirs abgeleitet (nur Media-StateDirs + secretsDir, nicht blind `/var/lib`).
+  `pruneOpts` (7daily/4weekly/6monthly) + excludes (Transcodes/Caches/incomplete).
+- **ADMIN-HANDOFF §2a**: Restic-Restore-Hinweis (init/snapshots/restore einzelnes StateDir).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
