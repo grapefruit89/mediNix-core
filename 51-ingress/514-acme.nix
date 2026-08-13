@@ -63,7 +63,7 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       
       # credentialsFile muss eine Datei sein, die folgendes enthält:
       # CF_DNS_API_TOKEN=dein_cloudflare_token
-      credentialsFile = tokenFile;
+      credentialsFile = lib.mkIf (tokenFile != null) tokenFile;
     };
   };
 

@@ -40,16 +40,19 @@ let
     cfg.${n}.enable or false && svc.port != null && svc.caddyClass != "none"
   ) registry;
 
-  # Filter services by caddyClass to determine IP mapping
-  wanServices = lib.filterAttrs (n: svc: svc.caddyClass == "stream" || svc.caddyClass == "public") enabledServices;
-  lanServices = lib.filterAttrs (n: svc: svc.caddyClass == "internal") enabledServices;
+  # Filter services by caddyClass to determine IP and Proxy mapping
+  streamServices = lib.filterAttrs (n: svc: svc.caddyClass == "stream") enabledServices;
+  publicServices = lib.filterAttrs (n: svc: svc.caddyClass == "public") enabledServices;
+  lanServices    = lib.filterAttrs (n: svc: svc.caddyClass == "internal") enabledServices;
 
-  wanDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") wanServices;
-  lanDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") lanServices;
+  streamDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") streamServices;
+  publicDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") publicServices;
+  lanDomains    = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") lanServices;
 
   # Build space-separated strings for the bash script
-  wanDomainsStr = builtins.concatStringsSep " " wanDomains;
-  lanDomainsStr = builtins.concatStringsSep " " lanDomains;
+  streamDomainsStr = builtins.concatStringsSep " " streamDomains;
+  publicDomainsStr = builtins.concatStringsSep " " publicDomains;
+  lanDomainsStr    = builtins.concatStringsSep " " lanDomains;
 
 in
 lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
@@ -83,7 +86,8 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       set -euo pipefail
 
       ZONE="${zone}"
-      WAN_DOMAINS="${wanDomainsStr}"
+      STREAM_DOMAINS="${streamDomainsStr}"
+      PUBLIC_DOMAINS="${publicDomainsStr}"
       LAN_DOMAINS="${lanDomainsStr}"
 
       # Resolve API Token
@@ -133,8 +137,9 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       update_record() {
         local record_name="$1"
         local ip="$2"
+        local proxied="$3"
         
-        echo "Processing $record_name -> $ip"
+        echo "Processing $record_name -> $ip (proxied: $proxied)"
         
         # IPv6 (AAAA) radikal löschen, um IPv6 Leaks zu verhindern (P0.2)
         local aaaa_records=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=AAAA" \
@@ -156,30 +161,35 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           
         local record_id=$(echo "$record_info" | jq -r '.result[0].id // empty')
         local current_ip=$(echo "$record_info" | jq -r '.result[0].content // empty')
+        local current_proxied=$(echo "$record_info" | jq -r '.result[0].proxied // empty')
         
         if [ -z "$record_id" ]; then
           echo "  Record not found. Creating..."
           curl -s --fail-with-body -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false,"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
-        elif [ "$current_ip" != "$ip" ]; then
-          echo "  IP changed ($current_ip -> $ip). Updating..."
+            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
+        elif [ "$current_ip" != "$ip" ] || [ "$current_proxied" != "$proxied" ]; then
+          echo "  IP or proxy status changed. Updating..."
           curl -s --fail-with-body -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$record_id" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":false,"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
+            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
         else
-          echo "  IP matches. No update needed."
+          echo "  IP and proxy status match. No update needed."
         fi
       }
 
-      for domain in $WAN_DOMAINS; do
-        update_record "$domain" "$WAN_IP"
+      for domain in $STREAM_DOMAINS; do
+        update_record "$domain" "$WAN_IP" "false"
+      done
+
+      for domain in $PUBLIC_DOMAINS; do
+        update_record "$domain" "$WAN_IP" "true"
       done
 
       for domain in $LAN_DOMAINS; do
-        update_record "$domain" "$LAN_IP"
+        update_record "$domain" "$LAN_IP" "false"
       done
 
       echo "DDNS sync completed successfully."
