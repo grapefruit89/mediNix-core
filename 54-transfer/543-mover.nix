@@ -57,12 +57,16 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
   # systemd.services mit StartLimit + Hardening
   systemd.services.mediNix-mover = {
     description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
+    # StartLimit gehört in [Unit] (= unitConfig), nicht in [Service] (serviceConfig).
+    # Begrenzt reale Service-Starts bei geschwätzigem Staging (nicht nur Log-IO).
+    unitConfig = {
+      StartLimitBurst = 3;
+      StartLimitIntervalSec = "60";
+    };
     serviceConfig = lib.mkMerge [
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
-        StartLimitBurst = 3;
-        StartLimitIntervalSec = 60;
         User = "media";
         Group = "media";
         UMask = "002";

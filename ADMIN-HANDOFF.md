@@ -178,15 +178,40 @@ security.acme = {
 
 ---
 
-## 6. Secrets-Erzeugung (systemd-creds, TPM)
-mediNIX-core bindet Secrets via `LoadCredentialEncrypted` / `EnvironmentFile` ein
-(INV-SECRET prüft: keine `/nix/store/`-Pfade). Die **Verschlüsselung** ist Host-Job:
+## 6. Secrets-Erzeugung (systemd-credentials, TPM-Stufe vorbereitet)
+
+mediNIX-core nutzt **natives systemd-credentials** — kein sops/agenix-Zwang im Modul.
+(INV-SECRET prüft: keine `/nix/store/`-Pfade als Secret-Quelle.)
+
+### Stufe 1 (jetzt, Standard)
+Host legt Secret-Dateien unter `cfg.secrets.secretsDir` (eng: `chmod 600`, Owner `media`/root).
+Unit referenziert via `LoadCredential = name:/pfad/zur/datei` und die App liest `%d/name`
+(`/run/credentials/<unit>/name` — tmpfs, nicht im Nix-Store).
+Beispiel: `LoadCredential = mediNix-sabnzbd-api:/var/lib/media-secrets/sabnzbd-api.key`
+
+### Stufe 2 (später, optional — TPM)
+Gleiche Credential-Namen in der Unit, nur `LoadCredential` → `LoadCredentialEncrypted`:
 ```bash
 systemd-creds encrypt --with-key=tpm2+host my-secret.env my-secret.env.encrypted
+# Unit: LoadCredentialEncrypted = mediNix-sabnzbd-api:/var/lib/media-secrets/sabnzbd-api.key.encrypted
 ```
-Pfade zu den `.encrypted`-Files kommen in `cfg.secrets.*` (Host-Config).
+App merkt nichts (gleiche `%d/name`-Logik). Verschlüsselung ist Host-Job, kein Modul-Refactor.
+**TPM ist Ausbaustufe, kein Blocker für Tag 1.**
+
+### Vorbereitung (jetzt umsetzbar)
+- Stabile Credential-Namen pro Zweck: `mediNix-sabnzbd-api`, `mediNix-restic-password`,
+  `mediNix-jellyfin-admin`, `mediNix-cf-token`, …
+- Units nutzen `%d/name`, keine hardcodierten Host-Pfade im App-Innern.
+- Host-Pfad nur in `LoadCredential=name:/pfad` (oder `cfg.secrets.*`).
+
 Betroffene Secrets: `sabnzbdApiKeyFile`, `prowlarrApiKeyFile`, `jellyfinAdminPasswordFile`,
-`navidromeOidcFile`, `jellyseerrEnvFile`, Cloudflare-Token, SSH-Keys.
+`navidromeOidcFile`, `jellyseerrEnvFile`, Cloudflare-Token, SSH-Keys, Restic-Password.
+
+### Nicht tun
+- ❌ Secrets in `environment = { KEY = "klartext" }` (inline)
+- ❌ sops-nix als Flake-Input erzwingen (nur Host-seitig optional)
+- ❌ Vault / Docker-Secrets / eigene Krypto-Wrapper
+- ❌ drei parallele Secret-Stacks
 
 ---
 

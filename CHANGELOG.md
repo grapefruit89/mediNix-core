@@ -169,6 +169,10 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **Native-Audit**: rg auf sops/rclone/cron/iptables/docker/inotifywait/NetworkNamespacePath —
   nur bewusste Kommentare/Host-Referenzen (sops-nix als Host-Secret-Helfer OK, hybrid).
 
+## Phase 13c — StartLimit → unitConfig (korrekte systemd-Sektion)
+- **543-mover.nix**: `StartLimitBurst`/`StartLimitIntervalSec` von `serviceConfig` nach `unitConfig`
+  verschoben. In `[Service]` sind sie wirkungslos — Start-Limits gehören in `[Unit]`.
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
