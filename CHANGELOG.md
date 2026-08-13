@@ -49,6 +49,9 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **7 Quality Gates** in medinix-pre-commit skill (Community-Gold, API-Accuracy, SSoT, SRE, Dendritic, Hygiene, Traceability)
 - **ADR-5043**: Assertion Quality Standard (was/warum/fix, fail-closed, jeder Bug → Invariante)
 - **ADMIN-HANDOFF.md**: saubere Trennung Host-Verantwortung vs. Modul (Binary-Cache, Impermanence, Tier-HW, SSH/TPM)
+- **Single Source of Truth (ADMIN-HANDOFF.md)**: Alle Host-Pflichten (Binary-Cache, Impermanence,
+  Storage-Mounts, VPN, ACME, TPM-Secrets, SSH, nftables, Checkliste, Fallstricke) in genau einer
+  MD-Datei konsolidiert. Flake ist 100% portabel ohne q958-Annahmen (q958-Referenzen aus Code/AGENTS entfernt).
 - **Legacy-Bereinigung**: 57-maintenance/jellyfin.nix, profiles.nix, prowlarr.nix, seerr.nix, settings.nix gelöscht
   (inert, kein NNN-Präfix → nicht auto-importiert; veraltete Arrangement-Logik vor der Factory-Umstellung)
 - **574-provisioning.nix**: `after =`-Unit-Namen korrigiert (waren `sonarr-5320.service` etc.,

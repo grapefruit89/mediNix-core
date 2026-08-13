@@ -72,14 +72,10 @@ Beispiel: VPN-Killswitch via UID-Routing (billig, robust) statt netns (komplex, 
 Keine 100%-Goldplating-Complexity. Fail-closed bleibt (Assertions brechen den Build).
 Siehe ADR-5050 (systemd-hardening-baseline) + lib/hardening-profiles.nix.
 
-## Host-Admin-Verantwortung (mediNIX-core macht DAS NICHT)
-mediNIX-core ist ein portables Modul. Folgende Punkte sind **Host-Entscheidungen** und
-müssen vom Admin auf q958 selbst konfiguriert werden (siehe ADMIN-HANDOFF.md):
-- **Binary-Cache:** `nix.settings.substituters` mit Fallback-Caches setzen (cache.nixos.org +
-  optional eigener). ZIEL: NICHTS wird auf q958 kompiliert. Nur absoluter Notfall-Build erlaubt.
-- **Impermanence:** Root auf tmpfs / persist-Modul — Architektur-Entscheidung, nicht Modul-Sache.
-- **Tier-Hardware-Zuordnung:** Welche Platte ist NVMe/SSD/HDD (ABC-Tiering) — Host-Config.
-- **SSH-Hardening, TPM-Secrets, nftables-Baseline:** Host-seitig (mediNIX liefert nur Module).
+## Host-Admin-Verantwortung (siehe ADMIN-HANDOFF.md)
+mediNIX-core ist portabel. Host-Pflichten (Binary-Cache, Impermanence, Tier-Hardware, VPN-Interface,
+ACME/TLS, TPM-Secrets, SSH/nftables) sind **ausschließlich in `ADMIN-HANDOFF.md`** dokumentiert.
+Keine verstreuten Host-Hinweise hier. Flake evaluiert ohne jede Host-Annahme.
 
 ## Roadmap (nicht vor erstem Deploy)
 - INV-STORE-xx: State-Pfad-Whitelist als Guardrail (Alarm bei neuem Pfad außerhalb Tier-Liste).

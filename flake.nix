@@ -90,7 +90,7 @@
 
         # ── Ratsche: evaluiert das gesamte Modul mit allen Optionen ─────────
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
-        # Registry-Key, falscher Options-Pfad) — BEVOR es auf q958 deployed wird.
+        # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
