@@ -1,64 +1,77 @@
 # ---
 # id: "543-mover"
-# title: "Tier-B Cleanup — deletes already-imported downloads older than retentionDays"
+# title: "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)"
 # domain: 54
 # folder: 54-transfer
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-11
+# last_reviewed: 2026-08-13
 # links:
-#   adr: ADR-5410
-#   skill: nixos-context7-gate
-#   note: "Sonarr/Radarr do the import (Tier B SSD -> Tier C HDD) themselves.
-#          Hardlinks cross-FS impossible (SSD vs HDD) -> copy, so download stays
-#          on Tier B until this cleanup removes it. No 'mv downloads -> library'."
-# context7:
-#   - query: "systemd.timers OnCalendar example interval"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "systemd.timers.<name>.timerConfig.OnCalendar = \"*:0/15\";"
+#   adr: ADR-5430 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
+#   skill: medinix-implement-discipline
+#   note: "Kein Calendar-Timer. HDD schläft. Trigger = Füllstand-Check + optional Host-Post-Hook."
 # ---
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.mover;
+  cfg = config.grapefruitMedia.mover;
   svc = config.grapefruitMedia;
-  completeDir = "${svc.storage.mediaRoot}/downloads/complete";
-in lib.mkIf cfg.enable {
-  # Systemd Timer (ADR-5000: event/timer-driven, no legacy cron)
-  systemd.timers.tier-b-cleanup = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*:0/30";  # alle 30 Minuten (IO-Schonung vs. 15-Min-Dauerfeuer)
-      Persistent = true;
-    };
-  };
 
-  systemd.services.tier-b-cleanup = {
-    description = "Tier-B Cleanup: remove already-imported downloads older than ${toString cfg.retentionDays}d";
+  moverScript = pkgs.writeShellApplication {
+    name = "mediNix-mover";
+    runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.gawk ];
+    text = ''
+      set -euo pipefail
+
+      STAGING="${cfg.stagingDir}"
+      ARCHIVE="${cfg.archiveDir}"
+      MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
+
+      # 1. Füllstand-Check auf Staging (Tier-B/SSD)
+      if [ ! -d "$STAGING" ]; then
+        echo "Mover: stagingDir $STAGING nicht vorhanden — skip"
+        exit 0
+      fi
+      FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
+      if [ "$FREE_KB" -ge "$MIN_FREE_KB" ]; then
+        echo "Mover: frei genug ($(($FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — nichts zu tun"
+        exit 0
+      fi
+      echo "Mover: SSD knapp ($(($FREE_KB/1024)) MB frei) → verschiebe Media nach $ARCHIVE"
+
+      # 2. Nur Whitelist-Extensions, nur größere Dateien (>= 50MB), rekursiv
+      mkdir -p "$ARCHIVE"
+      find "$STAGING" -type f -size +50M ${lib.concatMapStringsSep " " (e: " -o -name '*${e}'") cfg.mediaExtensions} \
+        | while read -r f; do
+          rel="''${f#"$STAGING"/}"
+          dest="$ARCHIVE/$rel"
+          mkdir -p "$(dirname "$dest")"
+          ${if cfg.action == "move" then "mv -f" else "cp -f"} "$f" "$dest"
+          ${if cfg.action == "move" then "rm -f \"$f\"" else ""}
+        done
+
+      echo "Mover done"
+    '';
+  };
+in
+lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
+  # KEIN systemd.timers — HDD soll schlafen, kein Calendar-Taktgeber.
+  # Trigger: Host ruft `systemctl start mediNix-mover` (z.B. SABnzbd Post-Hook)
+  # oder manuell. Füllstand-Check im Script verhindert sinnloses Wecken.
+  systemd.services.mediNix-mover = {
+    description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
     serviceConfig = lib.mkMerge [
-      # script-Profil: MemoryDenyWriteExecute=true (bash), PrivateNetwork=true
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "media";
         Group = "media";
         UMask = "002";
-        ReadWritePaths = [ completeDir ];
+        ReadWritePaths = [ cfg.stagingDir cfg.archiveDir ];
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
       }
     ];
-    script = ''
-      set -euo pipefail
-      COMPLETE="${completeDir}"
-      [ -d "$COMPLETE" ] || exit 0
-
-      # Entferne Dateien/Ordner die älter als retentionDays sind.
-      # Sonarr/Radarr importieren selbst (Tier B -> Tier C). Was älter als X Tage
-      # ist, gilt als importiert + sicher auf Tier C -> Tier B freimachen.
-      # Kein Hardlink möglich (SSD vs HDD) -> copy, daher hier Aufräumen.
-      find "$COMPLETE" -mindepth 1 -mtime +${toString cfg.retentionDays} -print0 \
-        | while IFS= read -r -d '' item; do
-            rm -rf "$item"
-          done
-    '';
+    script = "${lib.getExe moverScript}";
   };
 }

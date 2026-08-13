@@ -125,6 +125,15 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **571/577/578/542**: `RateLimitBurst=5` + `RateLimitIntervalSec=30s` in serviceConfig
   (Journal-Drossel bei Fehlerschleifen — kein Log-IO-Sturm). 577 auf mkMerge umgestellt.
 
+## Phase 12 — Mover ondemand (kein Timer, HDD schläft)
+- **543-mover.nix**: komplett umgebaut. Kein Calendar-Timer (OnCalendar/*:0/30 entfernt).
+  systemd oneshot `mediNix-mover` mit df-Füllstand-Check + Extension-Whitelist + move nach Tier-C.
+- **default.nix mover-Options**: `mode` (ondemand/off, default ondemand), `minFreeGb` (20),
+  `mediaExtensions`, `stagingDir`, `archiveDir`, `action` (move/copy, default move).
+  `retentionDays` entfernt.
+- **ADMIN-HANDOFF §3a/§3b**: Mover-Handoff (Trigger, Whitelist, Playback-darf-HDD-lesen) +
+  mergerfs-Beispiel (Host-seitig, NICHT im Modul — Portabilität).
+
 ## Offen (vor erstem Deploy)
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
   Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md

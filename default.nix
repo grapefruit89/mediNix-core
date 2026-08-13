@@ -191,14 +191,54 @@ in
       lidarr.enable    = lib.mkEnableOption "Enable metrics exporter for Lidarr";
     };
     mover = {
-      enable = lib.mkEnableOption "Tier-B cleanup (remove already-imported downloads)";
-      retentionDays = lib.mkOption {
-        type    = lib.types.int;
-        default = 7;
+      enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
+      mode = lib.mkOption {
+        type = lib.types.enum [ "ondemand" "off" ];
+        default = "ondemand";
         description = ''
-          Anzahl Tage nach denen importierte Downloads auf Tier B (SSD) gelöscht
-          werden. Sonarr/Radarr importieren selbst (Tier B -> Tier C HDD).
-          Hardlinks SSD<->HDD unmöglich -> Copy, daher Tier B hier aufräumen.
+          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + optional Host-Post-Hook).
+          Kein Calendar-Timer als Haupttaktgeber — HDD soll schlafen dürfen.
+          "off": Mover komplett inaktiv.
+        '';
+      };
+      minFreeGb = lib.mkOption {
+        type = lib.types.int;
+        default = 20;
+        description = ''
+          Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
+          Nur relevant wenn mode = "ondemand".
+        '';
+      };
+      mediaExtensions = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ".mkv" ".mp4" ".m4b" ".mp3" ".flac" ".webm" ".ts" ];
+        description = ''
+          Whitelist: nur Dateien mit diesen Endungen werden nach archiveDir (Tier-C/HDD) verschoben.
+          Metadaten (NFO/JPG/Poster/DB) bleiben auf der SSD-Arbeitsseite.
+        '';
+      };
+      stagingDir = lib.mkOption {
+        type = lib.types.path;
+        default = "/var/lib/mediNix-staging";
+        description = ''
+          Quell-Pfad auf Tier-B (SSD): importierte/complette Downloads die bei Platzmangel auf HDD wandern.
+          Host: Mountpoint der SSD-Staging-SSD.
+        '';
+      };
+      archiveDir = lib.mkOption {
+        type = lib.types.path;
+        default = "/var/lib/mediNix-archive";
+        description = ''
+          Ziel-Pfad auf Tier-C (HDD): nur echte Mediendateien (siehe mediaExtensions).
+          Streaming-Dienste dürfen von hier lesen.
+        '';
+      };
+      action = lib.mkOption {
+        type = lib.types.enum [ "move" "copy" ];
+        default = "move";
+        description = ''
+          "move": Datei nach HDD verschieben, SSD wieder frei (Hardlink SSD↔HDD unmöglich — cross-device).
+          "copy": SSD behält Working-Copy (doppelter Platzbedarf, nur für explizite "digitale Kopie").
         '';
       };
     };
