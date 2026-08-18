@@ -18,14 +18,14 @@ lib.mkIf cfg.enable {
   # 1. GID 5000 = media
   users.groups.media.gid = 5000;
 
-  # 2. Emergency User anlegen (media-admin)
+  # 2. Create Emergency User (media-admin)
   users.users.media-admin = {
     isNormalUser = true;
     extraGroups = [ "media" ];
     openssh.authorizedKeys.keys = cfg.sshKeys;
   };
 
-  # 3. Eingeschränkte Sudo-Rechte (kein Root-Shell, nur Service-Restarts + Status)
+  # 3. Restricted Sudo Rights (no root shell, only service restarts + status)
   security.sudo.extraConfig =
     let
       registry = import ../lib/registry.nix { inherit lib; };

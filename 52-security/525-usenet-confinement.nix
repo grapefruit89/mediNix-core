@@ -16,14 +16,14 @@ let
 in
 lib.mkIf (cfg.enable && cfg.usenet-confinement.enable) {
   imports = [
-    ./vpn-killswitch.nix
+    ./526-vpn-killswitch.nix
   ];
 
   services.vpnKillSwitch.instances.sabnzbd = {
     enable = true;
     
-    # Der Dienstname und User werden automatisch aus dem Namen ("sabnzbd") abgeleitet,
-    # können aber überschrieben werden (z.B. unit = "sabnzbd.service"; user = "sabnzbd";).
+    # The service name and user are automatically derived from the name ("sabnzbd"),
+    # but can be overridden (e.g., unit = "sabnzbd.service"; user = "sabnzbd";).
     
     vpnInterface = cfg.vpn.interface;
 

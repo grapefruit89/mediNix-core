@@ -1,6 +1,6 @@
 # ---
 # id: "524-systemd-credentials"
-# title: "LoadCredentialEncrypted für alle cfg.secrets.* ApiKey-Files"
+# title: "LoadCredentialEncrypted for all cfg.secrets.* ApiKey files"
 # domain: 52
 # folder: 52-security
 # status: active
@@ -18,9 +18,9 @@
 
 let
   cfg = config.grapefruitMedia;
-  # Map: dienstname -> secret-pfad-option (nur wenn aktiviert + pfad gesetzt)
-  # ACHTUNG: Pfade liegen unter cfg.secrets.* (NICHT cfg.services.<name>.apiKeyFile — gibt's nicht!)
-  # Jellyfin nutzt jellyfinAdminPasswordFile (kein apiKeyFile).
+  # Map: service name -> secret path option (only if enabled + path is set)
+  # WARNING: Paths are under cfg.secrets.* (NOT cfg.services.<name>.apiKeyFile — doesn't exist!)
+  # Jellyfin uses jellyfinAdminPasswordFile (not apiKeyFile).
   secretMap = {
     sonarr      = cfg.secrets.sonarrApiKeyFile or null;
     radarr      = cfg.secrets.radarrApiKeyFile or null;
@@ -31,15 +31,15 @@ let
     jellyfin    = cfg.secrets.jellyfinAdminPasswordFile or null;
     jellyseerr  = cfg.secrets.jellyseerrApiKeyFile or null;
   };
-  # Filtere: nur aktive Dienste mit gesetztem Pfad
-  # WICHTIG: Unit-Namen = plain kebab-case (sonarr.service, nicht mediNix-sonarr).
-  # SSoT: lib/service-factory.nix Zeile 47 baut systemd.services."${name}".
-  # StateDirectory hat den Port (sonarr-5320), die Unit NICHT.
+  # Filter: only active services with a set path
+  # IMPORTANT: Unit names = plain kebab-case (sonarr.service, not mediNix-sonarr).
+  # SSoT: lib/service-factory.nix builds systemd.services."${name}".
+  # StateDirectory has the port (sonarr-5320), the Unit DOES NOT.
   activeSecrets = lib.filterAttrs (name: path: path != null && (cfg.services.${name}.enable or false)) secretMap;
 in
 {
-  # Für jeden aktiven Dienst mit ApiKeyFile: LoadCredentialEncrypted injizieren.
-  # Unit = plain name (z.B. "sonarr"), NICHT "mediNix-${name}" — sonst trifft es keine echte Unit.
+  # For each active service with an ApiKeyFile: inject LoadCredentialEncrypted.
+  # Unit = plain name (e.g., "sonarr"), NOT "mediNix-${name}" — otherwise it won't hit a real Unit.
   config.systemd.services = lib.mapAttrs' (name: path:
     lib.nameValuePair "${name}" {
       serviceConfig.LoadCredentialEncrypted = [ "${name}-api-key:${path}" ];
