@@ -85,7 +85,7 @@ rec {
     # Observability (folder 58) — Go binary, network port-binding
     ntfy = mkService "ntfy" 581 "public" "network";
     # CrowdSec native agent (folder 58) — no port (Caddy plugin talks to localhost)
-    crowdsec = mkNoPort "crowdsec" 582 "none";
+    crowdsec = mkNoPort "crowdsec" 582 "script";
   };
 
   # For backward compat: only services with a port

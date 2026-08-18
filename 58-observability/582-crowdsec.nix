@@ -71,3 +71,4 @@ in lib.mkIf cfg.enable {
   # Apache Common Log Format (CLF) gesetzt werden:
   #   logging → ... → encoder = "common_log" (oder transform-encoder für IP-Masking)
   # Sonst kann der Bouncer keine Angriffe aus den Access-Logs extrahieren.
+}

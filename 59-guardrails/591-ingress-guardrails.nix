@@ -18,10 +18,10 @@ let
 in
 lib.mkIf cfg.enable {
   assertions = [
-    (reg.mkErrorDoc "TLS-001" !(cfg.ingress.tls.acmeHost != null && cfg.ingress.tls.certFile != null) "5111")
+    (reg.mkErrorDoc "TLS-001" (!(cfg.ingress.tls.acmeHost != null && cfg.ingress.tls.certFile != null)) "5111")
     (reg.mkErrorDoc "TLS-002" (cfg.ingress.tls.mode != "custom" || (cfg.ingress.tls.certFile != null && cfg.ingress.tls.keyFile != null)) "5111")
-    (reg.mkErrorDoc "TLS-003" !(cfg.jellyfin.enable && cfg.ingress.tls.mode == "off") "5111")
-    (reg.mkErrorDoc "AUTH-001" !(cfg.ingress.auth.mode == "forward-auth" && !cfg.authProxyPresent) "5120")
+    (reg.mkErrorDoc "TLS-003" (!(cfg.jellyfin.enable && cfg.ingress.tls.mode == "off")) "5111")
+    (reg.mkErrorDoc "AUTH-001" (!(cfg.ingress.auth.mode == "forward-auth" && !cfg.authProxyPresent)) "5120")
     (reg.mkErrorDoc "DNS-001" (cfg.dns.ddns.enable -> (cfg.dns.ddns.tokenCredential != null || cfg.dns.ddns.tokenFile != null)) "5130")
 
     # INV-INGRESS-01: Kein manueller Caddy-vHost außerhalb der Registry erlaubt.

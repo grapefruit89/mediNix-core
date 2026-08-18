@@ -18,6 +18,6 @@ in
 lib.mkIf cfg.enable {
   assertions = [
     # SEC-001: Crowdsec (Teil der 58er Observability)
-    (reg.mkErrorDoc "SEC-001" !(cfg.observability.crowdsec.enable && cfg.observability.crowdsec.enrollKeyFile == null) "5820")
+    (reg.mkErrorDoc "SEC-001" (!(cfg.observability.crowdsec.enable && cfg.observability.crowdsec.enrollKeyFile == null)) "5820")
   ];
 }
