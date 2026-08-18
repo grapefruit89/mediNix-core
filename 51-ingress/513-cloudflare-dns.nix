@@ -21,13 +21,13 @@
 # ---
 
 # 51-ingress/513-cloudflare-dns.nix — Cloudflare DDNS Sync
-# ADR-5130: Eigenes DDNS im standalone-Modus (dns.mode=standalone).
-# Implementiert Split-Horizon DNS basierend auf der caddyClass:
-# - WAN-Dienste (stream, public) erhalten die externe Public-IP.
-# - LAN-Dienste (internal) erhalten die interne Private-IP.
-# Schreibt A-Records via Cloudflare API. KEINE Proxy (orange cloud OFF) —
-# Caddy terminiert TLS selbst, Cloudflare darf nicht MITM'en.
-# Token via LoadCredentialEncrypted (bevorzugt) oder tokenFile.
+# ADR-5130: Custom DDNS in standalone mode (dns.mode=standalone).
+# Implements Split-Horizon DNS based on caddyClass:
+# - WAN services (stream, public) receive the external public IP.
+# - LAN services (internal) receive the internal private IP.
+# Writes A-Records via Cloudflare API. NO Proxy (orange cloud OFF) —
+# Caddy terminates TLS itself, Cloudflare must not MITM.
+# Token via LoadCredentialEncrypted (preferred) or tokenFile.
 { lib, pkgs, config, ... }:
 
 let
@@ -66,7 +66,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type            = "oneshot";
-        # Token aus systemd-credentials (ADR-5000)
+        # Token from systemd-credentials (ADR-5000)
         LoadCredentialEncrypted = lib.mkIf (ddns.tokenCredential != null)
           "cf-ddns-token:${ddns.tokenCredential}";
       };
@@ -79,7 +79,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       
       path = [ pkgs.curl pkgs.jq pkgs.iproute2 ];
 
-      # Token alternativ via EnvironmentFile (agenix/sops-nix)
+      # Alternative token via EnvironmentFile (agenix/sops-nix)
       environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
       
       script = ''
@@ -100,7 +100,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         exit 1
       fi
       
-      # Unterstütze sowohl reinen Text (alt) als auch CF_DNS_API_TOKEN=... (für ACME Kompatibilität)
+      # Support pure text (old) as well as CF_DNS_API_TOKEN=... (for ACME compatibility)
       if grep -q "^CF_DNS_API_TOKEN=" "$TOKEN_FILE"; then
         TOKEN=$(grep "^CF_DNS_API_TOKEN=" "$TOKEN_FILE" | cut -d'=' -f2-)
       else
@@ -108,7 +108,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       fi
 
       echo "Fetching current IPs..."
-      # Dynamische WAN IP Ermittlung
+      # Dynamic WAN IP discovery
       WAN_IP=$(curl -s4 --fail-with-body https://ifconfig.me || curl -s4 --fail-with-body https://api.ipify.org)
       if [ -z "$WAN_IP" ]; then
         echo "FATAL: Could not determine WAN IP." >&2
@@ -141,7 +141,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         
         echo "Processing $record_name -> $ip (proxied: $proxied)"
         
-        # IPv6 (AAAA) radikal löschen, um IPv6 Leaks zu verhindern (P0.2)
+        # Radically delete IPv6 (AAAA) to prevent IPv6 leaks (P0.2)
         local aaaa_records=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=AAAA" \
           -H "Authorization: Bearer $TOKEN" \
           -H "Content-Type: application/json")
@@ -154,7 +154,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           done
         fi
 
-        # IPv4 (A) updaten
+        # Update IPv4 (A)
         local record_info=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=A" \
           -H "Authorization: Bearer $TOKEN" \
           -H "Content-Type: application/json")

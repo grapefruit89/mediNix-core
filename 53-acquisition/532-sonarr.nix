@@ -1,6 +1,6 @@
 # ---
 # id: "532-sonarr"
-# title: "Sonarr — Series Management (53-acquisition, Dienst 532)"
+# title: "Sonarr — Series Management (53-acquisition, Service 532)"
 # domain: 53
 # folder: 53-acquisition
 # status: active
@@ -25,14 +25,14 @@ let
   gid  = 5000;
   stateDir = "/var/lib/sonarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
   users.groups.media.gid = gid;
 
-  # Factory: dotnet-Profil (MemoryDenyWriteExecute=false, internet-Policy)
-  # allowedPeers: Sonarr braucht SABnzbd (Download) + Prowlarr (Indexer)
+  # Factory: dotnet profile (MemoryDenyWriteExecute=false, internet-Policy)
+  # allowedPeers: Sonarr needs SABnzbd (Download) + Prowlarr (Indexer)
   systemd.services.sonarr = (mkService {
     name = "sonarr";
     port = port;
@@ -42,8 +42,8 @@ in
     profile = "dotnet";
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
-      User           = "sonarr";  # Factory setzt User=name, hier redundant sicher
-      UMask          = "002";     # Arr-Stack braucht 002 für Gruppen-Schreibrechte
+      User           = "sonarr";  # Factory sets User=name, here redundant but safe
+      UMask          = "002";     # Arr-Stack needs 002 for group write permissions
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
   }).systemd.services.sonarr // {
@@ -67,7 +67,7 @@ in
           instanceName = "Sonarr";
         };
         log.level        = "info";
-        update.mechanism = "BuiltIn";  # Nix managed Updates, nicht die App
+        update.mechanism = "BuiltIn";  # Nix manages Updates, not the App
       })
     ];
   };

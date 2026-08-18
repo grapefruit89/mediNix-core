@@ -1,6 +1,6 @@
 # ---
 # id: "536-prowlarr"
-# title: "Prowlarr — Indexer Manager (53-acquisition, Dienst 536)"
+# title: "Prowlarr — Indexer Manager (53-acquisition, Service 536)"
 # domain: 53
 # folder: 53-acquisition
 # status: active
@@ -22,13 +22,13 @@ let
   gid  = 5000;
   stateDir = "/var/lib/prowlarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
   users.groups.media.gid = gid;
 
-  # Prowlarr: indexiert nur, braucht SABnzbd nicht direkt (Arr holen sich von ihm)
+  # Prowlarr: only indexes, doesn't need SABnzbd directly (Arr fetch from it)
   systemd.services.prowlarr = (mkService {
     name = "prowlarr";
     port = port;

@@ -22,9 +22,9 @@
 
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP
 # ADR-5120: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).
-# Aktiv wenn cfg.pocketId.enable ODER ingress.auth.mode=forward-auth.
-# GID 5000 (media) für Bibliotheks-Zugriff. Keine direkte WAN-Exposition:
-# Caddy macht forward_auth zu 127.0.0.1:5120.
+# Active if cfg.pocketId.enable OR ingress.auth.mode=forward-auth.
+# GID 5000 (media) for library access. No direct WAN exposure:
+# Caddy does forward_auth to 127.0.0.1:5120.
 { lib, pkgs, config, ... }:
 
 let
@@ -40,7 +40,7 @@ lib.mkIf (cfg.enable && active) {
     group = "media";  # shared GID 5000 per ADR-0000
   };
 
-  # Hardening: network-Profil (CAP_NET_BIND_SERVICE für 5120, PrivateDevices=true)
+  # Hardening: network profile (CAP_NET_BIND_SERVICE for 5120, PrivateDevices=true)
   systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "pocket-id";
     stateDir = "/var/lib/pocket-id-5120";
@@ -62,12 +62,12 @@ lib.mkIf (cfg.enable && active) {
     createHome = true;
   };
 
-  # Caddy forward_auth upstream zeigt auf Pocket ID (wenn ingress aktiv)
-  # (Konfiguration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
+  # Caddy forward_auth upstream points to Pocket ID (if ingress is active)
+  # (Configuration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
 }
 
 # Gold-Standard (ADR-5120):
-# - Pocket ID ist OIDC IdP, Caddy macht forward_auth zu ihr
-# - Nie 5120 direkt exponieren; Caddy terminiert TLS + forwards
-# - GID 5000 (media) shared across mediNix services für library access
-# - UID 5120 isomorph (512 × 10)
+# - Pocket ID is OIDC IdP, Caddy does forward_auth to it
+# - Never expose 5120 directly; Caddy terminates TLS + forwards
+# - GID 5000 (media) shared across mediNix services for library access
+# - UID 5120 is isomorphic (512 × 10)

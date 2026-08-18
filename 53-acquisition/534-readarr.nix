@@ -1,6 +1,6 @@
 # ---
 # id: "534-readarr"
-# title: "Readarr — Book Management (53-acquisition, Dienst 534)"
+# title: "Readarr — Book Management (53-acquisition, Service 534)"
 # domain: 53
 # folder: 53-acquisition
 # status: active
@@ -22,7 +22,7 @@ let
   gid  = 5000;
   stateDir = "/var/lib/readarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {

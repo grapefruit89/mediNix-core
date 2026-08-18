@@ -1,6 +1,6 @@
 # ---
 # id: "535-lidarr"
-# title: "Lidarr — Music Download Manager (53-acquisition, Dienst 535)"
+# title: "Lidarr — Music Download Manager (53-acquisition, Service 535)"
 # domain: 53
 # folder: 53-acquisition
 # status: active
@@ -22,7 +22,7 @@ let
   gid  = 5000;
   stateDir = "/var/lib/lidarr-${toString port}";
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 {
