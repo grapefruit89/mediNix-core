@@ -1,3 +1,14 @@
+# ---
+# id: "526-vpn-killswitch"
+# title: "Declarative VPN Kill-Switch Instances"
+# domain: 52
+# folder: 52-security
+# status: active
+# complexity: 5
+# last_reviewed: 2026-08-18
+# links:
+#   adr: ADR-5410, ADR-5260
+# ---
 { config, lib, pkgs, ... }:
 
 let

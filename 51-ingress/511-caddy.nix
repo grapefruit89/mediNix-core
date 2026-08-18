@@ -16,8 +16,8 @@
 #   - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
 # ---
 # 51-ingress/511-caddy.nix — Chameleon Caddy Ingress
-# ADR-5110: genau EINE Caddy-Instanz (inject global | standalone caddy-media).
-# caddyClass steuert das Template pro Dienst (stream/internal/public/none).
+# ADR-5110: exactly ONE Caddy instance (inject global | standalone caddy-media).
+# caddyClass controls the template per service (stream/internal/public/none).
 { lib, pkgs, config, ... }:
 
 let
@@ -30,12 +30,12 @@ let
     cfg.${n}.enable or false && svc.port != null && svc.caddyClass != "none"
   ) registry;
 
-  # Sichere LAN-CIDRs. Wenn der User in der Config nichts angibt, nutzen wir restriktive Defaults.
-  # Groq P1: 100.64.0.0/10 hinzugefügt, damit Tailscale-Clients nicht von Caddy geblockt werden.
+  # Secure LAN CIDRs. If the user specifies nothing in the config, we use restrictive defaults.
+  # Groq P1: Added 100.64.0.0/10 so Tailscale clients are not blocked by Caddy.
   trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
   
-  # Cloudflare IPs (IPv4 & IPv6) für trusted_proxies
+  # Cloudflare IPs (IPv4 & IPv6) for trusted_proxies
   cloudflareIps = [
     "173.245.48.0/20" "103.21.244.0/22" "103.22.200.0/22" "103.31.4.0/22" 
     "141.101.64.0/18" "108.162.192.0/18" "190.93.240.0/20" "188.114.96.0/20" 
@@ -46,7 +46,7 @@ let
   ];
   cloudflareIpsStr = builtins.concatStringsSep " " cloudflareIps;
 
-  # Basis-Generierung für den jeweiligen Dienst
+  # Base generation for the respective service
   mkBaseConfig = n: svc:
     let
       port = toString svc.port;
@@ -71,14 +71,14 @@ let
             }
           }
         '';
-        # Internal: LAN only via explizite trustedCidrs (P1.4), keine Auth da LAN das Boundary ist
+        # Internal: LAN only via explicit trustedCidrs (P1.4), no auth since LAN is the boundary
         internal = ''
           @blocked not remote_ip ${trustedCidrsStr}
           abort @blocked
           encode zstd gzip
           reverse_proxy http://127.0.0.1:${port}
         '';
-        # Public: LAN + WAN, compression, mit authBlock (P0.1)
+        # Public: LAN + WAN, compression, with authBlock (P0.1)
         public = ''
           encode zstd gzip
           ${authBlock}
@@ -86,13 +86,13 @@ let
         '';
       }.${svc.caddyClass};
 
-  # ── Zentrale Template Engine (Red-Team Fixes angewandt) ─────────
-  # Diese Funktion baut die Konfiguration für GOBAL und STANDALONE identisch zusammen.
+  # ── Central Template Engine (Red-Team Fixes applied) ─────────
+  # This function builds the configuration identically for GLOBAL and STANDALONE.
   mkVHostConfig = n: svc:
     let
       tlsDirective =
         if ing.tls.acmeHost != null then
-          # Red-Team P1.8: Nutze fullchain.pem statt cert.pem
+          # Red-Team P1.8: Use fullchain.pem instead of cert.pem
           "tls /var/lib/acme/${ing.tls.acmeHost}/fullchain.pem /var/lib/acme/${ing.tls.acmeHost}/key.pem"
         else if ing.tls.mode == "custom" then
           "tls ${ing.tls.certFile} ${ing.tls.keyFile}"
@@ -102,7 +102,7 @@ let
     in 
       "${tlsDirective}\n${mkBaseConfig n svc}";
 
-  # Spezielles Template für .local (ohne TLS, rein HTTP)
+  # Special template for .local (without TLS, pure HTTP)
   mkVHostConfigLocal = n: svc: mkBaseConfig n svc;
 
   # Standalone Config String
@@ -121,7 +121,7 @@ let
     }
   '') enabledServices);
 
-  # Standalone: Eigenen caddy-media Service starten via Factory
+  # Standalone: Start dedicated caddy-media service via Factory
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
     uid = 5110;
@@ -132,7 +132,7 @@ let
 
 in lib.mkMerge [
   (lib.mkIf (cfg.enable && ing.enable) {
-    # Chameleon: Global Caddy vorhanden → virtualHosts injizieren
+    # Chameleon: Global Caddy present → inject virtualHosts
     # CrowdSec Plugin via caddy.withPlugins
     services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
       plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
@@ -159,13 +159,13 @@ in lib.mkMerge [
       text = caddyConfigStr;
     };
 
-    # mDNS: Avahi-Einträge für .local
+    # mDNS: Avahi entries for .local
     services.avahi = lib.mkIf cfg.discovery.mdns.enable {
       enable  = true;
       publish = { enable = true; userServices = true; addresses = true; };
     };
 
-    # Firewall: nur Caddy-Ports öffnen
+    # Firewall: only open Caddy ports
     networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal)
       (if ing.tls.mode == "off" then [ 80 ] else [ 80 443 ]);
   })
@@ -174,7 +174,7 @@ in lib.mkMerge [
 ];
 
 # Gold-Standard (ADR-5110, Red-Team Assessed):
-# - Chameleon: nie zwei Caddy-Instanzen, Security-Policies für Global und Standalone sind 100% identisch
-# - remote_ip nutzt explizite trustedCidrs (nicht einfach pauschal private_ranges)
-# - Hostnamen werden streng aus dem Registry-Key `n` abgeleitet, nicht aus name
-# - fullchain.pem wird bevorzugt, um Chain-Probleme zu verhindern
+# - Chameleon: never two Caddy instances, security policies for Global and Standalone are 100% identical
+# - remote_ip uses explicit trustedCidrs (not just blanket private_ranges)
+# - Hostnames are strictly derived from the registry key `n`, not from name
+# - fullchain.pem is preferred to prevent chain issues
