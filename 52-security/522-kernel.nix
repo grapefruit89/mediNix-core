@@ -19,13 +19,13 @@
 let
   cfg = config.grapefruitMedia;
 in
-{
+lib.mkIf cfg.enable {
   # Kernel-Härtung (Context7-verifiziert: boot.kernel.sysctl.<key> Syntax)
   # Nur relevante, homelab-sichere Werte — kein Over-Hardening das Dienste bricht.
   boot.kernel.sysctl = {
-    # Reverse Path Filtering — verhindert IP-Spoofing
-    "net.ipv4.conf.all.rp_filter" = 1;
-    "net.ipv4.conf.default.rp_filter" = 1;
+    # Reverse Path Filtering — Loose (2) für VPN Killswitch Policy-Routing
+    "net.ipv4.conf.all.rp_filter" = 2;
+    "net.ipv4.conf.default.rp_filter" = 2;
 
     # BPF JIT Hardening — verhindert BPF-JIT-Spekulation
     "kernel.unprivileged_bpf_disabled" = 1;

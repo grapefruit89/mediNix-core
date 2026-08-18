@@ -30,8 +30,8 @@ let
       NTFY="${ntfy}"
 
       # 1. nftables-Regeln noch aktiv?
-      if ! nft list ruleset 2>/dev/null | grep -q "mediNix-ingress"; then
-        curl -s -d "RUNTIME ALERT: nftables mediNix-Regeln fehlen!" "$NTFY" || echo "NTFY Notification failed" >&2
+      if ! nft list ruleset 2>/dev/null | grep -q "nixos-fw"; then
+        curl -s -d "RUNTIME ALERT: nftables Firewall fehlen!" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
 
       # 2. Dienste binden auf 127.0.0.1 (nicht 0.0.0.0)?
@@ -61,7 +61,12 @@ lib.mkIf (cfg.enable && cfg.observability.runtimeGuard) {
   };
 
   systemd.services.mediNix-runtime-guard = {
-    serviceConfig = profiles.script // { Type = "oneshot"; };
+    serviceConfig = profiles.script // { 
+      Type = "oneshot";
+      PrivateNetwork = false;
+      CapabilityBoundingSet = "CAP_NET_ADMIN";
+      AmbientCapabilities = "CAP_NET_ADMIN";
+    };
     path = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps ];
     script = "${lib.getExe script}";
   };

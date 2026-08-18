@@ -30,11 +30,11 @@ lib.mkIf cfg.enable {
     let
       registry = import ../lib/registry.nix { inherit lib; };
       restartCmds = lib.mapAttrsToList
-        (_: svc: "/run/current-system/sw/bin/systemctl restart ${if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name}.service")
+        (_: svc: "/run/current-system/sw/bin/systemctl restart ${svc.unitName}.service")
         registry.services;
       cmdString = lib.concatStringsSep ", \\\n                                           " restartCmds;
     in ''
       media-admin ALL=(root) NOPASSWD: ${cmdString}
-      media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status *
+      media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status * --no-pager
     '';
 }

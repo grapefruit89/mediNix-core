@@ -32,7 +32,7 @@ lib.mkIf cfg.enable {
         cfg.secrets.sabnzbdApiKeyFile
         cfg.secrets.navidromeOidcFile
         cfg.secrets.jellyseerrEnvFile
-      ] ++ (lib.mapAttrsToList (_: s: s.path) config.sops.secrets);
+      ];
       in lib.all (p: p == null || !(lib.hasPrefix "/nix/store/" p)) paths))
 
     # INV-TECH-01..03: Verbotene Technologien strukturell unmöglich machen

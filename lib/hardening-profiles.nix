@@ -19,6 +19,7 @@
 # Zentrale Hardening-Profile. Jeder Dienst bekommt genau EIN Profil aus der
 # Registry (svc.hardeningProfile). Inkonsistente per-Modul serviceConfig-Blöcke
 # werden dadurch eliminiert (ADR-5050).
+rec {
 
 # ── Netzwerk-Policy: wer darf wohin? ────────────────────────────────────────
 # loopback: nur 127.0.0.1/::1 — kein Internet (SABnzbd geht durch VPN-ns)
@@ -123,3 +124,4 @@ script = base // {
   PrivateDevices         = true;
   PrivateNetwork         = true;  # Skripte brauchen kein Netz
 } // networkPolicy.loopback;  # nur Loopback falls sie localhost ansprechen
+}

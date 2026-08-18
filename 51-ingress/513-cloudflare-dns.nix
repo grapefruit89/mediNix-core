@@ -58,31 +58,31 @@ in
 lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
   # systemd-Timer: DDNS-Sync basierend auf ddns.interval
-  systemd.services.cloudflare-ddns = {
-    description = "Intelligent Split-Horizon Cloudflare DDNS (mediNix-core)";
-    wantedBy = [ "multi-user.target" ];
-    after    = [ "network-online.target" ];
-    wants    = [ "network-online.target" ];
-    
-    path = [ pkgs.curl pkgs.jq pkgs.iproute2 ];
-
-    serviceConfig = lib.mkMerge [
-      # Verwende das network-Profil statt script, da wir curl+Internet brauchen!
-      (import ../lib/hardening-profiles.nix { inherit lib; }).network
-      {
+  systemd.services.cloudflare-ddns = lib.mkMerge [
+    ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+      name = "cloudflare-ddns";
+      profile = "network";
+      stateDir = "/var/lib/cloudflare-ddns";
+      hardeningOnly = true;
+      extraConfig = {
         Type            = "oneshot";
-        User            = "cloudflare-ddns";
-        Group           = "media";
         # Token aus systemd-credentials (ADR-5000)
         LoadCredentialEncrypted = lib.mkIf (ddns.tokenCredential != null)
           "cf-ddns-token:${ddns.tokenCredential}";
-      }
-    ];
-    
-    # Token alternativ via EnvironmentFile (agenix/sops-nix)
-    environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
-    
-    script = ''
+      };
+    })
+    {
+      description = "Intelligent Split-Horizon Cloudflare DDNS (mediNix-core)";
+      wantedBy = [ "multi-user.target" ];
+      after    = [ "network-online.target" ];
+      wants    = [ "network-online.target" ];
+      
+      path = [ pkgs.curl pkgs.jq pkgs.iproute2 ];
+
+      # Token alternativ via EnvironmentFile (agenix/sops-nix)
+      environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
+      
+      script = ''
       set -euo pipefail
 
       ZONE="${zone}"
@@ -197,7 +197,8 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       echo "DDNS sync completed successfully."
     '';
-  };
+    }
+  ];
 
   systemd.timers.cloudflare-ddns = {
     wantedBy = [ "timers.target" ];

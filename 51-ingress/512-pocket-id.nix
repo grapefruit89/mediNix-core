@@ -41,16 +41,17 @@ lib.mkIf (cfg.enable && active) {
   };
 
   # Hardening: network-Profil (CAP_NET_BIND_SERVICE für 5120, PrivateDevices=true)
-  systemd.services.pocket-id = {
-    serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).network
-      {
-        User  = "pocket-id";
-        Group = "media";
-        RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
-        ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
-      }
-    ];
+  systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+    name = "pocket-id";
+    stateDir = "/var/lib/pocket-id-5120";
+    profile = "network";
+    hardeningOnly = true;
+    extraConfig = {
+      User  = "pocket-id";
+      Group = "media";
+      RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
+      ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
+    };
   };
 
   users.users.pocket-id = {

@@ -23,7 +23,7 @@ let
   servicePortFrom = 5110;
   servicePortTo   = 5999;
 in
-{
+lib.mkIf cfg.enable {
   # Context7-verifiziert: nftables-basierter Firewall-Backend (nicht iptables)
   networking.nftables.enable = true;
 
@@ -38,14 +38,5 @@ in
     80    # HTTP  (Caddy ACME http-01)
     443   # HTTPS (Caddy TLS)
   ];
-
-  # Service-Ports 5110–5999: von außen NICHT erlaubt → nicht in allowedTCPPorts.
-  # Sie sind nur via Caddy reverse-proxy auf 127.0.0.1 erreichbar (ADR-5110).
-  # Explizite Negativ-Regel als Defence-in-Depth (nftables-syntax über das firewall-Modul):
-  networking.firewall.extraCommands = lib.mkAfter ''
-    # mediNix service-port lockdown: außen blockiert, loopback frei
-    # (networking.firewall erlaubt loopback ohnehin; dies ist documentation/idiom)
-    ${pkgs.nftables}/bin/nft add rule inet nixos-fw input tcp dport ${toString servicePortFrom}-${toString servicePortTo} drop 2>/dev/null || true
-  '';
 
 }

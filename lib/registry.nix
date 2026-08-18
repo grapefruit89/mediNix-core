@@ -36,6 +36,7 @@ let
   #   (base | dotnet | dotnet-gpu | python | nodejs | network | script)
   mkService = name: number: class: profile: {
     inherit name;
+    unitName = name;
     num    = number;
     port   = number * 10;        # Port = Number × 10 (ADR-5043)
     uid    = number * 10;         # UID = Port (isomorph)
@@ -45,6 +46,7 @@ let
   };
   mkNoPort = name: number: profile: {
     inherit name;
+    unitName = name;
     num    = number;
     port   = null;               # no network service
     uid    = null;
@@ -53,7 +55,7 @@ let
     hardeningProfile = profile;
   };
 in
-{
+rec {
   services = {
     # Ingress (folder 51)
     caddy          = mkService "caddy" 511 "stream" "network";

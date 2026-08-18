@@ -41,12 +41,12 @@ lib.mkIf cfg.enable {
            dotnetServices = lib.filterAttrs (_: svc: svc.hardeningProfile == "dotnet" || svc.hardeningProfile == "dotnet-gpu") registry.services;
        in lib.all (svc:
          let 
-           unitName = if svc.port != null then "${svc.name}-${toString svc.port}.service" else "${svc.name}.service";
+           unitName = "${svc.unitName}.service";
            isEnabled = cfg.${svc.name}.enable or false;
          in 
            !isEnabled ||
-           (config.systemd.services ? ${unitName} &&
-            config.systemd.services.${unitName}.serviceConfig.UMask or "" == "0002")
+           (config.systemd.services ? ${svc.unitName} &&
+            config.systemd.services.${svc.unitName}.serviceConfig.UMask or "" == "0002")
        ) (lib.attrValues dotnetServices)))
   ];
 }

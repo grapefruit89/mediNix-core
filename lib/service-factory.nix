@@ -35,15 +35,33 @@ let
       lib.flatten allStateDirs;
 in
 { name            # service name (kebab-case)
-, port            # port number from registry
-, uid             # UID from registry
-, execStart       # the start command as string
-, stateDir        # e.g. "/var/lib/jellyfin-5510"
+, port ? null     # port number from registry
+, uid ? null      # UID from registry
+, execStart ? null # the start command as string
+, stateDir ? null # e.g. "/var/lib/jellyfin-5510"
 , profile ? "base" # hardening profile name (from registry.hardeningProfile)
 , allowedPeers ? [] # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
 , extraConfig ? {} # additional serviceConfig fields (service-specific deviations)
+, hardeningOnly ? false # return only serviceConfig for NixOS upstream modules
 }:
-{
+if hardeningOnly then {
+  serviceConfig = lib.mkMerge [
+    {
+      SyslogIdentifier = name;
+      StandardOutput   = "journal";
+      StandardError    = "journal";
+    }
+    (profiles.${profile} or profiles.base)
+    (lib.optionalAttrs (stateDir != null) {
+      StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
+      StateDirectoryMode = "0750";
+    })
+    (lib.optionalAttrs (allowedPeers != []) {
+      InaccessiblePaths = mkPeerIsolation name allowedPeers;
+    })
+    extraConfig
+  ];
+} else {
   systemd.services."${name}" = {
     wantedBy = [ "multi-user.target" ];
     after    = [ "network.target" ];

@@ -121,75 +121,57 @@ let
     }
   '') enabledServices);
 
-in lib.mkIf (cfg.enable && ing.enable) {
-
-  # Chameleon: Global Caddy vorhanden → virtualHosts injizieren
-  # CrowdSec Plugin via caddy.withPlugins
-  services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
-    plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
-    hash = lib.fakeHash; 
-  });
-
-  services.caddy.globalConfig = lib.mkIf useGlobal ''
-    servers {
-      trusted_proxies static ${cloudflareIpsStr}
-    }
-  '';
-
-  services.caddy.virtualHosts = lib.mkIf useGlobal
-    (lib.mkMerge [
-      (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
-        extraConfig = mkVHostConfig n svc;
-      }) enabledServices)
-      (lib.mapAttrs' (n: svc: lib.nameValuePair "http://${n}.local" {
-        extraConfig = mkVHostConfigLocal n svc;
-      }) enabledServices)
-    ]);
-
-  # Standalone: Eigenen caddy-media Service starten
-  systemd.services.caddy-media = lib.mkIf (!useGlobal) {
-    description = "Caddy Media Ingress (mediNix-core standalone)";
-    wantedBy    = [ "multi-user.target" ];
-    after       = [ "network.target" ];
-    serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).network
-      {
-        # Groq P0: Path must be /etc/caddy-media/Caddyfile, not /run/...
-        ExecStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
-        RuntimeDirectory = "caddy-media";
-        StateDirectory   = "caddy-media";
-        User  = "caddy-media";
-        Group = "caddy-media";
-      }
-    ];
-  };
-
-  users.users.caddy-media = lib.mkIf (!useGlobal) {
+  # Standalone: Eigenen caddy-media Service starten via Factory
+  caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+    name = "caddy-media";
     uid = 5110;
-    group = "caddy-media";
-    isSystemUser = true;
-    home = "/var/lib/caddy-media";
-    createHome = true;
+    execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
+    stateDir = "/var/lib/caddy-media";
+    profile = "network";
   };
+
+in lib.mkMerge [
+  (lib.mkIf (cfg.enable && ing.enable) {
+    # Chameleon: Global Caddy vorhanden → virtualHosts injizieren
+    # CrowdSec Plugin via caddy.withPlugins
+    services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
+      plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
+      hash = lib.fakeHash; 
+    });
+
+    services.caddy.globalConfig = lib.mkIf useGlobal ''
+      servers {
+        trusted_proxies static ${cloudflareIpsStr}
+      }
+    '';
+
+    services.caddy.virtualHosts = lib.mkIf useGlobal
+      (lib.mkMerge [
+        (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
+          extraConfig = mkVHostConfig n svc;
+        }) enabledServices)
+        (lib.mapAttrs' (n: svc: lib.nameValuePair "http://${n}.local" {
+          extraConfig = mkVHostConfigLocal n svc;
+        }) enabledServices)
+      ]);
+
+    environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
+      text = caddyConfigStr;
+    };
+
+    # mDNS: Avahi-Einträge für .local
+    services.avahi = lib.mkIf cfg.discovery.mdns.enable {
+      enable  = true;
+      publish = { enable = true; userServices = true; addresses = true; };
+    };
+
+    # Firewall: nur Caddy-Ports öffnen
+    networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal)
+      (if ing.tls.mode == "off" then [ 80 ] else [ 80 443 ]);
+  })
   
-  users.groups.caddy-media = lib.mkIf (!useGlobal) {
-    gid = 5110;
-  };
-
-  environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
-    text = caddyConfigStr;
-  };
-
-  # mDNS: Avahi-Einträge für .local
-  services.avahi = lib.mkIf cfg.discovery.mdns.enable {
-    enable  = true;
-    publish = { enable = true; userServices = true; addresses = true; };
-  };
-
-  # Firewall: nur Caddy-Ports öffnen
-  networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal)
-    (if ing.tls.mode == "off" then [ 80 ] else [ 80 443 ]);
-}
+  (lib.mkIf (cfg.enable && ing.enable && !useGlobal) caddyStandalone)
+];
 
 # Gold-Standard (ADR-5110, Red-Team Assessed):
 # - Chameleon: nie zwei Caddy-Instanzen, Security-Policies für Global und Standalone sind 100% identisch

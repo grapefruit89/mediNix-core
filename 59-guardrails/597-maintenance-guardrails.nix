@@ -18,8 +18,8 @@ let
   # Generiert primär dynamisch aus der Registry, plus manuelle Ausnahmen (ntfy-sh, recyclarr)
   registry = import ../lib/registry.nix { inherit lib; };
   registryDirs = lib.mapAttrsToList
-    (_: svc: "/var/lib/${if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name}")
-    (lib.filterAttrs (n: _: n != "ntfy") registry.services);
+    (_: svc: "/var/lib/${svc.name}")
+    registry.services;
   stateDirs = registryDirs ++ [ "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600" ];
 in
 lib.mkIf cfg.enable {

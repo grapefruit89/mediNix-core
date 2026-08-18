@@ -20,7 +20,7 @@ let
   registry = import ../lib/registry.nix { inherit lib; };
   # Alle Dienste aus der Registry (mit und ohne Port)
   allUnits = lib.mapAttrsToList
-    (_: svc: if svc.port != null then "${svc.name}-${toString svc.port}" else svc.name)
+    (_: svc: svc.unitName)
     registry.services;
   unitList = lib.concatStringsSep " " allUnits;
 
