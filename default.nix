@@ -351,19 +351,31 @@ in
           default = null;
           example = "/var/lib/acme/example.com/key.pem";
         };
-        # TLS via security.acme (Lego, DNS-01 via Cloudflare) auf dem Host.
-        # mediNix-core liest nur das fertige Zertifikat, macht KEIN ACME selbst.
+        # TLS via security.acme (Lego, DNS-01 via Cloudflare) — flake-managed.
+        # 514-acme.nix konfiguriert security.acme wenn acmeHost != null.
         acmeHost = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;
           default = null;
-        example = "example.com";
+          example = "example.com";
           description = ''
-            Hostname des security.acme-Zertifikats auf dem Host.
-            Wenn gesetzt: Caddy nutzt /var/lib/acme/{acmeHost}/cert.pem
-            und /var/lib/acme/{acmeHost}/key.pem automatisch.
-            Setzt tls.mode implizit auf "custom".
-            security.acme wird vom Host konfiguriert (DNS-01 via Cloudflare),
-            NICHT von mediNix-core. mediNix-core liest nur das fertige Zertifikat.
+            Hostname for the security.acme certificate (wildcard: *.acmeHost).
+            When set: 514-acme.nix configures security.acme (Lego, DNS-01 via Cloudflare)
+            and Caddy uses /var/lib/acme/<acmeHost>/fullchain.pem + key.pem automatically.
+            Requires acmeCredential (preferred) or dns.ddns.cloudflareTokenCredential.
+          '';
+        };
+        # Dedizierter ACME-Token (unabhängig vom DDNS-Token).
+        # Pfad zur TPM-versiegelten .cred-Datei (systemd-creds encrypt).
+        # Wenn null: Fallback auf dns.ddns.cloudflareTokenCredential / tokenCredential / tokenFile.
+        acmeCredential = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/credstore.encrypted/cf-acme-token.cred";
+          description = ''
+            Path to the TPM-sealed .cred file for the Cloudflare API token used by ACME/Lego.
+            Loaded via systemd LoadCredentialEncrypted into the acme-<acmeHost>.service unit.
+            Content format: CF_DNS_API_TOKEN=<token>
+            If null, falls back to dns.ddns.cloudflareTokenCredential, tokenCredential, or tokenFile.
           '';
         };
       };

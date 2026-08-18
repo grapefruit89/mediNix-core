@@ -289,6 +289,13 @@ let
       fix = "grapefruitMedia.vpn.interface = \"wg0\" setzen (Legacy-Modus)";
       ref = "5260";
     };
+    "ACME-001" = {
+      what = "acmeHost gesetzt aber kein Cloudflare-Token konfiguriert.";
+      expected = "tls.acmeCredential oder dns.ddns.cloudflareTokenCredential gesetzt";
+      found = "Alle Token-Quellen sind null";
+      fix = "grapefruitMedia.ingress.tls.acmeCredential = \"/var/lib/credstore.encrypted/cf-acme.cred\" setzen";
+      ref = "5140";
+    };
   };
 
   formatMessage = prefix: code: data:
