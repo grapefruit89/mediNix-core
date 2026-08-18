@@ -132,6 +132,20 @@ let
       fix = "nftables aktivieren";
       ref = "ADR-0000";
     };
+    "INV-STG-01" = {
+      what = "Kein Backend-Pfad darf im Nix-Store liegen.";
+      expected = "Alle Backend-Pfade außerhalb von /nix/store";
+      found = "Backend-Pfad beginnt mit /nix/store/";
+      fix = "Physische Mounts als Host-fileSystems anlegen (z.B. /mnt/ssd)";
+      ref = "ADR-5710";
+    };
+    "INV-STG-02" = {
+      what = "storage.mediaRoot darf nicht im Nix-Store liegen.";
+      expected = "mediaRoot außerhalb von /nix/store";
+      found = "mediaRoot beginnt mit /nix/store/";
+      fix = "storage.mediaRoot auf einen State-Pfad setzen (z.B. /data)";
+      ref = "ADR-5710";
+    };
   };
 
   errors = {
@@ -239,6 +253,41 @@ let
       found = "Pfad beginnt mit /nix/store/";
       fix = "Einen Pfad in /var/lib oder sops-nix verwenden";
       ref = "5720";
+    };
+    "STG-001" = {
+      what = "storage.backends.cold gesetzt aber storage.backends.hot fehlt.";
+      expected = "hot muss gesetzt sein wenn cold gesetzt ist";
+      found = "cold ohne hot — kein sinnvolles Tiering möglich";
+      fix = "grapefruitMedia.storage.backends.hot = \"/mnt/ssd\" setzen";
+      ref = "5710";
+    };
+    "STG-002" = {
+      what = "VPN aktiviert aber vpn.peer.publicKey ist leer.";
+      expected = "publicKey gesetzt";
+      found = "publicKey ist leer-String";
+      fix = "grapefruitMedia.vpn.peer.publicKey setzen";
+      ref = "5260";
+    };
+    "STG-003" = {
+      what = "VPN aktiviert aber vpn.address ist leer — Interface hätte keine IP.";
+      expected = "Mindestens eine CIDR-Adresse in vpn.address";
+      found = "vpn.address = []";
+      fix = "grapefruitMedia.vpn.address = [ \"10.64.0.2/32\" ] setzen";
+      ref = "5260";
+    };
+    "STG-004" = {
+      what = "VPN aktiviert aber vpn.privateKeyCredentialPath fehlt.";
+      expected = "Pfad zur .cred-Datei gesetzt";
+      found = "vpn.privateKeyCredentialPath = null";
+      fix = "Credential verschlüsseln: systemd-creds encrypt --with-key=tpm2+host keyfile out.cred";
+      ref = "5260";
+    };
+    "STG-005" = {
+      what = "vpn.useExistingInterface = true aber vpn.interface ist leer.";
+      expected = "vpn.interface gesetzt (z.B. \"wg0\")";
+      found = "vpn.interface ist leer-String";
+      fix = "grapefruitMedia.vpn.interface = \"wg0\" setzen (Legacy-Modus)";
+      ref = "5260";
     };
   };
 

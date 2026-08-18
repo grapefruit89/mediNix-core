@@ -552,6 +552,19 @@ in
         default     = "/var/lib/media-metadata";
         description = "Base directory for heavy metadata artwork stores.";
       };
+      backends = lib.mkOption {
+        type    = lib.types.attrsOf lib.types.str;
+        default = {};
+        example = { hot = "/mnt/ssd"; cold = "/mnt/hdd"; };
+        description = ''
+          Storage-Backends für Multi-Tier-Betrieb (ADR-5710).
+          Leer (Default) = einfacher Modus: nur mediaRoot, kein MergerFS.
+          hot + cold: Flake erstellt MergerFS-Pools für jeden Medientyp automatisch.
+          Erwartete Schlüssel: hot (SSD/NVMe), cold (HDD). Optional: media (mittleres Tier).
+          Host-Pflicht: Physische Mounts (fileSystems."/mnt/ssd" etc.) im Host anlegen.
+          Nur die Zuordnung hot=/mnt/ssd; cold=/mnt/hdd kommt hierher.
+        '';
+      };
     };
 
     onDemand = {
@@ -568,29 +581,101 @@ in
     };
 
     vpn = {
+      enable = lib.mkEnableOption "Flake-managed WireGuard VPN (mediNix erstellt das Interface selbst)";
+
       interface = lib.mkOption {
         type    = lib.types.str;
         default = "";
         example = "wg0";
         description = ''
-          Name des WireGuard-Interfaces auf dem Host (z.B. "wg0").
-          Das Interface muss vom Host-System bereitgestellt werden
-          (systemd-networkd routeTables oder wg-quick).
-          mediNix-core erstellt KEIN Interface — es nutzt es nur.
-          Empfohlen: UID-basiertes Routing via systemd-networkd routeTables
-          (siehe Nix-Grok modules/10-network/1096-vpn.nix als Referenz).
+          Effektiver Interface-Name (für Killswitch + Confinement).
+          Wenn vpn.enable = true && vpn.useExistingInterface = false:
+            → wird automatisch auf vpn.interfaceName gesetzt (via 526-vpn-interface.nix).
+          Wenn vpn.useExistingInterface = true:
+            → muss manuell auf das Host-Interface gesetzt werden (Legacy-Modus).
           Leer (default) = kein confinement, auch wenn usenet-confinement.enable.
         '';
       };
+
+      interfaceName = lib.mkOption {
+        type    = lib.types.str;
+        default = "wg0";
+        description = "Name des WireGuard-Interfaces das mediNix selbst anlegt (vpn.enable = true). Wird als networking.wireguard.interfaces.<interfaceName> registriert.";
+      };
+
+      address = lib.mkOption {
+        type    = lib.types.listOf lib.types.str;
+        default = [];
+        example = [ "10.64.0.2/32" ];
+        description = "IP-Adressen (CIDR) des WireGuard-Interfaces.";
+      };
+
+      dns = lib.mkOption {
+        type    = lib.types.listOf lib.types.str;
+        default = [];
+        example = [ "10.64.0.1" ];
+        description = ''
+          DNS-Server für das WireGuard-Interface (DNS-Leak-Schutz).
+          Werden auch in dnsServers gespiegelt (Killswitch-Compat).
+        '';
+      };
+
+      peer = {
+        publicKey = lib.mkOption {
+          type    = lib.types.str;
+          default = "";
+          description = "WireGuard Public Key des VPN-Peers.";
+        };
+        endpoint = lib.mkOption {
+          type    = lib.types.str;
+          default = "";
+          example = "vpn.provider.com:51820";
+          description = "Endpunkt des VPN-Peers (host:port).";
+        };
+        allowedIPs = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ "0.0.0.0/0" "::/0" ];
+          description = "AllowedIPs für den VPN-Peer (Default: Full-Tunnel).";
+        };
+        persistentKeepalive = lib.mkOption {
+          type    = lib.types.int;
+          default = 25;
+          description = "PersistentKeepalive in Sekunden.";
+        };
+      };
+
+      privateKeyCredentialPath = lib.mkOption {
+        type    = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "/var/lib/credstore.encrypted/wg-private-key.cred";
+        description = ''
+          Pfad zur TPM-sealed .cred-Datei (systemd-creds encrypt --with-key=tpm2+host).
+          Wird als LoadCredentialEncrypted in wireguard-<interfaceName>.service geladen.
+          Zur Laufzeit unter /run/credentials/wireguard-<interfaceName>.service/wg-private-key
+          verfügbar (als privateKeyFile für das WireGuard-Interface).
+          Nur benötigt wenn vpn.enable = true und vpn.useExistingInterface = false.
+        '';
+      };
+
+      useExistingInterface = lib.mkOption {
+        type    = lib.types.bool;
+        default = false;
+        description = ''
+          false (Default): mediNix erstellt das WireGuard-Interface selbst (flake-first).
+          true: mediNix nutzt ein vom Host vorbereitetes Interface (vpn.interface muss gesetzt sein).
+          Escape-Hatch für Spezialsetups oder schrittweise Migration vom Legacy-Modus.
+        '';
+      };
+
       dnsServers = lib.mkOption {
         type    = lib.types.listOf lib.types.str;
         default = [ ];
         example = [ "10.8.0.1" ];
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
+          Wenn vpn.enable = true: automatisch aus vpn.dns befüllt (mkDefault).
           Assertion erzwingt explizite Setzung bei usenet-confinement.enable.
-          Für encrypted DNS: Host liefert lokale Stubs (z.B. 127.0.0.1 via stubby/cloudflared/
-          nextdns) und dnsServers zeigt darauf — mediNix implementiert keinen DoT-Client.
+          Für encrypted DNS: lokale Stubs (stubby/cloudflared/nextdns) eintragen.
           Siehe ADMIN-HANDOFF §4a.
         '';
       };
