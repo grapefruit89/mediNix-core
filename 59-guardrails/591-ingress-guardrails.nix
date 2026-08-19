@@ -29,7 +29,12 @@ lib.mkIf cfg.enable {
          || cfg.dns.ddns.tokenCredential              != null
          || cfg.dns.ddns.tokenFile                    != null))
       "5140")
-    (reg.mkErrorDoc "AUTH-001" (!(cfg.ingress.auth.mode == "forward-auth" && !cfg.authProxyPresent)) "5120")
+    # AUTH-001: forward-auth requires an auth proxy.
+    # Prefer pocketId.enable (auto-derivable); authProxyPresent is an escape hatch
+    # for custom/external auth proxies (oauth2-proxy, Authentik, etc.).
+    (reg.mkErrorDoc "AUTH-001"
+      (cfg.ingress.auth.mode != "forward-auth" || cfg.pocketId.enable || cfg.authProxyPresent)
+      "5120")
     # DNS-001: DDNS requires a token (any source).
     (reg.mkErrorDoc "DNS-001"
       (cfg.dns.ddns.enable ->

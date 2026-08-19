@@ -20,15 +20,30 @@ lib.mkIf (cfg.enable && cfg.usenet-confinement.enable) {
   ];
 
   services.vpnKillSwitch.instances.sabnzbd = {
-    enable = true;
-    
-    # The service name and user are automatically derived from the name ("sabnzbd"),
-    # but can be overridden (e.g., unit = "sabnzbd.service"; user = "sabnzbd";).
-    
-    vpnInterface = cfg.vpn.interface;
+    enable = cfg.sabnzbd.enable;
 
-    routingTable = 51820;
+    # The service name and user are automatically derived from the name ("sabnzbd").
+    vpnInterface    = cfg.vpn.interface;
+    routingTable    = 51820;
     routingPriority = 100;
+
+    blockedSocketPaths = [
+      "/run/medinix"
+      "/run/systemd/resolve"
+      "/run/dbus/system_bus_socket"
+    ];
+
+    dnsServers = cfg.vpn.dnsServers;
+  };
+
+  # Prowlarr must also be sandboxed when usenet-confinement is active.
+  # Without this, Prowlarr leaks the real IP while SABnzbd routes via VPN.
+  services.vpnKillSwitch.instances.prowlarr = lib.mkIf cfg.prowlarr.enable {
+    enable = true;
+
+    vpnInterface    = cfg.vpn.interface;
+    routingTable    = 51820;   # same routing table as sabnzbd (same VPN)
+    routingPriority = 101;
 
     blockedSocketPaths = [
       "/run/medinix"

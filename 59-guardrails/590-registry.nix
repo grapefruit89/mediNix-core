@@ -118,6 +118,13 @@ let
       fix = "Dienst in lib/registry.nix eintragen";
       ref = "ADR-0000";
     };
+    "BIND-001" = {
+      what = "Kein mediNix-Dienste-Port darf direkt WAN-exponiert sein (ohne Caddy/TLS/Auth).";
+      expected = "Port nur über 127.0.0.1 — kein Eintrag in allowedTCPPorts";
+      found = "Port in networking.firewall.allowedTCPPorts";
+      fix = "Port aus allowedTCPPorts entfernen; Traffic nur über Caddy";
+      ref = "ADR-0000";
+    };
     "INV-DNS-01" = {
       what = "Verschlüsseltes DNS (DoT) muss aktiv sein, um Leaks zu verhindern.";
       expected = "dnsovertls = true oder opportunistic";
@@ -288,6 +295,27 @@ let
       found = "vpn.interface ist leer-String";
       fix = "grapefruitMedia.vpn.interface = \"wg0\" setzen (Legacy-Modus)";
       ref = "5260";
+    };
+    "BIND-001" = {
+      what = "mediNix-Dienste-Port direkt in networking.firewall.allowedTCPPorts exponiert.";
+      expected = "Keine mediNix-Ports in allowedTCPPorts";
+      found = "Port ohne TLS/Auth WAN-erreichbar";
+      fix = "Port aus allowedTCPPorts entfernen — Traffic läuft ausschließlich über Caddy";
+      ref = "ADR-0000";
+    };
+    "VPN-010" = {
+      what = "usenet-confinement aktiv aber SABnzbd-Killswitch-Instanz fehlt oder ist deaktiviert.";
+      expected = "services.vpnKillSwitch.instances.sabnzbd.enable = true";
+      found = "Killswitch-Instanz fehlt oder disabled";
+      fix = "525-usenet-confinement.nix prüfen — Instanz wird automatisch gesetzt";
+      ref = "5410";
+    };
+    "VPN-011" = {
+      what = "usenet-confinement + prowlarr.enable aber Prowlarr-Killswitch fehlt.";
+      expected = "services.vpnKillSwitch.instances.prowlarr.enable = true";
+      found = "Prowlarr-Instanz fehlt oder disabled";
+      fix = "525-usenet-confinement.nix prüfen — Instanz wird via lib.mkIf cfg.prowlarr.enable gesetzt";
+      ref = "5410";
     };
     "ACME-001" = {
       what = "acmeHost gesetzt aber kein Cloudflare-Token konfiguriert.";

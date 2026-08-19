@@ -747,6 +747,17 @@ in
   config = lib.mkIf cfg.enable {
     users.groups.media = { gid = 5000; };
 
+    # Binary-Cache defaults — flake-first: nothing gets compiled on the media host.
+    # mkDefault allows the host to extend or override the list without conflict.
+    nix.settings = {
+      substituters = lib.mkDefault [
+        "https://cache.nixos.org"
+      ];
+      trusted-public-keys = lib.mkDefault [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      ];
+    };
+
     # mediNix Health CLI (Build-Zeit aus Registry generiert)
     environment.systemPackages = lib.mkIf cfg.cli.enable [
       (pkgs.callPackage ./packages/mediNix-cli {

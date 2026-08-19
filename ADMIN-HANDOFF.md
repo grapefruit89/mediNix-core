@@ -162,19 +162,37 @@ Einschränkung: Verbraucht externe HTTPS-Anfrage (ipify) und braucht Netz. Daher
 
 ---
 
-## 5. ACME / TLS-Zertifikatspfade
-`ingress.tls.acmeHost` leitet `/var/lib/acme/{acmeHost}/cert.pem` + `key.pem` ab.
-**`security.acme` (Lego, DNS-01 via Cloudflare) wird vom Host konfiguriert**, nicht vom Modul.
-Caddy liest nur das fertige Zertifikat. Host-Job:
+## 5. ACME / TLS-Zertifikate (flake-managed ab Phase 2)
+
+`security.acme` wird **vom Modul** konfiguriert (`51-ingress/514-acme.nix`) sobald
+`ingress.tls.acmeHost` gesetzt ist — kein manuelles `security.acme` im Host mehr nötig.
+
+**Host liefert nur den Cloudflare-API-Token** (als TPM-gesiegeltes `.cred`-File):
+
 ```nix
-security.acme = {
-  acceptTerms = true;
-  certs."m7c5.de" = {
-    domain = "m7c5.de";
-    dnsProvider = "cloudflare";  # API-Token via TPM-cred
-  };
+grapefruitMedia = {
+  ingress.tls.acmeHost      = "example.com";   # erzeugt *.example.com Wildcard
+  ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+  # Token-Format (vor Verschlüsselung): CF_DNS_API_TOKEN=<token>
 };
 ```
+
+Token-Priorität (erstes Non-null gewinnt):
+1. `ingress.tls.acmeCredential` — dediziertes ACME-Cred (empfohlen)
+2. `dns.ddns.cloudflareTokenCredential` — shared Cloudflare-Cred (DDNS-Reuse)
+3. `dns.ddns.tokenCredential` — Legacy-Alias
+4. `dns.ddns.tokenFile` — Plaintext-Fallback (nicht TPM-gesiegelt)
+
+**Cred erzeugen:**
+```bash
+echo "CF_DNS_API_TOKEN=<token>" > /tmp/cf-token.env
+systemd-creds encrypt --with-key=tpm2+host /tmp/cf-token.env \
+  /var/lib/credstore.encrypted/cf-acme.cred
+rm /tmp/cf-token.env
+```
+
+Caddy liest das Zertifikat automatisch aus `/var/lib/acme/<acmeHost>/fullchain.pem`.
+DNS-01-Challenge — kein Port-80/443-WAN-Öffnen nötig.
 
 ---
 
@@ -236,10 +254,10 @@ mediNIX-core liefert `521-nftables.nix` (Ingress-Firewall). Die **Basis**
 ---
 
 ## 9. Checkliste vor dem ersten `nixos-rebuild switch`
-- [ ] Binary-Cache in Host-`configuration.nix` gesetzt (§1)
+- [ ] Binary-Cache — wird vom Modul als Default gesetzt (§1), kein Host-Eintrag nötig
 - [ ] Storage-Mounts vorhanden + gemountet (§3)
-- [ ] `security.acme` konfiguriert, Zertifikat erzeugt (§5)
-- [ ] TPM-Secrets verschlüsselt + Pfade in `cfg.secrets.*` (§6)
+- [ ] `ingress.tls.acmeHost` + `acmeCredential` gesetzt, Cloudflare-Cred erzeugt (§5)
+- [ ] TPM-Secrets verschlüsselt + Pfade in Modul-Optionen (§6)
 - [ ] VPN-Interface + `cfg.vpn.dnsServers` + `cfg.vpn.interface` gesetzt (§4, nur bei Usenet)
 - [ ] SSH-Hardening aktiv (§7)
 - [ ] `nix flake check .#checks.x86_64-linux.nixos-check` läuft sauber
@@ -263,10 +281,10 @@ mediNIX-core liefert `521-nftables.nix` (Ingress-Firewall). Die **Basis**
 - ✅ RuntimeDirectory/tmpfs für SABnzbd/Jellyfin (transcode/incomplete)
 
 ## Host-Admin liefert (HIER, nicht im Modul)
-- ❌ Binary-Cache-Config (§1)
+- ✅ Binary-Cache-Config (Modul-Default, Override möglich)
 - ❌ Impermanence + Persist-Pfade (§2)
 - ❌ Tier-Hardware-Mounts (§3)
-- ❌ VPN-Interface + Keys (§4)
-- ❌ ACME/TLS-Zertifikatserzeugung (§5)
-- ❌ TPM-Secrets-Verschlüsselung (§6)
+- ❌ VPN-Interface + WireGuard-Keys + Credential-Erzeugung (§4)
+- ❌ Cloudflare-API-Token als `.cred`-File (§5)
+- ❌ TPM-Secrets-Verschlüsselung für alle anderen Dienste (§6)
 - ❌ SSH-Hardening, nftables-Basis (§7, §8)
