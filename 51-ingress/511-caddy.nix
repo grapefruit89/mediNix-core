@@ -134,6 +134,18 @@ let
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
     stateDir = registry.caddy.stateDir;
     profile = "network";
+    extraConfig = {
+      Service = {
+        CPUWeight = lib.mkDefault 400;
+        IOWeight = lib.mkDefault 200;
+        MemoryMin = lib.mkDefault "64M";
+        MemoryLow = lib.mkDefault "128M";
+        MemoryHigh = lib.mkDefault "512M";
+        MemoryMax = lib.mkDefault "768M";
+        OOMScoreAdjust = lib.mkDefault (-500);
+        ManagedOOMPreference = lib.mkDefault "avoid";
+      };
+    };
   };
 
 in lib.mkMerge [
