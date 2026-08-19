@@ -57,8 +57,8 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5200 ssh port policy](adr/ADR-52-ssh-port-policy.md)
 - [ADR 5050 systemd hardening baseline](adr/ADR-52-systemd-hardening-baseline.md)
 - [ADR 5320 sonarr series management](adr/ADR-53-sonarr-series-management.md)
-- [ADR 5410 sabnzbd vpn confinement](adr/ADR-54-sabnzbd-vpn-confinement.md)
-- [ADR-5410-usenet-confinement.md](adr/ADR-5410-usenet-confinement.md)
+
+- [ADR-5260-vpn-killswitch.md](adr/ADR-5260-vpn-killswitch.md)
 - [ADR 5520 audiobookshelf port framework](adr/ADR-55-audiobookshelf-port-framework.md)
 - [ADR 5510 jellyfin media playback](adr/ADR-55-jellyfin-media-playback.md)
 - [ADR 5530 navidrome music streaming](adr/ADR-55-navidrome-music-streaming.md)

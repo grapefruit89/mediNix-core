@@ -1,4 +1,16 @@
-# ADR-5410: VPN Kill-Switch Architektur (SABnzbd)
+---
+id: "ADR-5260-vpn-killswitch"
+title: "VPN Kill-Switch Architecture (Policy Routing)"
+domain: 52
+status: active
+complexity: 3
+last_reviewed: 2026-08-19
+tags:
+  - security
+  - vpn
+  - network
+---
+# ADR-5260: VPN Kill-Switch Architektur (SABnzbd)
 
 Dieses Dokument hält die architektonische Evolution und alle "Lessons Learned" bei der Entwicklung des VPN-Kill-Switches fest, insbesondere nach dem großen Red-Team-Audit durch "Grok" im August 2026.
 
