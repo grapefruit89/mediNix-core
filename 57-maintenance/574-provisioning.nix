@@ -26,8 +26,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
               "sonarr.service" "radarr.service" ];
     wantedBy = [ "multi-user.target" ];
     unitConfig = {
-      # Idempotent: only if flag does NOT exist
-      ConditionPathExists = "!/var/lib/mediNix-state/provisioned";
+      # Bootstrap: nur wenn Flag fehlt ODER force = true
+      ConditionPathExists = lib.mkIf (!cfg.maintenance.provisioning.enforce)
+        (if cfg.maintenance.provisioning.force then null else "!/var/lib/mediNix-state/provisioned");
     };
     serviceConfig = lib.mkMerge [
       # client-Profile: HTTP requests to 127.0.0.1 (API calls), no port binding

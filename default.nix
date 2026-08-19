@@ -260,6 +260,16 @@ in
     maintenance = {
       provisioning = {
         enable = lib.mkEnableOption "API-Provisioning (register SABnzbd/Prowlarr/Root-Folders in *arr)";
+        force = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Ignoriert das provisioned-Flag und laeuft trotzdem (einmalig).";
+        };
+        enforce = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Wenn true, wird der Nix-Sollzustand bei jedem Start erzwungen (ueberschreibt GUI-Aenderungen). Default false = GUI hat Vorrang.";
+        };
       };
       backup = {
         enable = lib.mkEnableOption "Restic-Backup mit DB-Safety (stoppt Dienste vor Backup)";
