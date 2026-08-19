@@ -12,8 +12,8 @@
 let
   cfg = config.grapefruitMedia.maintenance.recyclarr;
   svc = config.grapefruitMedia;
-  portRadarr = 5330;
-  portSonarr = 5320;
+  portRadarr = (import ../lib/registry.nix { inherit lib; }).services.radarr.port;
+  portSonarr = (import ../lib/registry.nix { inherit lib; }).services.sonarr.port;
 
   germanProfile = {
     name = "German 1080p HEVC";
@@ -115,7 +115,7 @@ in lib.mkIf cfg.enable {
   services.recyclarr = {
     enable = true;
     configuration = lib.mkMerge [
-      (lib.mkIf svc.services.sonarr.enable {
+      (lib.mkIf svc.sonarr.enable {
         sonarr.sonarr = {
           base_url = "http://127.0.0.1:${toString portSonarr}";
           api_key._secret = "/run/credentials/recyclarr.service/sonarr-api-key";
@@ -125,7 +125,7 @@ in lib.mkIf cfg.enable {
           custom_formats = customFormats;
         };
       })
-      (lib.mkIf svc.services.radarr.enable {
+      (lib.mkIf svc.radarr.enable {
         radarr.radarr = {
           base_url = "http://127.0.0.1:${toString portRadarr}";
           api_key._secret = "/run/credentials/recyclarr.service/radarr-api-key";
@@ -140,8 +140,8 @@ in lib.mkIf cfg.enable {
 
   systemd.services.recyclarr = {
     serviceConfig.LoadCredentialEncrypted = lib.mkMerge [
-      (lib.mkIf svc.services.radarr.enable [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ])
-      (lib.mkIf svc.services.sonarr.enable [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ])
+      (lib.mkIf svc.radarr.enable [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ])
+      (lib.mkIf svc.sonarr.enable [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ])
     ];
   };
 }
