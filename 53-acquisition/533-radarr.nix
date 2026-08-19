@@ -76,6 +76,6 @@ lib.mkIf cfg.enable {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."radarr" = { accessGroup = "internal"; };
+  grapefruitMedia.ingress.vhosts."radarr" = { accessGroup = reg.caddyClass; };
 }
 

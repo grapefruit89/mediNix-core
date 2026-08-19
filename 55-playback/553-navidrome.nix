@@ -61,6 +61,6 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."navidrome" = { accessGroup = "stream"; };
+  grapefruitMedia.ingress.vhosts."navidrome" = { accessGroup = reg.caddyClass; };
 }
 

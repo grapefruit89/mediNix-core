@@ -60,6 +60,6 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."audiobookshelf" = { accessGroup = "stream"; };
+  grapefruitMedia.ingress.vhosts."audiobookshelf" = { accessGroup = reg.caddyClass; };
 }
 

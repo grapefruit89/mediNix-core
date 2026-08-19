@@ -83,6 +83,6 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."jellyfin" = { accessGroup = "stream"; };
+  grapefruitMedia.ingress.vhosts."jellyfin" = { accessGroup = reg.caddyClass; };
 }
 

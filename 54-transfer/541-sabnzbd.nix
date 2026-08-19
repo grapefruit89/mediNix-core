@@ -84,6 +84,6 @@ in
     };
   };
 
-  grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
+  grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = reg.caddyClass; };
 }
 

@@ -75,6 +75,6 @@ lib.mkIf cfg.enable {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = "internal"; };
+  grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
 }
 

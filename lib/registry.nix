@@ -29,7 +29,7 @@
 let
   # profile: systemd-hardening profile from lib/hardening-profiles.nix
   #   (base | dotnet | dotnet-gpu | python | nodejs | network | script)
-  mkService = name: number: profile: {
+  mkService = name: number: profile: caddyClass: {
     inherit name;
     unitName = name;
     num    = number;
@@ -38,8 +38,9 @@ let
     gid    = 5000;               # shared mediNix media group
     stateDir = "/var/lib/${name}-${toString (number * 10)}";
     hardeningProfile = profile;
+    caddyClass = caddyClass;
   };
-  mkNoPort = name: number: profile: {
+  mkNoPort = name: number: profile: caddyClass: {
     inherit name;
     unitName = name;
     num    = number;
@@ -48,38 +49,39 @@ let
     gid    = 5000;
     stateDir = null;
     hardeningProfile = profile;
+    caddyClass = caddyClass;
   };
 in
 rec {
   services = {
     # Ingress (folder 51)
-    caddy          = mkService "caddy" 511 "network";
-    pocket-id      = mkService "pocket-id" 512 "network";
-    cloudflare-dns = mkNoPort "cloudflare-dns" 513 "script";
+    caddy          = mkService "caddy" 511 "network" "none";
+    pocket-id      = mkService "pocket-id" 512 "network" "public";
+    cloudflare-dns = mkNoPort "cloudflare-dns" 513 "script" "none";
 
     # Acquisition (*arr stack — folder 53) — all .NET
-    sonarr   = mkService "sonarr" 532 "dotnet";
-    radarr   = mkService "radarr" 533 "dotnet";
-    readarr  = mkService "readarr" 534 "dotnet";
-    lidarr   = mkService "lidarr" 535 "dotnet";
-    prowlarr = mkService "prowlarr" 536 "dotnet";
+    sonarr   = mkService "sonarr" 532 "dotnet" "internal";
+    radarr   = mkService "radarr" 533 "dotnet" "internal";
+    readarr  = mkService "readarr" 534 "dotnet" "internal";
+    lidarr   = mkService "lidarr" 535 "dotnet" "internal";
+    prowlarr = mkService "prowlarr" 536 "dotnet" "internal";
 
     # Transfer (folder 54) — Python
-    sabnzbd  = mkService "sabnzbd" 541 "python";
+    sabnzbd  = mkService "sabnzbd" 541 "python" "internal";
 
     # Playback (folder 55) — Jellyfin GPU, rest nodejs/network
-    jellyfin       = mkService "jellyfin" 551 "dotnet-gpu";
-    audiobookshelf = mkService "audiobookshelf" 552 "nodejs";
-    navidrome      = mkService "navidrome" 553 "nodejs";
-    feishin        = mkNoPort "feishin" 554 "network";
-    jellyseerr     = mkService "jellyseerr" 555 "dotnet";
+    jellyfin       = mkService "jellyfin" 551 "dotnet-gpu" "stream";
+    audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
+    navidrome      = mkService "navidrome" 553 "nodejs" "stream";
+    feishin        = mkNoPort "feishin" 554 "network" "none";
+    jellyseerr     = mkService "jellyseerr" 555 "dotnet" "public";
 
     # Requests (folder 56) — currently empty / reserved
 
     # Observability (folder 58) — Go binary, network port-binding
-    ntfy = mkService "ntfy" 581 "network";
+    ntfy = mkService "ntfy" 581 "network" "none";
     # CrowdSec native agent (folder 58) — no port (Caddy plugin talks to localhost)
-    crowdsec = mkNoPort "crowdsec" 582 "script";
+    crowdsec = mkNoPort "crowdsec" 582 "script" "none";
   };
 
   # For backward compat: only services with a port

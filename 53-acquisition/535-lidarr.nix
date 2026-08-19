@@ -74,6 +74,6 @@ lib.mkIf cfg.enable {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."lidarr" = { accessGroup = "internal"; };
+  grapefruitMedia.ingress.vhosts."lidarr" = { accessGroup = reg.caddyClass; };
 }
 

@@ -7,7 +7,7 @@ let
   cfg = config.grapefruitMedia;
   # Navidrome: Port 5530 (553 × 10), UID 5530
   navidromePort = 5530;
-  navidromeUnit = "navidrome-${toString navidromePort}.service";
+  navidromeUnit = "navidrome.service";
 in
 {
   config = lib.mkMerge [

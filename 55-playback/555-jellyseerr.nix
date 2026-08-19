@@ -78,8 +78,8 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = "public"; };
+  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
 
-  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = "public"; };
+  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
 }
 
