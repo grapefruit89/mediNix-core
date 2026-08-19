@@ -74,17 +74,18 @@ in
       description = "mediNix VPN Policy Routing";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
+      before = map (n: "${n}.service") (lib.attrNames activeInstances);
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = pkgs.writeShellScript "medinix-vpn-route-start" ''
           ${pkgs.iproute2}/bin/ip rule add fwmark 51820 table 51820 priority 1000 2>/dev/null || true
-          ${pkgs.iproute2}/bin/ip route replace unreachable default table 51820 priority 100
-          ${pkgs.iproute2}/bin/ip route replace default dev ${cfg.vpnInterface} table 51820 priority 10
+          ${pkgs.iproute2}/bin/ip route replace unreachable default table 51820 metric 100
+          ${pkgs.iproute2}/bin/ip route replace default dev ${cfg.vpnInterface} table 51820 metric 10
 
           ${pkgs.iproute2}/bin/ip -6 rule add fwmark 51820 table 51820 priority 1000 2>/dev/null || true
-          ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table 51820 priority 100
-          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table 51820 priority 10 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table 51820 metric 100
+          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table 51820 metric 10 2>/dev/null || true
         '';
       };
     };
