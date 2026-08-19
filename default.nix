@@ -293,8 +293,8 @@ in
         enable = lib.mkEnableOption "Periodisches SQLite optimize/ANALYZE für Arr/SABnzbd/Jellyfin";
         schedule = lib.mkOption {
           type    = lib.types.str;
-          default = "weekly";
-          description = "systemd OnCalendar for optimize timer (default: weekly).";
+          default = "04:00";
+          description = "systemd OnCalendar for heavy TRUNCATE timer (default: 04:00).";
         };
         services = lib.mkOption {
           type    = lib.types.listOf lib.types.str;

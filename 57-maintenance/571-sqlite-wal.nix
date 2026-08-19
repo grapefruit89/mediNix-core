@@ -1,19 +1,11 @@
 # ---
 # id: "571-sqlite-wal"
-# title: "SQLite WAL Tuning + periodic optimize/ANALYZE for *arr/SABnzbd/Jellyfin (57-maintenance, Service 571)"
+# title: "SQLite WAL High-Performance Tuning + periodic Checkpoints"
 # domain: 57
 # folder: 57-maintenance
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-5700 (sqlite), ADR-5043
-#   skill: nixos-context7-gate
-#   repo-harvest: Prowlarr/Prowlarr #1614 (WAL cache_size=-20000)
-# context7:
-#   - query: "systemd.services oneshot ExecStartPost timer example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "oneshot service via Type=oneshot + script + timer"
+# last_reviewed: 2026-08-19
 # ---
 { config, lib, pkgs, ... }:
 
@@ -22,14 +14,26 @@ let
   svc = config.grapefruitMedia;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
-  # Derive StateDirectory paths from Registry (ADR-0000: /var/lib/${name}-${port})
-  # Only services that are listed in cfg.services + active.
-  stateDirs = lib.mapAttrsToList
-    (n: s: "/var/lib/${n}-${toString s.port}")
-    (lib.filterAttrs (n: _: lib.elem n cfg.services) registry);
+  # Only grab active services
+  activeServices = lib.filterAttrs (n: _: svc.${n}.enable or false) registry;
+  
+  # Derive StateDirectory paths from Registry
+  stateDirs = lib.mapAttrsToList (n: s: "/var/lib/${n}-${toString s.port}") activeServices;
 
-  optimizeScript = pkgs.writeShellApplication {
-    name = "sqlite-optimize";
+  # WAL Tuning PRAGMAs (High-Performance for >= 16GB RAM)
+  tuningPragmas = ''
+    PRAGMA journal_mode=WAL;
+    PRAGMA synchronous=NORMAL;
+    PRAGMA cache_size=-64000;
+    PRAGMA temp_store=MEMORY;
+    PRAGMA mmap_size=536870912;
+    PRAGMA journal_size_limit=134217728;
+    PRAGMA wal_autocheckpoint=2000;
+    PRAGMA busy_timeout=10000;
+  '';
+
+  passiveScript = pkgs.writeShellApplication {
+    name = "sqlite-passive";
     runtimeInputs = [ pkgs.sqlite pkgs.findutils ];
     text = ''
       set -euo pipefail
@@ -37,43 +41,77 @@ let
         [ -d "$dir" ] || continue
         find "$dir" -name '*.db' -type f | while read -r db; do
           ${pkgs.sqlite}/bin/sqlite3 "$db" "
-            PRAGMA journal_mode=WAL;
-            PRAGMA synchronous=NORMAL;
-            PRAGMA cache_size=-20000;
-            PRAGMA temp_store=MEMORY;
-            PRAGMA mmap_size=268435456;
-            PRAGMA journal_size_limit=67108864;
-            PRAGMA wal_autocheckpoint=1000;
-            PRAGMA busy_timeout=5000;
-            PRAGMA optimize;
-            PRAGMA ANALYZE;
-            PRAGMA incremental_vacuum;
-          " || true  # no hard fail if DB is locked
+            ${tuningPragmas}
+            PRAGMA wal_checkpoint(PASSIVE);
+          " || true
         done
       done
-      echo "SQLite optimize done"
+      echo "SQLite PASSIVE checkpoint done"
+    '';
+  };
+
+  truncateScript = pkgs.writeShellApplication {
+    name = "sqlite-truncate";
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils ];
+    text = ''
+      set -euo pipefail
+      for dir in ${lib.concatStringsSep " " stateDirs}; do
+        [ -d "$dir" ] || continue
+        find "$dir" -name '*.db' -type f | while read -r db; do
+          ${pkgs.sqlite}/bin/sqlite3 "$db" "
+            ${tuningPragmas}
+            PRAGMA wal_checkpoint(TRUNCATE);
+            PRAGMA optimize;
+            PRAGMA ANALYZE;
+          " || true
+        done
+      done
+      echo "SQLite TRUNCATE + optimize done"
     '';
   };
 in
 lib.mkIf (svc.enable && cfg.enable) {
-  systemd.timers.mediNix-sqlite-optimize = {
+  systemd.timers.mediNix-sqlite-passive = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = cfg.schedule;
+      OnCalendar = "*:0/45";
       Persistent = true;
     };
   };
 
-  systemd.services.mediNix-sqlite-optimize = {
-    description = "Periodic SQLite WAL + optimize/ANALYZE for media services";
+  systemd.services.mediNix-sqlite-passive = {
+    description = "Periodic SQLite PASSIVE Checkpoint (45m)";
     serviceConfig = lib.mkMerge [
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "root";  # needs write to state dirs
         UMask = "002";
-        ExecStart = lib.getExe optimizeScript;
-        # Journal rate limit: prevent log IO storm in case of DB lock loop
+        ExecStart = lib.getExe passiveScript;
+        RateLimitBurst = 5;
+        RateLimitIntervalSec = "30s";
+      }
+    ];
+  };
+
+  systemd.timers.mediNix-sqlite-truncate = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      # Use the configured schedule for the heavy truncate (default weekly, user might change to daily 04:00)
+      OnCalendar = cfg.schedule;
+      Persistent = true;
+    };
+  };
+
+  systemd.services.mediNix-sqlite-truncate = {
+    description = "Periodic SQLite TRUNCATE + optimize (Heavy)";
+    serviceConfig = lib.mkMerge [
+      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      {
+        Type = "oneshot";
+        User = "root";
+        UMask = "002";
+        ExecStart = lib.getExe truncateScript;
         RateLimitBurst = 5;
         RateLimitIntervalSec = "30s";
       }
