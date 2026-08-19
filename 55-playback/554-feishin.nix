@@ -30,10 +30,9 @@ in lib.mkIf (cfg.enable) {
   # NOTE: This is layered on top of the stream template via a dedicated vHost.
   environment.etc."caddy-media/feishin-include" = lib.mkIf (!config.services.caddy.enable) {
     text = ''
-      file_server * {
-        root * ${pkgs.feishin-web}/share/feishin-web
-        try_files {path} /index.html
-      }
+      root * ${pkgs.feishin-web}/share/feishin-web
+      try_files {path} /index.html
+      file_server
     '';
   };
 
@@ -41,10 +40,9 @@ in lib.mkIf (cfg.enable) {
   services.caddy.virtualHosts = lib.mkIf config.services.caddy.enable {
     "${if svc.domain != null then "feishin.${svc.domain}" else "feishin.local"}" = {
       extraConfig = ''
-        file_server * {
-          root * ${pkgs.feishin-web}/share/feishin-web
-          try_files {path} /index.html
-        }
+        root * ${pkgs.feishin-web}/share/feishin-web
+        try_files {path} /index.html
+        file_server
       '';
     };
   };
