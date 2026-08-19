@@ -26,8 +26,8 @@ lib.mkIf cfg.enable {
     # INV-02: Binding — Jellyfin muss explizit auf 127.0.0.1 binden (nie 0.0.0.0)
     (reg.mkInvariant "INV-02"
       (!cfg.jellyfin.enable ||
-       (config.systemd.services ? "jellyfin-5510" &&
-        config.systemd.services."jellyfin-5510".environment.JELLYFIN_NetworkConfiguration__LocalNetworkAddresses or "" == "127.0.0.1")))
+       (config.systemd.services ? "jellyfin" &&
+        config.systemd.services."jellyfin".environment.JELLYFIN_NetworkConfiguration__LocalNetworkAddresses or "" == "127.0.0.1")))
 
     # INV-03: GID 5000 = media für alle Core-Mediendienste in der Registry
     (reg.mkInvariant "INV-03"
