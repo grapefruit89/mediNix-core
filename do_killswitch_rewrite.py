@@ -1,4 +1,10 @@
-# ---
+import os
+
+KS_PATH = "52-security/526-vpn-killswitch.nix"
+SAB_PATH = "54-transfer/541-sabnzbd.nix"
+PROW_PATH = "53-acquisition/536-prowlarr.nix"
+
+ks_content = '''# ---
 # id: "526-vpn-killswitch"
 # title: "Dendritic Policy Routing Killswitch (KISS)"
 # domain: 52
@@ -91,8 +97,7 @@ in
 
     # 3. DNS Isolation File
     environment.etc."medinix-killswitch-resolv.conf".text = lib.concatMapStrings (
-      dns: "nameserver ${dns}
-"
+      dns: "nameserver ${dns}\n"
     ) cfg.dnsServers;
 
     # 4. Inject strict isolation into systemd services
@@ -104,3 +109,32 @@ in
     }) activeInstances;
   };
 }
+'''
+
+with open(KS_PATH, 'w', encoding='utf-8') as f:
+    f.write(ks_content)
+
+# Update SABnzbd and Prowlarr
+for p in [SAB_PATH, PROW_PATH]:
+    if not os.path.exists(p):
+        continue
+    with open(p, 'r', encoding='utf-8') as f:
+        c = f.read()
+    
+    # Replace the old complex vpnKillSwitch block with the new KISS block
+    # Note: we need to find the block
+    import re
+    # Match the block carefully
+    c = re.sub(r'services\.vpnKillSwitch\.instances\.[a-z]+ = lib\.mkIf cfg\.usenet-confinement\.enable \{.*?\};', 
+               '''services.vpnKillSwitch = lib.mkIf cfg.usenet-confinement.enable {
+    vpnInterface = cfg.vpn.interface;
+    dnsServers = cfg.vpn.dnsServers;
+    instances.''' + p.split('/')[-1].replace('.nix', '').split('-')[-1] + ''' = {
+      enable = true;
+      uid = registry.services.''' + p.split('/')[-1].replace('.nix', '').split('-')[-1] + '''.uid;
+    };
+  };''', c, flags=re.DOTALL)
+    
+    with open(p, 'w', encoding='utf-8') as f:
+        f.write(c)
+

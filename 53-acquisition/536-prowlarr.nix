@@ -81,13 +81,13 @@ lib.mkIf cfg.enable {
     serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${cfg.secrets.prowlarrApiKeyFile}" ];
   };
 
-  services.vpnKillSwitch.instances.prowlarr = lib.mkIf cfg.usenet-confinement.enable {
-    enable = true;
+  services.vpnKillSwitch = lib.mkIf cfg.usenet-confinement.enable {
     vpnInterface = cfg.vpn.interface;
-    routingTable = 51820;
-    routingPriority = 101;
-    blockedSocketPaths = [ "/run/medinix" "/run/systemd/resolve" "/run/dbus/system_bus_socket" ];
     dnsServers = cfg.vpn.dnsServers;
+    instances.prowlarr = {
+      enable = true;
+      uid = registry.services.prowlarr.uid;
+    };
   };
 
 }

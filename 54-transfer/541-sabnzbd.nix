@@ -90,13 +90,13 @@ in
     serviceConfig.LoadCredentialEncrypted = [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ];
   };
 
-  services.vpnKillSwitch.instances.sabnzbd = lib.mkIf cfg.usenet-confinement.enable {
-    enable = true;
+  services.vpnKillSwitch = lib.mkIf cfg.usenet-confinement.enable {
     vpnInterface = cfg.vpn.interface;
-    routingTable = 51820;
-    routingPriority = 100;
-    blockedSocketPaths = [ "/run/medinix" "/run/systemd/resolve" "/run/dbus/system_bus_socket" ];
     dnsServers = cfg.vpn.dnsServers;
+    instances.sabnzbd = {
+      enable = true;
+      uid = registry.services.sabnzbd.uid;
+    };
   };
 
 }
