@@ -34,6 +34,12 @@ in
   };
 
   config = lib.mkIf (activeInstances != {}) {
+    assertions = [
+      {
+        assertion = cfg.vpnInterface != "";
+        message = "[vpnKillSwitch] vpnInterface must be defined when instances are active. Failing-Closed.";
+      }
+    ];
     # 1. NFTables Kill-Switch and Marking
     networking.nftables.enable = true;
     networking.nftables.tables.medinix_vpn = {

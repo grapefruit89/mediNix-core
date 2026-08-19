@@ -89,6 +89,32 @@
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
+        
+        # Negative Test: usenet-confinement without VPN interface must fail
+        checks.mediNix-negative-vpn =
+          let
+            testConfig = lib.nixosSystem {
+              inherit system;
+              modules = [
+                self.nixosModules.default
+                {
+                  grapefruitMedia.enable = true;
+                  grapefruitMedia.usenet-confinement.enable = true;
+                  grapefruitMedia.sabnzbd.enable = true;
+                  # Intentionally DO NOT provide grapefruitMedia.vpn.interface
+                  boot.loader.grub.enable = false;
+                  fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+                  system.stateVersion = "24.11";
+                }
+              ];
+            };
+            evalResult = builtins.tryEval testConfig.config.system.build.toplevel.outPath;
+          in
+          if evalResult.success then
+            throw "Negative Test Failed: usenet-confinement enabled without VPN interface should fail to evaluate, but it succeeded!"
+          else
+            pkgs.runCommand "negative-vpn-ok" {} "echo 'Negative test passed: Fail-Closed assertion triggered' > $out";
+
         checks.mediNix-smoke = (lib.nixosSystem {
           inherit system;
           modules = [
