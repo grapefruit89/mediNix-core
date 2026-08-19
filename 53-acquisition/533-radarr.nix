@@ -77,5 +77,9 @@ lib.mkIf cfg.enable {
   };
 
   grapefruitMedia.ingress.vhosts."radarr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."radarr" = lib.mkIf (cfg.secrets.radarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "radarr-api-key:${cfg.secrets.radarrApiKeyFile}" ];
+  };
+
+}

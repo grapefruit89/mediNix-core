@@ -81,5 +81,9 @@ lib.mkIf cfg.enable {
   };
 
   grapefruitMedia.ingress.vhosts."sonarr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."sonarr" = lib.mkIf (cfg.secrets.sonarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${cfg.secrets.sonarrApiKeyFile}" ];
+  };
+
+}

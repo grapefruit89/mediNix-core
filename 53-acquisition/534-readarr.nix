@@ -75,5 +75,9 @@ lib.mkIf cfg.enable {
   };
 
   grapefruitMedia.ingress.vhosts."readarr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."readarr" = lib.mkIf (cfg.secrets.readarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${cfg.secrets.readarrApiKeyFile}" ];
+  };
+
+}

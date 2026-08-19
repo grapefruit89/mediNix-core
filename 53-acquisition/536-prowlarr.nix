@@ -76,5 +76,18 @@ lib.mkIf cfg.enable {
   };
 
   grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."prowlarr" = lib.mkIf (cfg.secrets.prowlarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${cfg.secrets.prowlarrApiKeyFile}" ];
+  };
+
+  services.vpnKillSwitch.instances.prowlarr = lib.mkIf cfg.usenet-confinement.enable {
+    enable = true;
+    vpnInterface = cfg.vpn.interface;
+    routingTable = 51820;
+    routingPriority = 101;
+    blockedSocketPaths = [ "/run/medinix" "/run/systemd/resolve" "/run/dbus/system_bus_socket" ];
+    dnsServers = cfg.vpn.dnsServers;
+  };
+
+}

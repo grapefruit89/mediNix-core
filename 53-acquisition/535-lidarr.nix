@@ -75,5 +75,9 @@ lib.mkIf cfg.enable {
   };
 
   grapefruitMedia.ingress.vhosts."lidarr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."lidarr" = lib.mkIf (cfg.secrets.lidarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "lidarr-api-key:${cfg.secrets.lidarrApiKeyFile}" ];
+  };
+
+}

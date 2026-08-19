@@ -84,5 +84,9 @@ lib.mkIf (cfg.enable) {
   };
 
   grapefruitMedia.ingress.vhosts."jellyfin" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."jellyfin" = lib.mkIf (cfg.secrets.jellyfinAdminPasswordFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "jellyfin-api-key:${cfg.secrets.jellyfinAdminPasswordFile}" ];
+  };
+
+}

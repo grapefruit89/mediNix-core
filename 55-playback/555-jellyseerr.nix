@@ -81,5 +81,9 @@ lib.mkIf (cfg.enable) {
   grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
 
   grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
-}
 
+  systemd.services."jellyseerr" = lib.mkIf (cfg.secrets.jellyseerrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "jellyseerr-api-key:${cfg.secrets.jellyseerrApiKeyFile}" ];
+  };
+
+}
