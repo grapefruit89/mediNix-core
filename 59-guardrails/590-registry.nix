@@ -111,13 +111,6 @@ let
       fix = "systemd.timers verwenden";
       ref = "NO-CONTAINERS.md";
     };
-    "INV-INGRESS-01" = {
-      what = "Kein manueller Caddy-vHost außerhalb der Registry erlaubt.";
-      expected = "Jeder vHost hat caddyClass != none in der Registry";
-      found = "Manueller vHost konfiguriert";
-      fix = "Dienst in lib/registry.nix eintragen";
-      ref = "ADR-0000";
-    };
     "BIND-001" = {
       what = "Kein mediNix-Dienste-Port darf direkt WAN-exponiert sein (ohne Caddy/TLS/Auth).";
       expected = "Port nur über 127.0.0.1 — kein Eintrag in allowedTCPPorts";

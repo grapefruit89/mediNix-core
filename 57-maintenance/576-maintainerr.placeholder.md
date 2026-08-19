@@ -1,12 +1,12 @@
 # Maintainerr — Placeholder
 
-Maintainerr (automatische Medienbereinigung) ist interessant für mediNix-core.
+Maintainerr (automatic media cleanup) is interesting for mediNix-core.
 
-## Status: Ausstehend
-Maintainerr ist aktuell nicht nativ in nixpkgs verfügbar.
-Sobald ein nixpkgs-Paket existiert: diesen Placeholder durch
-576-maintainerr.nix ersetzen (Port 5760, nodejs-Profil, caddyClass=internal).
+## Status: Pending
+Maintainerr is currently not natively available in nixpkgs.
+Once a nixpkgs package exists: replace this placeholder with
+576-maintainerr.nix (Port 5760, nodejs profile, caddyClass=internal).
 
-## Nixflix-Referenz
-kiriwalawren/nixflix hat eine gute Implementierung als Referenz:
+## Nixflix Reference
+kiriwalawren/nixflix has a good implementation as reference:
 github.com/kiriwalawren/nixflix/tree/main/modules/maintainerr

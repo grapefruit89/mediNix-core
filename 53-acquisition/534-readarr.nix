@@ -25,7 +25,7 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-{
+lib.mkIf cfg.enable {
   users.groups.media.gid = gid;
 
   systemd.services.readarr = (mkService {
@@ -45,7 +45,7 @@ in
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile != null) { READARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (cfg.apiKeyFile or null != null) { READARR_API_KEY_FILE = cfg.apiKeyFile; })
       (arrSettings.mkReadarr {
         server = {
           port        = port;
@@ -71,4 +71,7 @@ in
     listenStreams = [ "127.0.0.1:${toString port}" ];
     socketConfig.Accept = false;
   };
+
+  grapefruitMedia.ingress.vhosts."readarr" = { accessGroup = "internal"; };
 }
+

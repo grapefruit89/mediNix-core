@@ -1,6 +1,6 @@
 # ---
 # id: "584-post-boot-watchdog"
-# title: "Post-Boot Watchdog — einmalig 180s nach Boot: failed Services neustarten"
+# title: "Post-Boot Watchdog — once 180s after boot: restart failed services"
 # domain: 58
 # folder: 58-observability
 # status: active
@@ -18,7 +18,7 @@ let
   ntfy = "http://127.0.0.1:5810/mediNix-boot";
 
   registry = import ../lib/registry.nix { inherit lib; };
-  # Alle Dienste aus der Registry (mit und ohne Port)
+  # All services from Registry (with and without Port)
   allUnits = lib.mapAttrsToList
     (_: svc: svc.unitName)
     registry.services;
@@ -32,15 +32,15 @@ let
       NTFY="${ntfy}"
       REPORT=""
 
-      # Prüfe alle bekannten mediNix-Services
+      # Check all known mediNix services
       for unit in ${unitList}; do
         if systemctl is-enabled --quiet "$unit.service" 2>/dev/null; then
           if ! systemctl is-active --quiet "$unit.service" 2>/dev/null; then
-            echo "Post-Boot: $unit fehlgeschlagen, starte neu..."
+            echo "Post-Boot: $unit failed, restarting..."
             if systemctl start "$unit.service" 2>/dev/null; then
               REPORT="$REPORT $unit(restarted)"
             else
-              echo "Fehler beim Neustart von $unit" >&2
+              echo "Error restarting $unit" >&2
               REPORT="$REPORT $unit(FAILED)"
             fi
           fi
@@ -48,9 +48,9 @@ let
       done
 
       if [ -n "$REPORT" ]; then
-        curl -s -d "Boot-Watchdog: Services neu gestartet:$REPORT" "$NTFY" || echo "NTFY Notification failed" >&2
+        curl -s -d "Boot-Watchdog: Services restarted:$REPORT" "$NTFY" || echo "NTFY Notification failed" >&2
       else
-        curl -s -d "Boot-Watchdog: Alle Services OK nach 180s" "$NTFY" || echo "NTFY Notification failed" >&2
+        curl -s -d "Boot-Watchdog: All services OK after 180s" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
     '';
   };
@@ -61,7 +61,7 @@ lib.mkIf (cfg.enable && cfg.observability.postBootWatchdog) {
     timerConfig = {
       OnBootSec          = "180s";
       Unit               = "mediNix-boot-watchdog.service";
-      RemainAfterElapse  = false;  # einmalig, nicht wiederholen
+      RemainAfterElapse  = false;  # once, do not repeat
     };
   };
 

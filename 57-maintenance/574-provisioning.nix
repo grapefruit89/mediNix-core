@@ -18,7 +18,7 @@
 
 let
   cfg = config.grapefruitMedia;
-  flagFile = "/var/lib/mediNix-state/provisioned";  # in StateDirectory (beschreibbar, 0750)
+  flagFile = "/var/lib/mediNix-state/provisioned";  # in StateDirectory (writable, 0750)
 in lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "One-time provisioning: register SABnzbd + Prowlarr + Root Folders in *arr via API";
@@ -26,12 +26,12 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
               "sonarr.service" "radarr.service" ];
     wantedBy = [ "multi-user.target" ];
     unitConfig = {
-      # Idempotent: nur wenn Flag NICHT existiert
+      # Idempotent: only if flag does NOT exist
       ConditionPathExists = "!/var/lib/mediNix-state/provisioned";
     };
     serviceConfig = lib.mkMerge [
-      # client-Profil: HTTP-Requests zu 127.0.0.1 (API-Calls), kein Port-Binding
-      # (network hätte CAP_NET_BIND_SERVICE — unnötig für Provisioning-Skript)
+      # client-Profile: HTTP requests to 127.0.0.1 (API calls), no port binding
+      # (network would have CAP_NET_BIND_SERVICE — unnecessary for provisioning script)
       (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
@@ -47,8 +47,8 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
     script = ''
       set -euo pipefail
 
-      # P0-1 FIX: API-Keys NICHT in /proc/<pid>/cmdline (curl -H "X-Api-Key: $(cat …)")
-      # → stattdessen Header-File mit 0600, danach sicher löschen.
+      # P0-1 FIX: API keys NOT in /proc/<pid>/cmdline (curl -H "X-Api-Key: $(cat …)")
+      # → instead use header file with 0600, then securely delete.
       HF=$(mktemp); chmod 600 "$HF"
 
       SAB_API="''${cfg.secrets.sabnzbdApiKeyFile}"
@@ -56,7 +56,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       SAB_URL="http://127.0.0.1:5410"
       PROWLARR_URL="http://127.0.0.1:5360"
 
-      # 1) SABnzbd als Download-Client in Sonarr/Radarr registrieren
+      # 1) Register SABnzbd as download client in Sonarr/Radarr
       for arr in sonarr:5320 radarr:5330; do
         name="''${arr%%:*}"; port="''${arr##*:}"
         printf 'X-Api-Key: %s\r\n' "$(cat "$SAB_API")" > "$HF"
@@ -66,7 +66,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           -d "{\"enable\":true,\"protocol\":\"usenet\",\"implementation\":\"Sabnzbd\",\"name\":\"SABnzbd\",\"settings\":{\"host\":\"127.0.0.1\",\"port\":5410,\"apiKey\":\"$(cat $SAB_API)\",\"category\":\"tv\"}}" || true
       done
 
-      # 2) Prowlarr als Indexer in Sonarr/Radarr (App-Import via Prowlarr)
+      # 2) Register Prowlarr as indexer in Sonarr/Radarr (app import via Prowlarr)
       printf 'X-Api-Key: %s\r\n' "$(cat "$PROWLARR_API")" > "$HF"
       curl -s -X POST "$PROWLARR_URL/api/v1/applications" \
         --header "@$HF" \
@@ -92,9 +92,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           -d "{\"name\":\"$qp\",\"upgradeAllowed\":true,\"cutoff\":{\"id\":2},\"items\":[{\"quality\":{\"id\":2},\"allowed\":true}]}" >/dev/null 2>&1 || true
       done
 
-      rm -f "$HF"   # wichtig: Header-File mit Key vernichten
+      rm -f "$HF"   # important: destroy header file with key
 
-      # Flag setzen → Provisioning läuft nie wieder
+      # Set flag → Provisioning will never run again
       touch ${flagFile}
       echo "mediNix provisioning complete"
     '';

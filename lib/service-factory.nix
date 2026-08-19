@@ -28,7 +28,7 @@ let
   mkPeerIsolation = selfName: allowedPeers:
     let
       allStateDirs = lib.mapAttrsToList (n: svc:
-        lib.optional (svc.stateDir != null && n != selfName && !(lib.elem n allowedPeers))
+        lib.optional ((svc.stateDir or null) != null && n != selfName && !(lib.elem n allowedPeers))
           svc.stateDir
       ) registry;
     in

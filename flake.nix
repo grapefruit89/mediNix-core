@@ -12,19 +12,7 @@
       # Registry als JSON für Build-Zeit-Embedding (CLI-Tool)
       registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
 
-      # ── devNIX-Pattern: mkCheck (CI wird rot, nie der Baum) ───────────────
-      # Helper: lässt ein Werkzeug über dem Repo laufen. --check/--fail ändert
-      # nichts, meldet nur. Übernommen aus grapefruit89/devNIX (ADR-8000).
-      mkCheck =
-        name: deps: script:
-        nixpkgs.lib.mapAttrs' (_: system:
-          let pkgs = nixpkgs.legacyPackages.${system}; in
-          pkgs.runCommand "check-${name}" { nativeBuildInputs = deps pkgs; } ''
-            cd ${self}
-            ${script}
-            touch $out
-          ''
-        );
+
     in
     {
       # Das Hauptprodukt: importierbar als nixosModules.default
@@ -81,6 +69,13 @@
             pkgs.runCommand "decimal-framework-ok" { } "echo 'ADR-0000 Dezimalrahmen eingehalten' > $out"
           else
             throw ("ADR-0000 (Dezimalrahmen) verletzt:\n  " + lib.concatStringsSep "\n  " errors);
+
+        mkCheck = name: deps: script:
+          pkgs.runCommand "check-${name}" { nativeBuildInputs = deps pkgs; } ''
+            cd ${self}
+            ${script}
+            touch $out
+          '';
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
@@ -112,20 +107,20 @@
         checks.decimal-framework = decimalFrameworkCheck;
 
         # ── Linting (Priorität 2): kopiert aus devNIX mkCheck-Pattern ───────
-        checks.nixfmt-check = (mkCheck "nixfmt" (pkgs: [ pkgs.nixfmt-rfc-style ]) ''
+        checks.nixfmt-check = mkCheck "nixfmt" (pkgs: [ pkgs.nixfmt-rfc-style ]) ''
           nixfmt --check $(find . -name '*.nix' -not -path './.git/*') \
             || { echo ""; echo "Nicht formatiert. Beheben mit:  nix fmt"; exit 1; }
-        '') .${system};
+        '';
 
-        checks.statix-check = (mkCheck "statix" (pkgs: [ pkgs.statix ]) ''
+        checks.statix-check = mkCheck "statix" (pkgs: [ pkgs.statix ]) ''
           statix check . \
             || { echo ""; echo "Beheben mit:  statix fix ."; exit 1; }
-        '') .${system};
+        '';
 
-        checks.deadnix-check = (mkCheck "deadnix" (pkgs: [ pkgs.deadnix ]) ''
+        checks.deadnix-check = mkCheck "deadnix" (pkgs: [ pkgs.deadnix ]) ''
           deadnix --fail . \
             || { echo ""; echo "Beheben mit:  deadnix --edit ."; exit 1; }
-        '') .${system};
+        '';
 
         # ── Formatter + devShell (Priorität 3) ──────────────────────────────
         formatter = pkgs.nixfmt-rfc-style;

@@ -1,6 +1,6 @@
 # ---
 # id: "554-feishin"
-# title: "Feishin — static SPA for Navidrome/Jellyfin (55-playback, Dienst 554)"
+# title: "Feishin — static SPA for Navidrome/Jellyfin (55-playback, Service 554)"
 # domain: 55
 # folder: 55-playback
 # status: active
@@ -39,7 +39,7 @@ in lib.mkIf (cfg.enable) {
 
   # If global Caddy is used, inject via virtualHosts extraConfig
   services.caddy.virtualHosts = lib.mkIf config.services.caddy.enable {
-    "feishin.${svc.domain}" = {
+    "${if svc.domain != null then "feishin.${svc.domain}" else "feishin.local"}" = {
       extraConfig = ''
         file_server * {
           root * ${pkgs.feishin-web}/share/feishin-web
@@ -51,7 +51,7 @@ in lib.mkIf (cfg.enable) {
 
   # Assertion: Feishin needs a backend (Navidrome/Jellyfin) — CLAUDE.md gold
   assertions = [ {
-    assertion = svc.services.navidrome.enable || svc.services.jellyfin.enable || cfg.serverUrl != null;
+    assertion = svc.services.navidrome.enable || svc.services.jellyfin.enable || (cfg.serverUrl or null != null);
     message = "554-feishin: needs Navidrome, Jellyfin, or explicit serverUrl — SPA has no backend otherwise.";
   } ];
 }

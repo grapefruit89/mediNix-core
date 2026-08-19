@@ -30,11 +30,11 @@ in lib.mkIf cfg.enable {
   };
   users.groups.media.gid = 5000;
 
-  # Timer: schedule aus Config (Default weekly)
+  # Timer: schedule from config (default weekly)
   systemd.timers.recyclarr = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = cfg.schedule;  # z.B. "daily" oder "*-*-* 04:00:00"
+      OnCalendar = cfg.schedule;  # e.g., "daily" or "*-*-* 04:00:00"
       Persistent = true;
     };
   };
@@ -44,7 +44,7 @@ in lib.mkIf cfg.enable {
     after = [ "network-online.target" ] ++ lib.optional svc.services.sonarr.enable "sonarr-5320.service"
       ++ lib.optional svc.services.radarr.enable "radarr-5330.service";
     serviceConfig = lib.mkMerge [
-      # client-Profil: braucht Loopback für Sonarr/Radarr API-Calls (script hätte PrivateNetwork=true)
+      # client-Profile: requires loopback for Sonarr/Radarr API calls (script would have PrivateNetwork=true)
       (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
@@ -54,7 +54,7 @@ in lib.mkIf cfg.enable {
         StateDirectory = "recyclarr-${toString cfg.port}";
         ReadWritePaths = [ stateDir ];
         # Harvester #911: multi-instance split bug → sync each instance separately
-        # via -i flag in script loop (nicht bare `recyclarr sync`)
+        # via -i flag in script loop (not bare `recyclarr sync`)
       }
     ];
     environment = {

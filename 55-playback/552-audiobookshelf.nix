@@ -1,6 +1,6 @@
 # ---
 # id: "552-audiobookshelf"
-# title: "Audiobookshelf — Audiobooks & Podcasts (55-playback, Dienst 552)"
+# title: "Audiobookshelf — Audiobooks & Podcasts (55-playback, Service 552)"
 # domain: 55
 # folder: 55-playback
 # status: active
@@ -27,7 +27,7 @@ let
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
-{
+lib.mkIf (cfg.enable) {
   users.users.audiobookshelf = {
     uid = uid; group = "media"; extraGroups = [ "media" ];
     home = stateDir; isSystemUser = true;
@@ -39,13 +39,13 @@ in
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
-      # nodejs-Profil: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
+      # nodejs profile: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
       profiles.nodejs
       {
         ExecStart = "${pkgs.audiobookshelf}/bin/audiobookshelf";
         User = "audiobookshelf";
         Group = "media";
-        UMask = "002";
+        UMask = lib.mkForce "0002";
         StateDirectory = "audiobookshelf-${toString port}";
         # Tier 2 metadata (rw) + Tier 3 media (rw, ABS writes covers)
         ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
@@ -59,4 +59,7 @@ in
       AUDIOBOOKS_PATH = "${svc.storage.mediaRoot}/audiobooks";
     };
   };
+
+  grapefruitMedia.ingress.vhosts."audiobookshelf" = { accessGroup = "stream"; };
 }
+

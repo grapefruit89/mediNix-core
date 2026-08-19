@@ -28,7 +28,7 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-{
+lib.mkIf cfg.enable {
   users.groups.media.gid = gid;
 
   # Factory: dotnet profile (MemoryDenyWriteExecute=false, internet-Policy)
@@ -51,7 +51,7 @@ in
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile != null) { SONARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (cfg.apiKeyFile or null != null) { SONARR_API_KEY_FILE = cfg.apiKeyFile; })
       (arrSettings.mkSonarr {
         server = {
           port        = port;
@@ -77,4 +77,7 @@ in
     listenStreams = [ "127.0.0.1:${toString port}" ];
     socketConfig.Accept = false;
   };
+
+  grapefruitMedia.ingress.vhosts."sonarr" = { accessGroup = "internal"; };
 }
+

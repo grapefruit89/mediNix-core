@@ -43,16 +43,6 @@ lib.mkIf cfg.enable {
          || cfg.dns.ddns.tokenFile                 != null))
       "5130")
 
-    # INV-INGRESS-01: Kein manueller Caddy-vHost außerhalb der Registry erlaubt.
-    (reg.mkInvariant "INV-INGRESS-01"
-      (let
-        registryHosts = lib.mapAttrsToList
-          (n: s: "${n}.${cfg.domain}")
-          (lib.filterAttrs (_: s: s.caddyClass != "none") servicesReg.services);
-        configHosts = lib.attrNames (config.services.caddy.virtualHosts or { });
-      in
-        lib.all (h: lib.elem h registryHosts || cfg.domain == "") configHosts))
-
     # POL-DNS-001: Verschlüsseltes DNS (DoT) muss aktiv sein
     (reg.mkInvariant "INV-DNS-01"
       (!config.services.resolved.enable || config.services.resolved.dnsovertls == "true" || config.services.resolved.dnsovertls == "opportunistic"))

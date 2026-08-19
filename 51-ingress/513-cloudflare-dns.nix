@@ -36,18 +36,18 @@ let
   zone = if ddns.zone != null then ddns.zone else cfg.domain;
 
   registry        = (import ../lib/registry.nix { inherit lib; }).services;
-  enabledServices = lib.filterAttrs (n: svc:
-    cfg.${n}.enable or false && svc.port != null && svc.caddyClass != "none"
-  ) registry;
+  enabledServices = lib.filterAttrs (n: vhost:
+    cfg.${n}.enable or false && (registry.${n}.port or null) != null
+  ) cfg.ingress.vhosts;
 
-  # Filter services by caddyClass to determine IP and Proxy mapping
-  streamServices = lib.filterAttrs (n: svc: svc.caddyClass == "stream") enabledServices;
-  publicServices = lib.filterAttrs (n: svc: svc.caddyClass == "public") enabledServices;
-  lanServices    = lib.filterAttrs (n: svc: svc.caddyClass == "internal") enabledServices;
-
-  streamDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") streamServices;
-  publicDomains = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") publicServices;
-  lanDomains    = lib.mapAttrsToList (n: svc: "${svc.name}.${cfg.domain}") lanServices;
+  # Filter services by accessGroup to determine IP and Proxy mapping
+  streamServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "stream") enabledServices;
+  publicServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "public") enabledServices;
+  lanServices    = lib.filterAttrs (n: vhost: vhost.accessGroup == "internal") enabledServices;
+  effectiveDomain = if zone != null then zone else (if cfg.domain != null then cfg.domain else "local");
+  streamDomains = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") streamServices;
+  publicDomains = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") publicServices;
+  lanDomains    = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") lanServices;
 
   # Build space-separated strings for the bash script
   streamDomainsStr = builtins.concatStringsSep " " streamDomains;

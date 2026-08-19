@@ -323,6 +323,16 @@ in
         default = true;
         description = "Enable Caddy ingress mapping (reverse proxying).";
       };
+      vhosts = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" ]; };
+            customConfig = lib.mkOption { type = lib.types.lines; default = ""; };
+          };
+        });
+        default = {};
+        description = "Per-service Caddy vhost configuration.";
+      };
       mode = lib.mkOption {
         type    = lib.types.enum [ "auto" "global" "standalone" ];
         default = "auto";

@@ -1,6 +1,6 @@
 # ---
 # id: "582-crowdsec"
-# title: "CrowdSec — native WAF/IPS agent (58-observability, Dienst 582)"
+# title: "CrowdSec — native WAF/IPS agent (58-observability, Service 582)"
 # domain: 58
 # folder: 58-observability
 # status: active
@@ -11,9 +11,9 @@
 #   skill: nixos-context7-gate
 #   note: "CrowdSec runs as native systemd agent (NO Docker). Caddy talks to the
 #          local agent via crowdsec-appsec plugin at http://127.0.0.1:8081.
-#          Caddy-Plugin (caddy-cs-bouncer) wird in 511-caddy.nix via
-#          pkgs.caddy.withPlugins eincompiliert — hash=lib.fakeHash, vor erstem
-#          Build via nix build ersetzen. Replaces Unraid Docker-CrowdSec."
+#          Caddy Plugin (caddy-cs-bouncer) is compiled in 511-caddy.nix via
+#          pkgs.caddy.withPlugins — replace hash=lib.fakeHash before first
+#          build via nix build. Replaces Unraid Docker-CrowdSec."
 # context7:
 #   - query: "services.crowdsec enable configuration settings example"
 #     library: /nixos/nixpkgs
@@ -24,22 +24,22 @@
 let
   cfg = config.grapefruitMedia.observability.crowdsec;
 in lib.mkIf cfg.enable {
-  # Native CrowdSec agent (kein Docker — läuft als systemd.service)
+  # Native CrowdSec agent (no Docker — runs as systemd.service)
   services.crowdsec = {
     enable = true;
     settings = {
-      # Agent lauscht auf localhost für Caddy AppSec-Plugin
+      # Agent listens on localhost for Caddy AppSec plugin
       api = {
         server = {
           listen_uri = "127.0.0.1:8081";
         };
       };
       # Collections: sensitives, caddy, etc. (via cscli)
-      # Bouncer für nftables wird von Caddy-Plugin übernommen (AppSec)
+      # Bouncer for nftables is handled by Caddy plugin (AppSec)
     };
   };
 
-  # Enrollment (falls enrollKeyFile gesetzt — sonst lokaler Standalone-Modus)
+  # Enrollment (if enrollKeyFile set — otherwise local standalone mode)
   # cscli enroll --token $(cat enrollKeyFile)
   systemd.services.crowdsec-enroll = lib.mkIf (cfg.enrollKeyFile != null) {
     description = "CrowdSec enrollment";
@@ -62,13 +62,13 @@ in lib.mkIf cfg.enable {
     '';
   };
 
-  # Caddy muss AppSec-Plugin nutzen → in 511-caddy.nix via extraConfig injiziert
-  # wenn cfg.observability.crowdsec.enable. Platzhalter für Phase 2 Integration.
+  # Caddy must use AppSec plugin → injected via extraConfig in 511-caddy.nix
+  # if cfg.observability.crowdsec.enable. Placeholder for Phase 2 integration.
   #
-  # KRITISCH (Vektor-DB Sweep): CrowdSec-Bouncer braucht parsebare Caddy-Logs.
-  # Caddy-JSON-Logs sind NICHT nativ von CrowdSec lesbar ohne Log-Encoder.
-  # In 511-caddy.nix (bei crowdsec.enable) muss das Caddy-Log-Format auf
-  # Apache Common Log Format (CLF) gesetzt werden:
-  #   logging → ... → encoder = "common_log" (oder transform-encoder für IP-Masking)
-  # Sonst kann der Bouncer keine Angriffe aus den Access-Logs extrahieren.
+  # CRITICAL (Vector DB Sweep): CrowdSec Bouncer needs parsable Caddy logs.
+  # Caddy JSON logs are NOT natively readable by CrowdSec without log encoder.
+  # In 511-caddy.nix (if crowdsec.enable), the Caddy log format must be set to
+  # Apache Common Log Format (CLF):
+  #   logging → ... → encoder = "common_log" (or transform-encoder for IP-Masking)
+  # Otherwise the bouncer cannot extract attacks from the access logs.
 }

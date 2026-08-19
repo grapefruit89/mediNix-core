@@ -25,7 +25,7 @@ lib.mkIf cfg.enable {
     openssh.authorizedKeys.keys = cfg.sshKeys;
   };
 
-  # SSH Lockdown für Backup-User
+  # SSH Lockdown for Backup-User
   services.openssh.extraConfig = ''
     Match User backup
       AllowTcpForwarding no
@@ -34,7 +34,7 @@ lib.mkIf cfg.enable {
       ForceCommand ${pkgs.rsync}/bin/rsync --server --sender -vlogDtprze.iLsfxCIvu . /var/lib/
   '';
 
-  # Polkit-Regel für systemctl (Services stoppen während Backup)
+  # Polkit rule for systemctl (stop services during backup)
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
       if (action.id == "org.freedesktop.systemd1.manage-units" && subject.user == "backup") {
@@ -43,7 +43,7 @@ lib.mkIf cfg.enable {
     });
   '';
 
-  # Nur read-only Mounts der Services
+  # Only read-only mounts of the services
   systemd.services.rsync-backup = {
     description = "Rsync Backup Service";
     serviceConfig = {

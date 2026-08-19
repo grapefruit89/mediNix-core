@@ -25,11 +25,11 @@ Each service is strictly configured according to the mediNix Dezimalrahmen conve
 
 | ID  | Service | UID / Port | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **532** | [Sonarr](532-sonarr.nix) | `5320` | Management and automation of **series** (TV Shows). |
-| **533** | [Radarr](533-radarr.nix) | `5330` | Management and automation of **movies**. |
-| **534** | [Readarr](534-readarr.nix) | `5340` | Management and automation of **books** and audiobooks. |
-| **535** | [Lidarr](535-lidarr.nix) | `5350` | Management and automation of **music**. |
-| **536** | [Prowlarr](536-prowlarr.nix) | `5360` | **Central Indexer Manager**. It proxies search engines (indexers) to the other *arr services. |
+| **532** | [Sonarr](532-sonarr.nix) <br> [[ADR-5320]] | `5320` | Management and automation of **series** (TV Shows). |
+| **533** | [Radarr](533-radarr.nix) <br> [[ADR-5320]] | `5330` | Management and automation of **movies**. |
+| **534** | [Readarr](534-readarr.nix) <br> [[ADR-5320]] | `5340` | Management and automation of **books** and audiobooks. |
+| **535** | [Lidarr](535-lidarr.nix) <br> [[ADR-5320]] | `5350` | Management and automation of **music**. |
+| **536** | [Prowlarr](536-prowlarr.nix) <br> [[ADR-5320]] | `5360` | **Central Indexer Manager**. It proxies search engines (indexers) to the other *arr services. |
 
 ## 🛡️ Security Architecture & Hardening
 

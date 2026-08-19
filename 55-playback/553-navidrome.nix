@@ -1,6 +1,6 @@
 # ---
 # id: "553-navidrome"
-# title: "Navidrome — Music Server (55-playback, Dienst 553)"
+# title: "Navidrome — Music Server (55-playback, Service 553)"
 # domain: 55
 # folder: 55-playback
 # status: active
@@ -26,7 +26,7 @@ let
   stateDir = "/var/lib/navidrome-${toString port}";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
-{
+lib.mkIf (cfg.enable) {
   users.users.navidrome = {
     uid = uid; group = "media";
     # CLAUDE.md gold: media group MUST be present or library is silently empty
@@ -40,22 +40,25 @@ in
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
-      # nodejs-Profil: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
+      # nodejs profile: MemoryDenyWriteExecute=false (V8 JIT), PrivateDevices=true
       profiles.nodejs
       {
         ExecStart = "${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml";
         User = "navidrome";
         Group = "media";
-        UMask = "002";
+        UMask = lib.mkForce "0002";
         StateDirectory = "navidrome-${toString port}";
         # Tier 1 state + Tier 3 music (read-only)
         ReadWritePaths = [ stateDir ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
       }
     ];
-    # OIDC via EnvironmentFile (ADR-5000: keine inline secrets)
-    environment = lib.mkIf (cfg.oidcFile != null) {
+    # OIDC via EnvironmentFile (ADR-5000: no inline secrets)
+    environment = lib.mkIf (cfg.oidcFile or null != null) {
       ND_OIDC_CLIENT_ID_FILE = cfg.oidcFile;
     };
   };
+
+  grapefruitMedia.ingress.vhosts."navidrome" = { accessGroup = "stream"; };
 }
+

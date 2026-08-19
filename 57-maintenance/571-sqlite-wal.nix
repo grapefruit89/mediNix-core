@@ -1,8 +1,8 @@
 # ---
-# id: "542-sqlite-wal"
-# title: "SQLite WAL Tuning + periodic optimize/ANALYZE for *arr/SABnzbd/Jellyfin"
-# domain: 54
-# folder: 54-transfer
+# id: "571-sqlite-wal"
+# title: "SQLite WAL Tuning + periodic optimize/ANALYZE for *arr/SABnzbd/Jellyfin (57-maintenance, Service 571)"
+# domain: 57
+# folder: 57-maintenance
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-12
@@ -22,8 +22,8 @@ let
   svc = config.grapefruitMedia;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
-  # StateDirectory-Pfade aus Registry ableiten (ADR-0000: /var/lib/${name}-${port})
-  # Nur Dienste die in cfg.services gelistet sind + aktiv.
+  # Derive StateDirectory paths from Registry (ADR-0000: /var/lib/${name}-${port})
+  # Only services that are listed in cfg.services + active.
   stateDirs = lib.mapAttrsToList
     (n: s: "/var/lib/${n}-${toString s.port}")
     (lib.filterAttrs (n: _: lib.elem n cfg.services) registry);
@@ -48,7 +48,7 @@ let
             PRAGMA optimize;
             PRAGMA ANALYZE;
             PRAGMA incremental_vacuum;
-          " || true  # kein harter Fail wenn DB gesperrt
+          " || true  # no hard fail if DB is locked
         done
       done
       echo "SQLite optimize done"
@@ -73,7 +73,7 @@ lib.mkIf (svc.enable && cfg.enable) {
         User = "root";  # needs write to state dirs
         UMask = "002";
         ExecStart = lib.getExe optimizeScript;
-        # Journal-Rate-Limit: bei DB-Lock-Schleife kein Log-IO-Sturm
+        # Journal rate limit: prevent log IO storm in case of DB lock loop
         RateLimitBurst = 5;
         RateLimitIntervalSec = "30s";
       }

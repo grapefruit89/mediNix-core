@@ -1,6 +1,6 @@
 # ---
 # id: "541-sabnzbd"
-# title: "SABnzbd — Usenet Downloader (54-transfer, Dienst 541)"
+# title: "SABnzbd — Usenet Downloader (54-transfer, Service 541)"
 # domain: 54
 # folder: 54-transfer
 # status: active
@@ -66,19 +66,22 @@ in
             "/run/sabnzbd-tmp"
           ];
         }
-        # SABnzbd Usenet-Provider-Credentials (TPM-verschlüsselt)
+        # SABnzbd Usenet-Provider-Credentials (TPM-encrypted)
         (lib.mkIf (cfg.serverCredentialFile != null) {
           LoadCredentialEncrypted = [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ];
         })
       ];
       environment = {
         SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
-      } // lib.mkIf (cfg.serverCredentialFile != null) {
-        # SABnzbd liest Credential-Datei via Env (Format: HOST/PORT/USER/PASS/SSL)
+      } // lib.optionalAttrs (cfg.serverCredentialFile != null) {
+        # SABnzbd reads credential file via Env (Format: HOST/PORT/USER/PASS/SSL)
         SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";
-      } // lib.mkIf (cfg.apiKeyFile != null) {
+      } // lib.optionalAttrs (cfg.apiKeyFile or null != null) {
         SABNZBD_API_KEY_FILE = cfg.apiKeyFile;
       };
     };
   };
+
+  grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
 }
+

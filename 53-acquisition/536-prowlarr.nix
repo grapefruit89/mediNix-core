@@ -25,7 +25,7 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-{
+lib.mkIf cfg.enable {
   users.groups.media.gid = gid;
 
   # Prowlarr: only indexes, doesn't need SABnzbd directly (Arr fetch from it)
@@ -46,7 +46,7 @@ in
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile != null) { PROWLARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (cfg.apiKeyFile or null != null) { PROWLARR_API_KEY_FILE = cfg.apiKeyFile; })
       (arrSettings.mkProwlarr {
         server = {
           port        = port;
@@ -72,4 +72,7 @@ in
     listenStreams = [ "127.0.0.1:${toString port}" ];
     socketConfig.Accept = false;
   };
+
+  grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = "internal"; };
 }
+

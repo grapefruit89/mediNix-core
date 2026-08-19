@@ -1,15 +1,15 @@
 # ---
-# id: "561-jellyseerr"
-# title: "Jellyseerr — Request Management (56-requests, Dienst 561)"
-# domain: 56
-# folder: 56-requests
+# id: "555-jellyseerr"
+# title: "Jellyseerr — Request Management (55-playback, Service 555)"
+# domain: 55
+# folder: 55-playback
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-11
+# last_reviewed: 2026-08-18
 # links:
 #   adr: ADR-5610, ADR-5050
 #   skill: nixos-context7-gate
-#   repo-harvest: Fallenbagel/jellyseerr (Node.js, default port 5055 → 5610)
+#   repo-harvest: Fallenbagel/jellyseerr (Node.js, default port 5055 → 5550)
 # context7:
 #   - query: "systemd.services serviceConfig EnvironmentFile example"
 #     library: /websites/nixos_manual_nixos_unstable
@@ -20,15 +20,15 @@
 let
   cfg = config.grapefruitMedia.services.jellyseerr;
   svc = config.grapefruitMedia;
-  port = 5610;  # 561 × 10
-  uid  = 5610;
+  port = 5550;  # 555 × 10
+  uid  = 5550;
   gid  = 5000;
   stateDir = "/var/lib/jellyseerr-${toString port}";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  # .NET declarative settings via Env Vars (ersetzt curl-Provisioning)
+  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-{
+lib.mkIf (cfg.enable) {
   users.users.jellyseerr = {
     uid = uid; group = "media"; extraGroups = [ "media" ];
     home = stateDir; isSystemUser = true;
@@ -40,21 +40,22 @@ in
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
-      # .NET-Profil: MemoryDenyWriteExecute=false (JIT), PrivateDevices=true
-      # SystemCallErrorNumber=EPERM kommt aus base-Profil (kein SIGSYS-Kill)
+      # .NET profile: MemoryDenyWriteExecute=false (JIT), PrivateDevices=true
+      # SystemCallErrorNumber=EPERM comes from base profile (no SIGSYS kill)
       profiles.dotnet
       {
         ExecStart = "${pkgs.jellyseerr}/bin/jellyseerr --port ${toString port} --host 127.0.0.1";
         User = "jellyseerr";
         Group = "media";
-        UMask = "002";
+        UMask = lib.mkForce "0002";
         StateDirectory = "jellyseerr-${toString port}";
         ReadWritePaths = [ stateDir ];
         # caddyClass=public from registry → LAN+WAN, compression (handled by 511-caddy)
       }
+      (lib.mkIf (cfg.envFile or null != null) {
+        EnvironmentFile = cfg.envFile;
+      })
     ];
-    # Env-File via EnvironmentFile (ADR-5000: keine inline secrets)
-    environmentFile = lib.mkIf (cfg.envFile != null) cfg.envFile;
     # .NET declarative settings (Port/Bind/Auth) via Env Vars
     environment = arrSettings.mkJellyseerr {
       server = {
@@ -74,4 +75,9 @@ in
       update.mechanism = "BuiltIn";
     };
   };
+
+  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = "public"; };
+
+  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = "public"; };
 }
+

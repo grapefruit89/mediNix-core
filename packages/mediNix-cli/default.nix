@@ -4,6 +4,9 @@
 # Build-Zeit-Parameter: registryJson, mediaRoot, metadataDir, mediaDomain
 { pkgs, lib, registryJson, mediaRoot ? "/data/media", metadataDir ? "/data/metadata", mediaDomain ? "" }:
 
+let
+  effectiveDomain = if mediaDomain != null then mediaDomain else "";
+in
 pkgs.writeShellApplication {
   name = "medinix";
   runtimeInputs = with pkgs; [
@@ -26,7 +29,7 @@ pkgs.writeShellApplication {
     # Tier-Pfade + Domain (Build-Zeit-Parameter, portabel)
     MEDIA_ROOT="${mediaRoot}"
     METADATA_DIR="${metadataDir}"
-    DOMAIN="${mediaDomain}"
+    DOMAIN="${effectiveDomain}"
 
     # Fix 1: PROBLEMS-Counter über mktemp-Datei (Subshell-sicher)
     PROBLEMS_FILE=$(mktemp)

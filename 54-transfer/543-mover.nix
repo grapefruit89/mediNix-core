@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5430 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
 #   skill: medinix-implement-discipline
-#   note: "Kein Calendar-Timer. HDD schläft. systemd.path ist Klingel, minFreeGb ist Bremse."
+#   note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---
 { config, lib, pkgs, ... }:
 
@@ -27,19 +27,19 @@ let
       ARCHIVE="${cfg.archiveDir}"
       MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
 
-      # 1. Füllstand-Check auf Staging (Tier-B/SSD)
+      # 1. Fill level check on Staging (Tier-B/SSD)
       if [ ! -d "$STAGING" ]; then
-        echo "Mover: stagingDir $STAGING nicht vorhanden — skip"
+        echo "Mover: stagingDir $STAGING not found — skip"
         exit 0
       fi
       FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
       if [ "$FREE_KB" -ge "$MIN_FREE_KB" ]; then
-        echo "Mover: frei genug ($(($FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — nichts zu tun"
+        echo "Mover: enough free space ($(($FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — nothing to do"
         exit 0
       fi
-      echo "Mover: SSD knapp ($(($FREE_KB/1024)) MB frei) → verschiebe Media nach $ARCHIVE"
+      echo "Mover: SSD is low ($(($FREE_KB/1024)) MB free) → moving media to $ARCHIVE"
 
-      # 2. Nur Whitelist-Extensions UND >= 50MB, rekursiv, korrekt geklammert
+      # 2. Only whitelisted extensions AND >= 50MB, recursive, correctly bracketed
       mkdir -p "$ARCHIVE"
       find "$STAGING" -type f -size +50M \( ${lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions} \) \
         | while read -r f; do
@@ -54,11 +54,11 @@ let
   };
 in
 lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
-  # systemd.services mit StartLimit + Hardening
+  # systemd.services with StartLimit + Hardening
   systemd.services.mediNix-mover = {
     description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
-    # StartLimit gehört in [Unit] (= unitConfig), nicht in [Service] (serviceConfig).
-    # Begrenzt reale Service-Starts bei geschwätzigem Staging (nicht nur Log-IO).
+    # StartLimit belongs in [Unit] (= unitConfig), not in [Service] (serviceConfig).
+    # Limits real service starts if staging is noisy (not just Log-IO).
     unitConfig = {
       StartLimitBurst = 3;
       StartLimitIntervalSec = "60";
@@ -78,7 +78,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
     script = "${lib.getExe moverScript}";
   };
 
-  # systemd.path als Klingel: feuert bei Aktivität unter stagingDir, nicht nach Uhr.
+  # systemd.path as a trigger: fires on activity under stagingDir, not by clock.
   systemd.paths.mediNix-mover = {
     wantedBy = [ "paths.target" ];
     pathConfig = {

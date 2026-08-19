@@ -41,7 +41,7 @@ base = {
   ProtectSystem         = "strict";
   ProtectHome           = true;
   PrivateTmp            = true;
-  UMask                 = "0027";  # Dateien nicht world-readable
+  UMask                 = lib.mkDefault "0027";  # Dateien nicht world-readable
   ProtectKernelTunables = true;
   ProtectKernelModules  = true;
   ProtectKernelLogs     = true;
@@ -78,7 +78,7 @@ base = {
 dotnet = base // {
   MemoryDenyWriteExecute = false;
   PrivateDevices         = true;   # keine Hardware nötig
-  UMask                  = "0002";  # P0-6 FIX: Arr-Stack braucht Gruppen-Schreibrechte (0027 aus base reicht nicht)
+  UMask                  = lib.mkDefault "0002";  # P0-6 FIX: Arr-Stack braucht Gruppen-Schreibrechte (0027 aus base reicht nicht)
 } // networkPolicy.internet;  # Indexer-Suche braucht Internet
 
 # ── .NET mit GPU (Jellyfin) ─────────────────────────────────────────────────

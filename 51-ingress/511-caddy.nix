@@ -26,9 +26,9 @@ let
   useGlobal = config.services.caddy.enable;
 
   registry        = (import ../lib/registry.nix { inherit lib; }).services;
-  enabledServices = lib.filterAttrs (n: svc:
-    cfg.${n}.enable or false && svc.port != null && svc.caddyClass != "none"
-  ) registry;
+  enabledServices = lib.filterAttrs (n: vhost:
+    cfg.${n}.enable or false && (registry.${n}.port or null) != null
+  ) cfg.ingress.vhosts;
 
   # Secure LAN CIDRs. If the user specifies nothing in the config, we use restrictive defaults.
   # Groq P1: Added 100.64.0.0/10 so Tailscale clients are not blocked by Caddy.
@@ -47,8 +47,9 @@ let
   cloudflareIpsStr = builtins.concatStringsSep " " cloudflareIps;
 
   # Base generation for the respective service
-  mkBaseConfig = n: svc:
+  mkBaseConfig = n: vhost:
     let
+      svc = registry.${n};
       port = toString svc.port;
       
       authBlock = if ing.auth.mode == "forward-auth" then ''
@@ -63,6 +64,7 @@ let
         # Streaming: flush -1 (no buffering), 300s timeouts, no compression, no auth
         stream = ''
           encode off
+          ${vhost.customConfig}
           reverse_proxy http://127.0.0.1:${port} {
             flush_interval -1
             transport http {
@@ -76,19 +78,21 @@ let
           @blocked not remote_ip ${trustedCidrsStr}
           abort @blocked
           encode zstd gzip
+          ${vhost.customConfig}
           reverse_proxy http://127.0.0.1:${port}
         '';
         # Public: LAN + WAN, compression, with authBlock (P0.1)
         public = ''
           encode zstd gzip
           ${authBlock}
+          ${vhost.customConfig}
           reverse_proxy http://127.0.0.1:${port}
         '';
-      }.${svc.caddyClass};
+      }.${vhost.accessGroup};
 
   # ── Central Template Engine (Red-Team Fixes applied) ─────────
   # This function builds the configuration identically for GLOBAL and STANDALONE.
-  mkVHostConfig = n: svc:
+  mkVHostConfig = n: vhost:
     let
       tlsDirective =
         if ing.tls.acmeHost != null then
@@ -100,10 +104,10 @@ let
           "tls internal"
         else "";
     in 
-      "${tlsDirective}\n${mkBaseConfig n svc}";
+      "${tlsDirective}\n${mkBaseConfig n vhost}";
 
   # Special template for .local (without TLS, pure HTTP)
-  mkVHostConfigLocal = n: svc: mkBaseConfig n svc;
+  mkVHostConfigLocal = n: vhost: mkBaseConfig n vhost;
 
   # Standalone Config String
   caddyConfigStr = ''
@@ -112,12 +116,14 @@ let
         trusted_proxies static ${cloudflareIpsStr}
       }
     }
-  '' + lib.concatStringsSep "\n" (lib.mapAttrsToList (n: svc: ''
+  '' + lib.concatStringsSep "\n" (lib.mapAttrsToList (n: vhost:
+    (lib.optionalString (cfg.domain != null) ''
     ${n}.${cfg.domain} {
-      ${mkVHostConfig n svc}
+      ${mkVHostConfig n vhost}
     }
+    '') + ''
     http://${n}.local {
-      ${mkVHostConfigLocal n svc}
+      ${mkVHostConfigLocal n vhost}
     }
   '') enabledServices);
 
@@ -147,11 +153,11 @@ in lib.mkMerge [
 
     services.caddy.virtualHosts = lib.mkIf useGlobal
       (lib.mkMerge [
-        (lib.mapAttrs' (n: svc: lib.nameValuePair "${n}.${cfg.domain}" {
-          extraConfig = mkVHostConfig n svc;
-        }) enabledServices)
-        (lib.mapAttrs' (n: svc: lib.nameValuePair "http://${n}.local" {
-          extraConfig = mkVHostConfigLocal n svc;
+        (lib.mkIf (cfg.domain != null) (lib.mapAttrs' (n: vhost: lib.nameValuePair "${n}.${cfg.domain}" {
+          extraConfig = mkVHostConfig n vhost;
+        }) enabledServices))
+        (lib.mapAttrs' (n: vhost: lib.nameValuePair "http://${n}.local" {
+          extraConfig = mkVHostConfigLocal n vhost;
         }) enabledServices)
       ]);
 
@@ -171,7 +177,7 @@ in lib.mkMerge [
   })
   
   (lib.mkIf (cfg.enable && ing.enable && !useGlobal) caddyStandalone)
-];
+]
 
 # Gold-Standard (ADR-5110, Red-Team Assessed):
 # - Chameleon: never two Caddy instances, security policies for Global and Standalone are 100% identical

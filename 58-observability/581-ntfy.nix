@@ -1,6 +1,6 @@
 # ---
 # id: "581-ntfy"
-# title: "ntfy.sh — Push Notifications for Arr-Stack + Jellyfin (58-observability, Dienst 581)"
+# title: "ntfy.sh — Push Notifications for Arr-Stack + Jellyfin (58-observability, Service 581)"
 # domain: 58
 # folder: 58-observability
 # status: active
@@ -40,11 +40,15 @@ in lib.mkIf cfg.enable {
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
     };
-    # network-Profil: CAP_NET_BIND_SERVICE für Port 80/443 (falls direkt exposed),
-    # MemoryDenyWriteExecute=true (Go braucht das nicht), PrivateDevices=true
-    serviceConfig = lib.mkMerge [ profiles.network { User = "ntfy"; Group = "media"; } ];
   };
 
-  # caddyClass=public → LAN+WAN erreichbar (notifications from mobile)
+  systemd.services.ntfy-sh.serviceConfig = lib.mkMerge [ profiles.network { User = "ntfy"; Group = "media"; } ];
+
+  # caddyClass=public → LAN+WAN reachable (notifications from mobile)
   # 511-caddy.nix picks this up from registry (ntfy.caddyClass="public")
+
+  grapefruitMedia.ingress.vhosts."ntfy" = { accessGroup = "public"; };
+
+  grapefruitMedia.ingress.vhosts."ntfy" = { accessGroup = "public"; };
 }
+

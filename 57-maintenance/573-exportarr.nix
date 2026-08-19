@@ -17,10 +17,10 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.exporters;
+  cfg = config.grapefruitMedia.exporters;
   svc = config.grapefruitMedia;
 
-  # Arr-Dienste die einen Exporter bekommen (Port = Serviceport + 1000)
+  # Arr services getting an exporter (Port = Service port + 1000)
   arrExporters = [
     { name = "sonarr";   port = 5320; }
     { name = "radarr";   port = 5330; }
@@ -29,14 +29,14 @@ let
     { name = "prowlarr"; port = 5360; }
   ];
 
-  mkExporter = e: lib.mkIf (cfg.enable && svc.services.${e.name}.enable) {
-    "exportarr-${e.name}" = {
+  mkExporter = e: lib.mkIf (cfg.enable && (svc.${e.name}.enable or false)) {
+    systemd.services."exportarr-${e.name}" = {
       description = "Exportarr Prometheus Exporter for ${e.name}";
       after = [ "network-online.target" "${e.name}-${toString e.port}.service" ];
       requires = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = lib.mkMerge [
-        # network-Profil: Go-Binary, Port-Binding via CAP_NET_BIND_SERVICE
+        # network-Profile: Go binary, port binding via CAP_NET_BIND_SERVICE
         (import ../lib/hardening-profiles.nix { inherit lib; }).network
         {
           ExecStart = "${pkgs.exportarr}/bin/exportarr ${e.name} --port ${toString (e.port + 1000)} --url http://127.0.0.1:${toString e.port}";
@@ -45,9 +45,6 @@ let
           UMask = "002";
         }
       ];
-      # API-Key via EnvironmentFile (ADR-5000)
-      environmentFile = lib.mkIf (svc.services.${e.name}.apiKeyFile != null)
-        svc.services.${e.name}.apiKeyFile;
     };
   };
 in lib.mkMerge (map mkExporter arrExporters)

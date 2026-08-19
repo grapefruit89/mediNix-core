@@ -19,11 +19,11 @@
 
 let
   cfg = config.grapefruitMedia.maintenance.updateNotifier;
-  # ntfy-Topic aus observability.ntfy (falls ntfy läuft)
+  # ntfy topic from observability.ntfy (if ntfy is running)
   ntfyTopic = config.grapefruitMedia.observability.ntfy.topic or "mediNix-updates";
   ntfyPort  = 5810;
 in lib.mkIf cfg.enable {
-  # Daily check: ist eine neue mediNix-core Version verfügbar?
+  # Daily check: is a new mediNix-core version available?
   systemd.timers.mediNix-update-notifier = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
@@ -35,33 +35,33 @@ in lib.mkIf cfg.enable {
   systemd.services.mediNix-update-notifier = {
     description = "Check mediNix-core flake for updates (notify only, no auto-update)";
     serviceConfig = lib.mkMerge [
-      # client-Profil: HTTP-Requests (flake metadata + ntfy), kein Port-Binding
+      # client profile: HTTP requests (flake metadata + ntfy), no port binding
       (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "media";
         Group = "media";
-        # nix flake metadata braucht nix-Daemon-Socket (ProtectSystem=strict
-        # + PrivateTmp blocken /nix/var/nix/daemon-socket sonst)
+        # nix flake metadata requires nix-daemon-socket (ProtectSystem=strict
+        # + PrivateTmp block /nix/var/nix/daemon-socket otherwise)
         BindReadOnlyPaths = [ "/nix/var/nix/daemon-socket" ];
       }
     ];
-    path = [ pkgs.nix pkgs.jq pkgs.curl ];  # nix + jq + curl explizit in PATH
+    path = [ pkgs.nix pkgs.jq pkgs.curl ];  # nix + jq + curl explicitly in PATH
     script = ''
       set -euo pipefail
-      # Remote lastModified (GitHub HEAD von mediNix-core)
+      # Remote lastModified (GitHub HEAD of mediNix-core)
       current=$(nix flake metadata github:grapefruit89/mediNix-core --json 2>/dev/null \
         | jq -r '.locks.nodes."mediNix-core".locked.lastModified' || echo "0")
-      # Lokaler Lock lastModified
+      # Local lock lastModified
       local=$(nix flake metadata . --json 2>/dev/null \
         | jq -r '.locks.nodes."mediNix-core".locked.lastModified' || echo "0")
 
       if [ "$current" != "$local" ] && [ "$current" != "0" ]; then
-        msg="mediNix-core Update verfügbar (remote=$current, local=$local) — bitte nixos-rebuild ausführen"
+        msg="mediNix-core update available (remote=$current, local=$local) — please run nixos-rebuild"
         curl -s -d "$msg" "http://127.0.0.1:${toString ntfyPort}/${ntfyTopic}" || true
         echo "$msg"
       else
-        echo "mediNix-core ist aktuell (local=$local)"
+        echo "mediNix-core is up to date (local=$local)"
       fi
     '';
   };

@@ -64,6 +64,8 @@ lib.mkIf (cfg.enable && active) {
 
   # Caddy forward_auth upstream points to Pocket ID (if ingress is active)
   # (Configuration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
+
+  grapefruitMedia.ingress.vhosts."pocket-id" = { accessGroup = "public"; };
 }
 
 # Gold-Standard (ADR-5120):
@@ -71,3 +73,4 @@ lib.mkIf (cfg.enable && active) {
 # - Never expose 5120 directly; Caddy terminates TLS + forwards
 # - GID 5000 (media) shared across mediNix services for library access
 # - UID 5120 is isomorphic (512 × 10)
+

@@ -10,44 +10,38 @@ let
   navidromeUnit = "navidrome-${toString navidromePort}.service";
 in
 {
-  # Aktiviere Navidrome für den Test
-  grapefruitMedia.services.navidrome.enable = true;
+  config = lib.mkMerge [
+    {
+      grapefruitMedia.navidrome.enable = true;
+    }
+    (lib.mkIf (cfg.enable && cfg.navidrome.enable) {
+      # 1) Navidrome-Systemd-Unit muss existieren
+      systemd.services.${navidromeUnit} = {
+        # Reine Existenz-Prüfung (wird durch navidrome-Modul befriedigt)
+        # Falls navidrome-Modul nicht lädt, fehlt die Unit → Build-Fehler
+        wantedBy = lib.mkForce [ ];
+        serviceConfig = lib.mkMerge [
+          {
+            # sanity: nicht auf 0.0.0.0
+            # (navidrome-Modul setzt RestrictAddressFamilies bereits korrekt)
+          }
+        ];
+      };
 
-  # Test-Assertionen: Unit vorhanden + Port in Registry korrekt
-  # (Diese Checks laufen zur Build-Zeit — wenn die Unit fehlt, bricht der Build)
-  config = lib.mkIf (cfg.enable && cfg.navidrome.enable) {
-    # 1) Navidrome-Systemd-Unit muss existieren
-    systemd.services.${navidromeUnit} = {
-      # Reine Existenz-Prüfung (wird durch navidrome-Modul befriedigt)
-      # Falls navidrome-Modul nicht lädt, fehlt die Unit → Build-Fehler
-      wantedBy = lib.mkForce [ ];
-    };
-
-    # 2) Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
-    assertions = [
-      {
-        assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
-        message = "[SMOKE-TEST] Navidrome-Port in Registry != 5530 (Dezimalrahmen verletzt)";
-      }
-      {
-        assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
-        message = "[SMOKE-TEST] Navidrome-UID in Registry != 5530 (Dezimalrahmen verletzt)";
-      }
-    ];
-
-    # 3) Service-Config Bindung: Navidrome muss auf 127.0.0.1:5530 lauschen
-    #    (das navidrome-Modul setzt das via settings)
-    systemd.services.${navidromeUnit}.serviceConfig = lib.mkMerge [
-      {
-        # sanity: nicht auf 0.0.0.0
-        # (navidrome-Modul setzt RestrictAddressFamilies bereits korrekt)
-      }
-    ];
-  };
+      # 2) Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
+      assertions = [
+        {
+          assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
+          message = "[SMOKE-TEST] Navidrome-Port in Registry != 5530 (Dezimalrahmen verletzt)";
+        }
+        {
+          assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
+          message = "[SMOKE-TEST] Navidrome-UID in Registry != 5530 (Dezimalrahmen verletzt)";
+        }
+      ];
+    })
+  ];
 
   # Test-Exit-Check: wenn assertions fehlschlagen → `nix flake check` rot
   # Da assertions im NixOS-Modul-System sind, bricht der Build bei Verletzung.
-  meta = {
-    description = "mediNix-core Smoke-Test: Navidrome Unit + Port-Isomorphie";
-  };
 }

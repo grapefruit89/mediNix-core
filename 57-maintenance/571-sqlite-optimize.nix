@@ -37,7 +37,7 @@ in
   systemd.services.sqlite-optimize = {
     description = "Weekly SQLite PRAGMA optimize + WAL checkpoint";
     serviceConfig = lib.mkMerge [
-      # script-Profil: PrivateNetwork=true, MemoryDenyWriteExecute=true (bash)
+      # script profile: PrivateNetwork=true, MemoryDenyWriteExecute=true (bash)
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
@@ -45,7 +45,7 @@ in
         Group = "media";
         UMask = "002";
         ReadWritePaths = arrStateDirs;
-        # Journal-Rate-Limit: bei DB-Fehlerschleife kein Log-IO-Sturm
+        # Journal rate limit: prevent log IO storm in case of DB error loop
         RateLimitBurst = 5;
         RateLimitIntervalSec = "30s";
       }
