@@ -38,7 +38,7 @@ def sync_jellyfin_locale(lang: str, country: str, ui_culture: str) -> None:
 
 
 def sync_sabnzbd_locale(lang: str, categories_ini: str, sab_key_file: str) -> None:
-    sab_ini = Path("/var/lib/sabnzbd/sabnzbd.ini")
+    sab_ini = Path(os.environ.get("SAB_INI_FILE", "/var/lib/sabnzbd-5410/sabnzbd.ini"))
     if not sab_ini.exists():
         print("sabnzbd.ini not present — skipped (SABnzbd not initialized)", file=sys.stderr)
         return

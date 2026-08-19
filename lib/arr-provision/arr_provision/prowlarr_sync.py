@@ -184,7 +184,7 @@ def _register_backup_indexer(app: dict, backup: dict) -> None:
 
 def sync_prowlarr() -> int:
     host = os.environ.get("PROWLARR_HOST", "127.0.0.1")
-    port = int(os.environ.get("PROWLARR_PORT", "5006"))
+    port = int(os.environ.get("PROWLARR_PORT", "5360"))
     key_file = os.environ["PROWLARR_KEY_FILE"]
     sync_level = os.environ.get("SYNC_LEVEL", "fullSync")
     indexers = json.loads(os.environ.get("INDEXERS_JSON", "[]"))

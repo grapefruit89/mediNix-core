@@ -277,7 +277,7 @@ def _configure_arr(
 
 def sync_seerr() -> int:
     host = os.environ.get("SEERR_HOST", "127.0.0.1")
-    port = int(os.environ.get("SEERR_PORT", "5002"))
+    port = int(os.environ.get("SEERR_PORT", "5550"))
     base_url = f"http://{host}:{port}"
     cfg = json.loads(os.environ["SEERR_CONFIG_JSON"])
 

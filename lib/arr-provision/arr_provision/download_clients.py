@@ -30,7 +30,7 @@ def _payload(sab_host: str, sab_port: int, sab_key: str, category: str) -> dict:
 
 def sync_download_clients() -> int:
     sab_host = os.environ.get("SAB_HOST", "127.0.0.1")
-    sab_port = int(os.environ.get("SAB_PORT", "5007"))
+    sab_port = int(os.environ.get("SAB_PORT", "5410"))
     sab_key_file = os.environ["SAB_KEY_FILE"]
     host_bridge = os.environ.get("HOST_BRIDGE", "127.0.0.1")
     targets = json.loads(os.environ["TARGETS_JSON"])
