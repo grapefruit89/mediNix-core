@@ -58,6 +58,13 @@ let
 in
 lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
 
+  assertions = [
+    {
+      assertion = credPath != null || plainTokenFile != null;
+      message = "ACME Host is set, but no Cloudflare token credential or plain file is provided. This would fail silently at runtime.";
+    }
+  ];
+
   security.acme = {
     acceptTerms = true;
 
