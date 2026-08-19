@@ -43,7 +43,7 @@ lib.mkIf (cfg.enable && active) {
   # Hardening: network profile (CAP_NET_BIND_SERVICE for 5120, PrivateDevices=true)
   systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "pocket-id";
-    stateDir = "/var/lib/pocket-id-5120";
+    stateDir = svc.stateDir;
     profile = "network";
     hardeningOnly = true;
     extraConfig = {

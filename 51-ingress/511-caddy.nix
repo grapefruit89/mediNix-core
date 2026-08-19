@@ -32,7 +32,7 @@ let
 
   # Secure LAN CIDRs. If the user specifies nothing in the config, we use restrictive defaults.
   # Groq P1: Added 100.64.0.0/10 so Tailscale clients are not blocked by Caddy.
-  trustedCidrs = ing.trustedCidrs or [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
+  trustedCidrs = ing.trustedCidrs or [ "10.0.0.0/8" "100.64.0.0/10" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
   
   # Cloudflare IPs (IPv4 & IPv6) for trusted_proxies
@@ -130,9 +130,9 @@ let
   # Standalone: Start dedicated caddy-media service via Factory
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
-    uid = 5110;
+    uid = registry.caddy.uid;
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
-    stateDir = "/var/lib/caddy-media";
+    stateDir = registry.caddy.stateDir;
     profile = "network";
   };
 
@@ -142,7 +142,7 @@ in lib.mkMerge [
     # CrowdSec Plugin via caddy.withPlugins
     services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
       plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; 
+      hash = lib.fakeHash; 
     });
 
     services.caddy.globalConfig = lib.mkIf useGlobal ''

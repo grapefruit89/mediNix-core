@@ -326,7 +326,7 @@ in
       };
       trustedCidrs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
+        default = [ "10.0.0.0/8" "100.64.0.0/10" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
         description = "List of trusted CIDRs for internal Caddy vhosts.";
       };
       vhosts = lib.mkOption {
