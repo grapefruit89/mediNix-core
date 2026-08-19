@@ -83,6 +83,9 @@
           inherit lib registryJson;
         };
 
+        # Declarative API provisioning for the media stack (from old repo)
+        packages.arr-provision = pkgs.callPackage ./lib/arr-provision/default.nix { };
+
         # ── Ratsche: evaluiert das gesamte Modul mit allen Optionen ─────────
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
