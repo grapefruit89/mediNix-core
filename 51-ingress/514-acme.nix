@@ -1,76 +1,104 @@
 # ---
 # id: "514-acme"
-# title: "Native NixOS ACME (Lego) with Cloudflare DNS-01 Challenge"
-# domain: 50
+# title: "Flake-managed ACME (Lego) with Cloudflare DNS-01 Challenge"
+# domain: 51
 # folder: 51-ingress
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-13
+# last_reviewed: 2026-08-19
 # links:
 #   adr: ADR-5140
 # provides: ["acme", "tls", "certificates"]
 # requires: ["options.grapefruitMedia"]
 # ports: []
 # upstream_docs: ["https://nixos.wiki/wiki/ACME", "https://go-acme.github.io/lego/dns/cloudflare/"]
-# forum_links: []
-# upstream_github: ""
 # nixpkgs_attr: "security.acme"
 # state_dir: "/var/lib/acme"
 # uds_socket: false
 # systemd_hardened: true
 # ---
 
-# 51-ingress/514-acme.nix — Native NixOS ACME Certificate Management
+# 51-ingress/514-acme.nix — Flake-managed ACME Certificate Management
 # ADR-5140: Certificates are NOT managed by Caddy, but natively by NixOS (Lego).
-# Uses the DNS-01 challenge via Cloudflare API. Therefore, no ports (80/443)
-# need to be opened to the internet to obtain certificates. Perfect for pure LAN services.
+# Uses DNS-01 challenge via Cloudflare API — no ports (80/443) need WAN exposure.
 # Generates a wildcard certificate (*.domain.tld) which Caddy then consumes.
+#
+# Token priority (first non-null wins):
+#   1. ing.tls.acmeCredential            — dedicated ACME .cred file (preferred)
+#   2. dns.ddns.cloudflareTokenCredential — shared Cloudflare cred (DDNS reuse)
+#   3. dns.ddns.tokenCredential          — legacy alias
+#   4. dns.ddns.tokenFile                — plain file fallback (not TPM-sealed)
+#
+# For options 1-3, the credential is loaded via systemd LoadCredentialEncrypted
+# and injected as EnvironmentFile. The runtime path MUST include the .service suffix:
+#   /run/credentials/acme-<host>.service/cf-acme-token
 { lib, config, ... }:
 
 let
-  cfg = config.grapefruitMedia;
-  ing = cfg.ingress;
+  cfg      = config.grapefruitMedia;
+  ing      = cfg.ingress;
+  ddns     = cfg.dns.ddns;
   acmeHost = ing.tls.acmeHost;
 
-  # We use the same token path as the DDNS module, but expect
-  # the format for Lego here: CF_DNS_API_TOKEN=YourToken
-  tokenFile = cfg.dns.ddns.tokenFile;
+  # First non-null encrypted credential path wins
+  credPath =
+    if      ing.tls.acmeCredential             != null then ing.tls.acmeCredential
+    else if ddns.cloudflareTokenCredential     != null then ddns.cloudflareTokenCredential
+    else if ddns.tokenCredential               != null then ddns.tokenCredential
+    else null;
+
+  # Plain file fallback — only used when no encrypted cred is available
+  plainTokenFile =
+    if credPath == null && ddns.tokenFile != null then ddns.tokenFile
+    else null;
+
+  # systemd credential runtime path — .service suffix is REQUIRED
+  credRuntime = "/run/credentials/acme-${acmeHost}.service/cf-acme-token";
+
 in
 lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
 
   security.acme = {
     acceptTerms = true;
-    
+
     defaults = {
-      # Email address for Let's Encrypt (important for expiration warnings)
-      email = "admin@${cfg.domain}"; 
-      
-      # P0.3: Wildcard key must never belong to the entire "media" group (Blast Radius).
-      # Belongs exclusively to the Caddy process.
-      group = if config.services.caddy.enable then config.services.caddy.group else "caddy-media"; 
-      
-      # Reload command for Caddy after a certificate update
-      reloadServices = if config.services.caddy.enable then [ "caddy.service" ] else [ "caddy-media.service" ];
+      # Let's Encrypt contact address (expiration warnings)
+      email = "admin@${cfg.domain}";
+
+      # P0.3: Wildcard key must NOT belong to the broad "media" group (blast radius).
+      # Certificate group is limited to the Caddy process only.
+      group = if config.services.caddy.enable
+              then config.services.caddy.group
+              else "caddy-media";
+
+      # Reload Caddy after certificate renewal
+      reloadServices =
+        if config.services.caddy.enable
+        then [ "caddy.service" ]
+        else [ "caddy-media.service" ];
     };
 
     certs.${acmeHost} = {
-      # Main domain and wildcard
-      domain = acmeHost;
+      domain           = acmeHost;
       extraDomainNames = [ "*.${acmeHost}" ];
-      
+
       # DNS-01 Challenge via Cloudflare
       dnsProvider = "cloudflare";
-      
-      # credentialsFile must be a file containing the following:
-      # CF_DNS_API_TOKEN=your_cloudflare_token
-      credentialsFile = lib.mkIf (tokenFile != null) tokenFile;
+
+      # Plain file path — only set when no TPM-sealed credential is available.
+      # When credPath != null, the EnvironmentFile override below takes precedence.
+      credentialsFile = lib.mkIf (plainTokenFile != null) plainTokenFile;
     };
   };
 
-  # If the token is available as a systemd LoadCredentialEncrypted (like in DDNS)
-  systemd.services."acme-${acmeHost}" = lib.mkIf (cfg.dns.ddns.tokenCredential != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "cf-api-token:${cfg.dns.ddns.tokenCredential}" ];
-    # We overwrite EnvironmentFile because security.acme maps credentialsFile there by default
-    serviceConfig.EnvironmentFile = lib.mkForce [ "/run/credentials/acme-${acmeHost}/cf-api-token" ];
+  # Inject the TPM-sealed token via systemd LoadCredentialEncrypted.
+  # This overrides the credentialsFile mechanism so the plain token never
+  # touches the filesystem unencrypted.
+  systemd.services."acme-${acmeHost}" = lib.mkIf (credPath != null) {
+    serviceConfig = {
+      LoadCredentialEncrypted = [ "cf-acme-token:${credPath}" ];
+      # mkForce: override whatever security.acme set for EnvironmentFile
+      EnvironmentFile = lib.mkForce [ credRuntime ];
+    };
   };
 }
