@@ -1,79 +1,50 @@
-# VPN Kill-Switch für SABnzbd (Defense-in-Depth)
+# ADR-5410: VPN Kill-Switch Architektur (SABnzbd)
 
-Dieses Dokument hält die architektonische Evolution, alle "Lessons Learned" und die überwundenen Stolpersteine bei der Entwicklung des VPN-Kill-Switches fest. Es dient als Referenz dafür, warum das System exakt so gebaut ist, wie es in `den jeweiligen Service-Modulen (z.B. 541-sabnzbd.nix)` steht.
+Dieses Dokument hält die architektonische Evolution und alle "Lessons Learned" bei der Entwicklung des VPN-Kill-Switches fest, insbesondere nach dem großen Red-Team-Audit durch "Grok" im August 2026.
 
 ## Zielsetzung ("Safety Magnet")
-Ein Usenet-Downloader (SABnzbd) soll strikt an ein WireGuard-VPN (`vpn0`) gebunden werden. 
-*   **Fail-Closed:** Wenn das VPN ausfällt, darf kein Traffic auf das reguläre Internet (`eth0`) ausweichen. Das System muss wie ein "Sicherheits-Magnet" stromlos in einen komplett blockierten Zustand fallen.
-*   **KISS (Keep It Simple, Stupid):** Keine reaktiven Watchdog-Skripte (die externe APIs wie `ipify.org` abfragen).
-*   **Erreichbarkeit:** Der Dienst muss nativ über `127.0.0.1` für den Reverse-Proxy des Hosts erreichbar bleiben.
+Ein Usenet-Downloader (SABnzbd) soll strikt an ein WireGuard-VPN (`wg0`) gebunden werden. 
+*   **Fail-Closed:** Wenn das VPN ausfällt, darf kein Traffic auf das reguläre Internet (`eth0`) ausweichen.
+*   **KISS (Keep It Simple, Stupid):** Keine Fremd-Abhängigkeiten (3rd-Party Flakes) und keine überzüchteten BPF-Spielereien.
+*   **Dendritisch:** Der Killswitch darf die Dienste nicht hart einkodieren. Dienste abonnieren den Killswitch über ihre UID.
 
 ---
 
 ## Die Evolution: Warum nicht die Alternativen?
 
-### Variante 1: Network Namespaces (Der "NixFlix"-Ansatz)
-Theoretisch die sauberste Isolation (komplett eigener Netzwerk-Stack).
-*   **Problem:** Verletzt das KISS-Prinzip (benötigt `veth`-Paare, Bridges, NAT) und zerstört die einfache Erreichbarkeit über `127.0.0.1`. Der Host-Proxy kommt nur über umständliches Port-Forwarding an die Web-UI. 
-*   *Erkenntnis: Für reinen Outbound-Traffic (Usenet) ist das massiver Overkill.*
+### 1. Network Namespaces (NetNS / Der "NixFlix"-Ansatz)
+Theoretisch die stärkste Isolation. Das Interface existiert nur im Namespace.
+*   **Problem:** In NixOS gibt es nativ keine deklarative Möglichkeit, das elegant zu bauen, ohne auf Third-Party-Module (wie `github:Maroka-chan/VPN-Confinement`) zurückzugreifen. Wir lehnen es ab, kritische Sicherheitsinfrastruktur an externe Flakes auszulagern (Abhängigkeits-Risiko). Ein Eigenbau über Bash-Scripte (`ip netns add`) verletzt das KISS-Prinzip massiv.
 
-### Variante 2: Reines nftables (Der alte mediNix-Ansatz)
-Nur eine Firewall-Regel (`meta skuid drop`), die Pakete der Dienst-UID auf `eth0` verbietet.
-*   **Der fatale Fehler (DNS-Leak):** Wenn SABnzbd einen lokalen DNS-Resolver (z.B. Blocky auf `127.0.0.1`) befragt, passiert dieses Paket die Firewall legal (da es zu `lo` geht). Blocky löst die Anfrage dann aber unter *seiner eigenen* UID über `eth0` auf. Die UID-Firewall-Regel greift hier nicht!
+### 2. Das BPF-Monster (`RestrictNetworkInterfaces`)
+Der vorherige `mediNix-core`-Ansatz nutzte `RestrictNetworkInterfaces` (eBPF), komplexe RPDB-Skripte und UDS-Socket-Sperren.
+*   **Problem:** Völlig überzüchtet (300+ Zeilen Code). `RestrictNetworkInterfaces` führte zu subtilen Boot-Race-Conditions mit dem WireGuard-Interface. Zu viele bewegliche Teile, die geräuschlos brechen konnten. Verletzt das KISS-Prinzip.
 
----
-
-## Die finale Lösung: Die 4 Säulen (Variante 3)
-
-Um das DNS-Leck und andere Bypasses zu verhindern, nutzt dieses Modul vier voneinander unabhängige, proaktive Barrieren im Kernel:
-
-1.  **Physische Barriere (eBPF):** `RestrictNetworkInterfaces = [ "lo" "vpn0" ]`. Dies blockt egress-Pakete auf Cgroup-Ebene (noch vor dem Routing!).
-2.  **Der Routing-Magnet:** UID-basiertes Policy Routing zwingt den Traffic in eine dedizierte Tabelle. Diese Tabelle hat eine permanente `blackhole default`-Route. Fällt das VPN aus, fällt der Traffic unweigerlich ins schwarze Loch.
-3.  **Die Tripwire-Canary:** Eine unabhängige `nftables`-Regel lauscht direkt auf dem WAN-Ausgang und zählt/blockt Pakete. ACHTUNG: Ein Zähler > 0 bedeutet, dass Säule 2 (Routing/Blackhole) versagt hat, nicht Säule 1, da eBPF noch nach netfilter (POSTROUTING) ausgeführt wird.
-4.  **Runtime Assertion:** `ExecStartPre` und `ExecStartPost` verifizieren beim Start, ob Routing, Firewall und eBPF-Hooks *tatsächlich* aktiv sind, andernfalls startet der Dienst nicht.
+### 3. Einfacher „VPN-only“-User (Nur `meta skuid drop`)
+Nur eine Firewall-Regel, die Pakete auf `eth0` verbietet.
+*   **Problem:** Schwach, da der Kernel trotzdem versuchen kann, über die Haupttabelle zu routen. Kein sauberes lokales Routing.
 
 ---
 
-## Stolpersteine und Lessons Learned (Die Security-Fixes)
+## Die finale Lösung: Gehärtetes Policy-Routing (Variante 1)
 
-Auf dem Weg zu dieser Architektur wurden durch intensive Reviews etliche kritische Sicherheitslücken und Denkfehler aufgedeckt und im Code gepatcht:
+Wir haben uns nach einem harten Red-Team-Audit für reines, pure-Linux **Policy-Routing** (nftables + ip rule) entschieden. Der Code liegt zentral unter `52-security/526-vpn-killswitch.nix` und wird dendritisch von den Diensten konsumiert.
 
-### 1. Das IPv6-Loch
-*   **Problem:** Wenn man nur IPv4-Routen (`0.0.0.0/0`) absichert, läuft IPv6-Traffic komplett am Policy-Routing vorbei.
-*   **Lösung:** IPv6 auf Kernel-Ebene für den Dienst deaktivieren durch `RestrictAddressFamilies` (erlaubt nur `AF_UNIX`, `AF_INET` und `AF_NETLINK`).
+### Die 3 Säulen der Architektur:
 
-### 2. UID-Morphing
-*   **Problem:** Wenn SABnzbd gehackt wird und seine UID ändert (z.B. auf `root`), greift das UID-Routing nicht mehr.
-*   **Lösung:** Strikte systemd-Härtung (`NoNewPrivileges = true`, `CapabilityBoundingSet = ""`, `RestrictSUIDSGID`), um die UID permanent festzunageln.
+1. **Policy-Routing via fwmark:**
+   - Wir nutzen genau eine dedizierte Routing-Tabelle (z.B. `table 51820`).
+   - `nftables` markiert alle Egress-Pakete der abonnierten UIDs (z.B. SABnzbd).
+   - In dieser Tabelle gibt es eine permanente Blackhole-Route (`unreachable default metric 100`) und eine VPN-Route (`default dev wg0 metric 10`).
 
-### 3. Das systemd-resolved D-Bus Leak
-*   **Problem:** Selbst wenn man dem Dienst per `BindReadOnlyPaths` eine eigene `resolv.conf` (mit dem VPN-DNS) unterschiebt, könnte er heimlich über den D-Bus Socket (`/run/systemd/resolve/...`) mit dem Host-DNS sprechen.
-*   **Lösung:** `InaccessiblePaths` und `PrivateMounts` blockieren den Zugriff auf den D-Bus-Socket physisch.
+2. **Absolute Fail-Closed Garantie (Kein `ExecStop`):**
+   - Der Systemd-Service, der die Routing-Tabelle aufbaut, hat absichtlich **kein `ExecStop`**.
+   - Die Blackhole-Route wird beim Booten in den Kernel geschrieben und bleibt dort für immer stehen. Ein Absturz des Routing-Services führt nicht zum Leak (Fail-Closed).
+   - Durch `before = [ "sabnzbd.service" ]` wird erzwungen, dass die Routen stehen, bevor der Dienst das erste Paket senden kann.
 
-### 4. Der "Blinde" Watchdog (dummy0 vs. nftables)
-*   **Denkfehler:** Ursprünglich wollten wir Pakete in ein `dummy0`-Interface routen und dessen Traffic überwachen. 
-*   **Erkenntnis:** Wenn die Policy-Routing-Regel selbst ausfällt, geht der Traffic direkt an `eth0` – das `dummy0`-Interface würde den Leak nie mitbekommen. Nur eine Canary direkt auf dem WAN-Interface (`nftables`) ist ein echtes, unabhängiges Tripwire. Ein `dummy0` wird gar nicht benötigt, der Route-Typ `blackhole` reicht.
+3. **DNS Isolation ohne Leak:**
+   - Wir injizieren über `BindReadOnlyPaths` eine eigene `resolv.conf` in den SABnzbd-Container, die exklusiv auf den DNS-Server des VPN-Providers zeigt.
+   - Da `nftables` UDP-Port 53 von dieser UID markiert, wird auch die DNS-Anfrage zwingend durch den Tunnel (oder das Blackhole) gezwungen.
 
-### 5. eBPF Check: Build-Macro vs. Runtime
-*   **Denkfehler:** Wir versuchten, mit `bpftool` das Flag `BPF_FRAMEWORK` zu prüfen.
-*   **Erkenntnis:** Das ist nur ein systemd-Compile-Flag. Zur Laufzeit muss stattdessen geprüft werden, ob die eBPF-Programme `cgroup_inet_egress` / `ingress` aktiv an die Cgroup des Dienstes angeheftet sind (`bpftool cgroup show ... effective`).
-
-### 6. Fragile Cgroup-Pfade
-*   **Problem:** Cgroup-Pfade wie `/sys/fs/cgroup/system.slice/...` fest in den Check einzuprogrammieren, bricht, sobald systemd die Slices ändert.
-*   **Lösung:** Den Pfad dynamisch über `systemctl show -p ControlGroup` oder `/proc/$PID/cgroup` ermitteln.
-
-### 7. Schreibrechte trotz Sandboxing
-*   **Problem:** `ProtectSystem = "strict"` macht das Dateisystem read-only, der Dienst stürzte ab.
-*   **Lösung:** Explizite Freigabe über `StateDirectory = "sabnzbd"` und `ReadWritePaths`.
-
-### 8. Race-Conditions beim Start und Firewall-Reloads
-*   **Problem:** Ein `ExecStartPost` läuft minimal nach Dienststart. In dieser Millisekunde könnten Pakete leaken. Noch gefährlicher: Wenn die Canary-Regel in einem einfachen Oneshot-Service installiert wird, verschwindet sie bei einem `nixos-rebuild switch`, wenn NixOS die Firewall neu lädt.
-*   **Lösung:** Ein hartes `ExecStartPre`-Skript prüft vor dem Start, ob die Policy-Routen und die nftables-Regel exakt existieren. Die Canary selbst wurde vollständig deklarativ über `networking.nftables.tables` konfiguriert. So überlebt sie jeden Firewall-Reload garantiert.
-
-### 9. Das Localhost Relay (Der schlimmste Blinde Fleck)
-*   **Problem:** SABnzbd darf weiterhin mit dem Loopback-Interface (`lo`) sprechen (damit der Reverse-Proxy funktioniert). SABnzbd könnte aber *selbst* eine Verbindung zu einem lokalen Dienst aufbauen (z.B. HTTP-Proxy, Prowlarr) und diesen als WAN-Relay missbrauchen. Ein weiterer Angriffsvektor sind UNIX-Sockets (UDS), die sich netfilter komplett entziehen.
-*   **Lösung:** Ein massiver Ausbau der IPC-Isolation (`InaccessiblePaths` blockiert den physischen Zugriff auf UDS-Backend-Ordner wie `/run/medinix` und D-Bus) und ein genialer nftables-Trick: `meta skuid <UID> oifname "lo" ct state new counter drop`. Das verbietet dem Dienst, *neue* Verbindungen über `lo` aufzubauen. Er darf aber auf eingehende Proxy-Requests antworten.
-
----
-**Fazit:** 
-Durch die Abstraktion in eine generische Fabrik und das Abdichten des Localhost-Relay-Angriffsvektors ist die Architektur nun auf dem Level eines echten **Gold Standards**. Leaks sind strukturell sowohl auf direktem Wege (eth0) als auch auf indirektem Wege (Localhost Relays / IPC) ausgeschlossen. Die Behauptung "vier Mechanismen müssten gleichzeitig versagen" war anfangs zu optimistisch, da der Relay-Angriff alle vier Mechanismen gleichzeitig umging. Jetzt haben wir eine Architektur, die jeden dieser Angriffsvektoren unabhängig und präzise blockiert – und das bei vollem Erhalt des KISS-Prinzips (nativ `127.0.0.1`, kein netns-Overhead).
+## Prowlarr-Notbremse (Achtung!)
+Prowlarr (Indexer) darf **niemals** durch das VPN geroutet werden, da Usenet/Torrent-Indexer VPN-IPs aggressiv sperren oder mit Captchas fluten. Dank der dendritischen Architektur wurde Prowlarr einfach aus der Subscription in `536-prowlarr.nix` entfernt.
