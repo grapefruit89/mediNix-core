@@ -12,6 +12,11 @@
 #   - query: "systemd.services serviceConfig ProtectSystem example"
 #     library: /websites/nixos_manual_nixos_unstable
 # ---
+# WARNING (CRITICAL): PROWLARR MUST NEVER GO THROUGH THE VPN!
+# Indexers heavily block, ban, or throw Captchas at known VPN IP addresses.
+# Routing Prowlarr through a VPN will break search and indexer sync.
+# DO NOT add services.vpnKillSwitch confinement to this file.
+
 { config, lib, pkgs, ... }:
 
 let
@@ -81,13 +86,6 @@ lib.mkIf cfg.enable {
     serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${cfg.secrets.prowlarrApiKeyFile}" ];
   };
 
-  services.vpnKillSwitch = lib.mkIf cfg.usenet-confinement.enable {
-    vpnInterface = cfg.vpn.interface;
-    dnsServers = cfg.vpn.dnsServers;
-    instances.prowlarr = {
-      enable = true;
-      uid = registry.services.prowlarr.uid;
-    };
   };
 
 }
