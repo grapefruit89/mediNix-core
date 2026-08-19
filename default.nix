@@ -201,13 +201,14 @@ in
           "off": Mover komplett inaktiv.
         '';
       };
-        type = lib.types.int;
-        default = 20;
-        description = ''
-          Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
-          Nur relevant wenn mode = "ondemand".
-        '';
-      };
+        minFreeGb = lib.mkOption {
+          type = lib.types.int;
+          default = 20;
+          description = ''
+            Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
+            Nur relevant wenn mode = "ondemand".
+          '';
+        };
       mediaExtensions = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ".mkv" ".mp4" ".m4b" ".mp3" ".flac" ".webm" ".ts" ];
@@ -322,6 +323,11 @@ in
         type    = lib.types.bool;
         default = true;
         description = "Enable Caddy ingress mapping (reverse proxying).";
+      };
+      trustedCidrs = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ "192.168.178.0/24" "10.0.0.0/8" "100.64.0.0/10" "fd00::/8" ];
+        description = "List of trusted CIDRs for internal Caddy vhosts.";
       };
       vhosts = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {

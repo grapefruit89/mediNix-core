@@ -142,7 +142,7 @@ in lib.mkMerge [
     # CrowdSec Plugin via caddy.withPlugins
     services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
       plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
-      hash = lib.fakeHash; 
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; 
     });
 
     services.caddy.globalConfig = lib.mkIf useGlobal ''

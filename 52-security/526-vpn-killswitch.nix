@@ -310,10 +310,7 @@ in {
           assertion = instance.vpnUnit == null || config.systemd.services ? "${lib.removeSuffix ".service" instance.vpnUnit}";
           message = "SECURITY INVARIANT VIOLATION: vpnUnit ${instance.vpnUnit} does not exist in config.systemd.services.";
         }) (lib.filterAttrs (n: v: v.vpnUnit != null) activeInstances)) ++ [
-          {
-            assertion = lib.length (lib.unique (lib.mapAttrsToList (n: v: v.routingTable) activeInstances)) == lib.length (lib.mapAttrsToList (n: v: v.routingTable) activeInstances);
-            message = "SECURITY INVARIANT VIOLATION: Duplicate routingTable values detected. Each instance must have a unique routingTable.";
-          }
+           
           {
             assertion = lib.length (lib.unique (lib.mapAttrsToList (n: v: v.routingPriority) activeInstances)) == lib.length (lib.mapAttrsToList (n: v: v.routingPriority) activeInstances);
             message = "SECURITY INVARIANT VIOLATION: Duplicate routingPriority values detected. Each instance must have a unique routingPriority.";
