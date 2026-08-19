@@ -29,16 +29,21 @@ Apply WAL pragmas to ALL *arr SQLite DBs on Tier B:
 ```
 PRAGMA journal_mode = WAL;
 PRAGMA synchronous = NORMAL;
-PRAGMA cache_size = -20000;   # ~20MB per connection
+PRAGMA cache_size = -64000;          # 64 MB Cache
 PRAGMA temp_store = MEMORY;
+PRAGMA mmap_size = 536870912;        # 512 MB mmap
+PRAGMA journal_size_limit = 134217728; # 128 MB WAL-Limit
+PRAGMA wal_autocheckpoint = 2000;
+PRAGMA busy_timeout = 10000;         # 10 Sekunden
 ```
-Implemented via a shared module `536-sqlite-wal.nix` (event-driven VACUUM on
-service stop, no legacy cron — ADR-5000 compliant).
+Implemented via a centralized `57-maintenance/571-sqlite-wal.nix` utilizing a Dual-Timer Strategy:
+1. Passive Checkpoint (every 45 minutes): `PRAGMA wal_checkpoint(PASSIVE);`
+2. Heavy Truncate + Optimize (Daily at 04:00): `PRAGMA wal_checkpoint(TRUNCATE); PRAGMA optimize; PRAGMA ANALYZE;`
 
 ## Consequences
 - ✅ 4–10x write throughput, no "database locked" under scan load
 - ✅ WAL keeps SSD writes sequential (less wear)
-- ✅ cache_size=-20000 bounds RAM, temp_store=MEMORY avoids Tier C spill
+- ✅ cache_size=-64000 bounds RAM, temp_store=MEMORY avoids Tier C spill
 - ⚠️ WAL needs `-wal`/`-shm` files on same filesystem (Tier B, not mergerfs)
 
 ## Gold-Standard (from chat)
