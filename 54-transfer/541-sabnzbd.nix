@@ -18,12 +18,14 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.sabnzbd;
+  cfg = config.grapefruitMedia.sabnzbd;
   svc = config.grapefruitMedia;
-  port = 5410;  # 541 × 10
-  uid  = 5410;
-  gid  = 5000;
-  stateDir = "/var/lib/sabnzbd-${toString port}";
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  reg = registry.sabnzbd;
+  port = reg.port;
+  uid = reg.uid;
+  gid = reg.gid;
+  stateDir = reg.stateDir;
 in
 {
   config = lib.mkIf cfg.enable {

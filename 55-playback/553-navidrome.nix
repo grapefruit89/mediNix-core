@@ -18,12 +18,14 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.navidrome;
+  cfg = config.grapefruitMedia.navidrome;
   svc = config.grapefruitMedia;
-  port = 5530;  # 553 × 10
-  uid  = 5530;
-  gid  = 5000;
-  stateDir = "/var/lib/navidrome-${toString port}";
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  reg = registry.navidrome;
+  port = reg.port;
+  uid = reg.uid;
+  gid = reg.gid;
+  stateDir = reg.stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 lib.mkIf (cfg.enable) {

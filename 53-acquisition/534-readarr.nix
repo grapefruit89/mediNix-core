@@ -15,12 +15,14 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.readarr;
+  cfg = config.grapefruitMedia.readarr;
   svc = config.grapefruitMedia;
-  port = 5340;
-  uid  = 5340;
-  gid  = 5000;
-  stateDir = "/var/lib/readarr-${toString port}";
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  reg = registry.readarr;
+  port = reg.port;
+  uid = reg.uid;
+  gid = reg.gid;
+  stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
@@ -37,7 +39,7 @@ lib.mkIf cfg.enable {
     profile = "dotnet";
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
-      UMask          = "002";
+      UMask          = "0002";
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
   }).systemd.services.readarr // {

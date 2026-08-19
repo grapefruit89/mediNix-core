@@ -18,12 +18,14 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.jellyseerr;
+  cfg = config.grapefruitMedia.jellyseerr;
   svc = config.grapefruitMedia;
-  port = 5550;  # 555 × 10
-  uid  = 5550;
-  gid  = 5000;
-  stateDir = "/var/lib/jellyseerr-${toString port}";
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  reg = registry.jellyseerr;
+  port = reg.port;
+  uid = reg.uid;
+  gid = reg.gid;
+  stateDir = reg.stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };

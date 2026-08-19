@@ -18,7 +18,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.audiobookshelf;
+  cfg = config.grapefruitMedia.audiobookshelf;
   svc = config.grapefruitMedia;
   port = 5520;  # 552 × 10
   uid  = 5520;

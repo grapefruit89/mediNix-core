@@ -18,12 +18,14 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.sonarr;
+  cfg = config.grapefruitMedia.sonarr;
   svc = config.grapefruitMedia;
-  port = 5320;  # 532 × 10
-  uid  = 5320;
-  gid  = 5000;
-  stateDir = "/var/lib/sonarr-${toString port}";
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  reg = registry.sonarr;
+  port = reg.port;
+  uid = reg.uid;
+  gid = reg.gid;
+  stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
@@ -43,7 +45,7 @@ lib.mkIf cfg.enable {
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       User           = "sonarr";  # Factory sets User=name, here redundant but safe
-      UMask          = "002";     # Arr-Stack needs 002 for group write permissions
+      UMask          = "0002";     # Arr-Stack needs 002 for group write permissions
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
   }).systemd.services.sonarr // {

@@ -18,7 +18,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.jellyfin;
+  cfg = config.grapefruitMedia.jellyfin;
   svc = config.grapefruitMedia;
   port = 5510;  # 551 × 10
   uid  = 5510;
