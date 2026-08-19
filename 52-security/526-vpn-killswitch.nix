@@ -18,6 +18,11 @@ in
       type = lib.types.str;
       default = "";
     };
+    routingTable = lib.mkOption {
+      type = lib.types.int;
+      default = ${toString cfg.routingTable};
+      description = "The routing table and fwmark used for policy routing.";
+    };
     dnsServers = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [];
@@ -41,7 +46,7 @@ in
       }
     ];
     # 1. NFTables Kill-Switch and Marking
-    networking.nftables.enable = true;
+    networking.nftables.enable = lib.mkDefault true;
     networking.nftables.tables.medinix_vpn = {
       family = "inet";
       content = ''
@@ -53,7 +58,7 @@ in
           ip daddr { 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } accept
           ip6 daddr { ::1/128, fe80::/10, fc00::/7 } accept
 
-          meta mark set 51820
+          meta mark set ${toString cfg.routingTable}
         }
 
         chain killswitch {
@@ -85,13 +90,13 @@ in
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = pkgs.writeShellScript "medinix-vpn-route-start" ''
-          ${pkgs.iproute2}/bin/ip rule add fwmark 51820 table 51820 priority 1000 2>/dev/null || true
-          ${pkgs.iproute2}/bin/ip route replace unreachable default table 51820 metric 100
-          ${pkgs.iproute2}/bin/ip route replace default dev ${cfg.vpnInterface} table 51820 metric 10
+          ${pkgs.iproute2}/bin/ip rule add fwmark ${toString cfg.routingTable} table ${toString cfg.routingTable} priority 1000 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip route replace unreachable default table ${toString cfg.routingTable} metric 100
+          ${pkgs.iproute2}/bin/ip route replace default dev ${cfg.vpnInterface} table ${toString cfg.routingTable} metric 10
 
-          ${pkgs.iproute2}/bin/ip -6 rule add fwmark 51820 table 51820 priority 1000 2>/dev/null || true
-          ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table 51820 metric 100
-          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table 51820 metric 10 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip -6 rule add fwmark ${toString cfg.routingTable} table ${toString cfg.routingTable} priority 1000 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table ${toString cfg.routingTable} metric 100
+          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table ${toString cfg.routingTable} metric 10 2>/dev/null || true
         '';
       };
     };
@@ -106,7 +111,6 @@ in
     systemd.services = lib.mapAttrs (name: v: {
       serviceConfig = {
         BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];
-        RestrictNetworkInterfaces = [ "lo" cfg.vpnInterface ];
       };
     }) activeInstances;
   };
