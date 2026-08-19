@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-12
 # links:
-#   adr: ADR-5410 (sabnzbd), ADR-5043
+#   adr: ADR-5260 (sabnzbd), ADR-5043
 #   skill: nixos-context7-gate
 #   note: "Only paths under storage.mediaRoot. Never touch Library."
 # context7:

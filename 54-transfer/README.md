@@ -21,7 +21,7 @@ Each module is configured according to the mediNix Dezimalrahmen convention:
 
 | ID  | Module / Service | Port/UID | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **541** | [sabnzbd](541-sabnzbd.nix) <br> [[ADR-5410]] | `5410` | **SABnzbd** — The primary Usenet downloader. Writes strictly to the SSD staging directory. |
+| **541** | [sabnzbd](541-sabnzbd.nix) <br> [[ADR-5260]] | `5410` | **SABnzbd** — The primary Usenet downloader. Writes strictly to the SSD staging directory. |
 | **543** | [mover](543-mover.nix) <br> [[ADR-5430]] | N/A | **Tier-B → Tier-C Mover**. An on-demand script triggered by filesystem events, moving data to spinning disks only when necessary. |
 
 ## 🛡️ Key Architecture Decisions

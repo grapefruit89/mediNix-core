@@ -29,7 +29,7 @@ This is the project's SSoT for decisions and is reviewable months later.
   never renumber an existing ADR after the fact.
 - Keep a `docs/INDEX.md` listing all ADRs (ID / Title / Status columns).
 - Reference impl: `ADR-21-ssh-port-policy.md`, `ADR-5043-assertion-quality.md`,
-  `ADR-5000-secret-management.md`, `ADR-5410-sabnzbd-vpn-confinement.md`,
+  `ADR-5000-secret-management.md`, `ADR-5260-sabnzbd-vpn-confinement.md`,
   `ADR-5700-sqlite-wal-tuning.md`, `ADR-5520-audiobookshelf-port-framework.md`.
 
 ## Decimal framework = SSoT in registry + factory (NO redundant modules)
@@ -63,7 +63,7 @@ constitution. Rules that MUST be obeyed (violations cause hard rework):
 |---------|-------------|------|-----|-----|-----|
 | Caddy (Reverse-Proxy, _1 Zugang) | **511** | **5110** | 5110 | 5000 | ADR-5110 |
 | Pocket ID (OIDC) | **512** | **5120** | 5120 | 5000 | ADR-5120 |
-| SABnzbd | 541 | 5410 | 5410 | 5000 | ADR-5410 |
+| SABnzbd | 541 | 5410 | 5410 | 5000 | ADR-5260 |
 | Sonarr | 532 | 5320 | 5320 | 5000 | ADR-5320 |
 | Jellyfin | 551 | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | ADR-5520 |
@@ -78,7 +78,7 @@ Each service gets its OWN ADR (ADR-51x0, ADR-5xx0) — fully populated, not just
 ## ADR filename prefixes follow the framework
 - SCHICHT-BASIS ADRs use Ordner00: `ADR-5000` (50-core), `ADR-5700` (57-maintenance).
 - SERVICE ADRs use the service PORT (= Dienstnummer × 10). NO LAUFNUMMERN.
-  SABnzbd → `ADR-5410`, Audiobookshelf → `ADR-5520`, Pocket ID → `ADR-5120`.
+  SABnzbd → `ADR-5260`, Audiobookshelf → `ADR-5520`, Pocket ID → `ADR-5120`.
   A previous version used `ADR-5501`/`ADR-5001` (running numbers) — those are
   INVALID and were RENAMED to the decimal-framework port. NEVER use a running
   number like `ADR-0050`, `ADR-5001`, `ADR-5501` — the number IS the port.

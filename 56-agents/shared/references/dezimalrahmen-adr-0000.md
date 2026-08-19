@@ -33,7 +33,7 @@ ADR prefix looks wrong, this is the arbiter.
 
 ## ADR filename prefixes
 - Schicht-basis: Ordner00 (ADR-5000, ADR-5700).
-- Service ADR: service PORT (ADR-5410 SABnzbd, ADR-5101 Pocket ID, ADR-5501 Audiobookshelf).
+- Service ADR: service PORT (ADR-5260 SABnzbd, ADR-5101 Pocket ID, ADR-5501 Audiobookshelf).
 - Never invent 4-digit running numbers like ADR-0050/ADR-5001 for a basis doc.
 
 ## Structure proofs (§5) — why it's safe

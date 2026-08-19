@@ -7,7 +7,7 @@
 # complexity: 4
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5410, ADR-5050
+#   adr: ADR-5260, ADR-5050
 #   skill: nixos-context7-gate
 #   repo-harvest: sabnzbd/sabnzbd (native services.sabnzbd; Temp dir on tmpfs /run for SSD life; Env-Vars for config since sabnzbd.ini overwrites itself)
 # context7:

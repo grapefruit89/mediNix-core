@@ -45,7 +45,7 @@ CRITICAL COROLLARIES (all violated at least once — do NOT repeat):
 | Pocket ID      | 512    | 5120 | 5120 | 5000 | ADR-5120 |
 | Cloudflare DNS | 513    | —    | —    | —    | ADR-5130 |
 | OIDC SSO       | 514    | 5140 | 5140 | 5000 | ADR-5140 |
-| SABnzbd        | 541    | 5410 | 5410 | 5000 | ADR-5410 |
+| SABnzbd        | 541    | 5410 | 5410 | 5000 | ADR-5260 |
 | Sonarr         | 532    | 5320 | 5320 | 5000 | ADR-5320 |
 | Jellyfin       | 551    | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552    | 5520 | 5520 | 5000 | ADR-5520 |
