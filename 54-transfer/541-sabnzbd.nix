@@ -62,6 +62,9 @@ in
           RuntimeDirectory = "sabnzbd-tmp";
           RuntimeDirectoryMode = "0700";
           StateDirectory = "sabnzbd-${toString port}";
+          MemoryHigh = "2G";
+          MemoryMax = "4G";
+          InaccessiblePaths = [ "/run/systemd/resolve" "/run/dbus/system_bus_socket" ];
           ReadWritePaths = [
             stateDir
             "${svc.storage.mediaRoot}/downloads"
@@ -83,6 +86,8 @@ in
       };
     };
   };
+
+  grapefruitMedia.persist.extraPaths = [ stateDir ];
 
   grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = reg.caddyClass; };
 
