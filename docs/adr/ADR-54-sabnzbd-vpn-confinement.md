@@ -45,7 +45,7 @@ Ports: SABnzbd 5410 (decimal framework ADR-5043).
 > kill-switch solves it without netns overhead.
 
 ## Referenz-Implementierung (UID-Routing)
-Das Usenet-Confinement in `52-security/525-usenet-confinement.nix` nutzt
+Das Usenet-Confinement in `54-transfer/541-sabnzbd.nix` nutzt
 **UID-basiertes Routing** statt netns: Der Host (systemd-networkd routeTables
 oder wg-quick) routet alle Pakete der Usenet-UIDs (SABnzbd 5410, Prowlarr 5360)
 durch die VPN-Tabelle. Kein Namespace, kein Port-Mapping, Loopback zwischen

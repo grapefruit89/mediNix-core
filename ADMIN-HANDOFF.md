@@ -248,7 +248,7 @@ services.openssh = {
 ---
 
 ## 8. Firewall-Grundlage (Host-seitig)
-mediNIX-core liefert `521-nftables.nix` (Ingress-Firewall). Die **Basis**
+mediNIX-core verzichtet auf eigene Firewall-Regeln (Additive Host Integration). Die **Basis**
 (SSH-Zugriff, LAN-Regeln) ist Host-Config. mediNIX ergänzt nur mediNIX-spezifische Regeln.
 
 ---

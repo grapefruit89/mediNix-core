@@ -1,6 +1,6 @@
 # VPN Kill-Switch für SABnzbd (Defense-in-Depth)
 
-Dieses Dokument hält die architektonische Evolution, alle "Lessons Learned" und die überwundenen Stolpersteine bei der Entwicklung des VPN-Kill-Switches fest. Es dient als Referenz dafür, warum das System exakt so gebaut ist, wie es in `525-usenet-confinement.nix` steht.
+Dieses Dokument hält die architektonische Evolution, alle "Lessons Learned" und die überwundenen Stolpersteine bei der Entwicklung des VPN-Kill-Switches fest. Es dient als Referenz dafür, warum das System exakt so gebaut ist, wie es in `den jeweiligen Service-Modulen (z.B. 541-sabnzbd.nix)` steht.
 
 ## Zielsetzung ("Safety Magnet")
 Ein Usenet-Downloader (SABnzbd) soll strikt an ein WireGuard-VPN (`vpn0`) gebunden werden. 

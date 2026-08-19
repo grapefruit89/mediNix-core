@@ -24,10 +24,7 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 
 | ID  | Module | Responsibility |
 | :--- | :--- | :--- |
-| **521** | [nftables](521-nftables.nix) <br> [[ADR-5210]] | Core firewall configuration. Default drop policy, dropping invalid packets and strict interface binding. |
-| **522** | [kernel](522-kernel.nix) <br> [[ADR-5200]] | Global Host Hardening. Sysctl tuning for security (TCP syncookies, BPF restrictions, ptrace scoping). Module blacklists. |
-| **523** | [emergency-user](523-emergency-user.nix) <br> [[ADR-0000]] | Break-glass SSH user (`media-admin`) with Ed25519 key authentication only. |
-| **524** | [systemd-credentials](524-systemd-credentials.nix) <br> [[ADR-5000]] | Infrastructure for managing encrypted credentials tied to the machine's TPM. |
+| **523** | [emergency-user](520-core-security.nix) <br> [[ADR-0000]] | Break-glass SSH user (`media-admin`) with Ed25519 key authentication only. |
 | **525** | [vpn-interface](525-vpn-interface.nix) <br> [[ADR-5410]], [[ADR-5270]] | Declarative WireGuard interface (`wg0`), encrypted credential loading, and SABnzbd VPN killswitch confinement. |
 | **526** | [vpn-killswitch](526-vpn-killswitch.nix) <br> [[ADR-5260]] | A robust firewall extension that drops any packet from VPN-confined services that attempts to use the physical WAN interface. |
 

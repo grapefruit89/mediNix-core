@@ -22,7 +22,7 @@ keine Hardcoded-IPs.
 | Domain | Zweck | Module |
 |--------|-------|--------|
 | `51-ingress` | Caddy Reverse Proxy + OIDC + DDNS | 511-caddy, 512-pocket-id, 513-cloudflare-dns |
-| `52-security` | Firewall, Kernel, SSH, Credentials | 521-nftables, 522-kernel, 523-ssh, 524-systemd-credentials |
+| `52-security` | Core Security, VPN | 520-core-security, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr Stack (Usenet Indexer/Downloader) | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
 | `54-transfer` | Usenet Downloader + WAL + Mover | 541-sabnzbd, 542-sqlite-wal, 543-mover |
 | `55-playback` | Media Playback (stream) | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 559-playback-tuning |
