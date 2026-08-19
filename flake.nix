@@ -79,7 +79,7 @@
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
-        packages.medinix = pkgs.callPackage ./packages/mediNix-cli {
+        packages.medinix = pkgs.callPackage ./lib/cli.nix {
           inherit lib registryJson;
         };
 
@@ -119,7 +119,7 @@
           inherit system;
           modules = [
             self.nixosModules.default
-            ./tests/smoke-test.nix
+            ./lib/smoke-test.nix
             {
               grapefruitMedia.enable = true;
               boot.loader.grub.enable = false;
