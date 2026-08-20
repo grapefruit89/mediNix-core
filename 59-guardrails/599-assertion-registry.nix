@@ -111,6 +111,20 @@ let
       fix = "Use systemd.timers";
       ref = "NO-CONTAINERS.md";
     };
+    "INV-TECH-04" = {
+      what = "iptables is forbidden. Use nftables exclusively.";
+      expected = "networking.firewall.package = pkgs.nftables";
+      found = "iptables active";
+      fix = "Disable iptables or explicitly enable nftables backend";
+      ref = "NO-CONTAINERS.md";
+    };
+    "INV-TECH-05" = {
+      what = "sops-nix is forbidden. Use systemd LoadCredential instead.";
+      expected = "sops = {} (empty or unused)";
+      found = "sops-nix usage detected";
+      fix = "Migrate to systemd LoadCredential Encrypted";
+      ref = "NO-CONTAINERS.md";
+    };
     "INV-DNS-01" = {
       what = "Encrypted DNS (DoT) must be active to prevent leaks.";
       expected = "dnsovertls = true or opportunistic";

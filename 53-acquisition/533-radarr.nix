@@ -57,7 +57,7 @@ lib.mkIf cfg.enable {
           urlBase     = "";
         };
         auth = {
-          method   = "Forms";
+          method   = if config.grapefruitMedia.ingress.auth.mode == "forward-auth" then "External" else "Forms";
           required = "Enabled";
         };
         app = {

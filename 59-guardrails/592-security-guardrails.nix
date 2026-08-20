@@ -39,6 +39,8 @@ lib.mkIf cfg.enable {
     (reg.mkInvariant "INV-TECH-01" (!config.virtualisation.docker.enable))
     (reg.mkInvariant "INV-TECH-02" (!config.virtualisation.podman.enable))
     (reg.mkInvariant "INV-TECH-03" (!config.services.cron.enable))
+    (reg.mkInvariant "INV-TECH-04" (config.networking.nftables.enable)) # Implicitly enforces no iptables if configured correctly, but we ensure nftables is on
+    (reg.mkInvariant "INV-TECH-05" (!(config ? sops))) # sops-nix forbidden
 
     # INV-FW-01: NFTables Firewall muss aktiv sein (für VPN UID Kill-Switch)
     (reg.mkInvariant "INV-FW-01" (config.networking.nftables.enable))
