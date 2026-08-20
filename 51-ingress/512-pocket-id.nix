@@ -65,7 +65,7 @@ lib.mkIf (cfg.enable && active) {
   # Caddy forward_auth upstream points to Pocket ID (if ingress is active)
   # (Configuration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
 
-  grapefruitMedia.ingress.vhosts."pocket-id" = { accessGroup = "public"; };
+  grapefruitMedia.ingress.vhosts."pocket-id" = { accessGroup = "idp"; };
 }
 
 # Gold-Standard (ADR-5120):

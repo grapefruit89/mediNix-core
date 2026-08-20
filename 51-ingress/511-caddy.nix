@@ -32,7 +32,7 @@ let
 
   # Secure LAN CIDRs. If the user specifies nothing in the config, we use restrictive defaults.
   # Groq P1: Added 100.64.0.0/10 so Tailscale clients are not blocked by Caddy.
-  trustedCidrs = ing.trustedCidrs or [ "10.0.0.0/8" "100.64.0.0/10" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
+  trustedCidrs = ing.trustedCidrs or [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
   
   # Cloudflare IPs (IPv4 & IPv6) for trusted_proxies
@@ -85,6 +85,12 @@ let
         public = ''
           encode zstd gzip
           ${authBlock}
+          ${vhost.customConfig}
+          reverse_proxy http://127.0.0.1:${port}
+        '';
+        # IdP: Public WAN access, NO authBlock (prevents auth deadlock)
+        idp = ''
+          encode zstd gzip
           ${vhost.customConfig}
           reverse_proxy http://127.0.0.1:${port}
         '';
@@ -154,7 +160,7 @@ in lib.mkMerge [
     # CrowdSec Plugin via caddy.withPlugins
     services.caddy.package = lib.mkIf (cfg.observability.crowdsec.enable) (pkgs.caddy.withPlugins {
       plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
-      hash = lib.fakeHash; 
+      hash = lib.fakeSha256; 
     });
 
     services.caddy.globalConfig = lib.mkIf useGlobal ''

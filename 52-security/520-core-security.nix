@@ -14,10 +14,15 @@
 let
   cfg = config.grapefruitMedia.security.emergencyUser;
 in
-lib.mkIf cfg.enable {
-  # 1. GID 5000 = media
+{
+  # Central media group and user (Unconditional)
   users.groups.media.gid = 5000;
+  users.users.media = {
+    isSystemUser = true;
+    group = "media";
+  };
 
+  config = lib.mkIf cfg.enable {
   # 2. Create Emergency User (media-admin)
   users.users.media-admin = {
     isNormalUser = true;
@@ -37,4 +42,6 @@ lib.mkIf cfg.enable {
       media-admin ALL=(root) NOPASSWD: ${cmdString}
       media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status * --no-pager
     '';
+}
+
 }

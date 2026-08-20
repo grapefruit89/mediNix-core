@@ -33,7 +33,6 @@ in
       uid = uid; group = "media"; extraGroups = [ "media" ];
       home = stateDir; isSystemUser = true;
     };
-    users.groups.media.gid = gid;
 
     services.sabnzbd = {
       enable = true;
@@ -81,27 +80,22 @@ in
       } // lib.optionalAttrs (cfg.serverCredentialFile != null) {
         # SABnzbd reads credential file via Env (Format: HOST/PORT/USER/PASS/SSL)
         SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";
-      } // lib.optionalAttrs (cfg.apiKeyFile or null != null) {
-        SABNZBD_API_KEY_FILE = cfg.apiKeyFile;
       };
     };
-  };
 
-  grapefruitMedia.persist.extraPaths = [ stateDir ];
+    # Moved inside mkIf cfg.enable
+    grapefruitMedia.persist.extraPaths = [ stateDir ];
+    grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
 
-  grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = reg.caddyClass; };
+    # Credentials
+    systemd.services.sabnzbd.serviceConfig.LoadCredentialEncrypted = lib.mkIf (cfg.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ];
 
-  systemd.services."sabnzbd" = lib.mkIf (cfg.secrets.sabnzbdApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ];
-  };
-
-  services.vpnKillSwitch = lib.mkIf cfg.usenet-confinement.enable {
-    vpnInterface = cfg.vpn.interface;
-    dnsServers = cfg.vpn.dnsServers;
-    instances.sabnzbd = {
+    # Killswitch
+    services.vpnKillSwitch.instances.sabnzbd = lib.mkIf cfg.usenet-confinement.enable {
       enable = true;
-      uid = registry.services.sabnzbd.uid;
+      uid = uid;
     };
   };
-
 }
+
+

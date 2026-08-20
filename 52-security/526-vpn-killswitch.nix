@@ -20,7 +20,7 @@ in
     };
     routingTable = lib.mkOption {
       type = lib.types.int;
-      default = ${toString cfg.routingTable};
+      default = 51820;
       description = "The routing table and fwmark used for policy routing.";
     };
     dnsServers = lib.mkOption {
@@ -96,7 +96,7 @@ in
 
           ${pkgs.iproute2}/bin/ip -6 rule add fwmark ${toString cfg.routingTable} table ${toString cfg.routingTable} priority 1000 2>/dev/null || true
           ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table ${toString cfg.routingTable} metric 100
-          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table ${toString cfg.routingTable} metric 10 2>/dev/null || true
+          ${pkgs.iproute2}/bin/ip -6 route replace default dev ${cfg.vpnInterface} table ${toString cfg.routingTable} metric 10
         '';
       };
     };
@@ -107,8 +107,10 @@ in
 "
     ) cfg.dnsServers;
 
-    # 4. Inject strict isolation into systemd services
+        # 4. Inject strict isolation into systemd services
     systemd.services = lib.mapAttrs (name: v: {
+      requires = [ "medinix-vpn-route.service" ];
+      after = [ "medinix-vpn-route.service" ];
       serviceConfig = {
         BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];
       };
