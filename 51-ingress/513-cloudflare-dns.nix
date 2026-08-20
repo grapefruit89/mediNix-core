@@ -37,12 +37,15 @@ let
 
   registry        = (import ../lib/registry.nix { inherit lib; }).services;
   enabledServices = lib.filterAttrs (n: vhost:
-    cfg.${n}.enable or false && (registry.${n}.port or null) != null
+    let
+      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+    in enabled && (registry.${n}.port or null) != null
   ) cfg.ingress.vhosts;
 
   # Filter services by accessGroup to determine IP and Proxy mapping
   streamServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "stream") enabledServices;
   publicServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "public") enabledServices;
+  idpServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "idp") enabledServices;
   lanServices    = lib.filterAttrs (n: vhost: vhost.accessGroup == "internal") enabledServices;
   effectiveDomain = if zone != null then zone else (if cfg.domain != null then cfg.domain else "local");
   streamDomains = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") streamServices;
@@ -52,6 +55,7 @@ let
   # Build space-separated strings for the bash script
   streamDomainsStr = builtins.concatStringsSep " " streamDomains;
   publicDomainsStr = builtins.concatStringsSep " " publicDomains;
+  idpDomainsStr = builtins.concatStringsSep " " idpDomains;
   lanDomainsStr    = builtins.concatStringsSep " " lanDomains;
 
 in
@@ -88,6 +92,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       ZONE="${zone}"
       STREAM_DOMAINS="${streamDomainsStr}"
       PUBLIC_DOMAINS="${publicDomainsStr}"
+      IDP_DOMAINS="${idpDomainsStr}"
       LAN_DOMAINS="${lanDomainsStr}"
 
       # Resolve API Token
@@ -186,7 +191,13 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       done
 
       for domain in $PUBLIC_DOMAINS; do
-        update_record "$domain" "$WAN_IP" "true"
+        update_record "$domain" "$WAN_IP" "false"
+        sleep 0.5
+      done
+
+
+      for domain in $IDP_DOMAINS; do
+        update_record "$domain" "$WAN_IP" "false"
         sleep 0.5
       done
 

@@ -104,6 +104,7 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
   systemd.services."acme-${acmeHost}" = lib.mkIf (credPath != null) {
     serviceConfig = {
       LoadCredentialEncrypted = [ "cf-acme-token:${credPath}" ];
+      # IMPORTANT: The credential file MUST contain KEY=value syntax (e.g. CF_DNS_API_TOKEN=your_token)
       # mkForce: override whatever security.acme set for EnvironmentFile
       EnvironmentFile = lib.mkForce [ credRuntime ];
     };

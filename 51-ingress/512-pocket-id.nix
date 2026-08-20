@@ -36,6 +36,10 @@ lib.mkIf (cfg.enable && active) {
 
   services.pocket-id = {
     enable = true;
+    settings = {
+      HOST = "127.0.0.1";
+      PORT = svc.port;
+    };
     user  = "pocket-id";
     group = "media";  # shared GID 5000 per ADR-0000
   };
@@ -50,7 +54,7 @@ lib.mkIf (cfg.enable && active) {
       User  = "pocket-id";
       Group = "media";
       RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
-      ReadWritePaths = [ "/var/lib/pocket-id-5120" ];
+      ReadWritePaths = [ svc.stateDir ];
     };
   };
 
@@ -58,7 +62,7 @@ lib.mkIf (cfg.enable && active) {
     uid = svc.uid;
     group = "media";
     isSystemUser = true;
-    home = "/var/lib/pocket-id-5120";
+    home = svc.stateDir;
     createHome = true;
   };
 

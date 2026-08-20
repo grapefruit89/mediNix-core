@@ -12,8 +12,13 @@
 let
   cfg = config.grapefruitMedia;
   
-  # All services that have a local ingress vHost (dendritic extraction)
-  enabledNames = lib.attrNames cfg.ingress.vhosts;
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  # Only services that are actually enabled
+  enabledNames = lib.attrNames (lib.filterAttrs (n: vhost:
+    let
+      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+    in enabled && (registry.${n}.port or null) != null
+  ) cfg.ingress.vhosts);
 
   aliasScript = pkgs.writeShellScript "medinix-mdns-aliases" ''
     set -euo pipefail
@@ -77,7 +82,7 @@ let
     wait
   '';
 in
-lib.mkIf (cfg.enable && cfg.ingress.enable && enabledNames != [ ]) {
+lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.discovery.mdns.enable && enabledNames != [ ]) {
   services.avahi = {
     enable = true;
     nssmdns4 = lib.mkDefault true;

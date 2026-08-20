@@ -27,12 +27,15 @@ let
 
   registry        = (import ../lib/registry.nix { inherit lib; }).services;
   enabledServices = lib.filterAttrs (n: vhost:
-    cfg.${n}.enable or false && (registry.${n}.port or null) != null
+    let
+      # Use camelCase fallback for things like pocketId
+      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+    in enabled && (registry.${n}.port or null) != null
   ) cfg.ingress.vhosts;
 
   # Secure LAN CIDRs. If the user specifies nothing in the config, we use restrictive defaults.
   # Groq P1: Added 100.64.0.0/10 so Tailscale clients are not blocked by Caddy.
-  trustedCidrs = ing.trustedCidrs or [ "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
+  trustedCidrs = ing.trustedCidrs or [ "10.0.0.0/8" "100.64.0.0/10" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
   
   # Cloudflare IPs (IPv4 & IPv6) for trusted_proxies
