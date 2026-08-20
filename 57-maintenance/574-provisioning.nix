@@ -66,23 +66,6 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           export SONARR_ROOT_FOLDER="''${SONARR_ROOT:-}"
           export RADARR_ROOT_FOLDER="''${RADARR_ROOT:-}"
           
-          # Build JSONs
-          TARGETS="[]"
-          APPS="[]"
-          if [ "$SYNC_SONARR" = "1" ]; then
-            TARGETS=$(echo "$TARGETS" | ${pkgs.jq}/bin/jq '. + [{"app":"sonarr", "port":'${SONARR_PORT}', "key_file":"'"$SONARR_KEY_FILE"'", "category":"tv"}]')
-            APPS=$(echo "$APPS" | ${pkgs.jq}/bin/jq '. + [{"name":"Sonarr", "port":'${SONARR_PORT}', "key_file":"'"$SONARR_KEY_FILE"'", "sync_categories":[5000, 5030, 5040]}]')
-          fi
-          if [ "$SYNC_RADARR" = "1" ]; then
-            TARGETS=$(echo "$TARGETS" | ${pkgs.jq}/bin/jq '. + [{"app":"radarr", "port":'${RADARR_PORT}', "key_file":"'"$RADARR_KEY_FILE"'", "category":"movies"}]')
-            APPS=$(echo "$APPS" | ${pkgs.jq}/bin/jq '. + [{"name":"Radarr", "port":'${RADARR_PORT}', "key_file":"'"$RADARR_KEY_FILE"'", "sync_categories":[2000, 2010, 2020]}]')
-          fi
-          
-          export TARGETS_JSON="$TARGETS"
-          export APPS_JSON="$APPS"
-          export INDEXERS_JSON="[]"
-          export BACKUP_INDEXERS_JSON="[]"
-          
           echo "Running arr-sync-keys..."
           ${arrProv}/bin/arr-sync-keys
           
