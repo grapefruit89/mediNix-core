@@ -40,3 +40,7 @@ Für den Mediastack (Sonarr, Radarr, Prowlarr, Readarr, Lidarr, SABnzbd) wurde e
   - `journal_size_limit=67108864` (64MB WAL-Limit)
   - `wal_autocheckpoint=1000`
   - `busy_timeout=5000`
+
+
+## Appendix: Paperless-ngx Edge Case
+While SQLite is sufficient for almost all Homelab applications (*arr, Pocket-ID, Vaultwarden), heavy parallel importers like Paperless-ngx can trigger `database is locked` errors. When running Paperless-ngx on SQLite, it is strongly recommended to throttle the importer (`PAPERLESS_TASK_WORKERS = "1"`) to prevent concurrent write locks.
