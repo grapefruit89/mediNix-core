@@ -4,22 +4,22 @@ title: "ADR 5000 native services over docker"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-08-20
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🏛️ ADR-002: Native NixOS Services bevorzugen
+# ADR-5000: Prefer Native NixOS Services
 
-## Kontext
-Für den Home-Server (Tower) suchen wir die effizienteste und am einfachsten zu wartende Deployment-Methode.
+## Context
+For the home server (Tower), we are looking for the most efficient and easily maintainable deployment method.
 
-## Entscheidung
-Wir setzen primär auf **native NixOS-Module** und vermeiden Docker/Podman, wo es eine native Alternative gibt.
+## Decision
+We primarily rely on **native NixOS modules** and avoid Docker/Podman wherever a native alternative exists.
 
-## Begründung
-- **Deklarativität:** NixOS Module erlauben die Steuerung jeder Config-Option via Nix.
-- **Ressourcen:** Weniger RAM/CPU Overhead durch Wegfall der Container-Laufzeit.
-- **Wartung:** Updates erfolgen zentral über `nix flake update`. Keine "Zombie-Container" mehr.
+## Rationale
+- **Declarativity:** NixOS modules allow controlling every config option via Nix.
+- **Resources:** Lower RAM/CPU overhead by eliminating the container runtime.
+- **Maintenance:** Updates happen centrally via `nix flake update`. No more "zombie containers".

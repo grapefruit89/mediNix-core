@@ -4,72 +4,65 @@ title: "Assertion Quality Standard (fail-closed, readable what/why/fix)"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-08-20
 tags:
   - core
   - governance
 links:
-  adr: ADR-0000 (fail-closed Prinzip), ADR-5050 (systemd-hardening-baseline)
+  adr: ADR-0000 (fail-closed principle), ADR-5050 (systemd-hardening-baseline)
   skill: medinix-assertion-quality
 ---
 
-# ADR-5043 — Assertion Quality Standard
+# ADR-5043: Assertion Quality Standard
 
 ## Status
-Angenommen (2026-08-12). Verbindlich für alle `assertions` / `invariants` in mediNix-core.
+Accepted (2026-08-12). Mandatory for all `assertions` / `invariants` in mediNix-core.
 
-## Kontext
-Assertions sind die einzige Verteidigungslinie gegen fehlerhafte Consumer-Konfigurationen
-(fail-closed: Build bricht, nie nur Warnung — ADR-0000). Bisher lagen Assertions verstreut in
-Modulen mit inkonsistenter Message-Qualität. Dieses ADR standardisiert das Format und die
-Semantik, damit jeder Build-Fehler selbst-erklärend ist.
+## Context
+Assertions are the only line of defense against erroneous consumer configurations (fail-closed: build breaks, never just a warning - ADR-0000). Previously, assertions were scattered across modules with inconsistent message quality. This ADR standardizes the format and semantics so that every build error is self-explanatory.
 
-## Entscheidung
+## Decision
 
-### 1. Zwei Kategorien (niemals mischen)
-- **Invarianten** (`INV-*`): Architektur-Garantien des Systems. Unabhängig von User-Config.
-  Beispiele: Port = Num×10, GID=5000, 127.0.0.1-Binding, keine Container.
-  Zentrale SSoT: `59-guardrails/590-registry.nix` (`invariants` Attrset).
+### 1. Two Categories (never mix)
+- **Invariants** (`INV-*`): Architectural guarantees of the system. Independent of user config.
+  Examples: Port = Num*10, GID=5000, 127.0.0.1-Binding, no containers.
+  Central SSoT: `59-guardrails/590-registry.nix` (`invariants` attrset).
 - **Errors** (`VPN-*` / `TLS-*` / `AUTH-*` / `DNS-*` / `SEC-*` / `STORE-*`):
-  User-Config-Fehler. Zentrale SSoT: `590-registry.nix` (`errors` Attrset).
+  User config errors. Central SSoT: `590-registry.nix` (`errors` attrset).
 
-### 2. Message-Format (VERBINDLICH)
-Jede Assertion-Message MUSS enthalten:
-- **Was** ist falsch (konkret, keine Vagheit)
-- **Warum** es falsch ist (Architektur-Begründung)
-- **Wie** der Fix aussieht (konkrete Anweisung)
+### 2. Message Format (MANDATORY)
+Every assertion message MUST contain:
+- **What** is wrong (specific, no vagueness)
+- **Why** it is wrong (architectural reasoning)
+- **How** to fix it (specific instruction)
 
 Schema:
 ```
-[INVARIANTE|CODE] KURZE_BESCHREIBUNG.
-  Erwartet: <korrekter Zustand>
-  Gefunden: <tatsächlicher Zustand>
-  Fix: <konkrete Anweisung, z.B. "setze grapefruitMedia.X.enable = true">
+[INVARIANT|CODE] SHORT_DESCRIPTION.
+  Expected: <correct state>
+  Found: <actual state>
+  Fix: <specific instruction, e.g., "set grapefruitMedia.X.enable = true">
   Ref: ADR-XXXX
 ```
 
-### 3. Fail-closed (KEINE Ausnahme)
-- Assertions brechen den `nix flake check` mit **Exit-Nonzero**.
-- Niemals `warn` oder `lib.warn` — das wird im Deploy übersehen.
-- Conditional: nur `lib.mkIf cfg.enable` wrappen, nicht die Assertion selbst abschwächen.
+### 3. Fail-closed (NO Exceptions)
+- Assertions break the `nix flake check` with a **non-zero exit**.
+- Never use `warn` or `lib.warn` - it gets overlooked in deployment.
+- Conditional: only wrap with `lib.mkIf cfg.enable`, do not weaken the assertion itself.
 
-### 4. Keine dynamischen Strings in Registry
-`590-registry.nix` enthält statische Message-Templates (String, kein `toString` zur Laufzeit).
-Dynamische Werte (z.B. tatsächlicher Port) werden im aufrufenden Modul via `lib.mkIf`
-in die Message injiziert — die Registry bleibt die SSoT für den Text.
+### 4. No dynamic strings in Registry
+`590-registry.nix` contains static message templates (String, no `toString` at runtime). Dynamic values (e.g., actual port) are injected in the calling module via `lib.mkIf` - the registry remains the SSoT for the text.
 
-### 5. Jeder Bug → Invariante
-Wird ein Bug gefunden (Audit, Deploy, Runtime), MUSS er als Invariante/Error in
-`590-registry.nix` verewigt werden, die den gleichen Fehler beim nächsten Mal im Build
-abfängt. Ad-hoc-Fixes ohne Registry-Eintrag sind verboten (sonst driftet die Docs weg).
+### 5. Every Bug = Invariant
+If a bug is found (Audit, Deploy, Runtime), it MUST be immortalized as an Invariant/Error in `590-registry.nix`, which will catch the same error during the next build. Ad-hoc fixes without a registry entry are forbidden (otherwise docs drift away).
 
-## Konsequenzen
-- `medinix-assertion-quality` Skill ist die Implementierungs-Referenz (grep-Checks für Format).
-- `medinix-pre-commit` Gate prüft: keine Assertion ohne `[CODE]`-Prefix, keine leeren Messages.
-- Consumer die mediNix-core importieren bekommen lesbare, actionable Build-Fehler.
+## Consequences
+- `medinix-assertion-quality` skill is the implementation reference (grep-checks for format).
+- `medinix-pre-commit` gate checks: no assertion without `[CODE]` prefix, no empty messages.
+- Consumers importing mediNix-core get readable, actionable build errors.
 
-## Anti-Patterns (VERBOTEN)
-- `assertions = [ { assertion = ...; message = "something is wrong"; } ];` (kein Was/Warum/Fix)
-- `lib.warn "..."` statt `mkInvariant` (kein Fail-closed)
-- Inline-Text in Modulen statt zentraler Registry (Docs-Drift)
-- `INV-*` für Config-Fehler nutzen (das sind `errors`, nicht Invarianten)
+## Anti-Patterns (FORBIDDEN)
+- `assertions = [ { assertion = ...; message = "something is wrong"; } ];` (missing What/Why/Fix)
+- `lib.warn "..."` instead of `mkInvariant` (not fail-closed)
+- Inline text in modules instead of a central registry (docs drift)
+- Using `INV-*` for config errors (these are `errors`, not invariants)

@@ -4,7 +4,7 @@ title: "ADR 5120 lightweight identity pocketid"
 domain: 51
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-08-20
 tags:
   - ingress
   - pocketid
@@ -12,22 +12,22 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# 🏛️ ADR-001: PocketID als Lightweight Identity Provider
+# ADR-5120: PocketID as Lightweight Identity Provider
 
-## Kontext
-Wir benötigen einen zentralen OIDC-Provider für mTLS und Forward-Auth auf dem Tower (Layer 40/60).
+## Context
+We need a central OIDC provider for mTLS and Forward-Auth on the Tower (Layer 40/60).
 
-## Optionen
-1. **Authentik:** Feature-reich, aber extrem ressourcenfressend (PostgreSQL, Redis, Workers).
-2. **PocketID:** Schlank, Go-basiert, nativer Passkey-Fokus.
+## Options
+1. **Authentik:** Feature-rich, but extremely resource-heavy (PostgreSQL, Redis, Workers).
+2. **PocketID:** Lightweight, Go-based, native Passkey focus.
 
-## Entscheidung
-Wir wählen **PocketID**.
+## Decision
+We select **PocketID**.
 
-## Begründung
-- **Effizienz:** Authentik ist für ein Single-Server Setup (Tower) zu schwerfällig.
-- **Sicherheit:** PocketID fördert den passwortlosen Aviation-Grade Standard.
-- **Wartbarkeit:** Weniger Abhängigkeiten (keine externe DB zwingend nötig).
+## Rationale
+- **Efficiency:** Authentik is too heavy for a single-server setup (Tower).
+- **Security:** PocketID promotes the passwordless Aviation-Grade standard.
+- **Maintainability:** Fewer dependencies (no external DB strictly required).
 
 ## Status
-Authentik-Nuggets bleiben in der Knowledge-Base nur als **Referenz für komplexe Nix-Module** erhalten, werden aber im System-Design ignoriert.
+Authentik nuggets remain in the knowledge base only as a **reference for complex Nix modules**, but are ignored in the system design.

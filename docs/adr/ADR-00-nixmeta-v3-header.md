@@ -4,7 +4,7 @@ title: "NIXMETA V3.0 Header Standard"
 domain: 00
 status: active
 complexity: 1
-last_reviewed: 2026-08-13
+last_reviewed: 2026-08-20
 tags:
   - core
   - conventions
@@ -12,42 +12,42 @@ links:
   adr: ADR-0000
 ---
 
-# ADR-00: Der NIXMETA V3.0 YAML Header Standard
+# ADR-00: The NIXMETA V3.0 YAML Header Standard
 
-## Kontext
-Um die maschinelle Lesbarkeit für LLM-Agenten (wie Context7, Kanbans, Code-Audits) zu gewährleisten und die manuelle Navigation für den Menschen zu optimieren, muss JEDE `.nix` Datei im `mediNix-core` Repository zwingend einen standardisierten YAML-Header am Dateianfang besitzen.
+## Context
+To ensure machine readability for LLM agents (like Context7, Kanbans, Code-Audits) and optimize manual navigation for humans, EVERY `.nix` file in the `mediNix-core` repository MUST have a standardized YAML header at the top of the file.
 
-Es wurde sehr viel Zeit und Gehirnschmalz in die Ausarbeitung dieses Formats investiert. Dieses Dokument sichert dieses Wissen und dient als zentrale "Single Source of Truth" mit Tip-Top-Paradebeispielen für One-Shot / Few-Shot Prompts.
+A lot of time and brainpower went into drafting this format. This document secures this knowledge and serves as the central "Single Source of Truth" with tip-top prime examples for One-Shot / Few-Shot Prompts.
 
-## Spezifikation (V3.0)
-- Der Header MUSS in der ersten Zeile der Datei beginnen.
-- Er MUSS in Nix-Kommentare (`# `) eingefasst sein.
-- Er MUSS mit `# ---` beginnen und enden (YAML Frontmatter Syntax).
-- Er MUSS valides YAML sein (nach Entfernung der `# ` Präfixe).
+## Specification (V3.0)
+- The header MUST begin on the first line of the file.
+- It MUST be enclosed in Nix comments (`# `).
+- It MUST start and end with `# ---` (YAML Frontmatter Syntax).
+- It MUST be valid YAML (after removing the `# ` prefixes).
 
 ---
 
-## Tip-Top-Paradebeispiel 1: Standard Service-Modul (Minimal)
-Dieses Beispiel zeigt die Pflichtfelder, die jedes normale Modul (z. B. ein Guardrail oder Service) zwingend haben muss.
+## Tip-Top Prime Example 1: Standard Service Module (Minimal)
+This example shows the mandatory fields that every normal module (e.g., a guardrail or service) must strictly have.
 
 ```nix
 # ---
 # id: "590-registry"
-# title: "Zentrale Fehler-Registry (Invarianten + Assertion-Errors)"
+# title: "Central Error Registry (Invariants + Assertion-Errors)"
 # domain: 59
 # folder: 59-guardrails
 # status: active
 # complexity: 2
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-0000 (Dezimalrahmen-Verfassung)
+#   adr: ADR-0000 (Decimal Framework Constitution)
 # ---
 { config, lib, pkgs, ... }:
 # ... nix code ...
 ```
 
-## Tip-Top-Paradebeispiel 2: Komplexe Core-Module & Libraries
-Dieses Beispiel zeigt das Maximalformat. Es wird für Libraries (wie die Registry selbst) oder hochkomplexe Core-Module verwendet, die Abhängigkeiten exportieren (`provides`) oder externe Dinge benötigen (`requires`).
+## Tip-Top Prime Example 2: Complex Core Modules & Libraries
+This example shows the maximum format. It is used for libraries (like the registry itself) or highly complex core modules that export dependencies (`provides`) or require external things (`requires`).
 
 ```nix
 # ---
@@ -74,20 +74,20 @@ Dieses Beispiel zeigt das Maximalformat. Es wird für Libraries (wie die Registr
 # ... nix code ...
 ```
 
-## Erklärung der Felder
+## Field Explanations
 
-### 🔴 Pflichtfelder (Müssen immer existieren)
-- `id:` Die exakte Dateikennung ohne `.nix` (z.B. `590-registry`).
-- `title:` Ein kurzer, prägnanter, für Menschen lesbarer Titel.
-- `domain:` Die 2-stellige Domain-Nummer (z.B. `59` für Guardrails).
-- `folder:` Der exakte Ordnername, in dem die Datei liegt (z.B. `59-guardrails`).
-- `status:` Lebenszyklus-Status (Erlaubt: `active`, `deprecated`, `draft`).
-- `complexity:` 1 (sehr simpel) bis 5 (hochkomplexe Systemarchitektur).
-- `last_reviewed:` ISO-Datum (YYYY-MM-DD) des letzten Red-Team Audits.
-- `links.adr:` Referenz auf die primäre Design-Entscheidung (z.B. `ADR-0000`).
+### 🔑 Mandatory Fields (Must always exist)
+- `id:` The exact file identifier without `.nix` (e.g., `590-registry`).
+- `title:` A short, concise, human-readable title.
+- `domain:` The 2-digit domain number (e.g., `59` for Guardrails).
+- `folder:` The exact folder name where the file resides (e.g., `59-guardrails`).
+- `status:` Lifecycle status (Allowed: `active`, `deprecated`, `draft`).
+- `complexity:` 1 (very simple) to 5 (highly complex system architecture).
+- `last_reviewed:` ISO date (YYYY-MM-DD) of the last Red-Team Audit.
+- `links.adr:` Reference to the primary design decision (e.g., `ADR-0000`).
 
-### 🟡 Erweiterte Felder (Für komplexe Module)
-- `provides:` Liste von Features/Kontexten, die dieses Modul anderen zur Verfügung stellt.
-- `requires:` Liste von Abhängigkeiten, die zwingend extern erfüllt sein müssen.
-- `upstream_*`: Metadaten für Upstream-Dienste, GitHub-Repos und Foren-Beiträge zur Nachvollziehbarkeit.
-- `state_dir:` Der primäre persistente Ordner (für Backups relevant).
+### 🛠️ Extended Fields (For complex modules)
+- `provides:` List of features/contexts this module provides to others.
+- `requires:` List of dependencies that must be fulfilled externally.
+- `upstream_*`: Metadata for upstream services, GitHub repos, and forum posts for traceability.
+- `state_dir:` The primary persistent folder (relevant for backups).
