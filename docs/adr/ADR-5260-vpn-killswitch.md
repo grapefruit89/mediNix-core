@@ -4,59 +4,60 @@ title: "VPN Kill-Switch Architecture (Policy Routing)"
 domain: 52
 status: active
 complexity: 3
-last_reviewed: 2026-08-19
+last_reviewed: 2026-08-20
 tags:
   - security
   - vpn
   - network
 ---
-# ADR-5260: VPN Kill-Switch Architektur (SABnzbd)
+# ADR-5260: VPN Kill-Switch Architecture (Policy Routing)
 
-Dieses Dokument hält die architektonische Evolution und alle "Lessons Learned" bei der Entwicklung des VPN-Kill-Switches fest, insbesondere nach dem großen Red-Team-Audit durch "Grok" im August 2026.
+This document captures the architectural evolution and "lessons learned" during the development of the VPN kill-switch, particularly following the major Red-Team audit in August 2026.
 
-## Zielsetzung ("Safety Magnet")
-Ein Usenet-Downloader (SABnzbd) soll strikt an ein WireGuard-VPN (`wg0`) gebunden werden. 
-*   **Fail-Closed:** Wenn das VPN ausfällt, darf kein Traffic auf das reguläre Internet (`eth0`) ausweichen.
-*   **KISS (Keep It Simple, Stupid):** Keine Fremd-Abhängigkeiten (3rd-Party Flakes) und keine überzüchteten BPF-Spielereien.
-*   **Dendritisch:** Der Killswitch darf die Dienste nicht hart einkodieren. Dienste abonnieren den Killswitch über ihre UID.
-
----
-
-## Die Evolution: Warum nicht die Alternativen?
-
-### 1. Network Namespaces (NetNS / Der "NixFlix"-Ansatz)
-Theoretisch die stärkste Isolation. Das Interface existiert nur im Namespace.
-*   **Problem:** In NixOS gibt es nativ keine deklarative Möglichkeit, das elegant zu bauen, ohne auf Third-Party-Module (wie `github:Maroka-chan/VPN-Confinement`) zurückzugreifen. Wir lehnen es ab, kritische Sicherheitsinfrastruktur an externe Flakes auszulagern (Abhängigkeits-Risiko). Ein Eigenbau über Bash-Scripte (`ip netns add`) verletzt das KISS-Prinzip massiv.
-
-### 2. Das BPF-Monster (`RestrictNetworkInterfaces`)
-Der vorherige `mediNix-core`-Ansatz nutzte `RestrictNetworkInterfaces` (eBPF), komplexe RPDB-Skripte und UDS-Socket-Sperren.
-*   **Problem:** Völlig überzüchtet (300+ Zeilen Code). `RestrictNetworkInterfaces` führte zu subtilen Boot-Race-Conditions mit dem WireGuard-Interface. Zu viele bewegliche Teile, die geräuschlos brechen konnten. Verletzt das KISS-Prinzip.
-
-### 3. Einfacher „VPN-only“-User (Nur `meta skuid drop`)
-Nur eine Firewall-Regel, die Pakete auf `eth0` verbietet.
-*   **Problem:** Schwach, da der Kernel trotzdem versuchen kann, über die Haupttabelle zu routen. Kein sauberes lokales Routing.
+## Objective ("Safety Magnet")
+A Usenet downloader (SABnzbd) must be strictly bound to a WireGuard VPN (`wg0`).
+*   **Fail-Closed:** If the VPN fails, no traffic is allowed to fall back to the regular internet interface (`eth0`).
+*   **KISS (Keep It Simple, Stupid):** No third-party dependencies (flakes) and no over-engineered BPF complexity.
+*   **Dendritic:** The kill-switch must not hardcode services. Services subscribe to the kill-switch via their UID.
 
 ---
 
-## Die finale Lösung: Gehärtetes Policy-Routing (Variante 1)
+## The Evolution: Why reject the alternatives?
 
-Wir haben uns nach einem harten Red-Team-Audit für reines, pure-Linux **Policy-Routing** (nftables + ip rule) entschieden. Der Code liegt zentral unter `52-security/526-vpn-killswitch.nix` und wird dendritisch von den Diensten konsumiert.
+### 1. Network Namespaces (NetNS / The "NixFlix" Approach)
+Theoretically the strongest isolation, as the interface only exists within the namespace.
+*   **Problem 1 (Dependencies):** In NixOS, there is no native declarative way to build this elegantly without relying on third-party modules (like `github:Maroka-chan/VPN-Confinement`). We refuse to outsource critical security infrastructure to external flakes due to supply-chain and link-rot risks. Building it manually via bash scripts (`ip netns add`) massively violates the KISS principle.
+*   **Problem 2 (skuid Loss):** When attempting to combine `netns` with host-side `skuid` routing, a critical networking limitation arises. When a packet leaves a Network Namespace and crosses into the host namespace via a `veth` pair, it loses its original socket UID (appearing as UID 0 / root on the host). This completely breaks any host-side `nftables` rules that try to filter based on the service's UID. While excellent for Torrenting (due to port forwarding needs), it is too complex for outbound-only HTTP traffic.
 
-### Die 3 Säulen der Architektur:
+### 2. The BPF Monster (`RestrictNetworkInterfaces`)
+The previous `mediNix-core` approach used `RestrictNetworkInterfaces` (eBPF), complex RPDB scripts, and UDS socket blocking.
+*   **Problem:** Completely over-engineered (300+ lines of code). `RestrictNetworkInterfaces` caused subtle boot race conditions with the WireGuard interface. Too many moving parts that could break silently.
 
-1. **Policy-Routing via fwmark:**
-   - Wir nutzen genau eine dedizierte Routing-Tabelle (z.B. `table 51820`).
-   - `nftables` markiert alle Egress-Pakete der abonnierten UIDs (z.B. SABnzbd).
-   - In dieser Tabelle gibt es eine permanente Blackhole-Route (`unreachable default metric 100`) und eine VPN-Route (`default dev wg0 metric 10`).
+### 3. Simple "VPN-only" User (Only `meta skuid drop`)
+Just a firewall rule dropping packets on `eth0`.
+*   **Problem:** Weak, as the kernel might still attempt to route via the main table. No clean local routing policy.
 
-2. **Absolute Fail-Closed Garantie (Kein `ExecStop`):**
-   - Der Systemd-Service, der die Routing-Tabelle aufbaut, hat absichtlich **kein `ExecStop`**.
-   - Die Blackhole-Route wird beim Booten in den Kernel geschrieben und bleibt dort für immer stehen. Ein Absturz des Routing-Services führt nicht zum Leak (Fail-Closed).
-   - Durch `before = [ "sabnzbd.service" ]` wird erzwungen, dass die Routen stehen, bevor der Dienst das erste Paket senden kann.
+---
 
-3. **DNS Isolation ohne Leak:**
-   - Wir injizieren über `BindReadOnlyPaths` eine eigene `resolv.conf` in den SABnzbd-Container, die exklusiv auf den DNS-Server des VPN-Providers zeigt.
-   - Da `nftables` UDP-Port 53 von dieser UID markiert, wird auch die DNS-Anfrage zwingend durch den Tunnel (oder das Blackhole) gezwungen.
+## The Final Solution: Hardened Policy Routing (Variant 1)
 
-## Prowlarr-Notbremse (Achtung!)
-Prowlarr (Indexer) darf **niemals** durch das VPN geroutet werden, da Usenet/Torrent-Indexer VPN-IPs aggressiv sperren oder mit Captchas fluten. Dank der dendritischen Architektur wurde Prowlarr einfach aus der Subscription in `536-prowlarr.nix` entfernt.
+Following a strict Red-Team audit, we opted for pure-Linux **Policy Routing** (`nftables` + `ip rule`). The central code resides in `52-security/526-vpn-killswitch.nix` and is consumed dendritically by services.
+
+### The 3 Pillars of the Architecture:
+
+1. **Policy Routing via fwmark:**
+   - We use exactly one dedicated routing table (e.g., `table 51820`).
+   - `nftables` marks all egress packets originating from subscribed UIDs (e.g., SABnzbd).
+   - This routing table contains a permanent blackhole route (`unreachable default metric 100`) and a VPN route (`default dev wg0 metric 10`).
+
+2. **Absolute Fail-Closed Guarantee (No `ExecStop`):**
+   - The systemd service configuring the routing table intentionally has **no `ExecStop`**.
+   - The blackhole route is written into the kernel during boot and remains there permanently. A crash of the routing service does not result in a leak (Fail-Closed).
+   - By using `before = [ "sabnzbd.service" ]`, we guarantee the routes are established before the service can send its first packet.
+
+3. **DNS Isolation without Leaks:**
+   - We inject a custom `resolv.conf` into the SABnzbd container using `BindReadOnlyPaths`, pointing exclusively to the VPN provider's DNS server.
+   - Because `nftables` marks UDP port 53 for this UID, the DNS query is forcibly routed through the tunnel (or into the blackhole).
+
+## Prowlarr Emergency Brake (Warning!)
+Prowlarr (the Indexer) must **never** be routed through the VPN, as Usenet/Torrent indexers aggressively block VPN IPs or flood them with CAPTCHAs. Thanks to the dendritic architecture, Prowlarr was simply unsubscribed in `536-prowlarr.nix`.

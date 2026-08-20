@@ -3,6 +3,11 @@
 # title: "Dendritic Policy Routing Killswitch (KISS)"
 # domain: 52
 # folder: 52-security
+# status: active
+# complexity: 5
+# last_reviewed: 2026-08-20
+# links:
+#   adr: ADR-5260
 # ---
 { config, lib, pkgs, ... }:
 
