@@ -62,3 +62,9 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **Strikte Trennung Admin vs. Gäste:** Admin-Dienste (Radarr, Sonarr, Prowlarr) dürfen nicht ins WAN exponiert werden (`caddyClass = "internal"`). Gäste-Dienste (Jellyfin, Audiobookshelf) sind WAN-fähig, aber durch OIDC (Pocket-ID) und CrowdSec geschützt.
 - **Root-Proxy statt Unterpfad-Hacks:** Bei Apps mit WebSockets (z. B. Audiobookshelf) wird konsequent auf Subdomains (`app.domain`) plus Root-Proxy gesetzt. Path-basiertes Routing (`handle_path`) verursacht oft den "drehenden Kreis" und ist zu meiden.
 - **mTLS und Geoblock abgelehnt:** mTLS im Caddy ist für das Homelab im Betrieb (Client-Zertifikate verteilen) zu aufwendig und wird zugunsten von Pocket-ID verworfen. Geoblocking direkt in Caddy (Plugins) wird abgelehnt; falls nötig, erfolgt dies sauber auf L3/L4 (nftables/CrowdSec).
+
+## Frontend & Landingpage (WAN-Einstieg)
+- **Minimales statisches Dashboard:** Eine extrem leichtgewichtige HTML/SVG-Seite dient als zentraler Einstieg für Gäste. Keine "All-in-One"-Dashboards wie Homepage im WAN.
+- **href-freies Routing:** Navigation erfolgt über `/go/1`, `/go/2` Caddy-Routes und `data-go`-Attribute mit minimalem JavaScript, um plumpe Crawler ins Leere laufen zu lassen. Keine sichtbaren URLs im Quelltext.
+- **Honeypot via CrowdSec:** Die Seite enthält unsichtbare Honeypot-Elemente (z. B. auf `/.env` oder `/wp-admin`). Caddy leitet diese Aufrufe ab oder loggt sie schlicht als 404. CrowdSec liest das Log und vollstreckt einen harten L3/L4 Ban (z.B. für 12 Stunden) in `nftables`.
+- **Anti-Overengineering:** Spielereien wie Klick-Erkennung durch den Webserver, 3-Pixel Bot-Fallen, Proof-of-Work oder Headless-Browser-Detection werden bewusst weggelassen. Der Webserver (Caddy) bleibt flach und dumm (nur `file_server`), der Schutz erfolgt auf Log-Ebene.
