@@ -86,3 +86,8 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **Single Source of Truth für Secrets:** API-Keys und Passwörter gehören zentral in den Secret-Store (`LoadCredential`) und werden niemals verstreut in Klartext-Configdateien geschrieben. 
 - **DNS Local-First:** Lokale Dienste sprechen sich primär über `127.0.0.1` oder interne DNS-Zonen an, bevor sie externe Wege (Cloudflare-Tunnel etc.) nehmen.
 - **Anti-Buzzword-Policy:** Architekturkonzepte wie "Sovereign Loops", "Aviation-Grade XML-Repairs" oder überkomplexe "Network-Namespace-Blasen" (wie in alten nixflix-Iterationen) werden als unpraktikables Agenten-Theater verworfen. Stattdessen zählt robuste, idempontente Python-Automatisierung, die ohne wildes `sed`/`xmlstarlet` oder wackelige MCP-Tricks auskommt.
+
+## Wissensmanagement, Flakes & Guardrails
+- **Host-spezifische Defaults vermeiden:** Globale Optionen dürfen keine host-spezifischen Defaults (wie bestimmte Hardware-Pfade) enthalten, um "Silent Inheritance" (stille Vererbung) zu verhindern.
+- **Secrets-Guardrail (INV-SECRET):** Secrets dürfen niemals im Nix-Store landen. Die Nutzung von `LoadCredential` ist Pflicht. (Hinweis: Path-basierte Flake-Evaluation umgeht `.gitignore` und birgt ein hohes Leak-Risiko!).
+- **Originalwissen erhalten:** Originale Chat-Exporte oder Wissensdokumente werden nie überschrieben. Es wird immer konsolidiert, zusammengefasst (wie in diesem Dokument) und historisch archiviert. Verworfene Ansätze (Graveyard) bewusst dokumentieren, um alte Fehler nicht zu wiederholen.
