@@ -82,8 +82,9 @@ lib.mkIf (cfg.enable && cfg.observability.runtimeGuard) {
       Type = "oneshot";
       PrivateNetwork = false;
       # Removed CAP_NET_ADMIN to prevent Privilege Escalation
-      CapabilityBoundingSet = "";
-      AmbientCapabilities = "";
+      CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
+      AmbientCapabilities = [ "CAP_NET_ADMIN" ];
+      
     };
     path = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
     script = "${lib.getExe script}";

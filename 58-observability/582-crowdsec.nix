@@ -25,6 +25,27 @@ let
   cfg = config.grapefruitMedia.observability.crowdsec;
 in lib.mkIf cfg.enable {
   # Native CrowdSec agent (no Docker — runs as systemd.service)
+  
+  # P1.4 Fix: Enable nftables bouncer to actually block attackers
+  services.crowdsec-firewall-bouncer = {
+    enable = true;
+    settings = {
+      mode = "nftables";
+      nftables = {
+        ipv4 = {
+          enabled = true;
+          set-only = true;
+          table = "medinix_security";
+        };
+        ipv6 = {
+          enabled = true;
+          set-only = true;
+          table = "medinix_security";
+        };
+      };
+    };
+  };
+
   services.crowdsec = {
     enable = true;
     settings = {

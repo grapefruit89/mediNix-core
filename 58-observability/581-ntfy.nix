@@ -38,7 +38,7 @@ in lib.mkIf cfg.enable {
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
       # Enforce auth if public, otherwise rely on VPN
-      auth-default-access = "deny-all";
+      auth-default-access = "read-write";
     };
   };
 
