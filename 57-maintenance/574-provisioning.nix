@@ -35,6 +35,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
+        TimeoutStartSec = "90s";
+        Restart = "on-failure";
+        RestartSec = "30s";
         User = "media";
         Group = "media";
         UMask = "002";

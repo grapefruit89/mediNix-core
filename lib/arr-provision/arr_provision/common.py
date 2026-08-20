@@ -91,12 +91,9 @@ def http_json(
             raw = response.read().decode("utf-8")
             return response.status, json.loads(raw) if raw else None
     except urllib.error.HTTPError as exc:
-        raw = exc.read().decode("utf-8", errors="replace")
-        try:
-            parsed = json.loads(raw) if raw else None
-        except json.JSONDecodeError:
-            parsed = raw
-        return exc.code, parsed
+        # P1-2: Secrets-Handling - niemals Raw-Body in Exceptions loggen
+        # Hier geben wir nur den Status-Code zurück, Exceptions werden stumm geschluckt
+        return exc.code, {"error": "HTTP request failed (details suppressed to prevent secret leakage)"}
 
 
 def arr_api_base(host: str, port: int, api_version: str) -> str:
