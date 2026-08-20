@@ -139,72 +139,75 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         exit 1
       fi
 
+      STATE_FILE="/var/lib/cloudflare-ddns/state.json"
+      
+      # Determine if IPs actually changed
+      if [ -f "$STATE_FILE" ]; then
+        LAST_WAN=$(jq -r '.wan // empty' "$STATE_FILE")
+        LAST_LAN=$(jq -r '.lan // empty' "$STATE_FILE")
+        if [ "$LAST_WAN" = "$WAN_IP" ] && [ "$LAST_LAN" = "$LAN_IP" ]; then
+          echo "IPs unchanged (WAN: $WAN_IP, LAN: $LAN_IP). Exiting to save API calls."
+          exit 0
+        fi
+      fi
+      
       update_record() {
         local record_name="$1"
-        local ip="$2"
-        local proxied="$3"
+        local rtype="$2"
+        local content="$3"
+        local proxied="false"
         
-        echo "Processing $record_name -> $ip (proxied: $proxied)"
+        echo "Processing $record_name -> $content ($rtype)"
         
-        # Radically delete IPv6 (AAAA) to prevent IPv6 leaks (P0.2)
-        local aaaa_records=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=AAAA" \
-          -H "Authorization: Bearer $TOKEN" \
-          -H "Content-Type: application/json")
-        if echo "$aaaa_records" | jq -e '.success' > /dev/null; then
-          for id in $(echo "$aaaa_records" | jq -r '.result[].id'); do
-            echo "  Deleting leaking AAAA record $id..."
-            curl -s --fail-with-body -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Content-Type: application/json" > /dev/null
-          done
-        fi
+        # Radically delete conflicting A/AAAA/CNAME records
+        local search_types="A AAAA CNAME"
+        for stype in $search_types; do
+          if [ "$stype" = "$rtype" ]; then continue; fi
+          local records=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=$stype"             -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json")
+          if echo "$records" | jq -e '.success' > /dev/null; then
+            for id in $(echo "$records" | jq -r '.result[].id'); do
+              echo "  Deleting conflicting $stype record $id..."
+              curl -s --fail-with-body -X DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id"                 -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" > /dev/null
+            done
+          fi
+        done
 
-        # Update IPv4 (A)
-        local record_info=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=A" \
-          -H "Authorization: Bearer $TOKEN" \
-          -H "Content-Type: application/json")
+        # Update Target Record
+        local record_info=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=$rtype"           -H "Authorization: Bearer $TOKEN"           -H "Content-Type: application/json")
           
         local record_id=$(echo "$record_info" | jq -r '.result[0].id // empty')
-        local current_ip=$(echo "$record_info" | jq -r '.result[0].content // empty')
-        local current_proxied=$(echo "$record_info" | jq -r '.result[0].proxied // empty')
+        local current_content=$(echo "$record_info" | jq -r '.result[0].content // empty')
         
         if [ -z "$record_id" ]; then
           echo "  Record not found. Creating..."
-          curl -s --fail-with-body -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
-        elif [ "$current_ip" != "$ip" ] || [ "$current_proxied" != "$proxied" ]; then
-          echo "  IP or proxy status changed. Updating..."
-          curl -s --fail-with-body -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$record_id" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"type":"A","name":"'"$record_name"'","content":"'"$ip"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
+          curl -s --fail-with-body -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records"             -H "Authorization: Bearer $TOKEN"             -H "Content-Type: application/json"             --data '{"type":"'"$rtype"'","name":"'"$record_name"'","content":"'"$content"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
+        elif [ "$current_content" != "$content" ]; then
+          echo "  Content changed ($current_content -> $content). Updating..."
+          curl -s --fail-with-body -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$record_id"             -H "Authorization: Bearer $TOKEN"             -H "Content-Type: application/json"             --data '{"type":"'"$rtype"'","name":"'"$record_name"'","content":"'"$content"'","ttl":1,"proxied":'"$proxied"',"comment":"managed-by=mediNix-core/513"}' | jq -e '.success' > /dev/null
         else
-          echo "  IP and proxy status match. No update needed."
+          echo "  Content matches. No update needed."
         fi
       }
 
-      for domain in $STREAM_DOMAINS; do
-        update_record "$domain" "$WAN_IP" "false"
-        sleep 0.5
-      done
+      # 1. Update Anchors
+      update_record "wan.$ZONE" "A" "$WAN_IP"
+      sleep 0.5
+      update_record "lan.$ZONE" "A" "$LAN_IP"
+      sleep 0.5
 
-      for domain in $PUBLIC_DOMAINS; do
-        update_record "$domain" "$WAN_IP" "false"
-        sleep 0.5
-      done
-
-
-      for domain in $IDP_DOMAINS; do
-        update_record "$domain" "$WAN_IP" "false"
+      # 2. Update CNAMEs
+      for domain in $STREAM_DOMAINS $PUBLIC_DOMAINS $IDP_DOMAINS; do
+        update_record "$domain" "CNAME" "wan.$ZONE"
         sleep 0.5
       done
 
       for domain in $LAN_DOMAINS; do
-        update_record "$domain" "$LAN_IP" "false"
+        update_record "$domain" "CNAME" "lan.$ZONE"
         sleep 0.5
       done
+      
+      echo "{"wan":"$WAN_IP","lan":"$LAN_IP"}" > "$STATE_FILE"
+      
 
       echo "DDNS sync completed successfully."
     '';
