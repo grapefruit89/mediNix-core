@@ -54,12 +54,13 @@ let
         "defaults"
         "allow_other"
         "use_ino"
+        "noatime"
+        "func.getattr=newest"
         # cache.files=partial: Mmap compatible (Jellyfin DB), still relatively fresh
         "cache.files=partial"
         "dropcacheonclose=true"
-        # mfs = most-free-space: new files land on the backend with more space.
-        # Prevents downloads always landing on the full HDD.
-        "category.create=mfs"
+        # epmfs = existing path most free space: Keeps related files (e.g. TV seasons) on same disk
+        "category.create=epmfs"
         # Smaller chunk size → less fragmentation during tiering
         "minfreespace=10G"
       ];
