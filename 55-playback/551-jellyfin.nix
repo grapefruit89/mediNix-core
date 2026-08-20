@@ -89,4 +89,14 @@ lib.mkIf (cfg.enable) {
     serviceConfig.LoadCredentialEncrypted = [ "jellyfin-api-key:${cfg.secrets.jellyfinAdminPasswordFile}" ];
   };
 
+  # Hardware Acceleration (VA-API / QuickSync) Dependencies
+  hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver # iHD driver
+      vpl-gpu-rt        # QSV on 11th gen+
+      intel-vaapi-driver # i965 (older GPUs)
+      intel-compute-runtime # OpenCL filter support
+    ];
+  };
 }
