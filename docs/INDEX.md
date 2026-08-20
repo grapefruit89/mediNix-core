@@ -91,6 +91,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 
 ### Patterns & Idioms
 
+- [PATTERN-00-medinix-core.md](patterns/PATTERN-00-medinix-core.md)
 - [PATTERN 5000 adios flake](patterns/PATTERN-50-adios-flake.md)
 - [PATTERN 5000 alejandra](patterns/PATTERN-50-alejandra.md)
 - [PATTERN 5000 arch devenv](patterns/PATTERN-50-arch-devenv.md)
