@@ -52,3 +52,8 @@ Erstelle eine kompakte, optisch klar strukturierte Zusammenfassung, die ich spä
 
 ## Ein-Satz-Fazit
 Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist langfristig robuster, schlanker und wartbarer als verlockende, aber monolithische All-in-One-Lösungen.
+
+## Netzwerkhygiene & Routertausch-Robustheit (LAN)
+- **Keine hartcodierten LAN-IPs:** Um bei einem Routertausch oder Subnetz-Wechsel (z. B. von `192.168.178.x` auf `10.0.0.x`) nicht das ganze System debuggen zu müssen, sind statische LAN-IPs in den Configs tabu.
+- **Caddy als einziger LAN-Einstieg:** Auch im Heimnetz binden alle Container/Dienste ausschließlich an Loopback (`127.0.0.1`). Der Zugriff erfolgt immer namensbasiert über Caddy (z. B. über Split-Horizon DNS oder Tailscale MagicDNS).
+- **Subnetz-agnostisches Trust-Model:** Wenn Caddy LAN-Zugriffe authentifiziert oder freigibt, werden pauschal RFC1918-Ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) sowie Tailscale (`100.64.0.0/10`) als "trusted" betrachtet, anstatt sich auf ein spezifisches Subnetz zu verlassen.
