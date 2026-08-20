@@ -81,3 +81,8 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **Eine Datei = Ein Dienst:** Module sind dendritisch aufgebaut. Löscht man `532-sonarr.nix`, ist der Dienst inklusive Firewall, User, und Ingress rückstandsfrei entfernt. 
 - **Trennung von Code und Hardware:** Hardware-spezifische Dinge (Platten-UUIDs, Mounts, Netzwerkkarten) gehören isoliert nach `hosts/<name>/` und dürfen nicht in den generischen `mediNix-core` Modulen fest verdrahtet sein.
 - **Pragmatismus vor Isomorphie-Dogma:** Factories (`mkService`) werden genutzt, wo sie Boilerplate sparen. Eine extreme, mathematische 1:1:1-Isomorphie (jedes Modul erzwingt zwingend eine eigene ADR und einen Guide) wird als Over-Engineering abgelehnt. Dokumentiert (ADRs) wird nur dort, wo echte Architekturentscheidungen getroffen werden.
+
+## Secrets, DNS & Abwehr von "Agenten-Theater"
+- **Single Source of Truth für Secrets:** API-Keys und Passwörter gehören zentral in den Secret-Store (`LoadCredential`) und werden niemals verstreut in Klartext-Configdateien geschrieben. 
+- **DNS Local-First:** Lokale Dienste sprechen sich primär über `127.0.0.1` oder interne DNS-Zonen an, bevor sie externe Wege (Cloudflare-Tunnel etc.) nehmen.
+- **Anti-Buzzword-Policy:** Architekturkonzepte wie "Sovereign Loops", "Aviation-Grade XML-Repairs" oder überkomplexe "Network-Namespace-Blasen" (wie in alten nixflix-Iterationen) werden als unpraktikables Agenten-Theater verworfen. Stattdessen zählt robuste, idempontente Python-Automatisierung, die ohne wildes `sed`/`xmlstarlet` oder wackelige MCP-Tricks auskommt.
