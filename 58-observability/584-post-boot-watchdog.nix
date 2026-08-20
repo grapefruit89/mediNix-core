@@ -15,7 +15,8 @@
 let
   cfg = config.grapefruitMedia;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfy = "http://127.0.0.1:5810/mediNix-boot";
+  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-boot";
 
   registry = import ../lib/registry.nix { inherit lib; };
   # All services from Registry (with and without Port)
@@ -35,9 +36,12 @@ let
       # Check all known mediNix services
       for unit in ${unitList}; do
         if systemctl is-enabled --quiet "$unit.service" 2>/dev/null; then
-          if ! systemctl is-active --quiet "$unit.service" 2>/dev/null; then
+          state="$(systemctl show "$unit.service" -p ActiveState --value || true)"
+          
+          # ONLY restart if explicitly failed! Not if merely inactive (e.g. missing mount)
+          if [ "$state" = "failed" ]; then
             echo "Post-Boot: $unit failed, restarting..."
-            if systemctl start "$unit.service" 2>/dev/null; then
+            if systemctl restart "$unit.service" 2>/dev/null; then
               REPORT="$REPORT $unit(restarted)"
             else
               echo "Error restarting $unit" >&2

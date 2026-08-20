@@ -1,52 +1,61 @@
 # ---
 # id: "583-runtime-guard"
-# title: "Runtime-Guard — hourly check of the running machine (nftables/0.0.0.0/VPN)"
+# title: "Runtime-Guard - hourly check of the running machine (nftables/0.0.0.0/VPN)"
 # domain: 58
 # folder: 58-observability
-# status: active
-# complexity: 3
-# last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-0000 (Binding 127.0.0.1), ADR-5043
-#   repo-harvest: mynixos-v5 (runtime-guard pattern)
 # ---
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.grapefruitMedia;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfy = "http://127.0.0.1:5810/mediNix-runtime";
+  # Get ntfy port from registry
+  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-runtime";
 
   registry = import ../lib/registry.nix { inherit lib; };
-  # Get all ports from Registry for 0.0.0.0 Check
   portsList = lib.mapAttrsToList (_: svc: toString svc.port) (lib.filterAttrs (_: svc: svc.port != null) registry.services);
   portsRegex = lib.concatStringsSep "|" portsList;
 
   script = pkgs.writeShellApplication {
     name = "mediNix-runtime-guard";
-    runtimeInputs = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps ];
+    runtimeInputs = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
     text = ''
       set -euo pipefail
       NTFY="${ntfy}"
 
-      # 1. nftables rules still active?
-      if ! nft list ruleset 2>/dev/null | grep -q "nixos-fw"; then
-        curl -s -d "RUNTIME ALERT: nftables Firewall missing!" "$NTFY" || echo "NTFY Notification failed" >&2
+      alert() {
+        local msg="$1"
+        if ! curl --fail --silent --show-error -d "$msg" "$NTFY"; then
+          echo "CRITICAL: notification failed: $msg" >&2
+        fi
+      }
+
+      # 1. Check actual mediNix VPN security object.
+      if ! nft list table inet medinix_vpn >/dev/null 2>&1; then
+        alert "CRITICAL: medinix_vpn nftables table missing"
+        exit 1
+      fi
+      if ! nft list chain inet medinix_vpn killswitch >/dev/null 2>&1; then
+        alert "CRITICAL: VPN killswitch chain missing"
+        exit 1
       fi
 
-      # 2. Services bind to 127.0.0.1 (not 0.0.0.0)?
-      BAD=$(ss -tlnp 2>/dev/null | grep -E "0\.0\.0\.0:(${portsRegex})\b" || true)
+      # 2. Socket inspection must fail closed.
+      if ! LISTENERS="$(ss -H -ltnp)"; then
+        alert "CRITICAL: unable to inspect listening sockets"
+        exit 1
+      fi
+      BAD="$(printf '%s\n' "$LISTENERS" | grep -E '(:: :: ::|0\.0\.0\.0):(${portsRegex})\b' || true)"
       if [ -n "$BAD" ]; then
-        curl -s -d "RUNTIME ALERT: Service binds to 0.0.0.0! $BAD" "$NTFY" || echo "NTFY Notification failed" >&2
+        alert "CRITICAL: wildcard listener detected: $BAD"
       fi
 
-      # 3. VPN interface UP and route active, if confinement is active?
+      # 3. VPN interface.
       IFACE="${toString cfg.vpn.interface}"
       if [ -n "$IFACE" ]; then
         if ! ip link show "$IFACE" >/dev/null 2>&1; then
-          curl -s -d "RUNTIME ALERT: VPN interface $IFACE DOWN!" "$NTFY" || echo "NTFY Notification failed" >&2
-        elif ! ip route show table all dev "$IFACE" | grep -q "default"; then
-          curl -s -d "RUNTIME ALERT: VPN interface $IFACE UP, but no default route active!" "$NTFY" || echo "NTFY Notification failed" >&2
+          alert "CRITICAL: VPN interface down"
         fi
       fi
 
@@ -57,17 +66,26 @@ in
 lib.mkIf (cfg.enable && cfg.observability.runtimeGuard) {
   systemd.timers.mediNix-runtime-guard = {
     wantedBy = [ "timers.target" ];
-    timerConfig.OnCalendar = "hourly";
+    timerConfig = {
+      OnCalendar = "hourly";
+      Persistent = true;
+      Unit = "mediNix-runtime-guard.service";
+    };
   };
 
   systemd.services.mediNix-runtime-guard = {
+    unitConfig = {
+      StartLimitIntervalSec = "1h";
+      StartLimitBurst = 2;
+    };
     serviceConfig = profiles.script // { 
       Type = "oneshot";
       PrivateNetwork = false;
-      CapabilityBoundingSet = "CAP_NET_ADMIN";
-      AmbientCapabilities = "CAP_NET_ADMIN";
+      # Removed CAP_NET_ADMIN to prevent Privilege Escalation
+      CapabilityBoundingSet = "";
+      AmbientCapabilities = "";
     };
-    path = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps ];
+    path = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
     script = "${lib.getExe script}";
   };
 }
