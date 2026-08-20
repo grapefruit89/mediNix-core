@@ -52,43 +52,64 @@ in
   };
 
   config = lib.mkIf (activeInstances != {}) {
+    networking.nftables.enable = true;
     assertions = [
       {
         assertion = cfg.vpnInterface != "";
         message = "[vpnKillSwitch] vpnInterface must be defined when instances are active.";
       }
+      {
+        assertion = lib.all (n: lib.hasAttr n config.systemd.services) (lib.attrNames activeInstances);
+        message = "vpnKillSwitch.instances.<name> must match an existing systemd service name.";
+      }
     ];
 
-    networking.nftables.tables.medinix_vpn = {
-      family = "inet";
+    networking.nftables.tables.medinix_vpn_mark = {
+      family = "ip";
       content = ''
         chain mark {
           type route hook output priority mangle; policy accept;
-
-          meta skuid != { ${uidList} } accept
-
-          ip daddr 127.0.0.0/8 accept
-          ip6 daddr ::1/128 accept
-          ${if lanCidrsStr != "" then "ip daddr { ${lanCidrsStr} } accept" else ""}
-
-          meta mark set ${mark}
+          ${lib.concatMapStringsSep "
+" (name: ''
+            meta skuid ${toString activeInstances.${name}.uid} jump mark_${name}
+          '') (lib.attrNames activeInstances)}
         }
+        ${lib.concatMapStringsSep "
+" (name: ''
+          chain mark_${name} {
+            ip daddr 127.0.0.0/8 accept
+            ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != []) ''
+              ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
+            ''}
+            meta mark set ${mark}
+          }
+        '') (lib.attrNames activeInstances)}
+      '';
+    };
 
+    networking.nftables.tables.medinix_vpn_filter = {
+      family = "inet";
+      content = ''
         chain killswitch {
           type filter hook output priority 0; policy accept;
-
-          meta skuid != { ${uidList} } accept
-
-          oifname "lo" accept
-          ip daddr 127.0.0.0/8 accept
-          ip6 daddr ::1/128 accept
-          ${if lanCidrsStr != "" then "ip daddr { ${lanCidrsStr} } accept" else ""}
-
-          # ONLY traffic matching our mark on the explicit VPN interface is allowed out
-          meta skuid { ${uidList} } meta mark ${mark} oifname "${vpnIf}" accept
-          
-          meta skuid { ${uidList} } drop
+          ${lib.concatMapStringsSep "
+" (name: ''
+            meta skuid ${toString activeInstances.${name}.uid} jump kill_${name}
+          '') (lib.attrNames activeInstances)}
         }
+        ${lib.concatMapStringsSep "
+" (name: ''
+          chain kill_${name} {
+            oifname "lo" accept
+            ip daddr 127.0.0.0/8 accept
+            ip6 daddr ::1/128 accept
+            ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != []) ''
+              ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
+            ''}
+            meta mark ${mark} oifname "${vpnIf}" accept
+            drop
+          }
+        '') (lib.attrNames activeInstances)}
       '';
     };
 
@@ -97,8 +118,8 @@ in
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];
       # P1-2: Hard dependency on wireguard interface
-      requires = [ "wireguard-${vpnIf}.service" ];
-      after = [ "network-online.target" "wireguard-${vpnIf}.service" ];
+      requires = [ "wireguard-${vpnIf}.service" "nftables.service" ];
+      after = [ "network-online.target" "wireguard-${vpnIf}.service" "nftables.service" ];
       before = map (n: "${n}.service") (lib.attrNames activeInstances);
       serviceConfig = {
         Type = "oneshot";
@@ -106,7 +127,8 @@ in
         ExecStart = pkgs.writeShellScript "medinix-vpn-route-start" ''
           set -euo pipefail
 
-          if ! ${pkgs.iproute2}/bin/ip rule show | grep -Fq "fwmark ${mark} lookup ${table}"; then
+          hexmark="$(printf '0x%x' ${mark})"
+          if ! ${pkgs.iproute2}/bin/ip rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}"; then
             ${pkgs.iproute2}/bin/ip rule add fwmark ${mark} table ${table} priority 1000
           fi
           
@@ -114,20 +136,20 @@ in
           ${pkgs.iproute2}/bin/ip route replace default dev ${vpnIf} table ${table} metric 10
           
           # Verify rule exists, otherwise fail-closed
-          ${pkgs.iproute2}/bin/ip rule show | grep -Fq "fwmark ${mark} lookup ${table}" || {
+          ${pkgs.iproute2}/bin/ip rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}" || {
              echo "FATAL: IPv4 policy rule missing" >&2
              exit 1
           }
 
           ${if cfg.ipv6 then ''
-          if ! ${pkgs.iproute2}/bin/ip -6 rule show | grep -Fq "fwmark ${mark} lookup ${table}"; then
+          if ! ${pkgs.iproute2}/bin/ip -6 rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}"; then
             ${pkgs.iproute2}/bin/ip -6 rule add fwmark ${mark} table ${table} priority 1000
           fi
           ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table ${table} metric 100
           if ${pkgs.iproute2}/bin/ip -6 addr show dev ${vpnIf} | grep -q inet6; then
             ${pkgs.iproute2}/bin/ip -6 route replace default dev ${vpnIf} table ${table} metric 10
           fi
-          ${pkgs.iproute2}/bin/ip -6 rule show | grep -Fq "fwmark ${mark} lookup ${table}" || {
+          ${pkgs.iproute2}/bin/ip -6 rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}" || {
              echo "FATAL: IPv6 policy rule missing" >&2
              exit 1
           }

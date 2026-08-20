@@ -131,6 +131,7 @@ def _list_libraries(base_url: str, token: str) -> list[dict[str, Any]]:
 
 
 def _prune_undeclared_libraries(base_url: str, token: str) -> None:
+    return # P1-3: Stop state war. Do not delete user-created libraries.
     for library in _list_libraries(base_url, token):
         name = library.get("Name")
         if not name or name in _DECLARED_LIBRARIES:

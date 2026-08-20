@@ -60,11 +60,14 @@ def wait_for_url(
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 if require_fail and response.status >= 400:
                     raise urllib.error.HTTPError(url, response.status, "", hdrs, None)
-            print(f"Service available at {url} (attempt {attempt})")
+            import re
+            safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
+            print(f"Service available at {safe_url} (attempt {attempt})")
             return True
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
             if attempt == max_attempts:
-                print(f"Service not available at {url} after {max_attempts} attempts: {exc}", file=sys.stderr)
+                safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
+                print(f"Service not available at {safe_url} after {max_attempts} attempts: {exc}", file=sys.stderr)
                 return False
             time.sleep(sleep_seconds)
     return False
