@@ -48,9 +48,9 @@ let
   idpServices = lib.filterAttrs (n: vhost: vhost.accessGroup == "idp") enabledServices;
   lanServices    = lib.filterAttrs (n: vhost: vhost.accessGroup == "internal") enabledServices;
   effectiveDomain = if zone != null then zone else (if cfg.domain != null then cfg.domain else "local");
-  streamDomains = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") streamServices;
-  publicDomains = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") publicServices;
-  lanDomains    = lib.mapAttrsToList (n: vhost: "${registry.${n}.name}.${effectiveDomain}") lanServices;
+  streamDomains = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") streamServices;
+  publicDomains = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") publicServices;
+  lanDomains    = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") lanServices;
 
   # Build space-separated strings for the bash script
   streamDomainsStr = builtins.concatStringsSep " " streamDomains;
