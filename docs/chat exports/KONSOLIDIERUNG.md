@@ -68,3 +68,6 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **href-freies Routing:** Navigation erfolgt über `/go/1`, `/go/2` Caddy-Routes und `data-go`-Attribute mit minimalem JavaScript, um plumpe Crawler ins Leere laufen zu lassen. Keine sichtbaren URLs im Quelltext.
 - **Honeypot via CrowdSec:** Die Seite enthält unsichtbare Honeypot-Elemente (z. B. auf `/.env` oder `/wp-admin`). Caddy leitet diese Aufrufe ab oder loggt sie schlicht als 404. CrowdSec liest das Log und vollstreckt einen harten L3/L4 Ban (z.B. für 12 Stunden) in `nftables`.
 - **Anti-Overengineering:** Spielereien wie Klick-Erkennung durch den Webserver, 3-Pixel Bot-Fallen, Proof-of-Work oder Headless-Browser-Detection werden bewusst weggelassen. Der Webserver (Caddy) bleibt flach und dumm (nur `file_server`), der Schutz erfolgt auf Log-Ebene.
+
+## Paketierung & Abhängigkeiten (Nix)
+- **Verbot externer Flake-Inputs:** Externe Flake-Inputs (z.B. `github:user/repo`) bergen ein hohes Link-Rot-Risiko und den Verlust der Kontrolle (Upstream Changes). Wenn überhaupt eine Flake genutzt wird, muss sie als eigener Fork unter 100% eigener Kontrolle stehen. Klassische NixOS-Module bleiben der bevorzugte Hauptweg.
