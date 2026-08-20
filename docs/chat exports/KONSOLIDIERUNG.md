@@ -71,3 +71,8 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 
 ## Paketierung & Abhängigkeiten (Nix)
 - **Verbot externer Flake-Inputs:** Externe Flake-Inputs (z.B. `github:user/repo`) bergen ein hohes Link-Rot-Risiko und den Verlust der Kontrolle (Upstream Changes). Wenn überhaupt eine Flake genutzt wird, muss sie als eigener Fork unter 100% eigener Kontrolle stehen. Klassische NixOS-Module bleiben der bevorzugte Hauptweg.
+
+## App-Konfiguration & User-Management (am Beispiel Jellyfin)
+- **OIDC/SSO statt lokaler Nutzer:** Nutzerverwaltung sollte zentral über den Identity Provider (Pocket-ID) laufen. Lokale App-Nutzer bergen das Risiko von "Configuration Drift" durch GUI-Änderungen (`mutable = true`).
+- **Keine API-Hacks (`curl`) nach dem Start:** Imperative Post-Start-Skripte (`ExecStartPost = "curl ..."`) sind extrem anfällig für Race Conditions und State-Wars. API-Automatisierung ist nur als absolute, strikt idempotente Ausnahme erlaubt, falls es keine native deklarative Option oder SQLite-Lösung gibt.
+- **Secrets & Remote-Access:** Secrets werden per `LoadCredential` in den Service-Kontext injiziert; Dateibasierte Secrets müssen saubere Ownership des Service-Users haben. Nativer Remote-Access innerhalb der Apps (z.B. Jellyfin WAN-Freigaben) bleibt deaktiviert, die Absicherung erfolgt zentral am Ingress (Caddy).
