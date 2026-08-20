@@ -76,3 +76,8 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **OIDC/SSO statt lokaler Nutzer:** Nutzerverwaltung sollte zentral über den Identity Provider (Pocket-ID) laufen. Lokale App-Nutzer bergen das Risiko von "Configuration Drift" durch GUI-Änderungen (`mutable = true`).
 - **Keine API-Hacks (`curl`) nach dem Start:** Imperative Post-Start-Skripte (`ExecStartPost = "curl ..."`) sind extrem anfällig für Race Conditions und State-Wars. API-Automatisierung ist nur als absolute, strikt idempotente Ausnahme erlaubt, falls es keine native deklarative Option oder SQLite-Lösung gibt.
 - **Secrets & Remote-Access:** Secrets werden per `LoadCredential` in den Service-Kontext injiziert; Dateibasierte Secrets müssen saubere Ownership des Service-Users haben. Nativer Remote-Access innerhalb der Apps (z.B. Jellyfin WAN-Freigaben) bleibt deaktiviert, die Absicherung erfolgt zentral am Ingress (Caddy).
+
+## Code-Struktur & Modularität (Das "Drop & Forget" Prinzip)
+- **Eine Datei = Ein Dienst:** Module sind dendritisch aufgebaut. Löscht man `532-sonarr.nix`, ist der Dienst inklusive Firewall, User, und Ingress rückstandsfrei entfernt. 
+- **Trennung von Code und Hardware:** Hardware-spezifische Dinge (Platten-UUIDs, Mounts, Netzwerkkarten) gehören isoliert nach `hosts/<name>/` und dürfen nicht in den generischen `mediNix-core` Modulen fest verdrahtet sein.
+- **Pragmatismus vor Isomorphie-Dogma:** Factories (`mkService`) werden genutzt, wo sie Boilerplate sparen. Eine extreme, mathematische 1:1:1-Isomorphie (jedes Modul erzwingt zwingend eine eigene ADR und einen Guide) wird als Over-Engineering abgelehnt. Dokumentiert (ADRs) wird nur dort, wo echte Architekturentscheidungen getroffen werden.
