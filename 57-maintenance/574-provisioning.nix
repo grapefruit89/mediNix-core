@@ -20,7 +20,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "One-time provisioning: register SABnzbd + Prowlarr + Root Folders in *arr via API";
     after = [ "network.target" "sabnzbd.service" "prowlarr.service"
-              "sonarr.service" "radarr.service" ];
+              "sonarr.service" "radarr.service" ] ++ lib.optional cfg.jellyfin.enable "jellyfin.service" ++ lib.optional cfg.jellyseerr.enable "jellyseerr.service";
     wantedBy = [ "multi-user.target" ];
     unitConfig = {
       # Bootstrap: nur wenn Flag fehlt ODER force = true
@@ -44,6 +44,9 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           "/var/lib/mediNix-state"
           (lib.mkIf cfg.sonarr.enable "-/var/lib/sonarr-${toString registry.sonarr.port}")
           (lib.mkIf cfg.radarr.enable "-/var/lib/radarr-${toString registry.radarr.port}")
+        ];
+        LoadCredentialEncrypted = lib.optionals (cfg.jellyfin.enable && cfg.jellyfin.adminPasswordFile != null) [
+          "jellyfin-admin-pw:${cfg.jellyfin.adminPasswordFile}"
         ];
         ExecStart = pkgs.writeShellScript "run-arr-provision" ''
           set -euo pipefail
@@ -78,6 +81,16 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           echo "Running arr-sync-prowlarr..."
           ${arrProv}/bin/arr-sync-prowlarr
           
+          if [ "${SYNC_JELLYFIN}" = "1" ]; then
+            echo "Running arr-sync-jellyfin..."
+            ${arrProv}/bin/arr-sync-jellyfin
+          fi
+          
+          if [ "${SYNC_JELLYSEERR}" = "1" ]; then
+            echo "Running arr-sync-seerr..."
+            ${arrProv}/bin/arr-sync-seerr
+          fi
+          
           touch "$FLAG_FILE"
         '';
       }
@@ -86,6 +99,32 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       FLAG_FILE = flagFile;
       SAB_API_FILE = cfg.secrets.sabnzbdApiKeyFile;
       PROWLARR_API_FILE = cfg.secrets.prowlarrApiKeyFile;
+    } // lib.optionalAttrs cfg.jellyfin.enable {
+      JELLYFIN_PORT = toString registry.jellyfin.port;
+      JELLYFIN_MOVIES_PATH = "${cfg.storage.mediaRoot}/movies";
+      JELLYFIN_TV_PATH = "${cfg.storage.mediaRoot}/tvshows";
+      JELLYFIN_ADMIN_USER = "admin";
+      JELLYFIN_ADMIN_PASSWORD_FILE = if cfg.jellyfin.adminPasswordFile != null then "/run/credentials/mediNix-provision/jellyfin-admin-pw" else "";
+    } // lib.optionalAttrs cfg.jellyseerr.enable {
+      SEERR_PORT = toString registry.jellyseerr.port;
+      SEERR_CONFIG_JSON = builtins.toJSON {
+        jellyfinHost = "127.0.0.1";
+        jellyfinPort = registry.jellyfin.port;
+        jellyfinUseSsl = false;
+        adminUsername = "admin";
+        adminPasswordFile = if cfg.jellyfin.adminPasswordFile != null then "/run/credentials/mediNix-provision/jellyfin-admin-pw" else "";
+        locale = "de";
+        sonarr = {
+          host = "127.0.0.1";
+          port = registry.sonarr.port;
+          api_key_file = "/var/lib/sonarr-${toString registry.sonarr.port}/config.xml";
+        };
+        radarr = {
+          host = "127.0.0.1";
+          port = registry.radarr.port;
+          api_key_file = "/var/lib/radarr-${toString registry.radarr.port}/config.xml";
+        };
+      };
     } // lib.optionalAttrs cfg.sonarr.enable {
       SONARR_ROOT = cfg.sonarr.rootFolder;
     } // lib.optionalAttrs cfg.radarr.enable {
