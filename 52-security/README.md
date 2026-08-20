@@ -27,6 +27,7 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 | **520** | [core-security](520-core-security.nix) <br> [[ADR-0000]] | Break-glass SSH user (`media-admin`) with Ed25519 key authentication only. |
 | **525** | [vpn-interface](525-vpn-interface.nix) <br> [[ADR-5270]] | Declarative WireGuard interface (`wg0`). |
 | **526** | [vpn-killswitch](526-vpn-killswitch.nix) <br> [[ADR-5260]] | A pure-Linux policy routing engine (nftables + ip rule) providing absolute Fail-Closed isolation for services that opt-in via `services.vpnKillSwitch.instances`. |
+| **528** | [fde-tpm2](528-fde-tpm2.nix) | N/A | **Full Disk Encryption (LUKS2)**. Prepares the system for TPM2-backed unattended unlocking using systemd-cryptenroll. |
 
 ## 🏗️ Key Architecture Decisions
 

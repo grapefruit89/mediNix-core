@@ -28,6 +28,8 @@ This domain uses a "Chameleon" architecture for the Caddy reverse proxy, seamles
 | **512** | [pocket-id](512-pocket-id.nix) <br> [[ADR-5120]] | `5120` | **Pocket ID** — A self-hosted OIDC provider. Used by Caddy to perform `forward_auth` for services that require strict access control. |
 | **513** | [cloudflare-dns](513-cloudflare-dns.nix) <br> [[ADR-5130]] | `5130` | **Split-Horizon DDNS**. It dynamically updates Cloudflare A-records. WAN services get the public IP, while LAN-only services get the internal LAN IP. Proxying (Orange Cloud) is strictly disabled to allow local TLS termination. |
 | **514** | [acme](514-acme.nix) <br> [[ADR-5140]] | N/A | **Native NixOS ACME (Lego)**. Manages wildcard certificates (`*.domain.com`) using the Cloudflare API (DNS-01 challenge). Certificates are exclusively read by Caddy. |
+| **515** | [mdns](515-mdns.nix) <br> [[ADR-5150]] | N/A | **mDNS Reflector**. Re-broadcasts mDNS packets across VLAN boundaries via Avahi, crucial for local discovery of casting devices across subnets. |
+| **518** | [landingpage](518-landingpage.nix) <br> [[ADR-5180]] | N/A | **Static Landing Page**. A completely flat, statically compiled HTML dashboard (without Javascript hrefs) serving as a central hub and automated honeypot for CrowdSec bans. |
 
 ## 🛡️ Key Architecture Decisions
 
