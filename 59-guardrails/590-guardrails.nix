@@ -22,12 +22,34 @@ let
 in
 lib.mkIf cfg.enable {
   assertions = [
+
+    # INV-PUBLIC-TLS-AUTH: Public VHosts must have TLS and Auth
+    (reg.mkInvariant "INV-PUBLIC-TLS-AUTH"
+      (let
+        publicVhosts = lib.filterAttrs (_: v: v.accessGroup == "public") (cfg.ingress.vhosts or {});
+      in
+        publicVhosts == {} ||
+        (cfg.ingress.tls.mode != "off" &&
+         (cfg.ingress.auth.mode != "off" || cfg.ingress.allowPublicUnauth == true))
+      ))
+
     # ---------------------------------------------------------
     # CORE GUARDRAILS
     # ---------------------------------------------------------
-    (reg.mkInvariant "INV-01"
-       (lib.all (svc: svc.port == null || svc.port == svc.num * 10)
-            (lib.attrValues servicesReg.services)))
+    (reg.mkInvariant "INV-01-PORT-FORMAT"
+      (lib.all (svc: svc.port == null || svc.port == svc.num * 10) (lib.attrValues servicesReg.services)))
+
+    (reg.mkInvariant "INV-01-PORT-UNIQUE"
+      (let 
+        ports = lib.filter (p: p != null) (map (s: s.port) (lib.attrValues servicesReg.services));
+        sorted = lib.sort builtins.lessThan ports;
+       in lib.length sorted == lib.length (lib.unique sorted)))
+
+    (reg.mkInvariant "INV-01-UID-UNIQUE"
+      (let 
+        uids = lib.filter (p: p != null) (map (s: s.uid or null) (lib.attrValues servicesReg.services));
+        sorted = lib.sort builtins.lessThan uids;
+       in lib.length sorted == lib.length (lib.unique sorted)))
 
     (reg.mkInvariant "INV-03"
       (let servicesWithGid = lib.filterAttrs (_: svc: svc.gid != null) servicesReg.services;
@@ -70,7 +92,7 @@ lib.mkIf cfg.enable {
       "5130")
 
     (reg.mkInvariant "INV-DNS-01"
-      (!config.services.resolved.enable || config.services.resolved.dnsovertls == "true" || config.services.resolved.dnsovertls == "opportunistic"))
+      (!config.services.resolved.enable || config.services.resolved.dnsovertls == "true"))
 
     # ---------------------------------------------------------
     # SECURITY GUARDRAILS

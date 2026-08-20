@@ -56,16 +56,26 @@ lib.mkIf cfg.enable {
     #  wiring is intact so a module refactor can't silently remove the protection.)
     (reg.mkErrorDoc "VPN-010"
       (cfg.usenet-confinement.enable ->
-        (   (config.services.vpnKillSwitch.instances or {}) ? "sabnzbd"
-         && config.services.vpnKillSwitch.instances.sabnzbd.enable))
+        let
+          inst = config.services.vpnKillSwitch.instances.sabnzbd or null;
+          regUid = svcReg.services.sabnzbd.uid;
+        in
+          inst != null
+          && inst.enable
+          && inst.uid == regUid)
       "5410")
 
     # VPN-011: When usenet-confinement is active AND Prowlarr is enabled,
     # Prowlarr must also be under killswitch (IP-leak prevention).
     (reg.mkErrorDoc "VPN-011"
       (cfg.usenet-confinement.enable && cfg.prowlarr.enable ->
-        (   (config.services.vpnKillSwitch.instances or {}) ? "prowlarr"
-         && config.services.vpnKillSwitch.instances.prowlarr.enable))
+        let
+          inst = config.services.vpnKillSwitch.instances.prowlarr or null;
+          regUid = svcReg.services.prowlarr.uid;
+        in
+          inst != null
+          && inst.enable
+          && inst.uid == regUid)
       "5410")
   ];
 }
