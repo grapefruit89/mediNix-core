@@ -82,6 +82,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ARCH 5000 service manifest](arch/ARCH-50-service-manifest.md)
 - [ARCH 5000 status dashboard](arch/ARCH-50-status-dashboard.md)
 - [ARCH 5100 cloudflare zero trust](arch/ARCH-51-cloudflare-zero-trust.md)
+- [ARCH-51-dns-and-ingress-strategy.md](arch/ARCH-51-dns-and-ingress-strategy.md)
 - [ARCH 5200 flake checker](arch/ARCH-52-flake-checker.md)
 - [ARCH 5200 vault sidecar](arch/ARCH-52-vault-sidecar.md)
 - [ARCH 5700 disaster recovery](arch/ARCH-57-disaster-recovery.md)
