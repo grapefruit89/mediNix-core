@@ -92,6 +92,13 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       # DNS-01 Challenge via Cloudflare
       dnsProvider = "cloudflare";
 
+      # Lego-Tuning to prevent propagation timeouts (P0.4/Audit Idea)
+      environment = {
+        CLOUDFLARE_DNS_RESOLVERS = "1.1.1.1,1.0.0.1";
+        CLOUDFLARE_POLLING_INTERVAL = "10";
+        CLOUDFLARE_PROPAGATION_TIMEOUT = "120";
+      };
+      
       # Plain file path — only set when no TPM-sealed credential is available.
       # When credPath != null, the EnvironmentFile override below takes precedence.
       credentialsFile = lib.mkIf (plainTokenFile != null) plainTokenFile;
