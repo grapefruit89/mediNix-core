@@ -51,6 +51,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5140 oidc auth pocketid authelia](adr/ADR-51-oidc-auth-pocketid-authelia.md)
 - [ADR 5120 pocket id oidc module](adr/ADR-51-pocket-id-oidc-module.md)
 - [ADR 5115 split dns note](adr/ADR-51-split-dns-note.md)
+- [ADR-5180-landingpage-honeypot.md](adr/ADR-5180-landingpage-honeypot.md)
 - [ADR 5210 nftables firewall baseline](adr/ADR-52-nftables-firewall-baseline.md)
 - [ADR 5200 privesc audit hardening](adr/ADR-52-privesc-audit-hardening.md)
 - [ADR 5000 secret management](adr/ADR-52-secret-management.md)
