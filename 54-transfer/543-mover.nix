@@ -45,8 +45,23 @@ let
         | while read -r f; do
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
+          
+          # Atomic Move Logic:
+          # 1. Copy to a hidden .staging folder on the SAME filesystem (HDD)
+          # 2. Atomic rename to the final destination so Jellyfin never sees incomplete files
+          staging_dest="$ARCHIVE/.staging_mover/tmp_$(basename "$f")"
+          
           mkdir -p "$(dirname "$dest")"
-          mv -f "$f" "$dest"
+          mkdir -p "$ARCHIVE/.staging_mover"
+          
+          # Copy to HDD staging
+          cp -f "$f" "$staging_dest"
+          
+          # Atomic rename to final path
+          mv -f "$staging_dest" "$dest"
+          
+          # Remove original on SSD
+          rm -f "$f"
         done
 
       echo "Mover done"
