@@ -58,8 +58,6 @@ in
           User = "sabnzbd";
           Group = "media";
           UMask = "0002";
-          RuntimeDirectory = "sabnzbd-tmp";
-          RuntimeDirectoryMode = "0700";
           StateDirectory = "sabnzbd-${toString port}";
           MemoryHigh = "2G";
           MemoryMax = "4G";
@@ -70,10 +68,12 @@ in
             "/run/sabnzbd-tmp"
           ];
         }
-        # SABnzbd Usenet-Provider-Credentials (TPM-encrypted)
-        (lib.mkIf (cfg.serverCredentialFile != null) {
-          LoadCredentialEncrypted = [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ];
-        })
+        {
+          LoadCredentialEncrypted = lib.mkMerge [
+            (lib.mkIf (cfg.serverCredentialFile != null) [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ])
+            (lib.mkIf (cfg.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ])
+          ];
+        }
       ];
       environment = {
         SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
@@ -84,14 +84,25 @@ in
     };
 
     # Moved inside mkIf cfg.enable
+    
+
+    # Strict tmpfs limit for SABnzbd to prevent OOM
+    systemd.mounts = [{
+      what = "tmpfs";
+      where = "/run/sabnzbd-tmp";
+      type = "tmpfs";
+      options = "size=1G,mode=0700";
+    }];
+
+    systemd.services.sabnzbd.requires = [ "run-sabnzbd\x2dtmp.mount" ];
+    systemd.services.sabnzbd.after = [ "run-sabnzbd\x2dtmp.mount" ];
+
     grapefruitMedia.persist.extraPaths = [ stateDir ];
     grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
 
-    # Credentials
-    systemd.services.sabnzbd.serviceConfig.LoadCredentialEncrypted = lib.mkIf (cfg.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ];
-
-    # Killswitch
-    services.vpnKillSwitch.instances.sabnzbd = lib.mkIf cfg.usenet-confinement.enable {
+    
+    # Killswitch - Unconditionally enabled per Iron-Zero principles
+    services.vpnKillSwitch.instances.sabnzbd = {
       enable = true;
       uid = uid;
     };

@@ -19,7 +19,7 @@ let
 
   moverScript = pkgs.writeShellApplication {
     name = "mediNix-mover";
-    runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.gawk ];
+    runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.gawk pkgs.util-linux pkgs.lsof ];
     text = ''
       set -euo pipefail
 
@@ -60,6 +60,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
     # StartLimit belongs in [Unit] (= unitConfig), not in [Service] (serviceConfig).
     # Limits real service starts if staging is noisy (not just Log-IO).
     unitConfig = {
+      RequiresMountsFor = [ cfg.stagingDir cfg.archiveDir ];
       StartLimitBurst = 3;
       StartLimitIntervalSec = "60";
     };
@@ -70,6 +71,8 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
         User = "media";
         Group = "media";
         UMask = "002";
+      
+      RuntimeDirectory = "medinix-mover";
         ReadWritePaths = [ cfg.stagingDir cfg.archiveDir ];
         RateLimitBurst = 5;
         RateLimitIntervalSec = "30s";
@@ -83,7 +86,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
     wantedBy = [ "paths.target" ];
     pathConfig = {
       PathChanged = cfg.stagingDir;
-      DirectoryNotEmpty = cfg.stagingDir;
+      # DirectoryNotEmpty removed to prevent trigger loops
     };
   };
 }
