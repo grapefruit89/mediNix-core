@@ -74,15 +74,11 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
 
       # P0.3: Wildcard key must NOT belong to the broad "media" group (blast radius).
       # Certificate group is limited to the Caddy process only.
-      group = if config.services.caddy.enable
-              then config.services.caddy.group
-              else "caddy-media";
+      group = "caddy";
 
       # Reload Caddy after certificate renewal
       reloadServices =
-        if config.services.caddy.enable
-        then [ "caddy.service" ]
-        else [ "caddy-media.service" ];
+        [ "caddy.service" ];
     };
 
     certs.${acmeHost} = {
