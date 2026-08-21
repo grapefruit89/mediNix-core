@@ -33,6 +33,7 @@ confirmed: reverse_proxy, TLS via Cloudflare DNS-01, fail2ban-style banning.
 - `reverse_proxy` to `localhost:<service-port>` for each mediNix service
 - TLS: Cloudflare DNS-01 challenge (ADR-5130), no CF proxy
 - Auth: `forward_auth` to Pocket ID (ADR-5120) for protected routes
+- **Deadlock-Prevention:** The IdP VHost itself is assigned `accessGroup = "idp"` which explicitly lacks the `forward_auth` block. Furthermore, the IdP must be automatically activated in Caddy when `auth.mode == "forward-auth"`, avoiding missing Upstream errors.
 - Hardening: `ProtectSystem=strict`, `PrivateTmp`, `NoNewPrivileges` (ADR-5050)
 
 ## Consequences

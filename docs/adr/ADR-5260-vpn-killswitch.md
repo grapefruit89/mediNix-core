@@ -58,6 +58,7 @@ Following a strict Red-Team audit, we opted for pure-Linux **Policy Routing** (`
 3. **DNS Isolation without Leaks:**
    - We inject a custom `resolv.conf` into the SABnzbd container using `BindReadOnlyPaths`, pointing exclusively to the VPN provider's DNS server.
    - Because `nftables` marks UDP port 53 for this UID, the DNS query is forcibly routed through the tunnel (or into the blackhole).
+   - **Important Guardrail:** The `dnsServers` configuration must explicitly be set (not empty). If it were empty, `resolv.conf` would be empty, causing `glibc` to silently fall back to `127.0.0.1` and bypass the tunnel completely. An assertion enforces `dnsServers != []`.
 
 ## Prowlarr Emergency Brake (Warning!)
 Prowlarr (the Indexer) must **never** be routed through the VPN, as Usenet/Torrent indexers aggressively block VPN IPs or flood them with CAPTCHAs. Thanks to the dendritic architecture, Prowlarr was simply unsubscribed in `536-prowlarr.nix`.

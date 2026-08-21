@@ -66,3 +66,4 @@ If a bug is found (Audit, Deploy, Runtime), it MUST be immortalized as an Invari
 - `lib.warn "..."` instead of `mkInvariant` (not fail-closed)
 - Inline text in modules instead of a central registry (docs drift)
 - Using `INV-*` for config errors (these are `errors`, not invariants)
+- **Enum Drift:** Assertions MUST test against the actual current Enum values (e.g. `"none"` instead of `"off"`). Assertions that test outdated Enum values provide a false sense of security and always pass.
