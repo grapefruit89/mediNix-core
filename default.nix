@@ -342,7 +342,7 @@ in
       vhosts = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
           options = {
-            accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" ]; };
+            accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" "idp" "none" ]; };
             customConfig = lib.mkOption { type = lib.types.lines; default = ""; };
           };
         });

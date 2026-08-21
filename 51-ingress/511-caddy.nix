@@ -29,7 +29,7 @@ let
   enabledServices = lib.filterAttrs (n: vhost:
     let
       # Use camelCase fallback for things like pocketId
-      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or (n == "pocket-id" && ing.auth.mode == "forward-auth") or false;
     in enabled && (registry.${n}.port or null) != null
   ) cfg.ingress.vhosts;
 
@@ -56,7 +56,7 @@ let
       port = toString svc.port;
       
       authBlock = if ing.auth.mode == "forward-auth" then ''
-        forward_auth ${ing.auth.forwardAuthUpstream} {
+        forward_auth ${(if ing.auth.forwardAuthUpstream != "" then ing.auth.forwardAuthUpstream else "127.0.0.1:${toString registry."pocket-id".port}")} {
           uri ${ing.auth.forwardAuthUri}
           copy_headers Remote-User Remote-Email Remote-Groups \
                        X-Auth-Request-User X-Auth-Request-Email

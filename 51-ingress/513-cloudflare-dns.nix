@@ -49,6 +49,7 @@ let
   lanServices    = lib.filterAttrs (n: vhost: vhost.accessGroup == "internal") enabledServices;
   effectiveDomain = if zone != null then zone else (if cfg.domain != null then cfg.domain else "local");
   streamDomains = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") streamServices;
+  idpDomains = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") idpServices;
   publicDomains = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") publicServices;
   lanDomains    = lib.mapAttrsToList (n: vhost: "${n}.${effectiveDomain}") lanServices;
 

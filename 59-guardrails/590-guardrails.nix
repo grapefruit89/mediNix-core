@@ -30,7 +30,7 @@ lib.mkIf cfg.enable {
       in
         publicVhosts == {} ||
         (cfg.ingress.tls.mode != "off" &&
-         (cfg.ingress.auth.mode != "off" || cfg.ingress.allowPublicUnauth == true))
+         (cfg.ingress.auth.mode != "none" || cfg.ingress.allowPublicUnauth == true))
       ))
 
     # ---------------------------------------------------------

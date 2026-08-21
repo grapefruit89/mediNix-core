@@ -15,14 +15,24 @@ let
   cfg = config.grapefruitMedia.security.emergencyUser;
 in
 {
-  # Central media group and user (Unconditional)
-  users.groups.media.gid = 5000;
-  users.users.media = {
-    isSystemUser = true;
-    group = "media";
+  options.grapefruitMedia.security.emergencyUser = {
+    enable = lib.mkEnableOption "Emergency User (media-admin)";
+    sshKeys = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+    };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkMerge [
+    (lib.mkIf config.grapefruitMedia.enable {
+      # Central media group and user (Unconditional within media stack)
+      users.groups.media.gid = 5000;
+      users.users.media = {
+        isSystemUser = true;
+        group = "media";
+      };
+    })
+    (lib.mkIf cfg.enable {
   # 2. Create Emergency User (media-admin)
   users.users.media-admin = {
     isNormalUser = true;
@@ -42,6 +52,6 @@ in
       media-admin ALL=(root) NOPASSWD: ${cmdString}
       media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status * --no-pager
     '';
-}
-
+})
+  ];
 }

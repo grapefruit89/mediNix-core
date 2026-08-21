@@ -91,3 +91,17 @@ Die Trennung in dedizierte, flache Dienste (Caddy, Pocket-ID, nftables) ist lang
 - **Host-spezifische Defaults vermeiden:** Globale Optionen dürfen keine host-spezifischen Defaults (wie bestimmte Hardware-Pfade) enthalten, um "Silent Inheritance" (stille Vererbung) zu verhindern.
 - **Secrets-Guardrail (INV-SECRET):** Secrets dürfen niemals im Nix-Store landen. Die Nutzung von `LoadCredential` ist Pflicht. (Hinweis: Path-basierte Flake-Evaluation umgeht `.gitignore` und birgt ein hohes Leak-Risiko!).
 - **Originalwissen erhalten:** Originale Chat-Exporte oder Wissensdokumente werden nie überschrieben. Es wird immer konsolidiert, zusammengefasst (wie in diesem Dokument) und historisch archiviert. Verworfene Ansätze (Graveyard) bewusst dokumentieren, um alte Fehler nicht zu wiederholen.
+
+## 2026-08-21: Audit 50-51-52 (Eval-Breaker vs. Architektur)
+Dieses Audit offenbarte, dass die theoretische Architektur (Dezimalrahmen, Killswitch via UID, Caddy flach) zwar **korrekt und beizubehalten** ist, aber die **Verdrahtung** (Enable-Graph) dazwischen kaputt war.
+
+### Wichtige Erkenntnisse:
+1. **Eval-Breaker zuerst:** Wenn Flake nicht evaluiert (z.B. doppelte systemd.services in einem Attrset, undefinierte Variablen wie idpDomains), sind alle Fail-Closed-Garantien wertlos. Das Flake muss zuerst baubar sein.
+2. **Die drei Wahrheiten sychronisieren:** Enable-State, Registry-Konfiguration und Runtime-Verhalten (Ingress-VHost) müssen aus einer Single Source of Truth (SSoT) stammen. Ein Dienst darf nicht aktiv sein, ohne dass sein Ingress geschaltet ist (Forward-Auth-Deadlock).
+3. **Cross-Domain Kabel richtig stecken:** Wenn Domain 525 pn.dnsServers setzt, darf Domain 526 nicht services.vpnKillSwitch.dnsServers lesen. Das führt zu leeren DNS-Resolvern und potenziellen Leaks über 127.0.0.1.
+4. **Guardrails ehrlich machen:** Assertions, die gegen alte Enums prüfen (z.B. uth.mode != "off" statt 
+one), gaukeln falsche Sicherheit vor. Das Manifest muss den Code spiegeln, nicht umgekehrt.
+5. **Host-Firewall vs. Additive Integration:** Wenn Domain 52 (Security) globale Host-Dinge wie 
+ftables.enable oder Full-Disk-Encryption (LUKS) übernimmt, bricht das Prinzip 5 (kein Eingriff in den Host). Dies muss entweder als bewusste Ausnahme dokumentiert oder aus dem mediNix-core in den Host verschoben werden.
+
+**Fazit:** Architektur nicht umwerfen, sondern die fehlenden "Kabel" zwischen den Domains stecken (SSoT konsequent nutzen) und Eval-Fehler beheben.

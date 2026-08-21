@@ -60,6 +60,10 @@ in
     networking.nftables.enable = true;
     assertions = [
       {
+        assertion = cfg.dnsServers != [];
+        message = "[vpnKillSwitch] dnsServers must not be empty. An empty resolv.conf causes DNS leaks via 127.0.0.1.";
+      }
+      {
         assertion = cfg.vpnInterface != "";
         message = "[vpnKillSwitch] vpnInterface must be defined when instances are active.";
       }
@@ -118,7 +122,8 @@ in
       '';
     };
 
-    systemd.services."medinix-vpn-route" = {
+    systemd.services = {
+      "medinix-vpn-route" = {
       description = "mediNix VPN Policy Routing";
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];
@@ -168,7 +173,7 @@ in
 "
     ) cfg.dnsServers;
 
-    systemd.services = lib.mapAttrs (name: v: {
+    } // lib.mapAttrs (name: v: {
       requires = [ "medinix-vpn-route.service" ];
       after = [ "medinix-vpn-route.service" ];
       serviceConfig = {

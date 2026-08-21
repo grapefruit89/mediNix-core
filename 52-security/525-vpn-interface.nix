@@ -20,6 +20,8 @@ in
 lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
   grapefruitMedia.vpn.interface  = lib.mkDefault ifName;
   grapefruitMedia.vpn.dnsServers = lib.mkDefault vpn.dns;
+  services.vpnKillSwitch.vpnInterface = lib.mkDefault ifName;
+  services.vpnKillSwitch.dnsServers = lib.mkDefault vpn.dns;
 
   networking.wireguard.interfaces.${ifName} = {
     ips            = vpn.address;

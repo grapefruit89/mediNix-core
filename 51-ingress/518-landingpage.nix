@@ -105,7 +105,7 @@ let
 in
 {
   # If global caddy is used, inject into its config
-  config = lib.mkIf (config.services.caddy.enable) {
+  config = lib.mkIf (config.services.caddy.enable && cfg.enable) {
     services.caddy.virtualHosts."${cfg.domain}" = apexHost;
   };
 }

@@ -14,10 +14,10 @@ Ports, UIDs, GIDs, caddyClass, and hardening profiles are derived **exclusively*
 No hardcoded IDs in domain modules. The registry is the absolute and only truth.
 
 ## 4. Fail-Closed Security & Guardrails
-Security is the default. The VPN killswitch (blackhole + pre-flight + BPF verification + no ExecStop) and the numbered assertions (`INV-*` / `CODE-*`) intentionally fail the build before unsafe states can occur. Secrets exist only as TPM-sealed credentials (`LoadCredentialEncrypted`), never in the Nix store.
+Security is the default. The VPN killswitch (fwmark routing + pre-flight verification + no ExecStop) and the numbered assertions (`INV-*` / `CODE-*`) intentionally fail the build before unsafe states can occur. Secrets exist only as TPM-sealed credentials (`LoadCredentialEncrypted`), never in the Nix store.
 
 ## 5. Additive Host-Integration + Credential-First
-The module takes over neither the host firewall nor physical storage mounts. It only supplements them (additive nftables, tmpfiles, optional MergerFS).
+The module intentionally manages the host firewall (`nftables`) and provides optional physical layer security (TPM2 FDE). It treats the physical host as an extension of the secure stack, rather than an untrusted layer.
 All secrets and sensitive keys are loaded exclusively via systemd credentials. The host remains the absolute master of the physical layer.
 
 ---
@@ -26,5 +26,5 @@ All secrets and sensitive keys are loaded exclusively via systemd credentials. T
 - Does it violate the registry? -> **Principle 3**
 - Does it introduce containers or hardcodes? -> **Principle 2 + 3**
 - Is it fail-open? -> **Principle 4**
-- Does it take over host resources? -> **Principle 5**
+- Does it violate the host-integration boundary? -> **Principle 5**
 - Is it NOT dendritically removable? -> **Principle 1**

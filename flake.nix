@@ -46,15 +46,15 @@
         decimalFrameworkCheck =
           let
             entries    = builtins.readDir ./.;
-            isModule   = name: type: type == "directory" && builtins.match "^[0-9]{3}-.*" name != null;
+            isModule   = name: type: type == "directory" && builtins.match "^[0-9]{2}-.*" name != null;
             folders    = builtins.attrNames (lib.filterAttrs isModule entries);
-            number     = name: lib.toInt (builtins.head (builtins.match "^([0-9]{3})-.*" name));
+            number     = name: lib.toInt (builtins.head (builtins.match "^([0-9]{2})-.*" name));
             numbers    = map number folders;
             violations = lib.filter (v: v != null) (
               map (name:
                 let
                   num     = number name;
-                  project = num / 100;
+                  project = num / 10;
                   problems = lib.concatStringsSep ", " (
                     lib.optional (project != 5) "fuehrende Ziffer ${toString project} != 5"
                   );
