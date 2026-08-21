@@ -30,12 +30,12 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
+lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
   # Factory: dotnet profile (MemoryDenyWriteExecute=false, internet-Policy)
   # allowedPeers: Sonarr needs SABnzbd (Download) + Prowlarr (Indexer)
-  systemd.services.sonarr = (mkService {
+  } (mkService {
     name = "sonarr";
     port = port;
     uid = uid;
@@ -48,12 +48,14 @@ lib.mkIf cfg.enable {
       UMask          = "0002";     # Arr-Stack needs 002 for group write permissions
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
-  }).systemd.services.sonarr // {
+  })
+  {
+    systemd.services.sonarr = {
     after    = [ "network.target" "prowlarr.service" ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile or null != null) { SONARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (svc.secrets.sonarrApiKeyFile or null != null) { SONARR_API_KEY_FILE = svc.secrets.sonarrApiKeyFile; })
       (arrSettings.mkSonarr {
         server = {
           port        = port;
@@ -82,8 +84,8 @@ lib.mkIf cfg.enable {
 
   grapefruitMedia.ingress.vhosts."sonarr" = { accessGroup = reg.caddyClass; };
 
-  systemd.services."sonarr" = lib.mkIf (cfg.secrets.sonarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${cfg.secrets.sonarrApiKeyFile}" ];
+  } { systemd.services."sonarr" = lib.mkIf (svc.secrets.sonarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];
   };
 
-}
+} ])

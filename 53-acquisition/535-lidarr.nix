@@ -27,10 +27,10 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
+lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
-  systemd.services.lidarr = (mkService {
+  } (mkService {
     name = "lidarr";
     port = port;
     uid = uid;
@@ -42,12 +42,14 @@ lib.mkIf cfg.enable {
       UMask          = "0002";
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
-  }).systemd.services.lidarr // {
+  })
+  {
+    systemd.services.lidarr = {
     after    = [ "network.target" "prowlarr.service" ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile or null != null) { LIDARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (svc.secrets.lidarrApiKeyFile or null != null) { LIDARR_API_KEY_FILE = svc.secrets.lidarrApiKeyFile; })
       (arrSettings.mkLidarr {
         server = {
           port        = port;
@@ -76,8 +78,8 @@ lib.mkIf cfg.enable {
 
   grapefruitMedia.ingress.vhosts."lidarr" = { accessGroup = reg.caddyClass; };
 
-  systemd.services."lidarr" = lib.mkIf (cfg.secrets.lidarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "lidarr-api-key:${cfg.secrets.lidarrApiKeyFile}" ];
+  } { systemd.services."lidarr" = lib.mkIf (svc.secrets.lidarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "lidarr-api-key:${svc.secrets.lidarrApiKeyFile}" ];
   };
 
-}
+} ])

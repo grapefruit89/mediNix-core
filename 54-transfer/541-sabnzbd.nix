@@ -46,6 +46,8 @@ in
           host = "127.0.0.1";
           language = svc.locale.language;
         };
+        download_dir = "${svc.storage.mediaRoot}/downloads";
+          temp_dir = "/run/sabnzbd-tmp";
       };
     };
 
@@ -71,13 +73,11 @@ in
         {
           LoadCredentialEncrypted = lib.mkMerge [
             (lib.mkIf (cfg.serverCredentialFile != null) [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ])
-            (lib.mkIf (cfg.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${cfg.secrets.sabnzbdApiKeyFile}" ])
+            (lib.mkIf (svc.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${svc.secrets.sabnzbdApiKeyFile}" ])
           ];
         }
       ];
-      environment = {
-        SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
-      } // lib.optionalAttrs (cfg.serverCredentialFile != null) {
+      environment = { } // lib.optionalAttrs (cfg.serverCredentialFile != null) {
         # SABnzbd reads credential file via Env (Format: HOST/PORT/USER/PASS/SSL)
         SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";
       };

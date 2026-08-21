@@ -27,10 +27,10 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
+lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
-  systemd.services.readarr = (mkService {
+  } (mkService {
     name = "readarr";
     port = port;
     uid = uid;
@@ -42,12 +42,14 @@ lib.mkIf cfg.enable {
       UMask          = "0002";
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
-  }).systemd.services.readarr // {
+  })
+  {
+    systemd.services.readarr = {
     after    = [ "network.target" "prowlarr.service" ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile or null != null) { READARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (svc.secrets.readarrApiKeyFile or null != null) { READARR_API_KEY_FILE = svc.secrets.readarrApiKeyFile; })
       (arrSettings.mkReadarr {
         server = {
           port        = port;
@@ -76,8 +78,8 @@ lib.mkIf cfg.enable {
 
   grapefruitMedia.ingress.vhosts."readarr" = { accessGroup = reg.caddyClass; };
 
-  systemd.services."readarr" = lib.mkIf (cfg.secrets.readarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${cfg.secrets.readarrApiKeyFile}" ];
+  } { systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];
   };
 
-}
+} ])

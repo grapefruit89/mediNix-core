@@ -46,7 +46,7 @@ lib.mkIf (cfg.enable) {
       # SystemCallErrorNumber=EPERM comes from base profile (no SIGSYS kill)
       profiles.dotnet
       {
-        ExecStart = "${pkgs.jellyseerr}/bin/jellyseerr --port ${toString port} --host 127.0.0.1";
+        ExecStart = "${pkgs.jellyseerr or pkgs.overseerr}/bin/jellyseerr";
         User = "jellyseerr";
         Group = "media";
         UMask = lib.mkForce "0002";
@@ -57,33 +57,17 @@ lib.mkIf (cfg.enable) {
       (lib.mkIf (cfg.envFile or null != null) {
         EnvironmentFile = cfg.envFile;
       })
+      (lib.mkIf (svc.secrets.jellyseerrApiKeyFile or null != null) {
+        LoadCredentialEncrypted = [ "jellyseerr-api-key:${svc.secrets.jellyseerrApiKeyFile}" ];
+      })
     ];
-    # .NET declarative settings (Port/Bind/Auth) via Env Vars
-    environment = arrSettings.mkJellyseerr {
-      server = {
-        port        = port;
-        bindAddress = "127.0.0.1";
-        urlBase     = "";
-      };
-      auth = {
-        method   = if svc.authProxyPresent then "External" else "Forms";
-        required = "Enabled";
-      };
-      app = {
-        theme        = "dark";
-        instanceName = "Jellyseerr";
-      };
-      log.level        = "info";
-      update.mechanism = "BuiltIn";
+    environment = {
+      PORT = toString port;
+      HOST = "127.0.0.1";
     };
   };
 
   grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
 
-  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
-
-  systemd.services."jellyseerr" = lib.mkIf (cfg.secrets.jellyseerrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "jellyseerr-api-key:${cfg.secrets.jellyseerrApiKeyFile}" ];
-  };
 
 }

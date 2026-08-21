@@ -18,7 +18,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.services.feishin;
+  cfg = config.grapefruitMedia.feishin;
   svc = config.grapefruitMedia;
   # No process — pure static SPA. Number 554 exists for registry completeness.
   # Port 5540 is never bound; Caddy serves the SPA.
@@ -49,7 +49,7 @@ in lib.mkIf (cfg.enable) {
 
   # Assertion: Feishin needs a backend (Navidrome/Jellyfin) — CLAUDE.md gold
   assertions = [ {
-    assertion = svc.services.navidrome.enable || svc.services.jellyfin.enable || (cfg.serverUrl or null != null);
+    assertion = svc.navidrome.enable || svc.jellyfin.enable || (cfg.serverUrl or null != null);
     message = "554-feishin: needs Navidrome, Jellyfin, or explicit serverUrl — SPA has no backend otherwise.";
   } ];
 }

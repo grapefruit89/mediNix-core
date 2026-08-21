@@ -56,7 +56,12 @@ lib.mkIf (cfg.enable) {
       }
     ];
     # OIDC via EnvironmentFile (ADR-5000: no inline secrets)
-    environment = lib.mkIf (cfg.oidcFile or null != null) {
+    environment = {
+      ND_PORT = toString port;
+      ND_ADDRESS = "127.0.0.1";
+      ND_MUSICFOLDER = "${svc.storage.mediaRoot}/music";
+      ND_DATAFOLDER = stateDir;
+    } // lib.optionalAttrs (cfg.oidcFile or null != null) {
       ND_OIDC_CLIENT_ID_FILE = cfg.oidcFile;
     };
   };

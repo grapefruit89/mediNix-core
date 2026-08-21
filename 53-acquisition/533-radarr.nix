@@ -29,10 +29,10 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
+lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
-  systemd.services.radarr = (mkService {
+  } (mkService {
     name = "radarr";
     port = port;
     uid = uid;
@@ -44,12 +44,14 @@ lib.mkIf cfg.enable {
       UMask          = "0002";
       ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
     };
-  }).systemd.services.radarr // {
+  })
+  {
+    systemd.services.radarr = {
     after    = [ "network.target" "prowlarr.service" ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile or null != null) { RADARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (svc.secrets.radarrApiKeyFile or null != null) { RADARR_API_KEY_FILE = svc.secrets.radarrApiKeyFile; })
       (arrSettings.mkRadarr {
         server = {
           port        = port;
@@ -78,8 +80,8 @@ lib.mkIf cfg.enable {
 
   grapefruitMedia.ingress.vhosts."radarr" = { accessGroup = reg.caddyClass; };
 
-  systemd.services."radarr" = lib.mkIf (cfg.secrets.radarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "radarr-api-key:${cfg.secrets.radarrApiKeyFile}" ];
+  } { systemd.services."radarr" = lib.mkIf (svc.secrets.radarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ];
   };
 
-}
+} ])

@@ -105,3 +105,15 @@ one), gaukeln falsche Sicherheit vor. Das Manifest muss den Code spiegeln, nicht
 ftables.enable oder Full-Disk-Encryption (LUKS) übernimmt, bricht das Prinzip 5 (kein Eingriff in den Host). Dies muss entweder als bewusste Ausnahme dokumentiert oder aus dem mediNix-core in den Host verschoben werden.
 
 **Fazit:** Architektur nicht umwerfen, sondern die fehlenden "Kabel" zwischen den Domains stecken (SSoT konsequent nutzen) und Eval-Fehler beheben.
+
+## 2026-08-21: Audit 53-54-55 (Media-Stack, Factory & Hardening)
+Dieses Audit befasste sich mit den eigentlichen Media-Diensten (*arrs, SABnzbd, Playback, Storage). Wieder war die Architektur korrekt, aber die Ausführung mangelhaft.
+
+### Wichtige Erkenntnisse:
+1. **Service-Factory komplett nutzen:** Eine Factory, die `systemd.services` UND `users.users` zurückgibt, muss komplett via `lib.mkMerge` oder attrset-Merges eingebunden werden. Selektiert man nur `.systemd.services.foo`, wirft man die User-Definitionen weg (isomorphe UIDs fehlen, Dienste können nicht starten).
+2. **eBPF-Filter stechen Policy-Routing (Killswitch-Falle):** Hardening-Profile (z.B. `python`), die `IPAddressDeny=any` setzen, blockieren den Traffic *bevor* das `fwmark`-basierte Policy-Routing (ADR-5260) greifen kann. Dienste hinter dem Killswitch brauchen Profile (z.B. `python-confined`), die das interne Netz (`10.0.0.0/8` etc.) zulassen, damit der Traffic überhaupt bis zum Routing-Regelwerk kommt.
+3. **Konfigurations-Lügen (Upstream-Verträge):** Nicht jede Software akzeptiert Umgebungsvariablen für ihre Konfiguration. SABnzbd z.B. benötigt zwingend eine `.ini` oder muss nativ über die `nixpkgs`-Options (`settings`) konfiguriert werden. Env-Vars helfen hier nicht.
+4. **Storage SSoT & Mount-Sicherheit:** Verschiedene Pfade in Modulen (`/data/library` vs `/data/media`) brechen die SSoT. Ein simples `[ -d /path ]` reicht als Schutz vor ungemounteten Disks nicht aus, da `mkdir -p` direkt auf das Root-Filesystem schreibt. Es muss zwingend `mountpoint -q` verwendet werden.
+5. **Caddy-Port Bindings:** Reverse-Proxies und Dienste müssen sich einig sein. Wenn Caddy auf Port 5510 proxied, muss der Playback-Dienst zwingend per Config auf genau diesem Port (aus der Registry) lauschen.
+
+**Fazit:** Copy-Paste-Fehler killen den Evaluator. Upstream-Spezifika (Configs vs Envs) und Linux-Spezifika (eBPF vs iptables/nftables) müssen exakt beachtet werden, sonst entsteht Scheinsicherheit oder Dysfunktion.

@@ -32,11 +32,11 @@ let
   # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
+lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
   # Prowlarr: only indexes, doesn't need SABnzbd directly (Arr fetch from it)
-  systemd.services.prowlarr = (mkService {
+  } (mkService {
     name = "prowlarr";
     port = port;
     uid = uid;
@@ -48,12 +48,14 @@ lib.mkIf cfg.enable {
       UMask          = "0002";
       ReadWritePaths = [ stateDir ];
     };
-  }).systemd.services.prowlarr // {
+  })
+  {
+    systemd.services.prowlarr = {
     after    = [ "network.target" ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = lib.mkMerge [
-      (lib.mkIf (cfg.apiKeyFile or null != null) { PROWLARR_API_KEY_FILE = cfg.apiKeyFile; })
+      (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) { PROWLARR_API_KEY_FILE = svc.secrets.prowlarrApiKeyFile; })
       (arrSettings.mkProwlarr {
         server = {
           port        = port;
@@ -82,10 +84,10 @@ lib.mkIf cfg.enable {
 
   grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
 
-  systemd.services."prowlarr" = lib.mkIf (cfg.secrets.prowlarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${cfg.secrets.prowlarrApiKeyFile}" ];
+  } { systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile != null) {
+    serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
   };
 
   };
 
-}
+} ])
