@@ -250,9 +250,9 @@ def sync_deps():
 
 
 
-# --- CLI: GENERATE DOCS (AGENT.md) ---
+# --- CLI: GENERATE DOCS (AGENTS.md) ---
 def generate_docs():
-    logger.info("Generiere LLM-Wiki (AGENT.md) fuer alle Ordner...")
+    logger.info("Generiere LLM-Wiki (AGENTS.md) fuer alle Ordner...")
     repo_root = SCRIPT_DIR.parent.parent
     
     folders = {}
@@ -273,7 +273,7 @@ def generate_docs():
         if not re.match(r'^[0-9]{2}-', str(folder_name)):
             continue
             
-        agent_md_path = repo_root / folder_name / "AGENT.md"
+        agent_md_path = repo_root / folder_name / "AGENTS.md"
         modules.sort(key=lambda x: x[1].get("id", ""))
         
         lines = []
@@ -308,7 +308,7 @@ def generate_docs():
             f.write("\n".join(lines) + "\n")
         docs_created += 1
         
-    logger.info(f"Erfolgreich {docs_created} AGENT.md Dateien generiert!")
+    logger.info(f"Erfolgreich {docs_created} AGENTS.md Dateien generiert!")
 
 # --- MCP SERVER (JSON-RPC) ---
 def mcp_server():
