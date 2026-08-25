@@ -1,30 +1,32 @@
-# mediNix-core: Architecture Manifesto (v1 - audited)
+# mediNix-core: Architecture Manifesto (v2.0)
 
-This document defines the 5 auditable core principles of `mediNix-core`. Every future module and every agent output must be evaluated against this manifesto.
+This document defines the core principles and strict boundaries of `mediNix-core`. Every future module and every agent output must be evaluated against this manifesto. It dictates not only what we build, but what we strictly avoid.
 
-## 1. Dendritic Modularity ("Drop & Forget")
-Every service lives in its own dedicated file (`NNN-service.nix`). It carries its complete systemd unit, hardening, environment, and peer isolation internally. The central `default.nix` imports these files based solely on their numerical prefix. If a file is deleted, the service vanishes completely and cleanly from the system - leaving no dead configuration in Caddy, the firewall, or assertions.
+## 1. The Boundary (Tri-State Host Integration)
+The core must never assume it owns the bare-metal host. We integrate politely.
+* **DO:** Configure media services, service-specific Caddy vhosts, and container-less isolation 100% internally within the flake.
+* **DO:** Expose host-wide singletons (like kernel `sysctl` for `rp_filter` or global `nftables` baselines) via `medinix.recommended.*` (**Publish-Don't-Apply**).
+* **DO:** Use the `hostIntegration` tri-state (`managed`, `external`, `off`) to dictate if the core applies these recommendations additively, or if they are handed off to the host admin via `ADMIN-HANDOFF.md`.
+* **DON'T:** Never blindly override host components (`networking.nftables.enable = true` unconditionally is forbidden). 
 
-## 2. Nix-Native & Zero-Container
-Strictly native `nixpkgs` packages + systemd. Docker, Podman, Compose, and OCI runtimes are strictly forbidden. Isolation is achieved via systemd hardening, `RestrictNetworkInterfaces`, nftables, and (if needed) policy routing - never via container networks.
+## 2. Priority Discipline & Additive Configuration
+* **DO:** Use standard Nix list additions (e.g. `[ "@system-service" ]` instead of strings) so that `systemd` configurations can merge elegantly with upstream or host configurations.
+* **DON'T:** **`mkForce` is strictly forbidden.** If you have to use `mkForce`, the architecture is wrong and needs to be refactored.
+* **DON'T:** Do not override `User`, `Group`, or `StateDirectory` in `serviceConfig` if an upstream `nixpkgs` module already manages them natively (e.g. SABnzbd).
 
-## 3. Single Source of Truth (SSoT) + Decimal Framework
-Ports, UIDs, GIDs, caddyClass, and hardening profiles are derived **exclusively** from `lib/registry.nix`.
-**Isomorphism:** `Port = UID = Service-Number x 10`.
-No hardcoded IDs in domain modules. The registry is the absolute and only truth.
+## 3. Fail-Closed Security & Decentralized Guardrails
+Security mechanisms must crash the system rather than leaving it exposed.
+* **DO:** Design systems to **"Fail-Closed"**. If the VPN DNS is missing, or a storage mountpoint is offline (Mover), the build or the service must crash gracefully (`exit 1` or Nix `throw`).
+* **DO:** Write inline assertions with localized, plain-English error messages right where the failure happens. Include an `[AI/Admin Context]` explaining *why* the rule exists.
+* **DON'T:** No **"Fail-Open"**. Never fall back to unencrypted host DNS if the VPN Killswitch is misconfigured.
+* **DON'T:** No central assertion registries (no `INV-01` obfuscation). Errors must be human- and AI-readable at the source.
 
-## 4. Fail-Closed Security & Guardrails
-Security is the default. The VPN killswitch (fwmark routing + pre-flight verification + no ExecStop) and the numbered assertions (`INV-*` / `CODE-*`) intentionally fail the build before unsafe states can occur. Secrets exist only as TPM-sealed credentials (`LoadCredentialEncrypted`), never in the Nix store.
+## 4. Nix-Native & Zero-Container
+* **DO:** Isolate services purely using native `systemd` hardening (RootDirectory, BindPaths, DynamicUser) and strict policy routing (fwmark/nftables).
+* **DO:** Handle secrets exclusively via TPM-sealed credentials (`LoadCredentialEncrypted`). No secrets in the Nix store.
+* **DON'T:** Docker, Podman, Compose, and any OCI runtimes are strictly forbidden. 
 
-## 5. Additive Host-Integration + Credential-First
-The module intentionally manages the host firewall (`nftables`) and provides optional physical layer security (TPM2 FDE). It treats the physical host as an extension of the secure stack, rather than an untrusted layer.
-All secrets and sensitive keys are loaded exclusively via systemd credentials. The host remains the absolute master of the physical layer.
-
----
-
-### Audit Rules for Agents & Developers:
-- Does it violate the registry? -> **Principle 3**
-- Does it introduce containers or hardcodes? -> **Principle 2 + 3**
-- Is it fail-open? -> **Principle 4**
-- Does it violate the host-integration boundary? -> **Principle 5**
-- Is it NOT dendritically removable? -> **Principle 1**
+## 5. Dendritic Modularity & SSoT (Drop & Forget)
+* **DO:** Keep every service self-contained (`NNN-service.nix`). If a file is deleted, the service and its firewall/proxy configurations must vanish completely without leaving dead configuration.
+* **DO:** Derive all Ports, UIDs, GIDs, and profiles from `lib/registry.nix` (Isomorphism: `Port = UID = Service-Number * 10`).
+* **DON'T:** Never hardcode UIDs, GIDs, or ports in the domain modules. The registry is the absolute and only truth.
