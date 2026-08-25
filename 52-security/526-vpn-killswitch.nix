@@ -1,3 +1,6 @@
+# context7:
+#   - query: "networking.wg-quick.interfaces wireguard"
+#     library: /websites/nixos_manual_nixos_unstable
 # ---
 # id: "526-vpn-killswitch"
 # title: "Dendritic Policy Routing Killswitch (KISS)"
