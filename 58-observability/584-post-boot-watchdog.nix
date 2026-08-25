@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-12
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -20,7 +20,6 @@
 # adr: ADR-0000, ADR-5043
 # repo-harvest: NixmitGROK (post-boot-watchdog pattern)
 # ---
-
 { config, lib, pkgs, ... }:
 
 let
@@ -63,9 +62,9 @@ let
       done
 
       if [ -n "$REPORT" ]; then
-        curl -s -d "Boot-Watchdog: Services restarted:$REPORT" "$NTFY" || echo "NTFY Notification failed" >&2
+        curl --fail -s -d "Boot-Watchdog: Services restarted:$REPORT" "$NTFY" || echo "NTFY Notification failed" >&2
       else
-        curl -s -d "Boot-Watchdog: All services OK after 180s" "$NTFY" || echo "NTFY Notification failed" >&2
+        curl --fail -s -d "Boot-Watchdog: All services OK after 180s" "$NTFY" || echo "NTFY Notification failed" >&2
       fi
     '';
   };

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-25
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -18,7 +18,6 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-
 { config, lib, pkgs, ... }:
 
 let
@@ -53,7 +52,7 @@ in lib.mkIf cfg.enable {
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
       # Enforce auth if public, otherwise rely on VPN
-      auth-default-access = "read-write";
+      auth-default-access = "read-write"; # TODO: Implement Auth / Role-based access control
     };
   };
 

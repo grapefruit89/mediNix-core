@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-25
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -18,7 +18,6 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-
 { config, lib, pkgs, ... }:
 
 let
@@ -47,8 +46,12 @@ let
       }
 
       # 1. Check actual mediNix VPN security object.
-      if ! nft list table inet medinix_vpn >/dev/null 2>&1; then
-        alert "CRITICAL: medinix_vpn nftables table missing"
+      if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
+        alert "CRITICAL: medinix_vpn_filter nftables table missing"
+        exit 1
+      fi
+      if ! nft list chain inet medinix_vpn_filter killswitch >/dev/null 2>&1; then
+        alert "CRITICAL: VPN killswitch chain missing"
         exit 1
       fi
       if ! nft list chain inet medinix_vpn killswitch >/dev/null 2>&1; then
@@ -61,7 +64,8 @@ let
         alert "CRITICAL: unable to inspect listening sockets"
         exit 1
       fi
-      BAD="$(printf '%s\n' "$LISTENERS" | grep -E '(:: :: ::|0\.0\.0\.0):(${portsRegex})\b' || true)"
+      BAD="$(printf '%s
+' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})' || true)"
       if [ -n "$BAD" ]; then
         alert "CRITICAL: wildcard listener detected: $BAD"
       fi
@@ -96,7 +100,7 @@ lib.mkIf (cfg.enable && cfg.observability.runtimeGuard) {
     serviceConfig = profiles.script // { 
       Type = "oneshot";
       PrivateNetwork = false;
-      # Removed CAP_NET_ADMIN to prevent Privilege Escalation
+      # CAP_NET_ADMIN required for nft list (read-only queries need it too)
       CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
       AmbientCapabilities = [ "CAP_NET_ADMIN" ];
       

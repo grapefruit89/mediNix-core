@@ -3,12 +3,12 @@
 # title: "CrowdSec — native WAF/IPS agent (58-observability, Service 582)"
 # domain: 58
 # folder: 58-observability
-# status: active
+# status: incomplete
 # complexity: 4
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: []
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -26,7 +26,6 @@
 # library: /nixos/nixpkgs
 # snippet: "services.crowdsec.enable + settings (freeform submodule pattern)"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let
@@ -35,7 +34,7 @@ in lib.mkIf cfg.enable {
   # Native CrowdSec agent (no Docker — runs as systemd.service)
   
   # P1.4 Fix: Enable nftables bouncer to actually block attackers
-  services.crowdsec-firewall-bouncer = {
+  services.crowdsec-firewall-bouncer = lib.mkIf (config.medinix.hostIntegration.nftables != "off") {
     enable = true;
     settings = {
       mode = "nftables";
@@ -82,7 +81,7 @@ in lib.mkIf cfg.enable {
     };
     script = ''
       if [ ! -f /var/lib/crowdsec/enrolled ]; then
-        if ! ${pkgs.crowdsec}/bin/cscli enroll --token "$(cat /run/credentials/crowdsec-enroll/crowdsec-enroll)"; then
+        if ! ${pkgs.crowdsec}/bin/cscli enroll --token "$(cat /run/credentials/crowdsec-enroll.service/crowdsec-enroll)"; then
           echo "CrowdSec enrollment failed!" >&2
           exit 1
         fi
@@ -101,3 +100,15 @@ in lib.mkIf cfg.enable {
   #   logging → ... → encoder = "common_log" (or transform-encoder for IP-Masking)
   # Otherwise the bouncer cannot extract attacks from the access logs.
 }
+
+    # Real blocking rule for CrowdSec Bouncer (Fund 3)
+    networking.nftables.tables.medinix_crowdsec_drop = lib.mkIf (config.medinix.hostIntegration.nftables != "off") {
+      family = "inet";
+      content = ''
+        chain input_drop {
+          type filter hook input priority -10; policy accept;
+          ip saddr @crowdsec_blacklists counter drop
+          ip6 saddr @crowdsec6_blacklists counter drop
+        }
+      '';
+    };

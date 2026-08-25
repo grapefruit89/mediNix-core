@@ -202,6 +202,53 @@ def repair_metadata():
             
     logger.info(f"Reparatur abgeschlossen. {fixed} Dateien angepasst.")
 
+
+# --- CLI: SYNC DEPS ---
+def sync_deps():
+    logger.info("Starte automatischen Dependency-Sync (requires: [...])...")
+    repo_root = SCRIPT_DIR.parent.parent
+    files = get_nix_files(repo_root)
+    synced = 0
+    
+    for file_path in files:
+        with open(file_path, "r", encoding="utf-8") as f:
+            code = f.read()
+            
+        imports = re.findall(r'import\s+[^a-zA-Z0-9]*lib/([a-zA-Z0-9_-]+)\.nix', code)
+        reqs = list(set([f"lib/{imp}" for imp in imports]))
+        
+        match = re.search(r'^(?:#\s*)?---\s*
+(.*?)
+(?:#\s*)?---\s*
+', code, re.MULTILINE | re.DOTALL)
+        if not match: continue
+        
+        header = match.group(1)
+        new_header_lines = []
+        requires_found = False
+        req_str = '["' + '", "'.join(reqs) + '"]' if reqs else '[]'
+        
+        for line in header.split('\n'):
+            if line.lstrip('#').strip().startswith('requires:'):
+                new_header_lines.append(f"# requires: {req_str}")
+                requires_found = True
+            else:
+                new_header_lines.append(line)
+                
+        if not requires_found:
+            new_header_lines.append(f"# requires: {req_str}")
+            
+        new_block = "# ---\n" + "\n".join(new_header_lines) + "\n# ---\n"
+        new_content = code[:match.start()] + new_block + code[match.end():]
+        
+        if code != new_content:
+            with open(file_path, "w", encoding="utf-8", newline='\n') as f:
+                f.write(new_content)
+            synced += 1
+            
+    logger.info(f"Sync abgeschlossen! {synced} YAML Header wurden korrigiert.")
+
+
 # --- MCP SERVER (JSON-RPC) ---
 def mcp_server():
     global logger
@@ -318,7 +365,7 @@ def mcp_server():
 # --- MAIN DISPATCHER ---
 def main():
     parser = argparse.ArgumentParser(description="mediNix Meta-Tool & MCP Server")
-    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph"], help="Befehl zum Ausführen")
+    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph", "sync-deps"], help="Befehl zum Ausführen")
     args = parser.parse_args()
     
     if args.command == "mcp":
@@ -332,6 +379,8 @@ def main():
             check_metadata()
         elif args.command == "repair":
             repair_metadata()
+        elif args.command == "sync-deps":
+            sync_deps()
 
 if __name__ == "__main__":
     main()
