@@ -237,7 +237,7 @@ in lib.mkMerge [
     };
 
     # Firewall: only open Caddy ports
-    networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal)
+    networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
       (if ing.tls.mode == "off" then [ 80 ] else [ 80 443 ]);
   })
   

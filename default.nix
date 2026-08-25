@@ -72,6 +72,7 @@ in
     hostIntegration = {
       reverseProxy = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
       nftables     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      firewall     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
       storage      = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
       vpn          = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
     };

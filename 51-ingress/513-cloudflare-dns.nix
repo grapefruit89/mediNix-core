@@ -97,7 +97,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       
       path = [ pkgs.curl pkgs.jq pkgs.iproute2 ];
 
-      # Alternative token via EnvironmentFile (agenix/sops-nix)
+      # Deprecated escape hatch: plain-text token file (not TPM sealed, bypasses systemd-creds).
       environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
       
       script = ''
@@ -220,7 +220,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         sleep 0.5
       done
       
-      echo "{"wan":"$WAN_IP","lan":"$LAN_IP"}" > "$STATE_FILE"
+      jq -n --arg wan "$WAN_IP" --arg lan "$LAN_IP" '{wan:$wan,lan:$lan}' > "$STATE_FILE" 
       
 
       echo "DDNS sync completed successfully."
