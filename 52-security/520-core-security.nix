@@ -1,6 +1,6 @@
 # ---
-# id: "523-emergency-user"
-# title: "Emergency User (media-admin) Configuration"
+# id: "520-core-security"
+# title: "Core Security: Media Group, Emergency Admin User & Restricted Sudo"
 # domain: 52
 # folder: 52-security
 # status: active
