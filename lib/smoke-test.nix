@@ -19,7 +19,7 @@ in
       systemd.services.${navidromeUnit} = {
         # Reine Existenz-Prüfung (wird durch navidrome-Modul befriedigt)
         # Falls navidrome-Modul nicht lädt, fehlt die Unit → Build-Fehler
-        wantedBy = lib.mkForce [ ];
+        
         serviceConfig = lib.mkMerge [
           {
             # sanity: nicht auf 0.0.0.0

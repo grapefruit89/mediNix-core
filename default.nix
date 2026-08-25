@@ -741,7 +741,7 @@ in
 
       dnsServers = lib.mkOption {
         type    = lib.types.listOf lib.types.str;
-        default = [ "1.1.1.1" "1.0.0.1" ]; # Cloudflare als sicherer Fallback gegen DNS-Leaks
+        default = []; # Fail-Closed: Keine automatischen Public-DNS Fallbacks
         example = [ "10.8.0.1" ];
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
