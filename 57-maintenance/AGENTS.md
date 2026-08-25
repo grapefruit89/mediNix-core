@@ -1,10 +1,13 @@
-# 🧠 LLM Wiki: `57-maintenance`
+# LLM Wiki: `57-maintenance`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `570-storage` | `570-storage.nix` | active | 4/5 | - |
 | `571-sqlite-wal` | `571-sqlite-wal.nix` | active | 3/5 | - |
@@ -17,9 +20,9 @@
 | `578-orphan-cleanup` | `578-orphan-cleanup.nix` | active | 3/5 | - |
 | `579-backup-ssh` | `579-backup-ssh.nix` | active | 2/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/hardening-profiles`
 - `lib/registry`

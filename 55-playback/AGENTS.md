@@ -1,10 +1,13 @@
-# 🧠 LLM Wiki: `55-playback`
+# LLM Wiki: `55-playback`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `551-jellyfin` | `551-jellyfin.nix` | active | 4/5 | - |
 | `552-audiobookshelf` | `552-audiobookshelf.nix` | active | 4/5 | - |
@@ -12,9 +15,9 @@
 | `554-feishin` | `554-feishin.nix` | active | 2/5 | - |
 | `555-jellyseerr` | `555-jellyseerr.nix` | active | 3/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/arr-settings`
 - `lib/hardening-profiles`

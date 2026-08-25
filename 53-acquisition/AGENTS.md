@@ -1,10 +1,13 @@
-# 🧠 LLM Wiki: `53-acquisition`
+# LLM Wiki: `53-acquisition`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `532-sonarr` | `532-sonarr.nix` | active | 3/5 | - |
 | `533-radarr` | `533-radarr.nix` | active | 3/5 | - |
@@ -12,9 +15,9 @@
 | `535-lidarr` | `535-lidarr.nix` | active | 3/5 | - |
 | `536-prowlarr` | `536-prowlarr.nix` | active | 3/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/arr-settings`
 - `lib/registry`

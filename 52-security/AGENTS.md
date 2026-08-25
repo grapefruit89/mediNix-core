@@ -1,10 +1,13 @@
-# 🧠 LLM Wiki: `52-security`
+# LLM Wiki: `52-security`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `520-core-security` | `520-core-security.nix` | active | 2/5 | - |
 | `525-vpn-interface` | `525-vpn-interface.nix` | active | 4/5 | - |
@@ -12,9 +15,9 @@
 | `528-fde-tpm2` | `528-fde-tpm2.nix` | preparation | 4/5 | - |
 | `529-recommendations` | `529-recommendations.nix` | active | 3/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/registry`
 

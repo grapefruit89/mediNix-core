@@ -217,10 +217,7 @@ def sync_deps():
         imports = re.findall(r'import\s+[^a-zA-Z0-9]*lib/([a-zA-Z0-9_-]+)\.nix', code)
         reqs = list(set([f"lib/{imp}" for imp in imports]))
         
-        match = re.search(r'^(?:#\s*)?---\s*
-(.*?)
-(?:#\s*)?---\s*
-', code, re.MULTILINE | re.DOTALL)
+        match = re.search(r'^(?:#\\s*)?---\\s*\n(.*?)\n(?:#\\s*)?---\\s*\n', code, re.MULTILINE | re.DOTALL)
         if not match: continue
         
         header = match.group(1)
@@ -249,10 +246,13 @@ def sync_deps():
     logger.info(f"Sync abgeschlossen! {synced} YAML Header wurden korrigiert.")
 
 
-
 # --- CLI: GENERATE DOCS (AGENTS.md) ---
-def generate_docs():
-    logger.info("Generiere LLM-Wiki (AGENTS.md) fuer alle Ordner...")
+def generate_docs(check_only=False):
+    if check_only:
+        logger.info("Pruefe LLM-Wikis (AGENTS.md) auf Aktualitaet (--check)...")
+    else:
+        logger.info("Generiere LLM-Wiki (AGENTS.md) fuer alle Ordner...")
+        
     repo_root = SCRIPT_DIR.parent.parent
     
     folders = {}
@@ -269,6 +269,8 @@ def generate_docs():
             folders[str(folder)].append((file_path.name, meta))
             
     docs_created = 0
+    errors = 0
+    
     for folder_name, modules in folders.items():
         if not re.match(r'^[0-9]{2}-', str(folder_name)):
             continue
@@ -276,9 +278,17 @@ def generate_docs():
         agent_md_path = repo_root / folder_name / "AGENTS.md"
         modules.sort(key=lambda x: x[1].get("id", ""))
         
+        # Read existing manual content if available
+        manual_content = f"# LLM Wiki: `{folder_name}`\n\n> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]\n\n"
+        if agent_md_path.exists():
+            with open(agent_md_path, "r", encoding="utf-8") as f:
+                existing = f.read()
+                if "<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->" in existing:
+                    manual_content = existing.split("<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->")[0]
+        
         lines = []
-        lines.append(f"# LLM Wiki: `{folder_name}`\n")
-        lines.append("> **Zweck:** Automatisch generierte Dokumentation fuer KI-Agenten.\n")
+        lines.append(manual_content.rstrip())
+        lines.append("\n\n<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->\n")
         lines.append("## Module Map\n")
         lines.append("| ID | Modul-Datei | Status | Komplexitaet | Ports |")
         lines.append("|---|---|---|---|---|")
@@ -304,11 +314,32 @@ def generate_docs():
             
         lines.append("\n---\n*Generiert durch `medinix-meta.py generate-docs`*")
         
-        with open(agent_md_path, "w", encoding="utf-8", newline='\n') as f:
-            f.write("\n".join(lines) + "\n")
-        docs_created += 1
+        new_text = "\n".join(lines) + "\n"
         
-    logger.info(f"Erfolgreich {docs_created} AGENTS.md Dateien generiert!")
+        if check_only:
+            if not agent_md_path.exists():
+                logger.error(f"Fehlende AGENTS.md in {folder_name}")
+                errors += 1
+            else:
+                with open(agent_md_path, "r", encoding="utf-8") as f:
+                    current = f.read()
+                if current != new_text:
+                    logger.error(f"Stale AGENTS.md in {folder_name}. Bitte 'python medinix-meta.py generate-docs' ausfuehren.")
+                    errors += 1
+        else:
+            with open(agent_md_path, "w", encoding="utf-8", newline='\n') as f:
+                f.write(new_text)
+            docs_created += 1
+            
+    if check_only:
+        if errors > 0:
+            logger.error("Doc-Check fehlgeschlagen!")
+            import sys
+            sys.exit(1)
+        else:
+            logger.info("Alle AGENTS.md sind up to date!")
+    else:
+        logger.info(f"Erfolgreich {docs_created} AGENTS.md Dateien generiert!")
 
 # --- MCP SERVER (JSON-RPC) ---
 def mcp_server():
@@ -426,7 +457,7 @@ def mcp_server():
 # --- MAIN DISPATCHER ---
 def main():
     parser = argparse.ArgumentParser(description="mediNix Meta-Tool & MCP Server")
-    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph", "sync-deps", "generate-docs"], help="Befehl zum Ausführen")
+    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph", "sync-deps", "generate-docs", "check-docs"], help="Befehl zum Ausfhren")
     args = parser.parse_args()
     
     if args.command == "mcp":
@@ -444,6 +475,8 @@ def main():
             sync_deps()
         elif args.command == "generate-docs":
             generate_docs()
+        elif args.command == "check-docs":
+            generate_docs(check_only=True)
 
 if __name__ == "__main__":
     main()

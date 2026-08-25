@@ -1,16 +1,19 @@
-# 🧠 LLM Wiki: `50-core`
+# LLM Wiki: `50-core`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `500-host-integration` | `500-host-integration.nix` | active | 3/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 
 ---

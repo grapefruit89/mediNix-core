@@ -1,19 +1,22 @@
-# 🧠 LLM Wiki: `58-observability`
+# LLM Wiki: `58-observability`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `581-ntfy` | `581-ntfy.nix` | active | 3/5 | - |
 | `582-crowdsec` | `582-crowdsec.nix` | incomplete | 4/5 | - |
 | `583-runtime-guard` | `583-runtime-guard.nix` | active | 3/5 | - |
 | `584-post-boot-watchdog` | `584-post-boot-watchdog.nix` | active | 2/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/hardening-profiles`
 - `lib/registry`

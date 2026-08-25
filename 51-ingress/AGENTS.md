@@ -1,10 +1,13 @@
-# 🧠 LLM Wiki: `51-ingress`
+# LLM Wiki: `51-ingress`
 
-> **Zweck:** Automatisch generierte Dokumentation für KI-Agenten. Bitte lies diese Datei, um den Scope und die Architektur dieses Ordners zu verstehen.
+> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
 
-## 📦 Module Map
 
-| ID | Modul-Datei | Status | Komplexität | Ports |
+<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
+
+## Module Map
+
+| ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `511-caddy` | `511-caddy.nix` | active | 4/5 | - |
 | `512-pocket-id` | `512-pocket-id.nix` | active | 4/5 |  |
@@ -13,9 +16,9 @@
 | `515-mdns` | `515-mdns.nix` | active | 3/5 | - |
 | `518-landingpage` | `518-landingpage.nix` | active | 2/5 | - |
 
-## 🔗 Interne Abhängigkeiten (Requires)
+## Interne Abhaengigkeiten (Requires)
 
-Die Module in diesem Ordner benötigen folgende Bibliotheken/Dateien:
+Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/registry`
 - `lib/service-factory`
