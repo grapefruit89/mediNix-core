@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/registry", "lib/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -58,9 +58,10 @@ in
           port = port;
           host = "127.0.0.1";
           language = svc.locale.language;
-        };
-        download_dir = "${svc.storage.mediaRoot}/downloads";
+          download_dir = "${svc.storage.mediaRoot}/downloads";
           temp_dir = "/run/sabnzbd-tmp";
+          check_new_rel = 0;
+        };
       };
     };
 

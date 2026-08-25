@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-13
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -38,10 +38,16 @@ let
       ARCHIVE="${cfg.archiveDir}"
       MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
 
+
       # Prevent writing to root SSD if mount fails
       if [ "$(stat -c "%m" "$ARCHIVE" 2>/dev/null || echo "/")" = "/" ]; then
         echo "Mover: ARCHIVE $ARCHIVE is on the root partition! Aborting to prevent SSD fill-up."
         exit 1
+      fi
+
+      # Fund 5: Cleanup stale staging files from previous interrupted runs (older than 24h)
+      if [ -d "$ARCHIVE/.staging_mover" ]; then
+        find "$ARCHIVE/.staging_mover" -type f -mtime +1 -delete
       fi
 
 
@@ -112,6 +118,16 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
       }
     ];
     script = "${lib.getExe moverScript}";
+  };
+
+
+  # Fund 2: Safety backstop timer because PathChanged isn't recursive
+  systemd.timers.mediNix-mover-safety = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnUnitInactiveSec = "8h";
+      Unit = "mediNix-mover.service";
+    };
   };
 
   # systemd.path as a trigger: fires on activity under stagingDir, not by clock.
