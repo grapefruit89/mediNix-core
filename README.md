@@ -6,6 +6,16 @@ keine Hardcoded-IPs.
 
 ## Architektur (Dezimal Framework, ADR-0000)
 
+
+**[>> Lesen Sie unser Architektur-Manifest (Verfassung v2.0)](50-core/MANIFEST.md)**
+
+### Kern-Prinzipien (Die mediNix Verfassung)
+1. **Tri-State Boundary:** Wir übernehmen nicht den Host (`mkForce` ist verboten!). Der Host-Admin hat die Wahl (`managed`, `external`, `off`).
+2. **Fail-Closed:** Keine unsicheren Fallbacks (z.B. DNS-Leaks).
+3. **Zero-Containers:** 100% systemd, kein Docker.
+4. **Dendritic Modularity:** Drop & Forget.
+
+
 | Domain | Zweck | Module |
 |--------|-------|--------|
 | `51-ingress` | Caddy Reverse Proxy + OIDC + DDNS | 511-caddy, 512-pocket-id, 513-cloudflare-dns |
@@ -16,7 +26,7 @@ keine Hardcoded-IPs.
 | `56-requests` | Request Management | 561-jellyseerr |
 | `57-maintenance` | Optimierung, Sync, Provisioning | 571-sqlite-optimize, 572-recyclarr, 573-exportarr, 574-provisioning |
 | `58-observability` | Notifications | 581-ntfy |
-| `59-guardrails` | Assertions, SSH, Backup | 591-assertions, 592-rollout, 593-no-password-auth, 593-emergency-user, 594-backup-ssh, 596-security-assertions |
+| `59-guardrails` | Assertions & Boundary | 591-cross-domain, 592-environment |
 
 ## Service Map
 
