@@ -488,6 +488,12 @@ in
       };
     };
 
+
+    knownStateDirs = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "Auto-generated list of all state directories for orphan detection";
+    };
     # --- Observability (Notifications) ---
     observability = {
       ntfy = {

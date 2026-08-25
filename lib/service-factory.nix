@@ -92,6 +92,7 @@ if hardeningOnly then {
       extraConfig
     ];
   };
+  medinix.knownStateDirs = [ stateDir ];
   users.users."${name}" = {
     uid         = uid;
     group       = "media";
