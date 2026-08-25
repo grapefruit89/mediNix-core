@@ -6,19 +6,27 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5820
-#   skill: nixos-context7-gate
-#   note: "CrowdSec runs as native systemd agent (NO Docker). Caddy talks to the
-#          local agent via crowdsec-appsec plugin at http://127.0.0.1:8081.
-#          Caddy Plugin (caddy-cs-bouncer) is compiled in 511-caddy.nix via
-#          pkgs.caddy.withPlugins — replace hash=lib.fakeHash before first
-#          build via nix build. Replaces Unraid Docker-CrowdSec."
-# context7:
-#   - query: "services.crowdsec enable configuration settings example"
-#     library: /nixos/nixpkgs
-#     snippet: "services.crowdsec.enable + settings (freeform submodule pattern)"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5820
+# skill: nixos-context7-gate
+# note: "CrowdSec runs as native systemd agent (NO Docker). Caddy talks to the
+# local agent via crowdsec-appsec plugin at http: //127.0.0.1:8081.
+# context7: 
+# - query: "services.crowdsec enable configuration settings example"
+# library: /nixos/nixpkgs
+# snippet: "services.crowdsec.enable + settings (freeform submodule pattern)"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

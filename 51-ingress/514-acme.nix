@@ -6,16 +6,18 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-19
-# links:
-#   adr: ADR-5140
+# links: 
 # provides: ["acme", "tls", "certificates"]
 # requires: ["options.medinix"]
 # ports: []
 # upstream_docs: ["https://nixos.wiki/wiki/ACME", "https://go-acme.github.io/lego/dns/cloudflare/"]
+# forum_links: []
+# upstream_github: ""
 # nixpkgs_attr: "security.acme"
 # state_dir: "/var/lib/acme"
 # uds_socket: false
 # systemd_hardened: true
+# adr: ADR-5140
 # ---
 
 # 51-ingress/514-acme.nix — Flake-managed ACME Certificate Management

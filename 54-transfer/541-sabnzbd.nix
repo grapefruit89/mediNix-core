@@ -6,15 +6,26 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5260, ADR-5050
-#   skill: nixos-context7-gate
-#   repo-harvest: sabnzbd/sabnzbd (native services.sabnzbd; Temp dir on tmpfs /run for SSD life; Env-Vars for config since sabnzbd.ini overwrites itself)
-# context7:
-#   - query: "services.sabnzbd enable settings example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "services.sabnzbd.enable + settings.misc"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5260, ADR-5050
+# skill: nixos-context7-gate
+# repo-harvest: sabnzbd/sabnzbd (native services.sabnzbd; Temp dir on tmpfs /run for SSD life; Env-Vars for config since sabnzbd.ini overwrites itself)
+# context7: 
+# - query: "services.sabnzbd enable settings example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "services.sabnzbd.enable + settings.misc"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

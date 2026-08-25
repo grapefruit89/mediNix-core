@@ -6,14 +6,25 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5320, ADR-5050
-#   skill: nixos-context7-gate
-# context7:
-#   - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "NoNewPrivileges=true, ProtectSystem=strict valid"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5320, ADR-5050
+# skill: nixos-context7-gate
+# context7: 
+# - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "NoNewPrivileges=true, ProtectSystem=strict valid"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

@@ -1,3 +1,24 @@
+# ---
+# id: "500-host-integration"
+# title: "500-host-integration module"
+# domain: 50
+# folder: 50-core
+# status: active
+# complexity: 3
+# last_reviewed: 2026-08-25
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# ---
+
 { lib, config, ... }:
 
 let

@@ -6,10 +6,21 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-5043, ADR-5050
-#   repo-harvest: Nix-Grok (drift-detection pattern)
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5043, ADR-5050
+# repo-harvest: Nix-Grok (drift-detection pattern)
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

@@ -6,15 +6,26 @@
 # status: active
 # complexity: 2
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5530
-#   skill: nixos-context7-gate
-#   gold: CLAUDE.md (no process; static files; try_files mandatory; not a replacement)
-# context7:
-#   - query: "services.caddy virtualHosts extraConfig file_server try_files example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "extraConfig file_server + try_files {path} /index.html for SPA"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5530
+# skill: nixos-context7-gate
+# gold: CLAUDE.md (no process; static files; try_files mandatory; not a replacement)
+# context7: 
+# - query: "services.caddy virtualHosts extraConfig file_server try_files example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "extraConfig file_server + try_files {path} /index.html for SPA"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

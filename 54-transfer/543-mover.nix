@@ -6,11 +6,22 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-13
-# links:
-#   adr: ADR-5430 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
-#   skill: medinix-implement-discipline
-#   note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5430 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
+# skill: medinix-implement-discipline
+# note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

@@ -6,12 +6,23 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-13
-# links:
-#   adr: ADR-5700 (sqlite), ADR-5043 (assertion-quality)
-#   repo-harvest: Nix-Grok (backup pattern)
-#   context7: services.restic.backups (nixos_manual_unstable)
-#   skill: medinix-implement-discipline (Phase A-E)
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5700 (sqlite), ADR-5043 (assertion-quality)
+# repo-harvest: Nix-Grok (backup pattern)
+# context7: services.restic.backups (nixos_manual_unstable)
+# skill: medinix-implement-discipline (Phase A-E)
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

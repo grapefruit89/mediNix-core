@@ -6,15 +6,26 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-13
-# links:
-#   adr: ADR-5110
-#   skill: nixos-context7-gate
-# context7:
-#   - query: "services.caddy virtualHosts extraConfig reverse_proxy configuration"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "virtualHosts.<host>.extraConfig + hostName for Caddyfile injection"
-#   - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5110
+# skill: nixos-context7-gate
+# context7: 
+# - query: "services.caddy virtualHosts extraConfig reverse_proxy configuration"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "virtualHosts.<host>.extraConfig + hostName for Caddyfile injection"
+# - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
 # ---
+
 # 51-ingress/511-caddy.nix — Chameleon Caddy Ingress
 # ADR-5110: exactly ONE Caddy instance (inject global | standalone caddy-media).
 # caddyClass controls the template per service (stream/internal/public/none).

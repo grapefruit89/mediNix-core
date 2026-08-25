@@ -6,15 +6,26 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5510, ADR-5050
-#   skill: nixos-context7-gate
-#   unraid_ref: jellyfin container --tmpfs /transcode:size=4G --group-add video
-# context7:
-#   - query: "systemd.services serviceConfig TemporaryFileSystem tmpfs RuntimeDirectory example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "serviceConfig.TemporaryFileSystem + SupplementaryGroups (video) valid"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5510, ADR-5050
+# skill: nixos-context7-gate
+# unraid_ref: jellyfin container --tmpfs /transcode:size=4G --group-add video
+# context7: 
+# - query: "systemd.services serviceConfig TemporaryFileSystem tmpfs RuntimeDirectory example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "serviceConfig.TemporaryFileSystem + SupplementaryGroups (video) valid"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

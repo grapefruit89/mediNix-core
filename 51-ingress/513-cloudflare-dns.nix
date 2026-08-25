@@ -6,8 +6,7 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-13
-# links:
-#   adr: ADR-5130
+# links: 
 # provides: ["ddns", "cloudflare", "split-horizon"]
 # requires: ["lib/registry", "options.medinix"]
 # ports: []
@@ -18,6 +17,7 @@
 # state_dir: "/var/lib/cloudflare-ddns"
 # uds_socket: false
 # systemd_hardened: true
+# adr: ADR-5130
 # ---
 
 # 51-ingress/513-cloudflare-dns.nix — Cloudflare DDNS Sync

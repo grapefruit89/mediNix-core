@@ -3,7 +3,22 @@
 # title: "Runtime-Guard - hourly check of the running machine (nftables/0.0.0.0/VPN)"
 # domain: 58
 # folder: 58-observability
+# status: active
+# complexity: 3
+# last_reviewed: 2026-08-25
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

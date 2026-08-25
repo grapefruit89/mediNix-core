@@ -6,15 +6,26 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-18
-# links:
-#   adr: ADR-5610, ADR-5050
-#   skill: nixos-context7-gate
-#   repo-harvest: Fallenbagel/jellyseerr (Node.js, default port 5055 → 5550)
-# context7:
-#   - query: "systemd.services serviceConfig EnvironmentFile example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "services.shiori.environmentFile = \"/path/to/env-file\" (valid)"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5610, ADR-5050
+# skill: nixos-context7-gate
+# repo-harvest: Fallenbagel/jellyseerr (Node.js, default port 5055 → 5550)
+# context7: 
+# - query: "systemd.services serviceConfig EnvironmentFile example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "services.shiori.environmentFile = \"/path/to/env-file\" (valid)"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

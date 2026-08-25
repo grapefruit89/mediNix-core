@@ -5,7 +5,20 @@
 # folder: 51-ingress
 # status: active
 # complexity: 2
+# last_reviewed: 2026-08-25
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

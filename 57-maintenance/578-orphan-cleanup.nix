@@ -6,15 +6,26 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-5260 (sabnzbd), ADR-5043
-#   skill: nixos-context7-gate
-#   note: "Only paths under storage.mediaRoot. Never touch Library."
-# context7:
-#   - query: "systemd.timers OnCalendar daily example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "systemd.timers.<name>.timerConfig.OnCalendar = \"daily\";"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5260 (sabnzbd), ADR-5043
+# skill: nixos-context7-gate
+# note: "Only paths under storage.mediaRoot. Never touch Library."
+# context7: 
+# - query: "systemd.timers OnCalendar daily example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "systemd.timers.<name>.timerConfig.OnCalendar = \"daily\";"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

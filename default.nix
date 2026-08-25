@@ -6,8 +6,7 @@
 # status: active
 # complexity: 5
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5043
+# links: 
 # provides: ["options.medinix"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: []
@@ -18,7 +17,9 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: false
+# adr: ADR-5043
 # ---
+
 # 50-mediNix Master Boilerplate (SSoT)
 #
 # Portable module entrypoint. Auto-imports every XX-domain/NNN-*.nix module

@@ -6,9 +6,20 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-18
-# links:
-#   adr: ADR-5710
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5710
 # ---
+
 # Creates the logical directory structure (systemd.tmpfiles) and optionally
 # MergerFS pools (if storage.backends is set).
 #

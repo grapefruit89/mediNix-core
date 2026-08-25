@@ -6,8 +6,7 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5120
+# links: 
 # provides: ["pocket-id", "oidc"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: [5120]
@@ -18,6 +17,7 @@
 # state_dir: "/var/lib/pocket-id-5120"
 # uds_socket: false
 # systemd_hardened: true
+# adr: ADR-5120
 # ---
 
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP

@@ -6,15 +6,26 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5320, ADR-5050
-#   skill: nixos-context7-gate
-#   repo-harvest: Sonarr/Sonarr (sonarr.service: -data=/var/lib/sonarr, UMask=002)
-# context7:
-#   - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "NoNewPrivileges=true, ProtectSystem=strict, MemoryDenyWriteExecute valid"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5320, ADR-5050
+# skill: nixos-context7-gate
+# repo-harvest: Sonarr/Sonarr (sonarr.service: -data=/var/lib/sonarr, UMask=002)
+# context7: 
+# - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "NoNewPrivileges=true, ProtectSystem=strict, MemoryDenyWriteExecute valid"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

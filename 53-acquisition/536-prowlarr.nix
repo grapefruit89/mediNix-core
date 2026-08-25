@@ -6,12 +6,23 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5320, ADR-5050
-# context7:
-#   - query: "systemd.services serviceConfig ProtectSystem example"
-#     library: /websites/nixos_manual_nixos_unstable
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5320, ADR-5050
+# context7: 
+# - query: "systemd.services serviceConfig ProtectSystem example"
+# library: /websites/nixos_manual_nixos_unstable
 # ---
+
 # WARNING (CRITICAL): PROWLARR MUST NEVER GO THROUGH THE VPN!
 # Indexers heavily block, ban, or throw Captchas at known VPN IP addresses.
 # Routing Prowlarr through a VPN will break search and indexer sync.

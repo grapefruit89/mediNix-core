@@ -6,10 +6,21 @@
 # status: active
 # complexity: 2
 # last_reviewed: 2026-08-12
-# links:
-#   adr: ADR-0000, ADR-5043
-#   repo-harvest: NixmitGROK (post-boot-watchdog pattern)
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-0000, ADR-5043
+# repo-harvest: NixmitGROK (post-boot-watchdog pattern)
 # ---
+
 { config, lib, pkgs, ... }:
 
 let

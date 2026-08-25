@@ -6,15 +6,26 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
-# links:
-#   adr: ADR-5530, ADR-5050
-#   skill: nixos-context7-gate
-#   gold: CLAUDE.md (media group via mkAfter — sonst silent empty library)
-# context7:
-#   - query: "systemd.services serviceConfig BindReadOnlyPaths example"
-#     library: /websites/nixos_manual_nixos_unstable
-#     snippet: "BindReadOnlyPaths for read-only media mount"
+# links: 
+# provides: []
+# requires: ["lib/registry"]
+# ports: []
+# upstream_docs: []
+# forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
+# state_dir: ""
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-5530, ADR-5050
+# skill: nixos-context7-gate
+# gold: CLAUDE.md (media group via mkAfter — sonst silent empty library)
+# context7: 
+# - query: "systemd.services serviceConfig BindReadOnlyPaths example"
+# library: /websites/nixos_manual_nixos_unstable
+# snippet: "BindReadOnlyPaths for read-only media mount"
 # ---
+
 { config, lib, pkgs, ... }:
 
 let
