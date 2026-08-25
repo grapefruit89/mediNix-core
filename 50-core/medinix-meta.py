@@ -86,7 +86,7 @@ def build_brain():
     cur.execute('''CREATE TABLE edges (source_id TEXT, target_id TEXT, relation_type TEXT, FOREIGN KEY(source_id) REFERENCES modules(id))''')
     cur.execute('''CREATE VIRTUAL TABLE fts_index USING fts5(id UNINDEXED, title, content)''')
     
-    repo_root = SCRIPT_DIR.parent.parent
+    repo_root = SCRIPT_DIR.parent
     files = get_nix_files(repo_root)
     # Also add markdown files
     for root, _, filenames in os.walk(repo_root):
@@ -118,7 +118,7 @@ def build_brain():
 # --- CLI: CHECK & GRAPH ---
 def check_metadata():
     logger.info("Starte Metadaten- & Graph-Check...")
-    repo_root = SCRIPT_DIR.parent.parent
+    repo_root = SCRIPT_DIR.parent
     files = get_nix_files(repo_root)
     
     errors = 0
@@ -166,7 +166,7 @@ def check_metadata():
 # --- CLI: REPAIR ---
 def repair_metadata():
     logger.info("Starte sanfte Reparatur (nur YAML-Einrckungen)...")
-    repo_root = SCRIPT_DIR.parent.parent
+    repo_root = SCRIPT_DIR.parent
     files = get_nix_files(repo_root)
     
     fixed = 0
@@ -206,7 +206,7 @@ def repair_metadata():
 # --- CLI: SYNC DEPS ---
 def sync_deps():
     logger.info("Starte automatischen Dependency-Sync (requires: [...])...")
-    repo_root = SCRIPT_DIR.parent.parent
+    repo_root = SCRIPT_DIR.parent
     files = get_nix_files(repo_root)
     synced = 0
     
@@ -253,7 +253,7 @@ def generate_docs(check_only=False):
     else:
         logger.info("Generiere LLM-Wiki (AGENTS.md) fuer alle Ordner...")
         
-    repo_root = SCRIPT_DIR.parent.parent
+    repo_root = SCRIPT_DIR.parent
     
     folders = {}
     files = get_nix_files(repo_root)
