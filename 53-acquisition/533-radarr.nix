@@ -17,8 +17,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.radarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.radarr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.radarr;
   port = reg.port;
@@ -42,7 +42,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       UMask          = "0002";
-      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
     };
   })
   {
@@ -59,7 +59,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
           urlBase     = "";
         };
         auth = {
-          method   = if config.grapefruitMedia.ingress.auth.mode == "forward-auth" then "External" else "Forms";
+          method   = if config.medinix.ingress.auth.mode == "forward-auth" then "External" else "Forms";
           required = "Enabled";
         };
         app = {
@@ -78,7 +78,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."radarr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."radarr" = { accessGroup = reg.caddyClass; };
 
   } { systemd.services."radarr" = lib.mkIf (svc.secrets.radarrApiKeyFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ];

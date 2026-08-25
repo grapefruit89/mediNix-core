@@ -13,7 +13,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
   ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-boot";

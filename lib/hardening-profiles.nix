@@ -26,14 +26,20 @@ rec {
 # internet: Loopback + Internet — Metadaten/Indexer-Suche (Arr/Jellyfin/etc.)
 # proxy:    alles erlaubt — nur Caddy (der Reverse-Proxy)
 networkPolicy.loopback = {
-  IPAddressDeny  = "any";
+  IPAddressDeny  = [ "any" ];
   IPAddressAllow = [ "127.0.0.1" "::1" ];
+  SocketBindDeny = [ "any" ];
+  SocketBindAllow = [ "127.0.0.1" "::1" ];
 };
 networkPolicy.internet = {
-  IPAddressDeny  = "any";
+  IPAddressDeny  = [ "any" ];
   IPAddressAllow = [ "127.0.0.1" "::1" "0.0.0.0/0" "::/0" ];
+  SocketBindDeny = [ "any" ];
+  SocketBindAllow = [ "127.0.0.1" "::1" ];
 };
-networkPolicy.proxy = {};  # keine IPAddress-Restrictions
+networkPolicy.proxy = {
+  SocketBindAllow = [ "any" ];
+};
 
 # ── Basis: für alle Dienste gleich ──────────────────────────────────────────
 base = {
@@ -51,17 +57,17 @@ base = {
   RestrictRealtime      = true;
   RestrictSUIDSGID      = true;
   LockPersonality       = true;
-  SystemCallFilter      = "@system-service";
+  SystemCallFilter      = [ "@system-service" ];
   SystemCallErrorNumber = "EPERM";  # statt SIGSYS (stiller Tod)
-  SystemCallArchitectures = "native";  # nur native Syscall-Architektur (kein i386 etc.)
+  SystemCallArchitectures = [ "native" ];  # nur native Syscall-Architektur (kein i386 etc.)
   ProtectClock          = true;   # UTC-Hardware-Clock schützen
   ProtectHostname       = true;   # Hostname-Änderungen verweigern
   RemoveIPC             = true;   # POSIX-IPC Objekte nach Exit aufräumen
   OOMScoreAdjust        = 500;    # Dienste zuerst vom OOM-Killer erwischen
   RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
   PrivateUsers          = true;
-  CapabilityBoundingSet = "";
-  AmbientCapabilities   = "";
+  CapabilityBoundingSet = [ "" ];
+  AmbientCapabilities   = [ "" ];
   Restart               = "on-failure";
   RestartSec            = "5s";
   # InaccessiblePaths: sensible Bereiche für ALLE Dienste gesperrt
@@ -106,8 +112,8 @@ nodejs = base // {
 network = base // {
   MemoryDenyWriteExecute = true;
   PrivateDevices         = true;
-  AmbientCapabilities    = "CAP_NET_BIND_SERVICE";
-  CapabilityBoundingSet  = "CAP_NET_BIND_SERVICE";
+  AmbientCapabilities    = [ "CAP_NET_BIND_SERVICE" ];
+  CapabilityBoundingSet  = [ "CAP_NET_BIND_SERVICE" ];
   OOMScoreAdjust         = -500;   # Caddy/ntfy: letzte die OOM-Killer erwischt (Proxy muss überleben)
 } // networkPolicy.proxy;  # Caddy = Proxy, darf alles
 

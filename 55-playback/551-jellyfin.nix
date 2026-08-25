@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.jellyfin;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.jellyfin;
+  svc = config.medinix;
   port = 5510;  # 551 × 10
   uid  = 5510;
   gid  = 5000;
@@ -45,7 +45,7 @@ lib.mkIf (cfg.enable) {
         ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir ${metadataDir} --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
         User = "jellyfin";
         Group = "media";
-        UMask = lib.mkForce "0002";
+        UMask = "0002";
         SupplementaryGroups = [ "video" "render" ];  # render group for DRI access (Topic-21)
         # Explicit DeviceAllow instead of just PrivateDevices=false (Topic-21: "too restrictive otherwise")
         DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
@@ -83,7 +83,7 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."jellyfin" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."jellyfin" = { accessGroup = reg.caddyClass; };
 
   systemd.services."jellyfin" = lib.mkIf (cfg.secrets.jellyfinAdminPasswordFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "jellyfin-api-key:${cfg.secrets.jellyfinAdminPasswordFile}" ];

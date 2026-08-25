@@ -55,7 +55,7 @@ A "Ratsche" = a `checks.<name>` that forces full evaluation so every attribute-m
 ```nix
 nixosConfigurations.check = lib.nixosSystem {
   inherit system;
-  modules = [ self.nixosModules.default { grapefruitMedia.enable = true; boot.loader.grub.enable = false;
+  modules = [ self.nixosModules.default { medinix.enable = true; boot.loader.grub.enable = false;
     fileSystems."/" = { device = "none"; fsType = "tmpfs"; }; system.stateVersion = "24.11"; } ];
 };
 checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;

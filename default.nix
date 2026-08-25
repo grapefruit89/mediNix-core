@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links:
 #   adr: ADR-5043
-# provides: ["options.grapefruitMedia"]
+# provides: ["options.medinix"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: []
 # upstream_docs: []
@@ -29,7 +29,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
 
   # Helper: optional package override (null = nixpkgs default)
   mkPackageOption = svc: lib.mkOption {
@@ -66,7 +66,34 @@ in
 {
   imports = moduleFiles;
 
-  options.grapefruitMedia = {
+  options.medinix = {
+
+    hostIntegration = {
+      reverseProxy = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      nftables     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      storage      = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      vpn          = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+    };
+
+    host = {
+      credentials = lib.mkOption { 
+        type = lib.types.attrsOf lib.types.path; 
+        default = {}; 
+        description = "Paths to the TPM-sealed .cred files provided by the host. (e.g. usenet-server = /var/lib/credstore/usenet.cred)";
+      };
+      # Future host facts can be added here
+    };
+
+    recommended = {
+      sysctl = lib.mkOption { type = lib.types.attrsOf lib.types.anything; internal = true; default = {}; };
+      nftables = lib.mkOption { type = lib.types.attrsOf lib.types.anything; internal = true; default = {}; };
+      mountOptions = lib.mkOption { type = lib.types.attrsOf (lib.types.listOf lib.types.str); internal = true; default = {}; };
+      firewall = {
+        checkReversePath = lib.mkOption { type = lib.types.nullOr lib.types.bool; internal = true; default = null; };
+        extraReversePathFilterRules = lib.mkOption { type = lib.types.nullOr lib.types.str; internal = true; default = null; };
+      };
+    };
+
     enable = lib.mkEnableOption "Standalone Media Stack Module";
 
     cli = {
@@ -637,7 +664,7 @@ in
 
       interfaceName = lib.mkOption {
         type    = lib.types.str;
-        default = "wg0";
+        default = "wg-medinix";
         description = "Name des WireGuard-Interfaces das mediNix selbst anlegt (vpn.enable = true). Wird als networking.wireguard.interfaces.<interfaceName> registriert.";
       };
 
@@ -707,7 +734,7 @@ in
 
       dnsServers = lib.mkOption {
         type    = lib.types.listOf lib.types.str;
-        default = [ ];
+        default = [ "1.1.1.1" "1.0.0.1" ]; # Cloudflare als sicherer Fallback gegen DNS-Leaks
         example = [ "10.8.0.1" ];
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).

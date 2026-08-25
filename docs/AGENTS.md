@@ -38,8 +38,8 @@ Jedes Service-Modul:
 ```nix
 { config, lib, pkgs, ... }:
 let
-  cfg = config.grapefruitMedia.services.<name>;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.services.<name>;
+  svc = config.medinix;
   port = <num> * 10;  uid = port;  gid = 5000;
 in {
   config = lib.mkIf cfg.enable {
@@ -62,7 +62,7 @@ in {
 - `ops/59A1-emergency-user.nix` + `ops/59A2-backup-ssh.nix`: Hilfs-User (außerhalb 59X-Assertions-Schema).
 
 ## Bekannte Fallstricke
-- `cfg.enable` = `config.grapefruitMedia.enable` (NICHT `cfg.security.enable` — gibt's nicht!)
+- `cfg.enable` = `config.medinix.enable` (NICHT `cfg.security.enable` — gibt's nicht!)
 - Service-Optionen: `cfg.jellyfin.enable` (nicht `cfg.services.jellyfin.enable`)
 - `525-usenet-confinement.nix`: KEIN `config.systemd.services.*` lesen (Infinite Recursion!) — nur `mkMerge`
 - `medinix`-CLI: `PROBLEMS`-Counter über `mktemp`-Datei (Subshell-safe)

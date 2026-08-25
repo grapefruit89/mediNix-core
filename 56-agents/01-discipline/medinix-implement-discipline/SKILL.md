@@ -111,7 +111,7 @@ These are hard constraints, not guidelines:
 
 - **Registry = Single Source of Truth:** Port/UID/GID ALWAYS come from the registry.
   Formula: Port = N×10, UID = Port, GID = 5000. Never hardcode these.
-- **Declarative only:** Configure via `grapefruitMedia.*` options.
+- **Declarative only:** Configure via `medinix.*` options.
   No hardcoded host IPs or hostnames (e.g., `q958`, `192.168.x.x`) as module-level truth.
 - **Unit names:** Plain (`sonarr.service`). StateDirectory MAY have a port suffix.
 - **No netns:** Never use complex network namespaces. Hard stop.

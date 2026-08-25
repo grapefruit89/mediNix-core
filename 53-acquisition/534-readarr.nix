@@ -15,8 +15,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.readarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.readarr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.readarr;
   port = reg.port;
@@ -40,7 +40,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       UMask          = "0002";
-      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
     };
   })
   {
@@ -76,7 +76,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."readarr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."readarr" = { accessGroup = reg.caddyClass; };
 
   } { systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];

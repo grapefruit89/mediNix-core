@@ -57,7 +57,7 @@ keine Hardcoded-IPs.
       modules = [
         mediNix-core.nixosModules.default
         {
-          grapefruitMedia = {
+          medinix = {
             enable     = true;
             domain     = "example.com";
             ingress.tls.acmeHost = "example.com";  # liest /var/lib/acme/example.com/ (Host: security.acme)
@@ -110,7 +110,7 @@ für die vollständige Checkliste nach dem Flake-Import.
 
 ## Verzeichnis
 
-- `default.nix` — Options-API (`grapefruitMedia.*`), auto-import aller Module via `readDir`+regex
+- `default.nix` — Options-API (`medinix.*`), auto-import aller Module via `readDir`+regex
 - `lib/` — registry (SSoT Ports/UID), service-factory (mkService), abc-tiering
 - `docs/` — ADRs (Architecture Decision Records), INDEX.md
 - `flake.nix` — `nixosModules.default` Export + CI-check Target

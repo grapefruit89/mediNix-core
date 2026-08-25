@@ -57,7 +57,6 @@ in
   };
 
   config = lib.mkIf (activeInstances != {}) {
-    networking.nftables.enable = true;
     assertions = [
       {
         assertion = cfg.dnsServers != [];
@@ -74,7 +73,7 @@ in
     ];
 
     networking.nftables.tables.medinix_vpn_mark = {
-      family = "ip";
+      family = "inet";
       content = ''
         chain mark {
           type route hook output priority mangle; policy accept;
@@ -86,7 +85,7 @@ in
         ${lib.concatMapStringsSep "
 " (name: ''
           chain mark_${name} {
-            ip daddr 127.0.0.0/8 accept
+            ip daddr 127.0.0.0/8 counter return
             ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != []) ''
               ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
             ''}
@@ -109,14 +108,14 @@ in
         ${lib.concatMapStringsSep "
 " (name: ''
           chain kill_${name} {
-            oifname "lo" accept
-            ip daddr 127.0.0.0/8 accept
-            ip6 daddr ::1/128 accept
+            oifname "lo" counter return
+            ip daddr 127.0.0.0/8 counter return
+            ip6 daddr ::1/128 counter return
             ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != []) ''
               ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
             ''}
             meta mark ${mark} oifname "${vpnIf}" accept
-            drop
+            counter drop
           }
         '') (lib.attrNames activeInstances)}
       '';
@@ -143,7 +142,12 @@ in
           fi
           
           ${pkgs.iproute2}/bin/ip route replace unreachable default table ${table} metric 100
-          ${pkgs.iproute2}/bin/ip route replace default dev ${vpnIf} table ${table} metric 10
+          src_ip=$(${pkgs.iproute2}/bin/ip -4 addr show dev ${vpnIf} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+          if [ -n "$src_ip" ]; then
+            ${pkgs.iproute2}/bin/ip route replace default dev ${vpnIf} table ${table} src $src_ip metric 10
+          else
+            ${pkgs.iproute2}/bin/ip route replace default dev ${vpnIf} table ${table} metric 10
+          fi
           
           # Verify rule exists, otherwise fail-closed
           ${pkgs.iproute2}/bin/ip rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}" || {
@@ -166,13 +170,6 @@ in
           '' else ""}
         '';
       };
-    };
-
-    environment.etc."medinix-killswitch-resolv.conf".text = lib.concatMapStrings (
-      dns: "nameserver ${dns}
-"
-    ) cfg.dnsServers;
-
     } // lib.mapAttrs (name: v: {
       requires = [ "medinix-vpn-route.service" ];
       after = [ "medinix-vpn-route.service" ];
@@ -180,5 +177,9 @@ in
         BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];
       };
     }) activeInstances;
+
+    environment.etc."medinix-killswitch-resolv.conf".text = lib.concatMapStrings (
+      dns: "nameserver ${dns}\n"
+    ) cfg.dnsServers;
   };
 }

@@ -18,9 +18,9 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.updateNotifier;
+  cfg = config.medinix.maintenance.updateNotifier;
   # ntfy topic from observability.ntfy (if ntfy is running)
-  ntfyTopic = config.grapefruitMedia.observability.ntfy.topic or "mediNix-updates";
+  ntfyTopic = config.medinix.observability.ntfy.topic or "mediNix-updates";
   ntfyPort  = 5810;
 in lib.mkIf cfg.enable {
   # Daily check: is a new mediNix-core version available?

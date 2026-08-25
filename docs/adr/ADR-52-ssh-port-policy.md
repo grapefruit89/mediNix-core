@@ -36,7 +36,7 @@ the backup daemon (594) all had to agree on a magic number.
   port.
 
 ## Consequences
-- Operators must not set `grapefruitMedia.ssh.port` to anything but 22. The build
+- Operators must not set `medinix.ssh.port` to anything but 22. The build
   fails loudly with a precise message if they try.
 - 523 / 525 / 594 stay in lock-step on ports `[22, 2222]`.
 - 595-ssh-assertions guards all three paths (primary sshd up, port 22 in

@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.feishin;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.feishin;
+  svc = config.medinix;
   # No process — pure static SPA. Number 554 exists for registry completeness.
   # Port 5540 is never bound; Caddy serves the SPA.
 in lib.mkIf (cfg.enable) {

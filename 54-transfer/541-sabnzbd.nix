@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.sabnzbd;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.sabnzbd;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.sabnzbd;
   port = reg.port;
@@ -36,6 +36,8 @@ in
 
     services.sabnzbd = {
       enable = true;
+      user = "sabnzbd";
+      group = "media";
       openFirewall = false;
       configFile = null;
       allowConfigWrite = true;
@@ -52,7 +54,8 @@ in
     };
 
     systemd.services.sabnzbd = {
-      after = [ "network.target" ];
+      after = [ "network.target" "run-sabnzbd\\x2dtmp.mount" ];
+      requires = [ "run-sabnzbd\\x2dtmp.mount" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = lib.mkMerge [
         (import ../lib/hardening-profiles.nix { inherit lib; }).python
@@ -94,11 +97,9 @@ in
       options = "size=1G,mode=0700";
     }];
 
-    systemd.services.sabnzbd.requires = [ "run-sabnzbd\x2dtmp.mount" ];
-    systemd.services.sabnzbd.after = [ "run-sabnzbd\x2dtmp.mount" ];
 
-    grapefruitMedia.persist.extraPaths = [ stateDir ];
-    grapefruitMedia.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
+    medinix.persist.extraPaths = [ stateDir ];
+    medinix.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
 
     
     # Killswitch - Unconditionally enabled per Iron-Zero principles

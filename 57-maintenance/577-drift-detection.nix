@@ -13,7 +13,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfy = "http://127.0.0.1:5810/mediNix-drift";
 

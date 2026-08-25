@@ -16,7 +16,7 @@ activeSecrets = lib.filterAttrs (name: path:
   path != null && (cfg.services.${name}.enable or false)
 ) secretMap;
 
-# RICHTIG (flaches Options-Schema in grapefruitMedia):
+# RICHTIG (flaches Options-Schema in medinix):
 activeSecrets = lib.filterAttrs (name: path:
   path != null && (cfg.${name}.enable or false)
 ) secretMap;
@@ -112,7 +112,7 @@ jellyfin = (mkService "jellyfin" 551 "stream" "default") // {
 { config, lib, ... }:
 
 let
-  cfg      = config.grapefruitMedia;
+  cfg      = config.medinix;
   registry = import ../lib/registry.nix { inherit lib; };
   creds    = import ../lib/credentials.nix { inherit lib; };
 
@@ -207,7 +207,7 @@ usenet-confinement = {
 { config, lib, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
 
   # Routing-Tabellen ab 51820 aufsteigend (eine pro Service)
   serviceWithTable = lib.imap0 (i: name: {

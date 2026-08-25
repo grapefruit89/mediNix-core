@@ -15,8 +15,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.lidarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.lidarr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.lidarr;
   port = reg.port;
@@ -40,7 +40,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       UMask          = "0002";
-      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
     };
   })
   {
@@ -76,7 +76,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."lidarr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."lidarr" = { accessGroup = reg.caddyClass; };
 
   } { systemd.services."lidarr" = lib.mkIf (svc.secrets.lidarrApiKeyFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "lidarr-api-key:${svc.secrets.lidarrApiKeyFile}" ];

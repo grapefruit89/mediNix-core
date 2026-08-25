@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.navidrome;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.navidrome;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.navidrome;
   port = reg.port;
@@ -48,7 +48,7 @@ lib.mkIf (cfg.enable) {
         ExecStart = "${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml";
         User = "navidrome";
         Group = "media";
-        UMask = lib.mkForce "0002";
+        UMask = "0002";
         StateDirectory = "navidrome-${toString port}";
         # Tier 1 state + Tier 3 music (read-only)
         ReadWritePaths = [ stateDir ];
@@ -66,6 +66,6 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."navidrome" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."navidrome" = { accessGroup = reg.caddyClass; };
 }
 

@@ -35,7 +35,7 @@ nixosConfigurations.check = lib.nixosSystem {
   modules = [
     self.nixosModules.default
     {
-      grapefruitMedia.enable = true;          # the module's enable flag
+      medinix.enable = true;          # the module's enable flag
       boot.loader.grub.enable = false;         # no bootloader in eval
       fileSystems."/" = { device = "none"; fsType = "tmpfs"; };  # no real root
       system.stateVersion = "24.11";

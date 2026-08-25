@@ -5,7 +5,7 @@ devNIX `flake.nix` (main) — ADR-8000 pattern. mediNIX-core adapted it with the
 
 ## What mediNIX-core flake.nix gained
 1. **Ratsche (eval check):** `nixosConfigurations.check` evaluates the module with
-   `grapefruitMedia.enable = true` + dummy tmpfs root. `checks.nixos-check =
+   `medinix.enable = true` + dummy tmpfs root. `checks.nixos-check =
    nixosConfigurations.check.config.system.build.toplevel` catches EVERY attribute-missing
    / type error at `nix flake check` time — before deploy. This is what would have caught
    the `pocketId` registry-key bug and the `cfg.services.*.apiKeyFile` secrets-path bug.

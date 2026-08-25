@@ -10,7 +10,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   flagFile = "/var/lib/mediNix-state/provisioned";  # in StateDirectory (writable, 0750)
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 

@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.orphanCleanup;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.maintenance.orphanCleanup;
+  svc = config.medinix;
   incompleteDir = "${svc.storage.mediaRoot}/downloads/incomplete";
   completeDir   = "${svc.storage.mediaRoot}/downloads/complete";
 in

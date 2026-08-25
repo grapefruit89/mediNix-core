@@ -55,7 +55,7 @@ serviceConfig = lib.mkMerge [
   (import ../lib/hardening-profiles.nix { inherit lib; }).dotnet
   { ExecStart = "..."; User = "sonarr"; Group = "media";
     StateDirectory = "sonarr-5320"; UMask = "002";
-    ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ]; }
+    ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ]; }
 ];
 ```
 Nie wieder `ProtectSystem=strict` etc. im Modul hart reinschreiben — kommt aus dem Profil.

@@ -7,8 +7,8 @@ Assertions stillschweigend kaputt gemacht. NIEMALS wiederholen.
 Symptom: Alle Guardrail-Assertionen feuern nie (Bedingung immer false), Build
 passiert trotz falscher Config.
 Cause: `sed` ersetzte `cfg.enable` durch `cfg.security.enable`. Aber der
-Top-Level-Enable in mediNix-core ist `config.grapefruitMedia.enable`, NICHT
-`config.grapefruitMedia.security.enable`. `security.*` sind NUR Unter-Optionen
+Top-Level-Enable in mediNix-core ist `config.medinix.enable`, NICHT
+`config.medinix.security.enable`. `security.*` sind NUR Unter-Optionen
 (`cfg.security.emergencyUser.enable`), nicht der Gating-Schalter.
 Richtig: Modul-Gating immer `lib.mkIf cfg.enable { ... }`.
 

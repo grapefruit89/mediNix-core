@@ -41,7 +41,7 @@ Schema:
 [INVARIANT|CODE] SHORT_DESCRIPTION.
   Expected: <correct state>
   Found: <actual state>
-  Fix: <specific instruction, e.g., "set grapefruitMedia.X.enable = true">
+  Fix: <specific instruction, e.g., "set medinix.X.enable = true">
   Ref: ADR-XXXX
 ```
 

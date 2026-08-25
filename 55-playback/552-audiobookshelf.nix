@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.audiobookshelf;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.audiobookshelf;
+  svc = config.medinix;
   port = 5520;  # 552 × 10
   uid  = 5520;
   gid  = 5000;
@@ -45,7 +45,7 @@ lib.mkIf (cfg.enable) {
         ExecStart = "${pkgs.audiobookshelf}/bin/audiobookshelf";
         User = "audiobookshelf";
         Group = "media";
-        UMask = lib.mkForce "0002";
+        UMask = "0002";
         StateDirectory = "audiobookshelf-${toString port}";
         # Tier 2 metadata (rw) + Tier 3 media (rw, ABS writes covers)
         ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
@@ -60,6 +60,6 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."audiobookshelf" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."audiobookshelf" = { accessGroup = reg.caddyClass; };
 }
 

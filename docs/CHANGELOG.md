@@ -18,7 +18,7 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
 ## Phase 1 — Foundation
 - **flake.nix**: `nixosModules.default` Export + `checks.nixos-check` (dummy hardware, stateVersion 24.11)
-- **default.nix**: vollständiges `options.grapefruitMedia` API (services, storage, security, observability, maintenance)
+- **default.nix**: vollständiges `options.medinix` API (services, storage, security, observability, maintenance)
 - **lib/registry.nix**: SSoT für Port/UID/GID aller Dienste (Port = folder×10, UID = Port, GID = 5000)
 - **lib/service-factory.nix**: `mkService` + `mkNoPort` (execStart + stateDir + mkPeerIsolation + hardeningProfile)
 - **lib/hardening-profiles.nix**: zentrale Profile (base, dotnet, dotnet-gpu, python, nodejs, network, script, client)

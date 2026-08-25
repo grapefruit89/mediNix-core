@@ -10,7 +10,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   # Only services that are actually enabled

@@ -10,8 +10,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.recyclarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.maintenance.recyclarr;
+  svc = config.medinix;
   portRadarr = (import ../lib/registry.nix { inherit lib; }).services.radarr.port;
   portSonarr = (import ../lib/registry.nix { inherit lib; }).services.sonarr.port;
 

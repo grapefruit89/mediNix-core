@@ -4,7 +4,7 @@ Kopieren als Startpunkt für neue mediNix-Module. Liegt auf dem Agent-Host unter
 
 ```
 50-mediNix/
-├── default.nix                    # importiert alle Module + options.grapefruitMedia
+├── default.nix                    # importiert alle Module + options.medinix
 ├── lib/
 │   ├── registry.nix               # SSoT: mkService name port -> {uid=5000+port/10, gid=5000, wan, stream}
 │   └── service-factory.nix        # mkService + containerIsolation (Loopback only!)

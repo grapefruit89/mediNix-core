@@ -28,7 +28,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
   active = cfg.pocketId.enable || cfg.ingress.auth.mode == "forward-auth";
 in
@@ -51,8 +51,6 @@ lib.mkIf (cfg.enable && active) {
     profile = "network";
     hardeningOnly = true;
     extraConfig = {
-      User  = "pocket-id";
-      Group = "media";
       RestrictNetworkInterfaces = [ "lo" ];  # LAN only, Caddy proxies WAN
       ReadWritePaths = [ svc.stateDir ];
     };
@@ -69,7 +67,7 @@ lib.mkIf (cfg.enable && active) {
   # Caddy forward_auth upstream points to Pocket ID (if ingress is active)
   # (Configuration in 511-caddy.nix: ing.auth.forwardAuthUpstream)
 
-  grapefruitMedia.ingress.vhosts."pocket-id" = { accessGroup = "idp"; };
+  medinix.ingress.vhosts."pocket-id" = { accessGroup = "idp"; };
 }
 
 # Gold-Standard (ADR-5120):

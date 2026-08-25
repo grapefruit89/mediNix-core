@@ -22,7 +22,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.observability.crowdsec;
+  cfg = config.medinix.observability.crowdsec;
 in lib.mkIf cfg.enable {
   # Native CrowdSec agent (no Docker — runs as systemd.service)
   

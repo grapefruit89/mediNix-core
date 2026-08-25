@@ -70,7 +70,7 @@ keine Hardcoded-IPs.
       modules = [
         mediNix-core.nixosModules.default
         {
-          grapefruitMedia = {
+          medinix = {
             enable     = true;
             domain     = "m7c5.de";
             ingress.tls.acmeHost = "m7c5.de";  # liest /var/lib/acme/m7c5.de/ (Host: security.acme)
@@ -110,7 +110,7 @@ Soft-Warnings: firewall aus, stream ohne TLS, .NET-EOL.
 
 ## Verzeichnis
 
-- `default.nix` — Options-API (`grapefruitMedia.*`), auto-import aller Module via `readDir`+regex
+- `default.nix` — Options-API (`medinix.*`), auto-import aller Module via `readDir`+regex
 - `lib/` — registry (SSoT Ports/UID), service-factory (mkService), abc-tiering
 - `docs/` — ADRs (Architecture Decision Records), INDEX.md
 - `flake.nix` — `nixosModules.default` Export + CI-check Target

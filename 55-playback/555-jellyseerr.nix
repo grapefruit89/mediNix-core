@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.jellyseerr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.jellyseerr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.jellyseerr;
   port = reg.port;
@@ -49,7 +49,7 @@ lib.mkIf (cfg.enable) {
         ExecStart = "${pkgs.jellyseerr or pkgs.overseerr}/bin/jellyseerr";
         User = "jellyseerr";
         Group = "media";
-        UMask = lib.mkForce "0002";
+        UMask = "0002";
         StateDirectory = "jellyseerr-${toString port}";
         ReadWritePaths = [ stateDir ];
         # caddyClass=public from registry → LAN+WAN, compression (handled by 511-caddy)
@@ -67,7 +67,7 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  grapefruitMedia.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."jellyseerr" = { accessGroup = reg.caddyClass; };
 
 
 }

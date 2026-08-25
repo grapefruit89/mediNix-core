@@ -7,8 +7,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.observability.ntfy;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.observability.ntfy;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.ntfy;
   port = reg.port;
@@ -47,5 +47,5 @@ in lib.mkIf cfg.enable {
     serviceConfig = lib.mkMerge [ profiles.network { User = "ntfy"; Group = "media"; } ];
   };
 
-  grapefruitMedia.ingress.vhosts."ntfy" = { accessGroup = "internal"; };
+  medinix.ingress.vhosts."ntfy" = { accessGroup = "internal"; };
 }

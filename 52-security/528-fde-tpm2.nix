@@ -10,9 +10,9 @@
 { config, lib, ... }:
 
 let
-  cfg = config.grapefruitMedia.security.fde;
+  cfg = config.medinix.security.fde;
 in {
-  options.grapefruitMedia.security.fde = {
+  options.medinix.security.fde = {
     enable = lib.mkEnableOption "Full Disk Encryption via LUKS2 + TPM2 Auto-Unlock";
     
     rootUuid = lib.mkOption {

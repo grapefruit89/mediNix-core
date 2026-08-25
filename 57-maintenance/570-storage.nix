@@ -21,7 +21,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   st  = cfg.storage;
 
   dataRoot    = toString st.mediaRoot;     # e.g. "/data"
@@ -79,9 +79,9 @@ lib.mkIf (cfg.enable && st.enable) {
   systemd.tmpfiles.rules = baseTmpfiles ++ backendTmpfiles;
 
   # MergerFS pools (only if hot + cold both defined)
-  fileSystems = lib.mkIf hasBackends
+  fileSystems = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed")
     (lib.listToAttrs (map mergerfsMount mediaTypes));
 
   # mergerfs package must be in PATH for FUSE mounts
-  environment.systemPackages = lib.mkIf hasBackends [ pkgs.mergerfs ];
+  environment.systemPackages = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") [ pkgs.mergerfs ];
 }

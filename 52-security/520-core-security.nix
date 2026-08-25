@@ -12,19 +12,11 @@
 { config, lib, ... }:
 
 let
-  cfg = config.grapefruitMedia.security.emergencyUser;
+  cfg = config.medinix.security.emergencyUser;
 in
 {
-  options.grapefruitMedia.security.emergencyUser = {
-    enable = lib.mkEnableOption "Emergency User (media-admin)";
-    sshKeys = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [];
-    };
-  };
-
   config = lib.mkMerge [
-    (lib.mkIf config.grapefruitMedia.enable {
+    (lib.mkIf config.medinix.enable {
       # Central media group and user (Unconditional within media stack)
       users.groups.media.gid = 5000;
       users.users.media = {

@@ -7,7 +7,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   # Get ntfy port from registry
   ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;

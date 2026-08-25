@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5130
 # provides: ["ddns", "cloudflare", "split-horizon"]
-# requires: ["lib/registry", "options.grapefruitMedia"]
+# requires: ["lib/registry", "options.medinix"]
 # ports: []
 # upstream_docs: ["https://developers.cloudflare.com/dns/"]
 # forum_links: []
@@ -31,7 +31,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   ddns = cfg.dns.ddns;
   zone = if ddns.zone != null then ddns.zone else cfg.domain;
 
@@ -63,7 +63,20 @@ in
 lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
   # systemd-Timer: DDNS-Sync basierend auf ddns.interval
-  systemd.services.cloudflare-ddns = lib.mkMerge [
+  assertions = [
+      {
+        assertion = cfg.dns.ddns.enable -> (cfg.dns.ddns.cloudflareTokenCredential != null || cfg.dns.ddns.tokenCredential != null || cfg.dns.ddns.tokenFile != null);
+        message = ''
+          [mediNix] DDNS is enabled but no token is provided.
+          
+          [AI/Admin Context]
+          Reason: The DDNS updater daemon requires an API token to communicate with the DNS provider (Cloudflare).
+          Ref: ADR-5043
+        '';
+      }
+    ];
+
+    systemd.services.cloudflare-ddns = lib.mkMerge [
     ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
       name = "cloudflare-ddns";
       profile = "network";

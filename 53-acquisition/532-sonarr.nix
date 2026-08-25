@@ -18,8 +18,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.sonarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.sonarr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.sonarr;
   port = reg.port;
@@ -46,7 +46,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     extraConfig = {
       User           = "sonarr";  # Factory sets User=name, here redundant but safe
       UMask          = "0002";     # Arr-Stack needs 002 for group write permissions
-      ReadWritePaths = [ stateDir config.grapefruitMedia.storage.mediaRoot ];
+      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
     };
   })
   {
@@ -63,7 +63,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
           urlBase     = "";
         };
         auth = {
-          method   = if config.grapefruitMedia.ingress.auth.mode == "forward-auth" then "External" else "Forms";
+          method   = if config.medinix.ingress.auth.mode == "forward-auth" then "External" else "Forms";
           required = "Enabled";
         };
         app = {
@@ -82,7 +82,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."sonarr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."sonarr" = { accessGroup = reg.caddyClass; };
 
   } { systemd.services."sonarr" = lib.mkIf (svc.secrets.sonarrApiKeyFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];

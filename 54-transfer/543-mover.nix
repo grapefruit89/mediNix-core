@@ -14,8 +14,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.mover;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.mover;
+  svc = config.medinix;
 
   moverScript = pkgs.writeShellApplication {
     name = "mediNix-mover";
@@ -26,6 +26,13 @@ let
       STAGING="${cfg.stagingDir}"
       ARCHIVE="${cfg.archiveDir}"
       MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
+
+      # Prevent writing to root SSD if mount fails
+      if [ "$(stat -c "%m" "$ARCHIVE" 2>/dev/null || echo "/")" = "/" ]; then
+        echo "Mover: ARCHIVE $ARCHIVE is on the root partition! Aborting to prevent SSD fill-up."
+        exit 1
+      fi
+
 
       # 1. Fill level check on Staging (Tier-B/SSD)
       if [ ! -d "$STAGING" ]; then

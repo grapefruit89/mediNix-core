@@ -53,7 +53,7 @@ KISS: keine zweite Architektur neben Registry/Factory.
 
 ## Phase C — mediNix- / NixOS-Idiom
 
-- Deklarativ über `grapefruitMedia.*`-Optionen; keine Host-IPs/Namen als Default.
+- Deklarativ über `medinix.*`-Optionen; keine Host-IPs/Namen als Default.
 - Registry = SSoT für Port/UID/GID (Port = Num×10, UID = Port, GID = 5000).
 - Unit-Namen = plain (`sonarr.service`); StateDirectory darf Port-Suffix haben.
 - Portabel: keine q958 / m7c5 / 192.168 / privado als Modul-Wahrheit.

@@ -47,7 +47,7 @@ systemd-creds encrypt --with-key=tpm2+host \
 shred -u /tmp/cf-token.txt
 
 # 4. In configuration.nix referenzieren (nie den Inhalt!)
-grapefruitMedia.dns.cloudflareTokenCredential =
+medinix.dns.cloudflareTokenCredential =
   "/var/lib/systemd/credential.d/mediNix-cf-token.cred";
 ```
 

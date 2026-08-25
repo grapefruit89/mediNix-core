@@ -17,8 +17,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.exporters;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.exporters;
+  svc = config.medinix;
 
   # Arr services getting an exporter (Port = Service port + 1000)
   arrExporters = [

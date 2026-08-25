@@ -24,7 +24,7 @@ Dieses Skill kombiniert die Erstellung neuer Module und die Integration aus Refe
 ## 3. Dateistruktur & Header
 - **Flat Structure:** Ein Service = Genau EINE Datei (z.B. `55-playback/551-jellyfin.nix`). Niemals Ordner verschachteln!
 - **NIXMETA Header:** Jede Datei muss oben einen Kommentar-Block mit Metadaten haben (`# id: NNN-name`, `# domain:`, `# status:`, `# layer:`, `# purpose:`, `# tags:`, `# requires:`).
-- Verwende bei Integrationen immer das mediNix-Idiom (`config.grapefruitMedia.*` statt fremden `my.*` Parametern).
+- Verwende bei Integrationen immer das mediNix-Idiom (`config.medinix.*` statt fremden `my.*` Parametern).
 
 ## 4. Hardening (Sicherheitsprofile)
 - **Regel:** Kopiere niemals isolierte Security-Settings. Nutze *immer* das Profil-System!

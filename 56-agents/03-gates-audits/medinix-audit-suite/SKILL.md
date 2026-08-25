@@ -47,7 +47,7 @@ Jede `assertions = [` oder `warnings = [` Meldung MUSS folgendes Format haben:
 message = ''
   [595] SSH service is DISABLED.
   A mediNix host without SSH is unreachable after reboot.
-  Fix: set grapefruitMedia.ssh.enable = true.
+  Fix: set medinix.ssh.enable = true.
 '';
 ```
 

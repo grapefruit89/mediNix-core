@@ -22,7 +22,7 @@
 
 # lib/abc-tiering.nix — ABC Storage Tiering convention (portabel)
 # Tier paths derived from cfg.storage.mediaRoot (Regel 3: no hardcoded paths).
-# Import: (import ../lib/abc-tiering.nix { cfg = config.grapefruitMedia; })
+# Import: (import ../lib/abc-tiering.nix { cfg = config.medinix; })
 { cfg }:
 {
   # Tier A: System-State, Datenbanken, Secrets (NVMe/SATA-SSD)

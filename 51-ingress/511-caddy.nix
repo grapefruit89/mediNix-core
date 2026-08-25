@@ -21,7 +21,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  cfg       = config.grapefruitMedia;
+  cfg       = config.medinix;
   ing       = cfg.ingress;
   useGlobal = config.services.caddy.enable;
 
@@ -165,6 +165,39 @@ in lib.mkMerge [
       plugins = [ "github.com/hslatman/caddy-crowdsec-bouncer@latest" ];
       hash = lib.fakeSha256; 
     });
+
+    assertions = [
+      {
+        assertion = !(cfg.ingress.tls.acmeHost != null && cfg.ingress.tls.certFile != null);
+        message = ''
+          [mediNix] You cannot specify both acmeHost and certFile for TLS.
+          
+          [AI/Admin Context]
+          Reason: A virtual host must either be automatically provisioned via ACME (acmeHost) OR manually provisioned via a static certificate file. Specifying both causes a Caddy syntax conflict.
+          Ref: ADR-5043 (Ingress Configuration)
+        '';
+      }
+      {
+        assertion = cfg.ingress.tls.mode != "custom" || (cfg.ingress.tls.certFile != null && cfg.ingress.tls.keyFile != null);
+        message = ''
+          [mediNix] Custom TLS mode requires both certFile and keyFile.
+          
+          [AI/Admin Context]
+          Reason: If you bypass ACME to provide your own certificates, Caddy needs both the public cert and the private key.
+          Ref: ADR-5043 (Ingress Configuration)
+        '';
+      }
+      {
+        assertion = cfg.ingress.auth.mode != "forward-auth" || cfg.pocketId.enable || cfg.ingress.authProxyPresent;
+        message = ''
+          [mediNix] forward-auth requires pocket-id to be enabled or an external auth proxy present.
+          
+          [AI/Admin Context]
+          Reason: If ingress auth is set to forward-auth, Caddy will forward all unauthenticated requests to an identity provider. If none is configured, all protected routes will return 502 Bad Gateway.
+          Ref: ADR-5120 (Identity Provider & Forward Auth)
+        '';
+      }
+    ];
 
     services.caddy.globalConfig = lib.mkIf useGlobal ''
       servers {

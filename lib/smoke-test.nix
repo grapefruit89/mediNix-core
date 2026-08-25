@@ -4,7 +4,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   # Navidrome: Port 5530 (553 × 10), UID 5530
   navidromePort = 5530;
   navidromeUnit = "navidrome.service";
@@ -12,7 +12,7 @@ in
 {
   config = lib.mkMerge [
     {
-      grapefruitMedia.navidrome.enable = true;
+      medinix.navidrome.enable = true;
     }
     (lib.mkIf (cfg.enable && cfg.navidrome.enable) {
       # 1) Navidrome-Systemd-Unit muss existieren

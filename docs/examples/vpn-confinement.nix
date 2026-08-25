@@ -27,7 +27,7 @@
   };
 
   # ── mediNix-core ────────────────────────────────────────────────────────
-  grapefruitMedia = {
+  medinix = {
     enable = true;
     domain = "m7c5.de";
 

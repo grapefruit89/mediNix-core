@@ -20,8 +20,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.prowlarr;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.prowlarr;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.prowlarr;
   port = reg.port;
@@ -63,7 +63,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
           urlBase     = "";
         };
         auth = {
-          method   = if config.grapefruitMedia.ingress.auth.mode == "forward-auth" then "External" else "Forms";
+          method   = if config.medinix.ingress.auth.mode == "forward-auth" then "External" else "Forms";
           required = "Enabled";
         };
         app = {
@@ -82,12 +82,12 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     socketConfig.Accept = false;
   };
 
-  grapefruitMedia.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
 
-  } { systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
-  };
-
-  };
-
-} ])
+  }
+  {
+    systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
+      serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+    };
+  }
+])

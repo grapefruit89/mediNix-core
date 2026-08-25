@@ -10,8 +10,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.maintenance.sqliteOptimize;
-  svc = config.grapefruitMedia;
+  cfg = config.medinix.maintenance.sqliteOptimize;
+  svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
   # Only grab active services

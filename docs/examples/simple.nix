@@ -28,7 +28,7 @@
   };
 
   # ── mediNix-core ────────────────────────────────────────────────────────
-  grapefruitMedia = {
+  medinix = {
     enable = true;
     domain = "media.example.com";   # LAN unicast domain (NOT .local)
 

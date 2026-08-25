@@ -30,7 +30,7 @@ We select **PocketID**.
 - **Maintainability:** Fewer dependencies (no external DB strictly required).
 
 ## Cross-Domain Wiring
-PocketID is automatically enabled and published by Caddy when `grapefruitMedia.ingress.auth.mode == "forward-auth"`. Its VHost is assigned the `idp` accessGroup to prevent routing loops (where the IdP requires authentication via itself).
+PocketID is automatically enabled and published by Caddy when `medinix.ingress.auth.mode == "forward-auth"`. Its VHost is assigned the `idp` accessGroup to prevent routing loops (where the IdP requires authentication via itself).
 
 ## Status
 Authentik nuggets remain in the knowledge base only as a **reference for complex Nix modules**, but are ignored in the system design.

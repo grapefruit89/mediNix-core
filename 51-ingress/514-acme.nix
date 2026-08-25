@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5140
 # provides: ["acme", "tls", "certificates"]
-# requires: ["options.grapefruitMedia"]
+# requires: ["options.medinix"]
 # ports: []
 # upstream_docs: ["https://nixos.wiki/wiki/ACME", "https://go-acme.github.io/lego/dns/cloudflare/"]
 # nixpkgs_attr: "security.acme"
@@ -35,7 +35,7 @@
 { lib, config, ... }:
 
 let
-  cfg      = config.grapefruitMedia;
+  cfg      = config.medinix;
   ing      = cfg.ingress;
   ddns     = cfg.dns.ddns;
   acmeHost = ing.tls.acmeHost;
@@ -59,11 +59,17 @@ in
 lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
 
   assertions = [
-    {
-      assertion = credPath != null || plainTokenFile != null;
-      message = "ACME Host is set, but no Cloudflare token credential or plain file is provided. This would fail silently at runtime.";
-    }
-  ];
+      {
+        assertion = cfg.ingress.tls.acmeHost != null -> (cfg.ingress.tls.acmeCredential != null || cfg.dns.ddns.cloudflareTokenCredential != null || cfg.dns.ddns.tokenCredential != null || cfg.dns.ddns.tokenFile != null);
+        message = ''
+          [mediNix] acmeHost requires at least one token source (acmeCredential or a DDNS token).
+          
+          [AI/Admin Context]
+          Reason: To fulfill a DNS-01 ACME challenge for Let's Encrypt, the lego client must inject a TXT record. It needs API credentials to do so.
+          Ref: ADR-5043
+        '';
+      }
+    ];
 
   security.acme = {
     acceptTerms = true;
@@ -109,7 +115,7 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       LoadCredentialEncrypted = [ "cf-acme-token:${credPath}" ];
       # IMPORTANT: The credential file MUST contain KEY=value syntax (e.g. CF_DNS_API_TOKEN=your_token)
       # mkForce: override whatever security.acme set for EnvironmentFile
-      EnvironmentFile = lib.mkForce [ credRuntime ];
+      EnvironmentFile = [ credRuntime ];
     };
   };
 }

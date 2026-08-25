@@ -33,7 +33,7 @@
           modules = [
             self.nixosModules.default
             {
-              grapefruitMedia.enable = true;
+              medinix.enable = true;
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "24.11";
@@ -101,10 +101,10 @@
               modules = [
                 self.nixosModules.default
                 {
-                  grapefruitMedia.enable = true;
-                  grapefruitMedia.usenet-confinement.enable = true;
-                  grapefruitMedia.sabnzbd.enable = true;
-                  # Intentionally DO NOT provide grapefruitMedia.vpn.interface
+                  medinix.enable = true;
+                  medinix.usenet-confinement.enable = true;
+                  medinix.sabnzbd.enable = true;
+                  # Intentionally DO NOT provide medinix.vpn.interface
                   boot.loader.grub.enable = false;
                   fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
                   system.stateVersion = "24.11";
@@ -124,7 +124,7 @@
             self.nixosModules.default
             ./lib/smoke-test.nix
             {
-              grapefruitMedia.enable = true;
+              medinix.enable = true;
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "24.11";

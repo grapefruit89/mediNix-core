@@ -12,8 +12,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.security.backupSsh;
-  mediaConfig = config.grapefruitMedia;
+  cfg = config.medinix.security.backupSsh;
+  mediaConfig = config.medinix;
   registry = import ../lib/registry.nix { inherit lib; };
   stateDirs = lib.mapAttrsToList (_: svc: svc.stateDir) registry.services;
   dbDirs = lib.filter (d: d != "") stateDirs;

@@ -12,14 +12,14 @@
 { config, pkgs, lib, ... }:
 
 let
-  cfg       = config.grapefruitMedia;
+  cfg       = config.medinix;
   vpn       = cfg.vpn;
   ifName    = vpn.interfaceName;
   credMount = "/run/credentials/wireguard-${ifName}.service/wg-private-key";
 in
 lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
-  grapefruitMedia.vpn.interface  = lib.mkDefault ifName;
-  grapefruitMedia.vpn.dnsServers = lib.mkDefault vpn.dns;
+  medinix.vpn.interface  = lib.mkDefault ifName;
+  medinix.vpn.dnsServers = lib.mkDefault vpn.dns;
   services.vpnKillSwitch.vpnInterface = lib.mkDefault ifName;
   services.vpnKillSwitch.dnsServers = lib.mkDefault vpn.dns;
 

@@ -9,7 +9,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   
   landingHtml = pkgs.writeTextDir "index.html" ''
     <!DOCTYPE html>

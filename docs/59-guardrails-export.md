@@ -48,7 +48,7 @@ Schema:
 [INVARIANTE|CODE] KURZE_BESCHREIBUNG.
   Erwartet: <korrekter Zustand>
   Gefunden: <tatsächlicher Zustand>
-  Fix: <konkrete Anweisung, z.B. "setze grapefruitMedia.X.enable = true">
+  Fix: <konkrete Anweisung, z.B. "setze medinix.X.enable = true">
   Ref: ADR-XXXX
 ```
 
@@ -111,7 +111,7 @@ let
     "INV-06" = "stream-Dienste sind niemals ohne TLS WAN-erreichbar.";
     "INV-07" = "Kein Dienst mit /dev/dri-Bedarf hat PrivateDevices = true.";
     "INV-SECRET" = "Kein Secret landet im Nix-Store. Alle Pfade via .cred-Dateien (TPM).";
-    "INV-VPN-01" = "usenet-confinement.enable erfordert vpn.interface. Host: WireGuard anlegen und grapefruitMedia.vpn.interface setzen. Siehe ADMIN-HANDOFF §4.";
+    "INV-VPN-01" = "usenet-confinement.enable erfordert vpn.interface. Host: WireGuard anlegen und medinix.vpn.interface setzen. Siehe ADMIN-HANDOFF §4.";
     "INV-VPN-02" = "vpn.dns existiert nicht — nur vpn.dnsServers. Phantom-Option verhindern.";
     "INV-VPN-03" = "usenet-confinement aktiv → mindestens ein betroffener Dienst (sabnzbd oder prowlarr) muss enable sein. Sonst totes Confinement.";
     "INV-VPN-04" = "vpn.dnsServers Einträge müssen syntaktisch IPs sein (IPv4 oder IPv6). Keine Hostnamen in der Sandbox-resolv.conf.";
@@ -172,7 +172,7 @@ in
 ix
 { config, lib, ... }:
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   reg  = import ./590-registry.nix { inherit lib; };
 in {
   config = lib.mkIf cfg.enable {
@@ -192,7 +192,7 @@ in {
 ix
 { config, lib, ... }:
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   reg  = import ./590-registry.nix { inherit lib; };
 in {
   config = lib.mkIf cfg.enable {
@@ -230,7 +230,7 @@ ix
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.security.emergencyUser;
+  cfg = config.medinix.security.emergencyUser;
 in lib.mkIf cfg.enable {
   users.users.media-admin = {
     isNormalUser = true;
@@ -308,7 +308,7 @@ ix
 ix
 { config, lib, ... }:
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   reg  = import ./590-registry.nix { inherit lib; };
 in {
   config = lib.mkIf (cfg.enable && cfg.usenet-confinement.enable) {
@@ -345,7 +345,7 @@ ix
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia.security.backupSsh;
+  cfg = config.medinix.security.backupSsh;
   # Alle State-Dirs die für Backup freigegeben sind (read-only)
   stateDirs = [
     "/var/lib/jellyfin-5510" "/var/lib/audiobookshelf-5520" "/var/lib/navidrome-5530"
@@ -380,7 +380,7 @@ in lib.mkIf cfg.enable {
 ix
 { config, lib, ... }:
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   reg  = import ./590-registry.nix { inherit lib; };
 in {
   config = lib.mkIf cfg.enable {
@@ -398,7 +398,7 @@ ix
 { config, lib, ... }:
 
 let
-  cfg  = config.grapefruitMedia;
+  cfg  = config.medinix;
   reg  = import ./590-registry.nix { inherit lib; };
 in {
   config = lib.mkIf cfg.enable {
@@ -512,7 +512,7 @@ ix
 { config, lib, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   reg = import ./590-registry.nix { inherit lib; };
 in
 lib.mkIf cfg.enable {
@@ -549,7 +549,7 @@ ix
 { config, lib, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   reg = import ./590-registry.nix { inherit lib; };
 in
 lib.mkIf cfg.enable {

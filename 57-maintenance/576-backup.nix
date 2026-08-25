@@ -15,7 +15,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.grapefruitMedia;
+  cfg = config.medinix;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 
   # Registry: StateDirectory paths of services (port suffix, NOT unit name!)
