@@ -21,5 +21,17 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/registry`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  520_core_security["520-core-security"] --> registry["lib/registry"]
+  525_vpn_interface["525-vpn-interface"]
+  526_vpn_killswitch["526-vpn-killswitch"]
+  528_fde_tpm2["528-fde-tpm2"]
+  529_recommendations["529-recommendations"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

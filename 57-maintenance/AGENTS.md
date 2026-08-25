@@ -27,5 +27,25 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 - `lib/hardening-profiles`
 - `lib/registry`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  570_storage["570-storage"]
+  571_sqlite_wal["571-sqlite-wal"] --> hardening_profiles["lib/hardening-profiles"]
+  571_sqlite_wal["571-sqlite-wal"] --> registry["lib/registry"]
+  572_recyclarr["572-recyclarr"] --> registry["lib/registry"]
+  573_exportarr["573-exportarr"] --> hardening_profiles["lib/hardening-profiles"]
+  574_provisioning["574-provisioning"] --> hardening_profiles["lib/hardening-profiles"]
+  574_provisioning["574-provisioning"] --> registry["lib/registry"]
+  575_update_notifier["575-update-notifier"] --> hardening_profiles["lib/hardening-profiles"]
+  576_backup["576-backup"] --> hardening_profiles["lib/hardening-profiles"]
+  576_backup["576-backup"] --> registry["lib/registry"]
+  577_drift_detection["577-drift-detection"] --> hardening_profiles["lib/hardening-profiles"]
+  578_orphan_cleanup["578-orphan-cleanup"]
+  579_backup_ssh["579-backup-ssh"] --> registry["lib/registry"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

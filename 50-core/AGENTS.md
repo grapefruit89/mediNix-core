@@ -16,5 +16,13 @@
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  500_host_integration["500-host-integration"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

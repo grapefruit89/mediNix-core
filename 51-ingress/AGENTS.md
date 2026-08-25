@@ -23,5 +23,21 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 - `lib/registry`
 - `lib/service-factory`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  511_caddy["511-caddy"] --> service_factory["lib/service-factory"]
+  511_caddy["511-caddy"] --> registry["lib/registry"]
+  512_pocket_id["512-pocket-id"] --> service_factory["lib/service-factory"]
+  512_pocket_id["512-pocket-id"] --> registry["lib/registry"]
+  513_cloudflare_dns["513-cloudflare-dns"] --> service_factory["lib/service-factory"]
+  513_cloudflare_dns["513-cloudflare-dns"] --> registry["lib/registry"]
+  514_acme["514-acme"]
+  515_mdns["515-mdns"] --> registry["lib/registry"]
+  518_landingpage["518-landingpage"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

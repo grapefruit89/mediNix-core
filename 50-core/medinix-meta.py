@@ -312,6 +312,22 @@ def generate_docs(check_only=False):
         for req in sorted(all_reqs):
             lines.append(f"- `{req}`")
             
+        # Add Mermaid Graph
+        lines.append("\n## Dependency Graph\n")
+        lines.append("```mermaid")
+        lines.append("graph TD")
+        for filename, meta in modules:
+            mod_id = meta.get("id", filename)
+            # Remove extension from filename if used as id fallback to avoid dots in node names
+            mod_id_safe = mod_id.replace(".", "_").replace("-", "_")
+            reqs = parse_yaml_array(meta.get("requires", "[]"))
+            if not reqs:
+                lines.append(f"  {mod_id_safe}[\"{mod_id}\"]")
+            for r in reqs:
+                r_safe = r.split("/")[-1].replace(".", "_").replace("-", "_")
+                lines.append(f"  {mod_id_safe}[\"{mod_id}\"] --> {r_safe}[\"{r}\"]")
+        lines.append("```\n")
+            
         lines.append("\n---\n*Generiert durch `medinix-meta.py generate-docs`*")
         
         new_text = "\n".join(lines) + "\n"

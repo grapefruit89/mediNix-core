@@ -23,5 +23,20 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 - `lib/hardening-profiles`
 - `lib/registry`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  551_jellyfin["551-jellyfin"] --> hardening_profiles["lib/hardening-profiles"]
+  552_audiobookshelf["552-audiobookshelf"] --> hardening_profiles["lib/hardening-profiles"]
+  553_navidrome["553-navidrome"] --> hardening_profiles["lib/hardening-profiles"]
+  553_navidrome["553-navidrome"] --> registry["lib/registry"]
+  554_feishin["554-feishin"]
+  555_jellyseerr["555-jellyseerr"] --> arr_settings["lib/arr-settings"]
+  555_jellyseerr["555-jellyseerr"] --> hardening_profiles["lib/hardening-profiles"]
+  555_jellyseerr["555-jellyseerr"] --> registry["lib/registry"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

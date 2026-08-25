@@ -18,5 +18,14 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - `lib/registry`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  591_cross_domain["591-cross-domain"] --> registry["lib/registry"]
+  592_environment["592-environment"] --> registry["lib/registry"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*

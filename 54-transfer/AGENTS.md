@@ -19,5 +19,15 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 - `lib/hardening-profiles`
 - `lib/registry`
 
+## Dependency Graph
+
+```mermaid
+graph TD
+  541_sabnzbd["541-sabnzbd"] --> hardening_profiles["lib/hardening-profiles"]
+  541_sabnzbd["541-sabnzbd"] --> registry["lib/registry"]
+  543_mover["543-mover"] --> hardening_profiles["lib/hardening-profiles"]
+```
+
+
 ---
 *Generiert durch `medinix-meta.py generate-docs`*
