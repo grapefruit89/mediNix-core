@@ -25,3 +25,4 @@ my-*.nix
 __pycache__/
 *.pyc
 venv/
+second-brain.sqlite
