@@ -33,6 +33,7 @@ We adhere to a strict **Whitelist Philosophy**: If a problem can be solved by na
 | **Postgres / MySQL** (Default) | `SQLite` + WAL | For a homelab, heavy DB servers per service are pure overhead. If a service supports SQLite natively, it MUST be used over a heavy relational DB. |
 | **App Auto-Updaters** | `nixpkgs` | Built-in self-updaters break declarative reproducibility. Versioning must strictly happen via Nix flake pinning. |
 | **Third-Party Loggers** | `journald` | Do not install custom log rotators or forwarders if `systemd-journald` can do the job natively. |
+| **LLM Vector-DBs / RAG Plugins** | `AGENTS.md` & `grep` | Banned: `qmd`, `ChromaDB`, `FAISS`, heavy Python ML dependencies. Our codebase maps are deterministically generated (`medinix-meta.py generate-docs`). LLMs must use native `grep`/`fd` and read the `AGENTS.md` indexes instead of relying on fuzzy, bloated vector search. |
 
 ## 2. Banned Paradigms (Anti-Patterns)
 
