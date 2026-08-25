@@ -25,7 +25,7 @@ We adhere to a strict **Whitelist Philosophy**: If a problem can be solved by na
 | **`iptables`** | `nftables` | iptables is legacy, inefficient, and abstract. We use modern, declarative nftables rulesets. |
 | **`cron` / `crond` / `anacron`** | `systemd.timers` | cron lacks centralized logging, dependency tracking, and atomic execution. systemd.timers provide native journald integration and predictable execution constraints. |
 | **Docker / Podman / LXC** | Native `systemd.services` (DynamicUser, RootImage) | The Zero-Container rule (enforced in `592-environment.nix`). We build software natively from `nixpkgs` and isolate it using systemd's built-in sandboxing (RestrictAddressFamilies, PrivateTmp). |
-| **`sudo`** | `doas` or `systemd-run` | `sudo` is historically complex. For privilege escalation in automation, we prefer native systemd contexts. |
+| **Unrestricted `sudo`** | Whitelisted `sudo` rules | We DO use `sudo`, but only strictly for whitelisted commands (e.g., `media-admin` restart scripts). Passwordless full-root `sudo ALL=(ALL) NOPASSWD: ALL` is strictly banned. |
 | **Plex Media Server** | `Jellyfin` | Plex relies on cloud-relays, forces account logins for local playback, includes telemetry, and contradicts our Zero-Trust Localhost and no-silent-phone-home philosophy. |
 | **`supervisord` / `PM2`** | `systemd.services` | Do not use internal process managers (Anti-Docker reflex). Use native systemd for lifecycle management. |
 | **`ufw` / `firewalld`** | `networking.nftables` | Imperative firewall wrappers create state outside Nix. We exclusively use declarative Nix firewall/nftables rules. |
@@ -42,7 +42,6 @@ We adhere to a strict **Whitelist Philosophy**: If a problem can be solved by na
 | **Fail-Open Defaults** | Fail-Closed Assertions | e.g., silently falling back to unencrypted DNS if the VPN DNS fails, or starting a service with an empty password. If a critical secret or config is missing, the system MUST crash or refuse to build. |
 | **Silent State (Drop & Forget bypass)** | `medinix.knownStateDirs` | Leaving data on the host when a module is removed is a leak. All modules must register their state directories so the Orphan Cleanup script can detect drift. |
 | **Hardcoded UIDs / GIDs** | `DynamicUser = true` or `lib/registry.nix` | Never hardcode User/Group IDs in modules unless defined centrally in our Service Registry Decimal Framework (Port = UID = Service-Nummer × 10). |
-| **Web-UI Config Drift** | Declarative Nix Options | Runtime changes via Web UIs that are not synced back to the Nix flake are considered drift and will be flagged by Orphan Cleanup. Configuration MUST live in Nix where possible. |
 
 > **Instruction to AI Agents (Claude, Antigravity, etc.):**
 > If the user asks you to implement a feature using any of the Banned Technologies, you must refuse, reference this document, and provide the native Nix/systemd alternative. Do not suggest containers, cron, or sops-nix under any circumstances.
