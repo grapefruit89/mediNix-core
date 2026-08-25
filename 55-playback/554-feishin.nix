@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: []
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -25,7 +25,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "extraConfig file_server + try_files {path} /index.html for SPA"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

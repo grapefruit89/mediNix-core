@@ -249,6 +249,67 @@ def sync_deps():
     logger.info(f"Sync abgeschlossen! {synced} YAML Header wurden korrigiert.")
 
 
+
+# --- CLI: GENERATE DOCS (AGENT.md) ---
+def generate_docs():
+    logger.info("Generiere LLM-Wiki (AGENT.md) fuer alle Ordner...")
+    repo_root = SCRIPT_DIR.parent.parent
+    
+    folders = {}
+    files = get_nix_files(repo_root)
+    for file_path in files:
+        rel_path = file_path.relative_to(repo_root)
+        folder = rel_path.parent
+        if str(folder) == ".": continue
+        if str(folder) not in folders:
+            folders[str(folder)] = []
+        
+        meta, _ = extract_metadata(file_path)
+        if meta:
+            folders[str(folder)].append((file_path.name, meta))
+            
+    docs_created = 0
+    for folder_name, modules in folders.items():
+        if not re.match(r'^[0-9]{2}-', str(folder_name)):
+            continue
+            
+        agent_md_path = repo_root / folder_name / "AGENT.md"
+        modules.sort(key=lambda x: x[1].get("id", ""))
+        
+        lines = []
+        lines.append(f"# LLM Wiki: `{folder_name}`\n")
+        lines.append("> **Zweck:** Automatisch generierte Dokumentation fuer KI-Agenten.\n")
+        lines.append("## Module Map\n")
+        lines.append("| ID | Modul-Datei | Status | Komplexitaet | Ports |")
+        lines.append("|---|---|---|---|---|")
+        
+        for filename, meta in modules:
+            mod_id = meta.get("id", filename)
+            status = meta.get("status", "unknown")
+            complexity = meta.get("complexity", "-")
+            ports_raw = meta.get("ports", "[]")
+            ports = ", ".join(parse_yaml_array(ports_raw)) if ports_raw != "[]" else "-"
+            lines.append(f"| `{mod_id}` | `{filename}` | {status} | {complexity}/5 | {ports} |")
+            
+        lines.append("\n## Interne Abhaengigkeiten (Requires)\n")
+        lines.append("Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:\n")
+        
+        all_reqs = set()
+        for _, meta in modules:
+            reqs = parse_yaml_array(meta.get("requires", "[]"))
+            for r in reqs: all_reqs.add(r)
+            
+        for req in sorted(all_reqs):
+            lines.append(f"- `{req}`")
+            
+        lines.append("\n---\n*Generiert durch `medinix-meta.py generate-docs`*")
+        
+        with open(agent_md_path, "w", encoding="utf-8", newline='\n') as f:
+            f.write("\n".join(lines) + "\n")
+        docs_created += 1
+        
+    logger.info(f"Erfolgreich {docs_created} AGENT.md Dateien generiert!")
+
 # --- MCP SERVER (JSON-RPC) ---
 def mcp_server():
     global logger
@@ -365,7 +426,7 @@ def mcp_server():
 # --- MAIN DISPATCHER ---
 def main():
     parser = argparse.ArgumentParser(description="mediNix Meta-Tool & MCP Server")
-    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph", "sync-deps"], help="Befehl zum Ausführen")
+    parser.add_argument("command", nargs="?", default="mcp", choices=["mcp", "build-brain", "check", "repair", "graph", "sync-deps", "generate-docs"], help="Befehl zum Ausführen")
     args = parser.parse_args()
     
     if args.command == "mcp":
@@ -381,6 +442,8 @@ def main():
             repair_metadata()
         elif args.command == "sync-deps":
             sync_deps()
+        elif args.command == "generate-docs":
+            generate_docs()
 
 if __name__ == "__main__":
     main()

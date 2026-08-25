@@ -18,7 +18,6 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

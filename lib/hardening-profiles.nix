@@ -13,6 +13,7 @@
 #   - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem MemoryDenyWriteExecute IPAddressAllow"
 #     library: /websites/nixos_manual_nixos_unstable
 #     snippet: "NoNewPrivileges=true, ProtectSystem=strict, IPAddressAllow/Deny valid (Loopback isolation)"
+# requires: []
 # ---
 { lib }:
 

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -24,7 +24,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "NoNewPrivileges=true, ProtectSystem=strict valid"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: ["pocket-id", "oidc"]
-# requires: ["lib/registry", "lib/service-factory"]
+# requires: ["lib/service-factory", "lib/registry"]
 # ports: [5120]
 # upstream_docs: ["https://pocketid.org/docs/"]
 # forum_links: []
@@ -19,7 +19,6 @@
 # systemd_hardened: true
 # adr: ADR-5120
 # ---
-
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP
 # ADR-5120: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).
 # Active if cfg.pocketId.enable OR ingress.auth.mode=forward-auth.

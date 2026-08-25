@@ -19,7 +19,6 @@
 # systemd_hardened: true
 # adr: ADR-0000
 # ---
-
 { config, lib, ... }:
 
 let

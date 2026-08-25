@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -24,7 +24,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "systemd.services.<name> = { serviceConfig.ExecStart = ...; }"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

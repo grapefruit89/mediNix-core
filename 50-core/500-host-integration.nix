@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-25
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: []
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -18,7 +18,6 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-
 { lib, config, ... }:
 
 let

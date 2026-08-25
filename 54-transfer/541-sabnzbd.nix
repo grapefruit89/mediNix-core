@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry", "lib/hardening-profiles"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -25,7 +25,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "services.sabnzbd.enable + settings.misc"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

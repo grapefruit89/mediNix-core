@@ -21,7 +21,6 @@
 # skill: medinix-implement-discipline
 # note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

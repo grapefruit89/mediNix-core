@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5043
 # provides: ["tierA", "tierB", "tierC"]
-# requires: []
+# requires: ["lib/abc-tiering"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -19,7 +19,6 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
-
 # lib/abc-tiering.nix — ABC Storage Tiering convention (portabel)
 # Tier paths derived from cfg.storage.mediaRoot (Regel 3: no hardcoded paths).
 # Import: (import ../lib/abc-tiering.nix { cfg = config.medinix; })

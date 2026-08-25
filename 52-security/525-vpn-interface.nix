@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-18
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: []
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -19,7 +19,6 @@
 # systemd_hardened: true
 # adr: ADR-5270
 # ---
-
 { config, pkgs, lib, ... }:
 
 let

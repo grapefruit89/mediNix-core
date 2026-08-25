@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-13
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/service-factory", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -25,7 +25,6 @@
 # snippet: "virtualHosts.<host>.extraConfig + hostName for Caddyfile injection"
 # - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
 # ---
-
 # 51-ingress/511-caddy.nix — Chameleon Caddy Ingress
 # ADR-5110: exactly ONE Caddy instance (inject global | standalone caddy-media).
 # caddyClass controls the template per service (stream/internal/public/none).

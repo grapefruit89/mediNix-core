@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-11
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -25,7 +25,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "BindReadOnlyPaths for read-only media mount"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

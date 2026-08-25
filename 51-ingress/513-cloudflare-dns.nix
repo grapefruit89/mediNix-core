@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-13
 # links: 
 # provides: ["ddns", "cloudflare", "split-horizon"]
-# requires: ["lib/registry", "options.medinix"]
+# requires: ["lib/service-factory", "lib/registry"]
 # ports: []
 # upstream_docs: ["https://developers.cloudflare.com/dns/"]
 # forum_links: []
@@ -19,7 +19,6 @@
 # systemd_hardened: true
 # adr: ADR-5130
 # ---
-
 # 51-ingress/513-cloudflare-dns.nix — Cloudflare DDNS Sync
 # ADR-5130: Custom DDNS in standalone mode (dns.mode=standalone).
 # Implements Split-Horizon DNS based on caddyClass:

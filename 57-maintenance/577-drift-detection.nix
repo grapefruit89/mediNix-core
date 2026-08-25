@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-12
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -20,7 +20,6 @@
 # adr: ADR-5043, ADR-5050
 # repo-harvest: Nix-Grok (drift-detection pattern)
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

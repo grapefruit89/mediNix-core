@@ -10,6 +10,7 @@
 #   adr: ADR-5050
 #   repo-harvest: mynixos (mkServarrSettingsEnvVars, vergessen), nixflix (gleiches Pattern)
 # note: "ASP.NET Configuration: {APP}__{SECTION}__{KEY}=value (doppelter Unterstrich trennt Ebenen)"
+# requires: []
 # ---
 { lib }:
 

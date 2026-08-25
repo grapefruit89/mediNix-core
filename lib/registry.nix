@@ -19,7 +19,6 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
-
 # lib/registry.nix — Single Source of Truth (SSoT)
 # Isomorphie: UID = Port = Number × 10 (Number = folder digit)
 # ADR-5043: mediNix decimal framework. Port ends always in 0.

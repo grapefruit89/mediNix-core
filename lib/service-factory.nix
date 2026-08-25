@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-0000, ADR-5050
 # provides: ["mkService"]
-# requires: ["./hardening-profiles.nix", "./registry.nix"]
+# requires: []
 # ports: []
 # upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # ---

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-18
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/arr-settings", "lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -25,7 +25,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "services.shiori.environmentFile = \"/path/to/env-file\" (valid)"
 # ---
-
 { config, lib, pkgs, ... }:
 
 let

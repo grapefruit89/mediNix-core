@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-19
 # links: 
 # provides: ["acme", "tls", "certificates"]
-# requires: ["options.medinix"]
+# requires: []
 # ports: []
 # upstream_docs: ["https://nixos.wiki/wiki/ACME", "https://go-acme.github.io/lego/dns/cloudflare/"]
 # forum_links: []
@@ -19,7 +19,6 @@
 # systemd_hardened: true
 # adr: ADR-5140
 # ---
-
 # 51-ingress/514-acme.nix — Flake-managed ACME Certificate Management
 # ADR-5140: Certificates are NOT managed by Caddy, but natively by NixOS (Lego).
 # Uses DNS-01 challenge via Cloudflare API — no ports (80/443) need WAN exposure.

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-13
 # links: 
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -22,7 +22,6 @@
 # context7: services.restic.backups (nixos_manual_unstable)
 # skill: medinix-implement-discipline (Phase A-E)
 # ---
-
 { config, lib, pkgs, ... }:
 
 let
