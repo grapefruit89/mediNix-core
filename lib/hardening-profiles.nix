@@ -54,6 +54,7 @@ base = {
   ProtectKernelLogs     = true;
   ProtectControlGroups  = true;
   ProtectProc           = "invisible";
+  ProcSubset            = "pid";   # /proc nur eigene PID sichtbar (disc-01)
   RestrictNamespaces    = true;
   RestrictRealtime      = true;
   RestrictSUIDSGID      = true;

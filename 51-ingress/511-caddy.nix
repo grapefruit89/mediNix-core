@@ -33,7 +33,14 @@
 let
   cfg       = config.medinix;
   ing       = cfg.ingress;
-  useGlobal = config.services.caddy.enable;
+  # disc-17: honor the declared ingress.mode instead of silently ignoring it.
+  # "auto" preserves the exact previous behavior (read host's services.caddy.enable,
+  # never write to it -> no recursion). "global"/"standalone" are explicit overrides.
+  ingressMode = ing.mode or "auto";
+  useGlobal =
+    if ingressMode == "global" then true
+    else if ingressMode == "standalone" then false
+    else config.services.caddy.enable;
 
   registry        = (import ../lib/registry.nix { inherit lib; }).services;
   enabledServices = lib.filterAttrs (n: vhost:
@@ -155,6 +162,8 @@ let
     profile = "network";
     extraConfig = {
       Service = {
+        Type = lib.mkDefault "notify";  # disc-07: Caddy supports sd_notify natively (upstream #3963)
+        WatchdogSec = lib.mkDefault "60s";
         CPUWeight = lib.mkDefault 400;
         IOWeight = lib.mkDefault 200;
         MemoryMin = lib.mkDefault "64M";
@@ -205,6 +214,20 @@ in lib.mkMerge [
           [AI/Admin Context]
           Reason: If ingress auth is set to forward-auth, Caddy will forward all unauthenticated requests to an identity provider. If none is configured, all protected routes will return 502 Bad Gateway.
           Ref: ADR-5120 (Identity Provider & Forward Auth)
+        '';
+      }
+      {
+        assertion = ingressMode != "global" || config.services.caddy.enable;
+        message = ''
+          [mediNix] ingress.mode = "global" was forced, but services.caddy.enable is not true.
+
+          [AI/Admin Context]
+          Reason: Forcing "global" mode means mediNix injects virtualHosts into the host's
+          own Caddy instance. If the host never enabled services.caddy, those virtualHosts
+          are silently unused -- fail-closed instead of shipping a dead config (BANNED_TECHNOLOGIES.md,
+          "Fail-Open Defaults" is banned).
+          Fix: either enable services.caddy on the host, or set ingress.mode = "standalone" / "auto".
+          Ref: disc-17 (Chameleon ingress robustness)
         '';
       }
     ];

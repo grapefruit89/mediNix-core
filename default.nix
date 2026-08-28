@@ -305,17 +305,61 @@ in
         repository = lib.mkOption {
           type    = lib.types.str;
           default = "";
-          description = "Restic repository (local path, sftp:, s3:, ...). Host-Config.";
+          description = "Restic repository (local path, sftp:, s3:, rclone:<remote>:, ...). Host-Config.";
         };
         passwordFile = lib.mkOption {
           type    = lib.types.str;
           default = "";
-          description = "Path to restic password file (LoadCredentialEncrypted).";
+          description = ''
+            Legacy: plain filesystem path to the restic password file. Used only when
+            passwordCredentialPath is null. For a new setup prefer passwordCredentialPath
+            (systemd-creds, Fail-Closed) -- see ADR-5721.
+          '';
+        };
+        passwordCredentialPath = lib.mkOption {
+          type    = lib.types.nullOr lib.types.str;
+          default = null;
+          description = ''
+            Empfohlen: Pfad zu einem TPM-versiegelten Restic-Passwort-Credential,
+            erzeugt via systemd-creds encrypt (z.B.
+            57-maintenance/medinix-seal-secret.sh restic-password '<pw>'
+            -> /var/lib/medinix/secrets/restic-password.encrypted). Wird via
+            LoadCredentialEncrypted eingebunden, das Klartext-Passwort landet nie
+            auf Platte. Wenn gesetzt, wird passwordFile ignoriert. Siehe ADR-5721.
+          '';
         };
         schedule = lib.mkOption {
           type    = lib.types.str;
           default = "02:00";
           description = "systemd OnCalendar for backup timer.";
+        };
+        offsite = {
+          enable = lib.mkEnableOption ''
+            Zweite Restic-Kopie (3-2-1: physisch/logisch getrenntes Ziel, z.B.
+            Koofr-WebDAV via rclone oder eine zweite externe Platte). Laeuft per
+            restic copy NACH einem erfolgreichen lokalen Backup -- kein zweiter
+            Service-Stop noetig. ADR-5721.
+          '';
+          repository = lib.mkOption {
+            type    = lib.types.str;
+            default = "";
+            description = "Zweites Restic-Repository (z.B. rclone:koofr:mediNix-backup, oder Pfad auf einer zweiten externen Platte). Host-Config.";
+          };
+          passwordFile = lib.mkOption {
+            type    = lib.types.str;
+            default = "";
+            description = "Legacy: siehe maintenance.backup.passwordFile, gilt fuer das Offsite-Repo.";
+          };
+          passwordCredentialPath = lib.mkOption {
+            type    = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Empfohlen: siehe maintenance.backup.passwordCredentialPath, gilt fuer das Offsite-Repo.";
+          };
+          rcloneConfigFile = lib.mkOption {
+            type    = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "rclone.conf, falls offsite.repository mit rclone: beginnt (z.B. Koofr WebDAV remote).";
+          };
         };
       };
       sqliteOptimize = {

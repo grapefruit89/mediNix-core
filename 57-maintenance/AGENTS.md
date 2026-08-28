@@ -15,7 +15,7 @@
 | `573-exportarr` | `573-exportarr.nix` | active | 4/5 | - |
 | `574-provisioning` | `574-provisioning.nix` | active | 4/5 | - |
 | `575-update-notifier` | `575-update-notifier.nix` | active | 3/5 | - |
-| `576-backup` | `576-backup.nix` | active | 3/5 | - |
+| `576-backup` | `576-backup.nix` | active | 4/5 | - |
 | `577-drift-detection` | `577-drift-detection.nix` | active | 3/5 | - |
 | `578-orphan-cleanup` | `578-orphan-cleanup.nix` | active | 3/5 | - |
 | `579-backup-ssh` | `579-backup-ssh.nix` | active | 2/5 | - |

@@ -44,11 +44,24 @@ lib.mkIf cfg.enable {
       ForceCommand ${pkgs.rsync}/bin/rsync --server --sender -vlogDtprze.iLsfxCIvu . /var/lib/
   '';
 
-  # Polkit rule for systemctl (stop services during backup)
+  # Polkit rule for systemctl (stop services during backup).
+  # ADR-5721: scoped down from blanket manage-units (previously: ANY systemd
+  # unit) to exactly the media-app services 576-backup.nix stops/starts for
+  # DB-safety. Keep this list in sync with `mediaServices` in
+  # 57-maintenance/576-backup.nix (documented as a known gap in ADR-5721 --
+  # a shared list in lib/registry.nix would remove the duplication).
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
+      var allowedUnits = [
+        "sonarr.service", "radarr.service", "prowlarr.service", "lidarr.service",
+        "readarr.service", "sabnzbd.service", "jellyfin.service",
+        "audiobookshelf.service", "navidrome.service"
+      ];
       if (action.id == "org.freedesktop.systemd1.manage-units" && subject.user == "backup") {
-        return polkit.Result.YES;
+        var unit = action.lookup("unit");
+        if (allowedUnits.indexOf(unit) !== -1) {
+          return polkit.Result.YES;
+        }
       }
     });
   '';
