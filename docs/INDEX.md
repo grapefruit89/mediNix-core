@@ -63,6 +63,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5520 audiobookshelf port framework](adr/ADR-55-audiobookshelf-port-framework.md)
 - [ADR 5510 jellyfin media playback](adr/ADR-55-jellyfin-media-playback.md)
 - [ADR 5530 navidrome music streaming](adr/ADR-55-navidrome-music-streaming.md)
+- [Jellyfin media playback](adr/ADR-551-jellyfin-media-playback.md)
 - [ADR 5610 seerr request management](adr/ADR-56-seerr-request-management.md)
 - [ADR 5721 backup data classification and applied strategy](adr/ADR-57-backup-data-classification.md)
 - [ADR 5720 backup strategy](adr/ADR-57-backup-strategy.md)
