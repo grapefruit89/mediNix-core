@@ -17,7 +17,7 @@ let
   registry = import ../lib/registry.nix { inherit lib; };
   stateful = lib.filterAttrs (_: s: s.stateDir != null) registry.services;
   units = lib.mapAttrsToList (_: s: "${s.unitName}.service") stateful;
-  unitList = lib.concatMapStringsSep ", " (u: ''"${u}"''') units;
+  unitList = lib.concatMapStringsSep ", " (u: "\"${u}\"") units;
 in
 lib.mkIf cfg.enable {
   users.users.backup = {
