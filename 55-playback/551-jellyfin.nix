@@ -33,7 +33,6 @@ let
   adminCred =
     if cfg.adminPasswordFile != null then cfg.adminPasswordFile
     else if cfg.adminPasswordCredential != null then cfg.adminPasswordCredential
-    else if svc.secrets.jellyfinAdminPasswordFile != "" then svc.secrets.jellyfinAdminPasswordFile
     else null;
 in
 lib.mkIf cfg.enable {
