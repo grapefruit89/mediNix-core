@@ -64,6 +64,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5710 sqlite mcp server](adr/ADR-57-sqlite-mcp-server.md)
 - [ADR 5700 sqlite vs postgres](adr/ADR-57-sqlite-vs-postgres.md)
 - [ADR 5700 sqlite wal tuning](adr/ADR-57-sqlite-wal-tuning.md)
+- [Restic A2-only backup](adr/ADR-576-backup.md)
 - [Architecture decisions](adr/README.md)
 
 ### Architecture Blueprints
