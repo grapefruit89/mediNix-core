@@ -249,7 +249,7 @@ in lib.mkIf cfg.enable {
                                            /run/current-system/sw/bin/systemctl restart sonarr-5320.service, \
                                            /run/current-system/sw/bin/systemctl restart radarr-5330.service, \
                                            /run/current-system/sw/bin/systemctl restart prowlarr-5360.service, \
-                                           /run/current-system/sw/bin/systemctl restart jellyseerr-5610.service, \
+                                           /run/current-system/sw/bin/systemctl restart seerr-5610.service, \
                                            /run/current-system/sw/bin/systemctl restart ntfy-5810.service
     %media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status *
   '';
@@ -351,7 +351,7 @@ let
     "/var/lib/jellyfin-5510" "/var/lib/audiobookshelf-5520" "/var/lib/navidrome-5530"
     "/var/lib/sonarr-5320" "/var/lib/radarr-5330" "/var/lib/readarr-5340"
     "/var/lib/lidarr-5350" "/var/lib/prowlarr-5360" "/var/lib/sabnzbd-5410"
-    "/var/lib/jellyseerr-5610" "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600"
+    "/var/lib/seerr-5610" "/var/lib/ntfy-sh-5810" "/var/lib/recyclarr-5600"
   ];
 in lib.mkIf cfg.enable {
   users.users.backup = {
@@ -465,7 +465,7 @@ in {
       # INV-UMASK-01: dotnet-Dienste müssen UMask=0002 haben
       (reg.mkInvariant "INV-UMASK-01"
         (let dotnetServices = [ "sonarr.service" "radarr.service" "readarr.service"
-                               "lidarr.service" "prowlarr.service" "jellyseerr.service" "jellyfin.service" ];
+                               "lidarr.service" "prowlarr.service" "seerr.service" "jellyfin.service" ];
          in lib.all (svc:
            !(config.systemd.services ? ${svc}) ||
            config.systemd.services.${svc}.serviceConfig.UMask == "0002")
@@ -482,10 +482,10 @@ in {
           cfg.secrets.prowlarrApiKeyFile
           cfg.secrets.lidarrApiKeyFile
           cfg.secrets.readarrApiKeyFile
-          cfg.secrets.jellyseerrApiKeyFile
+          cfg.secrets.seerrApiKeyFile
           cfg.secrets.sabnzbdApiKeyFile
           cfg.secrets.navidromeOidcFile
-          cfg.secrets.jellyseerrEnvFile
+          cfg.secrets.seerrEnvFile
         ];
         in lib.all (p: p == null || !(lib.hasPrefix "/nix/store/" p)) paths))
     ];

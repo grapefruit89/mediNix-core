@@ -20,7 +20,7 @@ Verify against the primary source before applying any audit finding.
    - Reality: those options DO NOT EXIST. Secrets live under `cfg.secrets.*`:
      `sonarrApiKeyFile`, `radarrApiKeyFile`, `prowlarrApiKeyFile`,
      `lidarrApiKeyFile`, `readarrApiKeyFile`, `sabnzbdApiKeyFile`,
-     `jellyseerrApiKeyFile`, and **Jellyfin uses `jellyfinAdminPasswordFile`**
+     `seerrApiKeyFile`, and **Jellyfin uses `jellyfinAdminPasswordFile`**
      (no `apiKeyFile`).
    - Effect: `secretMap` always `null` → NO service gets API keys mounted →
      all *arr start with empty credentials.

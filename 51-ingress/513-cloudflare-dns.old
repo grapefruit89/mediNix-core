@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-01
 # links:
 # provides: ["ddns", "cloudflare"]
-# requires: ["lib/service-factory"]
+# requires: ["lib/service-factory", "lib/registry"]
 # ports: []
 # upstream_docs: ["https://developers.cloudflare.com/dns/"]
 # forum_links: []
@@ -20,64 +20,44 @@
 # adr: ADR-5130
 # ---
 # 51-ingress/513-cloudflare-dns.nix — Cloudflare anchor DDNS (organ of 511)
-#
-# 513 is as dumb as 518: it does not know program names.
-# Service modules register ingress.vhosts.<name>. 513 reads that attrset
-# and the optional dns.hostnames alias map. Nothing else.
-#
-# Public zone model (exactly four managed records, proxied=false):
-#   wan.{zone}  A      current WAN IP
-#   lan.{zone}  A      current LAN IP
-#   *.{zone}    CNAME  wan.{zone}
-#   {zone}      CNAME  wan.{zone}
-#
-# Dedicated per-service A/AAAA/CNAME records are pruned so the wildcard owns
-# the name. Foreign records (matrix, mailbox, _acme-challenge, …) are never
-# in ingress.vhosts and are therefore never touched.
-#
-# Token priority — same order as 514:
-#   1. ingress.tls.acmeCredential
-#   2. dns.ddns.cloudflareTokenCredential
-#   3. dns.ddns.tokenCredential
-#   4. dns.ddns.tokenFile
+# 511 needs names. 513 keeps exactly four public records:
+#   wan.{zone}  A      current WAN IP     (flake-portable dynamic WAN)
+#   lan.{zone}  A      current LAN IP     (flake-portable subnet/router change)
+#   *.{zone}    CNAME  wan.{zone}         (every service name, grey cloud)
+#   {zone}      CNAME  wan.{zone}         (apex / landing)
+# Per-service CNAMEs are deleted so the wildcard owns them.
+# Foreign names (matrix, assist, mailbox, _acme-challenge, …) are never touched.
+# proxied=false — Caddy terminates TLS (ADR-5130 grey cloud).
 { lib, pkgs, config, ... }:
 
 let
   cfg  = config.medinix;
-  ing  = cfg.ingress;
   ddns = cfg.dns.ddns;
   zone = if ddns.zone != null then ddns.zone else cfg.domain;
 
-  vhosts = cfg.ingress.vhosts or {};
-  aliases = cfg.dns.hostnames or {};
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
 
-  # Declared ingress names plus their aliases. No registry lookup, no
-  # enable-filter, no accessGroup-filter, no program-name special cases.
-  # A disabled service still must not leave a dedicated DNS record behind.
-  ownedLabels = lib.unique (
-    lib.attrNames vhosts
-    ++ lib.attrValues aliases
+  enabledVhosts = lib.filterAttrs (n: vhost:
+    let
+      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+    in
+      enabled
+      && vhost.accessGroup != "none"
+      && ((registry.${n}.port or null) != null || n == "feishin")
+  ) cfg.ingress.vhosts;
+
+  pruneNames = lib.unique (
+    lib.attrNames enabledVhosts
+    ++ lib.attrValues (cfg.dns.hostnames or {})
+    ++ lib.optional (cfg.feishin.enable or false) "feishin"
+  );
+  pruneNamesStr = builtins.concatStringsSep " " (
+    lib.filter (n: n != "wan" && n != "lan" && n != "*" && n != "@") pruneNames
   );
 
-  reservedLabels = [ "wan" "lan" "*" "@" ];
-
-  isProtectedLabel = n:
-    n == ""
-    || builtins.elem n reservedLabels
-    || (zone != null && n == zone)
-    || lib.hasPrefix "_acme-challenge" n;
-
-  pruneNames = lib.filter (n: !isProtectedLabel n) ownedLabels;
-  pruneNamesStr = builtins.concatStringsSep " " pruneNames;
-
-  credPath =
-    if      (ing.tls.acmeCredential or null) != null then ing.tls.acmeCredential
-    else if ddns.cloudflareTokenCredential   != null then ddns.cloudflareTokenCredential
-    else if ddns.tokenCredential             != null then ddns.tokenCredential
-    else null;
-
-  plainTokenFile =
-    if credPath == null && ddns.tokenFile != null then ddns.tokenFile
+  ddnsCred =
+    if ddns.cloudflareTokenCredential != null then ddns.cloudflareTokenCredential
+    else if ddns.tokenCredential != null then ddns.tokenCredential
     else null;
 
 in
@@ -85,25 +65,19 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
   assertions = [
     {
-      assertion = credPath != null || plainTokenFile != null;
+      assertion = ddns.cloudflareTokenCredential != null || ddns.tokenCredential != null || ddns.tokenFile != null;
       message = ''
         [mediNix] DDNS is enabled but no token is provided.
 
         [AI/Admin Context]
-        Reason: 513 updates wan/lan anchors via the Cloudflare API.
-        Accepted sources (first wins, same order as 514):
-          1. ingress.tls.acmeCredential
-          2. dns.ddns.cloudflareTokenCredential
-          3. dns.ddns.tokenCredential
-          4. dns.ddns.tokenFile
-        Ref: ADR-5130 / ADR-5140
+        Reason: 513 must update wan/lan anchors via the Cloudflare API.
+        Ref: ADR-5043
       '';
     }
     {
       assertion = zone != null;
       message = ''
         [mediNix] DDNS is enabled but neither dns.ddns.zone nor medinix.domain is set.
-        Ref: ADR-5130
       '';
     }
   ];
@@ -116,8 +90,8 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
-        LoadCredentialEncrypted = lib.mkIf (credPath != null)
-          "cf-ddns-token:${credPath}";
+        LoadCredentialEncrypted = lib.mkIf (ddnsCred != null)
+          "cf-ddns-token:${ddnsCred}";
       };
     })
     {
@@ -128,7 +102,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       path = [ pkgs.curl pkgs.jq pkgs.iproute2 pkgs.gawk pkgs.gnugrep ];
 
-      environment.CF_API_TOKEN_FILE = lib.mkIf (plainTokenFile != null) plainTokenFile;
+      environment.CF_API_TOKEN_FILE = lib.mkIf (ddns.tokenFile != null) ddns.tokenFile;
 
       script = ''
         set -euo pipefail
@@ -246,18 +220,17 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           fi
         }
 
-        prune_label() {
+        delete_name() {
           local record_name="$1"
-          local stype id records
-          for stype in A AAAA CNAME; do
-            records=$(cf GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=$stype")
-            if ! echo "$records" | jq -e '.success' > /dev/null; then
-              continue
-            fi
-            for id in $(echo "$records" | jq -r '.result[].id'); do
-              echo "  Pruning leftover $stype $record_name ($id)"
-              cf DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" > /dev/null
-            done
+          local records
+          records=$(cf GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name")
+          if ! echo "$records" | jq -e '.success' > /dev/null; then
+            return 0
+          fi
+          local id
+          for id in $(echo "$records" | jq -r '.result[].id'); do
+            echo "  Pruning leftover $record_name ($id)"
+            cf DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" > /dev/null
           done
         }
 
@@ -268,10 +241,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
         for n in $PRUNE_NAMES; do
           [ -z "$n" ] && continue
-          case "$n" in
-            wan|lan|"*"|@|_acme-challenge*) continue ;;
-          esac
-          prune_label "$n.$ZONE"
+          delete_name "$n.$ZONE"
         done
 
         jq -n --arg wan "$WAN_IP" --arg lan "$LAN_IP" --arg schema "$SCHEMA" \
@@ -299,9 +269,3 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
     createHome = true;
   };
 }
-
-# Gold-Standard (ADR-5130):
-# - Four public records only; grey cloud; Caddy is the access boundary
-# - Prune list = attrNames vhosts + dns.hostnames values. No program names.
-# - Never touch wan/lan/@/*/_acme-challenge or MX/TXT/NS/SRV
-# - Token order identical to 514; every timer run reconciles

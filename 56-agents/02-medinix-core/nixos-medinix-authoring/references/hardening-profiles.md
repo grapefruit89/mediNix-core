@@ -42,7 +42,7 @@ in {
 ## Registry-Zuordnung (lib/registry.nix)
 `mkService` bekommt 4. Arg `profile`:
 - `network` → caddy, pocket-id, feishin, ntfy
-- `dotnet` → sonarr, radarr, readarr, lidarr, prowlarr, jellyseerr
+- `dotnet` → sonarr, radarr, readarr, lidarr, prowlarr, seerr
 - `dotnet-gpu` → jellyfin
 - `python` → sabnzbd
 - `nodejs` → audiobookshelf, navidrome

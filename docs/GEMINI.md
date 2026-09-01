@@ -40,7 +40,7 @@ ZIEL-STACK (nach Migration):
   Identity      : Pocket-ID (OIDC + Passkeys)
   Datenbanken   : PostgreSQL, Valkey
   Medien        : Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd,
-                  Audiobookshelf, Jellyseerr, Recyclarr
+                  Audiobookshelf, Seerr, Recyclarr
   Kommunikation : Matrix Conduit
   Produktivität : Vaultwarden, n8n, Home Assistant, Paperless
   Wissen        : Miniflux, Readeck, Linkding
@@ -96,7 +96,7 @@ MODULARITÄT (Dendritic-Pattern):
 
   40-media    Audio/Video-Konsum
               Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd,
-              Audiobookshelf, Jellyseerr, Recyclarr
+              Audiobookshelf, Seerr, Recyclarr
 
   50-knowledge Wissen & Dokumente
               Paperless, Miniflux, Readeck, Linkding, Karakeep

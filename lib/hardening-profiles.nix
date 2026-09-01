@@ -83,7 +83,7 @@ base = {
   ];
 };
 
-# ── .NET-Dienste (Sonarr/Radarr/Readarr/Lidarr/Prowlarr/Jellyseerr) ────────
+# ── .NET-Dienste (Sonarr/Radarr/Readarr/Lidarr/Prowlarr/Seerr) ────────
 # .NET JIT braucht ausführbaren Speicher → MemoryDenyWriteExecute = false
 dotnet = base // {
   MemoryDenyWriteExecute = false;

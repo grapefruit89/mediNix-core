@@ -24,6 +24,7 @@
 # - query: "services.caddy virtualHosts extraConfig file_server try_files example"
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "extraConfig file_server + try_files {path} /index.html for SPA"
+# svg logo: https://github.com/grapefruit89/logorepo/blob/main/feishin.svg
 # ---
 { config, lib, pkgs, ... }:
 
@@ -55,6 +56,17 @@ in lib.mkIf (cfg.enable) {
         file_server
       '';
     };
+  };
+
+  medinix.ingress.vhosts."feishin" = {
+    accessGroup = "none";
+    landing = true;
+    iconSvg = ''
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <rect width="512" height="512" rx="96" fill="#111827"/>
+        <path fill="#38bdf8" d="M160 120h48v176c0 48 40 88 88 88s88-40 88-88-40-88-88-88c-10 0-20 2-28 5V120H160zm136 228c-26 0-48-22-48-48s22-48 48-48 48 22 48 48-22 48-48 48z"/>
+      </svg>
+    '';
   };
 
   # Assertion: Feishin needs a backend (Navidrome/Jellyfin) — CLAUDE.md gold

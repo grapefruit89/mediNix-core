@@ -47,7 +47,7 @@
     sonarr.enable      = true;
     radarr.enable      = true;
     prowlarr.enable    = true;
-    jellyseerr.enable  = true;
+    seerr.enable  = true;
 
     # Ingress — Caddy, no TLS (LAN-only without ACME)
     ingress = {

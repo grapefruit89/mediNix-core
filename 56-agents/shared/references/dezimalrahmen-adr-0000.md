@@ -28,7 +28,7 @@ ADR prefix looks wrong, this is the arbiter.
 
 ## Confirmed map (mediNix)
 511=Caddy (5110), 512=Pocket ID (5120), 541=SABnzbd (5410), 532=Sonarr (5320),
-551=Jellyfin (5510), 552=Audiobookshelf (5520), 553=Navidrome (5530), 561=Jellyseerr (5610).
+551=Jellyfin (5510), 552=Audiobookshelf (5520), 553=Navidrome (5530), 561=Seerr (5610).
 **511 is Caddy — never Pocket ID.**
 
 ## ADR filename prefixes

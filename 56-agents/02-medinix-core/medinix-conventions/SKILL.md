@@ -68,7 +68,7 @@ constitution. Rules that MUST be obeyed (violations cause hard rework):
 | Jellyfin | 551 | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | ADR-5520 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | ADR-5530 |
-| Jellyseerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
+| Seerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
 **Rule:** Port = UID = ADR-prefix (all = Dienstnummer × 10). GID = 5000 for ALL
 (unshared per-service GID = docker PUID/PGID permission-denied bug). 
 **CRITICAL:** `511` is CADDY (the `_1` Zugang). Pocket ID is the SECOND service in the

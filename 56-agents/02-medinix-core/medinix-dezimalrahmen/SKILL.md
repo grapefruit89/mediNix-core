@@ -51,7 +51,7 @@ CRITICAL COROLLARIES (all violated at least once — do NOT repeat):
 | Audiobookshelf | 552    | 5520 | 5520 | 5000 | ADR-5520 |
 | Navidrome      | 553    | 5530 | 5530 | 5000 | ADR-5530 |
 | Feishin        | 554    | 5540 | 5540 | 5000 | ADR-5540 |
-| Jellyseerr     | 561    | 5610 | 5610 | 5000 | ADR-5610 |
+| Seerr     | 561    | 5610 | 5610 | 5000 | ADR-5610 |
 
 **HARD:** `511` is Caddy (the `_1` Zugang reverse proxy). `512` is Pocket ID.
 Never swap them. A file that configures `services.caddy` belongs to `511`, not

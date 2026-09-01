@@ -34,7 +34,7 @@ links:
 
 19. [**Paperless-ngx Master-Variable-List**](./guides/MASTER-CONFIG-PAPERLESS-NGX.md) - Die vollständige Referenz.
 
-20. [**Jellyseerr Master-Variable-List**](./guides/MASTER-CONFIG-SEERR.md) - Media Request Manager.
+20. [**Seerr Master-Variable-List**](./guides/MASTER-CONFIG-SEERR.md) - Media Request Manager.
 
 21. [**Radarr Master-Variable-List**](./guides/MASTER-CONFIG-RADARR.md) - Movie Manager.
 

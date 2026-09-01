@@ -10,13 +10,10 @@
 # provides: []
 # requires: ["lib/service-factory", "lib/registry"]
 # ports: []
-# upstream_docs:
-#   - "https://caddyserver.com/docs/caddyfile"
-#   - "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy"
-#   - "https://caddyserver.com/docs/caddyfile/directives/forward_auth"
-# upstream_github: "https://github.com/caddyserver/caddy"
-# nixpkgs_attr: "pkgs.caddy"
+# upstream_docs: []
 # forum_links: []
+# upstream_github: ""
+# nixpkgs_attr: ""
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
@@ -33,14 +30,6 @@
 # Contract: stock pkgs.caddy, TLS from 514 Lego (or custom/internal), no plugins.
 # HTTPS for LAN = https://{name}.{domain} on the wildcard cert (DNS-01).
 # http://{name}.local is HTTP-only fallback (Let's Encrypt cannot sign .local).
-#
-# Invariants (audit 2026-09-01 / ADR-5110 / ADR-5140 / ADR-5115):
-# - Caddy is the first trusted HTTP proxy. X-Forwarded-For is rewritten to {client_ip}.
-# - trustedCidrs is an access-control boundary, not a convenience default.
-# - HSTS includeSubDomains assumes mediNix owns the whole DNS parent.
-# - forward-auth => exactly one resolvable auth upstream.
-# - Every generated site hostname has exactly one owner.
-# - mDNS/Avahi policy is owned by 515, not this engine.
 { lib, pkgs, config, ... }:
 
 let
@@ -65,9 +54,6 @@ let
       && vhost.accessGroup != "none"
   ) cfg.ingress.vhosts;
 
-  # Trust boundary for accessGroup=internal and the landing abort.
-  # Override changes who may reach "internal" HTTPS names — not just a default list.
-  # RFC1918 + CGNAT (100.64/10) + Tailscale-typical + ULA: range-based, not identity-based.
   trustedCidrs = ing.trustedCidrs or [
     "10.0.0.0/8"
     "100.64.0.0/10"
@@ -78,7 +64,6 @@ let
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
   # acmeHost wins over tls.mode: Lego wildcard is the homelab HTTPS path.
-  # tls.mode = off + acmeHost set still enables HTTPS (changelog / ADR-5140).
   tlsEnabled =
     ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
 
@@ -92,8 +77,6 @@ let
     else
       "";
 
-  # includeSubDomains is intentional only while mediNix owns the parent DNS namespace.
-  # No preload: browser preload lists are barely reversible.
   securityHeaders = ''
     header {
       Strict-Transport-Security "max-age=63072000; includeSubDomains"
@@ -104,8 +87,6 @@ let
     }
   '';
 
-  # First trusted hop: replace, do not append, any pre-existing forwarded-for chain.
-  # Revisit together with trusted_proxies if another proxy is ever placed in front.
   mkProxy = n: extra: ''
     reverse_proxy http://127.0.0.1:${toString registry.${n}.port} {
       header_up X-Real-IP {client_ip}
@@ -124,30 +105,14 @@ let
     }
   '';
 
-  # Exactly one resolvable upstream when forward-auth is on (assertion enforces this).
-  authUpstream =
-    if ing.auth.forwardAuthUpstream != "" then ing.auth.forwardAuthUpstream
-    else "127.0.0.1:${toString registry."pocket-id".port}";
-
-  skipPathsOf = vhost:
-    let
-      local = vhost.skipPaths or [];
-      global = ing.auth.skipPaths or [];
-    in lib.unique (global ++ local);
-
   # isLocal: .local vhosts — no TLS, no forward_auth (localBypass), no LAN-abort.
   mkBaseConfig = n: vhost: { isLocal ? false }:
     let
       applyAuth =
         ing.auth.mode == "forward-auth"
         && (!isLocal || !ing.auth.localBypass);
-      skipPaths = skipPathsOf vhost;
-      skipMatcher = lib.optionalString (applyAuth && skipPaths != []) ''
-        @needAuth not path ${lib.concatStringsSep " " skipPaths}
-      '';
       authBlock = lib.optionalString applyAuth ''
-        ${skipMatcher}
-        forward_auth ${lib.optionalString (skipPaths != []) "@needAuth "}${authUpstream} {
+        forward_auth ${(if ing.auth.forwardAuthUpstream != "" then ing.auth.forwardAuthUpstream else "127.0.0.1:${toString registry."pocket-id".port}")} {
           uri ${ing.auth.forwardAuthUri}
           copy_headers Remote-User Remote-Email Remote-Groups \
                        X-Auth-Request-User X-Auth-Request-Email
@@ -175,9 +140,6 @@ let
         ${vhost.customConfig}
         ${mkProxy n ""}
       '';
-      # idp: no forward_auth (deadlock). No internal abort — Pocket ID must be
-      # reachable for the login flow. WAN exposure is therefore a 512 policy
-      # question (accessGroup=idp vs internal), not an engine accident.
       idp = ''
         encode zstd gzip
         ${vhost.customConfig}
@@ -197,9 +159,8 @@ let
   mkSite = name: body: { inherit name body; };
 
   # Canonical registry key plus optional dns.hostnames alias (seerr, music, …).
-  # `? n` tests the attribute name; `? ${n}` is interpolation and does not eval.
   publicNames = n:
-    lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
+    lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? ${n}) cfg.dns.hostnames.${n});
 
   mkDomainSites = n: vhost: hostName:
     if tlsEnabled then [
@@ -259,13 +220,6 @@ let
 
   allSites = serviceSites ++ landingSites ++ catchAllSites;
 
-  siteNameCounts = lib.foldl' (acc: e:
-    acc // { ${e.name} = (acc.${e.name} or 0) + 1; }
-  ) {} allSites;
-  duplicateSiteNames = lib.sort builtins.lessThan (
-    lib.attrNames (lib.filterAttrs (_: c: c > 1) siteNameCounts)
-  );
-
   caddyConfigStr = ''
     {
       auto_https off
@@ -323,21 +277,12 @@ in lib.mkMerge [
         '';
       }
       {
-        assertion =
-          cfg.ingress.auth.mode != "forward-auth"
-          || cfg.pocketId.enable
-          || (cfg.ingress.authProxyPresent && cfg.ingress.auth.forwardAuthUpstream != "");
+        assertion = cfg.ingress.auth.mode != "forward-auth" || cfg.pocketId.enable || cfg.ingress.authProxyPresent;
         message = ''
-          [mediNix] forward-auth requires exactly one resolvable auth upstream.
+          [mediNix] forward-auth requires pocket-id to be enabled or an external auth proxy present.
 
           [AI/Admin Context]
-          Reason: Caddy forwards unauthenticated requests to an IdP. The previous
-          contract accepted authProxyPresent=true with an empty forwardAuthUpstream
-          and then still targeted 127.0.0.1:<pocket-id-port>, which 502'd when
-          Pocket ID was disabled.
-          Legal shapes:
-            1. pocket-id enabled (upstream defaults to 127.0.0.1:<pocket-id-port>)
-            2. authProxyPresent = true AND auth.forwardAuthUpstream is non-empty
+          Reason: If ingress auth is set to forward-auth, Caddy will forward all unauthenticated requests to an identity provider. If none is configured, all protected routes will return 502 Bad Gateway.
           Ref: ADR-5120 (Identity Provider & Forward Auth)
         '';
       }
@@ -353,18 +298,6 @@ in lib.mkMerge [
           "Fail-Open Defaults" is banned).
           Fix: either enable services.caddy on the host, or set ingress.mode = "standalone" / "auto".
           Ref: disc-17 (Chameleon ingress robustness)
-        '';
-      }
-      {
-        assertion = duplicateSiteNames == [];
-        message = ''
-          [mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}
-
-          [AI/Admin Context]
-          Reason: allSites is converted with lib.listToAttrs. Two services, an alias
-          (dns.hostnames), the apex landing page, or a redirect must not own the
-          same hostname. Fix the colliding vhost / dns.hostnames entry before eval.
-          Ref: ADR-5110 (one owner per generated hostname)
         '';
       }
     ];
@@ -385,8 +318,11 @@ in lib.mkMerge [
       text = caddyConfigStr;
     };
 
-    # TCP 80 always (redirect or plain HTTP). 443 TCP+UDP only when TLS is actually on.
-    # UDP 443 = HTTP/3. DNS-01 itself does not need inbound 80/443.
+    services.avahi = lib.mkIf cfg.discovery.mdns.enable {
+      enable = true;
+      publish = { enable = true; userServices = true; addresses = true; };
+    };
+
     networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
       (if tlsEnabled then [ 80 443 ] else [ 80 ]);
     networking.firewall.allowedUDPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed" && tlsEnabled)
@@ -415,6 +351,3 @@ in lib.mkMerge [
 # - stock pkgs.caddy, no CrowdSec/rate-limit/geo plugins
 # - Hostnames from registry key `n`; fullchain.pem over cert.pem
 # - 518 HTML is served here: https://{domain} (LAN abort) + http://home.local
-# - forward-auth has exactly one upstream; site hostnames have exactly one owner
-# - skipPaths honored on forward_auth; Avahi owned by 515
-# - 554-feishin still bypasses this engine (known exception, not fixed here)

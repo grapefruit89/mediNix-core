@@ -25,11 +25,13 @@ let
   
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   # Only services that are actually enabled
-  enabledNames = lib.attrNames (lib.filterAttrs (n: vhost:
-    let
-      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
-    in enabled && (registry.${n}.port or null) != null
-  ) cfg.ingress.vhosts);
+  enabledNames =
+    (lib.attrNames (lib.filterAttrs (n: vhost:
+      let
+        enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+      in enabled && (registry.${n}.port or null) != null
+    ) cfg.ingress.vhosts))
+    ++ lib.optional (cfg.ingress.landing.enable) "home";
 
   aliasScript = pkgs.writeShellScript "medinix-mdns-aliases" ''
     set -euo pipefail

@@ -47,7 +47,7 @@ mynixos/
     ├── 00-system/             # Nix-Settings, Storage/Mounts
     ├── 10-infrastructure/     # Traefik, Tailscale, Pocket ID, AdGuard
     ├── 20-backend-media/      # ARR-Stack (Sonarr, Radarr, Prowlarr, SABnzbd, Recyclarr)
-    ├── 30-frontend-media/     # Jellyfin, Audiobookshelf, Jellyseerr
+    ├── 30-frontend-media/     # Jellyfin, Audiobookshelf, Seerr
     └── 40-services/           # Vaultwarden, Home Assistant, Paperless, n8n, etc.
 ```
 

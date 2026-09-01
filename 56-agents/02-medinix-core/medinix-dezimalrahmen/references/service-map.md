@@ -20,7 +20,7 @@
 | Jellyfin       | 551    | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552    | 5520 | 5520 | 5000 | ADR-5520 |
 | Navidrome      | 553    | 5530 | 5530 | 5000 | ADR-5530 |
-| Jellyseerr     | 561    | 5610 | 5610 | 5000 | ADR-5610 |
+| Seerr     | 561    | 5610 | 5610 | 5000 | ADR-5610 |
 
 ## Hard rules (violated and corrected this session)
 - 4-digit "ports" (5055) → INVALID.

@@ -21,22 +21,27 @@
 # adr: ADR-5180
 # ---
 # 51-ingress/518-landingpage.nix — content for 511, not a second proxy.
-# Tiles = vhosts with landing=true and a non-empty iconSvg.
-# 518 does not know program names, does not own icons, does not configure Caddy.
+# Tiles come from medinix.ingress.vhosts.*.landing + iconSvg (declared on
+# the service module, e.g. 551-jellyfin.nix). 511 serves the HTML on
+# https://{domain} (LAN abort) and http://home.local.
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix;
 
   tiles = lib.filterAttrs (_n: vhost:
-    (vhost.landing or false)
-    && ((vhost.iconSvg or "") != "")
+    vhost.landing && vhost.iconSvg != ""
   ) (cfg.ingress.vhosts or {});
 
-  # Deterministic, generic order. No preferred program list.
-  names = lib.sort builtins.lessThan (lib.attrNames tiles);
+  preferred = [ "jellyfin" "seerr" "audiobookshelf" "navidrome" "feishin" ];
+  names =
+    let
+      raw = lib.attrNames tiles;
+    in
+      lib.filter (n: lib.elem n raw) preferred
+      ++ lib.filter (n: !(lib.elem n preferred)) raw;
 
-  publicHost = n: (cfg.dns.hostnames or {}).${n} or n;
+  publicHost = n: cfg.dns.hostnames.${n} or n;
 
   hrefFor = n:
     if cfg.domain != null then "https://${publicHost n}.${cfg.domain}"
@@ -49,11 +54,20 @@ let
       [ "id=\"${n}-" "url(#${n}-" "href=\"#${n}-" "xlink:href=\"#${n}-" ]
       svg;
 
+  fallbackIcon = ''
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <rect width="512" height="512" rx="96" fill="#1f2937"/>
+      <circle cx="256" cy="256" r="96" fill="#9ca3af"/>
+    </svg>
+  '';
+
   mkTile = n:
-    let vhost = tiles.${n};
+    let
+      vhost = tiles.${n};
+      svg = if vhost.iconSvg != "" then uniqSvg n vhost.iconSvg else fallbackIcon;
     in ''
       <a class="srv" href="${hrefFor n}" aria-label="${n}">
-      <div class="icon">${uniqSvg n vhost.iconSvg}</div>
+      <div class="icon">${svg}</div>
       </a>
     '';
 
@@ -85,13 +99,9 @@ let
     </html>
   '';
 
-in {
+in
+{
   config = lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.ingress.landing.enable) {
     medinix.ingress.landing.root = landingHtml;
   };
 }
-
-# Gold-Standard (ADR-5180):
-# - 518 renders vhosts.landing + iconSvg. No program names, no icon map.
-# - 511 serves landing.root. 515 publishes home.local.
-# - A new tile is a vhost registration on the service module, never a 518 edit.

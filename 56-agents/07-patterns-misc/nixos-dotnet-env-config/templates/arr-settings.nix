@@ -20,5 +20,5 @@ rec {
   mkReadarr    = mkArrEnv "READARR";
   mkLidarr     = mkArrEnv "LIDARR";
   mkProwlarr   = mkArrEnv "PROWLARR";
-  mkJellyseerr = mkArrEnv "JELLYSEERR";
+  mkSeerr = mkArrEnv "SEERR";
 }

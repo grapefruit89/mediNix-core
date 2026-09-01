@@ -73,7 +73,7 @@ rec {
     audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
     navidrome      = mkService "navidrome" 553 "nodejs" "stream";
     feishin        = mkNoPort "feishin" 554 "network" "none";
-    jellyseerr     = mkService "jellyseerr" 555 "dotnet" "public";
+    seerr     = mkService "seerr" 555 "dotnet" "public";
 
     # Requests (folder 56) — currently empty / reserved
 

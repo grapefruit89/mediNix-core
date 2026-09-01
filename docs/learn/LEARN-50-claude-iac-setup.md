@@ -30,7 +30,7 @@ Dieses Dokument beschreibt den Masterplan für den Aufbau eines hochverfügbaren
 Der Zugriff wird über Traefik als Reverse Proxy mit mTLS und SSO (Pocket ID) gesteuert:
 *   **Tier 0 (Intern):** mTLS + SSO + VPN (Tailscale). Dienste: Sonarr, Radarr, SABnzbd, AdGuard, Semaphore.
 *   **Tier 1 (Inhouse/KI):** mTLS + SSO. Dienste: Home Assistant, n8n, OpenVSCode.
-*   **Tier 2 (Freunde):** SSO via Pocket ID. Dienste: Jellyfin, Audiobookshelf, Jellyseerr.
+*   **Tier 2 (Freunde):** SSO via Pocket ID. Dienste: Jellyfin, Audiobookshelf, Seerr.
 *   **Tier 3 (Maximum Security):** Vaultwarden (Ausschluss aus SSO, direkter Login).
 
 ### Software-Stack & IaC-Komponenten

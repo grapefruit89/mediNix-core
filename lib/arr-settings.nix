@@ -15,7 +15,7 @@
 { lib }:
 
 # Konvertiert ein verschachteltes Nix-Attrset in .NET Environment Variables.
-# Alle Arr-Apps (Sonarr/Radarr/Readarr/Lidarr/Prowlarr/Jellyseerr) akzeptieren
+# Alle Arr-Apps (Sonarr/Radarr/Readarr/Lidarr/Prowlarr/Seerr) akzeptieren
 # Konfiguration deklarativ via Umgebungsvariablen — ersetzt curl-Provisioning-Calls
 # (keine Race-Conditions, idempotent, kein API-Timing-Problem).
 #
@@ -42,6 +42,6 @@ rec {
   mkReadarr    = mkArrEnv "READARR";
   mkLidarr     = mkArrEnv "LIDARR";
   mkProwlarr   = mkArrEnv "PROWLARR";
-  # Jellyseerr nutzt JELLYSEERR (nicht JELLYFIN — eigene App)
-  mkJellyseerr = mkArrEnv "JELLYSEERR";
+  # Seerr nutzt SEERR (nicht JELLYFIN — eigene App)
+  mkSeerr = mkArrEnv "SEERR";
 }

@@ -138,9 +138,9 @@ in
         '';
       };
     };
-    jellyseerr = {
-      enable  = lib.mkEnableOption "Jellyseerr Request Manager";
-      package = mkPackageOption "jellyseerr";
+    seerr = {
+      enable  = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
+      package = mkPackageOption "seerr";
     };
     bazarr = {
       enable  = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
@@ -417,6 +417,16 @@ in
           options = {
             accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" "idp" "none" ]; };
             customConfig = lib.mkOption { type = lib.types.lines; default = ""; };
+            landing = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Show this service on the 518 family page (organ of 511).";
+            };
+            iconSvg = lib.mkOption {
+              type = lib.types.lines;
+              default = "";
+              description = "Inline SVG for the 518 tile. Declared next to the service, not in 518.";
+            };
           };
         });
         default = {};
@@ -436,8 +446,10 @@ in
           type    = lib.types.enum [ "off" "internal" "custom" ];
           default = "off";
           description = ''
-            off: HTTP :80 only. internal: HTTP :80 + HTTPS :443 (Caddy CA).
-            custom: HTTPS :443 with external cert (certFile + keyFile).
+            off: HTTP :80 only — unless tls.acmeHost is set, which always enables
+            HTTPS with the Lego wildcard (514). Caddy never issues certificates.
+            internal: HTTP :80 + HTTPS :443 (Caddy internal CA, devices must trust it).
+            custom: HTTPS :443 with certFile + keyFile.
           '';
         };
         certFile = lib.mkOption {
@@ -457,9 +469,11 @@ in
           default = null;
           example = "example.com";
           description = ''
-            Hostname for the security.acme certificate (wildcard: *.acmeHost).
-            When set: 514-acme.nix configures security.acme (Lego, DNS-01 via Cloudflare)
-            and Caddy uses /var/lib/acme/<acmeHost>/fullchain.pem + key.pem automatically.
+            Hostname for the security.acme certificate (apex + wildcard *.acmeHost).
+            When set: 514 issues via Lego DNS-01 (Cloudflare); 511 attaches
+            fullchain.pem + key.pem to every https://{name}.{domain} vHost — including
+            LAN-only services (internal abort). This is the HTTPS-on-LAN path.
+            Let's Encrypt cannot sign .local; http://{name}.local stays HTTP.
             Requires acmeCredential (preferred) or dns.ddns.cloudflareTokenCredential.
           '';
         };
@@ -501,9 +515,26 @@ in
           type    = lib.types.bool;
           default = true;
           description = ''
-            L1 ({service}.local) ohne forward_auth, auch bei auth.mode=forward-auth.
-            .local ist reines LAN (RFC 6762), physische Grenze = Sicherheitsgrenze.
+            http://{service}.local without forward_auth and without LAN-abort,
+            even when auth.mode = forward-auth. .local is mDNS/LAN only (RFC 6762).
+            LAN HTTPS uses https://{service}.{domain} (Lego wildcard), not .local.
           '';
+        };
+      };
+      landing = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = ''
+            Family icon page served by 511 on https://{domain} (LAN-only abort)
+            and http://home.local. Built by 518 from stream/public vhosts.
+          '';
+        };
+        root = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          internal = true;
+          description = "Nix store path with index.html; set by 518-landingpage.nix.";
         };
       };
     };
@@ -580,13 +611,19 @@ in
         default = "host";
         description = ''
           host: Modul liefert nur Tier-Listen + vHost-Namen. DDNS/ACME macht Host.
-          standalone: Eigenes DDNS (513-cloudflare-dns.nix) dabei.
+          standalone: 513 hält die Anker wan (WAN-IP) und lan (LAN-IP) plus
+          Wildcard/Apex-CNAME auf wan. Keine per-service CNAMEs.
         '';
       };
       hostnames = lib.mkOption {
         type    = lib.types.attrsOf lib.types.str;
         default = { };
-        example = { navidrome = "music"; };
+        example = { feishin = "music"; };
+        description = ''
+          Extra public hostname for a registry service. 511 serves the same
+          template on {alias}.{domain}; 513 prunes leftover CNAMEs for both names.
+          Example: feishin = "music" → https://music.example.com
+        '';
       };
       ddns = {
         enable    = lib.mkEnableOption "Eigener dynamischer DNS-Sync (standalone only)";
@@ -813,9 +850,9 @@ in
       prowlarrApiKeyFile  = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
       lidarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
       readarrApiKeyFile   = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
-      jellyseerrApiKeyFile = lib.mkOption {
+      seerrApiKeyFile = lib.mkOption {
         type    = lib.types.str;
-        default = "${cfg.secrets.secretsDir}/jellyseerr_api_key";
+        default = "${cfg.secrets.secretsDir}/seerr_api_key";
       };
       sabnzbdApiKeyFile = lib.mkOption {
         type    = lib.types.str;
@@ -829,9 +866,9 @@ in
         type    = lib.types.str;
         default = "${cfg.secrets.secretsDir}/navidrome-oidc.env";
       };
-      jellyseerrEnvFile = lib.mkOption {
+      seerrEnvFile = lib.mkOption {
         type    = lib.types.str;
-        default = "${cfg.secrets.secretsDir}/jellyseerr.env";
+        default = "${cfg.secrets.secretsDir}/seerr.env";
       };
       autoGenerate = lib.mkOption {
         type        = lib.types.bool;

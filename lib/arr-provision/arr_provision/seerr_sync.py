@@ -1,4 +1,4 @@
-"""Declarative Jellyseerr/Seerr setup and *arr wiring."""
+"""Declarative Seerr/Seerr setup and *arr wiring."""
 
 from __future__ import annotations
 

@@ -63,8 +63,12 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5520 audiobookshelf port framework](adr/ADR-55-audiobookshelf-port-framework.md)
 - [ADR 5510 jellyfin media playback](adr/ADR-55-jellyfin-media-playback.md)
 - [ADR 5530 navidrome music streaming](adr/ADR-55-navidrome-music-streaming.md)
+<<<<<<< HEAD
 - [ADR 5610 jellyseerr request management](adr/ADR-56-jellyseerr-request-management.md)
 - [ADR 5721 backup data classification and applied strategy](adr/ADR-57-backup-data-classification.md)
+=======
+- [ADR 5610 seerr request management](adr/ADR-56-seerr-request-management.md)
+>>>>>>> 39b6638 (51-ingress contracts plus local working-tree updates)
 - [ADR 5720 backup strategy](adr/ADR-57-backup-strategy.md)
 - [ADR 5710 sqlite mcp server](adr/ADR-57-sqlite-mcp-server.md)
 - [ADR 5700 sqlite vs postgres](adr/ADR-57-sqlite-vs-postgres.md)

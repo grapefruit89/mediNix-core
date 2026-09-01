@@ -29,7 +29,7 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 | **552** | [Audiobookshelf](552-audiobookshelf.nix) <br> [[ADR-5520]] | `5520` | Dedicated server for audiobooks and podcasts. (Note: Has limited write access to write cover art). |
 | **553** | [Navidrome](553-navidrome.nix) <br> [[ADR-5530]] | `5530` | Lightweight, lightning-fast music server compatible with the Subsonic API. |
 | **554** | [Feishin](554-feishin.nix) <br> [[ADR-5530]] | N/A | A modern, static Single Page Application (SPA) frontend for Navidrome or Jellyfin. Served directly via Caddy. |
-| **555** | [Jellyseerr](555-jellyseerr.nix) <br> [[ADR-5610]] | `5550` | The central request portal for users to discover and request new media, bridging the gap to the `*arr` stack. |
+| **555** | [Seerr](555-seerr.nix) <br> [[ADR-5610]] | `5550` | The central request portal for users to discover and request new media, bridging the gap to the `*arr` stack. |
 
 ## 🛡️ Key Architecture Decisions
 

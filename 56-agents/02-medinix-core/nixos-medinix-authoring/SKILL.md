@@ -58,7 +58,7 @@ Jede Zahl aus der **dreistelligen Dienstnummer** abgeleitet:
 | Jellyfin | 551 | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | ADR-5520 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | ADR-5530 |
-| Jellyseerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
+| Seerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
 Isomorphie: Port=UID=ADR-Präfix, GID=5000. 511=Caddy (nie Pocket ID).
 
 ### Portabilität K.O. (hart)

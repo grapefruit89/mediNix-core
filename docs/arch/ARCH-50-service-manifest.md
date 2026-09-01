@@ -59,7 +59,7 @@ Hier stehen alle Programme, die dein Server ausführen wird. Wir haben "Müll" (
 | prowlarr | services.prowlarr | ✅ nativ |
 | sabnzbd | services.sabnzbd | ✅ nativ |
 | audiobookshelf | nixpkgs-paket + systemd | 🟡 paket |
-| jellyseerr | services.jellyseerr | ✅ nativ |
+| seerr | services.seerr | ✅ nativ |
 | recyclarr | nixpkgs-paket + systemd | 🟡 paket |
 
 ### LAYER 50-knowledge (Wissen)

@@ -31,7 +31,7 @@ During pivot extraction, raw chat text contained 4-digit numbers (e.g. "5055", "
 | Jellyfin | **551** (55-playback) | 5510 | 5510 | 5000 |
 | Audiobookshelf | **552** (55-playback) | 5520 | 5520 | 5000 |
 | Navidrome | **553** (55-playback) | 5530 | 5530 | 5000 |
-| Jellyseerr | **561** (56-requests) | 5610 | 5610 | 5000 |
+| Seerr | **561** (56-requests) | 5610 | 5610 | 5000 |
 
 **NO 4-digit ports exist.** "5055" from chat was an error - correct is 5120 (Pocket ID = 512). "511" is Caddy (the _1 Entry), not Pocket ID.
 

@@ -30,7 +30,7 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **53-acquisition**: Arr-Stack (532-536: Sonarr/Radarr/Readarr/Lidarr/Prowlarr, native .NET)
 - **54-transfer**: SABnzbd (541, `-b 0` no-daemon), SQLite-WAL-Tune (542), Tier-B-Cleanup-Mover (543)
 - **55-playback**: Jellyfin (551) + Audiobookshelf (552) + Navidrome (553) + Feishin (554, static SPA)
-- **56-requests**: Jellyseerr (561)
+- **56-requests**: Seerr (561)
 - **57-maintenance**: SQLite-Optimize (571), Recyclarr (572), Exportarr (573), Provisioning (574), Update-Notifier (575)
 - **58-observability**: ntfy (581), CrowdSec native (582)
 - **59-guardrails**: Assertions (591), Rollout (592), Emergency-User (593), No-Password-Auth (594), Backup-SSH (595), Security-Assertions (596)

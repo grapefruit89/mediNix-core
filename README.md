@@ -23,7 +23,7 @@ keine Hardcoded-IPs.
 | `53-acquisition` | *arr Stack (Usenet Indexer/Downloader) | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
 | `54-transfer` | Usenet Downloader + WAL + Mover | 541-sabnzbd, 542-sqlite-wal, 543-mover |
 | `55-playback` | Media Playback (stream) | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 559-playback-tuning |
-| `56-requests` | Request Management | 561-jellyseerr |
+| `56-requests` | Request Management | 561-seerr |
 | `57-maintenance` | Optimierung, Sync, Provisioning | 571-sqlite-optimize, 572-recyclarr, 573-exportarr, 574-provisioning |
 | `58-observability` | Notifications | 581-ntfy |
 | `59-guardrails` | Assertions & Boundary | 591-cross-domain, 592-environment |
@@ -45,13 +45,13 @@ keine Hardcoded-IPs.
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | stream | 127.0.0.1 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | stream | 127.0.0.1 |
 | Feishin | 554 | 5540 | 5540 | 5000 | stream | 127.0.0.1 |
-| Jellyseerr | 561 | 5610 | 5610 | 5000 | public | 127.0.0.1 |
+| Seerr | 561 | 5610 | 5610 | 5000 | public | 127.0.0.1 |
 | ntfy | 581 | 5810 | 5810 | 5000 | public | 127.0.0.1 |
 
 **caddyClass:**
 - `stream` → WAN, kein Proxy, `flush_interval -1`, keine Kompression (Jellyfin/ABS/Navidrome/Feishin/Caddy)
 - `internal` → LAN only, externe IPs geblockt (Sonarr/Radarr/Readarr/Lidarr/Prowlarr/SABnzbd)
-- `public` → LAN + WAN, Kompression (Pocket-ID/Jellyseerr/ntfy)
+- `public` → LAN + WAN, Kompression (Pocket-ID/Seerr/ntfy)
 - `none` → kein Caddy vHost (Cloudflare-DNS)
 
 ## Quickstart

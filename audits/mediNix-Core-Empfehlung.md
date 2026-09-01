@@ -20,7 +20,7 @@ Die entscheidende Frage ist nicht *ob* App-Config in den Core gehört, sondern *
 |---|---|---|---|
 | **1 — Start-gelesen** | Env-Var oder CLI, App liest bei jedem Start, überschreibt eigenen State | `SONARR__SERVER__PORT`, `SONARR__AUTH__METHOD`, `ND_PORT`/`ND_ADDRESS`, ABS `PORT`/`HOST`, Jellyfin `--datadir` | **Ja, vollständig.** Deklarativ im Wortsinn. |
 | **2 — Datei, von der App überschrieben** | INI/XML, App schreibt zurück | `sabnzbd.ini`, Jellyfin `network.xml`/`system.xml` | **Ja, aber schreibgeschützt.** Genau ein Eigentümer. |
-| **3 — Datenbank-State** | liegt in SQLite, nur über API/GUI änderbar | Arr-Indexer, Root-Folders, Quality-Profiles, Jellyfin-Bibliotheken, Jellyseerr-Settings | **Nein, per Default.** |
+| **3 — Datenbank-State** | liegt in SQLite, nur über API/GUI änderbar | Arr-Indexer, Root-Folders, Quality-Profiles, Jellyfin-Bibliotheken, Seerr-Settings | **Nein, per Default.** |
 
 Zu Stufe 2 die einzige KISS-taugliche Regel: **entweder Nix besitzt die Datei (schreibgeschützt, App meckert im Log) oder die App besitzt sie (Nix fasst sie nie an).** Beides gleichzeitig — Datei generieren *und* der App Schreibrecht lassen — erzeugt einen Zustand, der nach jedem Switch anders ist als vor dem Switch, und zerstört die Rollback-Eigenschaft. Für SABnzbd heißt das `allowConfigWrite = false` und alles Nötige über `settings`.
 

@@ -146,9 +146,9 @@ Positiv verifiziert: `proxied=false` ist fest verdrahtet (ADR-5130 eingehalten),
 > - Scrutinized environment variable configurations and identified misaligned framework assumptions.
 > - Check package existence in pinned nixpkgs
 > - Check packages via raw
-> - Check feishin outputs and jellyseerr location
+> - Check feishin outputs and seerr location
 > - Verified package alias and identified missing dependency error.
-> - Check jellyseerr and sabnzbd nixos modules
+> - Check seerr and sabnzbd nixos modules
 > - Find module paths
 > - Verified package absence across nixpkgs repositories.
 > - Read nixpkgs sabnzbd module
@@ -181,7 +181,7 @@ Repo neu geprüft auf Commit `ff0a0eb` (main, 2026-08-20), nixpkgs-Rev `ec2d622`
 - `cfg.secrets.*` im Service- statt Root-Scope in **sieben** Dateien (`medinix.sonarr.secrets` existiert nicht)
 - `systemd.services.<name>` zweimal in derselben Attrmenge in acht Modulen; bei `541` sogar `after` doppelt
 - `reg` undefiniert in `551`/`552`; `554` liest `medinix.services.feishin`
-- `pkgs.jellyseerr` gibt es am gepinnten Rev nicht (kein by-name-Eintrag, kein all-packages-Eintrag, kein NixOS-Modul)
+- `pkgs.seerr` gibt es am gepinnten Rev nicht (kein by-name-Eintrag, kein all-packages-Eintrag, kein NixOS-Modul)
 
 Drei Laufzeitbefunde, die auch nach der Reparatur bleiben:
 
@@ -191,7 +191,7 @@ Drei Laufzeitbefunde, die auch nach der Reparatur bleiben:
 
 **Der Mover schreibt auf Root.** Geprüft wird nur `[ -d "$STAGING" ]`, dann `mkdir -p "$ARCHIVE"`. `archiveDir` ist per Default `/data/library`, und `570-storage` legt nur `/data/media/{movies,series,books,music}` an — der Pfad ist also nie ein Mountpoint, womit auch `RequiresMountsFor` auf `-.mount` auflöst und immer erfüllt ist.
 
-Sauber verifiziert: die UID-Kette SABnzbd → `registry.sabnzbd.uid` = 5410 → `meta skuid 5410` stimmt exakt, und `AUTH__METHOD` hängt bei allen fünf Arrs korrekt an `ingress.auth.mode` — nur bei Jellyseerr nicht.
+Sauber verifiziert: die UID-Kette SABnzbd → `registry.sabnzbd.uid` = 5410 → `meta skuid 5410` stimmt exakt, und `AUTH__METHOD` hängt bei allen fünf Arrs korrekt an `ingress.auth.mode` — nur bei Seerr nicht.
 
 > File: [/mnt/user-data/outputs/AUDIT-53-54-55.md](https://claude.ai/api/organizations/1bf68e4d-4589-4229-97d3-b02ff6d570ca/conversations/7036d919-266d-4721-9010-658151f83d1a/wiggle/download-file?path=%2Fmnt%2Fuser-data%2Foutputs%2FAUDIT-53-54-55.md)
 
@@ -738,7 +738,7 @@ Ein rundum abgesichertes System ist das erst, wenn die kritischen Pfade **laufen
 ---
 **Unterm Strich: Für dich fast nichts Pflicht — und dein Eindruck stimmt.**
 
-Die meisten deiner Apps (Sonarr, Radarr, SABnzbd, Prowlarr, Jellyseerr, …) sind **klassische TCP-Selbstbinder**. Die öffnen den Port selbst. Echte Socket-Activation (`sd_listen_fds`) können sie in der Regel **nicht**. Deshalb:
+Die meisten deiner Apps (Sonarr, Radarr, SABnzbd, Prowlarr, Seerr, …) sind **klassische TCP-Selbstbinder**. Die öffnen den Port selbst. Echte Socket-Activation (`sd_listen_fds`) können sie in der Regel **nicht**. Deshalb:
 
 ### Was du davon hast
 

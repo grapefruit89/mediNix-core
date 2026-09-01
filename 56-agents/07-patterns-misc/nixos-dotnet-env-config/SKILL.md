@@ -8,7 +8,7 @@ description: Configure .NET NixOS services via env vars.
 # Declarative .NET Service Config via Env Vars
 
 ## When to use
-Any .NET-based NixOS service (Arr stack, Jellyseerr, Autobrr, etc.) whose settings
+Any .NET-based NixOS service (Arr stack, Seerr, Autobrr, etc.) whose settings
 you would otherwise push via `curl POST` to its API. ASP.NET Core reads
 hierarchical configuration from environment variables using this convention:
 
@@ -17,7 +17,7 @@ hierarchical configuration from environment variables using this convention:
 - Double underscore `__` separates hierarchy levels.
 - All path segments are upper-cased.
 - App name prefix is the app's ASP.NET name (SONARR, RADARR, PROWLARR, LIDARR,
-  READARR, JELLYSEERR — NOT JELLYFIN; Jellyseerr is its own app).
+  READARR, SEERR — NOT JELLYFIN; Seerr is its own app).
 
 Example (Sonarr):
     SONARR__SERVER__PORT=5320
@@ -66,14 +66,14 @@ configurable. Do NOT delete API-provisioning for those.
 - `server.bindAddress = "127.0.0.1"` MUST be set or the app binds 0.0.0.0 (INV-BIND-01).
 - `server.port` MUST be set or it falls back to the app default (port conflict).
 - `update.mechanism = "BuiltIn"` — never let the app self-update; Nix owns versions.
-- Jellyseerr prefix is `JELLYSEERR` (not JELLYFIN).
+- Seerr prefix is `SEERR` (not JELLYFIN).
 - If the module defines `port = 5320;` locally (no `cfg.ports.*`), use that local
   `port` var, not a non-existent `cfg.ports.sonarr`.
 - **Mass-patching the same env block into 6 Arr modules: COPY-PASTE TRAP.**
   When applying `arrSettings.mkX { ... }` to each module, the wrapper name must
   match the app: `mkSonarr`/`mkRadarr`/`mkReadarr`/`mkLidarr`/`mkProwlarr`/
-  `mkJellyseerr`. A copy of the Sonarr block into Lidarr.nix with
-  `arrSettings.mkJellyseerr` (instead of `mkLidarr`) silently produces
-  `JELLYSEERR__*` env vars for the Lidarr service — builds, but wrong config.
+  `mkSeerr`. A copy of the Sonarr block into Lidarr.nix with
+  `arrSettings.mkSeerr` (instead of `mkLidarr`) silently produces
+  `SEERR__*` env vars for the Lidarr service — builds, but wrong config.
   Always set the wrapper to the module's own app. This bit us this session;
   caught by reading the diff, not by the build.

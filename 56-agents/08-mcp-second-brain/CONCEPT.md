@@ -43,11 +43,11 @@ Ein kleiner Python-Server (`mcp_medinix_brain`), der das Model Context Protocol 
 
 ## 3. Der Workflow (Ein Tag im Leben des Agenten)
 
-1. Der User sagt: *"Füge Jellyseerr zum Killswitch hinzu."*
+1. Der User sagt: *"Füge Seerr zum Killswitch hinzu."*
 2. Der Agent ruft `brain_get_dependencies("526-vpn-killswitch")` auf.
 3. Der MCP-Server antwortet: *"Aktuell hängen SABnzbd und Prowlarr dran. Hier ist der Dateipfad."*
-4. Der Agent ruft `brain_search("Jellyseerr port")` auf.
-5. Der MCP-Server antwortet: *"Gefunden in 555-jellyseerr.nix (Zeile 15): Port 5055."*
+4. Der Agent ruft `brain_search("Seerr port")` auf.
+5. Der MCP-Server antwortet: *"Gefunden in 555-seerr.nix (Zeile 15): Port 5055."*
 6. Der Agent editiert zielsicher die Datei `526-vpn-killswitch.nix`.
 
 ## 4. Vorteile dieser Architektur

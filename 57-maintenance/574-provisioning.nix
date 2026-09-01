@@ -31,7 +31,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "One-time provisioning: register SABnzbd + Prowlarr + Root Folders in *arr via API";
     after = [ "network.target" "sabnzbd.service" "prowlarr.service"
-              "sonarr.service" "radarr.service" ] ++ lib.optional cfg.jellyfin.enable "jellyfin.service" ++ lib.optional cfg.jellyseerr.enable "jellyseerr.service";
+              "sonarr.service" "radarr.service" ] ++ lib.optional cfg.jellyfin.enable "jellyfin.service" ++ lib.optional cfg.seerr.enable "seerr.service";
     wantedBy = [ "multi-user.target" ];
     unitConfig = {
       # Bootstrap: nur wenn Flag fehlt ODER force = true
@@ -97,7 +97,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
             ${arrProv}/bin/arr-sync-jellyfin
           fi
           
-          if [ "${SYNC_JELLYSEERR}" = "1" ]; then
+          if [ "${SYNC_SEERR}" = "1" ]; then
             echo "Running arr-sync-seerr..."
             ${arrProv}/bin/arr-sync-seerr
           fi
@@ -116,8 +116,8 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       JELLYFIN_TV_PATH = "${cfg.storage.mediaRoot}/tvshows";
       JELLYFIN_ADMIN_USER = "admin";
       JELLYFIN_ADMIN_PASSWORD_FILE = if cfg.jellyfin.adminPasswordFile != null then "/run/credentials/mediNix-provision/jellyfin-admin-pw" else "";
-    } // lib.optionalAttrs cfg.jellyseerr.enable {
-      SEERR_PORT = toString registry.jellyseerr.port;
+    } // lib.optionalAttrs cfg.seerr.enable {
+      SEERR_PORT = toString registry.seerr.port;
       SEERR_CONFIG_JSON = builtins.toJSON {
         jellyfinHost = "127.0.0.1";
         jellyfinPort = registry.jellyfin.port;

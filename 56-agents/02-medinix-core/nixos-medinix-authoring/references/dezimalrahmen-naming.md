@@ -15,7 +15,7 @@
 | Jellyfin | 551 | 5510 | 5510 | 5000 | ADR-5510 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | ADR-5520 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | ADR-5530 |
-| Jellyseerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
+| Seerr | 561 | 5610 | 5610 | 5000 | ADR-5610 |
 
 ## Anker (gelten auf Container-Stellen, NICHT auf Blatt-Stelle)
 - `_0` Fundament · `_1` Zugang · `_2` Sicherheit · `_9` Leitplanken

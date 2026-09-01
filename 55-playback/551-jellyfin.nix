@@ -6,13 +6,13 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11
-# links: 
+# links: https://jellyfin.org/
 # provides: []
 # requires: ["lib/hardening-profiles"]
-# ports: []
-# upstream_docs: []
+# ports: [5510]
+# upstream_docs: [https://jellyfin.org/docs/]
 # forum_links: []
-# upstream_github: ""
+# upstream_github: "https://github.com/jellyfin/jellyfin"
 # nixpkgs_attr: ""
 # state_dir: ""
 # uds_socket: false
@@ -20,10 +20,11 @@
 # adr: ADR-5510, ADR-5050
 # skill: nixos-context7-gate
 # unraid_ref: jellyfin container --tmpfs /transcode:size=4G --group-add video
-# context7: 
+# context7: https://context7.com/jellyfin/jellyfin.org, https://context7.com/websites/jellyfin, https://context7.com/intro-skipper/intro-skipper
 # - query: "systemd.services serviceConfig TemporaryFileSystem tmpfs RuntimeDirectory example"
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "serviceConfig.TemporaryFileSystem + SupplementaryGroups (video) valid"
+# svg logo: https://github.com/grapefruit89/logorepo/blob/main/jellyfin.svg
 # ---
 { config, lib, pkgs, ... }:
 
@@ -93,7 +94,19 @@ lib.mkIf (cfg.enable) {
     };
   };
 
-  medinix.ingress.vhosts."jellyfin" = { accessGroup = reg.caddyClass; };
+  medinix.ingress.vhosts."jellyfin" = {
+    accessGroup = "stream";
+    landing = true;
+    iconSvg = ''
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82 82">
+        <linearGradient id="a" x1="17" x2="77" y1="33" y2="66" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#aa5cc3"/>
+          <stop offset="1" stop-color="#00a4dc"/>
+        </linearGradient>
+        <path fill="url(#a)" fill-rule="evenodd" d="M5 68C1 59 31 3 41 3s40 56 36 65c-5 9-67 9-72 0m13-8c3 6 43 6 46 0S47 17 41 17 15 54 18 60m11-8c-1-3 9-21 12-21s13 18 12 21c-2 3-22 3-24 0"/>
+      </svg>
+    '';
+  };
 
   systemd.services."jellyfin" = lib.mkIf (cfg.secrets.jellyfinAdminPasswordFile != null) {
     serviceConfig.LoadCredentialEncrypted = [ "jellyfin-api-key:${cfg.secrets.jellyfinAdminPasswordFile}" ];

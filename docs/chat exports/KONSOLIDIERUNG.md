@@ -41,7 +41,7 @@ Erstelle eine kompakte, optisch klar strukturierte Zusammenfassung, die ich spä
 - **Keine All-in-One Gateways:** Lösungen wie Pangolin, Zoraxy, NetBird oder Authentik werden bewusst abgelehnt, um RAM-Overhead und Vendor-Lock-ins ("goldener Käfig") zu vermeiden. Caddy-Security-Plugins widersprechen der flachen Architektur.
 
 ## Wichtige technische Erkenntnisse
-- **Jellybridge Plugin (Jellyseerr Integration):** Erlaubt direkte Requests (Herz-Icon) aus der Jellyfin-UI. **Achtung:** Sehr versionsanfällig. Sollte nur genutzt werden, wenn die Jellyfin-Version bewusst gepinnt und das Plugin aktiv gewartet wird.
+- **Jellybridge Plugin (Seerr Integration):** Erlaubt direkte Requests (Herz-Icon) aus der Jellyfin-UI. **Achtung:** Sehr versionsanfällig. Sollte nur genutzt werden, wenn die Jellyfin-Version bewusst gepinnt und das Plugin aktiv gewartet wird.
 - **Blocky vs. AdGuard (DNS):** Blocky passt als schlankes, UI-freies Go-Tool (YAML-konfiguriert) besser zum deklarativen NixOS-Ansatz als AdGuard. (Vorerst aber sekundär).
 
 ## Verworfene Ansätze (kurz)

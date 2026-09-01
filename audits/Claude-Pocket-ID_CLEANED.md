@@ -42,7 +42,7 @@
 - `cfg.secrets.*` im Service- statt Root-Scope in **sieben** Dateien (`medinix.sonarr.secrets` existiert nicht)
 - `systemd.services.<name>` zweimal in derselben Attrmenge in acht Modulen; bei `541` sogar `after` doppelt
 - `reg` undefiniert in `551`/`552`; `554` liest `medinix.services.feishin`
-- `pkgs.jellyseerr` gibt es am gepinnten Rev nicht (kein by-name-Eintrag, kein all-packages-Eintrag, kein NixOS-Modul)
+- `pkgs.seerr` gibt es am gepinnten Rev nicht (kein by-name-Eintrag, kein all-packages-Eintrag, kein NixOS-Modul)
 
 Drei Laufzeitbefunde, die auch nach der Reparatur bleiben:
 

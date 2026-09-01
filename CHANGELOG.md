@@ -3,6 +3,16 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-09-01 — Seerr rename
+
+Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/option `seerr`, module `555-seerr.nix`, port/UID 5550 unchanged.
+
+## 2026-09-01 — Ingress organs (511 / 513 / 514 / 518)
+
+- **511 / 514:** Stock-Caddy, Lego-Wildcard als HTTPS auch im LAN. `51-ingress/511-caddychangelog.log`
+- **513:** Anker-DDNS `wan` (WAN-IP) + `lan` (LAN-IP), Wildcard/Apex → wan, keine Dienst-CNAMEs. `51-ingress/513-dnschangelog.log`
+- **518:** Familien-Icons aus stream/public, von 511 auf Apex (LAN-abort) + `home.local`. `51-ingress/518-landingchangelog.log`
+
 ## Phase 1 — Foundation
 - **flake.nix**: `nixosModules.default` Export + `checks.nixos-check` (dummy hardware, stateVersion 24.11)
 - **default.nix**: vollständiges `options.medinix` API (services, storage, security, observability, maintenance)
@@ -17,7 +27,7 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **53-acquisition**: Arr-Stack (532-536: Sonarr/Radarr/Readarr/Lidarr/Prowlarr, native .NET)
 - **54-transfer**: SABnzbd (541, `-b 0` no-daemon), SQLite-WAL-Tune (542), Tier-B-Cleanup-Mover (543)
 - **55-playback**: Jellyfin (551) + Audiobookshelf (552) + Navidrome (553) + Feishin (554, static SPA)
-- **56-requests**: Jellyseerr (561)
+- **56-requests**: Seerr (561)
 - **57-maintenance**: SQLite-Optimize (571), Recyclarr (572), Exportarr (573), Provisioning (574), Update-Notifier (575),
   Backup/Restic (576), Drift-Detection (577)
 - **58-observability**: ntfy (581), CrowdSec native (582), Runtime-Guard (583), Post-Boot-Watchdog (584)
