@@ -42,7 +42,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5030 flake module patterns](adr/ADR-50-flake-module-patterns.md)
 - [ADR 5020 knowledge extraction pipeline](adr/ADR-50-knowledge-extraction-pipeline.md)
 - [ADR 5000 native services over docker](adr/ADR-50-native-services-over-docker.md)
-- [ADR 5010 nixgrok architecture review](adr/ADR-50-nixgrok-architecture-review.md)
 - [Assertion Quality Standard (fail-closed, readable what/why/fix)](adr/ADR-5043-assertion-quality.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-51-cloudflare-dns-no-proxy.md)
 - [ADR 5115 split dns note](adr/ADR-51-split-dns-note.md)
