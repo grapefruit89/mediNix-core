@@ -1,54 +1,22 @@
 # ---
 # id: "511-caddy"
 # title: "Caddy Chameleon Ingress — stream/internal/public/idp templates (stock Caddy, Lego TLS)"
-# domain: 50
+# domain: 51
 # folder: 51-ingress
 # status: active
-# complexity: 4
-# last_reviewed: 2026-09-01
-# links:
-# provides: []
+# last_reviewed: 2026-09-02
+# provides: ["caddy", "ingress"]
 # requires: ["lib/service-factory", "lib/registry"]
-# ports: []
-# upstream_docs:
-#   - "https://caddyserver.com/docs/caddyfile"
-#   - "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy"
-#   - "https://caddyserver.com/docs/caddyfile/directives/forward_auth"
-# upstream_github: "https://github.com/caddyserver/caddy"
-# nixpkgs_attr: "pkgs.caddy"
-# forum_links: []
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: true
-# adr: ADR-5110
-# skill: nixos-context7-gate
-# context7:
-# - query: "services.caddy virtualHosts extraConfig reverse_proxy configuration"
-# library: /websites/nixos_manual_nixos_unstable
-# snippet: "virtualHosts.<host>.extraConfig + hostName for Caddyfile injection"
-# - note: "flush_interval + remote_ip are Caddyfile syntax (caddyserver.com), not NixOS options"
+# adr: ADR-511
 # ---
-# 51-ingress/511-caddy.nix — Chameleon Caddy Ingress
-# ADR-5110: exactly ONE Caddy instance (inject global | standalone caddy-media).
-# Contract: stock pkgs.caddy, TLS from 514 Lego (or custom/internal), no plugins.
-# HTTPS for LAN = https://{name}.{domain} on the wildcard cert (DNS-01).
-# http://{name}.local is HTTP-only fallback (Let's Encrypt cannot sign .local).
-#
-# Invariants (audit 2026-09-01 / ADR-5110 / ADR-5140 / ADR-5115):
-# - Caddy is the first trusted HTTP proxy. X-Forwarded-For is rewritten to {client_ip}.
-# - trustedCidrs is an access-control boundary, not a convenience default.
-# - HSTS includeSubDomains assumes mediNix owns the whole DNS parent.
-# - forward-auth => exactly one resolvable auth upstream.
-# - Every generated site hostname has exactly one owner.
-# - mDNS/Avahi policy is owned by 515, not this engine.
+# Stock pkgs.caddy. TLS from 514. Sites from ingress.vhosts.
+# A vhost is live when the matching service is enabled, accessGroup != none,
+# and it has either a registry port (reverse_proxy) or customConfig (static).
 { lib, pkgs, config, ... }:
 
 let
   cfg = config.medinix;
   ing = cfg.ingress;
-  # disc-17: honor the declared ingress.mode instead of silently ignoring it.
-  # "auto" preserves the exact previous behavior (read host's services.caddy.enable,
-  # never write to it -> no recursion). "global"/"standalone" are explicit overrides.
   ingressMode = ing.mode or "auto";
   useGlobal =
     if ingressMode == "global" then true
@@ -59,15 +27,12 @@ let
   enabledServices = lib.filterAttrs (n: vhost:
     let
       enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+      hasPort = (registry.${n}.port or null) != null;
+      hasStatic = (vhost.customConfig or "") != "";
     in
-      enabled
-      && (registry.${n}.port or null) != null
-      && vhost.accessGroup != "none"
+      enabled && vhost.accessGroup != "none" && (hasPort || hasStatic)
   ) cfg.ingress.vhosts;
 
-  # Trust boundary for accessGroup=internal and the landing abort.
-  # Override changes who may reach "internal" HTTPS names — not just a default list.
-  # RFC1918 + CGNAT (100.64/10) + Tailscale-typical + ULA: range-based, not identity-based.
   trustedCidrs = ing.trustedCidrs or [
     "10.0.0.0/8"
     "100.64.0.0/10"
@@ -77,8 +42,6 @@ let
   ];
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
-  # acmeHost wins over tls.mode: Lego wildcard is the homelab HTTPS path.
-  # tls.mode = off + acmeHost set still enables HTTPS (changelog / ADR-5140).
   tlsEnabled =
     ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
 
@@ -92,8 +55,6 @@ let
     else
       "";
 
-  # includeSubDomains is intentional only while mediNix owns the parent DNS namespace.
-  # No preload: browser preload lists are barely reversible.
   securityHeaders = ''
     header {
       Strict-Transport-Security "max-age=63072000; includeSubDomains"
@@ -104,17 +65,16 @@ let
     }
   '';
 
-  # First trusted hop: replace, do not append, any pre-existing forwarded-for chain.
-  # Revisit together with trusted_proxies if another proxy is ever placed in front.
-  mkProxy = n: extra: ''
-    reverse_proxy http://127.0.0.1:${toString registry.${n}.port} {
-      header_up X-Real-IP {client_ip}
-      header_up X-Forwarded-For {client_ip}
-      header_up X-Forwarded-Proto {scheme}
-      header_up X-Forwarded-Host {host}
-      ${extra}
-    }
-  '';
+  mkProxy = n: extra:
+    lib.optionalString ((registry.${n}.port or null) != null) ''
+      reverse_proxy http://127.0.0.1:${toString registry.${n}.port} {
+        header_up X-Real-IP {client_ip}
+        header_up X-Forwarded-For {client_ip}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        ${extra}
+      }
+    '';
 
   streamTransport = ''
     flush_interval -1
@@ -124,7 +84,6 @@ let
     }
   '';
 
-  # Exactly one resolvable upstream when forward-auth is on (assertion enforces this).
   authUpstream =
     if ing.auth.forwardAuthUpstream != "" then ing.auth.forwardAuthUpstream
     else "127.0.0.1:${toString registry."pocket-id".port}";
@@ -135,7 +94,6 @@ let
       global = ing.auth.skipPaths or [];
     in lib.unique (global ++ local);
 
-  # isLocal: .local vhosts — no TLS, no forward_auth (localBypass), no LAN-abort.
   mkBaseConfig = n: vhost: { isLocal ? false }:
     let
       applyAuth =
@@ -175,9 +133,6 @@ let
         ${vhost.customConfig}
         ${mkProxy n ""}
       '';
-      # idp: no forward_auth (deadlock). No internal abort — Pocket ID must be
-      # reachable for the login flow. WAN exposure is therefore a 512 policy
-      # question (accessGroup=idp vs internal), not an engine accident.
       idp = ''
         encode zstd gzip
         ${vhost.customConfig}
@@ -193,11 +148,8 @@ let
   mkHttpBody = n: vhost: mkBaseConfig n vhost { isLocal = false; };
   mkLocalBody = n: vhost: mkBaseConfig n vhost { isLocal = true; };
 
-  # Shared site list → identical Global virtualHosts and standalone Caddyfile.
   mkSite = name: body: { inherit name body; };
 
-  # Canonical registry key plus optional dns.hostnames alias (seerr, music, …).
-  # `? n` tests the attribute name; `? ${n}` is interpolation and does not eval.
   publicNames = n:
     lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
 
@@ -234,7 +186,6 @@ let
     ${landingFiles}
   '';
 
-  # 518 supplies the HTML; 511 is the only process that serves it.
   landingSites = lib.optionals landingOn (
     (lib.optionals (cfg.domain != null && tlsEnabled) [
       (mkSite "http://${cfg.domain}" "redir https://{host}{uri} permanent")
@@ -285,7 +236,7 @@ let
     profile = "network";
     extraConfig = {
       Service = {
-        Type = lib.mkDefault "notify";  # disc-07: Caddy supports sd_notify natively (upstream #3963)
+        Type = lib.mkDefault "notify";
         WatchdogSec = lib.mkDefault "60s";
         CPUWeight = lib.mkDefault 400;
         IOWeight = lib.mkDefault 200;
@@ -304,72 +255,29 @@ in lib.mkMerge [
     assertions = [
       {
         assertion = !(cfg.ingress.tls.acmeHost != null && cfg.ingress.tls.certFile != null);
-        message = ''
-          [mediNix] You cannot specify both acmeHost and certFile for TLS.
-
-          [AI/Admin Context]
-          Reason: A virtual host must either be automatically provisioned via ACME (acmeHost) OR manually provisioned via a static certificate file. Specifying both causes a Caddy syntax conflict.
-          Ref: ADR-5043 (Ingress Configuration)
-        '';
+        message = "[mediNix] Do not set both acmeHost and certFile.";
       }
       {
         assertion = cfg.ingress.tls.mode != "custom" || (cfg.ingress.tls.certFile != null && cfg.ingress.tls.keyFile != null);
-        message = ''
-          [mediNix] Custom TLS mode requires both certFile and keyFile.
-
-          [AI/Admin Context]
-          Reason: If you bypass ACME to provide your own certificates, Caddy needs both the public cert and the private key.
-          Ref: ADR-5043 (Ingress Configuration)
-        '';
+        message = "[mediNix] Custom TLS needs certFile and keyFile.";
       }
       {
         assertion =
           cfg.ingress.auth.mode != "forward-auth"
           || cfg.pocketId.enable
           || (cfg.ingress.authProxyPresent && cfg.ingress.auth.forwardAuthUpstream != "");
-        message = ''
-          [mediNix] forward-auth requires exactly one resolvable auth upstream.
-
-          [AI/Admin Context]
-          Reason: Caddy forwards unauthenticated requests to an IdP. The previous
-          contract accepted authProxyPresent=true with an empty forwardAuthUpstream
-          and then still targeted 127.0.0.1:<pocket-id-port>, which 502'd when
-          Pocket ID was disabled.
-          Legal shapes:
-            1. pocket-id enabled (upstream defaults to 127.0.0.1:<pocket-id-port>)
-            2. authProxyPresent = true AND auth.forwardAuthUpstream is non-empty
-          Ref: ADR-5120 (Identity Provider & Forward Auth)
-        '';
+        message = "[mediNix] forward-auth needs Pocket ID or a non-empty forwardAuthUpstream.";
       }
       {
         assertion = ingressMode != "global" || config.services.caddy.enable;
-        message = ''
-          [mediNix] ingress.mode = "global" was forced, but services.caddy.enable is not true.
-
-          [AI/Admin Context]
-          Reason: Forcing "global" mode means mediNix injects virtualHosts into the host's
-          own Caddy instance. If the host never enabled services.caddy, those virtualHosts
-          are silently unused -- fail-closed instead of shipping a dead config (BANNED_TECHNOLOGIES.md,
-          "Fail-Open Defaults" is banned).
-          Fix: either enable services.caddy on the host, or set ingress.mode = "standalone" / "auto".
-          Ref: disc-17 (Chameleon ingress robustness)
-        '';
+        message = "[mediNix] ingress.mode = global requires services.caddy.enable.";
       }
       {
         assertion = duplicateSiteNames == [];
-        message = ''
-          [mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}
-
-          [AI/Admin Context]
-          Reason: allSites is converted with lib.listToAttrs. Two services, an alias
-          (dns.hostnames), the apex landing page, or a redirect must not own the
-          same hostname. Fix the colliding vhost / dns.hostnames entry before eval.
-          Ref: ADR-5110 (one owner per generated hostname)
-        '';
+        message = "[mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}";
       }
     ];
 
-    # Lego/custom/internal own certificates. Never let Caddy talk to Let's Encrypt.
     services.caddy.globalConfig = lib.mkIf useGlobal ''
       auto_https off
     '';
@@ -385,8 +293,6 @@ in lib.mkMerge [
       text = caddyConfigStr;
     };
 
-    # TCP 80 always (redirect or plain HTTP). 443 TCP+UDP only when TLS is actually on.
-    # UDP 443 = HTTP/3. DNS-01 itself does not need inbound 80/443.
     networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
       (if tlsEnabled then [ 80 443 ] else [ 80 ]);
     networking.firewall.allowedUDPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed" && tlsEnabled)
@@ -395,7 +301,6 @@ in lib.mkMerge [
 
   (lib.mkIf (cfg.enable && ing.enable && !useGlobal) caddyStandalone)
 
-  # Standalone caddy-media must read Lego files (group caddy, not the broad media group).
   (lib.mkIf (cfg.enable && ing.enable && ing.tls.acmeHost != null) {
     users.groups.caddy = {};
     security.acme.certs.${ing.tls.acmeHost}.reloadServices =
@@ -406,15 +311,3 @@ in lib.mkMerge [
     users.users.caddy-media.extraGroups = [ "caddy" ];
   })
 ]
-
-# Gold-Standard (ADR-5110):
-# - One Caddy instance; Global and Standalone generate identical site lists
-# - auto_https off — certificates from 514 Lego (DNS-01 wildcard), not Caddy ACME
-# - LAN HTTPS is https://{name}.{domain} on that wildcard; .local stays HTTP
-# - internal: abort outside trustedCidrs; .local never aborts / never forward_auth
-# - stock pkgs.caddy, no CrowdSec/rate-limit/geo plugins
-# - Hostnames from registry key `n`; fullchain.pem over cert.pem
-# - 518 HTML is served here: https://{domain} (LAN abort) + http://home.local
-# - forward-auth has exactly one upstream; site hostnames have exactly one owner
-# - skipPaths honored on forward_auth; Avahi owned by 515
-# - 554-feishin still bypasses this engine (known exception, not fixed here)
