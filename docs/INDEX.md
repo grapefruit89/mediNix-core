@@ -39,7 +39,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 0000 decimal framework constitution (en)](adr/ADR-00-dezimalrahmen-verfassung-en.md)
 - [NIXMETA V3.0 Header Standard](adr/ADR-00-nixmeta-v3-header.md)
 - [ADR 0001 source repository registry](adr/ADR-00-source-repository-registry.md)
-- [ADR 5040 decimal framework port derivation](adr/ADR-50-dezimalrahmen-port-ableitung.md)
 - [ADR 5030 flake module patterns](adr/ADR-50-flake-module-patterns.md)
 - [ADR 5020 knowledge extraction pipeline](adr/ADR-50-knowledge-extraction-pipeline.md)
 - [ADR 5000 native services over docker](adr/ADR-50-native-services-over-docker.md)
