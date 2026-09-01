@@ -31,9 +31,10 @@ let
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   adminCred =
-    cfg.adminPasswordFile
-    or cfg.adminPasswordCredential
-    or svc.secrets.jellyfinAdminPasswordFile or null;
+    if cfg.adminPasswordFile != null then cfg.adminPasswordFile
+    else if cfg.adminPasswordCredential != null then cfg.adminPasswordCredential
+    else if svc.secrets.jellyfinAdminPasswordFile != "" then svc.secrets.jellyfinAdminPasswordFile
+    else null;
 in
 lib.mkIf cfg.enable {
   users.users.jellyfin = {
@@ -87,7 +88,6 @@ lib.mkIf cfg.enable {
     };
   };
 
-  # stream: no forward-auth (ADR-551). Tile owned here, not in 518.
   medinix.ingress.vhosts."jellyfin" = {
     accessGroup = "stream";
     landing = true;
