@@ -1,0 +1,63 @@
+{
+  "purpose": "Machine index for docs/adr. Read this before opening every markdown file.",
+  "lang": "en",
+  "updated": "2026-09-02",
+  "naming": "ADR-<service-or-topic>.md. Domain-only names (ADR-51-*) are legacy and should collapse into the service id (511, 512, …).",
+  "start_here": [
+    "ADR-00-dezimalrahmen-verfassung-en.md",
+    "ADR-511-caddy.md",
+    "ADR-551-jellyfin-media-playback.md"
+  ],
+  "canonical": [
+    {"id": "000", "file": "ADR-00-dezimalrahmen-verfassung-en.md", "topic": "decimal constitution", "status": "active"},
+    {"id": "00-nixmeta", "file": "ADR-00-nixmeta-v3-header.md", "topic": "module header schema", "status": "active"},
+    {"id": "00-sources", "file": "ADR-00-source-repository-registry.md", "topic": "upstream source registry", "status": "active"},
+    {"id": "5043", "file": "ADR-5043-assertion-quality.md", "topic": "assertion voice", "status": "active"},
+    {"id": "511", "file": "ADR-511-caddy.md", "topic": "caddy engine", "status": "active", "module": "51-ingress/511-caddy.nix"},
+    {"id": "518", "file": "ADR-5180-landingpage-honeypot.md", "topic": "landing page", "status": "stale-title", "module": "51-ingress/518-landingpage.nix"},
+    {"id": "526", "file": "ADR-5260-vpn-killswitch.md", "topic": "killswitch", "status": "active", "module": "52-security/526-vpn-killswitch.nix"},
+    {"id": "551", "file": "ADR-551-jellyfin-media-playback.md", "topic": "jellyfin", "status": "active", "module": "55-playback/551-jellyfin.nix"}
+  ],
+  "duplicates": [
+    {
+      "keep": "ADR-00-dezimalrahmen-verfassung-en.md",
+      "drop": ["ADR-00-dezimalrahmen-verfassung.md"],
+      "why": "Same constitution; DE + EN twins. English is canonical."
+    },
+    {
+      "keep": "ADR-5043-assertion-quality.md",
+      "drop": ["ADR-58-assertion-quality.md"],
+      "why": "Same fail-closed assertion standard copied into domain 58."
+    },
+    {
+      "keep": "one ADR-512 (not written yet)",
+      "drop": [
+        "ADR-51-lightweight-identity-pocketid.md",
+        "ADR-51-oidc-auth-pocketid-authelia.md",
+        "ADR-51-pocket-id-oidc-module.md"
+      ],
+      "why": "Three Pocket-ID stubs. Authelia is rejected. Merge after reading 512-pocket-id.nix."
+    },
+    {
+      "keep": "ADR-50-dezimalrahmen-port-ableitung.md",
+      "drop": [],
+      "why": "Port = num*10 already in constitution §4. Thin; fold into ADR-000 later."
+    },
+    {
+      "keep": "ADR-57-backup-data-classification.md",
+      "drop": ["ADR-57-backup-strategy.md"],
+      "why": "Strategy is a stub; classification is the real ADR. Confirm before delete."
+    },
+    {
+      "keep": "ADR-57-sqlite-vs-postgres.md",
+      "related": ["ADR-57-sqlite-wal-tuning.md", "ADR-57-sqlite-mcp-server.md"],
+      "why": "WAL is operational; MCP is draft. Do not merge WAL into vs-postgres."
+    }
+  ],
+  "reviews": [
+    {"file": "ADR-50-nixgrok-architecture-review.md", "action": "archive or delete; not a decision"},
+    {"file": "ADR-50-knowledge-extraction-pipeline.md", "action": "process note, not runtime"},
+    {"file": "ADR-50-flake-module-patterns.md", "action": "thin; fold into README flake section"},
+    {"file": "ADR-50-native-services-over-docker.md", "action": "one paragraph already in constitution"}
+  ]
+}
