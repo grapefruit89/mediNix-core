@@ -1,20 +1,20 @@
-# Neuen Dienst an Caddy, Pocket ID und die Landingpage hängen
+# Attach a service to Caddy, Pocket ID and the landing page
 
-511, 513, 515 und 518 kennen keine Programmnamen. Alles, was ein Dienst braucht, steht in **seiner** Moduldatei plus einem Eintrag in `lib/registry.nix`.
+511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `lib/registry.nix` entry.
 
-Vorlage: [`55x-service.example.nix`](55x-service.example.nix)
+Template: [`55x-service.example.nix`](55x-service.example.nix)
 
-## Checkliste
+## Checklist
 
-1. Dienst in `lib/registry.nix` anlegen (`port`, `uid`, `stateDir`, `caddyClass`).
-2. Service-Modul kopieren, `enable`-Option existiert bereits oder wird im Options-Modul ergänzt.
-3. Im Modul unter `lib.mkIf cfg.enable`:
-   - Prozess auf `127.0.0.1:<port>` binden
-   - `medinix.ingress.vhosts."<name>"` setzen
-4. Auf dem Host: `medinix.<name>.enable = true;`
-5. **Nicht** 511/513/515/518 anfassen.
+1. Add the service to `lib/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).
+2. Copy a service module; add `enable` in the options module if it does not exist yet.
+3. Inside `lib.mkIf cfg.enable`:
+   - bind the process to `127.0.0.1:<port>`
+   - set `medinix.ingress.vhosts."<name>"`
+4. On the host: `medinix.<name>.enable = true;`
+5. **Do not** edit 511, 513, 515 or 518.
 
-## vHost-Felder
+## vHost fields
 
 ```nix
 medinix.ingress.vhosts."seerr" = {
@@ -24,58 +24,58 @@ medinix.ingress.vhosts."seerr" = {
 };
 ```
 
-| Feld | Wirkung |
+| Field | Effect |
 | --- | --- |
-| `accessGroup` | 511-Template (siehe unten) |
-| `landing = true` und `iconSvg != ""` | Kachel auf `https://{domain}` und `http://home.local` |
-| sonst | keine Kachel, kein Fallback-Icon |
-| `dns.hostnames.<name>` | öffentlicher Label, Default = Registry-Name |
+| `accessGroup` | 511 template (see below) |
+| `landing = true` and `iconSvg != ""` | tile on `https://{domain}` and `http://home.local` |
+| otherwise | no tile, no fallback icon |
+| `dns.hostnames.<name>` | public label; default is the registry key |
 
 ## accessGroup
 
-| Gruppe | HTTPS `{name}.{domain}` | Auth | `.local` |
+| Group | HTTPS `{name}.{domain}` | Auth | `.local` |
 | --- | --- | --- | --- |
-| `stream` | ja, ohne Compress | nie | HTTP, kein Auth, kein Abort |
-| `internal` | ja, Abort außerhalb `trustedCidrs` | nie | wie oben |
-| `public` | ja, Compress | `forward_auth`, wenn Host-weit an | wie oben |
-| `idp` | ja, kein Abort | nie (Deadlock-Schutz) | wie oben |
-| `none` | kein vHost | — | kein vHost |
+| `stream` | yes, no compression | never | HTTP, no auth, no abort |
+| `internal` | yes, abort outside `trustedCidrs` | never | same |
+| `public` | yes, compression | `forward_auth` when enabled host-wide | same |
+| `idp` | yes, no abort | never (deadlock shield) | same |
+| `none` | no vhost | — | no vhost |
 
-`.local` bekommt **niemals** TLS, forward-auth oder WAN-Abort.
+`.local` never gets TLS, forward-auth or a WAN abort.
 
-## Pocket ID — einmal pro Host, nicht pro Dienst
+## Pocket ID — once per host, not per service
 
 ```nix
 medinix.pocketId.enable = true;
-medinix.pocketId.exposure = "idp";          # Login unter pocket-id.{domain}
+medinix.pocketId.exposure = "idp";          # login UI at pocket-id.{domain}
 medinix.ingress.auth.mode = "forward-auth";
-# forwardAuthUpstream leer → 127.0.0.1:<pocket-id-port>
+# empty forwardAuthUpstream → 127.0.0.1:<pocket-id-port>
 ```
 
-Dann hängt 511 **nur** an `accessGroup = "public"` die Auth-Wand. `stream` / `internal` / `idp` / `.local` bleiben ohne.
+511 then puts the auth wall only on `accessGroup = "public"`. `stream`, `internal`, `idp` and `.local` stay open.
 
-Externes Proxy statt Pocket ID:
+External proxy instead of Pocket ID:
 
 ```nix
 medinix.ingress.auth.mode = "forward-auth";
 medinix.ingress.authProxyPresent = true;
 medinix.ingress.auth.forwardAuthUpstream = "127.0.0.1:4180";
-# pocketId.enable bleibt false
+# leave pocketId.enable = false
 ```
 
-`skipPaths` (Healthchecks ohne Login) am vHost oder unter `ingress.auth.skipPaths`.
+`skipPaths` (health checks without login) go on the vhost or under `ingress.auth.skipPaths`.
 
-## Landingpage
+## Landing page
 
-518 liest nur die vHosts. Ein Tile entsteht genau dann, wenn das Dienstmodul `landing = true` und ein SVG setzt — siehe `555-seerr.nix`.
+518 only reads vhosts. A tile exists exactly when the service module sets `landing = true` and an SVG — see `555-seerr.nix`.
 
 ```nix
-medinix.ingress.landing.enable = true;   # Default
+medinix.ingress.landing.enable = true;   # default
 ```
 
-Kein Eintrag in 518, keine Icon-Map, keine `preferred`-Liste.
+No entry in 518, no icon map, no `preferred` list.
 
-## Was der Host sonst noch braucht (einmal)
+## Host setup (once)
 
 ```nix
 medinix.enable = true;
@@ -85,14 +85,14 @@ medinix.ingress.tls.acmeHost = "example.tld";
 medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";  # systemd credential, KEY=value
 ```
 
-DNS (513) und mDNS (515) ziehen die Namen aus derselben vHost-Registry. Neues Programm = neuer vHost, kein Edit an 513/515.
+DNS (513) and mDNS (515) take names from the same vhost set. A new program is a new vhost, not an edit to 513 or 515.
 
-## Gegenbeispiel
+## Anti-pattern
 
-Nicht tun:
+Do not do this:
 
 ```nix
 services.caddy.virtualHosts."foo.example.tld".extraConfig = "…";
 ```
 
-Das umgeht die Engine (so wie 554-Feishin heute). Stattdessen vHost registrieren und 511 rendern lassen. Feishin braucht später ein `static`-Template, weil es kein `reverse_proxy` ist.
+That bypasses the engine (554-feishin still does). Register a vhost and let 511 render it. Feishin needs a later `static` template because it is not a `reverse_proxy`.
