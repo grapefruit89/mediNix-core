@@ -46,11 +46,9 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5010 nixgrok architecture review](adr/ADR-50-nixgrok-architecture-review.md)
 - [Assertion Quality Standard (fail-closed, readable what/why/fix)](adr/ADR-5043-assertion-quality.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-51-cloudflare-dns-no-proxy.md)
-- [ADR 5120 lightweight identity pocketid](adr/ADR-51-lightweight-identity-pocketid.md)
-- [ADR 5140 oidc auth pocketid authelia](adr/ADR-51-oidc-auth-pocketid-authelia.md)
-- [ADR 5120 pocket id oidc module](adr/ADR-51-pocket-id-oidc-module.md)
 - [ADR 5115 split dns note](adr/ADR-51-split-dns-note.md)
 - [Caddy chameleon ingress](adr/ADR-511-caddy.md)
+- [Pocket ID OIDC process](adr/ADR-512-pocket-id.md)
 - [ADR-5180-landingpage-honeypot.md](adr/ADR-5180-landingpage-honeypot.md)
 - [ADR 5210 nftables firewall baseline](adr/ADR-52-nftables-firewall-baseline.md)
 - [ADR 5200 privesc audit hardening](adr/ADR-52-privesc-audit-hardening.md)
@@ -68,7 +66,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5710 sqlite mcp server](adr/ADR-57-sqlite-mcp-server.md)
 - [ADR 5700 sqlite vs postgres](adr/ADR-57-sqlite-vs-postgres.md)
 - [ADR 5700 sqlite wal tuning](adr/ADR-57-sqlite-wal-tuning.md)
-- [ADR 5043 assertion quality](adr/ADR-58-assertion-quality.md)
 - [Architecture decisions](adr/README.md)
 
 ### Architecture Blueprints
