@@ -37,7 +37,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 ### Architecture Decision Records
 
 - [ADR 0000 decimal framework constitution (en)](adr/ADR-00-dezimalrahmen-verfassung-en.md)
-- [ADR 0000 dezimalrahmen verfassung](adr/ADR-00-dezimalrahmen-verfassung.md)
 - [NIXMETA V3.0 Header Standard](adr/ADR-00-nixmeta-v3-header.md)
 - [ADR 0001 source repository registry](adr/ADR-00-source-repository-registry.md)
 - [ADR 5040 decimal framework port derivation](adr/ADR-50-dezimalrahmen-port-ableitung.md)
@@ -70,6 +69,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5700 sqlite vs postgres](adr/ADR-57-sqlite-vs-postgres.md)
 - [ADR 5700 sqlite wal tuning](adr/ADR-57-sqlite-wal-tuning.md)
 - [ADR 5043 assertion quality](adr/ADR-58-assertion-quality.md)
+- [Architecture decisions](adr/README.md)
 
 ### Architecture Blueprints
 
