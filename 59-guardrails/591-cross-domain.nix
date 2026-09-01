@@ -20,7 +20,6 @@
 # adr: ADR-5043
 # ---
 # Single guardrail organ. Former 592-environment.nix folded in.
-# Assertions only — no units, no sysctl writes.
 { config, lib, ... }:
 
 let
@@ -28,11 +27,11 @@ let
   svcReg = import ../lib/registry.nix { inherit lib; };
   ks = config.services.vpnKillSwitch or { instances = { }; };
   confined = name:
-    (ks.instances ? ${name}) && ks.instances.${name}.enable;
+    (builtins.hasAttr name ks.instances) && ks.instances.${name}.enable;
 
   enabledPorts = lib.mapAttrsToList (_: svc: svc.port) (
     lib.filterAttrs
-      (_: svc: svc.port != null && (cfg.${svc.name}.enable or false))
+      (n: svc: svc.port != null && (cfg.${n}.enable or false))
       svcReg.services
   );
   allowedTCP = config.networking.firewall.allowedTCPPorts or [ ];
@@ -40,7 +39,6 @@ let
 
   hasFs = path: builtins.hasAttr path (config.fileSystems or { });
 
-  # 511 chameleon: global Caddy is only required when the host said so.
   wantsHostCaddy =
     cfg.ingress.enable
     && cfg.hostIntegration.reverseProxy == "external"
@@ -56,7 +54,7 @@ lib.mkIf cfg.enable {
       assertion = cfg.usenet-confinement.enable -> confined "sabnzbd";
       message = ''
         [mediNix] usenet-confinement.enable is set, but vpnKillSwitch.instances.sabnzbd is not active.
-        SABnzbd would leave via WAN. Wire the unit in 541 / killswitch instances, or disable usenet-confinement.
+        SABnzbd would leave via WAN.
         Option path: medinix.usenet-confinement.enable (not security.usenet-confinement).
       '';
     }
@@ -64,23 +62,21 @@ lib.mkIf cfg.enable {
       assertion = (cfg.usenet-confinement.enable && cfg.prowlarr.enable) -> confined "prowlarr";
       message = ''
         [mediNix] usenet-confinement and Prowlarr are on, but vpnKillSwitch.instances.prowlarr is off.
-        Indexer traffic would leak beside confined SABnzbd.
       '';
     }
     {
       assertion = leakingPorts == [ ];
       message = ''
         [mediNix] service ports in networking.firewall.allowedTCPPorts: ${toString leakingPorts}
-        Units bind 127.0.0.1. Publish only through 511 (80/443), not the app ports.
+        Units bind 127.0.0.1. Publish only through 511.
       '';
     }
     {
       assertion = !wantsHostCaddy || config.services.caddy.enable;
       message = ''
-        [mediNix] hostIntegration.reverseProxy = "external" and ingress.mode is not standalone,
+        [mediNix] reverseProxy = "external" and ingress.mode != "standalone",
         but services.caddy.enable is false.
-        External = the host daemon. Managed / ingress.mode = "standalone" = 511 caddy-media.
-        Fix: services.caddy.enable = true, or reverseProxy = "managed", or ingress.mode = "standalone".
+        External = host Caddy. managed / standalone = 511 caddy-media.
       '';
     }
     {
@@ -88,7 +84,6 @@ lib.mkIf cfg.enable {
       message = ''
         [mediNix] VPN/usenet confinement needs nftables; hostIntegration.nftables = "external"
         and networking.nftables.enable is false.
-        Enable nftables on the host or set hostIntegration.nftables = "managed".
       '';
     }
     {
@@ -98,16 +93,13 @@ lib.mkIf cfg.enable {
           && cfg.storage.backends ? cold)
         || (hasFs cfg.storage.backends.hot && hasFs cfg.storage.backends.cold);
       message = ''
-        [mediNix] storage is external with hot+cold backends, but fileSystems is missing
-        ${cfg.storage.backends.hot or "<hot>"} and/or ${cfg.storage.backends.cold or "<cold>"}.
-        Host mounts those paths, or set hostIntegration.storage = "managed".
+        [mediNix] external storage with hot+cold backends, but fileSystems is missing those paths.
       '';
     }
     {
       assertion = !cfg.vpn.enable || (config.networking.firewall.checkReversePath != true);
       message = ''
-        [mediNix] vpn.enable needs networking.firewall.checkReversePath != true (false or "loose").
-        Strict rp_filter drops WireGuard handshake on marked flows.
+        [mediNix] vpn.enable needs networking.firewall.checkReversePath != true.
       '';
     }
     {
