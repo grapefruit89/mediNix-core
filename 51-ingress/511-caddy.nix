@@ -12,6 +12,8 @@
 # Stock pkgs.caddy. TLS from 514. Sites from ingress.vhosts.
 # A vhost is live when the matching service is enabled, accessGroup != none,
 # and it has either a registry port (reverse_proxy) or customConfig (static).
+# Admin API stays on localhost so `systemctl reload` / ACME reloadServices work.
+# It is not published; firewall only opens 80/443.
 { lib, pkgs, config, ... }:
 
 let
@@ -63,6 +65,11 @@ let
       Referrer-Policy "strict-origin-when-cross-origin"
       -Server
     }
+  '';
+
+  globalOptions = ''
+    admin localhost:2019
+    auto_https off
   '';
 
   mkProxy = n: extra:
@@ -219,7 +226,7 @@ let
 
   caddyConfigStr = ''
     {
-      auto_https off
+      ${globalOptions}
     }
 
   '' + lib.concatMapStrings (e: ''
@@ -278,9 +285,7 @@ in lib.mkMerge [
       }
     ];
 
-    services.caddy.globalConfig = lib.mkIf useGlobal ''
-      auto_https off
-    '';
+    services.caddy.globalConfig = lib.mkIf useGlobal globalOptions;
 
     services.caddy.virtualHosts = lib.mkIf useGlobal (
       lib.listToAttrs (map (e: {
