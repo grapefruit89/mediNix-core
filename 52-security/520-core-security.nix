@@ -47,6 +47,18 @@ in {
         group = "media";
       };
 
+      assertions = [{
+        assertion =
+          (cfg.hostIntegration.firewall or "off") != "managed"
+          || config.networking.firewall.enable
+          || config.networking.nftables.enable;
+        message = ''
+          [mediNix] hostIntegration.firewall = managed only opens 80/443 lists.
+          It does not turn the host firewall on. Set networking.firewall.enable
+          or networking.nftables.enable, or set firewall = external|off.
+        '';
+      }];
+
       # Host may apply these. 520 does not write boot.kernel.sysctl itself
       # (additive host integration — README).
       medinix.recommended.sysctl = {
