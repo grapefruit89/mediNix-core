@@ -5,10 +5,10 @@
 # folder: 55-playback
 # status: active
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/navidrome.svg
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5530
 # ---
-# WAN stream. Logo: logos/navidrome.svg → 518 #navidrome.
 { config, lib, pkgs, ... }:
 
 let
