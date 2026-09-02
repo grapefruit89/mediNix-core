@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/prowlarr.svg
 # links: 
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
@@ -23,10 +24,6 @@
 # library: /websites/nixos_manual_nixos_unstable
 # ---
 # WARNING (CRITICAL): PROWLARR MUST NEVER GO THROUGH THE VPN!
-# Indexers heavily block, ban, or throw Captchas at known VPN IP addresses.
-# Routing Prowlarr through a VPN will break search and indexer sync.
-# DO NOT add services.vpnKillSwitch confinement to this file.
-
 { config, lib, pkgs, ... }:
 
 let
@@ -39,13 +36,11 @@ let
   gid = reg.gid;
   stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
-  # Prowlarr: only indexes, doesn't need SABnzbd directly (Arr fetch from it)
   } (mkService {
     name = "prowlarr";
     port = port;
