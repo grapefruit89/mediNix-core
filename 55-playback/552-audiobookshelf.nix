@@ -5,9 +5,10 @@
 # folder: 55-playback
 # status: active
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/audiobookshelf.svg
 # adr: ADR-5520
 # ---
-# WAN stream. App login. Logo: logos/audiobookshelf.svg → 518 #audiobookshelf.
+# WAN stream. App login.
 { config, lib, pkgs, ... }:
 
 let
