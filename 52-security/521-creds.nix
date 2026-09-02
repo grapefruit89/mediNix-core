@@ -37,12 +37,11 @@ let
     "sabnzbd.serverCredentialFile" = cfg.sabnzbd.serverCredentialFile or null;
     "dns.ddns.cloudflareTokenCredential" = cfg.dns.ddns.cloudflareTokenCredential or null;
     "dns.ddns.tokenCredential" = cfg.dns.ddns.tokenCredential or null;
-    "dns.ddns.tokenFile" = cfg.dns.ddns.tokenFile or null;
     "ingress.tls.acmeCredential" = cfg.ingress.tls.acmeCredential or null;
     "vpn.privateKeyCredentialPath" = cfg.vpn.privateKeyCredentialPath or null;
     "maintenance.backup.passwordCredentialPath" = cfg.maintenance.backup.passwordCredentialPath or null;
     "maintenance.backup.offsite.passwordCredentialPath" = cfg.maintenance.backup.offsite.passwordCredentialPath or null;
-    "observability.crowdsec.enrollKeyFile" = cfg.observability.crowdsec.enrollKeyFile or null;
+    "maintenance.backup.offsite.rcloneConfigFile" = cfg.maintenance.backup.offsite.rcloneConfigFile or null;
   };
 
   secretChecks = lib.mapAttrsToList check namedSecrets;
@@ -75,6 +74,13 @@ lib.mkIf cfg.enable {
       '';
     }
     {
+      assertion = (cfg.dns.ddns.tokenFile or null) == null;
+      message = ''
+        [mediNix] dns.ddns.tokenFile is rejected.
+        Seal the Cloudflare token and set acmeCredential or cloudflareTokenCredential.
+      '';
+    }
+    {
       assertion =
         !cfg.maintenance.backup.enable
         || (cfg.maintenance.backup.passwordCredentialPath != null
@@ -82,6 +88,23 @@ lib.mkIf cfg.enable {
       message = ''
         [mediNix] backup.enable needs passwordCredentialPath as a .encrypted/.cred blob.
         passwordFile is plaintext and is not accepted.
+      '';
+    }
+    {
+      assertion =
+        !(cfg.maintenance.backup.offsite.enable or false)
+        || ((cfg.maintenance.backup.offsite.passwordCredentialPath or null) != null
+            && creds.isSealedPath cfg.maintenance.backup.offsite.passwordCredentialPath);
+      message = ''
+        [mediNix] offsite.enable needs offsite.passwordCredentialPath as a sealed blob.
+      '';
+    }
+    {
+      assertion =
+        (cfg.maintenance.backup.passwordFile or "") == ""
+        && (cfg.maintenance.backup.offsite.passwordFile or "") == "";
+      message = ''
+        [mediNix] backup passwordFile paths are rejected. Use passwordCredentialPath.
       '';
     }
   ];
