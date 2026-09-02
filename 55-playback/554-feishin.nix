@@ -1,16 +1,11 @@
 # ---
 # id: "554-feishin"
-# title: "Feishin — static SPA (no process, no port)"
+# title: "Feishin — static SPA"
 # domain: 55
-# folder: 55-playback
-# status: active
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/feishin.svg
-# provides: ["feishin"]
-# requires: ["511-caddy"]
+# sprite: 50-core/icons.svg#feishin
 # adr: ADR-554
 # ---
-# WAN tile. Not stream: SPA only, media bytes come from Navidrome.
 { config, lib, pkgs, ... }:
 
 let
@@ -25,8 +20,6 @@ lib.mkIf cfg.enable {
 
   medinix.ingress.vhosts."feishin" = {
     accessGroup = "public";
-    landing = true;
-    iconId = "feishin";
     customConfig = ''
       root * ${pkgs.feishin-web}/share/feishin-web
       encode off
