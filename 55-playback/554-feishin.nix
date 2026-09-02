@@ -10,6 +10,7 @@
 # requires: ["511-caddy"]
 # adr: ADR-554
 # ---
+# WAN tile. Not stream: SPA only, media bytes come from Navidrome.
 { config, lib, pkgs, ... }:
 
 let
@@ -23,7 +24,7 @@ lib.mkIf cfg.enable {
   } ];
 
   medinix.ingress.vhosts."feishin" = {
-    accessGroup = "stream";
+    accessGroup = "public";
     landing = true;
     iconId = "feishin";
     customConfig = ''
