@@ -2,21 +2,17 @@
 # id: "518-landingpage"
 # title: "Family icon page — HTML organ of 511"
 # domain: 51
-# folder: 51-ingress
-# status: active
 # last_reviewed: 2026-09-02
-# provides: ["landing-html"]
-# requires: ["511-caddy"]
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/nixos.svg
 # adr: ADR-5180
 # ---
-# Tiles = landing=true + accessGroup in stream|public|idp.
-# Icon: <use href="/icons.svg#id">. id = vhost.iconId or the vhost name.
-# Sprite pinned from grapefruit89/logorepo.
+# WAN tiles: accessGroup stream|public and landing=true.
+# internal never tiles. idp (Pocket-ID) is WAN-login, not a family icon.
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix;
-  wanGroups = [ "stream" "public" "idp" ];
+  wanGroups = [ "stream" "public" ];
 
   tiles = lib.filterAttrs (_n: vhost:
     (vhost.landing or false)
@@ -91,10 +87,7 @@ in {
       options.iconId = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = ''
-          logorepo symbol id (logos/<id>.svg). Empty = the vhost attribute name.
-          Source: github.com/grapefruit89/logorepo.
-        '';
+        description = "logorepo id. Empty = vhost name.";
       };
     });
   };
