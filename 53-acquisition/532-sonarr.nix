@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg
 # links: 
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
@@ -37,14 +38,11 @@ let
   gid = reg.gid;
   stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
 
-  # Factory: dotnet profile (MemoryDenyWriteExecute=false, internet-Policy)
-  # allowedPeers: Sonarr needs SABnzbd (Download) + Prowlarr (Indexer)
   } (mkService {
     name = "sonarr";
     port = port;
@@ -54,8 +52,8 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     profile = "dotnet";
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
-      User           = "sonarr";  # Factory sets User=name, here redundant but safe
-      UMask          = "0002";     # Arr-Stack needs 002 for group write permissions
+      User           = "sonarr";
+      UMask          = "0002";
       ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
     };
   })
@@ -81,7 +79,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
           instanceName = "Sonarr";
         };
         log.level        = "info";
-        update.mechanism = "BuiltIn";  # Nix manages Updates, not the App
+        update.mechanism = "BuiltIn";
       })
     ];
   };
