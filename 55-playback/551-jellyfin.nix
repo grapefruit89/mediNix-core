@@ -8,6 +8,7 @@
 # WAN stream + app login. Bind is systemd SocketBindAllow=127.0.0.1 in
 # the dotnet-gpu profile — not a network.xml we do not ship.
 # mediaRoot is BindReadOnlyPaths. Writes: state, metadata, /transcode tmpfs.
+# Logo: logos/jellyfin.svg → 518 #jellyfin.
 { config, lib, pkgs, ... }:
 
 let
@@ -91,15 +92,7 @@ lib.mkIf cfg.enable {
   medinix.ingress.vhosts."jellyfin" = {
     accessGroup = "stream";
     landing = true;
-    iconSvg = ''
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 82 82">
-        <linearGradient id="a" x1="17" x2="77" y1="33" y2="66" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#aa5cc3"/>
-          <stop offset="1" stop-color="#00a4dc"/>
-        </linearGradient>
-        <path fill="url(#a)" fill-rule="evenodd" d="M5 68C1 59 31 3 41 3s40 56 36 65c-5 9-67 9-72 0m13-8c3 6 43 6 46 0S47 17 41 17 15 54 18 60m11-8c-1-3 9-21 12-21s13 18 12 21c-2 3-22 3-24 0"/>
-      </svg>
-    '';
+    iconId = "jellyfin";
   };
 
   hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
