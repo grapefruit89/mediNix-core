@@ -1,6 +1,6 @@
 # 510 — Attach a service to Caddy, Pocket ID and the landing page
 
-How-to for domain **51-ingress**. File id `510` sits in front of the organs 511–518. Domain 50 is core (options, factory), not this guide.
+How-to for domain **51-ingress**. File id `510` sits in front of the organs 511–518.
 
 511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `lib/registry.nix` entry.
 
@@ -12,70 +12,57 @@ Template: [`510-service.example.nix`](510-service.example.nix)
 2. Copy a service module; add `enable` in the options module if it does not exist yet.
 3. Inside `lib.mkIf cfg.enable`:
    - bind the process to `127.0.0.1:<port>`
-   - set `medinix.ingress.vhosts."<name>"`
+   - set `medinix.ingress.vhosts."<name>".accessGroup`
 4. On the host: `medinix.<name>.enable = true;`
 5. **Do not** edit 511, 513, 515 or 518.
 
-## vHost fields
+## vHost — that is the whole contract
 
 ```nix
 medinix.ingress.vhosts."seerr" = {
-  accessGroup = "public";   # stream | internal | public | idp | none
-  landing     = true;
-  iconSvg     = ''<svg …></svg>'';
+  accessGroup = "public";   # stream | public | internal | idp | none
 };
 ```
 
-| Field | Effect |
-| --- | --- |
-| `accessGroup` | 511 template (see below) |
-| `landing = true` and `iconSvg != ""` | tile on `https://{domain}` and `http://home.local` |
-| otherwise | no tile, no fallback icon |
-| `dns.hostnames.<name>` | public label; default is the registry key |
+| `accessGroup` | Internet | Family tile |
+| --- | --- | --- |
+| `stream` | WAN, no Caddy SSO, fat media | yes |
+| `public` | WAN, forward_auth when on | yes |
+| `idp` | WAN login (Pocket-ID only) | no |
+| `internal` / `none` | not WAN | no |
 
-## accessGroup
+518 is only the renderer. `stream` or `public` on the service module is enough. Set `landing = false` to hide a WAN app from the icon page.
+
+## Sprite
+
+Repo file: `50-core/icons.svg` (copy of logorepo `dist/icons.svg`).
+Caddy URL: `/icons.svg`
+
+```html
+<use href="/icons.svg#{service}"></use>
+```
+
+`{service}` is the vhost key. `logos/sonarr.svg` is the source drawing, not the sprite. Do not `<use>` a jsDelivr URL (CORS). Do not open the GitHub blob page as an image.
+
+## accessGroup detail
 
 | Group | HTTPS `{name}.{domain}` | Auth | `.local` |
 | --- | --- | --- |
-| `stream` | yes, no compression | never | HTTP, no auth, no abort |
-| `internal` | yes, abort outside `trustedCidrs` | never | same |
-| `public` | yes, compression | `forward_auth` when enabled host-wide | same |
-| `idp` | yes, no abort | never (deadlock shield) | same |
+| `stream` | yes, no compression | never | HTTP + CIDR abort |
+| `internal` | yes, abort outside `trustedCidrs` | never | same abort |
+| `public` | yes | `forward_auth` when enabled | CIDR abort |
+| `idp` | yes, no abort | never | CIDR abort |
 | `none` | no vhost | — | no vhost |
 
-`.local` never gets TLS, forward-auth or a WAN abort.
-
-## Pocket ID — once per host, not per service
+## Pocket ID — once per host
 
 ```nix
 medinix.pocketId.enable = true;
-medinix.pocketId.exposure = "idp";          # login UI at pocket-id.{domain}
+medinix.pocketId.exposure = "idp";
 medinix.ingress.auth.mode = "forward-auth";
-# empty forwardAuthUpstream → 127.0.0.1:<pocket-id-port>
 ```
 
-511 then puts the auth wall only on `accessGroup = "public"`. `stream`, `internal`, `idp` and `.local` stay open.
-
-External proxy instead of Pocket ID:
-
-```nix
-medinix.ingress.auth.mode = "forward-auth";
-medinix.ingress.authProxyPresent = true;
-medinix.ingress.auth.forwardAuthUpstream = "127.0.0.1:4180";
-# leave pocketId.enable = false
-```
-
-`skipPaths` (health checks without login) go on the vhost or under `ingress.auth.skipPaths`.
-
-## Landing page
-
-518 only reads vhosts. A tile exists exactly when the service module sets `landing = true` and an SVG — see `555-seerr.nix`.
-
-```nix
-medinix.ingress.landing.enable = true;   # default
-```
-
-No entry in 518, no icon map, no `preferred` list.
+511 puts the auth wall only on `public`. `stream` stays App-Login.
 
 ## Host setup (once)
 
@@ -84,17 +71,9 @@ medinix.enable = true;
 medinix.domain = "example.tld";
 medinix.ingress.enable = true;
 medinix.ingress.tls.acmeHost = "example.tld";
-medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";  # systemd credential, KEY=value
+medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";
 ```
-
-DNS (513) and mDNS (515) take names from the same vhost set. A new program is a new vhost, not an edit to 513 or 515.
 
 ## Anti-pattern
 
-Do not do this:
-
-```nix
-services.caddy.virtualHosts."foo.example.tld".extraConfig = "…";
-```
-
-That bypasses the engine (554-feishin still does). Register a vhost and let 511 render it. Feishin needs a later `static` template because it is not a `reverse_proxy`.
+Do not write `services.caddy.virtualHosts` by hand. Register a vhost; 511 renders it.
