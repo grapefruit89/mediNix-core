@@ -8,8 +8,7 @@
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5530
 # ---
-# WAN stream vhost. Login is Navidrome users. No Pocket-ID OIDC unless the
-# host sets secrets.navidromeOidcFile *and* wires it — this module does not.
+# WAN stream. Logo: logos/navidrome.svg → 518 #navidrome.
 { config, lib, pkgs, ... }:
 
 let
@@ -61,11 +60,6 @@ lib.mkIf cfg.enable {
   medinix.ingress.vhosts."navidrome" = {
     accessGroup = "stream";
     landing = true;
-    iconSvg = ''
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-        <circle cx="256" cy="256" r="245.5" fill="#0084ff" stroke="#000" stroke-width="21"/>
-        <circle cx="256" cy="256" r="87.8" fill="#fff" stroke="#000" stroke-width="20"/>
-      </svg>
-    '';
+    iconId = "navidrome";
   };
 }
