@@ -4,42 +4,16 @@
 # domain: 50
 # folder: 51-ingress
 # status: active
-# complexity: 4
-# last_reviewed: 2026-09-01
-# links:
+# last_reviewed: 2026-09-02
 # provides: ["ddns", "cloudflare"]
 # requires: ["lib/service-factory"]
-# ports: []
-# upstream_docs: ["https://developers.cloudflare.com/dns/"]
-# forum_links: []
-# upstream_github: ""
-# nixpkgs_attr: ""
-# state_dir: "/var/lib/cloudflare-ddns"
-# uds_socket: false
-# systemd_hardened: true
 # adr: ADR-5130
 # ---
-# 51-ingress/513-cloudflare-dns.nix — Cloudflare anchor DDNS (organ of 511)
-#
-# 513 is as dumb as 518: it does not know program names.
-# Service modules register ingress.vhosts.<name>. 513 reads that attrset
-# and the optional dns.hostnames alias map. Nothing else.
-#
-# Public zone model (exactly four managed records, proxied=false):
-#   wan.{zone}  A      current WAN IP
-#   lan.{zone}  A      current LAN IP
-#   *.{zone}    CNAME  wan.{zone}
-#   {zone}      CNAME  wan.{zone}
-#
-# Dedicated per-service A/AAAA/CNAME records are pruned so the wildcard owns
-# the name. Foreign records (matrix, mailbox, _acme-challenge, …) are never
-# in ingress.vhosts and are therefore never touched.
-#
-# Token priority — same order as 514:
+# Same token source as 514. No plaintext tokenFile.
 #   1. ingress.tls.acmeCredential
 #   2. dns.ddns.cloudflareTokenCredential
 #   3. dns.ddns.tokenCredential
-#   4. dns.ddns.tokenFile
+# Loaded as cf-ddns-token. File is the token or KEY=value.
 { lib, pkgs, config, ... }:
 
 let
@@ -51,9 +25,6 @@ let
   vhosts = cfg.ingress.vhosts or {};
   aliases = cfg.dns.hostnames or {};
 
-  # Declared ingress names plus their aliases. No registry lookup, no
-  # enable-filter, no accessGroup-filter, no program-name special cases.
-  # A disabled service still must not leave a dedicated DNS record behind.
   ownedLabels = lib.unique (
     lib.attrNames vhosts
     ++ lib.attrValues aliases
@@ -76,27 +47,24 @@ let
     else if ddns.tokenCredential             != null then ddns.tokenCredential
     else null;
 
-  plainTokenFile =
-    if credPath == null && ddns.tokenFile != null then ddns.tokenFile
-    else null;
-
 in
 lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
   assertions = [
     {
-      assertion = credPath != null || plainTokenFile != null;
+      assertion = credPath != null;
       message = ''
-        [mediNix] DDNS is enabled but no token is provided.
-
-        [AI/Admin Context]
-        Reason: 513 updates wan/lan anchors via the Cloudflare API.
-        Accepted sources (first wins, same order as 514):
-          1. ingress.tls.acmeCredential
-          2. dns.ddns.cloudflareTokenCredential
-          3. dns.ddns.tokenCredential
-          4. dns.ddns.tokenFile
-        Ref: ADR-5130 / ADR-5140
+        [mediNix] DDNS is on but no Cloudflare credential was set.
+        Use ingress.tls.acmeCredential or dns.ddns.cloudflareTokenCredential.
+        dns.ddns.tokenFile is not accepted. Same file as 514. Ref: ADR-5130.
+      '';
+    }
+    {
+      assertion = (ddns.tokenFile or null) == null;
+      message = ''
+        [mediNix] dns.ddns.tokenFile is rejected. Seal the token with
+        systemd-creds and point acmeCredential / cloudflareTokenCredential
+        at the .cred blob.
       '';
     }
     {
@@ -116,8 +84,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
-        LoadCredentialEncrypted = lib.mkIf (credPath != null)
-          "cf-ddns-token:${credPath}";
+        LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
       };
     })
     {
@@ -128,8 +95,6 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
       path = [ pkgs.curl pkgs.jq pkgs.iproute2 pkgs.gawk pkgs.gnugrep ];
 
-      environment.CF_API_TOKEN_FILE = lib.mkIf (plainTokenFile != null) plainTokenFile;
-
       script = ''
         set -euo pipefail
 
@@ -138,14 +103,11 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         STATE_FILE="/var/lib/cloudflare-ddns/state.json"
         SCHEMA="anchor-v1"
 
-        if [ -n "''${CREDENTIALS_DIRECTORY:-}" ] && [ -f "$CREDENTIALS_DIRECTORY/cf-ddns-token" ]; then
-          TOKEN_FILE="$CREDENTIALS_DIRECTORY/cf-ddns-token"
-        elif [ -n "''${CF_API_TOKEN_FILE:-}" ] && [ -f "$CF_API_TOKEN_FILE" ]; then
-          TOKEN_FILE="$CF_API_TOKEN_FILE"
-        else
-          echo "FATAL: Cloudflare API token not found." >&2
+        if [ -z "''${CREDENTIALS_DIRECTORY:-}" ] || [ ! -f "$CREDENTIALS_DIRECTORY/cf-ddns-token" ]; then
+          echo "FATAL: sealed cf-ddns-token missing." >&2
           exit 1
         fi
+        TOKEN_FILE="$CREDENTIALS_DIRECTORY/cf-ddns-token"
 
         if grep -q "^CF_DNS_API_TOKEN=" "$TOKEN_FILE"; then
           TOKEN=$(grep "^CF_DNS_API_TOKEN=" "$TOKEN_FILE" | cut -d'=' -f2-)
@@ -299,9 +261,3 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
     createHome = true;
   };
 }
-
-# Gold-Standard (ADR-5130):
-# - Four public records only; grey cloud; Caddy is the access boundary
-# - Prune list = attrNames vhosts + dns.hostnames values. No program names.
-# - Never touch wan/lan/@/*/_acme-challenge or MX/TXT/NS/SRV
-# - Token order identical to 514; every timer run reconciles
