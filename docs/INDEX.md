@@ -53,6 +53,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5000 secret management](adr/ADR-52-secret-management.md)
 - [ADR 5200 ssh port policy](adr/ADR-52-ssh-port-policy.md)
 - [ADR 5050 systemd hardening baseline](adr/ADR-52-systemd-hardening-baseline.md)
+- [ADR-5260-killswitch-observability.md](adr/ADR-5260-killswitch-observability.md)
 - [VPN Kill-Switch Architecture (Policy Routing)](adr/ADR-5260-vpn-killswitch.md)
 - [ADR 5320 sonarr series management](adr/ADR-53-sonarr-series-management.md)
 - [ADR 5520 audiobookshelf port framework](adr/ADR-55-audiobookshelf-port-framework.md)
