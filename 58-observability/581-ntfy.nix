@@ -1,23 +1,15 @@
 # ---
 # id: "581-ntfy"
-# title: "ntfy.sh - Push Notifications for Arr-Stack + Jellyfin (58-observability, Service 581)"
+# title: "ntfy — internal notification backend"
 # domain: 58
 # folder: 58-observability
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-25
-# links: 
-# provides: []
+# last_reviewed: 2026-09-02
 # requires: ["lib/hardening-profiles", "lib/registry"]
-# ports: []
-# upstream_docs: []
-# forum_links: []
-# upstream_github: ""
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
 # systemd_hardened: true
 # ---
+# Loopback only. accessGroup=internal. ntfy itself is read-write; Caddy is the wall.
 { config, lib, pkgs, ... }:
 
 let
@@ -30,13 +22,21 @@ let
   gid = reg.gid;
   stateDir = reg.stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  ntfyGroup = svc.ingress.vhosts.ntfy.accessGroup or "internal";
 in lib.mkIf cfg.enable {
+  assertions = [{
+    assertion = !lib.elem ntfyGroup [ "public" "stream" "idp" ];
+    message = ''
+      [mediNix] ntfy is an internal backend. accessGroup must stay internal or none.
+      auth-default-access is read-write. WAN exposure would be unauthenticated.
+    '';
+  }];
+
   users.users.ntfy = {
     uid = uid; group = "media"; extraGroups = [ "media" ];
     home = stateDir; isSystemUser = true;
   };
 
-  # Protect SSD with tmpfs for ntfy state
   systemd.mounts = [{
     what = "tmpfs";
     where = stateDir;
@@ -51,8 +51,7 @@ in lib.mkIf cfg.enable {
       listen-http = "127.0.0.1:${toString port}";
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
-      # Enforce auth if public, otherwise rely on VPN
-      auth-default-access = "read-write"; # TODO: Implement Auth / Role-based access control
+      auth-default-access = "read-write";
     };
   };
 
