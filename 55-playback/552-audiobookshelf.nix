@@ -8,11 +8,13 @@
 # adr: ADR-5520
 # ---
 # WAN stream vhost. Users log into ABS itself. No Pocket-ID / Caddy SSO.
+# Library tree is read-only. Metadata/state stay writable.
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix.audiobookshelf;
   svc = config.medinix;
+  creds = import ../lib/creds.nix { inherit lib; };
   port = 5520;
   uid = 5520;
   gid = 5000;
@@ -39,7 +41,9 @@ lib.mkIf cfg.enable {
         Group = "media";
         UMask = "0002";
         StateDirectory = "audiobookshelf-${toString port}";
-        ReadWritePaths = [ stateDir metadataDir "${svc.storage.mediaRoot}/audiobooks" ];
+        ReadWritePaths = [ stateDir metadataDir ];
+        BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/audiobooks:${svc.storage.mediaRoot}/audiobooks" ];
+        InaccessiblePaths = [ creds.storeDir ];
       }
     ];
     environment = {
