@@ -5,6 +5,7 @@
 # folder: 51-ingress
 # status: active
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/acme.svg
 # provides: ["acme", "tls"]
 # adr: ADR-514
 # ---
