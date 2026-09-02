@@ -3,12 +3,10 @@
 # title: "Jellyfin — Media Playback"
 # domain: 55
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/jellyfin.svg
+# sprite: 50-core/icons.svg#jellyfin
 # adr: ADR-551
 # ---
-# WAN stream + app login. Bind is systemd SocketBindAllow=127.0.0.1 in
-# the dotnet-gpu profile — not a network.xml we do not ship.
-# mediaRoot is BindReadOnlyPaths. Writes: state, metadata, /transcode tmpfs.
+# WAN stream + app login. 518 tiles this because accessGroup = stream.
 { config, lib, pkgs, ... }:
 
 let
@@ -89,11 +87,7 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."jellyfin" = {
-    accessGroup = "stream";
-    landing = true;
-    iconId = "jellyfin";
-  };
+  medinix.ingress.vhosts."jellyfin" = { accessGroup = "stream"; };
 
   hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
     enable = true;
