@@ -1,24 +1,15 @@
 # ---
 # id: "551-jellyfin"
-# title: "Jellyfin — Media Playback (55-playback, Service 551)"
+# title: "Jellyfin — Media Playback"
 # domain: 55
 # folder: 55-playback
 # status: active
-# complexity: 4
 # last_reviewed: 2026-09-02
-# links: https://jellyfin.org/
 # provides: ["jellyfin"]
-# requires: ["lib/hardening-profiles"]
-# ports: [5510]
-# upstream_docs: [https://jellyfin.org/docs/]
-# forum_links: []
-# upstream_github: "https://github.com/jellyfin/jellyfin"
-# nixpkgs_attr: ""
-# state_dir: "/var/lib/jellyfin-5510"
-# uds_socket: false
-# systemd_hardened: true
 # adr: ADR-551
 # ---
+# WAN via 511 accessGroup=stream (family). Gate is Jellyfin users, not Caddy
+# forward_auth. Pocket-ID SSO is not wired — Jellyfin clients break on it.
 { config, lib, pkgs, ... }:
 
 let
@@ -36,6 +27,17 @@ let
     else null;
 in
 lib.mkIf cfg.enable {
+  assertions = [
+    {
+      assertion = adminCred != null;
+      message = ''
+        [mediNix] jellyfin is on the WAN stream vhost. Set
+        medinix.jellyfin.adminPasswordCredential (or adminPasswordFile)
+        to a systemd-creds blob. No default admin. No Pocket-ID SSO.
+      '';
+    }
+  ];
+
   users.users.jellyfin = {
     uid = uid;
     group = "media";
