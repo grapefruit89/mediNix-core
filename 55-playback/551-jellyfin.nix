@@ -7,11 +7,13 @@
 # ---
 # WAN stream + app login. Bind is systemd SocketBindAllow=127.0.0.1 in
 # the dotnet-gpu profile — not a network.xml we do not ship.
+# mediaRoot is BindReadOnlyPaths. Writes: state, metadata, /transcode tmpfs.
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix.jellyfin;
   svc = config.medinix;
+  creds = import ../lib/creds.nix { inherit lib; };
   port = 5510;
   uid = 5510;
   gid = 5000;
@@ -60,6 +62,7 @@ lib.mkIf cfg.enable {
         StateDirectory = "jellyfin-${toString port}";
         ReadWritePaths = [ stateDir metadataDir ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
+        InaccessiblePaths = [ creds.storeDir ];
         TemporaryFileSystem = "/transcode:size=4G";
         RuntimeDirectory = "jellyfin-transcode";
         LoadCredentialEncrypted = lib.mkIf (adminCred != null) [
