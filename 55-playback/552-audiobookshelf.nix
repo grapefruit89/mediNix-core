@@ -7,8 +7,7 @@
 # last_reviewed: 2026-09-02
 # adr: ADR-5520
 # ---
-# WAN stream vhost. Users log into ABS itself. No Pocket-ID / Caddy SSO.
-# Library tree is read-only. Metadata/state stay writable.
+# WAN stream. App login. Logo: logos/audiobookshelf.svg → 518 #audiobookshelf.
 { config, lib, pkgs, ... }:
 
 let
@@ -57,10 +56,6 @@ lib.mkIf cfg.enable {
   medinix.ingress.vhosts."audiobookshelf" = {
     accessGroup = "stream";
     landing = true;
-    iconSvg = ''
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-        <circle cx="255.5" cy="256" r="247.4" fill="#cd9d49" stroke="#f0f0f8" stroke-width="16"/>
-      </svg>
-    '';
+    iconId = "audiobookshelf";
   };
 }
