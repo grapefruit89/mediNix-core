@@ -4,16 +4,14 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
-# complexity: 2
 # last_reviewed: 2026-09-02
 # provides: ["landing-html"]
 # requires: ["511-caddy"]
 # adr: ADR-5180
 # ---
 # Tiles = landing=true + accessGroup in stream|public|idp.
-# Icon markup is <use href="/icons.svg#id">. id = vhost.iconId or the vhost name.
-# Sprite: grapefruit89/logorepo dist/icons.svg (filename == symbol id).
-# 518 does not embed path data. 511 file_server's this directory.
+# Icon: <use href="/icons.svg#id">. id = vhost.iconId or the vhost name.
+# Sprite pinned from grapefruit89/logorepo.
 { config, lib, pkgs, ... }:
 
 let
@@ -74,7 +72,6 @@ let
     </html>
   '';
 
-  # Pin the logorepo commit so eval is reproducible. Bump when logos change.
   iconsSvg = pkgs.fetchurl {
     url = "https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@7172697e434ff45ba9d2b2374e32919486cb545e/dist/icons.svg";
     hash = "sha256-qisWUumOeQ6NM/+UeIx04sP+DB0EMgjq9BZRcvMAfyg=";
@@ -89,12 +86,20 @@ let
   '';
 
 in {
+  options.medinix.ingress.vhosts = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.submodule {
+      options.iconId = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = ''
+          logorepo symbol id (logos/<id>.svg). Empty = the vhost attribute name.
+          Source: github.com/grapefruit89/logorepo.
+        '';
+      };
+    });
+  };
+
   config = lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.ingress.landing.enable) {
     medinix.ingress.landing.root = landingRoot;
   };
 }
-
-# Gold-Standard (ADR-5180):
-# - Tile = landing + WAN accessGroup. iconId defaults to the vhost name.
-# - Logos: github.com/grapefruit89/logorepo. Add logos/<name>.svg there.
-# - 511 serves landing.root (index.html + icons.svg).
