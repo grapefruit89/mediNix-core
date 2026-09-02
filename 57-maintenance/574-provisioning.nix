@@ -47,7 +47,20 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           (lib.optional cfg.sabnzbd.enable (cred "sabnzbd-apikey" cfg.secrets.sabnzbdApiKeyFile))
           (lib.optional cfg.seerr.enable (cred "seerr-apikey" cfg.secrets.seerrApiKeyFile))
         ];
-        ExecStart = "${arrProv}/bin/arr-provision-all";
+        ExecStart = pkgs.writeShellScript "run-arr-provision" ''
+          set -euo pipefail
+          ${arrProv}/bin/arr-sync-keys
+          ${arrProv}/bin/arr-sync-settings
+          ${arrProv}/bin/arr-sync-download-clients
+          ${arrProv}/bin/arr-sync-prowlarr
+          if [ "$SYNC_JELLYFIN" = "1" ]; then
+            ${arrProv}/bin/arr-sync-jellyfin
+          fi
+          if [ "$SYNC_SEERR" = "1" ]; then
+            ${arrProv}/bin/arr-sync-seerr
+          fi
+          touch "$FLAG_FILE"
+        '';
       }
     ];
     environment = {
