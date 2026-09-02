@@ -5,11 +5,11 @@
 # folder: 55-playback
 # status: active
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/seerr.svg
 # provides: ["seerr"]
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5610
 # ---
-# Logo: logos/seerr.svg in grapefruit89/logorepo → 518 #seerr.
 { config, lib, pkgs, ... }:
 
 let
