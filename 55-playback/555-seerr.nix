@@ -9,6 +9,7 @@
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5610
 # ---
+# Logo: logos/seerr.svg in grapefruit89/logorepo → 518 #seerr.
 { config, lib, pkgs, ... }:
 
 let
@@ -64,12 +65,6 @@ lib.mkIf cfg.enable {
   medinix.ingress.vhosts."seerr" = {
     accessGroup = "public";
     landing = true;
-    iconSvg = ''
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
-        <circle cx="48" cy="48" r="48" fill="#4f65f5"/>
-        <circle cx="52" cy="52" r="28" fill="#131928"/>
-        <circle cx="38" cy="38" r="14" fill="#c395fc"/>
-      </svg>
-    '';
+    iconId = "seerr";
   };
 }
