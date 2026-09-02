@@ -18,6 +18,8 @@ pkgs.writeShellApplication {
     PROBLEMS_FILE=$(mktemp)
     echo "0" > "$PROBLEMS_FILE"
     add_problem() { echo $(($(cat "$PROBLEMS_FILE") + 1)) > "$PROBLEMS_FILE"; }
+    cmd=help
+    if [ "$#" -ge 1 ]; then cmd="$1"; fi
 
     cmd_check() {
       echo "[CHECK] Services"
@@ -81,8 +83,6 @@ pkgs.writeShellApplication {
       ls -l /var/lib/medinix/secrets/*.encrypted 2>/dev/null || echo "none"
     }
 
-    cmd=$1
-    if [ -z "$cmd" ]; then cmd=help; fi
     if [ "$cmd" = check ]; then cmd_check
     elif [ "$cmd" = repair ]; then cmd_repair
     elif [ "$cmd" = status ]; then cmd_status
