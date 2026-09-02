@@ -15,37 +15,40 @@ let
   cfg = config.medinix;
   creds = import ../lib/creds.nix { inherit lib; };
   check = creds.check;
+  notMedia = creds.checkNotUnderMedia (cfg.storage.mediaRoot or null);
   sealed = name: "${creds.storeDir}/${name}.encrypted";
 
   hostCreds = lib.mapAttrsToList (n: p: check "host.credentials.${n}" p) (cfg.host.credentials or {});
 
-  secretChecks = [
-    (check "secrets.arrApiKeyFile" cfg.secrets.arrApiKeyFile)
-    (check "secrets.sonarrApiKeyFile" cfg.secrets.sonarrApiKeyFile)
-    (check "secrets.radarrApiKeyFile" cfg.secrets.radarrApiKeyFile)
-    (check "secrets.prowlarrApiKeyFile" cfg.secrets.prowlarrApiKeyFile)
-    (check "secrets.lidarrApiKeyFile" cfg.secrets.lidarrApiKeyFile)
-    (check "secrets.readarrApiKeyFile" cfg.secrets.readarrApiKeyFile)
-    (check "secrets.seerrApiKeyFile" cfg.secrets.seerrApiKeyFile)
-    (check "secrets.sabnzbdApiKeyFile" cfg.secrets.sabnzbdApiKeyFile)
-    (check "secrets.jellyfinAdminPasswordFile" cfg.secrets.jellyfinAdminPasswordFile)
-    (check "secrets.navidromeOidcFile" cfg.secrets.navidromeOidcFile)
-    (check "secrets.seerrEnvFile" cfg.secrets.seerrEnvFile)
-    (check "jellyfin.adminPasswordFile" (cfg.jellyfin.adminPasswordFile or null))
-    (check "jellyfin.adminPasswordCredential" (cfg.jellyfin.adminPasswordCredential or null))
-    (check "sabnzbd.serverCredentialFile" (cfg.sabnzbd.serverCredentialFile or null))
-    (check "dns.ddns.cloudflareTokenCredential" (cfg.dns.ddns.cloudflareTokenCredential or null))
-    (check "dns.ddns.tokenCredential" (cfg.dns.ddns.tokenCredential or null))
-    (check "dns.ddns.tokenFile" (cfg.dns.ddns.tokenFile or null))
-    (check "ingress.tls.acmeCredential" (cfg.ingress.tls.acmeCredential or null))
-    (check "vpn.privateKeyCredentialPath" (cfg.vpn.privateKeyCredentialPath or null))
-    (check "maintenance.backup.passwordCredentialPath" (cfg.maintenance.backup.passwordCredentialPath or null))
-    (check "maintenance.backup.offsite.passwordCredentialPath" (cfg.maintenance.backup.offsite.passwordCredentialPath or null))
-    (check "observability.crowdsec.enrollKeyFile" (cfg.observability.crowdsec.enrollKeyFile or null))
-  ];
+  namedSecrets = {
+    "secrets.arrApiKeyFile" = cfg.secrets.arrApiKeyFile;
+    "secrets.sonarrApiKeyFile" = cfg.secrets.sonarrApiKeyFile;
+    "secrets.radarrApiKeyFile" = cfg.secrets.radarrApiKeyFile;
+    "secrets.prowlarrApiKeyFile" = cfg.secrets.prowlarrApiKeyFile;
+    "secrets.lidarrApiKeyFile" = cfg.secrets.lidarrApiKeyFile;
+    "secrets.readarrApiKeyFile" = cfg.secrets.readarrApiKeyFile;
+    "secrets.seerrApiKeyFile" = cfg.secrets.seerrApiKeyFile;
+    "secrets.sabnzbdApiKeyFile" = cfg.secrets.sabnzbdApiKeyFile;
+    "secrets.jellyfinAdminPasswordFile" = cfg.secrets.jellyfinAdminPasswordFile;
+    "secrets.navidromeOidcFile" = cfg.secrets.navidromeOidcFile;
+    "secrets.seerrEnvFile" = cfg.secrets.seerrEnvFile;
+    "jellyfin.adminPasswordFile" = cfg.jellyfin.adminPasswordFile or null;
+    "jellyfin.adminPasswordCredential" = cfg.jellyfin.adminPasswordCredential or null;
+    "sabnzbd.serverCredentialFile" = cfg.sabnzbd.serverCredentialFile or null;
+    "dns.ddns.cloudflareTokenCredential" = cfg.dns.ddns.cloudflareTokenCredential or null;
+    "dns.ddns.tokenCredential" = cfg.dns.ddns.tokenCredential or null;
+    "dns.ddns.tokenFile" = cfg.dns.ddns.tokenFile or null;
+    "ingress.tls.acmeCredential" = cfg.ingress.tls.acmeCredential or null;
+    "vpn.privateKeyCredentialPath" = cfg.vpn.privateKeyCredentialPath or null;
+    "maintenance.backup.passwordCredentialPath" = cfg.maintenance.backup.passwordCredentialPath or null;
+    "maintenance.backup.offsite.passwordCredentialPath" = cfg.maintenance.backup.offsite.passwordCredentialPath or null;
+    "observability.crowdsec.enrollKeyFile" = cfg.observability.crowdsec.enrollKeyFile or null;
+  };
+
+  secretChecks = lib.mapAttrsToList check namedSecrets;
+  mediaChecks = lib.mapAttrsToList notMedia namedSecrets;
 in
 lib.mkIf cfg.enable {
-  # Win over option defaults under /var/lib/media-secrets/ (plaintext leftovers).
   medinix.secrets = {
     secretsDir = lib.mkDefault creds.storeDir;
     arrApiKeyFile = lib.mkDefault (sealed "arr-apikey");
@@ -62,7 +65,8 @@ lib.mkIf cfg.enable {
     autoGenerate = lib.mkDefault false;
   };
 
-  assertions = secretChecks ++ hostCreds ++ [
+  assertions = secretChecks ++ mediaChecks ++ hostCreds ++ [
+    (notMedia "secrets.secretsDir" cfg.secrets.secretsDir)
     {
       assertion = !(cfg.secrets.autoGenerate or false);
       message = ''
