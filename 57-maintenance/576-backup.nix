@@ -4,16 +4,11 @@
 # domain: 57
 # folder: 57-maintenance
 # status: active
-# complexity: 4
 # last_reviewed: 2026-09-02
 # provides: ["backup"]
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-576
 # ---
-# Class A2 only: service state + secretsDir.
-# Class B (cache/transcode/incomplete) excluded by name, not by three hard paths.
-# Class C (mediaRoot) is not in `paths`.
-# Class A1 (photos/docs) is host scope, not this flake.
 { config, lib, pkgs, ... }:
 
 let
@@ -27,13 +22,11 @@ let
     else if name == "caddy" then cfg.ingress.enable or false
     else cfg.${name}.enable or false;
 
-  # Units with a state dir that belong in the snapshot.
   stateful = lib.filterAttrs (_: s: s.stateDir != null) registry.services;
   enabledStateful = lib.filterAttrs (n: _: optEnable n) stateful;
 
   mediaStateDirs = lib.mapAttrsToList (_: s: s.stateDir) enabledStateful;
 
-  # Freeze writers so SQLite is consistent. Leave Caddy up (edge stays live).
   stoppable = lib.filterAttrs (n: _: n != "caddy") enabledStateful;
   mediaServices = lib.mapAttrsToList (_: s: "${s.unitName}.service") stoppable;
 
@@ -62,17 +55,11 @@ let
     '';
   };
 
-  primaryUsesCreds = bkp.passwordCredentialPath != null;
   primaryPasswordFile =
-    if primaryUsesCreds
-    then "/run/credentials/restic-backups-mediNix.service/restic-password"
-    else bkp.passwordFile;
+    "/run/credentials/restic-backups-mediNix.service/restic-password";
 
-  offsiteUsesCreds = bkp.offsite.passwordCredentialPath != null;
   offsitePasswordFile =
-    if offsiteUsesCreds
-    then "/run/credentials/mediNix-backup-offsite-copy.service/restic-password-offsite"
-    else bkp.offsite.passwordFile;
+    "/run/credentials/mediNix-backup-offsite-copy.service/restic-password-offsite";
 
   ntfyPort = registry.services.ntfy.port;
   ntfyUrl = "http://127.0.0.1:${toString ntfyPort}/${cfg.observability.ntfy.topic or "mediNix-backup"}";
@@ -122,10 +109,10 @@ lib.mkIf (cfg.enable && bkp.enable) {
       '';
     }
     {
-      assertion = bkp.passwordCredentialPath != null || bkp.passwordFile != "";
+      assertion = bkp.passwordCredentialPath != null;
       message = ''
-        [mediNix] set passwordCredentialPath (systemd-creds) or passwordFile.
-        Seal with 57-maintenance/medinix-seal-secret.sh. Ref: ADR-576.
+        [mediNix] set passwordCredentialPath (sealed systemd-creds).
+        passwordFile is not accepted. Ref: ADR-576.
       '';
     }
     {
@@ -133,8 +120,8 @@ lib.mkIf (cfg.enable && bkp.enable) {
       message = "[mediNix] offsite.enable requires offsite.repository (3-2-1)."
     }
     {
-      assertion = !bkp.offsite.enable || bkp.offsite.passwordCredentialPath != null || bkp.offsite.passwordFile != "";
-      message = "[mediNix] offsite.enable requires an offsite password (creds or file)."
+      assertion = !bkp.offsite.enable || bkp.offsite.passwordCredentialPath != null;
+      message = "[mediNix] offsite.enable requires offsite.passwordCredentialPath."
     }
   ];
 
@@ -156,7 +143,7 @@ lib.mkIf (cfg.enable && bkp.enable) {
     ];
   };
 
-  systemd.services."restic-backups-mediNix".serviceConfig = lib.mkIf primaryUsesCreds {
+  systemd.services."restic-backups-mediNix".serviceConfig = {
     LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
   };
 
@@ -167,16 +154,15 @@ lib.mkIf (cfg.enable && bkp.enable) {
     description = "mediNix offsite restic copy";
     serviceConfig = lib.mkMerge [
       profiles.client
-      ({
+      {
         Type = "oneshot";
         ExecStart = lib.getExe offsiteCopyCmd;
+        LoadCredentialEncrypted = lib.mkMerge [
+          [ "restic-password-offsite:${toString bkp.offsite.passwordCredentialPath}" ]
+          (lib.optional (bkp.offsite.rcloneConfigFile != null)
+            "rclone.conf:${toString bkp.offsite.rcloneConfigFile}")
+        ];
       }
-      // lib.optionalAttrs offsiteUsesCreds {
-        LoadCredentialEncrypted = "restic-password-offsite:${toString bkp.offsite.passwordCredentialPath}";
-      }
-      // lib.optionalAttrs (bkp.offsite.rcloneConfigFile != null) {
-        LoadCredential = "rclone.conf:${toString bkp.offsite.rcloneConfigFile}";
-      })
     ];
     environment = lib.mkIf (bkp.offsite.rcloneConfigFile != null) {
       RCLONE_CONFIG = "%d/rclone.conf";
@@ -187,13 +173,11 @@ lib.mkIf (cfg.enable && bkp.enable) {
     description = "mediNix restic check";
     serviceConfig = lib.mkMerge [
       profiles.script
-      ({
+      {
         Type = "oneshot";
         ExecStart = lib.getExe checkCmd;
-      }
-      // lib.optionalAttrs primaryUsesCreds {
         LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
-      })
+      }
     ];
   };
   systemd.timers."mediNix-backup-check" = {
