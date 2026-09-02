@@ -5,9 +5,8 @@
 # last_reviewed: 2026-09-02
 # adr: ADR-5180
 # ---
-# Sprite is dist/icons.svg from logorepo, served same-origin.
-# Tiles: <use href="/assets/img/icons.svg#jellyfin"> — not logos/*.svg.
-# WAN tiles: stream|public + landing. internal never tiles.
+# Sprite fragment = service name. iconId only if it differs from the name.
+# <use href="/assets/img/icons.svg#{service}">
 { config, lib, pkgs, ... }:
 
 let
@@ -27,12 +26,12 @@ let
     if cfg.domain != null then "https://${publicHost n}.${cfg.domain}"
     else "http://${n}.local";
 
-  iconIdOf = n: vhost:
+  fragment = n: vhost:
     let raw = vhost.iconId or "";
     in if raw != "" then raw else n;
 
   mkTile = n:
-    let id = iconIdOf n tiles.${n};
+    let id = fragment n tiles.${n};
     in ''
       <a class="srv" href="${hrefFor n}" aria-label="${n}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
@@ -87,7 +86,7 @@ in {
       options.iconId = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "Symbol id in dist/icons.svg. Empty = vhost name.";
+        description = "Sprite id. Empty = vhost / service name.";
       };
     });
   };
