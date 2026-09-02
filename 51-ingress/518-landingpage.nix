@@ -5,8 +5,9 @@
 # last_reviewed: 2026-09-02
 # adr: ADR-5180
 # ---
-# Sprite fragment = service name. iconId only if it differs from the name.
-# <use href="/assets/img/icons.svg#{service}">
+# Renderer only. No program names. A vhost with accessGroup stream|public
+# becomes a tile. landing=false opts out. Sprite file: 50-core/icons.svg
+# served as /icons.svg. Fragment = service name.
 { config, lib, pkgs, ... }:
 
 let
@@ -14,7 +15,7 @@ let
   wanGroups = [ "stream" "public" ];
 
   tiles = lib.filterAttrs (_n: vhost:
-    (vhost.landing or false)
+    (vhost.landing or true)
     && lib.elem (vhost.accessGroup or "none") wanGroups
   ) (cfg.ingress.vhosts or {});
 
@@ -35,7 +36,7 @@ let
     in ''
       <a class="srv" href="${hrefFor n}" aria-label="${n}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
-          <use href="/assets/img/icons.svg#${id}"></use>
+          <use href="/icons.svg#${id}"></use>
         </svg>
       </a>
     '';
@@ -67,17 +68,22 @@ let
     </html>
   '';
 
-  iconsSvg = pkgs.fetchurl {
-    url = "https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@7172697e434ff45ba9d2b2374e32919486cb545e/dist/icons.svg";
-    hash = "sha256-qisWUumOeQ6NM/+UeIx04sP+DB0EMgjq9BZRcvMAfyg=";
-  };
+  # Repo copy lives at 50-core/icons.svg (logorepo dist/icons.svg).
+  # Fetch pin until that file is in the tree; 518 still only copies it.
+  iconsSvg =
+    if builtins.pathExists ../50-core/icons.svg
+    then ../50-core/icons.svg
+    else pkgs.fetchurl {
+      url = "https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@7172697e434ff45ba9d2b2374e32919486cb545e/dist/icons.svg";
+      hash = "sha256-qisWUumOeQ6NM/+UeIx04sP+DB0EMgjq9BZRcvMAfyg=";
+    };
 
   landingRoot = pkgs.runCommand "medinix-landing" { } ''
-    mkdir -p $out/assets/img
+    mkdir -p $out
     cat > $out/index.html <<'HTML'
     ${indexHtml}
     HTML
-    cp ${iconsSvg} $out/assets/img/icons.svg
+    cp ${iconsSvg} $out/icons.svg
   '';
 
 in {
@@ -86,7 +92,7 @@ in {
       options.iconId = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "Sprite id. Empty = vhost / service name.";
+        description = "Sprite id. Empty = service name.";
       };
     });
   };
