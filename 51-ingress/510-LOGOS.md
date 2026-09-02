@@ -1,33 +1,25 @@
 ---
 id: 510-logos
-title: logorepo sprite ↔ modules
+title: logorepo sprite ↔ landing tiles
 ---
 
-Do not open the GitHub blob page as an image. That is HTML.
+`logos/sonarr.svg` is the source file. No `<symbol id>`.
+`dist/icons.svg#sonarr` is the sprite.
 
-Wrong:
-- https://github.com/grapefruit89/logorepo/blob/main/dist/icons.svg
-- https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/ID.svg   (literal `ID`)
+Wrong in HTML:
+```html
+<img src="https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg">
+<use href="https://cdn.jsdelivr.net/…/dist/icons.svg#sonarr">  <!-- CORS -->
+```
 
-Right:
-- Sprite file: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/dist/icons.svg
-- One logo:    https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/jellyfin.svg
-- In the landing page Caddy serves `/icons.svg` same-origin. Tiles use `<use href="/icons.svg#jellyfin">`.
+Right (same origin, like `/assets/img/ico_e8911.svg#comment`):
+```html
+<svg class="icon" width="120" height="120" aria-hidden="true">
+  <use href="/assets/img/icons.svg#sonarr"></use>
+</svg>
+```
 
-18 ids: acme audiobookshelf bitwarden caddy cloudflare feishin jellyfin lidarr navidrome nixos ntfy pocket-id prowlarr radarr recyclarr seerr sonarr unraid.
-No metube.svg, no readarr.svg.
+518 copies `dist/icons.svg` to the landing root as `/assets/img/icons.svg`.
+`iconId` on the vhost is the fragment (`jellyfin`, `seerr`, …).
 
-## Family page (your index.html) = the WAN list
-
-| tile | accessGroup | why |
-| --- | --- | --- |
-| jellyfin | stream | big media, CF ToS risk |
-| audiobookshelf | stream | same |
-| navidrome | stream | same |
-| seerr | public | WAN UI, no media pipe |
-| feishin | public | WAN SPA, bytes come from navidrome |
-| metube | public | WAN UI — **no module in this flake yet** |
-
-`stream` = WAN + long-lived media. Caddy does not orange-cloud that traffic; grey DNS + Caddy.
-`public` = WAN + small HTML/API. Seerr still has forward_auth.
-`internal` = not on that HTML. Arr/SAB stay off the family page.
+Header `# logo:` lines in modules point at `logos/<id>.svg` only as the source file for humans. Tiles never load that URL.
