@@ -2,11 +2,8 @@
 # id: "553-navidrome"
 # title: "Navidrome — Music Server"
 # domain: 55
-# folder: 55-playback
-# status: active
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/navidrome.svg
-# requires: ["lib/hardening-profiles", "lib/registry"]
+# sprite: 50-core/icons.svg#navidrome
 # adr: ADR-5530
 # ---
 { config, lib, pkgs, ... }:
@@ -57,9 +54,5 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."navidrome" = {
-    accessGroup = "stream";
-    landing = true;
-    iconId = "navidrome";
-  };
+  medinix.ingress.vhosts."navidrome" = { accessGroup = "stream"; };
 }
