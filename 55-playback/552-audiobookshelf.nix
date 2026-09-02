@@ -2,13 +2,10 @@
 # id: "552-audiobookshelf"
 # title: "Audiobookshelf"
 # domain: 55
-# folder: 55-playback
-# status: active
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/audiobookshelf.svg
+# sprite: 50-core/icons.svg#audiobookshelf
 # adr: ADR-5520
 # ---
-# WAN stream. App login.
 { config, lib, pkgs, ... }:
 
 let
@@ -54,9 +51,5 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."audiobookshelf" = {
-    accessGroup = "stream";
-    landing = true;
-    iconId = "audiobookshelf";
-  };
+  medinix.ingress.vhosts."audiobookshelf" = { accessGroup = "stream"; };
 }
