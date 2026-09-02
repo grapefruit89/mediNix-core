@@ -3,11 +3,11 @@
 # title: "Family icon page — HTML organ of 511"
 # domain: 51
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/nixos.svg
 # adr: ADR-5180
 # ---
-# WAN tiles: accessGroup stream|public and landing=true.
-# internal never tiles. idp (Pocket-ID) is WAN-login, not a family icon.
+# Sprite is dist/icons.svg from logorepo, served same-origin.
+# Tiles: <use href="/assets/img/icons.svg#jellyfin"> — not logos/*.svg.
+# WAN tiles: stream|public + landing. internal never tiles.
 { config, lib, pkgs, ... }:
 
 let
@@ -36,7 +36,7 @@ let
     in ''
       <a class="srv" href="${hrefFor n}" aria-label="${n}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
-          <use href="/icons.svg#${id}"></use>
+          <use href="/assets/img/icons.svg#${id}"></use>
         </svg>
       </a>
     '';
@@ -74,11 +74,11 @@ let
   };
 
   landingRoot = pkgs.runCommand "medinix-landing" { } ''
-    mkdir -p $out
+    mkdir -p $out/assets/img
     cat > $out/index.html <<'HTML'
     ${indexHtml}
     HTML
-    cp ${iconsSvg} $out/icons.svg
+    cp ${iconsSvg} $out/assets/img/icons.svg
   '';
 
 in {
@@ -87,7 +87,7 @@ in {
       options.iconId = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "logorepo id. Empty = vhost name.";
+        description = "Symbol id in dist/icons.svg. Empty = vhost name.";
       };
     });
   };
