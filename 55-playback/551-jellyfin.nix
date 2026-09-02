@@ -2,14 +2,11 @@
 # id: "551-jellyfin"
 # title: "Jellyfin — Media Playback"
 # domain: 55
-# folder: 55-playback
-# status: active
 # last_reviewed: 2026-09-02
-# provides: ["jellyfin"]
 # adr: ADR-551
 # ---
-# WAN via 511 accessGroup=stream (family). Gate is Jellyfin users, not Caddy
-# forward_auth. Pocket-ID SSO is not wired — Jellyfin clients break on it.
+# WAN stream + app login. Bind is systemd SocketBindAllow=127.0.0.1 in
+# the dotnet-gpu profile — not a network.xml we do not ship.
 { config, lib, pkgs, ... }:
 
 let
@@ -74,7 +71,6 @@ lib.mkIf cfg.enable {
       JELLYFIN_PublishedServerUrl =
         if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
       JELLYFIN_TRANSCODE_DIR = "/transcode";
-      JELLYFIN_NetworkConfiguration__LocalNetworkAddresses = "127.0.0.1";
     } // lib.optionalAttrs (svc.hardware.accel != "none") {
       LIBVA_DRIVER_NAME = {
         "auto" = "iHD";
