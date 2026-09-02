@@ -3,12 +3,12 @@
 # title: "Jellyfin — Media Playback"
 # domain: 55
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/jellyfin.svg
 # adr: ADR-551
 # ---
 # WAN stream + app login. Bind is systemd SocketBindAllow=127.0.0.1 in
 # the dotnet-gpu profile — not a network.xml we do not ship.
 # mediaRoot is BindReadOnlyPaths. Writes: state, metadata, /transcode tmpfs.
-# Logo: logos/jellyfin.svg → 518 #jellyfin.
 { config, lib, pkgs, ... }:
 
 let
