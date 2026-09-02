@@ -9,14 +9,13 @@
 # requires: ["lib/creds"]
 # adr: ADR-5000
 # ---
-# Every path that hits LoadCredentialEncrypted must look like a sealed blob.
-# Defaults under /var/lib/media-secrets/ without .encrypted/.cred fail eval.
 { config, lib, ... }:
 
 let
   cfg = config.medinix;
   creds = import ../lib/creds.nix { inherit lib; };
   check = creds.check;
+  sealed = name: "${creds.storeDir}/${name}.encrypted";
 
   hostCreds = lib.mapAttrsToList (n: p: check "host.credentials.${n}" p) (cfg.host.credentials or {});
 
@@ -46,12 +45,29 @@ let
   ];
 in
 lib.mkIf cfg.enable {
+  # Win over option defaults under /var/lib/media-secrets/ (plaintext leftovers).
+  medinix.secrets = {
+    secretsDir = lib.mkDefault creds.storeDir;
+    arrApiKeyFile = lib.mkDefault (sealed "arr-apikey");
+    sonarrApiKeyFile = lib.mkDefault (sealed "sonarr-apikey");
+    radarrApiKeyFile = lib.mkDefault (sealed "radarr-apikey");
+    prowlarrApiKeyFile = lib.mkDefault (sealed "prowlarr-apikey");
+    lidarrApiKeyFile = lib.mkDefault (sealed "lidarr-apikey");
+    readarrApiKeyFile = lib.mkDefault (sealed "readarr-apikey");
+    seerrApiKeyFile = lib.mkDefault (sealed "seerr-apikey");
+    sabnzbdApiKeyFile = lib.mkDefault (sealed "sabnzbd-apikey");
+    jellyfinAdminPasswordFile = lib.mkDefault (sealed "jellyfin-admin");
+    navidromeOidcFile = lib.mkDefault (sealed "navidrome-oidc");
+    seerrEnvFile = lib.mkDefault (sealed "seerr-env");
+    autoGenerate = lib.mkDefault false;
+  };
+
   assertions = secretChecks ++ hostCreds ++ [
     {
       assertion = !(cfg.secrets.autoGenerate or false);
       message = ''
         [mediNix] secrets.autoGenerate writes plaintext keys. Off.
-        Seal with 57-maintenance/medinix-seal-secret.sh and set the option to the .encrypted path.
+        Use 57-maintenance/medinix-seal-secret.sh and LoadCredentialEncrypted.
       '';
     }
     {
@@ -60,8 +76,8 @@ lib.mkIf cfg.enable {
         || (cfg.maintenance.backup.passwordCredentialPath != null
             && creds.isSealedPath cfg.maintenance.backup.passwordCredentialPath);
       message = ''
-        [mediNix] backup.enable needs maintenance.backup.passwordCredentialPath
-        pointing at a .encrypted/.cred blob. passwordFile is leftover plaintext.
+        [mediNix] backup.enable needs passwordCredentialPath as a .encrypted/.cred blob.
+        passwordFile is plaintext and is not accepted.
       '';
     }
   ];
