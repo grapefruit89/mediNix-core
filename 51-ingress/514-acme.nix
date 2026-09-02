@@ -5,15 +5,13 @@
 # folder: 51-ingress
 # status: active
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/acme.svg
 # provides: ["acme", "tls"]
 # adr: ADR-514
 # ---
-# One token source, same order as 513:
+# One token source, same order as 513. No tokenFile.
 #   ingress.tls.acmeCredential
 #   dns.ddns.cloudflareTokenCredential
 #   dns.ddns.tokenCredential
-# Loaded as cf-token. File is KEY=value (CF_DNS_API_TOKEN=...).
 { lib, config, ... }:
 
 let
@@ -48,8 +46,8 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       '';
     }
     {
-      assertion = (ddns.tokenFile or null) == null || credPath != null;
-      message = "[mediNix] dns.ddns.tokenFile is ignored for ACME. Use a systemd credential.";
+      assertion = (ddns.tokenFile or null) == null;
+      message = "[mediNix] dns.ddns.tokenFile is rejected. Use a systemd credential.";
     }
   ];
 
