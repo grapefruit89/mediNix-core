@@ -9,6 +9,8 @@
 # 526 marks packets by UID and drops anything not leaving via the VPN iface.
 # IPAddressDeny=any with only loopback allow runs in cgroup eBPF *before*
 # routing — that vetoes NNTP even when the killswitch is perfect.
+# RestrictAddressFamilies lives on `base`. Do not drop AF_NETLINK on network
+# units (resolve, wg, nft helpers). Scripts get AF_UNIX only.
 { lib }:
 
 rec {
@@ -111,5 +113,6 @@ rec {
     MemoryDenyWriteExecute = true;
     PrivateDevices = true;
     PrivateNetwork = true;
+    RestrictAddressFamilies = [ "AF_UNIX" ];
   } // networkPolicy.loopback;
 }
