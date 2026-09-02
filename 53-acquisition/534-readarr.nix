@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
+# logo: none — not in grapefruit89/logorepo yet
 # links: 
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
@@ -34,7 +35,6 @@ let
   gid = reg.gid;
   stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  # .NET declarative settings via Env Vars (replaces curl provisioning)
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
 lib.mkIf cfg.enable (lib.mkMerge [ {
