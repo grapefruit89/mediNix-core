@@ -1,47 +1,35 @@
-"""Shared helpers for HTTP API provisioning.
-
-=============================================================================
-PRIMAERQUELLEN -- NICHT ENTFERNEN
-=============================================================================
-Diese URLs sind Teil der Architektur, kein Kommentar-Ballast. Wer sie loescht,
-zwingt den naechsten Bearbeiter zum Raten.
-
-  Radarr   OpenAPI : https://raw.githubusercontent.com/Radarr/Radarr/develop/src/Radarr.Api.V3/openapi.json
-  Radarr   Doku    : https://radarr.video/docs/api/
-  Sonarr   OpenAPI : https://raw.githubusercontent.com/Sonarr/Sonarr/develop/src/Sonarr.Api.V3/openapi.json
-  Sonarr   Doku    : https://sonarr.tv/docs/api/#v3
-  Prowlarr OpenAPI : https://raw.githubusercontent.com/Prowlarr/Prowlarr/develop/src/Prowlarr.Api.V1/openapi.json
-  Prowlarr Doku    : https://prowlarr.com/docs/api/
-  Lidarr / Readarr : gleiche Struktur, Api.V1
-
-AUTORITATIV ist aber die LAUFENDE INSTANZ, nicht der develop-Branch:
-  curl -s -H "X-Api-Key: $KEY" http://127.0.0.1:<port>/api/<v>/system/status
-
-API-Versionen:  Sonarr/Radarr = v3 | Prowlarr/Lidarr/Readarr = v1
-Auth:           Header X-Api-Key
-
-Endpunkt-Inventar + Verifikationsstand: ../../docs/api-reference.md
-Regeln fuer Agenten:                    ../../AGENTS.md  (Regel 0)
-=============================================================================
-"""
+"""Shared helpers for HTTP API provisioning."""
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 import time
 import urllib.error
 import urllib.request
 from typing import Any, Mapping, MutableMapping, Optional
 
+_APIKEY_XML = re.compile(r"<ApiKey>([^<]+)</ApiKey>", re.IGNORECASE)
+
 
 def read_key_file(path: str) -> Optional[str]:
+    """Plain 32-char key, KEY=value env, or *arr config.xml <ApiKey>."""
     try:
         with open(path, encoding="utf-8") as handle:
             value = handle.read().strip()
-            return value or None
     except OSError:
         return None
+    if not value:
+        return None
+    match = _APIKEY_XML.search(value)
+    if match:
+        return match.group(1).strip() or None
+    if "=" in value.splitlines()[0]:
+        for line in value.splitlines():
+            if line.startswith(("ApiKey=", "API_KEY=", "api_key=")):
+                return line.split("=", 1)[1].strip() or None
+    return value
 
 
 def wait_for_url(
@@ -60,7 +48,6 @@ def wait_for_url(
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 if require_fail and response.status >= 400:
                     raise urllib.error.HTTPError(url, response.status, "", hdrs, None)
-            import re
             safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
             print(f"Service available at {safe_url} (attempt {attempt})")
             return True
@@ -94,9 +81,7 @@ def http_json(
             raw = response.read().decode("utf-8")
             return response.status, json.loads(raw) if raw else None
     except urllib.error.HTTPError as exc:
-        # P1-2: Secrets-Handling - niemals Raw-Body in Exceptions loggen
-        # Hier geben wir nur den Status-Code zurück, Exceptions werden stumm geschluckt
-        return exc.code, {"error": "HTTP request failed (details suppressed to prevent secret leakage)"}
+        return exc.code, {"error": "HTTP request failed (details suppressed)"}
 
 
 def arr_api_base(host: str, port: int, api_version: str) -> str:
