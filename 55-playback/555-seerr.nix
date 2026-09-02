@@ -2,12 +2,9 @@
 # id: "555-seerr"
 # title: "Seerr — Request Management"
 # domain: 55
-# folder: 55-playback
-# status: active
 # last_reviewed: 2026-09-02
-# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/seerr.svg
+# sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]
-# requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5610
 # ---
 { config, lib, pkgs, ... }:
@@ -62,9 +59,5 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."seerr" = {
-    accessGroup = "public";
-    landing = true;
-    iconId = "seerr";
-  };
+  medinix.ingress.vhosts."seerr" = { accessGroup = "public"; };
 }
