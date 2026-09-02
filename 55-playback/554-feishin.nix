@@ -5,11 +5,11 @@
 # folder: 55-playback
 # status: active
 # last_reviewed: 2026-09-02
+# logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/feishin.svg
 # provides: ["feishin"]
 # requires: ["511-caddy"]
 # adr: ADR-554
 # ---
-# No daemon. Logo: logos/feishin.svg → 518 #feishin.
 { config, lib, pkgs, ... }:
 
 let
