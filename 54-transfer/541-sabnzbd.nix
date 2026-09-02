@@ -8,12 +8,15 @@
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5260
 # ---
+# Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
+# Secrets are LoadCredentialEncrypted, never files under mediaRoot.
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix.sabnzbd;
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
+  creds = import ../lib/creds.nix { inherit lib; };
   reg = registry.sabnzbd;
   port = reg.port;
   uid = reg.uid;
@@ -57,7 +60,7 @@ in
           StateDirectory = "sabnzbd-${toString port}";
           MemoryHigh = "2G";
           MemoryMax = "4G";
-          InaccessiblePaths = [ "/run/systemd/resolve" "/run/dbus/system_bus_socket" ];
+          InaccessiblePaths = [ "/run/systemd/resolve" "/run/dbus/system_bus_socket" creds.storeDir ];
           ReadWritePaths = [
             stateDir
             "${svc.storage.mediaRoot}/downloads"
