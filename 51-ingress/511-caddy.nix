@@ -9,11 +9,9 @@
 # requires: ["lib/service-factory", "lib/registry"]
 # adr: ADR-511
 # ---
-# Stock pkgs.caddy. TLS from 514. Sites from ingress.vhosts.
-# A vhost is live when the matching service is enabled, accessGroup != none,
-# and it has either a registry port (reverse_proxy) or customConfig (static).
-# Admin API stays on localhost so `systemctl reload` / ACME reloadServices work.
-# It is not published; firewall only opens 80/443.
+# .local is a hostname, not a network. WAN clients can send Host: jellyfin.local
+# to :80. Every .local site therefore gets the same remote_ip abort as internal.
+# localBypass only skips forward_auth *after* that CIDR check.
 { lib, pkgs, config, ... }:
 
 let
@@ -37,7 +35,6 @@ let
 
   trustedCidrs = ing.trustedCidrs or [
     "10.0.0.0/8"
-    "100.64.0.0/10"
     "172.16.0.0/12"
     "192.168.0.0/16"
     "fd00::/8"
@@ -65,6 +62,21 @@ let
       Referrer-Policy "strict-origin-when-cross-origin"
       -Server
     }
+  '';
+
+  stripAuthHeaders = ''
+    header {
+      -Remote-User
+      -Remote-Email
+      -Remote-Groups
+      -X-Auth-Request-User
+      -X-Auth-Request-Email
+    }
+  '';
+
+  lanAbort = ''
+    @blocked not remote_ip ${trustedCidrsStr}
+    abort @blocked
   '';
 
   globalOptions = ''
@@ -111,6 +123,7 @@ let
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
       authBlock = lib.optionalString applyAuth ''
+        ${stripAuthHeaders}
         ${skipMatcher}
         forward_auth ${lib.optionalString (skipPaths != []) "@needAuth "}${authUpstream} {
           uri ${ing.auth.forwardAuthUri}
@@ -118,29 +131,31 @@ let
                        X-Auth-Request-User X-Auth-Request-Email
         }
       '';
-      abortBlock = lib.optionalString (!isLocal) ''
-        @blocked not remote_ip ${trustedCidrsStr}
-        abort @blocked
-      '';
+      # .local always CIDR-gated. Domain internal too. Stream/public/idp on
+      # the real hostname stay reachable from WAN when that is the policy.
+      cidrGate = lib.optionalString (isLocal || vhost.accessGroup == "internal") lanAbort;
     in {
       stream = ''
+        ${lib.optionalString isLocal lanAbort}
         encode off
         ${vhost.customConfig}
         ${mkProxy n streamTransport}
       '';
       internal = ''
-        ${abortBlock}
+        ${cidrGate}
         encode zstd gzip
         ${vhost.customConfig}
         ${mkProxy n ""}
       '';
       public = ''
+        ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
         ${authBlock}
         ${vhost.customConfig}
         ${mkProxy n ""}
       '';
       idp = ''
+        ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
         ${vhost.customConfig}
         ${mkProxy n ""}
@@ -183,13 +198,11 @@ let
   landingHttpsBody = ''
     ${tlsDirective}
     ${securityHeaders}
-    @blocked not remote_ip ${trustedCidrsStr}
-    abort @blocked
+    ${lanAbort}
     ${landingFiles}
   '';
   landingHttpLanBody = ''
-    @blocked not remote_ip ${trustedCidrsStr}
-    abort @blocked
+    ${lanAbort}
     ${landingFiles}
   '';
 
@@ -201,7 +214,7 @@ let
     ++ (lib.optionals (cfg.domain != null && !tlsEnabled) [
       (mkSite "http://${cfg.domain}" landingHttpLanBody)
     ])
-    ++ [ (mkSite "http://home.local" landingFiles) ]
+    ++ [ (mkSite "http://home.local" (landingHttpLanBody)) ]
   );
 
   catchAllSites =
