@@ -16,6 +16,7 @@ let
   cfg = config.medinix.navidrome;
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
+  creds = import ../lib/creds.nix { inherit lib; };
   reg = registry.navidrome;
   port = reg.port;
   uid = reg.uid;
@@ -45,6 +46,7 @@ lib.mkIf cfg.enable {
         StateDirectory = "navidrome-${toString port}";
         ReadWritePaths = [ stateDir ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
+        InaccessiblePaths = [ creds.storeDir ];
       }
     ];
     environment = {
