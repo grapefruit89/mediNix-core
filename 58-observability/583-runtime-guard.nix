@@ -65,7 +65,7 @@ let
         exit 1
       fi
       BAD="$(printf '%s
-' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})' || true)"
+' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})\b' || true)"
       if [ -n "$BAD" ]; then
         alert "CRITICAL: wildcard listener detected: $BAD"
       fi

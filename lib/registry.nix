@@ -48,7 +48,7 @@ rec {
     audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
     navidrome      = mkService "navidrome" 553 "nodejs" "stream";
     feishin        = mkNoPort "feishin" 554 "network" "none";
-    seerr          = mkService "seerr" 555 "dotnet" "public";
+    seerr          = mkService "seerr" 561 "dotnet" "public";
 
     ntfy = mkService "ntfy" 581 "network" "none";
   };

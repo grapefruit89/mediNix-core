@@ -27,9 +27,16 @@ let
 
   # Only grab active services
   activeServices = lib.filterAttrs (n: _: svc.${n}.enable or false) registry;
-  
-  # Derive StateDirectory paths from Registry
-  stateDirs = lib.mapAttrsToList (n: s: "/var/lib/${n}-${toString s.port}") activeServices;
+
+  # Derive (systemd unit, StateDirectory) pairs from Registry
+  serviceEntries = lib.mapAttrsToList
+    (n: s: { unit = "${s.unitName}.service"; dir = "/var/lib/${n}-${toString s.port}"; })
+    activeServices;
+
+  # "unit dir" lines, fed to the scripts via a here-string so maintenance only
+  # ever touches a service's own StateDirectory, and only while that service's
+  # own unit is active — never a blind find over every configured StateDirectory.
+  serviceEntriesLines = lib.concatMapStringsSep "\n" (e: "${e.unit} ${e.dir}") serviceEntries;
 
   # WAL Tuning PRAGMAs (High-Performance for >= 16GB RAM)
   tuningPragmas = ''
@@ -45,29 +52,37 @@ let
 
   passiveScript = pkgs.writeShellApplication {
     name = "sqlite-passive";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils ];
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd ];
     text = ''
       set -euo pipefail
-      for dir in ${lib.concatStringsSep " " stateDirs}; do
+      SERVICE_ENTRIES='${serviceEntriesLines}'
+      while read -r unit dir; do
         [ -d "$dir" ] || continue
+        # Lifecycle coupling: only touch a service's own DBs while that
+        # service's own unit is active — never maintain a stopped service.
+        systemctl is-active --quiet "$unit" || continue
         find "$dir" -name '*.db' -type f | while read -r db; do
           ${pkgs.sqlite}/bin/sqlite3 "$db" "
             ${tuningPragmas}
             PRAGMA wal_checkpoint(PASSIVE);
           " || true
         done
-      done
+      done <<< "$SERVICE_ENTRIES"
       echo "SQLite PASSIVE checkpoint done"
     '';
   };
 
   truncateScript = pkgs.writeShellApplication {
     name = "sqlite-truncate";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils ];
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd ];
     text = ''
       set -euo pipefail
-      for dir in ${lib.concatStringsSep " " stateDirs}; do
+      SERVICE_ENTRIES='${serviceEntriesLines}'
+      while read -r unit dir; do
         [ -d "$dir" ] || continue
+        # Lifecycle coupling: only touch a service's own DBs while that
+        # service's own unit is active — never maintain a stopped service.
+        systemctl is-active --quiet "$unit" || continue
         find "$dir" -name '*.db' -type f | while read -r db; do
           ${pkgs.sqlite}/bin/sqlite3 "$db" "
             ${tuningPragmas}
@@ -76,7 +91,7 @@ let
             PRAGMA ANALYZE;
           " || true
         done
-      done
+      done <<< "$SERVICE_ENTRIES"
       echo "SQLite TRUNCATE + optimize done"
     '';
   };
