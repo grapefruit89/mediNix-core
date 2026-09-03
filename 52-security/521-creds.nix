@@ -29,6 +29,7 @@ let
     "secrets.readarrApiKeyFile" = cfg.secrets.readarrApiKeyFile;
     "secrets.seerrApiKeyFile" = cfg.secrets.seerrApiKeyFile;
     "secrets.sabnzbdApiKeyFile" = cfg.secrets.sabnzbdApiKeyFile;
+    "secrets.treasureMapsApiKeyFile" = cfg.secrets.treasureMapsApiKeyFile;
     "secrets.jellyfinAdminPasswordFile" = cfg.secrets.jellyfinAdminPasswordFile;
     "secrets.navidromeOidcFile" = cfg.secrets.navidromeOidcFile;
     "secrets.seerrEnvFile" = cfg.secrets.seerrEnvFile;
@@ -58,6 +59,7 @@ lib.mkIf cfg.enable {
     readarrApiKeyFile = lib.mkDefault (sealed "readarr-apikey");
     seerrApiKeyFile = lib.mkDefault (sealed "seerr-apikey");
     sabnzbdApiKeyFile = lib.mkDefault (sealed "sabnzbd-apikey");
+    treasureMapsApiKeyFile = lib.mkDefault (sealed "treasuremaps-apikey");
     jellyfinAdminPasswordFile = lib.mkDefault (sealed "jellyfin-admin");
     navidromeOidcFile = lib.mkDefault (sealed "navidrome-oidc");
     seerrEnvFile = lib.mkDefault (sealed "seerr-env");

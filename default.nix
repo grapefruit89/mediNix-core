@@ -858,6 +858,11 @@ in
         type    = lib.types.str;
         default = "${cfg.secrets.secretsDir}/sabnzbd_api_key";
       };
+      treasureMapsApiKeyFile = lib.mkOption {
+        type    = lib.types.str;
+        default = "${cfg.secrets.secretsDir}/treasuremaps_api_key";
+        description = "API key for the treasure-maps.com Newznab indexer, registered in Prowlarr.";
+      };
       jellyfinAdminPasswordFile = lib.mkOption {
         type    = lib.types.str;
         default = "${cfg.secrets.secretsDir}/jellyfin_admin_password";
