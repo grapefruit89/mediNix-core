@@ -92,9 +92,19 @@ let
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
 
-          # Target Collision Protection: Never silently overwrite existing destination files
+          # Target Collision Protection:
+          # If destination already exists:
+          # - Same size: file was already transferred (e.g. previous run interrupted before cleanup) -> remove staging file to free SSD
+          # - Different size: warn and skip to prevent accidental overwrite or data loss
           if [ -e "$dest" ]; then
-            echo "Mover: destination already exists, skipping to prevent overwrite: $dest" >&2
+            SRC_SIZE=$(stat -c "%s" "$f" 2>/dev/null || echo "1")
+            DEST_SIZE=$(stat -c "%s" "$dest" 2>/dev/null || echo "2")
+            if [ "$SRC_SIZE" = "$DEST_SIZE" ]; then
+              echo "Mover: destination already exists with identical size ($SRC_SIZE bytes) — removing duplicate from staging: $f"
+              rm -f "$f"
+            else
+              echo "Mover: WARNING: destination $dest already exists with DIFFERENT size (source: $SRC_SIZE, dest: $DEST_SIZE) — skipping" >&2
+            fi
             continue
           fi
 
