@@ -44,9 +44,17 @@ let
         exit 1
       fi
 
+      # Concurrency protection: prevent overlapping mover runs (manual, timer, or path trigger)
+      LOCK_FILE="/run/medinix-mover/mover.lock"
+      exec 200>"$LOCK_FILE"
+      if ! flock -n 200; then
+        echo "Mover: another mover instance is already running — exiting"
+        exit 0
+      fi
+
       # Fund 5: Cleanup stale staging files from previous interrupted runs (older than 24h)
       if [ -d "$ARCHIVE/.staging_mover" ]; then
-        find "$ARCHIVE/.staging_mover" -type f -mtime +1 -delete
+        find "$ARCHIVE/.staging_mover" -type f -name 'tmp_*' -mtime +1 -delete
       fi
 
 
@@ -84,10 +92,16 @@ let
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
 
-          # Atomic Move Logic:
-          # 1. Copy to a collision-free temporary file on the SAME filesystem (HDD)
-          # 2. Atomic rename to the final destination so Jellyfin never sees incomplete files
-          staging_dest=$(mktemp -p "$ARCHIVE/.staging_mover" "tmp_XXXXXX_$(basename "$f")")
+          # Target Collision Protection: Never silently overwrite existing destination files
+          if [ -e "$dest" ]; then
+            echo "Mover: destination already exists, skipping to prevent overwrite: $dest" >&2
+            continue
+          fi
+
+          # Atomic Publish Logic:
+          # 1. Copy to a collision-free temporary file on the SAME filesystem (HDD cold backend)
+          # 2. Atomic rename to the final destination so readers (Jellyfin via MergerFS) never see partial files
+          staging_dest=$(mktemp -p "$ARCHIVE/.staging_mover" 'tmp_XXXXXX')
           mkdir -p "$(dirname "$dest")"
 
           echo "Mover: transferring $rel ..."
@@ -109,7 +123,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
   systemd.services.mediNix-mover = {
     description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
     # StartLimit belongs in [Unit] (= unitConfig), not in [Service] (serviceConfig).
-    # Limits real service starts if staging is noisy (not just Log-IO).
+    # Limits real service starts if staging is noisy.
     unitConfig = {
       RequiresMountsFor = [ cfg.stagingDir cfg.archiveDir ];
       StartLimitBurst = 3;
@@ -123,10 +137,8 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
         Group = "media";
         UMask = "002";
       
-      RuntimeDirectory = "medinix-mover";
+        RuntimeDirectory = "medinix-mover";
         ReadWritePaths = [ cfg.stagingDir cfg.archiveDir ];
-        RateLimitBurst = 5;
-        RateLimitIntervalSec = "30s";
       }
     ];
     script = "${lib.getExe moverScript}";

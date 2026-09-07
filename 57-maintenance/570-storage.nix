@@ -69,7 +69,7 @@ let
         # cache.files=partial: Mmap compatible (Jellyfin DB), still relatively fresh
         "cache.files=partial"
         "dropcacheonclose=true"
-        # epmfs = existing path most free space: Keeps related files (e.g. TV seasons) on same disk
+        # epmfs = existing path most free space: favors creating files in an existing path on the same branch, helping keep related media together
         "category.create=epmfs"
         # Smaller chunk size → less fragmentation during tiering
         "minfreespace=10G"

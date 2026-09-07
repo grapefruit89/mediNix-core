@@ -248,20 +248,19 @@ in
       };
       stagingDir = lib.mkOption {
         type = lib.types.path;
-        default = cfg.storage.mediaRoot + "/downloads";
+        default = if cfg.storage.backends ? hot then cfg.storage.backends.hot else cfg.storage.mediaRoot + "/downloads";
         description = ''
-          Quell-Pfad auf Tier-B (SSD): importierte/complette Downloads die bei Platzmangel auf HDD wandern.
-          Andockpunkt an storage.mediaRoot (Default: ''${storage.mediaRoot}/downloads).
-          Host: Mountpoint der SSD-Staging-SSD.
+          Quell-Pfad auf Tier-B (SSD): physisches Hot-Backend oder Staging-Verzeichnis.
+          Wenn storage.backends.hot gesetzt ist, zeigt dies direkt auf das physische SSD-Backend,
+          um innerhalb von MergerFS transparent von HOT nach COLD zu tierieren.
         '';
       };
       archiveDir = lib.mkOption {
         type = lib.types.path;
-        default = cfg.storage.mediaRoot + "/library";
+        default = if cfg.storage.backends ? cold then cfg.storage.backends.cold else cfg.storage.mediaRoot + "/library";
         description = ''
-          Ziel-Pfad auf Tier-C (HDD): nur echte Mediendateien (siehe mediaExtensions).
-          Streaming-Dienste dürfen von hier lesen.
-          Andockpunkt an storage.mediaRoot (Default: ''${storage.mediaRoot}/library).
+          Ziel-Pfad auf Tier-C (HDD): physisches Cold-Backend oder Archiv-Verzeichnis.
+          Wenn storage.backends.cold gesetzt ist, zeigt dies direkt auf das physische HDD-Backend.
         '';
       };
       action = lib.mkOption {
