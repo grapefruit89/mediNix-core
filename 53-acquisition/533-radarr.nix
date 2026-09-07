@@ -49,6 +49,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     execStart = "${pkgs.radarr}/bin/Radarr -nobrowser -data=${stateDir}";
     stateDir = stateDir;
     profile = "dotnet";
+    offloadMediaCover = true;
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       UMask          = "0002";

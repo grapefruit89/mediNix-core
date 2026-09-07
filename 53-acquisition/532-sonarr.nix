@@ -50,6 +50,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     execStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
     stateDir = stateDir;
     profile = "dotnet";
+    offloadMediaCover = true;
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       User           = "sonarr";

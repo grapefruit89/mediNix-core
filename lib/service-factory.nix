@@ -43,7 +43,13 @@ in
 , allowedPeers ? [] # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
 , extraConfig ? {} # additional serviceConfig fields (service-specific deviations)
 , hardeningOnly ? false # return only serviceConfig for NixOS upstream modules
+, offloadMediaCover ? false # offload MediaCover to metadataDir via systemd BindPaths
 }:
+let
+  metadataDir = toString (config.medinix.storage.metadataDir or "/var/lib/media-metadata");
+  useMediaCover = offloadMediaCover && (config.medinix.storage.offloadMediaCover or true) && (stateDir != null);
+  mediaCoverSource = "${metadataDir}/${name}-MediaCover";
+in
 if hardeningOnly then {
   serviceConfig = lib.mkMerge [
     {
@@ -59,6 +65,10 @@ if hardeningOnly then {
     (let paths = mkPeerIsolation name allowedPeers; in
     lib.optionalAttrs (paths != []) {
       InaccessiblePaths = paths;
+    })
+    (lib.optionalAttrs useMediaCover {
+      ReadWritePaths = [ mediaCoverSource ];
+      BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
     })
     extraConfig
   ];
@@ -90,10 +100,18 @@ if hardeningOnly then {
       lib.optionalAttrs (paths != []) {
         InaccessiblePaths = paths;
       })
+      # 3b) MediaCover offloading (State != Cache) via BindPaths
+      (lib.optionalAttrs useMediaCover {
+        ReadWritePaths = [ mediaCoverSource ];
+        BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
+      })
       # 4) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
       extraConfig
     ];
   };
+  systemd.tmpfiles.rules = lib.optionals useMediaCover [
+    "d '${mediaCoverSource}' 0775 ${name} media -"
+  ];
   medinix.knownStateDirs = [ stateDir ];
   users.users."${name}" = {
     uid         = uid;

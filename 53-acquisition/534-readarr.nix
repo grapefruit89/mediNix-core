@@ -47,6 +47,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
     execStart = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
     stateDir = stateDir;
     profile = "dotnet";
+    offloadMediaCover = true;
     allowedPeers = [ "sabnzbd" "prowlarr" ];
     extraConfig = {
       UMask          = "0002";

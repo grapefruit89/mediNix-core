@@ -705,6 +705,14 @@ in
         default     = "/var/lib/media-metadata";
         description = "Base directory for heavy metadata artwork stores.";
       };
+      offloadMediaCover = lib.mkOption {
+        type        = lib.types.bool;
+        default     = true;
+        description = ''
+          Offload MediaCover image caches from /var/lib/{arr}/MediaCover to storage.metadataDir via systemd BindPaths.
+          Enforces 'State != Cache' principle to keep backups of /var/lib minimal and prevent SSD wear.
+        '';
+      };
       backends = lib.mkOption {
         type    = lib.types.attrsOf lib.types.str;
         default = {};

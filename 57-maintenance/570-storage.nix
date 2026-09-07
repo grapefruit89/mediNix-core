@@ -46,8 +46,8 @@ let
   logicalDirs = map (t: "${dataRoot}/${t}") mediaTypes
     ++ [ "${dataRoot}/downloads" "${dataRoot}/cache" "${dataRoot}/incomplete" ];
 
-  # tmpfiles: Base directory structure
-  baseTmpfiles = map (d: "d '${d}' 0775 root media -") logicalDirs;
+  # tmpfiles: Base directory structure (including metadataDir)
+  baseTmpfiles = map (d: "d '${d}' 0775 root media -") (logicalDirs ++ [ (toString st.metadataDir) ]);
 
   # tmpfiles: Backend subdirectories (SSD + HDD sides for MergerFS)
   backendTmpfiles = lib.optionals hasBackends
