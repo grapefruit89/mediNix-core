@@ -702,7 +702,7 @@ in
       };
       metadataDir = lib.mkOption {
         type        = lib.types.path;
-        default     = "/var/lib/media-metadata";
+        default     = if cfg.storage.backends ? hot then cfg.storage.backends.hot + "/cache" else "/var/lib/media-metadata";
         description = "Base directory for heavy metadata artwork stores.";
       };
       offloadMediaCover = lib.mkOption {

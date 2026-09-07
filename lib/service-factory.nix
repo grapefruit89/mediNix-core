@@ -113,7 +113,10 @@ if hardeningOnly then {
       extraConfig
     ];
   };
+  # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup
   systemd.tmpfiles.rules = lib.optionals useMediaCover [
+    "d '${stateDir}' 0750 ${name} media -"
+    "d '${stateDir}/MediaCover' 0775 ${name} media -"
     "d '${mediaCoverSource}' 0775 ${name} media -"
   ];
   medinix.knownStateDirs = [ stateDir ];
