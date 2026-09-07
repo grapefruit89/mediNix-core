@@ -5,33 +5,11 @@
 > Allrounder-Ballast (Smart Home, Vaultwarden, Git, Paperless, Game Server) verbleibt auf dem Host und gehört bewusst **nicht** in diesen Flake.
 
 > **Status Quo & Verifikation:**  
-> Die Kernarchitektur (Storage-Tiering, gehärteter Mover, *arr MediaCover Bind-Mounts, SSoT Memory-/OOM-Policy, spindown-sicheres smartd-Monitoring) ist **vollständig implementiert** und unter [`docs/ACCEPTANCE-TESTS.md`](ACCEPTANCE-TESTS.md) eingefroren.
+> Die Kernarchitektur (Storage-Tiering, gehärteter Mover, *arr MediaCover Bind-Mounts, Jellyfin XML-Pre-Seeding mit nativer `MetadataPath`-Auslagerung, SSoT Memory-/OOM-Policy, spindown-sicheres smartd-Monitoring) ist **vollständig implementiert** und unter [`docs/ACCEPTANCE-TESTS.md`](ACCEPTANCE-TESTS.md) eingefroren.
 
 ---
 
-## 1. Offene Medien-Veredelungen
-
-### A. Audiobookshelf: Intel QuickSync (VA-API Transcoding)
-- **Quell-Datei:** [`NixmitGROK/modules/50-media/audiobookshelf.nix`](/home/moritz/repos/NixmitGROK/modules/50-media/audiobookshelf.nix)
-- **Problem:** [`552-audiobookshelf.nix`](/home/moritz/repos/mediNix-core/55-playback/552-audiobookshelf.nix) läuft aktuell rein auf der CPU.
-- **Leitfaden & Umsetzung:**
-  - Option `medinix.audiobookshelf.enableQuickSync` (Default: `true` wenn `cfg.hardware.accel == "intel"`) ergänzen.
-  - Grafik-Pakete bereitstellen: `pkgs.intel-media-driver`, `pkgs.intel-compute-runtime`.
-  - Umgebung setzen: `LIBVA_DRIVER_NAME = "iHD"`, `LIBVA_DRIVERS_PATH = "${pkgs.intel-media-driver}/lib/dri"`.
-  - Berechtigungen in systemd: `users.users.audiobookshelf.extraGroups = [ "video" "render" ]`, `DeviceAllow = [ "/dev/dri rw" "/dev/dri/renderD128 rw" ]`.
-  - **Nutzen:** Schnelles, CPU-schonendes Transcoding großer Audioformate (FLAC, m4b, Opus) beim mobilen Streaming.
-
-### B. Jellyfin XML Pre-Seeding vor Erststart
-- **Quell-Datei:** [`NixmitGROK/modules/50-media/jellyfin.nix`](/home/moritz/repos/NixmitGROK/modules/50-media/jellyfin.nix)
-- **Problem:** Bis das Python-Provisioning nach dem Boot greift, startet eine frische Jellyfin-Instanz im englischen Standard-Setup.
-- **Leitfaden & Umsetzung:**
-  - Ablegen von statischen XML-Vorlagen (`jellyfin-system.xml`, `jellyfin-network.xml`) via systemd `preStart` in `/var/lib/jellyfin-5510/config/` (nur wenn die Dateien noch fehlen).
-  - Platzhalter per `sed` zur Build-/Startzeit ersetzen (`PreferredMetadataLanguage = de`, `MetadataCountryCode = DE`, `UICulture = de-DE`, `PublishedServerUrl`, `<MetadataPath>${metadataDir}/metadata</MetadataPath>`).
-  - **Nutzen:** Jellyfin begrüßt den Nutzer ab Sekunde 1 auf Deutsch mit fertiger Server-URL und separiertem Metadatenpfad, noch bevor die API konfiguriert wird.
-
----
-
-## 2. Observability-Stack: Status & Logging
+## 1. Observability-Stack: Status & Logging
 
 Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Streaming-Traffic und Fehler-Spitzen, ohne auf Cloud-Dienste angewiesen zu sein.
 
@@ -59,7 +37,7 @@ Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Stream
 
 ---
 
-## 3. Storage-Erweiterungen (Optional / Später)
+## 2. Storage-Erweiterungen (Optional / Später)
 
 ### A. HDD-freundliche Deferred Deletion Queue
 - **Quell-Datei:** [`NixmitGROK/modules/05-deferred-ops.nix`](/home/moritz/repos/NixmitGROK/modules/05-deferred-ops.nix)  
@@ -83,20 +61,20 @@ Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Stream
 
 ---
 
-## 4. Offene Implementierungs-Phasen
+## 3. Offene Implementierungs-Phasen
 
 | Phase | Thema | Enthaltene Komponenten | Priorität |
 |---|---|---|:---:|
 | **Phase 18** | **Media Observability** | Gatus Health-Dashboard (`585-gatus.nix`) | **Mittel (Aktiv)** |
 | **Phase 18b** | **Media Logging** | Vector + Loki + Grafana Pipeline (`586-logging.nix`) | Niedrig / Später |
 | **Phase 19** | **Storage & Spindown** | Deferred Deletion Queue (`544-deferred-delete.nix`), Automounting | Niedrig / Später |
-| **Phase 20** | **App Tuning** | Audiobookshelf VA-API/QuickSync, Jellyfin XML-Seeds | Niedrig |
 
 ---
 
-## 5. Bewusst abgelehnte Elemente (Out of Scope)
+## 4. Bewusst abgelehnte Elemente (Out of Scope)
 
 Die folgenden Elemente aus `NixmitGROK` bleiben dauerhaft **ausgeschlossen**:
+- **Audiobookshelf QuickSync (VA-API):** Audiobookshelf ist ein reiner Audioserver; QuickSync/VA-API beschleunigt hardwareseitig ausschließlich Video-Codecs. Audio-Transcoding läuft immer auf der CPU. Eine Durchreichung von `/dev/dri` würde die systemd-Sandbox schwächen ohne jeden Nutzen.
 - **Allround-Apps:** Vaultwarden, Homepage Dashboard, Paperless-ngx, n8n, Home Assistant, Zigbee2MQTT, Forgejo, Cockpit, AMP Game Server.
 - **Host-Netzwerk:** Blocky DoT DNS Resolver, AdGuardHome (gehört auf den Router/Host).
 - **Zentrale Shared-DBs:** PostgreSQL, Valkey (mediNix bleibt autonom mit isolierten SQLite-Datenbanken).

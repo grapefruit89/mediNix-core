@@ -24,6 +24,27 @@ let
     if cfg.adminPasswordFile != null then cfg.adminPasswordFile
     else if cfg.adminPasswordCredential != null then cfg.adminPasswordCredential
     else null;
+
+  jellyfinUrl =
+    if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
+  jellyfinMetadataDir = "${metadataDir}/metadata";
+  trickplayHwAccel = if svc.hardware.accel != "none" then "true" else "false";
+
+  systemXmlSeed = pkgs.writeText "jellyfin-system.xml" (
+    builtins.replaceStrings
+      [ "@METADATA_DIR@" "@LOCALE_LANG@" "@LOCALE_CC@" "@LOCALE_UI@" "@TRICKPLAY_HW_ACCEL@" ]
+      [ jellyfinMetadataDir "de" "DE" "de-DE" trickplayHwAccel ]
+      (builtins.readFile ./data/jellyfin-system.xml)
+  );
+
+  networkXmlSeed = pkgs.writeText "jellyfin-network.xml" (
+    builtins.replaceStrings
+      [ "@JELLYFIN_PORT@" "@JELLYFIN_URL@" ]
+      [ (toString port) jellyfinUrl ]
+      (builtins.readFile ./data/jellyfin-network.xml)
+  );
+
+  brandingXmlSeed = ./data/jellyfin-branding.xml;
 in
 lib.mkIf cfg.enable {
   assertions = [
@@ -46,10 +67,30 @@ lib.mkIf cfg.enable {
   };
   users.groups.media.gid = gid;
 
+  systemd.tmpfiles.rules = [
+    "d '${metadataDir}' 0775 jellyfin media -"
+    "d '${jellyfinMetadataDir}' 0775 jellyfin media -"
+  ];
+
   systemd.services.jellyfin = {
     after = [ "network-online.target" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
+    preStart = ''
+      ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/config'
+      if [ ! -f '${stateDir}/config/system.xml' ]; then
+        ${pkgs.coreutils}/bin/cp '${systemXmlSeed}' '${stateDir}/config/system.xml'
+        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/system.xml'
+      fi
+      if [ ! -f '${stateDir}/config/network.xml' ]; then
+        ${pkgs.coreutils}/bin/cp '${networkXmlSeed}' '${stateDir}/config/network.xml'
+        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/network.xml'
+      fi
+      if [ ! -f '${stateDir}/config/branding.xml' ]; then
+        ${pkgs.coreutils}/bin/cp '${brandingXmlSeed}' '${stateDir}/config/branding.xml'
+        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/branding.xml'
+      fi
+    '';
     serviceConfig = lib.mkMerge [
       profiles.dotnet-gpu
       memoryPolicy.jellyfin
