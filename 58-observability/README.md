@@ -18,6 +18,7 @@ Three modules. There is no `582-crowdsec.nix`.
 | **581** | [`581-ntfy.nix`](581-ntfy.nix) | Internal notification backend |
 | **583** | [`583-runtime-guard.nix`](583-runtime-guard.nix) | Hourly runtime checks |
 | **584** | [`584-post-boot-watchdog.nix`](584-post-boot-watchdog.nix) | One-shot failed-unit restart after boot |
+| **587** | [`587-disk-health.nix`](587-disk-health.nix) | SMART disk health monitoring (smartd + spindown preservation) |
 
 ```
 581 ntfy
@@ -44,6 +45,12 @@ Detection, not enforcement. The wall is 526. The unit has `CAP_NET_ADMIN` only t
 ## 584 post-boot watchdog
 
 Once, 180s after boot. Restarts registry units only if `ActiveState=failed`. Not `inactive`. Not a continuous watchdog.
+
+## 587 disk-health
+
+Physical drive health monitoring using `smartd`.
+- **Spindown preservation:** Uses `-n standby,q` to ensure smartd never spins up sleeping mechanical hard drives.
+- **Alerting:** Calls `-M exec smartd-ntfy-alert` on disk failures (reallocated/pending sectors, errors) and forwards alerts directly to `581 ntfy` (`http://127.0.0.1:5810/alerts`).
 
 ## Agent notes
 

@@ -307,6 +307,8 @@ in lib.mkMerge [
       }) allSites)
     );
 
+    systemd.services.caddy.serviceConfig.OOMScoreAdjust = lib.mkIf useGlobal (-900);
+
     environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
       text = caddyConfigStr;
     };

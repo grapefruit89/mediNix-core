@@ -728,6 +728,33 @@ in
       };
     };
 
+    diskHealth = {
+      enable = lib.mkEnableOption "SMART disk health monitoring via smartd with standby preservation";
+      devices = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ "DEVICESCAN" ];
+        example = [ "/dev/disk/by-id/ata-WDC_WD40EFRX-68N32N0_WD-WCC7K..." ];
+        description = ''
+          Disks for smartd to monitor. Defaults to DEVICESCAN.
+          To target specific mechanical HDDs or avoid scanning virtual/SSD devices,
+          specify persistent /dev/disk/by-id/ or /dev/disk/by-label/ device paths.
+        '';
+      };
+      spindownPreservation = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Append '-n standby,q' to smartd checks.
+          Ensures smartd NEVER wakes up spun-down mechanical hard drives from standby.
+        '';
+      };
+      notifyNtfy = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Send SMART failure alerts to internal ntfy (port 5810).";
+      };
+    };
+
     onDemand = {
       enable         = lib.mkOption { type = lib.types.bool; default = false; };
       internalOffset = lib.mkOption { type = lib.types.int;  default = 1000; };

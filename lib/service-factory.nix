@@ -22,6 +22,7 @@
 let
   profiles = import ./hardening-profiles.nix { inherit lib; };
   registry = (import ./registry.nix { inherit lib; }).services;
+  memoryPolicy = import ./memory-policy.nix { inherit lib; };
 
   # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
   # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.
@@ -58,6 +59,7 @@ if hardeningOnly then {
       StandardError    = "journal";
     }
     (profiles.${profile} or profiles.base)
+    (memoryPolicy.${name} or memoryPolicy.default)
     (lib.optionalAttrs (stateDir != null) {
       StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
       StateDirectoryMode = "0750";
@@ -86,6 +88,8 @@ if hardeningOnly then {
       }
       # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
       (profiles.${profile} or profiles.base)
+      # 1b) Zentrale Memory- & OOM-Policy (lib/memory-policy.nix)
+      (memoryPolicy.${name} or memoryPolicy.default)
       # 2) Service-spezifische Basis (User/Exec/State)
       {
         User             = "${name}";

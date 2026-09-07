@@ -19,6 +19,7 @@ let
   stateDir = "/var/lib/jellyfin-${toString port}";
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   adminCred =
     if cfg.adminPasswordFile != null then cfg.adminPasswordFile
     else if cfg.adminPasswordCredential != null then cfg.adminPasswordCredential
@@ -51,6 +52,7 @@ lib.mkIf cfg.enable {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
       profiles.dotnet-gpu
+      memoryPolicy.jellyfin
       {
         ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir ${metadataDir} --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
         User = "jellyfin";
