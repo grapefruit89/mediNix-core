@@ -38,6 +38,20 @@ let
       MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
 
 
+      # Validate staging and archive paths
+      if [ ! -d "$STAGING" ]; then
+        echo "Mover: stagingDir $STAGING not found — skip"
+        exit 0
+      fi
+      if [ ! -d "$ARCHIVE" ]; then
+        echo "Mover: archiveDir $ARCHIVE not found — aborting"
+        exit 1
+      fi
+      if [ "$STAGING" = "$ARCHIVE" ]; then
+        echo "Mover: STAGING and ARCHIVE are identical ($STAGING) — aborting to prevent self-moves."
+        exit 1
+      fi
+
       # Prevent writing to root SSD if mount fails
       if [ "$(stat -c "%m" "$ARCHIVE" 2>/dev/null || echo "/")" = "/" ]; then
         echo "Mover: ARCHIVE $ARCHIVE is on the root partition! Aborting to prevent SSD fill-up."
@@ -52,17 +66,21 @@ let
         exit 0
       fi
 
+      # Signal trap: immediately remove any in-flight temporary file if interrupted
+      CURRENT_STAGING_DEST=""
+      cleanup() {
+        if [ -n "$CURRENT_STAGING_DEST" ] && [ -f "$CURRENT_STAGING_DEST" ]; then
+          rm -f "$CURRENT_STAGING_DEST" 2>/dev/null || true
+        fi
+      }
+      trap cleanup EXIT INT TERM
+
       # Fund 5: Cleanup stale staging files from previous interrupted runs (older than 24h)
       if [ -d "$ARCHIVE/.staging_mover" ]; then
         find "$ARCHIVE/.staging_mover" -type f -name 'tmp_*' -mtime +1 -delete
       fi
 
-
       # 1. Fill level check on Staging (Tier-B/SSD)
-      if [ ! -d "$STAGING" ]; then
-        echo "Mover: stagingDir $STAGING not found — skip"
-        exit 0
-      fi
       FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
       if [ "$FREE_KB" -ge "$MIN_FREE_KB" ]; then
         echo "Mover: enough free space ($(($FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — nothing to do"
@@ -102,9 +120,23 @@ let
             if [ "$SRC_SIZE" = "$DEST_SIZE" ]; then
               echo "Mover: destination already exists with identical size ($SRC_SIZE bytes) — removing duplicate from staging: $f"
               rm -f "$f"
+              parent_dir="$(dirname "$f")"
+              if [ "$parent_dir" != "$STAGING" ]; then
+                rmdir "$parent_dir" 2>/dev/null || true
+              fi
             else
               echo "Mover: WARNING: destination $dest already exists with DIFFERENT size (source: $SRC_SIZE, dest: $DEST_SIZE) — skipping" >&2
             fi
+            continue
+          fi
+
+          # Pre-flight HDD Capacity Check: Ensure archive has space for file + 1GB safety margin
+          FILE_SIZE_BYTES=$(stat -c "%s" "$f" 2>/dev/null || echo "0")
+          FILE_SIZE_KB=$(( FILE_SIZE_BYTES / 1024 ))
+          ARCHIVE_FREE_KB=$(df -Pk "$ARCHIVE" | awk 'NR==2 {print $4}')
+          REQUIRED_KB=$(( FILE_SIZE_KB + 1024 * 1024 ))
+          if [ "$ARCHIVE_FREE_KB" -lt "$REQUIRED_KB" ]; then
+            echo "Mover: ARCHIVE $ARCHIVE is nearly full ($(($ARCHIVE_FREE_KB/1024)) MB free, need $(($REQUIRED_KB/1024)) MB) — skipping $rel" >&2
             continue
           fi
 
@@ -112,15 +144,23 @@ let
           # 1. Copy to a collision-free temporary file on the SAME filesystem (HDD cold backend)
           # 2. Atomic rename to the final destination so readers (Jellyfin via MergerFS) never see partial files
           staging_dest=$(mktemp -p "$ARCHIVE/.staging_mover" 'tmp_XXXXXX')
+          CURRENT_STAGING_DEST="$staging_dest"
           mkdir -p "$(dirname "$dest")"
 
           echo "Mover: transferring $rel ..."
           if cp -f "$f" "$staging_dest" && mv -f "$staging_dest" "$dest"; then
+            CURRENT_STAGING_DEST=""
             rm -f "$f"
+            # Prune empty parent directory on staging (keep staging root intact)
+            parent_dir="$(dirname "$f")"
+            if [ "$parent_dir" != "$STAGING" ]; then
+              rmdir "$parent_dir" 2>/dev/null || true
+            fi
             echo "Mover: successfully moved $rel"
           else
             echo "Mover: ERROR moving $f — preserving source file" >&2
             rm -f "$staging_dest" 2>/dev/null || true
+            CURRENT_STAGING_DEST=""
           fi
         done
 
