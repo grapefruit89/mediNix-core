@@ -19,6 +19,7 @@ Füge diesen Block zu deiner Host-Konfiguration hinzu, um mediNix perfekt mit de
   medinix.hostIntegration = {
     reverseProxy = "managed";  # mediNix installiert und betreibt Caddy
     nftables     = "managed";  # mediNix aktiviert nftables und den Kill-Switch
+    firewall     = "managed";  # mediNix öffnet Web-Ports (80/443)
     storage      = "external"; # Host regelt die mergerfs/ZFS Mounts
     vpn          = "managed";  # mediNix erstellt das wg0-Interface
   };
@@ -33,7 +34,7 @@ Füge diesen Block zu deiner Host-Konfiguration hinzu, um mediNix perfekt mit de
 
   # 4. Host liefert Fakten (Credentials & Co)
   # Der TPM-gesiegelte Cloudflare-Token (NICHT im Flake gespeichert!)
-  # medinix.host.credentials.acme-dns-token = "/var/lib/credstore.encrypted/cf-acme.cred";
+  # medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
 }
 ```
 

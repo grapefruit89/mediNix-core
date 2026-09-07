@@ -62,29 +62,42 @@ let
       fi
       echo "Mover: SSD is low ($(($FREE_KB/1024)) MB free) → moving media to $ARCHIVE"
 
-      # 2. Only whitelisted extensions AND >= 50MB, recursive, correctly bracketed
-      mkdir -p "$ARCHIVE"
-      find "$STAGING" -type f -size +50M \( ${lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions} \) \
-        | while read -r f; do
+      # 2. Only whitelisted extensions AND >= 50MB, not modified in last 5 minutes (-mmin +5)
+      mkdir -p "$ARCHIVE/.staging_mover"
+      find "$STAGING" -type f -size +50M -mmin +5 \( ${lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions} \) -print0 \
+        | while IFS= read -r -d $'\0' f; do
+          [ -f "$f" ] || continue
+
+          # Target reached check: stop once enough free space on SSD is achieved
+          CURRENT_FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
+          if [ "$CURRENT_FREE_KB" -ge "$MIN_FREE_KB" ]; then
+            echo "Mover: reached target free space ($(($CURRENT_FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — stopping"
+            break
+          fi
+
+          # Lock check: skip if file is actively open by any process (e.g. SABnzbd download/unrar)
+          if lsof -t "$f" >/dev/null 2>&1; then
+            echo "Mover: file is currently in use, skipping: $f"
+            continue
+          fi
+
           rel="''${f#"$STAGING"/}"
           dest="$ARCHIVE/$rel"
-          
+
           # Atomic Move Logic:
-          # 1. Copy to a hidden .staging folder on the SAME filesystem (HDD)
+          # 1. Copy to a collision-free temporary file on the SAME filesystem (HDD)
           # 2. Atomic rename to the final destination so Jellyfin never sees incomplete files
-          staging_dest="$ARCHIVE/.staging_mover/tmp_$(basename "$f")"
-          
+          staging_dest=$(mktemp -p "$ARCHIVE/.staging_mover" "tmp_XXXXXX_$(basename "$f")")
           mkdir -p "$(dirname "$dest")"
-          mkdir -p "$ARCHIVE/.staging_mover"
-          
-          # Copy to HDD staging
-          cp -f "$f" "$staging_dest"
-          
-          # Atomic rename to final path
-          mv -f "$staging_dest" "$dest"
-          
-          # Remove original on SSD
-          rm -f "$f"
+
+          echo "Mover: transferring $rel ..."
+          if cp -f "$f" "$staging_dest" && mv -f "$staging_dest" "$dest"; then
+            rm -f "$f"
+            echo "Mover: successfully moved $rel"
+          else
+            echo "Mover: ERROR moving $f — preserving source file" >&2
+            rm -f "$staging_dest" 2>/dev/null || true
+          fi
         done
 
       echo "Mover done"

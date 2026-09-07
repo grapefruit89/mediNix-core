@@ -31,6 +31,8 @@ let
   portsList = lib.mapAttrsToList (_: svc: toString svc.port) (lib.filterAttrs (_: svc: svc.port != null) registry.services);
   portsRegex = lib.concatStringsSep "|" portsList;
 
+  hasVpnFilter = cfg.vpn.enable || cfg.usenet-confinement.enable;
+
   script = pkgs.writeShellApplication {
     name = "mediNix-runtime-guard";
     runtimeInputs = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
@@ -45,18 +47,16 @@ let
         fi
       }
 
-      # 1. Check actual mediNix VPN security object.
-      if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
-        alert "CRITICAL: medinix_vpn_filter nftables table missing"
-        exit 1
-      fi
-      if ! nft list chain inet medinix_vpn_filter killswitch >/dev/null 2>&1; then
-        alert "CRITICAL: VPN killswitch chain missing"
-        exit 1
-      fi
-      if ! nft list chain inet medinix_vpn killswitch >/dev/null 2>&1; then
-        alert "CRITICAL: VPN killswitch chain missing"
-        exit 1
+      # 1. Check actual mediNix VPN security object if enabled.
+      if [ "${if hasVpnFilter then "1" else "0"}" = "1" ]; then
+        if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
+          alert "CRITICAL: medinix_vpn_filter nftables table missing"
+          exit 1
+        fi
+        if ! nft list chain inet medinix_vpn_filter killswitch >/dev/null 2>&1; then
+          alert "CRITICAL: VPN killswitch chain missing"
+          exit 1
+        fi
       fi
 
       # 2. Socket inspection must fail closed.

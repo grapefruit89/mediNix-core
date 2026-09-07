@@ -23,7 +23,12 @@
 # - query: "systemd.services serviceConfig ProtectSystem example"
 # library: /websites/nixos_manual_nixos_unstable
 # ---
-# WARNING (CRITICAL): PROWLARR MUST NEVER GO THROUGH THE VPN!
+# ─────────────────────────────────────────────────────────────────────────────
+# ARCHITEKTUR-VORGABE: PROWLARR WIRD NICHT AN DEN VPN-KILLSWITCH GEBUNDEN!
+# Prowlarr benötigt direkten WAN-Zugang und läuft bewusst über das Standard-Host-
+# Netzwerk (ohne VPN). Der VPN-Killswitch ist ausschließlich für den Payload-
+# Downloader (SABnzbd) reserviert.
+# ─────────────────────────────────────────────────────────────────────────────
 { config, lib, pkgs, ... }:
 
 let

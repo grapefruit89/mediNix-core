@@ -42,7 +42,7 @@ let
   mkExporter = e: lib.mkIf (cfg.enable && (svc.${e.name}.enable or false)) {
     systemd.services."exportarr-${e.name}" = {
       description = "Exportarr Prometheus Exporter for ${e.name}";
-      after = [ "network-online.target" "${e.name}-${toString e.port}.service" ];
+      after = [ "network-online.target" "${e.name}.service" ];
       requires = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = lib.mkMerge [

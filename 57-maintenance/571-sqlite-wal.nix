@@ -25,48 +25,36 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
-  # Only grab active services
-  activeServices = lib.filterAttrs (n: _: svc.${n}.enable or false) registry;
+  # Only grab active services that have a state directory and systemd unit
+  activeServices = lib.filterAttrs (n: s: s.stateDir != null && s.unitName != null && (svc.${n}.enable or false)) registry;
 
-  # Derive (systemd unit, StateDirectory) pairs from Registry
+  # Derive (systemd unit, StateDirectory, uid:gid) triples from Registry
   serviceEntries = lib.mapAttrsToList
-    (n: s: { unit = "${s.unitName}.service"; dir = "/var/lib/${n}-${toString s.port}"; })
+    (n: s: { unit = "${s.unitName}.service"; dir = s.stateDir; owner = "${toString s.uid}:${toString s.gid}"; })
     activeServices;
 
-  # "unit dir" lines, fed to the scripts via a here-string so maintenance only
-  # ever touches a service's own StateDirectory, and only while that service's
-  # own unit is active — never a blind find over every configured StateDirectory.
-  serviceEntriesLines = lib.concatMapStringsSep "\n" (e: "${e.unit} ${e.dir}") serviceEntries;
-
-  # WAL Tuning PRAGMAs (High-Performance for >= 16GB RAM)
-  tuningPragmas = ''
-    PRAGMA journal_mode=WAL;
-    PRAGMA synchronous=NORMAL;
-    PRAGMA cache_size=-64000;
-    PRAGMA temp_store=MEMORY;
-    PRAGMA mmap_size=536870912;
-    PRAGMA journal_size_limit=134217728;
-    PRAGMA wal_autocheckpoint=2000;
-    PRAGMA busy_timeout=10000;
-  '';
+  serviceEntriesLines = lib.concatMapStringsSep "\n" (e: "${e.unit} ${e.dir} ${e.owner}") serviceEntries;
 
   passiveScript = pkgs.writeShellApplication {
     name = "sqlite-passive";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd ];
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd pkgs.coreutils ];
     text = ''
       set -euo pipefail
       SERVICE_ENTRIES='${serviceEntriesLines}'
-      while read -r unit dir; do
+      while read -r unit dir owner; do
         [ -d "$dir" ] || continue
-        # Lifecycle coupling: only touch a service's own DBs while that
-        # service's own unit is active — never maintain a stopped service.
+        [ -n "$owner" ] || continue
+        # Non-blocking passive checkpoint while service is running
         systemctl is-active --quiet "$unit" || continue
-        find "$dir" -name '*.db' -type f | while read -r db; do
+        while IFS= read -r -d $'\0' db; do
+          [ -f "$db" ] || continue
           ${pkgs.sqlite}/bin/sqlite3 "$db" "
-            ${tuningPragmas}
+            PRAGMA busy_timeout=5000;
             PRAGMA wal_checkpoint(PASSIVE);
           " || true
-        done
+        done < <(find "$dir" -name '*.db' -type f -print0 2>/dev/null)
+        # Restore ownership so root does not leave locked -wal or -shm files
+        chown -R "$owner" "$dir" 2>/dev/null || true
       done <<< "$SERVICE_ENTRIES"
       echo "SQLite PASSIVE checkpoint done"
     '';
@@ -74,23 +62,48 @@ let
 
   truncateScript = pkgs.writeShellApplication {
     name = "sqlite-truncate";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd ];
+    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd pkgs.coreutils ];
     text = ''
       set -euo pipefail
       SERVICE_ENTRIES='${serviceEntriesLines}'
-      while read -r unit dir; do
+      while read -r unit dir owner; do
         [ -d "$dir" ] || continue
-        # Lifecycle coupling: only touch a service's own DBs while that
-        # service's own unit is active — never maintain a stopped service.
-        systemctl is-active --quiet "$unit" || continue
-        find "$dir" -name '*.db' -type f | while read -r db; do
+        [ -n "$owner" ] || continue
+
+        # Collect database files
+        mapfile -d $'\0' dbs < <(find "$dir" -name '*.db' -type f -print0 2>/dev/null)
+        [ "''${#dbs[@]}" -gt 0 ] || continue
+
+        # Lifecycle coupling: safely stop the writer before heavy checkpoint/analyze
+        WAS_ACTIVE=0
+        if systemctl is-active --quiet "$unit"; then
+          WAS_ACTIVE=1
+          echo "SQLite maintenance: stopping $unit for safe checkpoint..."
+          systemctl stop "$unit" || true
+          sleep 1
+        fi
+
+        for db in "''${dbs[@]}"; do
+          [ -f "$db" ] || continue
+          echo "SQLite optimize: maintaining $db"
           ${pkgs.sqlite}/bin/sqlite3 "$db" "
-            ${tuningPragmas}
+            PRAGMA busy_timeout=10000;
+            PRAGMA journal_mode=WAL;
+            PRAGMA synchronous=NORMAL;
             PRAGMA wal_checkpoint(TRUNCATE);
             PRAGMA optimize;
             PRAGMA ANALYZE;
-          " || true
+          " || echo "Warning: sqlite optimization failed on $db" >&2
         done
+
+        # Restore ownership so service can write to its WAL/SHM
+        chown -R "$owner" "$dir" 2>/dev/null || true
+
+        # Restart service if it was running before
+        if [ "$WAS_ACTIVE" -eq 1 ]; then
+          echo "SQLite maintenance: restarting $unit..."
+          systemctl start "$unit" || true
+        fi
       done <<< "$SERVICE_ENTRIES"
       echo "SQLite TRUNCATE + optimize done"
     '';

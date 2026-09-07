@@ -61,9 +61,9 @@ lib.mkIf cfg.enable {
       '';
     }
     {
-      assertion = (cfg.usenet-confinement.enable && cfg.prowlarr.enable) -> confined "prowlarr";
+      assertion = !confined "prowlarr";
       message = ''
-        [mediNix] usenet-confinement and Prowlarr are on, but vpnKillSwitch.instances.prowlarr is off.
+        [mediNix] Prowlarr must NEVER be confined under vpnKillSwitch (it requires direct WAN access for indexers).
       '';
     }
     {

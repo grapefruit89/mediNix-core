@@ -43,7 +43,7 @@ let
   cold        = st.backends.cold or "";
 
   # Logical paths (Services always point here — regardless of mode)
-  logicalDirs = map (t: "${dataRoot}/media/${t}") mediaTypes
+  logicalDirs = map (t: "${dataRoot}/${t}") mediaTypes
     ++ [ "${dataRoot}/downloads" "${dataRoot}/cache" "${dataRoot}/incomplete" ];
 
   # tmpfiles: Base directory structure
@@ -56,7 +56,7 @@ let
 
   # MergerFS mount for a media type
   mergerfsMount = mediaType: {
-    name  = "${dataRoot}/media/${mediaType}";
+    name  = "${dataRoot}/${mediaType}";
     value = {
       device  = "${hot}/${mediaType}:${cold}/${mediaType}";
       fsType  = "fuse.mergerfs";

@@ -7,9 +7,9 @@
 { lib, ... }:
 
 let
-  mkService = name: number: profile: caddyClass: {
+  mkServiceWithUnit = name: number: profile: caddyClass: unitName: {
     inherit name;
-    unitName = name;
+    unitName = if unitName != null then unitName else name;
     num    = number;
     port   = number * 10;
     uid    = number * 10;
@@ -18,9 +18,12 @@ let
     hardeningProfile = profile;
     caddyClass = caddyClass;
   };
-  mkNoPort = name: number: profile: caddyClass: {
+  mkService = name: number: profile: caddyClass:
+    mkServiceWithUnit name number profile caddyClass name;
+
+  mkNoPortWithUnit = name: number: profile: caddyClass: unitName: {
     inherit name;
-    unitName = name;
+    unitName = unitName;
     num    = number;
     port   = null;
     uid    = null;
@@ -29,12 +32,14 @@ let
     hardeningProfile = profile;
     caddyClass = caddyClass;
   };
+  mkNoPort = name: number: profile: caddyClass:
+    mkNoPortWithUnit name number profile caddyClass null;
 in
 rec {
   services = {
     caddy          = mkService "caddy" 511 "network" "none";
     pocket-id      = mkService "pocket-id" 512 "network" "public";
-    cloudflare-dns = mkNoPort "cloudflare-dns" 513 "script" "none";
+    cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
 
     sonarr   = mkService "sonarr" 532 "dotnet" "internal";
     radarr   = mkService "radarr" 533 "dotnet" "internal";
@@ -48,9 +53,9 @@ rec {
     audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
     navidrome      = mkService "navidrome" 553 "nodejs" "stream";
     feishin        = mkNoPort "feishin" 554 "network" "none";
-    seerr          = mkService "seerr" 561 "dotnet" "public";
+    seerr          = mkService "seerr" 561 "nodejs" "public";
 
-    ntfy = mkService "ntfy" 581 "network" "none";
+    ntfy = mkServiceWithUnit "ntfy" 581 "network" "none" "ntfy-sh";
   };
 
   ports = lib.filterAttrs (_: v: v != null)

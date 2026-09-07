@@ -1,10 +1,10 @@
 # ---
 # id: "541-sabnzbd"
-# title: "SABnzbd — Usenet Downloader"
+# title: "SABnzbd — Usenet Downloader (Optimized with RestrictNetworkInterfaces)"
 # domain: 54
 # folder: 54-transfer
 # status: active
-# last_reviewed: 2026-09-02
+# last_reviewed: 2026-09-07
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-5260
 # ---
@@ -21,6 +21,13 @@ let
   port = reg.port;
   uid = reg.uid;
   stateDir = reg.stateDir;
+
+  vpnIf =
+    if (config.services.vpnKillSwitch.vpnInterface or "") != ""
+    then config.services.vpnKillSwitch.vpnInterface
+    else if svc.vpn.interface != null && svc.vpn.interface != ""
+    then svc.vpn.interface
+    else "wg0";
 in
 {
   config = lib.mkIf cfg.enable {
@@ -67,6 +74,10 @@ in
             "/run/sabnzbd-tmp"
           ];
         }
+        # Defense-in-Depth: cgroup-BPF-Socketfilter im Linux-Kernel
+        (lib.mkIf (svc.usenet-confinement.enable && vpnIf != "") {
+          RestrictNetworkInterfaces = [ "lo" vpnIf ];
+        })
         {
           LoadCredentialEncrypted = lib.mkMerge [
             (lib.mkIf (cfg.serverCredentialFile != null) [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ])

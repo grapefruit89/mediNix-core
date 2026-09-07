@@ -213,7 +213,7 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
     } // lib.optionalAttrs cfg.jellyfin.enable {
       JELLYFIN_PORT = toString registry.jellyfin.port;
       JELLYFIN_MOVIES_PATH = "${cfg.storage.mediaRoot}/movies";
-      JELLYFIN_TV_PATH = "${cfg.storage.mediaRoot}/tvshows";
+      JELLYFIN_TV_PATH = "${cfg.storage.mediaRoot}/series";
       JELLYFIN_ADMIN_USER = "admin";
       JELLYFIN_ADMIN_PASSWORD_FILE = credPath "jellyfin-admin-pw";
     } // lib.optionalAttrs cfg.seerr.enable {
@@ -241,8 +241,10 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       };
     } // lib.optionalAttrs cfg.sonarr.enable {
       SONARR_ROOT = cfg.sonarr.rootFolder;
+      SONARR_ROOT_FOLDER = cfg.sonarr.rootFolder;
     } // lib.optionalAttrs cfg.radarr.enable {
       RADARR_ROOT = cfg.radarr.rootFolder;
+      RADARR_ROOT_FOLDER = cfg.radarr.rootFolder;
     };
   };
 }

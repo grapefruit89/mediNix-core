@@ -3,6 +3,69 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-09-07 — Phase 15: Deep Audit Fixes, Mover/SQLite Hardening & SSoT Path Consolidation
+
+Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code-Audit:
+
+- **Mover (543-mover.nix) gehärtet (Datenintegrität & Lifecycle)**:
+  - `lsof -t "$f"` Lock-Check: Dateien, die aktuell noch von SABnzbd oder Entpackern beschrieben werden, werden übersprungen.
+  - `-mmin +5` Mindestalter-Puffer: Nur Dateien, die seit mindestens 5 Minuten inaktiv sind, kommen in die Transfer-Queue.
+  - Eindeutige temporäre Zieldateien via `mktemp -p "$ARCHIVE/.staging_mover" "tmp_XXXXXX_$(basename "$f")"` verhindern Dateikollisionen bei gleichnamigen Medien in Unterordnern.
+  - Schwellenwert-Abbruch: Stoppt die Schleife vorzeitig, sobald auf der SSD `minFreeGb` wieder erreicht ist (`CURRENT_FREE_KB >= MIN_FREE_KB`), statt blind alle Whitelist-Dateien zu bewegen.
+  - Fehlertoleranz: Quelldatei auf der SSD (`rm -f "$f"`) wird erst und ausschließlich nach erfolgreichem `cp` und `mv` gelöscht; abgebrochene Staging-Fragmente werden sofort aufgeräumt.
+  - Null-terminierte Pfad-Verarbeitung (`-print0` / `read -d $'\0'`) für Leer- und Sonderzeichen.
+
+- **SQLite-Wartung (571-sqlite-wal.nix) — Lifecycle-Synchronisation & Berechtigungs-Schutz**:
+  - `truncateScript`: Heavy-Checkpoints (`PRAGMA wal_checkpoint(TRUNCATE)`, `optimize`, `ANALYZE`) stoppen aktive Services (`systemctl stop "$unit"`) vor dem Eingriff und starten sie danach wieder. Verhindert Lock-Konflikte (`SQLITE_BUSY`), Timeouts und Schreibkollisionen mit internen .NET/Python Connection-Pools.
+  - Berechtigungs-Wiederherstellung: Automatischer `chown -R "$owner" "$dir"` nach sqlite3-Aufrufen. Verhindert, dass durch Root angelegte/modifizierte `-wal` oder `-shm` Dateien den Service-User aussperren.
+  - Placebo-PRAGMAs entfernt (flüchtige CLI-Settings wie `cache_size` und `temp_store` verpufften wirkungslos; nur persistente WAL- und Optimize-Befehle bleiben).
+  - `passiveScript`: Führt non-blocking passive Checkpoints mit kurzem `busy_timeout=5000` aus und stellt Dateiberechtigungen sicher.
+
+- **Prowlarr Direktanbindung & Killswitch-Freistellung (536-prowlarr.nix & 591-cross-domain.nix)**:
+  - Prowlarr benötigt direkten WAN-Zugang und läuft bewusst über das Standard-Host-Netzwerk (ohne VPN).
+  - Die widersprüchliche Assertion in `591-cross-domain.nix`, die Prowlarr fälschlicherweise in den VPN-Killswitch zwingen wollte, wurde korrigiert: Sie erzwingt nun, dass Prowlarr niemals an den Killswitch gebunden wird (`!confined "prowlarr"`).
+- **SABnzbd Defense-in-Depth Killswitch (541-sabnzbd.nix)**:
+  - Ergänzung von `RestrictNetworkInterfaces = [ "lo" vpnIf ]` als zusätzliche cgroup-BPF-Sicherheitsbarriere (Defense-in-Depth neben dem bestehenden nftables-Policy-Routing) bei aktivem `usenet-confinement`.
+  - Beschränkt die verwendbaren Netzwerk-Interfaces des Dienstes auf `lo` (für lokale Caddy- und Arr-Kommunikation) und das VPN-Interface.
+  - Dynamische SSoT-Ermittlung des VPN-Interfaces (`vpnKillSwitch.vpnInterface` vor `vpn.interface` vor `"wg0"`).
+
+- **Runtime-Guard bereinigt (583-runtime-guard.nix)**:
+  - Typo `medinix_vpn` entfernt (Tabelle heißt `medinix_vpn_filter`).
+  - nftables-Check an `hasVpnFilter = cfg.vpn.enable || cfg.usenet-confinement.enable` gekoppelt; verhindert Daueralarme bei Setups ohne VPN.
+
+- **Watchdog & Registry Unit-Namen (584-post-boot-watchdog.nix & lib/registry.nix)**:
+  - `registry.nix` um flexible `unitName`-Behandlung erweitert: `cloudflare-dns` nutzt reale Unit `cloudflare-ddns.service`, `ntfy` nutzt `ntfy-sh.service`.
+  - Statische Web-Assets ohne systemd-Unit (`feishin`) erhalten `unitName = null`.
+  - Watchdog filtert `null`-Units sauber heraus und prüft nun exakt die existierenden systemd-Dienste.
+
+- **Seerr Hardening-Profil (555-seerr.nix & lib/registry.nix)**:
+  - Profil von `profiles.dotnet` auf `profiles.nodejs` korrigiert (Seerr/Jellyseerr ist Node.js/TypeScript).
+
+- **Service-Factory Peer-Isolation (lib/service-factory.nix)**:
+  - Invertierte Logik behoben: Bei `allowedPeers = []` wird `InaccessiblePaths` nun aktiv gesetzt und isoliert alle fremden State-Verzeichnisse (vorher wurde der Schutz bei leerer Liste komplett umgangen).
+
+- **Exportarr (573-exportarr.nix)**:
+  - Veralteten Unit-Namen in `after = [ ... "${e.name}.service" ]` korrigiert.
+
+- **SSoT-Pfadkonsolidierung & Provisioning (default.nix, 570-storage.nix, 574-provisioning.nix)**:
+  - Einheitliche Medienstruktur unter `storage.mediaRoot`: `/movies`, `/series`, `/books`, `/music`, `/downloads`, `/cache`.
+  - Sonarr-Default von `/tv` auf `/series` harmonisiert (deckungsgleich mit Jellyfin).
+  - Jellyfin TV-Pfad in `574-provisioning.nix` von `/tvshows` auf `/series` korrigiert.
+  - `574-provisioning.nix`: `SONARR_ROOT_FOLDER` und `RADARR_ROOT_FOLDER` für `arr_settings_sync.py` gesetzt (vorher wurden `SONARR_ROOT` übergeben, was vom Python-Skript ignoriert wurde).
+  - `default.nix`: `stagingDir` und `archiveDir` docken dynamisch an `cfg.storage.mediaRoot` an (Default `/downloads` und `/library`).
+  - `570-storage.nix`: Doppeltes `/media/` im Mount-Pfad beseitigt.
+
+- **Dokumentation & Handoff synchronisiert**:
+  - `ADMIN-HANDOFF.md`: `firewall = "managed"` für Port-Freigabe ergänzt; ACME-Token auf `ingress.tls.acmeCredential` korrigiert.
+  - `README.md`: Modultabelle auf tatsächlichen Bestand aktualisiert; Feishin als portlose SPA korrigiert; „No hardcoded deployment IPs“ präzisiert.
+
+## 2026-09-03 — Arr-Provisioning & CI Activation (Commits 0b00f61 & c544c89)
+
+- **.github/workflows/flake-check.yml**: `nix flake check` als CI-Gate für Push und Pull-Requests aktiviert.
+- **583-runtime-guard.nix**: Backspace-Artefakt in Wildcard-Listener-Regex behoben.
+- **574-provisioning.nix**: Vollständige Verdrahtung von `arr-sync-locale`, `arr-sync-profiles`, `arr-sync-download-clients` (TARGETS_JSON, CATEGORIES_INI), Prowlarr-Apps (APPS_JSON, INDEXERS_JSON) und TreasureMaps-Secrets.
+- **lib/registry.nix**: Seerr Port/UID auf 561 / 5610 synchronisiert.
+
 ## 2026-09-01 — Seerr rename
 
 Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/option `seerr`, module `555-seerr.nix`, port/UID 5550 unchanged.
@@ -193,8 +256,6 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
   parallelem 526. Entscheidung nötig vor Integration ins Repo.
 
 ## Offen (vor erstem Deploy)
-- **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor Build via `nix build` ersetzen.
-  Nur im Build-Pfad wenn `observability.crowdsec.enable = true` (default: false). Siehe docs/CROWDSEC-HASH.md
 - **nix flake check auf q958**: noch nicht ausgeführt (q958 AUS, Warte auf Freigabe)
 - **Provisioning-Automatisierung für Ntfy-Connections**: aktuell manuell (Settings → Connect → Ntfy)
 - **INV-STORE-xx**: State-Pfad-Whitelist als Guardrail (Roadmap, Impermanence-Whitelist-Ansatz)
@@ -203,4 +264,4 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
 - 46 Commits (Initial → a4f4839)
 - 9 Domains, ~42 Service/Infra-Module (inkl. Guardrails)
 - 29 ADRs (docs/) + ADR-5043 (assertion-quality)
-- Audit: Num-dupes 0, keine hardcoded IPs, keine TODO/FIXME, fakeHash nur bei CrowdSec (bewusster Platzhalter)
+- Audit: Num-dupes 0, keine hardcoded IPs, keine TODO/FIXME, keine verbliebenen fakeHash-Platzhalter (Caddy nutzt Stock-Binary + Lego TLS)

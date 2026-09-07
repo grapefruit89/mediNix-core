@@ -37,7 +37,7 @@ lib.mkIf cfg.enable {
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
-      profiles.dotnet
+      profiles.nodejs
       {
         ExecStart = lib.getExe seerrPkg;
         User = "seerr";

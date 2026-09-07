@@ -149,7 +149,7 @@ in
     sonarr = {
       enable  = lib.mkEnableOption "Sonarr TV Series Manager";
       package = mkPackageOption "sonarr";
-      rootFolder     = lib.mkOption { type = lib.types.str;  default = cfg.storage.mediaRoot + "/tv";     description = "Arr root folder (API-configured via provisioning)."; };
+      rootFolder     = lib.mkOption { type = lib.types.str;  default = cfg.storage.mediaRoot + "/series"; description = "Arr root folder (API-configured via provisioning)."; };
       qualityProfile = lib.mkOption { type = lib.types.str;  default = "HD-1080p";                       description = "Arr quality profile name (API-configured via provisioning)."; };
     };
     radarr = {
@@ -248,7 +248,7 @@ in
       };
       stagingDir = lib.mkOption {
         type = lib.types.path;
-        default = "/data/downloads";
+        default = cfg.storage.mediaRoot + "/downloads";
         description = ''
           Quell-Pfad auf Tier-B (SSD): importierte/complette Downloads die bei Platzmangel auf HDD wandern.
           Andockpunkt an storage.mediaRoot (Default: ''${storage.mediaRoot}/downloads).
@@ -257,7 +257,7 @@ in
       };
       archiveDir = lib.mkOption {
         type = lib.types.path;
-        default = "/data/library";
+        default = cfg.storage.mediaRoot + "/library";
         description = ''
           Ziel-Pfad auf Tier-C (HDD): nur echte Mediendateien (siehe mediaExtensions).
           Streaming-Dienste dürfen von hier lesen.

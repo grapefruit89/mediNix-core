@@ -1,7 +1,7 @@
 # mediNix-core
 
 Portable NixOS module set for a mediNix media-stack host.
-Systemd-native, flat, numbered by ADR-0000. No Docker, no hardcoded IPs.
+Systemd-native, flat, numbered by ADR-0000. No Docker, no hardcoded deployment IPs.
 
 A service describes itself. Ingress organs only consume that description.
 
@@ -17,14 +17,13 @@ A service describes itself. Ingress organs only consume that description.
 | Domain | Role | Modules |
 | --- | --- | --- |
 | `51-ingress` | Reverse proxy, TLS, DNS, mDNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-cloudflare-dns, 514-acme, 515-mdns, 518-landingpage |
-| `52-security` | Core security, VPN | 520-core-security, 525-vpn-interface, 526-vpn-killswitch |
+| `52-security` | Core security, Credentials, VPN | 520-core-security, 521-creds, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr indexers | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
-| `54-transfer` | Usenet + WAL + mover | 541-sabnzbd, 542-sqlite-wal, 543-mover |
-| `55-playback` | Playback | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 559-playback-tuning |
-| `56-requests` | Requests | 561-seerr (`555-seerr.nix`) |
-| `57-maintenance` | Optimize, sync, provision | 571-sqlite-optimize, 572-recyclarr, 573-exportarr, 574-provisioning |
-| `58-observability` | Notifications | 581-ntfy |
-| `59-guardrails` | Assertions | 591-cross-domain, 592-environment |
+| `54-transfer` | Usenet + mover | 541-sabnzbd, 543-mover |
+| `55-playback` | Playback & Requests | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 555-seerr |
+| `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 573-exportarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
+| `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog |
+| `59-guardrails` | Assertions | 591-cross-domain |
 
 How to attach a new program: [`51-ingress/510-ingress-SERVICE.md`](51-ingress/510-ingress-SERVICE.md).
 
@@ -44,7 +43,7 @@ How to attach a new program: [`51-ingress/510-ingress-SERVICE.md`](51-ingress/51
 | Jellyfin | 551 | 5510 | 5510 | 5000 | stream | 127.0.0.1 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | stream | 127.0.0.1 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | stream | 127.0.0.1 |
-| Feishin | 554 | 5540 | 5540 | 5000 | stream | 127.0.0.1 |
+| Feishin | 554 | – | – | 5000 | stream | – (static SPA) |
 | Seerr | 561 | 5610 | 5610 | 5000 | public | 127.0.0.1 |
 | ntfy | 581 | 5810 | 5810 | 5000 | public | 127.0.0.1 |
 

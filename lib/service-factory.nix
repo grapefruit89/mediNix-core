@@ -56,8 +56,9 @@ if hardeningOnly then {
       StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
       StateDirectoryMode = "0750";
     })
-    (lib.optionalAttrs (allowedPeers != []) {
-      InaccessiblePaths = mkPeerIsolation name allowedPeers;
+    (let paths = mkPeerIsolation name allowedPeers; in
+    lib.optionalAttrs (paths != []) {
+      InaccessiblePaths = paths;
     })
     extraConfig
   ];
@@ -85,8 +86,9 @@ if hardeningOnly then {
         RuntimeDirectory = name;
       }
       # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
-      (lib.optionalAttrs (allowedPeers != []) {
-        InaccessiblePaths = mkPeerIsolation name allowedPeers;
+      (let paths = mkPeerIsolation name allowedPeers; in
+      lib.optionalAttrs (paths != []) {
+        InaccessiblePaths = paths;
       })
       # 4) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
       extraConfig
