@@ -298,3 +298,18 @@ resolved (Log: `KONSOLIDIERUNG.md`):
 | `8000-clean.md` (with derivations) | superseded | Basis of this version; Clarifications §1/§2/§4/§5/§8 |
 | `ableitungen.md` (UID = 1000 + Number) | **rejected** | UID formula contradicted "project digit in front" — see Rejected |
 | `ableitungen2.md` (UID = Project × 1000 + Remainder) | superseded | absorbed into §4/§5 |
+
+---
+
+## 12. Enterprise & Security Standards Alignment (Security by Design)
+
+The mathematical properties and anchor rules of the decimal framework structurally enforce controls from major industry security baselines without runtime overhead:
+
+| Standard / Control | Framework Principle | Structural Guarantee |
+|---|---|---|
+| **NIST SP 800-53 AC-6** / **BSI SYS.1.3** (Least Privilege) | Isomorphic UID = Port ($N \times 10$) | Each service receives an individual, non-overlapping, unprivileged static UID. Zero DynamicUser chaos, no root daemon execution. |
+| **BSI NET.1.1** / **NIST SC-7** (Boundary Protection) | Unprivileged Port Guarantee | Lowest service number $H11 \rightarrow 1110 > 1023$. No daemon requires root privileges or `CAP_NET_BIND_SERVICE` to bind. |
+| **POSIX DAC** / **ISO 27002 A.8.2** (Privileged Access) | GID = Project $\times 1000$ (`H000`) | Filesystem sharing across services via dedicated project group, strictly separated from process isolation (UID). |
+| **ISO 27002 A.8.20** / **NIST CM-2** (Network Controls) | Anchor `_1` (Entry) & `_2` (Security) | Deterministic topology: ingress/reverse-proxy always on `_1`, network security & egress confinement always on `_2`. |
+| **NixOS Assertions Baseline** | Anchor `_9` (Guardrails) | Fail-closed invariants checked at evaluation time; invalid configurations refuse to build. |
+
