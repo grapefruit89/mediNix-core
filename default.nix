@@ -387,6 +387,18 @@ in
           description = "Mindestalter (Tage) bevor incomplete/Fragmente gelöscht werden.";
         };
       };
+      recyclarr = {
+        enable  = lib.mkEnableOption "Recyclarr custom format synchronization";
+        package = mkPackageOption "recyclarr";
+        schedule = lib.mkOption {
+          type    = lib.types.str;
+          default = "daily";
+          description = "Systemd calendar interval for Recyclarr runs.";
+        };
+      };
+      updateNotifier = {
+        enable = lib.mkEnableOption "Daily check for mediNix-core updates (ntfy notify, NO auto-update)";
+      };
     };
 
     authProxyPresent = lib.mkOption {

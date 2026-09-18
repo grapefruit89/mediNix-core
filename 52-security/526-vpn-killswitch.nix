@@ -183,8 +183,9 @@ in
           '' else ""}
         '';
       };
-    } // lib.mapAttrs (name: v: {
-      requires = [ "medinix-vpn-route.service" ];
+    };
+  } // lib.mapAttrs (name: v: {
+    requires = [ "medinix-vpn-route.service" ];
       after = [ "medinix-vpn-route.service" ];
       serviceConfig = {
         BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];

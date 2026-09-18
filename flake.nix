@@ -34,6 +34,7 @@
             self.nixosModules.default
             {
               medinix.enable = true;
+              services.caddy.enable = true;
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "24.11";
@@ -125,6 +126,7 @@
             ./lib/smoke-test.nix
             {
               medinix.enable = true;
+              services.caddy.enable = true;
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "24.11";

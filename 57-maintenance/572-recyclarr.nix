@@ -21,7 +21,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.medinix.maintenance.recyclarr;
+  cfg = config.medinix.maintenance.recyclarr or config.medinix.recyclarr or { enable = false; };
   svc = config.medinix;
   portRadarr = (import ../lib/registry.nix { inherit lib; }).services.radarr.port;
   portSonarr = (import ../lib/registry.nix { inherit lib; }).services.sonarr.port;

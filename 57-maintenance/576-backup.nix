@@ -117,11 +117,11 @@ lib.mkIf (cfg.enable && bkp.enable) {
     }
     {
       assertion = !bkp.offsite.enable || bkp.offsite.repository != "";
-      message = "[mediNix] offsite.enable requires offsite.repository (3-2-1)."
+      message = "[mediNix] offsite.enable requires offsite.repository (3-2-1).";
     }
     {
       assertion = !bkp.offsite.enable || bkp.offsite.passwordCredentialPath != null;
-      message = "[mediNix] offsite.enable requires offsite.passwordCredentialPath."
+      message = "[mediNix] offsite.enable requires offsite.passwordCredentialPath.";
     }
   ];
 

@@ -28,7 +28,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.medinix.maintenance.updateNotifier;
+  cfg = config.medinix.maintenance.updateNotifier or config.medinix.updateNotifier or { enable = false; };
   # ntfy topic from observability.ntfy (if ntfy is running)
   ntfyTopic = config.medinix.observability.ntfy.topic or "mediNix-updates";
   ntfyPort  = 5810;
