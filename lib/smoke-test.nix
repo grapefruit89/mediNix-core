@@ -1,13 +1,12 @@
 # tests/smoke-test.nix
 # Smoke-Test für mediNix-core — läuft in `nix flake check` via flake.nix checks.mediNix-smoke
-# Minimaler Test: Navidrome-Service-Unit existiert + Port 5530 korrekt konfiguriert.
+# Minimaler Test: Navidrome-Port/-UID in der Registry == Dezimalrahmen (5530).
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.medinix;
   # Navidrome: Port 5530 (553 × 10), UID 5530
   navidromePort = 5530;
-  navidromeUnit = "navidrome.service";
 in
 {
   config = lib.mkMerge [
@@ -15,20 +14,7 @@ in
       medinix.navidrome.enable = true;
     }
     (lib.mkIf (cfg.enable && cfg.navidrome.enable) {
-      # 1) Navidrome-Systemd-Unit muss existieren
-      systemd.services.${navidromeUnit} = {
-        # Reine Existenz-Prüfung (wird durch navidrome-Modul befriedigt)
-        # Falls navidrome-Modul nicht lädt, fehlt die Unit → Build-Fehler
-        
-        serviceConfig = lib.mkMerge [
-          {
-            # sanity: nicht auf 0.0.0.0
-            # (navidrome-Modul setzt RestrictAddressFamilies bereits korrekt)
-          }
-        ];
-      };
-
-      # 2) Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
+      # Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
       assertions = [
         {
           assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;

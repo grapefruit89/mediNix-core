@@ -68,6 +68,7 @@ let
 ' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})\b' || true)"
       if [ -n "$BAD" ]; then
         alert "CRITICAL: wildcard listener detected: $BAD"
+        exit 1
       fi
 
       # 3. VPN interface.
@@ -75,6 +76,7 @@ let
       if [ -n "$IFACE" ]; then
         if ! ip link show "$IFACE" >/dev/null 2>&1; then
           alert "CRITICAL: VPN interface down"
+          exit 1
         fi
       fi
 

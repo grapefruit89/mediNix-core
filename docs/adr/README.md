@@ -14,7 +14,7 @@ This folder is for **decisions**, not chat exports.
 
 ## Language
 
-English only from here. The German constitution twin is removed; use `ADR-00-dezimalrahmen-verfassung-en.md`.
+English only from here. The constitution is `ADR-0000-dezimalrahmen-verfassung.md` (the former German twin was translated into it).
 
 ## Do not treat as ADRs
 

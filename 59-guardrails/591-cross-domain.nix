@@ -50,6 +50,42 @@ let
   wantsNft =
     cfg.hostIntegration.nftables == "external"
     && (cfg.vpn.enable || cfg.usenet-confinement.enable);
+
+  # Decimal-framework invariants over the whole registry (ADR-0000 §4, I1/I2).
+  # The folder-name enforcer lives in flake.nix; these check the VALUES.
+  portable = lib.filterAttrs (_: svc: svc.port != null) svcReg.services;
+  allSvcs = svcReg.services;
+  regUids = lib.mapAttrsToList (_: svc: svc.uid) portable;
+  dfracViolations = lib.flatten [
+    (lib.mapAttrsToList (n: s:
+      lib.optional (s.num < 100 || s.num > 999 || !(lib.hasPrefix "5" (toString s.num)))
+        "${n}: num ${toString s.num} (I1: 3-stellig, I2: Projektziffer 5)") allSvcs)
+    (lib.mapAttrsToList (n: s:
+      lib.optional (s.port != s.num * 10 || s.port <= 1023 || s.port >= 65535)
+        "${n}: Port ${toString s.port} != num*10 oder ausserhalb (1023, 65535)") portable)
+    (lib.mapAttrsToList (n: s:
+      lib.optional (s.uid != s.port)
+        "${n}: UID ${toString s.uid} != Port ${toString s.port}") portable)
+    (lib.mapAttrsToList (n: s:
+      lib.optional (s.gid != 5000)
+        "${n}: GID ${toString s.gid} != 5000 (projektweit geteilt)") allSvcs)
+    (lib.optional (lib.length regUids != lib.length (lib.unique regUids))
+      "doppelte UID im Registry")
+  ];
+
+  # Factory output check (ADR-5050): factory-created services (stateDir registered
+  # in knownStateDirs) must yield User=<name>, Group=media, StateDirectory, and a
+  # system user with the registry uid.
+  factoryCreated = s: s.stateDir != null && lib.elem s.stateDir (config.medinix.knownStateDirs or [ ]);
+  svcCfgOf = n: config.systemd.services.${n}.serviceConfig or { };
+  factoryViolations = lib.flatten (lib.mapAttrsToList (n: s:
+    lib.optionals (factoryCreated s) [
+      (lib.optional ((svcCfgOf n).User or null != n) "${n}: unit User != ${n}")
+      (lib.optional ((svcCfgOf n).Group or null != "media") "${n}: unit Group != media")
+      (lib.optional (!((svcCfgOf n) ? StateDirectory)) "${n}: unit StateDirectory missing")
+      (lib.optional ((config.users.users.${n}.uid or null) != s.uid) "${n}: user uid != registry ${toString s.uid}")
+      (lib.optional ((config.users.users.${n}.group or null) != "media") "${n}: user group != media")
+    ]) allSvcs);
 in
 lib.mkIf cfg.enable {
   assertions = [
@@ -112,6 +148,20 @@ lib.mkIf cfg.enable {
       assertion = !(config.virtualisation.docker.enable or false)
         && !(config.virtualisation.podman.enable or false);
       message = "[mediNix] Docker/Podman are enabled. This stack is systemd-only.";
+    }
+    {
+      assertion = dfracViolations == [ ];
+      message = ''
+        [mediNix] Dezimalrahmen (ADR-0000 §4) verletzt:
+        ${lib.concatStringsSep "\n        " dfracViolations}
+      '';
+    }
+    {
+      assertion = factoryViolations == [ ];
+      message = ''
+        [mediNix] Service-Factory (ADR-5050) verletzt:
+        ${lib.concatStringsSep "\n        " factoryViolations}
+      '';
     }
   ];
 }

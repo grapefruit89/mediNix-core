@@ -37,3 +37,8 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 - **Transcode RAM Disk:** Jellyfin's transcode directory is mounted as a `TemporaryFileSystem` (tmpfs). This ensures that heavy, temporary transcode chunks are written to RAM instead of burning through the SSD's write endurance.
 - **Strict Read-Only Mounts:** Services like Jellyfin and Navidrome mount the primary media directories via `BindReadOnlyPaths`. Any attempt by the application (or an attacker exploiting the application) to delete a movie or song will be blocked at the kernel/systemd level.
 - **Static SPA Injection:** Feishin (`554-feishin.nix`) is not a running service. It is a static web app injected directly into Caddy's configuration via `try_files {path} /index.html`, eliminating the need for an unnecessary NodeJS backend process.
+
+## 📚 Guides & Specifications
+
+- [551-Jellyfin Tuning & Spindown Guide](551-jellyfin-tuning-and-spindown.md): Detailed architectural specification and migration guide from Unraid to mediNix (3-tier storage, FUSE/Inotify bypass, Intel QSV transcode settings, and the 04:00 AM maintenance window).
+

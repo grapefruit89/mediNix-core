@@ -36,7 +36,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 
 ### Architecture Decision Records
 
-- [ADR 0000 decimal framework constitution (en)](adr/ADR-00-dezimalrahmen-verfassung-en.md)
+- [ADR 0000 — Decimal Framework (constitution)](adr/ADR-0000-dezimalrahmen-verfassung.md)
 - [NIXMETA V3.0 Header Standard](adr/ADR-00-nixmeta-v3-header.md)
 - [ADR 0001 source repository registry](adr/ADR-00-source-repository-registry.md)
 - [ADR 5030 flake module patterns](adr/ADR-50-flake-module-patterns.md)

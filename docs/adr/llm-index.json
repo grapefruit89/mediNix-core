@@ -1,15 +1,15 @@
 {
   "purpose": "Machine index for docs/adr. Read this before opening every markdown file.",
   "lang": "en",
-  "updated": "2026-09-02",
+  "updated": "2026-09-23",
   "naming": "ADR-<service-or-topic>.md. Domain-only names (ADR-51-*) are legacy and should collapse into the service id (511, 512, …).",
   "start_here": [
-    "ADR-00-dezimalrahmen-verfassung-en.md",
+    "ADR-0000-dezimalrahmen-verfassung.md",
     "ADR-511-caddy.md",
     "ADR-551-jellyfin-media-playback.md"
   ],
   "canonical": [
-    {"id": "000", "file": "ADR-00-dezimalrahmen-verfassung-en.md", "topic": "decimal constitution", "status": "active"},
+    {"id": "0000", "file": "ADR-0000-dezimalrahmen-verfassung.md", "topic": "decimal constitution", "status": "active"},
     {"id": "00-nixmeta", "file": "ADR-00-nixmeta-v3-header.md", "topic": "module header schema", "status": "active"},
     {"id": "00-sources", "file": "ADR-00-source-repository-registry.md", "topic": "upstream source registry", "status": "active"},
     {"id": "5043", "file": "ADR-5043-assertion-quality.md", "topic": "assertion voice", "status": "active"},
@@ -20,9 +20,9 @@
   ],
   "duplicates": [
     {
-      "keep": "ADR-00-dezimalrahmen-verfassung-en.md",
-      "drop": ["ADR-00-dezimalrahmen-verfassung.md"],
-      "why": "Same constitution; DE + EN twins. English is canonical."
+      "keep": "ADR-0000-dezimalrahmen-verfassung.md",
+      "drop": [],
+      "why": "English is canonical; the former German twin was translated into this file."
     },
     {
       "keep": "ADR-5043-assertion-quality.md",

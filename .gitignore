@@ -28,3 +28,11 @@ venv/
 second-brain.sqlite
 
 *.log
+
+# Unraid migration export: contains API keys + WireGuard private key — NEVER commit (public repo!)
+Unraid Settings export/
+
+# Local scratch / desktop artifacts / backups
+.directory
+Textdatei.txt
+*.bak

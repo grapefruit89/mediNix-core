@@ -3,6 +3,32 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-09-23 — ADR-0000: englische Verfassung (übersetzt) + gerettete Herkunft
+
+Die angereicherte Verfassung (`ADR-0000-dezimalrahmen-verfassung.md`) wurde aus der
+Workbench-Fassung **ins Englische übersetzt** und ersetzt die frühere
+`ADR-00-dezimalrahmen-verfassung-en.md` (als `.bak` gesichert, bleibt in der
+Git-Historie). Neu enthalten: §11 Semantic Anchors, §12 Anhang (arc42/C4,
+ISO 25010, STRIDE, Design by Contract, Diátaxis).
+
+**Herkunft der Verfassung** (aus dem alten §11 „Origin and Version History" gerettet):
+
+Aus einer Brainstorm-Reihe des Repo-Eigentümers (Juli 2026), Slot für Slot gegen die
+Realität auf q958 geprüft. Meilensteine: die Vier-Anker-Erkenntnis (als
+`20-security` und `90-policy` sich als zwei Dinge erwiesen), die GID-Regel
+`Projekt × 1000` und der Kollisions-Beweis über die `N00`-Regel — alle drei vom
+Eigentümer, hier verifiziert und begründet.
+
+Konsolidiert am 2026-07-22 aus vier Vorentwürfen; ihre Widersprüche sind aufgelöst
+(Log: `KONSOLIDIERUNG.md`):
+
+| Vorentwurf | Status | Auflösung |
+|---|---|---|
+| `8000-dezimalrahmen.md` (ohne Ableitungen) | überholt | vollständig aufgenommen |
+| `8000-clean.md` (mit Ableitungen) | überholt | Basis dieser Fassung; Klarstellungen §1/§2/§4/§5/§8 |
+| `ableitungen.md` (UID = 1000 + Nummer) | **verworfen** | UID-Formel widersprach „Projektziffer vorne" — siehe Abgelehnt |
+| `ableitungen2.md` (UID = Projekt × 1000 + Rest) | überholt | in §4/§5 aufgenommen |
+
 ## 2026-09-07 — Phase 15: Deep Audit Fixes, Mover/SQLite Hardening & SSoT Path Consolidation
 
 Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code-Audit:
