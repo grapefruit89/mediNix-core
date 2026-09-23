@@ -6,6 +6,25 @@ How-to for domain **51-ingress**. File id `510` sits in front of the organs 511�
 
 Template: [`510-service.example.nix`](510-service.example.nix)
 
+## The access chain (who gets in)
+
+`_1` owns the **whole** access path — the door *and* who gets through:
+
+```
+WAN → Geo-IP (517) → CrowdSec (516) → Rate-Limit (517) → Caddy (511)
+    → Scanner-Trap (511) → Auth (512) → service
+```
+
+**Numbering rule:** the number is the service's **identity** (port/UID = num × 10),
+**not** its position in the chain. The chain is documentation; the numbers stay
+stable. Current slots: `511` caddy · `512` pocket-id · `513` cloudflare-dns ·
+`514` acme · `515` mdns · `518` landingpage. New edge defenses take the next free
+slots: **`516` crowdsec** · **`517` edge-firewall** (Geo-IP + rate-limit, native
+nftables).
+
+Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables/fail2ban;
+Caddy + firewall stay on). Escape hatch: `medinix.ingress.guardrails`.
+
 ## Checklist
 
 1. Add the service to `lib/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).

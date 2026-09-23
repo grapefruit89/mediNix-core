@@ -431,6 +431,26 @@ in
         default = {};
         description = "Per-service Caddy vhost configuration.";
       };
+      guardrails = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = ''
+            Build-time assertions (519) that keep the ingress on the mediNix path:
+            no nginx/httpd/iptables/fail2ban; Caddy and the firewall stay on.
+            Disable to opt out of the opinionated defaults entirely.
+          '';
+        };
+        allow = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "nginx" ];
+          description = ''
+            Names exempted from the 519 guardrails (e.g. "nginx"). Each entry
+            silences exactly one assertion — the escape hatch the message points to.
+          '';
+        };
+      };
       mode = lib.mkOption {
         type    = lib.types.enum [ "auto" "global" "standalone" ];
         default = "auto";
