@@ -112,9 +112,49 @@ http://home.local           same HTML, HTTP
 | **514** | `514-acme.nix` · ADR-5140 | Wildcard DNS-01. Group `caddy`. |
 | **515** | `515-mdns.nix` · ADR-5150 | Sole Avahi owner. |
 | **518** | `518-landingpage.nix` · ADR-518-landingpage-honeypot | `ingress.landing.root` only. 511 serves it. |
+| **519** | `519-ingress-guardrails.nix` | Advisory assertions: no nginx/httpd/iptables/fail2ban; Caddy + firewall stay on. Escape hatch via `medinix.ingress.guardrails`. |
+
+*(planned, next free slots: `516` crowdsec · `517` edge-firewall)*
 
 ## Closed vs open
 
 Closed: 511 P0/`publicNames`, forward-auth contract, 512 explicit enable, 513 dump prune, 514 systemd-credentials only, 518 generic tiles.
 
 Open: 515 name-set still filters on registry ports; 554-feishin bypasses 511; `nix flake check` / `caddy validate`.
+
+## Security parity vs the Unraid edge
+
+The Unraid Caddy (`*.m7c5.de`) is production-hardened. We reach the same level a different way — mostly **more** natively.
+
+**Already at parity (or better):**
+
+| Unraid | mediNix |
+|---|---|
+| Per-app/dendritic routes | registry + `vhosts` + 511 generator (Nix, not files) |
+| Zones WAN/LAN/Admin | `accessGroup` + `lanAbort` |
+| Fail-closed `abort` (000) | `abort @blocked` |
+| forward_auth SSO | `forward_auth` → Pocket-ID (no oauth2-proxy needed) |
+| Cloudflare ACME + DDNS | 513 + 514 |
+| Deploy gate + rollback | Nix build-time assertions + atomic switch |
+| Snippet locking (SHA256) | free via Nix content-addressing |
+| Additive-route defense | structural (no hand-written Caddyfile) |
+| Docker-socket-proxy | n/a — no Docker |
+
+**To add in the edge build (516/517 + a 511 upgrade):**
+
+| Unraid | mediNix plan |
+|---|---|
+| `strict_sni_host` + `trusted_proxies` + `client_ip_headers` | global options in 511 (also **needed** behind Cloudflare for the LAN gate) |
+| Scanner-trap (`.git`/`.env`/bad agents → `abort`) | 511 snippet |
+| Log redaction (query params) | 511 global log block |
+| Hardened headers (`preload`, `Permissions-Policy`, CSP, `-X-Powered-By`) | 511 header snippet |
+| CrowdSec | 516 (native nftables bouncer) |
+| Rate-limit · Geo-IP · kernel ipset | 517 (native nftables) |
+
+**Real gaps (not yet covered):**
+
+| Unraid | mediNix |
+|---|---|
+| Live HTTP assert matrix (67) | a `nixosTest` would cover routes/headers/blocks |
+| Red-team mutation suite | no equivalent yet |
+| Sablier (wake-on-demand) | not planned (optional) |
