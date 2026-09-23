@@ -3,7 +3,7 @@
 # title: "Family icon page — HTML organ of 511"
 # domain: 51
 # last_reviewed: 2026-09-02
-# adr: ADR-5180
+# adr: ADR-518-landingpage-honeypot
 # ---
 # Renderer only. No program names. A vhost with accessGroup stream|public
 # becomes a tile. landing=false opts out. Sprite file: 50-core/icons.svg

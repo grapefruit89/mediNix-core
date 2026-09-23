@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-sqlite-vs-postgres"
+id: "ADR-571-sqlite-vs-postgres"
 title: "ADR 5700 sqlite vs postgres"
 domain: 57
 status: active
@@ -13,7 +13,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5700: SQLite over PostgreSQL as Database Backend
+# ADR-571-sqlite-vs-postgres: SQLite over PostgreSQL as Database Backend
 
 ## Status
 Accepted (2026-08-11)

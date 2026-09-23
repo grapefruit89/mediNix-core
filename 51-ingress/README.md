@@ -109,7 +109,7 @@ http://home.local           same HTML, HTTP
 | **513** | `513-cloudflare-dns.nix` · ADR-5130 | Anchor DDNS. Dumb prune of vhost names. |
 | **514** | `514-acme.nix` · ADR-5140 | Wildcard DNS-01. Group `caddy`. |
 | **515** | `515-mdns.nix` · ADR-5150 | Sole Avahi owner. |
-| **518** | `518-landingpage.nix` · ADR-5180 | `ingress.landing.root` only. 511 serves it. |
+| **518** | `518-landingpage.nix` · ADR-518-landingpage-honeypot | `ingress.landing.root` only. 511 serves it. |
 
 ## Closed vs open
 

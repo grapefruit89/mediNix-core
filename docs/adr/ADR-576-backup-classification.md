@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-backup-data-classification"
+id: "ADR-576-backup-classification"
 title: "ADR 5721 backup data classification and applied strategy"
 domain: 57
 status: active
@@ -10,15 +10,15 @@ tags:
   - storage
   - classification
 links:
-  adr: "ADR-5721"
+  adr: "ADR-576-backup-classification"
   repo-harvest: ""
 supersedes: ["5720"]
 ---
-# ADR-5721: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
+# ADR-576-backup-classification: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
 
 ## Status: active
 ## Date: 2026-08-28
-## Supersedes: ADR-5720 (docs/adr/ADR-57-backup-strategy.md)
+## Supersedes: ADR-576-backup-strategy
 ## Source: Review zweier fast identischer Konzept-Dokumente (ChatGPT + Grok) zu
 "Backup-Strategie nach Datenklassen", plus Grounding-Runde mit den realen
 Rahmenbedingungen dieses Hosts (0 €/Monat Cloud-Budget, Koofr-Account bereits im
@@ -103,7 +103,7 @@ Was mediNix tatsächlich hält:
 
 **Konkrete Entscheidung (umgesetzt in `57-maintenance/576-backup.nix`, `default.nix`):**
 
-1. **Ein Werkzeug: restic**, nicht restic+borg wie in ADR-5720 vorgesehen. Medien
+1. **Ein Werkzeug: restic**, nicht restic+borg wie in ADR-576-backup-strategy vorgesehen. Medien
    (Klasse C) werden gar nicht gesichert, also gibt es auch keinen zweiten Job mit
    anderer Kadenz zu verwalten — das reduziert Komplexität, ohne etwas zu verlieren.
 2. **3-2-1 statt nur einer Kopie:** Primär-Repository (`maintenance.backup.repository`,
@@ -146,8 +146,8 @@ sondern weil sie an der Realität dieses Systems vorbeigehen:
 | Hetzner Storage Box / Backblaze B2 als Offsite | Direkter Widerspruch zu "für Cloud möchte ich im Monat nichts ausgeben". Koofr (Bestand) + zweite Platte erreichen dieselbe 3-2-1-Eigenschaft ohne laufende Kosten. |
 | DSGVO Art. 5/32/17, BSI-Grundschutz, NIS2, GoBD | Compliance-Pflichten für Unternehmen/Behörden. Für ein privates Homelab nicht "professioneller", sondern falsch verortet — es gibt keine Aufsichtsbehörde, der dieses System Rechenschaft schuldet. |
 | Neue Klasse D ("Archiv") | Für die genannte Größenordnung (persönliche Daten + ein paar Configs) braucht es keine vierte Tier-Stufe — das wäre Komplexität ohne Gegenwert. |
-| Borg zusätzlich zu restic für Medien-Dedup (ADR-5720) | Medien (Klasse C) werden gar nicht gesichert — es gibt nichts zu dedupen. Ein zweites Backup-Tool nur für eine Datenklasse, die man ohnehin nicht sichert, wäre reiner Wartungsaufwand. |
-| Bare-Metal-Recovery-Stick | Bereits in ADR-5720 abgelehnt (Homelab, kein Prod-System) — Einschätzung bleibt gültig, hier bestätigt. |
+| Borg zusätzlich zu restic für Medien-Dedup (ADR-576-backup-strategy) | Medien (Klasse C) werden gar nicht gesichert — es gibt nichts zu dedupen. Ein zweites Backup-Tool nur für eine Datenklasse, die man ohnehin nicht sichert, wäre reiner Wartungsaufwand. |
+| Bare-Metal-Recovery-Stick | Bereits in ADR-576-backup-strategy abgelehnt (Homelab, kein Prod-System) — Einschätzung bleibt gültig, hier bestätigt. |
 
 **Das Muster dahinter:** Ein wiederholtes "mach das professioneller"-Prompt ohne neue
 Fakten führt bei einem Sprachmodell tendenziell dazu, mehr Normen/Frameworks/Fachbegriffe

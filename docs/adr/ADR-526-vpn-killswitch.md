@@ -1,5 +1,5 @@
 ---
-id: "ADR-5260-vpn-killswitch"
+id: "ADR-526-vpn-killswitch"
 title: "VPN Kill-Switch Architecture (Policy Routing)"
 domain: 52
 status: active
@@ -10,7 +10,7 @@ tags:
   - vpn
   - network
 ---
-# ADR-5260: VPN Kill-Switch Architecture (Policy Routing)
+# ADR-526-vpn-killswitch: VPN Kill-Switch Architecture (Policy Routing)
 
 This document captures the architectural evolution and "lessons learned" during the development of the VPN kill-switch, particularly following the major Red-Team audit in August 2026.
 
@@ -62,3 +62,9 @@ Following a strict Red-Team audit, we opted for pure-Linux **Policy Routing** (`
 
 ## Prowlarr Emergency Brake (Warning!)
 Prowlarr (the Indexer) must **never** be routed through the VPN, as Usenet/Torrent indexers aggressively block VPN IPs or flood them with CAPTCHAs. Thanks to the dendritic architecture, Prowlarr was simply unsubscribed in `536-prowlarr.nix`.
+
+## Killswitch observability before change (merged from ADR-5260-killswitch-observability)
+
+526 is the enforcement layer. Counters and 583 nft/ss checks exist to *measure* the chain before anyone edits marks or allow-lists.
+
+Do not widen RFC1918/ULA/loopback allows into WAN. Do not treat 583 as a substitute for 526.

@@ -1,5 +1,5 @@
 ---
-id: "ADR-56-seerr-request-management"
+id: "ADR-561-seerr"
 title: "ADR 5610 seerr request management"
 domain: 56
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5610: Seerr — Request Management (56-anfragen, Dienst 561)
+# ADR-561-seerr: Seerr — Request Management (56-anfragen, Dienst 561)
 
 ## Status: active
 ## Date: 2026-08-11

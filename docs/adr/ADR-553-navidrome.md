@@ -1,5 +1,5 @@
 ---
-id: "ADR-55-navidrome-music-streaming"
+id: "ADR-553-navidrome"
 title: "ADR 5530 navidrome music streaming"
 domain: 55
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5530: Navidrome — Music Streaming (55-playback, Dienst 553)
+# ADR-553-navidrome: Navidrome — Music Streaming (55-playback, Dienst 553)
 
 ## Status: active
 ## Date: 2026-08-11

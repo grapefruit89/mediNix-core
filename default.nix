@@ -312,7 +312,7 @@ in
           description = ''
             Legacy: plain filesystem path to the restic password file. Used only when
             passwordCredentialPath is null. For a new setup prefer passwordCredentialPath
-            (systemd-creds, Fail-Closed) -- see ADR-5721.
+            (systemd-creds, Fail-Closed) -- see ADR-576-backup-classification.
           '';
         };
         passwordCredentialPath = lib.mkOption {
@@ -324,7 +324,7 @@ in
             57-maintenance/medinix-seal-secret.sh restic-password '<pw>'
             -> /var/lib/medinix/secrets/restic-password.encrypted). Wird via
             LoadCredentialEncrypted eingebunden, das Klartext-Passwort landet nie
-            auf Platte. Wenn gesetzt, wird passwordFile ignoriert. Siehe ADR-5721.
+            auf Platte. Wenn gesetzt, wird passwordFile ignoriert. Siehe ADR-576-backup-classification.
           '';
         };
         schedule = lib.mkOption {
@@ -337,7 +337,7 @@ in
             Zweite Restic-Kopie (3-2-1: physisch/logisch getrenntes Ziel, z.B.
             Koofr-WebDAV via rclone oder eine zweite externe Platte). Laeuft per
             restic copy NACH einem erfolgreichen lokalen Backup -- kein zweiter
-            Service-Stop noetig. ADR-5721.
+            Service-Stop noetig. ADR-576-backup-classification.
           '';
           repository = lib.mkOption {
             type    = lib.types.str;

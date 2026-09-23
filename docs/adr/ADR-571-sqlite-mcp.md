@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-sqlite-mcp-server"
+id: "ADR-571-sqlite-mcp"
 title: "ADR 5710 sqlite mcp server"
 domain: 57
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5710: SQLite MCP Server — FTS5 + Vector Capabilities (57-maintenance)
+# ADR-571-sqlite-mcp: SQLite MCP Server — FTS5 + Vector Capabilities (57-maintenance)
 
 ## Status: active
 ## Date: 2026-08-11

@@ -1,5 +1,5 @@
 ---
-id: "ADR-55-audiobookshelf-port-framework"
+id: "ADR-552-audiobookshelf"
 title: "ADR 5520 audiobookshelf port framework"
 domain: 55
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5520: Audiobookshelf — Port Conflicts & Decimal Framework (55-playback)
+# ADR-552-audiobookshelf: Audiobookshelf — Port Conflicts & Decimal Framework (55-playback)
 
 ## Status: active
 ## Date: 2026-08-11

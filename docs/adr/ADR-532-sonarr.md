@@ -1,5 +1,5 @@
 ---
-id: "ADR-53-sonarr-series-management"
+id: "ADR-532-sonarr"
 title: "ADR 5320 sonarr series management"
 domain: 53
 status: active
@@ -13,7 +13,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5320: Sonarr — Series Management (53-acquisition, Dienst 532)
+# ADR-532-sonarr: Sonarr — Series Management (53-acquisition, Dienst 532)
 
 ## Status: active
 ## Date: 2026-08-11

@@ -11,11 +11,11 @@
   "canonical": [
     {"id": "0000", "file": "ADR-0000-dezimalrahmen-verfassung.md", "topic": "decimal constitution", "status": "active"},
     {"id": "00-nixmeta", "file": "ADR-00-nixmeta-v3-header.md", "topic": "module header schema", "status": "active"},
-    {"id": "00-sources", "file": "ADR-00-source-repository-registry.md", "topic": "upstream source registry", "status": "active"},
+    {"id": "00-sources", "file": "ADR-0001-source-repository-registry.md", "topic": "upstream source registry", "status": "active"},
     {"id": "5043", "file": "ADR-5043-assertion-quality.md", "topic": "assertion voice", "status": "active"},
     {"id": "511", "file": "ADR-511-caddy.md", "topic": "caddy engine", "status": "active", "module": "51-ingress/511-caddy.nix"},
-    {"id": "518", "file": "ADR-5180-landingpage-honeypot.md", "topic": "landing page", "status": "stale-title", "module": "51-ingress/518-landingpage.nix"},
-    {"id": "526", "file": "ADR-5260-vpn-killswitch.md", "topic": "killswitch", "status": "active", "module": "52-security/526-vpn-killswitch.nix"},
+    {"id": "518", "file": "ADR-518-landingpage-honeypot.md", "topic": "landing page", "status": "stale-title", "module": "51-ingress/518-landingpage.nix"},
+    {"id": "526", "file": "ADR-526-vpn-killswitch.md", "topic": "killswitch", "status": "active", "module": "52-security/526-vpn-killswitch.nix"},
     {"id": "551", "file": "ADR-551-jellyfin-media-playback.md", "topic": "jellyfin", "status": "active", "module": "55-playback/551-jellyfin.nix"}
   ],
   "duplicates": [
@@ -44,13 +44,13 @@
       "why": "Port = num*10 already in constitution §4. Thin; fold into ADR-000 later."
     },
     {
-      "keep": "ADR-57-backup-data-classification.md",
-      "drop": ["ADR-57-backup-strategy.md"],
+      "keep": "ADR-576-backup-classification.md",
+      "drop": ["ADR-576-backup-strategy.md"],
       "why": "Strategy is a stub; classification is the real ADR. Confirm before delete."
     },
     {
-      "keep": "ADR-57-sqlite-vs-postgres.md",
-      "related": ["ADR-57-sqlite-wal-tuning.md", "ADR-57-sqlite-mcp-server.md"],
+      "keep": "ADR-571-sqlite-vs-postgres.md",
+      "related": ["ADR-571-sqlite-wal.md", "ADR-571-sqlite-mcp.md"],
       "why": "WAL is operational; MCP is draft. Do not merge WAL into vs-postgres."
     }
   ],

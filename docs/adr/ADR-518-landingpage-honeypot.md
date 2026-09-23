@@ -1,4 +1,4 @@
-# ADR 5180: Minimal Static Landingpage & Honeypot
+# ADR-518-landingpage-honeypot: Minimal Static Landingpage & Honeypot
 
 ## Context
 A central entry point (apex domain) is needed for guests to access exposed services (Jellyfin, Seerr, Audiobookshelf). We need to prevent automated crawlers from discovering the subdomains and services, while simultaneously penalizing malicious bots.
