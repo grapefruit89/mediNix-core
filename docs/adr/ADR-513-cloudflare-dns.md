@@ -1,5 +1,5 @@
 ---
-id: "ADR-51-cloudflare-dns-no-proxy"
+id: "ADR-513-cloudflare-dns"
 title: "ADR 5130 cloudflare dns no proxy"
 domain: 51
 status: active
@@ -14,7 +14,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5130: Cloudflare DNS for m7c5.de — No Proxy, Direct A-Records (51-ingress)
+# ADR-513-cloudflare-dns: Cloudflare DNS for m7c5.de — No Proxy, Direct A-Records (51-ingress)
 
 ## Status: active
 ## Date: 2026-08-11

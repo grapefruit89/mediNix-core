@@ -13,7 +13,7 @@ tags:
   - hardening
   - architecture
 links:
-  adr: ADR-0000, ADR-5050, ADR-5210, ADR-5260
+  adr: ADR-0000, ADR-5050, ADR-5210, ADR-526
 ---
 
 # BSI IT-Grundschutz Compliance Audit
@@ -57,7 +57,7 @@ Drei Kern-Bausteine des BSI-Kompendiums werden direkt adressiert:
 
 | Anforderung | Schutzstufe | Technische Umsetzung in mediNix / NixOS | Verifikation / Beleg |
 |---|---|---|---|
-| **NET.1.1.A1** Sicherheitsrichtlinie für das Netz | **Basis (MUSS)** | Formale Dokumentation aller Netzbeziehungen und Interfaces in ADR-0000, ADR-5260 und `network-topology.md`. | `docs/adr/ADR-00-dezimalrahmen-verfassung-en.md` |
+| **NET.1.1.A1** Sicherheitsrichtlinie für das Netz | **Basis (MUSS)** | Formale Dokumentation aller Netzbeziehungen und Interfaces in ADR-0000, ADR-526 und `network-topology.md`. | `docs/adr/ADR-0000-dezimalrahmen-verfassung.md` |
 | **NET.1.1.A21** Zonierung & Trennung des Managementbereichs | **Standard (SOLL)** | **Strikte Drei-Zonen-Teilung:**<br>1. *WAN-Zone:* Nur Caddy Reverse-Proxy (`511`) hört auf Port 80/443.<br>2. *Backend-Zone:* Alle Mediendienste binden ausschließlich auf `127.0.0.1:<Port>` oder UNIX-Sockets.<br>3. *Management-Zone:* SSH nur für Admin `medinix` via LAN. | `lib/hardening-profiles.nix`, `51-ingress/` |
 | **NET.1.1.A22 & A23** Segmentierungskonzept & Schutzbedarfs-Trennung | **Standard (SOLL)** | **Die 3 Netzwerkklassen:**<br>• `loopbackOnly`: `{ RestrictNetworkInterfaces = ["lo"]; IPAddressDeny = ["any"]; IPAddressAllow = ["127.0.0.1/32"]; }`<br>• `vpnConfined`: SABnzbd (`541`) isoliert auf `lo` + WireGuard.<br>• `wanClient`: Gesteuerte WAN-Verbindungen für Indexer/Metadata. | `lib/hardening-profiles.nix` |
 | **NET.1.1.A33** Mikrosegmentierung des Netzes | **Erhöhter Bedarf (H)** | systemd-native Mikrosegmentierung auf Prozess-Ebene (`SocketBindDeny = "any"`, `SocketBindAllow = "ipv4:tcp:127.0.0.1:<Port>"`). Kein Dienst kann fremde Ports öffnen. | `lib/service-factory.nix` |

@@ -3,6 +3,55 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-09-23 — ADR-0000: §11 Semantic Anchors + Anhang (Stufe 2 & 3)
+
+Additiv erweitert — keine bestehende Aussage geändert, §1–10 unverändert:
+- **§11 Semantic Anchors** — die im Rahmen gelebten Prinzipien beim Namen genannt
+  (SSOT, Design by Contract, MECE, Separation of Concerns, Ubiquitous Language,
+  ISO/IEC 25010, Pugh-Matrix, ADR/MADR).
+- **Begriffsabgrenzung** — „Slot-Anker" (`_0/_1/_2/_9`) ≠ „Semantic Anchors".
+- **§12 Anhang** — projektweite Anchor-Schicht (Stufe 2 & 3): arc42/C4,
+  ISO 25010 + Quality Attribute Scenarios, STRIDE, Design by Contract / Fitness
+  Functions, Diátaxis, Migrations-/Prozess-/Text-/Wissens-Anchors.
+
+Betroffen: `docs/adr/ADR-0000-dezimalrahmen-verfassung.md`.
+
+## 2026-09-23 — Doku-Sanierung: ADR-0000 (Dezimalrahmen)
+
+Ausgelagert aus `docs/adr/ADR-0000-dezimalrahmen-verfassung.md` (vormals `ADR-00-…-en`), damit die
+Verfassung normativ bleibt und die Historie hier archiviert ist. Ebenfalls entfernt: der
+BSI/NIST-Zuordnungsabschnitt (über-claimte Compliance ohne Nachweis).
+
+### Herkunft der Nummer 0000 (vormals 8000)
+Die frühere Nummer `8000` war ein Namensraum-Fehler, den die Verfassung selbst aufdeckt: `8` ist
+devNIX. `8000` ist damit devNIX' eigener `_0`-Slot — die Block-ID *eines* Projekts. Ein Dokument,
+das **alle** Projekte regiert, darf nicht im Fundament-Slot eines einzelnen wohnen; sonst
+kollidiert es mit devNIX' eigenem Fundament und widerspricht seiner eigenen Slot-Semantik.
+
+Die reine Nummer ist **`0000`**: die Block-ID der Wurzel. Namensraum `0` ist auf jeder Ebene das
+Fundament — und `N00` ist nie ein Programm, immer Wissen. Die Verfassung besetzt damit exakt den
+Slot, den ihre eigenen Regeln für genau diese Art Inhalt reservieren, an der Spitze des Baums.
+Nebeneffekt: der Port-Beweis („H = 0 leitet nie ab") bekommt seinen Bewohner.
+
+*Migration:* Referenzen auf „ADR-8000" in `AGENTS.md`, `CLAUDE.md`, READMEs und im Skill auf `0000`
+umstellen; eine Weiterleitungsnotiz unter der alten Nummer belassen (`superseded by 0000`).
+
+### Herkunft und Versionsgeschichte der Verfassung
+Aus einer Brainstorm-Reihe des Repo-Eigentümers (Juli 2026), Slot für Slot gegen die Wirklichkeit
+auf q958 geprüft. Meilensteine: der Vier-Anker-Schluss (als `20-security` und `90-policy` sich als
+zwei Dinge erwiesen), die GID-Regel `Projekt × 1000`, und der Kollisionsbeweis über die
+`N00`-Regel — alle drei vom Eigentümer, hier verifiziert und begründet.
+
+Konsolidiert am 2026-07-22 aus vier Vorfassungen; deren Widersprüche sind aufgelöst
+(Protokoll: `KONSOLIDIERUNG.md`):
+
+| Vorfassung | Status | Auflösung |
+|---|---|---|
+| `8000-dezimalrahmen.md` (ohne Ableitungen) | superseded | vollständig hierin aufgegangen |
+| `8000-clean.md` (mit Ableitungen) | superseded | Basis dieser Fassung; Präzisierungen §1/§2/§4/§5/§8 |
+| `ableitungen.md` (UID = 1000 + Nummer) | **verworfen** | UID-Formel widersprach „Projektziffer vorne" — siehe Abgelehnt |
+| `ableitungen2.md` (UID = Projekt × 1000 + Rest) | superseded | in §4/§5 aufgegangen |
+
 ## 2026-09-07 — Phase 15: Deep Audit Fixes, Mover/SQLite Hardening & SSoT Path Consolidation
 
 Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code-Audit:

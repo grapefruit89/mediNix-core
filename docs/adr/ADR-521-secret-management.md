@@ -1,5 +1,5 @@
 ---
-id: "ADR-52-secret-management"
+id: "ADR-521-secret-management"
 title: "ADR 5000 secret management"
 domain: 52
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5000: mediNix Secret Management — sops-nix → systemd-credentials Migration (50-core)
+# ADR-521-secret-management: mediNix Secret Management — sops-nix → systemd-credentials Migration (50-core)
 
 ## Status: active
 ## Date: 2026-08-11

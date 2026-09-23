@@ -20,7 +20,7 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5260
+# adr: ADR-526
 # ---
 { config, lib, pkgs, ... }:
 

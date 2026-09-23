@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-backup-data-classification"
+id: "ADR-576-backup-classification"
 title: "ADR 5721 backup data classification and applied strategy"
 domain: 57
 status: active
@@ -14,11 +14,11 @@ links:
   repo-harvest: ""
 supersedes: ["5720"]
 ---
-# ADR-5721: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
+# ADR-576-backup-classification: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
 
 ## Status: active
 ## Date: 2026-08-28
-## Supersedes: ADR-5720 (docs/adr/ADR-57-backup-strategy.md)
+## Supersedes: ADR-5720 (docs/adr/ADR-576-backup-strategy.md)
 ## Source: Review zweier fast identischer Konzept-Dokumente (ChatGPT + Grok) zu
 "Backup-Strategie nach Datenklassen", plus Grounding-Runde mit den realen
 Rahmenbedingungen dieses Hosts (0 €/Monat Cloud-Budget, Koofr-Account bereits im

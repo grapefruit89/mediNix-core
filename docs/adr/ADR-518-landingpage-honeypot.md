@@ -1,4 +1,20 @@
-# ADR 5180: Minimal Static Landingpage & Honeypot
+---
+id: "ADR-518-landingpage-honeypot"
+title: "Minimal Static Landingpage & Honeypot"
+domain: 51
+status: active
+complexity: 3
+last_reviewed: 2026-09-23
+tags:
+  - ingress
+  - caddy
+  - security
+links:
+  adr: ADR-511
+  module: 51-ingress/518-landingpage.nix
+---
+
+# ADR-518-landingpage-honeypot: Minimal Static Landingpage & Honeypot
 
 ## Context
 A central entry point (apex domain) is needed for guests to access exposed services (Jellyfin, Seerr, Audiobookshelf). We need to prevent automated crawlers from discovering the subdomains and services, while simultaneously penalizing malicious bots.

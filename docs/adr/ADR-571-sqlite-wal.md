@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-sqlite-wal-tuning"
+id: "ADR-571-sqlite-wal"
 title: "ADR 5700 sqlite wal tuning"
 domain: 57
 status: active
@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-5700: SQLite WAL Tuning for *arr Stack (Tier B SSD) (57-maintenance)
+# ADR-571-sqlite-wal: SQLite WAL Tuning for *arr Stack (Tier B SSD) (57-maintenance)
 
 ## Status: active
 ## Date: 2026-08-11

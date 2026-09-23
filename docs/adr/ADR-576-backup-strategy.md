@@ -1,5 +1,5 @@
 ---
-id: "ADR-57-backup-strategy"
+id: "ADR-576-backup-strategy"
 title: "ADR 5720 backup strategy"
 domain: 57
 status: superseded
@@ -11,11 +11,11 @@ tags:
 links:
   adr: ""
   repo-harvest: ""
-superseded_by: "ADR-5721 (ADR-57-backup-data-classification.md)"
+superseded_by: "ADR-5721 (ADR-576-backup-classification.md)"
 ---
-# ADR-5720: Backup Strategy — Borg/Restic on Tier C (57-maintenance)
+# ADR-576-backup-strategy: Backup Strategy — Borg/Restic on Tier C (57-maintenance)
 
-> **SUPERSEDED 2026-08-28 by ADR-5721** (see docs/adr/ADR-57-backup-data-classification.md).
+> **SUPERSEDED 2026-08-28 by ADR-5721** (see docs/adr/ADR-576-backup-classification.md).
 > Per ADR-0000 (Dezimalrahmen-Verfassung): "nicht loeschen, nicht ersetzen -- nur ergaenzen,
 > Status auf superseded" -- this file stays as-is below, only the status changed.
 > Reason: the borg-for-media / restic-for-config split described below was never actually

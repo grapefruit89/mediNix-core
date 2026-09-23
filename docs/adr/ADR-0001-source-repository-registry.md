@@ -1,6 +1,6 @@
 ---
-id: "ADR-00-source-repository-registry"
-title: "ADR 0001 source repository registry"
+id: "ADR-0001-source-repository-registry"
+title: "Source Repository Registry"
 domain: 00
 status: active
 complexity: 2
@@ -11,7 +11,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-0001: Source Repository Registry (grapefruit89 GitHub Account)
+# ADR-0001-source-repository-registry: Source Repository Registry (grapefruit89 GitHub Account)
 
 ## Status: active
 ## Date: 2026-08-11
@@ -26,7 +26,7 @@ links:
 |------|-----|----------------|-------------|----------------------|
 | **mediNix-core** | https://github.com/grapefruit89/mediNix-core | `master` | Portable media-stack boilerplate (english, decimal-framework) | **THIS REPO** — the extracted core |
 | **mediNix** | https://github.com/grapefruit89/mediNix | `main` | Living homelab (german, `my.*`-refs, AGENTS.md) | Gold source for real configs + CLAUDE.md gold-standards |
-| **devNIX** | https://github.com/grapefruit89/devNIX | `main` | Nix dev tooling + Claude-Code plugin w/ hooks | **Constitution source**: ADR-8000 Decimal Framework = authority over ADR-0000 |
+| **devNIX** | https://github.com/grapefruit89/devNIX | `main` | Nix dev tooling + Claude-Code plugin w/ hooks | **Constitution source**: ADR-0000 Decimal Framework (formerly devNIX ADR-8000) = authority |
 | **Nix-Grok** | https://github.com/grapefruit89/Nix-Grok | `main` | Grok chat-export extractions | Knowledge mining (patterns, pivots) |
 | **NixmitGROK** | https://github.com/grapefruit89/NixmitGROK | `main` | Nix + Grok combination | Cross-reference for Grok+Nix patterns |
 | **nix-hermes** | https://github.com/grapefruit89/nix-hermes | `main` | (no description) | Hermes+Nix integration — inspect before use |
@@ -57,7 +57,7 @@ links:
 ## How to use this registry
 
 When the user says "look in my other repos":
-1. Check `devNIX` first for **decimal-framework / architecture** questions (ADR-8000 is law).
+1. Check `devNIX` first for **decimal-framework / architecture** questions (ADR-0000 is law).
 2. Check `mediNix` for **real-world configs** + `CLAUDE.md` gold-standards (Jellyfin start, seccomp EPERM, media-group).
 3. Check `mynixos-v5` for **advanced patterns** (SSO/Pocket-ID wiring, SSoT-registry, ABC-tiering).
 4. Use `Nix-Grok` / `NixmitGROK` for **chat-extracted knowledge**.
@@ -65,6 +65,6 @@ When the user says "look in my other repos":
 ## Rules
 
 - **mediNix-core is the portable extract** — never add `my.*`-refs here (Regel 3, AGENTS.md).
-- **devNIX ADR-8000 wins** over any local assumption on numbering.
+- **ADR-0000 wins** over any local assumption on numbering.
 - **No branch work** in `mediNix` (AGENTS.md Regel −1: main only).
 - Private repos (marked **yes**) are out of scope unless explicitly requested.

@@ -108,7 +108,7 @@ notes:
 This skill defines how modules are created, numbered, hardened and documented
 in mediNix-core.
 
-It does not replace the constitution (`docs/adr/ADR-00-dezimalrahmen-verfassung-en.md`),
+It does not replace the constitution (`docs/adr/ADR-0000-dezimalrahmen-verfassung.md`),
 the registry (`lib/registry.nix`), the architectural law (`50-core/MANIFEST.md`),
 or objective verification (`medinix-verify` / flake checks).
 
@@ -266,7 +266,7 @@ Rules:
 - **ADR filename prefixes follow the framework**: ADR-NNNN mirrors the
   folder (e.g. `ADR-5000` for core, `ADR-5700` for maintenance);
   service ADRs use the service PORT (= Dienstnummer x 10, e.g.
-  `ADR-5260`), never running numbers like `ADR-5501`.
+  `ADR-526`), never running numbers like `ADR-5501`.
 - **mkArrEnv double-prefix bug**: when flattening a recursive attrset
   to .NET env vars, build the FULL key including the prefix inside the
   recursion (leaf: `"${prefix}__${...}"`) and return it 1:1 — adding a

@@ -78,7 +78,7 @@ Build-Zeit aus `lib/registry.nix` generiert (registryJson). Tier-Pfade + Domain 
 `tests/smoke-test.nix` → `checks.mediNix-smoke` in `flake.nix` (Navidrome Unit + Port-Isomorphie).
 
 ## Quell-Repos (Harvest, siehe docs/ADR-0001)
-- mediNix (Gold, deutsch) | devNIX (ADR-8000) | Nix-Grok (UID-Routing: modules/10-network/1096-vpn.nix)
+- mediNix (Gold, deutsch) | devNIX (ADR-0000) | Nix-Grok (UID-Routing: modules/10-network/1096-vpn.nix)
 - nixarr (Vergleich: unser UID-Routing > deren netns) | nixflix (deklarative API-Provisioning)
 
 ## Skills (Hermes)

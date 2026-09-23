@@ -6,7 +6,7 @@ status: active
 last_reviewed: 2026-09-02
 module: 57-maintenance/576-backup.nix
 supersedes: ["ADR-5720"]
-related: ["ADR-57-backup-data-classification.md"]
+related: ["ADR-576-backup-classification.md"]
 ---
 
 # ADR-576: Backup module
