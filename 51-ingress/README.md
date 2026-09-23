@@ -11,6 +11,8 @@ last_reviewed: 2026-09-02
 
 The **Ingress Domain** is the front door of mediNix-core: routing, TLS termination, DNS anchors, mDNS, and OIDC. It does **not** own individual applications.
 
+**Scope (KISS):** `_1` owns **the whole access path** — the door *and* who gets through. So the **edge defenses** live here too: **Geo-IP, CrowdSec, rate-limiting** (native via nftables), *not* in `52-security`. `52-security` protects **the system itself** (secrets, VPN, host firewall). Mnemonic: *`_1` = the door + who gets through · `_2` = protect the house.*
+
 How-to: [`510-ingress-SERVICE.md`](510-ingress-SERVICE.md)
 
 > **A service describes itself. Ingress organs only consume that description.**

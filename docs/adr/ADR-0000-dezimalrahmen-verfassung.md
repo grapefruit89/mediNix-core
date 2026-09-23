@@ -84,6 +84,14 @@ would be nonsense and was never meant.
 | **`_2`** | **Security** | How is it protected? | firewall, TLS, VPN confinement, auth mechanics |
 | **`_9`** | **Guardrails** | What must everything comply with? | assertions, prohibitions, global invariants |
 
+**`_1`/`_2` boundary (clarification):** `_1` governs **the whole access path** —
+the door *and* who gets through: proxy, IdP, DNS, ACME, mDNS **plus the edge
+defenses** (Geo-IP, CrowdSec, rate-limiting). `_2` protects **the system itself** —
+secrets, VPN, host firewall, kernel hardening. Mnemonic: *`_1` = the door + who
+gets through · `_2` = protect the house.* The "firewall" in `_2` is the **host**
+firewall; the edge defenses belong to `_1`, so the access chain stays readable in
+one place (KISS).
+
 Whoever sees `_2` knows security — in the system root (`20`), in mediNix (`520`),
 everywhere. A project **populates only the anchors it has**; an empty anchor is
 reserved, not an error.

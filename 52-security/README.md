@@ -11,6 +11,8 @@ last_reviewed: 2026-09-02
 
 Additive host integration. Domain 52 does not force `networking.firewall.enable`, global default-drop, or `boot.kernel.sysctl`. Hosts opt in.
 
+**Scope (KISS):** `_2` protects **the system itself** — secrets (521), VPN (525/526), **host** firewall, kernel hardening. The **edge defenses** (Geo-IP, CrowdSec, rate-limiting) belong to `51-ingress` (`_1`), because they govern *who gets in*. Mnemonic: *`_1` = the door + who gets through · `_2` = protect the house.*
+
 Four modules. 528 and 529 were stubs; their leftovers live in 520. Do not recreate them.
 
 ## Module map
