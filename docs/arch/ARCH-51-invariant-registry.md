@@ -64,6 +64,9 @@ Enforcement layers:
 | H20 | `vhostName ∉ reservedLabels` | prune protection only, no assertion | **partial** | A |
 | H12 | at most one Caddy owner (`standalone ⇒ ¬services.caddy.enable`) | — | **no** | A |
 | H12b | standalone must not materialize `systemd.services.caddy` | regression test `mediNix-caddy-single-owner` | yes | — |
+| H28 | mediNix-owned `InaccessiblePaths` tolerate missing paths (`-` prefix) | regression test `mediNix-inaccessible-paths-optional` | yes | — |
+| H29 | a unit never hides its own `StateDirectory` | regression test `mediNix-own-state-not-inaccessible` | yes | — |
+| H30 | enabling a service must not conflict with its nixpkgs `StateDirectory` | — (eval error surfaced) | **no** | B |
 | H22 | `idp` only for the identity provider vhost | — | **no** | A |
 | H13 | shared `enabledVhost` / `canonicalPublicFqdn` | — (three divergent predicates) | **no** | B |
 | H14 | statically servable ⇒ discovery knows it | — | **no** | B |
@@ -106,6 +109,27 @@ precision.
   (`systemd.services.caddy = lib.mkIf useGlobal { … }`). Enforced by
   `checks.mediNix-caddy-single-owner` (standalone ⇒ `caddy-media` only; global ⇒
   `caddy` + `OOMScoreAdjust`).
+
+- **H28** (found at **runtime** on q958, fixed in `4cf2b51`): systemd
+  `InaccessiblePaths=` without the `-` prefix requires the path to exist; a
+  missing path (`/run/secrets`, or a foreign `/var/lib/<svc>` before its first
+  run) aborts the unit with `226/NAMESPACE` at mount-namespace setup. Every
+  mediNix-owned `InaccessiblePaths` entry is now `-`-prefixed (ignore-if-missing)
+  in `lib/hardening-profiles.nix`, `lib/service-factory.nix` and 541/551/552/553.
+  Enforced by `checks.mediNix-inaccessible-paths-optional`.
+
+- **H29** (found at **runtime** on q958, fixed in `ebe0d28`): the factory's peer
+  isolation excluded by **unit name**, but `caddy-media` (unit) ≠ `caddy`
+  (registry key), so a unit made its **own** StateDirectory inaccessible →
+  `EACCES`; Caddy could not write autosave/storage. Fix: also exclude by the
+  actual `stateDir`. Enforced by `checks.mediNix-own-state-not-inaccessible`.
+
+- **H30** (surfaced at eval while building the H29 regression test; **OPEN**):
+  enabling `sabnzbd` / `jellyfin` / `audiobookshelf` / `navidrome` conflicts with
+  the nixpkgs module's `systemd.services.<x>.serviceConfig.StateDirectory`
+  (`"sabnzbd"` vs `"sabnzbd-5410"`). Latent for the Gate-4 base (services off),
+  blocks the "enable services" phase. Needs an explicit `mkForce`/`mkDefault`
+  decision. Phase B.
 
 - **H20** has **two scopes**: DNS zone (513/514: `wan`, `lan`, `*`, `@`,
   `_acme-challenge*`, apex) and local/mDNS (515: `home`). Not a single global list.
