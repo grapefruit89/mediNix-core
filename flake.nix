@@ -451,6 +451,43 @@
           else
             throw "H28: InaccessiblePaths without '-' prefix (aborts unit when path is missing): ${toString bad}";
 
+        # H29: a unit must never hide its OWN StateDirectory via peer
+        # isolation. The factory excluded by unit name; unit "caddy-media" vs
+        # registry key "caddy" slipped through, making /var/lib/caddy-5110
+        # inaccessible to caddy itself (EACCES).
+        checks.mediNix-own-state-not-inaccessible =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                };
+              }).config;
+            # caddy-media is the factory unit whose name differs from its
+            # registry key ("caddy") — the H29 trigger. Other services cannot be
+            # forced here without surfacing a separate StateDirectory conflict
+            # with their nixpkgs modules (tracked separately).
+            watched = [ "caddy-media" ];
+            checkUnit =
+              n:
+              let
+                u = c.systemd.services.${n};
+                sds = u.serviceConfig.StateDirectory or [ ];
+                sdList = if lib.isList sds then sds else lib.optional (sds != null) sds;
+                own = map (s: if lib.hasPrefix "/" s then s else "/var/lib/${s}") sdList;
+                ip = map (e: lib.removePrefix "-" e) (u.serviceConfig.InaccessiblePaths or [ ]);
+              in
+              lib.filter (p: lib.elem p own) ip;
+            bad = lib.flatten (map checkUnit watched);
+          in
+          if bad == [ ] then
+            pkgs.runCommand "own-state-not-inaccessible-ok" { } ''
+              echo 'ok: no unit hides its own StateDirectory' > $out
+            ''
+          else
+            throw "H29: unit hides its own StateDirectory in InaccessiblePaths: ${toString bad}";
+
         checks.mediNix-firewall-managed =
           let
             c =

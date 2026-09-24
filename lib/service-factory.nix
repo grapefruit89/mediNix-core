@@ -27,12 +27,18 @@ let
   # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
   # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.
   mkPeerIsolation =
-    selfName: allowedPeers:
+    selfName: selfStateDir: allowedPeers:
     let
       allStateDirs = lib.mapAttrsToList (
         n: svc:
         lib.optional (
-          (svc.stateDir or null) != null && n != selfName && !(lib.elem n allowedPeers)
+          (svc.stateDir or null) != null
+          && n != selfName
+          # The unit name can differ from the registry key (unit "caddy-media"
+          # vs registry "caddy"). Exclude by the actual own stateDir too, so a
+          # unit never makes its OWN StateDirectory inaccessible (H29).
+          && svc.stateDir != selfStateDir
+          && !(lib.elem n allowedPeers)
         ) svc.stateDir
       ) registry;
     in
@@ -75,7 +81,7 @@ if hardeningOnly then
       })
       (
         let
-          paths = mkPeerIsolation name allowedPeers;
+          paths = mkPeerIsolation name stateDir allowedPeers;
         in
         lib.optionalAttrs (paths != [ ]) {
           InaccessiblePaths = paths;
@@ -117,7 +123,7 @@ else
         # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
         (
           let
-            paths = mkPeerIsolation name allowedPeers;
+            paths = mkPeerIsolation name stateDir allowedPeers;
           in
           lib.optionalAttrs (paths != [ ]) {
             InaccessiblePaths = paths;
