@@ -25,8 +25,9 @@ Lade in dieser Reihenfolge:
 
 ### 2. "Ich bin fertig und will committen"
 Lade:
-1. `medinix-build-gate` (Führt dich durch Context7, Portability und Audit)
-2. `medinix-audit-suite` (Die eigentlichen Scan-Tools)
+1. `medinix-change-pipeline` (Kanonischer Ablauf: Baseline → Change → Diff-Review → Commit #1 → Lint/Format → Diff-Review → Commit #2 → Push/CI → Runtime)
+2. `medinix-build-gate` (Führt dich durch Context7, Portability und Audit)
+3. `medinix-audit-suite` (Die eigentlichen Scan-Tools)
 
 ### 3. "Wir haben Eval- oder Build-Fehler"
 Lade:

@@ -129,6 +129,9 @@ These are hard constraints, not guidelines:
 - If you notice dead code or a separate issue: mention it in `<analysis>`, do not touch it.
 - Every changed line must trace back to the user's request.
 - Boundary of responsibility: if a change "bleeds" into adjacent modules, stop and ask.
+- Commit gate: follow `medinix-change-pipeline` (baseline → change → eval → diff-review →
+  commit #1 → automated cleanup → diff-review again → commit #2). Automated tool output is
+  a code change, never committed unreviewed.
 
 ---
 
