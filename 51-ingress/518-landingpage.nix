@@ -2,7 +2,12 @@
 # id: "518-landingpage"
 # title: "Family icon page — HTML organ of 511"
 # domain: 51
+# folder: 51-ingress
+# status: active
+# complexity: 2
 # last_reviewed: 2026-09-02
+# provides: ["landing-html"]
+# requires: ["511-caddy"]
 # adr: ADR-518-landingpage-honeypot
 # ---
 # Renderer only. No program names. A vhost with accessGroup stream|public
