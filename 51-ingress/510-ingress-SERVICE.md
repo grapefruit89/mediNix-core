@@ -1,26 +1,39 @@
 # 510 — Attach a service to Caddy, Pocket ID and the landing page
 
-How-to for domain **51-ingress**. File id `510` sits in front of the organs 511–518.
+How-to for domain **51-ingress**. File id `510` is the service-attachment layer for the ingress modules in this domain.
 
 511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `lib/registry.nix` entry.
 
-Template: [`510-service.example.nix`](510-service.example.nix)
+Template: [`55x-service.example.nix`](55x-service.example.nix)
 
-## The access chain (who gets in)
+## The access path (who gets in)
 
-`_1` owns the **whole** access path — the door *and* who gets through:
+`_1` owns the **whole** access path — the door *and* who gets through. The
+concrete chain depends on `accessGroup`, the auth mode and the ownership model;
+it is not a fixed pipeline.
 
 ```
-WAN → Geo-IP (517) → CrowdSec (516) → Rate-Limit (517) → Caddy (511)
-    → Scanner-Trap (511) → Auth (512) → service
+WAN
+  ↓
+Caddy / 511
+  ↓
+optional forward_auth (512 / an explicit external auth gateway)
+  ↓
+service
+```
+
+DNS, TLS/ACME, mDNS and the landing page are **separate ingress concerns**, not
+steps in the request chain:
+
+```
+DNS (513) · TLS/ACME (514) · mDNS (515) · landing (518)
 ```
 
 **Numbering rule:** the number is the service's **identity** (port/UID = num × 10),
-**not** its position in the chain. The chain is documentation; the numbers stay
-stable. Current slots: `511` caddy · `512` pocket-id · `513` cloudflare-dns ·
-`514` acme · `515` mdns · `518` landingpage. New edge defenses take the next free
-slots: **`516` crowdsec** · **`517` edge-firewall** (Geo-IP + rate-limit, native
-nftables).
+**not** its position in a chain. The numbers stay stable. Current slots: `511`
+caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · `518`
+landingpage · `519` guardrails. **`516` and `517` are free** (planned: CrowdSec /
+edge-firewall) and **not implemented**.
 
 Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables/fail2ban;
 Caddy + firewall stay on). Escape hatch: `medinix.ingress.guardrails`.
@@ -75,10 +88,16 @@ Caddy URL: `/icons.svg`
 
 ## Pocket ID — once per host
 
+Pocket-ID is an **OIDC identity provider**, not the forward-auth endpoint.
+`forward_auth` needs an explicit auth gateway upstream (oauth2-proxy / tinyauth /
+caddy-security); Pocket-ID itself is **not** a valid `forwardAuthUpstream`.
+
 ```nix
 medinix.pocketId.enable = true;
 medinix.pocketId.exposure = "idp";
 medinix.ingress.auth.mode = "forward-auth";
+medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:4180";
+medinix.authProxyPresent = true;
 ```
 
 511 puts the auth wall only on `public`. `stream` stays App-Login.
