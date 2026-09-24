@@ -63,6 +63,7 @@ Enforcement layers:
 | H17 | public Nix APIs never blindly reduced | **change pipeline (process)**, not mechanical | **partial** | E |
 | H20 | `vhostName ∉ reservedLabels` | prune protection only, no assertion | **partial** | A |
 | H12 | at most one Caddy owner (`standalone ⇒ ¬services.caddy.enable`) | — | **no** | A |
+| H12b | standalone must not materialize `systemd.services.caddy` | regression test `mediNix-caddy-single-owner` | yes | — |
 | H22 | `idp` only for the identity provider vhost | — | **no** | A |
 | H13 | shared `enabledVhost` / `canonicalPublicFqdn` | — (three divergent predicates) | **no** | B |
 | H14 | statically servable ⇒ discovery knows it | — | **no** | B |
@@ -96,6 +97,15 @@ precision.
 - **H12** is an **implication**, not `global XOR standalone`: `auto + caddy.enable`
   legitimately means global Caddy. `services.caddy.enable` may also arrive via
   `hostIntegration.reverseProxy = "managed"` (`500:31`).
+
+- **H12b** (found on q958 at eval time, fixed in `6d47422`) is H12 at the
+  systemd-unit level: `mkIf` on a **leaf**
+  (`systemd.services.caddy.serviceConfig.OOMScoreAdjust = lib.mkIf useGlobal v`)
+  still builds the option path → an empty phantom `caddy.service` appears in
+  standalone mode. The fix guards the whole branch
+  (`systemd.services.caddy = lib.mkIf useGlobal { … }`). Enforced by
+  `checks.mediNix-caddy-single-owner` (standalone ⇒ `caddy-media` only; global ⇒
+  `caddy` + `OOMScoreAdjust`).
 
 - **H20** has **two scopes**: DNS zone (513/514: `wan`, `lan`, `*`, `@`,
   `_acme-challenge*`, apex) and local/mDNS (515: `home`). Not a single global list.
