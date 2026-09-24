@@ -21,6 +21,9 @@ secrets/
 compat-my.nix
 my-*.nix
 
+# Local agent/tooling config (machine-local paths, e.g. secret refs) — not project code
+opencode.json
+
 # Python venv / scripts (if accidentally placed here)
 __pycache__/
 *.pyc
