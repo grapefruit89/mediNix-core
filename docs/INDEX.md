@@ -80,6 +80,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ARCH 5000 nixhome layer](arch/ARCH-50-nixhome-layer.md)
 - [ARCH 5000 service manifest](arch/ARCH-50-service-manifest.md)
 - [ARCH 5000 status dashboard](arch/ARCH-50-status-dashboard.md)
+- [ARCH 51 — Closure Matrix (OPEN + Edge Security)](arch/ARCH-51-closure-matrix.md)
 - [ARCH 5100 cloudflare zero trust](arch/ARCH-51-cloudflare-zero-trust.md)
 - [ARCH-51-dns-and-ingress-strategy.md](arch/ARCH-51-dns-and-ingress-strategy.md)
 - [ARCH 51 — Ingress Architecture Model](arch/ARCH-51-ingress-architecture-model.md)
