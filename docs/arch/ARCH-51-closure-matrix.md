@@ -76,14 +76,23 @@ Notes:
     hardcoded public endpoint.
   - Impl: partial · Test: none · Runtime test: yes (timer) · Endstatus target: `FIXED`.
 
-- **H30 — StateDirectory conflict** `OPEN`
-  - Frage: who owns `systemd.services.<svc>.serviceConfig.StateDirectory`?
-  - Dateien: `54-transfer/541-sabnzbd.nix`, `55-playback/551..553` vs nixpkgs modules.
+- **H30 — SABnzbd StateDirectory conflict** `FIXED`
+  - Frage: who owns the service state path?
+  - Dateien: `54-transfer/541-sabnzbd.nix` vs nixpkgs `services.sabnzbd`.
   - Evidence: `"sabnzbd"` (nixpkgs) vs `"sabnzbd-5410"` (mediNix) → eval error the
     moment the service is enabled (latent for Gate-4 base).
-  - Gewünschte Semantik: explicit ownership (`mkForce` mediNix dir **or** adopt
-    nixpkgs dir **or** reconfigure nixpkgs service).
-  - Endstatus target: `DESIGN-DECIDED` + `FIXED`.
+  - Entscheidung: **registry `stateDir` is canonical**; propagate via the nixpkgs
+    option `services.sabnzbd.stateDir`, which derives `StateDirectory` **and**
+    `configFile` — no `mkForce` needed. Fix in `88cf190`.
+  - Regression: `mediNix-registry-statedir-consistent`.
+  - Endstatus: `FIXED` (eval-verified; sabnzbd runtime proof in Phase D).
+
+- **H30b — ntfy state-path divergence** `OPEN`
+  - Dateien: `58-observability/581-ntfy.nix` vs nixpkgs `services.ntfy-sh`
+    (`StateDirectory = "ntfy-sh"`, hardcoded).
+  - Evidence: nixpkgs `/var/lib/ntfy-sh` vs registry `/var/lib/ntfy-5810`
+    (settings point to the latter → works, but a redundant dir appears).
+  - Endstatus target: `FIXED` or `ACCEPTED`.
 
 ## Phase B — open invariants
 
