@@ -16,7 +16,7 @@
     let
       overlay = _: _: { }; # Zukünftige Pakete hier
       # Registry als JSON für Build-Zeit-Embedding (CLI-Tool)
-      registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
+      registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs) lib; }).services;
 
     in
     {
@@ -30,7 +30,7 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        lib = nixpkgs.lib;
+        inherit (nixpkgs) lib;
 
         # ── Prüfkonfiguration: evaluiert mediNIX-core ohne echte Hardware ──
         # (Die Ratsche: jeder attribute-missing / Typ-Fehler bricht nix flake check)

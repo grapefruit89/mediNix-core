@@ -19,15 +19,15 @@ let
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   creds = import ../lib/creds.nix { inherit lib; };
   reg = registry.navidrome;
-  port = reg.port;
-  uid = reg.uid;
-  gid = reg.gid;
-  stateDir = reg.stateDir;
+  inherit (reg) port;
+  inherit (reg) uid;
+  inherit (reg) gid;
+  inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
 lib.mkIf cfg.enable {
   users.users.navidrome = {
-    uid = uid;
+    inherit uid;
     group = "media";
     extraGroups = lib.mkAfter [ "media" ];
     home = stateDir;

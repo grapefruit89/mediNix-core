@@ -56,7 +56,7 @@ let
     && !(v.allowUnauthenticated or false)
   ) enabledServices;
 
-  trustedCidrs = ing.trustedCidrs;
+  inherit (ing) trustedCidrs;
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
   tlsEnabled = ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
@@ -253,7 +253,7 @@ let
     ++ (lib.optionals (cfg.domain != null && !tlsEnabled) [
       (mkSite "http://${cfg.domain}" landingHttpLanBody)
     ])
-    ++ [ (mkSite "http://home.local" (landingHttpLanBody)) ]
+    ++ [ (mkSite "http://home.local" landingHttpLanBody) ]
   );
 
   catchAllSites =
@@ -358,7 +358,7 @@ lib.mkMerge [
     services.caddy.virtualHosts = lib.mkIf useGlobal (
       lib.listToAttrs (
         map (e: {
-          name = e.name;
+          inherit (e) name;
           value = {
             extraConfig = e.body;
           };

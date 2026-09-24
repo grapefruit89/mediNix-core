@@ -13,7 +13,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -23,9 +22,9 @@ let
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   creds = import ../lib/creds.nix { inherit lib; };
   reg = registry.sabnzbd;
-  port = reg.port;
-  uid = reg.uid;
-  stateDir = reg.stateDir;
+  inherit (reg) port;
+  inherit (reg) uid;
+  inherit (reg) stateDir;
 
   vpnIf =
     if (config.services.vpnKillSwitch.vpnInterface or "") != "" then
@@ -38,7 +37,7 @@ in
 {
   config = lib.mkIf cfg.enable {
     users.users.sabnzbd = {
-      uid = uid;
+      inherit uid;
       group = "media";
       extraGroups = [ "media" ];
       home = stateDir;
@@ -54,7 +53,7 @@ in
       allowConfigWrite = true;
       package = lib.mkIf (cfg.package != null) cfg.package;
       settings.misc = {
-        port = port;
+        inherit port;
         host = "127.0.0.1";
         language = svc.locale.language;
         download_dir = "${svc.storage.mediaRoot}/downloads";
@@ -129,7 +128,7 @@ in
 
     services.vpnKillSwitch.instances.sabnzbd = {
       enable = svc.usenet-confinement.enable;
-      uid = uid;
+      inherit uid;
     };
   };
 }

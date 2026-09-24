@@ -16,7 +16,7 @@ let
     gid = 5000;
     stateDir = "/var/lib/${name}-${toString (number * 10)}";
     hardeningProfile = profile;
-    caddyClass = caddyClass;
+    inherit caddyClass;
   };
   mkService =
     name: number: profile: caddyClass:
@@ -24,14 +24,14 @@ let
 
   mkNoPortWithUnit = name: number: profile: caddyClass: unitName: {
     inherit name;
-    unitName = unitName;
+    inherit unitName;
     num = number;
     port = null;
     uid = null;
     gid = 5000;
     stateDir = null;
     hardeningProfile = profile;
-    caddyClass = caddyClass;
+    inherit caddyClass;
   };
   mkNoPort =
     name: number: profile: caddyClass:

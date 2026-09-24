@@ -25,12 +25,12 @@ let
   allowedTCP = config.networking.firewall.allowedTCPPorts or [ ];
   leakingPorts = lib.filter (p: lib.elem p allowedTCP) enabledPorts;
 
-  envVals = unit: lib.attrValues ((config.systemd.services.${unit}.environment or { }));
+  envVals = unit: lib.attrValues (config.systemd.services.${unit}.environment or { });
 
   isWildcardBind = v: v == "0.0.0.0" || v == "*" || v == "[::]" || v == "::";
 
   wildcardBinds = lib.attrNames (
-    lib.filterAttrs (n: svc: lib.any isWildcardBind (envVals svc.unitName)) enabledPortable
+    lib.filterAttrs (_n: svc: lib.any isWildcardBind (envVals svc.unitName)) enabledPortable
   );
 
   hasFs = path: builtins.hasAttr path (config.fileSystems or { });

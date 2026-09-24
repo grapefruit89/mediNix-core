@@ -40,7 +40,7 @@ let
         enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
       ) cfg.ingress.vhosts
     ))
-    ++ lib.optional (cfg.ingress.landing.enable) "home";
+    ++ lib.optional cfg.ingress.landing.enable "home";
 
   aliasScript = pkgs.writeShellScript "medinix-mdns-aliases" ''
     set -euo pipefail

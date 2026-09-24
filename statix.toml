@@ -1,0 +1,9 @@
+# statix lint policy for mediNix-core.
+#
+# repeated_keys (W20): disabled. This repo deliberately uses dotted attribute
+# paths in NixOS-module style (networking.firewall.enable, systemd.services.X.*,
+# checks.*, medinix.*). W20 fires on every such repeated prefix and is a style
+# opinion, not a defect; nesting them would be an invasive, semantics-touching
+# rewrite without a correctness gain.
+disabled = ["repeated_keys"]
+ignore = [".direnv"]

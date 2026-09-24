@@ -31,15 +31,7 @@
 
 let
   cfg = config.services.vpnKillSwitch;
-  activeInstances = lib.filterAttrs (n: v: v.enable) cfg.instances;
-  uids = lib.mapAttrsToList (n: v: v.uid) activeInstances;
-  uidList = lib.concatStringsSep ", " (map toString uids);
-
-  # Collect all allowed LAN CIDRs from active instances
-  allowedLanCidrs = lib.unique (
-    lib.flatten (lib.mapAttrsToList (n: v: v.allowedLanCidrs) activeInstances)
-  );
-  lanCidrsStr = if allowedLanCidrs == [ ] then "" else builtins.concatStringsSep ", " allowedLanCidrs;
+  activeInstances = lib.filterAttrs (_n: v: v.enable) cfg.instances;
 
   mark = toString cfg.routingTable;
   table = toString cfg.routingTable;
@@ -238,7 +230,7 @@ in
         };
       };
     }
-    // lib.mapAttrs (name: v: {
+    // lib.mapAttrs (_name: _v: {
       requires = [ "medinix-vpn-route.service" ];
       after = [ "medinix-vpn-route.service" ];
       serviceConfig = {

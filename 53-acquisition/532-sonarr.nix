@@ -38,10 +38,10 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.sonarr;
-  port = reg.port;
-  uid = reg.uid;
-  gid = reg.gid;
-  stateDir = reg.stateDir;
+  inherit (reg) port;
+  inherit (reg) uid;
+  inherit (reg) gid;
+  inherit (reg) stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
   # F2: 511 renders forward_auth ONLY for `public` vhosts. Base *arr's auth
@@ -62,10 +62,10 @@ lib.mkIf cfg.enable (
     }
     (mkService {
       name = "sonarr";
-      port = port;
-      uid = uid;
+      inherit port;
+      inherit uid;
       execStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
-      stateDir = stateDir;
+      inherit stateDir;
       profile = "dotnet";
       offloadMediaCover = true;
       allowedPeers = [
@@ -95,7 +95,7 @@ lib.mkIf cfg.enable (
           })
           (arrSettings.mkSonarr {
             server = {
-              port = port;
+              inherit port;
               bindAddress = "127.0.0.1";
               urlBase = "";
             };

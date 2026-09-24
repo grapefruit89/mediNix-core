@@ -143,7 +143,7 @@ lib.mkIf (cfg.enable && bkp.enable) {
 
   services.restic.backups.mediNix = {
     paths = mediaStateDirs ++ [ cfg.secrets.secretsDir ];
-    repository = bkp.repository;
+    inherit (bkp) repository;
     passwordFile = primaryPasswordFile;
     timerConfig.OnCalendar = bkp.schedule;
     backupPrepareCommand = lib.getExe preCmd;

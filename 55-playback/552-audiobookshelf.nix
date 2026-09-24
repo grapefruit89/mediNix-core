@@ -26,7 +26,7 @@ let
 in
 lib.mkIf cfg.enable {
   users.users.audiobookshelf = {
-    uid = uid;
+    inherit uid;
     group = "media";
     extraGroups = [ "media" ];
     home = stateDir;

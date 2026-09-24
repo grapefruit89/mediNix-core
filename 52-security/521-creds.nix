@@ -14,7 +14,7 @@
 let
   cfg = config.medinix;
   creds = import ../lib/creds.nix { inherit lib; };
-  check = creds.check;
+  inherit (creds) check;
   notMedia = creds.checkNotUnderMedia (cfg.storage.mediaRoot or null);
   sealed = name: "${creds.storeDir}/${name}.encrypted";
 

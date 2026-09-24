@@ -337,11 +337,7 @@ in
       };
       stagingDir = lib.mkOption {
         type = lib.types.path;
-        default =
-          if cfg.storage.backends ? hot then
-            cfg.storage.backends.hot
-          else
-            cfg.storage.mediaRoot + "/downloads";
+        default = cfg.storage.backends.hot or (cfg.storage.mediaRoot + "/downloads");
         description = ''
           Quell-Pfad auf Tier-B (SSD): physisches Hot-Backend oder Staging-Verzeichnis.
           Wenn storage.backends.hot gesetzt ist, zeigt dies direkt auf das physische SSD-Backend,
@@ -350,11 +346,7 @@ in
       };
       archiveDir = lib.mkOption {
         type = lib.types.path;
-        default =
-          if cfg.storage.backends ? cold then
-            cfg.storage.backends.cold
-          else
-            cfg.storage.mediaRoot + "/library";
+        default = cfg.storage.backends.cold or (cfg.storage.mediaRoot + "/library");
         description = ''
           Ziel-Pfad auf Tier-C (HDD): physisches Cold-Backend oder Archiv-Verzeichnis.
           Wenn storage.backends.cold gesetzt ist, zeigt dies direkt auf das physische HDD-Backend.

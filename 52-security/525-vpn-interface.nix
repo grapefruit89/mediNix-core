@@ -21,14 +21,13 @@
 # ---
 {
   config,
-  pkgs,
   lib,
   ...
 }:
 
 let
   cfg = config.medinix;
-  vpn = cfg.vpn;
+  inherit (cfg) vpn;
   ifName = vpn.interfaceName;
   credMount = "/run/credentials/wireguard-${ifName}.service/wg-private-key";
 in

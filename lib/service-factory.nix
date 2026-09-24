@@ -40,7 +40,6 @@ let
 in
 {
   name, # service name (kebab-case)
-  port ? null, # port number from registry
   uid ? null, # UID from registry
   execStart ? null, # the start command as string
   stateDir ? null, # e.g. "/var/lib/jellyfin-5510"
@@ -49,6 +48,7 @@ in
   extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)
   hardeningOnly ? false, # return only serviceConfig for NixOS upstream modules
   offloadMediaCover ? false, # offload MediaCover to metadataDir via systemd BindPaths
+  ...
 }:
 let
   metadataDir = toString (config.medinix.storage.metadataDir or "/var/lib/media-metadata");
@@ -138,7 +138,7 @@ else
     medinix.knownStateDirs = [ stateDir ];
     medinix.factoryUnits."${name}" = { inherit uid stateDir; };
     users.users."${name}" = {
-      uid = uid;
+      inherit uid;
       group = "media";
       isSystemUser = true;
       home = stateDir;

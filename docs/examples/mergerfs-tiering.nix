@@ -12,7 +12,7 @@
 # Host provides: disk mounts + MergerFS union (NOT in mediNix-core module).
 # mediNix Mover moves large files B→C when SSD free space < minFreeGb.
 #
-{ inputs, pkgs, ... }:
+{ inputs, ... }:
 {
   imports = [
     inputs.mediNix-core.nixosModules.default

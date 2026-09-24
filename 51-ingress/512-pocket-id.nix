@@ -124,7 +124,7 @@ in
     # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
     systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
       name = "pocket-id";
-      stateDir = svc.stateDir;
+      inherit (svc) stateDir;
       profile = "network";
       hardeningOnly = true;
       extraConfig = {
@@ -134,7 +134,7 @@ in
     };
 
     users.users.pocket-id = {
-      uid = svc.uid;
+      inherit (svc) uid;
       group = "media";
       isSystemUser = true;
       home = svc.stateDir;

@@ -19,24 +19,17 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.seerr;
-  port = reg.port;
-  uid = reg.uid;
-  gid = reg.gid;
-  stateDir = reg.stateDir;
+  inherit (reg) port;
+  inherit (reg) uid;
+  inherit (reg) gid;
+  inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   seerrPkg =
-    if cfg.package != null then
-      cfg.package
-    else if pkgs ? seerr then
-      pkgs.seerr
-    else if pkgs ? jellyseerr then
-      pkgs.jellyseerr
-    else
-      pkgs.overseerr;
+    if cfg.package != null then cfg.package else pkgs.seerr or (pkgs.jellyseerr or pkgs.overseerr);
 in
 lib.mkIf cfg.enable {
   users.users.seerr = {
-    uid = uid;
+    inherit uid;
     group = "media";
     extraGroups = [ "media" ];
     home = stateDir;

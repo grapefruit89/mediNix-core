@@ -66,7 +66,7 @@ lib.mkIf cfg.enable {
   ];
 
   users.users.jellyfin = {
-    uid = uid;
+    inherit uid;
     group = "media";
     extraGroups = [
       "video"

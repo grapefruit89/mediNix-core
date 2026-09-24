@@ -43,7 +43,7 @@ lib.mkIf cfg.enable {
   };
 
   users.users.${name} = {
-    uid = reg.uid;
+    inherit (reg) uid;
     group = "media";
     isSystemUser = true;
     home = reg.stateDir;

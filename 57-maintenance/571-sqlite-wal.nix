@@ -36,7 +36,7 @@ let
   ) registry;
 
   # Derive (systemd unit, StateDirectory, uid:gid) triples from Registry
-  serviceEntries = lib.mapAttrsToList (n: s: {
+  serviceEntries = lib.mapAttrsToList (_n: s: {
     unit = "${s.unitName}.service";
     dir = s.stateDir;
     owner = "${toString s.uid}:${toString s.gid}";

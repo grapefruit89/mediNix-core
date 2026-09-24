@@ -1,11 +1,11 @@
 # mediNix Health CLI — registry unitName is the systemd unit.
 {
   pkgs,
-  lib,
   registryJson,
   mediaRoot ? "/data/media",
   metadataDir ? "/data/metadata",
   mediaDomain ? "",
+  ...
 }:
 
 let

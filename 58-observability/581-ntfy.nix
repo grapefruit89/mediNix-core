@@ -13,7 +13,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -22,10 +21,10 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.ntfy;
-  port = reg.port;
-  uid = reg.uid;
-  gid = reg.gid;
-  stateDir = reg.stateDir;
+  inherit (reg) port;
+  inherit (reg) uid;
+  inherit (reg) gid;
+  inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfyGroup = svc.ingress.vhosts.ntfy.accessGroup or "internal";
 in
@@ -46,7 +45,7 @@ lib.mkIf cfg.enable {
   ];
 
   users.users.ntfy = {
-    uid = uid;
+    inherit uid;
     group = "media";
     extraGroups = [ "media" ];
     home = stateDir;
