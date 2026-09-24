@@ -120,7 +120,7 @@ lib.mkIf cfg.enable {
           metadataDir
         ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
-        InaccessiblePaths = [ creds.storeDir ];
+        InaccessiblePaths = [ "-${creds.storeDir}" ];
         TemporaryFileSystem = "/transcode:size=4G";
         RuntimeDirectory = "jellyfin-transcode";
         LoadCredentialEncrypted = lib.mkIf (adminCred != null) [

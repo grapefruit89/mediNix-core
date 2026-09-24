@@ -36,7 +36,10 @@ let
         ) svc.stateDir
       ) registry;
     in
-    lib.flatten allStateDirs;
+    # "-" prefix (systemd.exec): ignore the entry when the path does not exist.
+    # A foreign state dir is absent until that service has run at least once;
+    # without the prefix systemd aborts the unit with 226/NAMESPACE.
+    map (p: "-${p}") (lib.flatten allStateDirs);
 in
 {
   name, # service name (kebab-case)

@@ -79,9 +79,9 @@ in
           MemoryHigh = "2G";
           MemoryMax = "4G";
           InaccessiblePaths = [
-            "/run/systemd/resolve"
-            "/run/dbus/system_bus_socket"
-            creds.storeDir
+            "-/run/systemd/resolve"
+            "-/run/dbus/system_bus_socket"
+            "-${creds.storeDir}"
           ];
           ReadWritePaths = [
             stateDir

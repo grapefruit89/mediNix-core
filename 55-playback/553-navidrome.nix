@@ -49,7 +49,7 @@ lib.mkIf cfg.enable {
         StateDirectory = "navidrome-${toString port}";
         ReadWritePaths = [ stateDir ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
-        InaccessiblePaths = [ creds.storeDir ];
+        InaccessiblePaths = [ "-${creds.storeDir}" ];
       }
     ];
     environment = {

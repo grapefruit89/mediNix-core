@@ -80,13 +80,16 @@ rec {
     AmbientCapabilities = [ "" ];
     Restart = "on-failure";
     RestartSec = "5s";
+    # "-" prefix (systemd.exec): ignore the entry when the path does not exist.
+    # Without it a missing path (e.g. /run/secrets, legacy) aborts the unit with
+    # 226/NAMESPACE at namespace setup. All entries are "deny if present".
     InaccessiblePaths = [
-      "/root"
-      "/home"
-      "/boot"
-      "/etc/shadow"
-      "/etc/ssh"
-      "/run/secrets"
+      "-/root"
+      "-/home"
+      "-/boot"
+      "-/etc/shadow"
+      "-/etc/ssh"
+      "-/run/secrets"
     ];
   };
 

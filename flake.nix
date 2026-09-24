@@ -415,6 +415,42 @@
               echo 'ok: standalone => caddy-media only; global => caddy (+OOMScoreAdjust)' > $out
             '';
 
+        # H28: mediNix-owned InaccessiblePaths must be existence-tolerant
+        # ("-" prefix, systemd.exec). Without it a missing path (/run/secrets,
+        # or a foreign /var/lib/<svc> before its first run) aborts the unit with
+        # 226/NAMESPACE at mount-namespace setup.
+        checks.mediNix-inaccessible-paths-optional =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.sabnzbd.enable = true;
+                  medinix.jellyfin.enable = true;
+                  medinix.audiobookshelf.enable = true;
+                  medinix.navidrome.enable = true;
+                };
+              }).config;
+            watched = [
+              "caddy-media"
+              "sabnzbd"
+              "jellyfin"
+              "audiobookshelf"
+              "navidrome"
+            ];
+            entries = lib.flatten (
+              map (n: c.systemd.services.${n}.serviceConfig.InaccessiblePaths or [ ]) watched
+            );
+            bad = lib.filter (e: !(lib.hasPrefix "-" e)) entries;
+          in
+          if bad == [ ] then
+            pkgs.runCommand "inaccessible-paths-optional-ok" { } ''
+              echo 'ok: all mediNix InaccessiblePaths are existence-tolerant (- prefix)' > $out
+            ''
+          else
+            throw "H28: InaccessiblePaths without '-' prefix (aborts unit when path is missing): ${toString bad}";
+
         checks.mediNix-firewall-managed =
           let
             c =

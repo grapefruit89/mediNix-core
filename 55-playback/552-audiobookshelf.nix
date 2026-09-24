@@ -51,7 +51,7 @@ lib.mkIf cfg.enable {
           metadataDir
         ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/audiobooks:${svc.storage.mediaRoot}/audiobooks" ];
-        InaccessiblePaths = [ creds.storeDir ];
+        InaccessiblePaths = [ "-${creds.storeDir}" ];
       }
     ];
     environment = {
