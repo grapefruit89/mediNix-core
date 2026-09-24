@@ -488,6 +488,46 @@
           else
             throw "H29: unit hides its own StateDirectory in InaccessiblePaths: ${toString bad}";
 
+        # H30: the registry stateDir is the single owner of a service's state
+        # path. Every rendered StateDirectory must equal the registry value —
+        # for factory units AND for nixpkgs-backed services (sabnzbd derives
+        # StateDirectory from services.sabnzbd.stateDir).
+        checks.mediNix-registry-statedir-consistent =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.sabnzbd.enable = true;
+                };
+              }).config;
+            registry = (import ./lib/registry.nix { inherit lib; }).services;
+            wantOf = u: if (u.stateDir or null) == null then null else lib.removePrefix "/var/lib/" u.stateDir;
+            badFactory = lib.flatten (
+              lib.mapAttrsToList (
+                n: u:
+                let
+                  got = c.systemd.services.${n}.serviceConfig.StateDirectory or null;
+                  want = wantOf u;
+                in
+                lib.optional (got != want) "${n}: StateDirectory=${toString got} != registry ${toString want}"
+              ) (c.medinix.factoryUnits or { })
+            );
+            sabWant = wantOf registry.sabnzbd;
+            sabGot = c.systemd.services.sabnzbd.serviceConfig.StateDirectory or null;
+            badSab = lib.optional (
+              sabGot != sabWant
+            ) "sabnzbd: StateDirectory=${toString sabGot} != registry ${toString sabWant}";
+            bad = badFactory ++ badSab;
+          in
+          if bad == [ ] then
+            pkgs.runCommand "registry-statedir-consistent-ok" { } ''
+              echo 'ok: registry stateDir == generated StateDirectory' > $out
+            ''
+          else
+            throw "H30: StateDirectory diverges from the registry: ${toString bad}";
+
         checks.mediNix-firewall-managed =
           let
             c =
