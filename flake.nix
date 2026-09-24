@@ -225,6 +225,43 @@
             test "${cert.domain}" = "example.com" || { echo "FAIL: acme cert not rendered"; exit 1; }
             echo "ok: tls.acmeHost evaluates and renders a cert" > $out
           '';
+        # 513: the DDNS prune target is the canonical {service}.${cfg.domain},
+        # NEVER {service}.${zone}. Regression: domain=home.example.com,
+        # zone=example.com, service=seerr => prune seerr.home.example.com,
+        # never seerr.example.com.
+        checks.mediNix-ddns-prune-fqdn =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "home.example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.dns.mode = "standalone";
+                  medinix.dns.ddns.enable = true;
+                  medinix.dns.ddns.zone = "example.com";
+                  medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
+                  medinix.seerr.enable = true;
+                };
+              }).config;
+            script = pkgs.writeText "ddns-script" c.systemd.services.cloudflare-ddns.script;
+          in
+          pkgs.runCommand "ddns-prune-fqdn-ok"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.coreutils
+              ];
+            }
+            ''
+              grep -q 'seerr.home.example.com' ${script} || {
+                echo "FAIL: canonical FQDN seerr.home.example.com missing in prune payload"; exit 1;
+              }
+              if grep -q 'seerr.example.com' ${script}; then
+                echo "FAIL: zone-derived name seerr.example.com present in prune payload"; exit 1;
+              fi
+              echo "ok: DDNS prunes the canonical FQDN, not the zone-derived name" > $out
+            '';
         # R7: forward_auth must strip client-supplied identity headers BEFORE
         # copying the trusted ones (header-spoofing regression, checked on the
         # actually rendered Caddyfile).

@@ -15,6 +15,14 @@
 # Keep it separate from the ACME token so a DDNS compromise cannot also break
 # TLS issuance (R11).
 # Loaded as cf-ddns-token. File is the token or KEY=value.
+#
+# INVARIANT — 1 service, exactly 2 canonical addresses:
+#   {service}.local          (515)
+#   {service}.${cfg.domain}  (511)
+# `dns.ddns.zone` is the Cloudflare zone (API/zone target only) and MUST NEVER
+# derive a service hostname. 513 prunes ONLY the canonical {label}.${cfg.domain},
+# never {label}.${zone} — a mismatched zone must not be able to delete an
+# unrelated record.
 {
   lib,
   pkgs,
@@ -46,8 +54,11 @@ let
     || (zone != null && n == zone)
     || lib.hasPrefix "_acme-challenge" n;
 
+  # Canonical public FQDN is ALWAYS {label}.${cfg.domain}; the Cloudflare zone
+  # is never used to build a service hostname (see INVARIANT above).
   pruneNames = lib.filter (n: !isProtectedLabel n) ownedLabels;
-  pruneNamesStr = builtins.concatStringsSep " " pruneNames;
+  pruneFqdns = lib.optionals (cfg.domain != null) (map (n: "${n}.${cfg.domain}") pruneNames);
+  pruneNamesStr = builtins.concatStringsSep " " pruneFqdns;
 
   credPath = ddns.cloudflareTokenCredential or null;
 
@@ -240,12 +251,11 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         update_record "*.$ZONE" "CNAME" "wan.$ZONE"
         update_record "$ZONE" "CNAME" "wan.$ZONE"
 
+        # PRUNE_NAMES holds canonical FQDNs ({label}.${cfg.domain}), built in
+        # Nix — the zone must not be appended here.
         for n in $PRUNE_NAMES; do
           [ -z "$n" ] && continue
-          case "$n" in
-            wan|lan|"*"|@|_acme-challenge*) continue ;;
-          esac
-          prune_label "$n.$ZONE"
+          prune_label "$n"
         done
 
         jq -n --arg wan "$WAN_IP" --arg lan "$LAN_IP" --arg schema "$SCHEMA" \
