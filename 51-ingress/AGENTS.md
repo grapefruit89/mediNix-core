@@ -1,7 +1,33 @@
 # LLM Wiki: `51-ingress`
 
-> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
+Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README.md`](README.md).
 
+**Rolle:** Edge-/Ingress-Domäne — die Zugangsschicht in die Dienste.
+
+**Verantwortung:**
+- HTTP(S)-Ingress und Caddy (511)
+- Auth-/OIDC-Integration (512)
+- DNS/DDNS (513)
+- ACME/TLS (514)
+- mDNS (515)
+- Landingpage (518)
+- Ingress-Guardrails und Ownership-Konflikte (519)
+
+**Nicht verantwortlich für:**
+- Host-Firewall und Host-Security → `52-security`
+- Service-Definitionen → jeweiliges Service-Modul
+- Media-Daten/Storage → entsprechende Domäne
+
+**Source of truth:**
+- Service-/Vhost-Intent → `ingress.vhosts`
+- Runtime-Identitäten → `lib/registry.nix`
+- Modulbeziehungen → NIXMETA-Header
+- Caddy-Implementierung → `511-caddy.nix`
+
+**Arbeitsregel:**
+- Änderungen an Ingress zuerst gegen den bestehenden Contract prüfen.
+- Keine zweite Service-/Route-Inventarliste erzeugen.
+- Keine Ownership implizit übernehmen.
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
