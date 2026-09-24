@@ -380,6 +380,41 @@
             echo "ok: arr auth method follows the resolved vhost exposure" > $out
           '';
 
+        # H12b: standalone mode must own caddy-media ONLY. A phantom
+        # systemd.services.caddy (511 set OOMScoreAdjust on the unit path with
+        # mkIf on the value) must never materialize; global mode keeps it.
+        checks.mediNix-caddy-single-owner =
+          let
+            cfgOf =
+              extra:
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules (
+                  {
+                    medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  }
+                  // extra
+                );
+              }).config;
+            standalone = cfgOf { medinix.ingress.mode = "standalone"; };
+            global = cfgOf {
+              medinix.ingress.mode = "global";
+              services.caddy.enable = true;
+            };
+          in
+          if standalone.systemd.services ? caddy then
+            throw "H12b: standalone materialized a phantom systemd.services.caddy."
+          else if !(standalone.systemd.services ? caddy-media) then
+            throw "H12b: standalone is missing the caddy-media unit."
+          else if !(global.systemd.services ? caddy) then
+            throw "H12b: global mode is missing the systemd.services.caddy unit."
+          else if global.systemd.services.caddy.serviceConfig.OOMScoreAdjust != -900 then
+            throw "H12b: global caddy unit lost its OOMScoreAdjust."
+          else
+            pkgs.runCommand "caddy-single-owner-ok" { } ''
+              echo 'ok: standalone => caddy-media only; global => caddy (+OOMScoreAdjust)' > $out
+            '';
+
         checks.mediNix-firewall-managed =
           let
             c =

@@ -366,7 +366,12 @@ lib.mkMerge [
       )
     );
 
-    systemd.services.caddy.serviceConfig.OOMScoreAdjust = lib.mkIf useGlobal (-900);
+    # H12b: guard the WHOLE unit, not just the value. `mkIf` on a leaf still
+    # materializes the `systemd.services.caddy` option path, creating an empty
+    # phantom caddy.service in standalone mode. Standalone owns caddy-media only.
+    systemd.services.caddy = lib.mkIf useGlobal {
+      serviceConfig.OOMScoreAdjust = -900;
+    };
 
     environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
       text = caddyConfigStr;
