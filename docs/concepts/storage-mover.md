@@ -4,9 +4,35 @@ type: Concept
 ---
 # Storage & Mover
 
-**SSoT (Single Source of Truth) für Storage-Architektur in mediNix-core**
+**Concept — Architektur-Absicht / Composition Boundary, keine bewiesene Runtime-Eigenschaft.**
 
-- **Path**: Alle Storage-Mounts verwenden eindeutige Paths (z.B. `/opt/data/…`).
-- **minFreeGb**: Muss für Cache-Drives streng konfiguriert werden, um Volllaufen zu verhindern.
-- **mover**: Es gibt keinen klassischen Timer-Cronjob im Gast. Der Mover wird host-seitig ausgeführt oder durch Events getriggert.
-- **mergerfs**: Läuft zwingend auf dem **Host** (devNIX), NICHT im Gast (mediNix-core). Das Gast-System bindet nur die final gemergten Pfade ein.
+mediNix-core beansprucht **nicht**, die Storage-Infrastruktur zu besitzen. Es
+braucht einen **Storage-Contract**; mergerfs und der Mover gehören dem Host /
+Gesamtsystem.
+
+```text
+HOST / Gesamtsystem
+  ├── Storage
+  ├── mergerfs
+  └── mover
+        │  (final gemergte Pfade)
+        ▼
+50-mediNix  — sieht nur die finalen Pfade
+```
+
+Der Flake sagt also nicht „Ich betreibe mergerfs", sondern „Ich benötige einen
+Storage-Contract". Das ist bewusst chamäleonfreundlich: derselbe Contract kann
+später vom Gesamtsystem (20/30/50/60/70/80/90) bedient werden.
+
+- **Path** — REAL: Alle Storage-Mounts verwenden eindeutige Pfade (z.B. `/opt/data/…`).
+- **mover** — REAL: Kein klassischer Timer-Cronjob im Gast; der Mover läuft
+  host-seitig oder wird durch Events getriggert.
+- **mergerfs** — COMPOSITION BOUNDARY: Läuft zwingend auf dem **Host**, NICHT im
+  Gast; das Gast-System bindet nur die final gemergten Pfade ein.
+- **minFreeGb** — CONTRACT-FRAGE (noch keine technische Invariante):
+  - Wer konfiguriert ihn, und wer erzwingt ihn?
+  - pro Mount oder global?
+  - Was bedeutet `0`?
+  - Assertion (Eval-Zeit) oder Runtime-Verhalten?
+
+  Solange das offen ist, ist es eine Anforderung, keine fertige Invariante.
