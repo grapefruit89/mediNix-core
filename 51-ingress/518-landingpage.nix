@@ -27,16 +27,32 @@ let
     "public"
   ];
 
+  # H14: a tile must correspond to a vhost the ingress actually serves
+  # (enabled), never to a merely declared one.
+  enabledOf = n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+
+  tlsEnabled =
+    cfg.ingress.tls.acmeHost != null
+    || cfg.ingress.tls.mode == "custom"
+    || cfg.ingress.tls.mode == "internal";
+
   tiles = lib.filterAttrs (
-    _n: vhost: (vhost.landing or true) && lib.elem (vhost.accessGroup or "none") wanGroups
+    n: vhost: (vhost.landing or true) && lib.elem (vhost.accessGroup or "none") wanGroups && enabledOf n
   ) (cfg.ingress.vhosts or { });
 
   names = lib.sort builtins.lessThan (lib.attrNames tiles);
 
   publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
 
+  # H19: the link scheme follows the actual TLS state, not just `domain != null`.
   hrefFor =
-    n: if cfg.domain != null then "https://${publicHost n}.${cfg.domain}" else "http://${n}.local";
+    n:
+    if cfg.domain != null && tlsEnabled then
+      "https://${publicHost n}.${cfg.domain}"
+    else if cfg.domain != null then
+      "http://${publicHost n}.${cfg.domain}"
+    else
+      "http://${n}.local";
 
   fragment =
     n: vhost:

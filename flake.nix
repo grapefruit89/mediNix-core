@@ -528,6 +528,42 @@
           else
             throw "H30: StateDirectory diverges from the registry: ${toString bad}";
 
+        # H14 + H19: the landing tile set follows the SERVABLE set (enabled),
+        # and the link scheme follows the actual TLS state (not `domain != null`).
+        checks.mediNix-landing-tiles =
+          let
+            cfgOf =
+              tlsMode:
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.domain = "home.example.com";
+                  medinix.jellyfin.enable = true;
+                  medinix.ingress.vhosts."jellyfin".landing = true;
+                  medinix.ingress.vhosts."sonarr" = {
+                    accessGroup = "stream";
+                    landing = true;
+                  };
+                  medinix.ingress.tls.mode = tlsMode;
+                };
+              }).config;
+            plain = cfgOf "off";
+            tls = cfgOf "internal";
+          in
+          pkgs.runCommand "landing-tiles-ok" { } ''
+            grep -q 'aria-label="jellyfin"' ${plain.medinix.ingress.landing.root}/index.html \
+              || { echo "FAIL H14: enabled jellyfin tile missing"; exit 1; }
+            if grep -q 'aria-label="sonarr"' ${plain.medinix.ingress.landing.root}/index.html; then
+              echo "FAIL H14: disabled sonarr rendered as a tile"; exit 1
+            fi
+            grep -q 'href="http://jellyfin.home.example.com"' ${plain.medinix.ingress.landing.root}/index.html \
+              || { echo "FAIL H19: no-TLS link is not http"; exit 1; }
+            grep -q 'href="https://jellyfin.home.example.com"' ${tls.medinix.ingress.landing.root}/index.html \
+              || { echo "FAIL H19: TLS link is not https"; exit 1; }
+            echo ok > $out
+          '';
+
         checks.mediNix-firewall-managed =
           let
             c =
