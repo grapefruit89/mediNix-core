@@ -52,7 +52,7 @@ let
   svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
 
   externalAuth =
-    (ing.authProxyPresent or false)
+    (cfg.authProxyPresent or false)
     && ((ing.auth.forwardAuthUpstream or "") != "");
 
   # No more implicit enable from auth.mode. Fail-closed, matches 511.

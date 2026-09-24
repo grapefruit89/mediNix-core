@@ -53,7 +53,8 @@ rec {
     ProtectClock = true;
     ProtectHostname = true;
     RemoveIPC = true;
-    OOMScoreAdjust = 500;
+    # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
+    OOMScoreAdjust = lib.mkDefault 500;
     RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
     PrivateUsers = true;
     CapabilityBoundingSet = [ "" ];
@@ -100,7 +101,8 @@ rec {
     PrivateUsers = false;
     AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
     CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
-    OOMScoreAdjust = -500;
+    # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
+    OOMScoreAdjust = lib.mkDefault (-500);
   } // networkPolicy.proxy;
 
   client = base // {

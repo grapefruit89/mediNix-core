@@ -8,11 +8,11 @@
 # provides: ["acme", "tls"]
 # adr: ADR-514
 # ---
-# One token source, same order as 513. No tokenFile.
+# ACME uses its OWN Cloudflare token (never the DDNS token). No tokenFile.
 #   ingress.tls.acmeCredential
-#   dns.ddns.cloudflareTokenCredential
-#   dns.ddns.tokenCredential
-{ lib, config, ... }:
+# Scope: Zone:DNS:Edit on exactly this zone (TXT _acme-challenge). Keep it
+# separate from the DDNS token so a DDNS compromise cannot break TLS issuance.
+{ lib, config, pkgs, ... }:
 
 let
   cfg = config.medinix;
@@ -20,13 +20,18 @@ let
   ddns = cfg.dns.ddns;
   acmeHost = ing.tls.acmeHost;
 
-  credPath =
-    if (ing.tls.acmeCredential or null) != null then ing.tls.acmeCredential
-    else if (ddns.cloudflareTokenCredential or null) != null then ddns.cloudflareTokenCredential
-    else if (ddns.tokenCredential or null) != null then ddns.tokenCredential
-    else null;
+  credPath = ing.tls.acmeCredential or null;
 
   credRuntime = "/run/credentials/acme-${acmeHost}.service/cf-token";
+
+  # Extra lego/Cloudflare tuning env. nixpkgs' cert option is `environmentFile`
+  # (a path), NOT `environment` (a map) — and it would clash with our sealed
+  # token EnvironmentFile below. So these vars live in their own env file (no
+  # secrets). Replaces the former invalid `environment = { CLOUDFLARE_* }`.
+  cfTuningEnv = pkgs.writeText "acme-cloudflare-tuning.env" ''
+    CLOUDFLARE_POLLING_INTERVAL=10
+    CLOUDFLARE_PROPAGATION_TIMEOUT=120
+  '';
 
   contactMail =
     if (cfg.domain or null) != null then "admin@${cfg.domain}"
@@ -40,14 +45,37 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
     {
       assertion = credPath != null;
       message = ''
-        [mediNix] acmeHost is set but no Cloudflare credential was provided.
-        Set ingress.tls.acmeCredential or dns.ddns.cloudflareTokenCredential.
-        Same file is used by 513. Ref: ADR-514.
+        [mediNix] acmeHost is set but no dedicated ACME credential was provided.
+        Set ingress.tls.acmeCredential (its OWN token, NOT the DDNS one).
+        Ref: ADR-514.
+      '';
+    }
+    {
+      assertion = !(ddns.enable
+        && (ddns.cloudflareTokenCredential or null) != null
+        && ing.tls.acmeCredential == ddns.cloudflareTokenCredential);
+      message = ''
+        [mediNix] ACME and DDNS must use SEPARATE Cloudflare credentials.
+        ingress.tls.acmeCredential == dns.ddns.cloudflareTokenCredential.
+        Two tokens limit the blast radius. Ref: ADR-514 / ADR-5130.
       '';
     }
     {
       assertion = (ddns.tokenFile or null) == null;
       message = "[mediNix] dns.ddns.tokenFile is rejected. Use a systemd credential.";
+    }
+    {
+      # F6: the wildcard cert *.{acmeHost} must actually cover the vHosts
+      # rendered as {name}.{domain}.
+      assertion =
+        cfg.domain == null
+        || cfg.domain == ing.tls.acmeHost
+        || lib.hasSuffix ".${ing.tls.acmeHost}" cfg.domain;
+      message = ''
+        [mediNix] tls.acmeHost = "${ing.tls.acmeHost}" does not cover
+        domain = "${cfg.domain}". The cert is *.{acmeHost} but the vHosts are
+        {name}.{domain}. Use domain == acmeHost or a subdomain of acmeHost.
+      '';
     }
   ];
 
@@ -62,18 +90,18 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       domain = acmeHost;
       extraDomainNames = [ "*.${acmeHost}" ];
       dnsProvider = "cloudflare";
-      environment = {
-        CLOUDFLARE_DNS_RESOLVERS = "1.1.1.1,1.0.0.1";
-        CLOUDFLARE_POLLING_INTERVAL = "10";
-        CLOUDFLARE_PROPAGATION_TIMEOUT = "120";
-      };
+      # lego DNS resolver. (The former `environment = { CLOUDFLARE_* }` block
+      # referenced security.acme.certs.<name>.environment, which does not exist
+      # in nixpkgs — it broke the whole acmeHost evaluation.)
+      dnsResolver = "1.1.1.1:53";
     };
   };
 
   systemd.services."acme-${acmeHost}" = {
     serviceConfig = {
+      EnvironmentFile = [ credRuntime cfTuningEnv ];
+    } // lib.optionalAttrs (credPath != null) {
       LoadCredentialEncrypted = [ "cf-token:${credPath}" ];
-      EnvironmentFile = [ credRuntime ];
     };
   };
 }

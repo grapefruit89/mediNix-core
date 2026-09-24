@@ -73,19 +73,20 @@ let
       "doppelte UID im Registry")
   ];
 
-  # Factory output check (ADR-5050): factory-created services (stateDir registered
-  # in knownStateDirs) must yield User=<name>, Group=media, StateDirectory, and a
-  # system user with the registry uid.
-  factoryCreated = s: s.stateDir != null && lib.elem s.stateDir (config.medinix.knownStateDirs or [ ]);
+  # Factory output check (ADR-5050): every unit actually created by
+  # lib/service-factory.nix must yield User=<unit>, Group=media, StateDirectory,
+  # and a system user with the factory uid. Keyed by the REAL unit name, so the
+  # standalone reverse proxy (caddy-media) is verified as itself instead of the
+  # registry key it does not use.
+  factoryUnits = config.medinix.factoryUnits or { };
   svcCfgOf = n: config.systemd.services.${n}.serviceConfig or { };
-  factoryViolations = lib.flatten (lib.mapAttrsToList (n: s:
-    lib.optionals (factoryCreated s) [
-      (lib.optional ((svcCfgOf n).User or null != n) "${n}: unit User != ${n}")
-      (lib.optional ((svcCfgOf n).Group or null != "media") "${n}: unit Group != media")
-      (lib.optional (!((svcCfgOf n) ? StateDirectory)) "${n}: unit StateDirectory missing")
-      (lib.optional ((config.users.users.${n}.uid or null) != s.uid) "${n}: user uid != registry ${toString s.uid}")
-      (lib.optional ((config.users.users.${n}.group or null) != "media") "${n}: user group != media")
-    ]) allSvcs);
+  factoryViolations = lib.flatten (lib.mapAttrsToList (n: u: [
+    (lib.optional ((svcCfgOf n).User or null != n) "${n}: unit User != ${n}")
+    (lib.optional ((svcCfgOf n).Group or null != "media") "${n}: unit Group != media")
+    (lib.optional (!((svcCfgOf n) ? StateDirectory)) "${n}: unit StateDirectory missing")
+    (lib.optional ((config.users.users.${n}.uid or null) != u.uid) "${n}: user uid != factory ${toString u.uid}")
+    (lib.optional ((config.users.users.${n}.group or null) != "media") "${n}: user group != media")
+  ]) factoryUnits);
 in
 lib.mkIf cfg.enable {
   assertions = [

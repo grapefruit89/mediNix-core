@@ -42,6 +42,11 @@ let
   stateDir = reg.stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+  # F2: 511 renders forward_auth ONLY for `public` vhosts. Base *arr's auth
+  # method on the RESOLVED exposure of this vhost — External only when
+  # forward_auth is actually in front, otherwise *arr would be unauthenticated.
+  exposedPublic = (config.medinix.ingress.vhosts."prowlarr".accessGroup or "none") == "public";
+  authMethod = if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then "External" else "Forms";
 in
 lib.mkIf cfg.enable (lib.mkMerge [ {
   users.groups.media.gid = gid;
@@ -73,7 +78,7 @@ lib.mkIf cfg.enable (lib.mkMerge [ {
           urlBase     = "";
         };
         auth = {
-          method   = if config.medinix.ingress.auth.mode == "forward-auth" then "External" else "Forms";
+          method   = authMethod;
           required = "Enabled";
         };
         app = {

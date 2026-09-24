@@ -12,6 +12,8 @@ in
   config = lib.mkMerge [
     {
       medinix.navidrome.enable = true;
+      # trustedCidrs has no broad default anymore (fail-closed) — set one.
+      medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
     }
     (lib.mkIf (cfg.enable && cfg.navidrome.enable) {
       # Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port

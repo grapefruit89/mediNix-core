@@ -33,12 +33,18 @@ let
       enabled && vhost.accessGroup != "none" && (hasPort || hasStatic)
   ) cfg.ingress.vhosts;
 
-  trustedCidrs = ing.trustedCidrs or [
-    "10.0.0.0/8"
-    "172.16.0.0/12"
-    "192.168.0.0/16"
-    "fd00::/8"
-  ];
+  # Enabled public vhosts that would be WAN-reachable without forward_auth and
+  # without an explicit acknowledgement (see assertion below).
+  publicWithoutAuth = lib.filterAttrs
+    (_: v: v.accessGroup == "public" && !(v.allowUnauthenticated or false))
+    enabledServices;
+
+  # Enabled public vhosts that carry an auth-bypass path list.
+  publicBypassPaths = lib.filterAttrs
+    (_: v: v.accessGroup == "public" && (v.unauthenticatedPaths or [ ]) != [ ] && !(v.allowUnauthenticated or false))
+    enabledServices;
+
+  trustedCidrs = ing.trustedCidrs;
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
   tlsEnabled =
@@ -64,8 +70,11 @@ let
     }
   '';
 
+  # request_header (NOT header!): `header` only edits RESPONSE headers.
+  # We must strip client-supplied identity headers from the REQUEST before
+  # forward_auth copies the trusted ones in (Caddy docs: header = response).
   stripAuthHeaders = ''
-    header {
+    request_header {
       -Remote-User
       -Remote-Email
       -Remote-Groups
@@ -74,7 +83,9 @@ let
     }
   '';
 
-  lanAbort = ''
+  # Only meaningful with a non-empty trust list; the assertion below makes an
+  # empty trustedCidrs alongside enabled vhosts a build error.
+  lanAbort = lib.optionalString (trustedCidrs != []) ''
     @blocked not remote_ip ${trustedCidrsStr}
     abort @blocked
   '';
@@ -103,22 +114,29 @@ let
     }
   '';
 
-  authUpstream =
-    if ing.auth.forwardAuthUpstream != "" then ing.auth.forwardAuthUpstream
-    else "127.0.0.1:${toString registry."pocket-id".port}";
+  # F5: Pocket-ID is an OIDC provider, NOT a forward-auth endpoint (its docs:
+  # "exclusively an OIDC provider … no built-in proxy provider"). forward_auth
+  # needs an actual auth proxy (oauth2-proxy / tinyauth / caddy-security), so
+  # the upstream must be set explicitly — no Pocket-ID fallback.
+  authUpstream = ing.auth.forwardAuthUpstream;
 
-  skipPathsOf = vhost:
+  unauthenticatedPathsOf = vhost:
     let
-      local = vhost.skipPaths or [];
-      global = ing.auth.skipPaths or [];
+      local = vhost.unauthenticatedPaths or [];
+      global = ing.auth.unauthenticatedPaths or [];
     in lib.unique (global ++ local);
+
+  # Per-vhost override wins; null means inherit the global default.
+  localBypassOf = vhost:
+    if (vhost.localBypass or null) != null then vhost.localBypass
+    else ing.auth.localBypass;
 
   mkBaseConfig = n: vhost: { isLocal ? false }:
     let
       applyAuth =
         ing.auth.mode == "forward-auth"
-        && (!isLocal || !ing.auth.localBypass);
-      skipPaths = skipPathsOf vhost;
+        && (!isLocal || !(localBypassOf vhost));
+      skipPaths = unauthenticatedPathsOf vhost;
       skipMatcher = lib.optionalString (applyAuth && skipPaths != []) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
@@ -255,18 +273,15 @@ let
     stateDir = registry.caddy.stateDir;
     profile = "network";
     extraConfig = {
-      Service = {
-        Type = lib.mkDefault "notify";
-        WatchdogSec = lib.mkDefault "60s";
-        CPUWeight = lib.mkDefault 400;
-        IOWeight = lib.mkDefault 200;
-        MemoryMin = lib.mkDefault "64M";
-        MemoryLow = lib.mkDefault "128M";
-        MemoryHigh = lib.mkDefault "512M";
-        MemoryMax = lib.mkDefault "768M";
-        OOMScoreAdjust = lib.mkDefault (-500);
-        ManagedOOMPreference = lib.mkDefault "avoid";
-      };
+      Type = lib.mkDefault "notify";
+      WatchdogSec = lib.mkDefault "60s";
+      CPUWeight = lib.mkDefault 400;
+      IOWeight = lib.mkDefault 200;
+      MemoryMin = lib.mkDefault "64M";
+      MemoryLow = lib.mkDefault "128M";
+      MemoryHigh = lib.mkDefault "512M";
+      MemoryMax = lib.mkDefault "768M";
+      ManagedOOMPreference = lib.mkDefault "avoid";
     };
   };
 
@@ -284,9 +299,14 @@ in lib.mkMerge [
       {
         assertion =
           cfg.ingress.auth.mode != "forward-auth"
-          || cfg.pocketId.enable
-          || (cfg.ingress.authProxyPresent && cfg.ingress.auth.forwardAuthUpstream != "");
-        message = "[mediNix] forward-auth needs Pocket ID or a non-empty forwardAuthUpstream.";
+          || (cfg.authProxyPresent && cfg.ingress.auth.forwardAuthUpstream != "");
+        message = ''
+          [mediNix] auth.mode = "forward-auth" needs an explicit forward-auth
+          upstream (oauth2-proxy / tinyauth / caddy-security) via
+          authProxyPresent = true + ingress.auth.forwardAuthUpstream.
+          Pocket-ID is an OIDC provider and has NO forward-auth endpoint, so it
+          is NOT a valid upstream.
+        '';
       }
       {
         assertion = ingressMode != "global" || config.services.caddy.enable;
@@ -295,6 +315,18 @@ in lib.mkMerge [
       {
         assertion = duplicateSiteNames == [];
         message = "[mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}";
+      }
+      {
+        assertion = cfg.ingress.auth.mode == "forward-auth" || publicWithoutAuth == { };
+        message = "[mediNix] public vhost(s) without authentication: ${lib.concatStringsSep ", " (lib.attrNames publicWithoutAuth)}. Set ingress.auth.mode = \"forward-auth\", or acknowledge each with allowUnauthenticated = true.";
+      }
+      {
+        assertion = publicBypassPaths == { };
+        message = "[mediNix] public vhost(s) with unauthenticatedPaths (auth bypass): ${lib.concatStringsSep ", " (lib.attrNames publicBypassPaths)}. Remove the paths, switch to accessGroup = \"stream\", or set allowUnauthenticated = true.";
+      }
+      {
+        assertion = (enabledServices == { } && !landingOn) || trustedCidrs != [ ];
+        message = "[mediNix] ingress.trustedCidrs is empty but vhosts/landing are enabled. Set your real LAN CIDR(s) — no implicit trust of RFC1918/CGNAT.";
       }
     ];
 

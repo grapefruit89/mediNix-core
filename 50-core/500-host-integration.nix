@@ -24,13 +24,18 @@ let
   cfg = config.medinix;
 in {
   config = lib.mkIf cfg.enable {
-    # If a resource is set to "managed", we explicitly enable it on the host.
+    # Ownership (chameleon): "managed" = mediNix enables it on the host;
+    # "external" = host already provides it, mediNix does NOT touch it;
+    # "off" = no assumption.
     services.caddy.enable = lib.mkIf (cfg.hostIntegration.reverseProxy == "managed") true;
+    # mkDefault: a host that explicitly disables the firewall under "managed"
+    # gets the clean C1 assertion in 520 instead of an option conflict.
+    networking.firewall.enable = lib.mkIf (cfg.hostIntegration.firewall == "managed") (lib.mkDefault true);
     networking.nftables.enable = lib.mkIf (cfg.hostIntegration.nftables == "managed") true;
-    
+
     # We also apply the recommended nftables tables IF managed. If external, host must apply them.
     networking.nftables.tables = lib.mkIf (cfg.hostIntegration.nftables == "managed") cfg.recommended.nftables;
-    
-    # Kernel sysctl and firewall options are NEVER managed, so we just export them in recommended.
+
+    # Kernel sysctl is NEVER managed, so we just export it in recommended.
   };
 }

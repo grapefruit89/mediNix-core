@@ -9,16 +9,16 @@
 # requires: ["lib/service-factory"]
 # adr: ADR-5130
 # ---
-# Same token source as 514. No plaintext tokenFile.
-#   1. ingress.tls.acmeCredential
-#   2. dns.ddns.cloudflareTokenCredential
-#   3. dns.ddns.tokenCredential
+# DDNS uses its OWN Cloudflare token (never the ACME token). No tokenFile.
+#   dns.ddns.cloudflareTokenCredential
+# Scope: Zone:DNS:Edit on exactly this zone (needs delete for the prune step).
+# Keep it separate from the ACME token so a DDNS compromise cannot also break
+# TLS issuance (R11).
 # Loaded as cf-ddns-token. File is the token or KEY=value.
 { lib, pkgs, config, ... }:
 
 let
   cfg  = config.medinix;
-  ing  = cfg.ingress;
   ddns = cfg.dns.ddns;
   zone = if ddns.zone != null then ddns.zone else cfg.domain;
 
@@ -41,11 +41,7 @@ let
   pruneNames = lib.filter (n: !isProtectedLabel n) ownedLabels;
   pruneNamesStr = builtins.concatStringsSep " " pruneNames;
 
-  credPath =
-    if      (ing.tls.acmeCredential or null) != null then ing.tls.acmeCredential
-    else if ddns.cloudflareTokenCredential   != null then ddns.cloudflareTokenCredential
-    else if ddns.tokenCredential             != null then ddns.tokenCredential
-    else null;
+  credPath = ddns.cloudflareTokenCredential or null;
 
 in
 lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
@@ -54,9 +50,9 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
     {
       assertion = credPath != null;
       message = ''
-        [mediNix] DDNS is on but no Cloudflare credential was set.
-        Use ingress.tls.acmeCredential or dns.ddns.cloudflareTokenCredential.
-        dns.ddns.tokenFile is not accepted. Same file as 514. Ref: ADR-5130.
+        [mediNix] DDNS is on but no dedicated Cloudflare credential was set.
+        Set dns.ddns.cloudflareTokenCredential (its OWN token, NOT the ACME one).
+        dns.ddns.tokenFile is not accepted. Ref: ADR-5130.
       '';
     }
     {
@@ -84,6 +80,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
+      } // lib.optionalAttrs (credPath != null) {
         LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
       };
     })

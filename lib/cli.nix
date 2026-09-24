@@ -12,8 +12,9 @@ pkgs.writeShellApplication {
   text = ''
     set -euo pipefail
     SERVICES_JSON='${registryJson}'
-    MEDIA_ROOT="${mediaRoot}"
-    METADATA_DIR="${metadataDir}"
+    # Exported for the CLI's use; also keeps the module args meaningful.
+    export MEDIA_ROOT="${mediaRoot}"
+    export METADATA_DIR="${metadataDir}"
     DOMAIN="${effectiveDomain}"
     PROBLEMS_FILE=$(mktemp)
     echo "0" > "$PROBLEMS_FILE"

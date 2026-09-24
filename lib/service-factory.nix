@@ -120,6 +120,7 @@ if hardeningOnly then {
     "d '${mediaCoverSource}' 0775 ${name} media -"
   ];
   medinix.knownStateDirs = [ stateDir ];
+  medinix.factoryUnits."${name}" = { inherit uid stateDir; };
   users.users."${name}" = {
     uid         = uid;
     group       = "media";

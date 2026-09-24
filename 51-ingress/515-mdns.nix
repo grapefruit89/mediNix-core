@@ -29,7 +29,7 @@ let
     (lib.attrNames (lib.filterAttrs (n: vhost:
       let
         enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
-      in enabled && (registry.${n}.port or null) != null
+      in enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
     ) cfg.ingress.vhosts))
     ++ lib.optional (cfg.ingress.landing.enable) "home";
 

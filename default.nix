@@ -70,7 +70,16 @@ in
   options.medinix = {
 
     hostIntegration = {
-      reverseProxy = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      reverseProxy = lib.mkOption {
+        type = lib.types.enum [ "external" "managed" "off" ];
+        default = "off";
+        description = ''
+          Ownership of the host reverse proxy. "off" (default) = mediNix makes
+          NO assumption and does not touch a host Caddy — import does not mean
+          take over. "managed" = mediNix enables services.caddy. "external" =
+          a compatible host Caddy already exists (must be enabled by the host).
+        '';
+      };
       nftables     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
       firewall     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
       storage      = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
@@ -206,15 +215,6 @@ in
       enable  = lib.mkEnableOption "Lidarr Music Download Manager";
       package = mkPackageOption "lidarr";
     };
-    recyclarr = {
-      enable  = lib.mkEnableOption "Recyclarr custom format synchronization";
-      package = mkPackageOption "recyclarr";
-      schedule = lib.mkOption {
-        type    = lib.types.str;
-        default = "daily";
-        description = "Systemd calendar interval for Recyclarr runs.";
-      };
-    };
     exporters = {
       enable           = lib.mkEnableOption "Prometheus exporters for Arr stack";
       lidarr.enable    = lib.mkEnableOption "Enable metrics exporter for Lidarr";
@@ -271,9 +271,6 @@ in
         '';
       };
     };
-    updateNotifier = {
-      enable = lib.mkEnableOption "Daily check for mediNix-core updates (ntfy notify, NO auto-update)";
-    };
     feishin = {
       enable  = lib.mkEnableOption "Feishin SPA (static files)";
       package = mkPackageOption "feishin";
@@ -286,6 +283,18 @@ in
       "Run Usenet stack (SABnzbd/Prowlarr) isolated under WireGuard VPN interface";
 
     maintenance = {
+      recyclarr = {
+        enable  = lib.mkEnableOption "Recyclarr custom format synchronization";
+        package = mkPackageOption "recyclarr";
+        schedule = lib.mkOption {
+          type    = lib.types.str;
+          default = "daily";
+          description = "Systemd calendar interval for Recyclarr runs.";
+        };
+      };
+      updateNotifier = {
+        enable = lib.mkEnableOption "Daily check for mediNix-core updates (ntfy notify, NO auto-update)";
+      };
       provisioning = {
         enable = lib.mkEnableOption "API-Provisioning (register SABnzbd/Prowlarr/Root-Folders in *arr)";
         force = lib.mkOption {
@@ -408,14 +417,52 @@ in
       };
       trustedCidrs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ "10.0.0.0/8" "100.64.0.0/10" "172.16.0.0/12" "192.168.0.0/16" "fd00::/8" ];
-        description = "List of trusted CIDRs for internal Caddy vhosts.";
+        default = [ ];
+        example = [ "192.168.2.0/24" "fd42:1234:5678::/64" ];
+        description = ''
+          Trust boundary: only these CIDRs may reach internal vhosts and the
+          `.local` sites. Deliberately has NO broad default (10/8, 192.168/16,
+          CGNAT) — set your real LAN CIDR(s). Enabling any vhost with an empty
+          trustedCidrs is a build error (fail-closed, no implicit LAN trust).
+        '';
       };
       vhosts = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
           options = {
             accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" "idp" "none" ]; };
             customConfig = lib.mkOption { type = lib.types.lines; default = ""; };
+            allowUnauthenticated = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = ''
+                Explicitly acknowledge an intentionally unauthenticated public
+                vhost. Without it, `accessGroup = "public"` while
+                ingress.auth.mode != "forward-auth" is a build error, and a
+                public vhost carrying unauthenticatedPaths needs it too.
+              '';
+            };
+            localBypass = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = ''
+                Per-vhost override for ingress.auth.localBypass (null = inherit).
+                When true, http://{service}.local skips forward_auth (still
+                CIDR-gated). Set only where the app login is authoritative.
+              '';
+            };
+            unauthenticatedPaths = lib.mkOption {
+              # Caddy path matchers must start with `/` and a whitespace would
+              # split into MULTIPLE matchers (silently widening the bypass).
+              # Quotes/braces would break Caddy tokenization.
+              type = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
+              default = [ ];
+              description = ''
+                Paths exempt from forward_auth (Caddy `@needAuth not path …`).
+                This is an AUTHENTICATION BYPASS list — the name is deliberate.
+                Each entry must start with `/`, use `*` for prefixes, and carry
+                no whitespace/quotes/braces. Merged with the global option.
+              '';
+            };
             landing = lib.mkOption {
               type = lib.types.bool;
               default = false;
@@ -493,21 +540,21 @@ in
             fullchain.pem + key.pem to every https://{name}.{domain} vHost — including
             LAN-only services (internal abort). This is the HTTPS-on-LAN path.
             Let's Encrypt cannot sign .local; http://{name}.local stays HTTP.
-            Requires acmeCredential (preferred) or dns.ddns.cloudflareTokenCredential.
+            Requires ingress.tls.acmeCredential (its own token, Lego DNS-01).
           '';
         };
-        # Dedizierter ACME-Token (unabhängig vom DDNS-Token).
-        # Pfad zur TPM-versiegelten .cred-Datei (systemd-creds encrypt).
-        # Wenn null: Fallback auf dns.ddns.cloudflareTokenCredential / tokenCredential / tokenFile.
+        # Dedizierter ACME-Token (Lego), unabhaengig vom DDNS-Token.
         acmeCredential = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;
           default = null;
           example = "/var/lib/credstore.encrypted/cf-acme-token.cred";
           description = ''
-            Path to the TPM-sealed .cred file for the Cloudflare API token used by ACME/Lego.
-            Loaded via systemd LoadCredentialEncrypted into the acme-<acmeHost>.service unit.
+            TPM-sealed .cred for the Cloudflare token used by Lego (ACME DNS-01)
+            ONLY — loaded into acme-<acmeHost>.service via LoadCredentialEncrypted.
             Content format: CF_DNS_API_TOKEN=<token>
-            If null, falls back to dns.ddns.cloudflareTokenCredential, tokenCredential, or tokenFile.
+            Required when ingress.tls.acmeHost is set. Must be a DIFFERENT token
+            than dns.ddns.cloudflareTokenCredential. Scope: Zone:DNS:Edit on
+            exactly the acme zone (TXT _acme-challenge).
           '';
         };
       };
@@ -525,18 +572,26 @@ in
           type    = lib.types.str;
           default = "/oauth2/auth";
         };
-        skipPaths = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
+        unauthenticatedPaths = lib.mkOption {
+          type    = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
           default = [ ];
           example = [ "/metrics" "/health" ];
+          description = ''
+            Global authentication-bypass list, merged into every vhost's
+            unauthenticatedPaths. Prefer the per-vhost option. Any path listed
+            here is reachable WITHOUT forward_auth. Entries must start with `/`,
+            use `*` for prefixes, and carry no whitespace/quotes/braces.
+          '';
         };
         localBypass = lib.mkOption {
           type    = lib.types.bool;
-          default = true;
+          default = false;
           description = ''
-            http://{service}.local without forward_auth and without LAN-abort,
-            even when auth.mode = forward-auth. .local is mDNS/LAN only (RFC 6762).
-            LAN HTTPS uses https://{service}.{domain} (Lego wildcard), not .local.
+            Default for vhosts.localBypass. false means http://{service}.local
+            is still CIDR-gated AND authenticated (when auth.mode =
+            "forward-auth"). .local is a hostname, not a trust boundary: a
+            compromised LAN host can send Host: {service}.local. Enable the
+            bypass explicitly per vhost where the app login is authoritative.
           '';
         };
       };
@@ -572,6 +627,18 @@ in
           default = [ ];
           description = "SSH public keys for media-admin user.";
         };
+        allowedServices = lib.mkOption {
+          type    = lib.types.listOf lib.types.str;
+          default = [ ];
+          example = [ "caddy-media" "pocket-id" ];
+          description = ''
+            EXACT units media-admin may `systemctl restart`. Deliberately NOT
+            "all registry services": the privileged surface is explicit and
+            reviewable, and does not grow when the registry grows. Must be
+            non-empty when enable = true; every entry must exist in the
+            registry (otherwise a build error).
+          '';
+        };
       };
       backupSsh = {
         enable = lib.mkEnableOption "read-only backup SSH user (rsync pull of State-Dirs)";
@@ -588,6 +655,23 @@ in
       type = lib.types.listOf lib.types.str;
       default = [];
       description = "Auto-generated list of all state directories for orphan detection";
+    };
+
+    factoryUnits = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          uid = lib.mkOption { type = lib.types.int; };
+          stateDir = lib.mkOption { type = lib.types.str; };
+        };
+      });
+      default = { };
+      internal = true;
+      description = ''
+        Units actually created by lib/service-factory.nix, keyed by the real unit
+        name. The ADR-5050 guardrail (591) verifies these — not the registry
+        names, which would wrongly assume unit name == registry key (the
+        standalone reverse proxy is `caddy-media`, not `caddy`).
+      '';
     };
     # --- Observability (Notifications) ---
     observability = {
@@ -655,20 +739,16 @@ in
           type    = lib.types.str;
           default = "5m";
         };
-        # Cloudflare Token (für DDNS + ACME) — TPM-cred Workflow
+        # Cloudflare token for DDNS (513) — TPM-cred workflow. NOT for ACME.
         cloudflareTokenCredential = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
-            Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Cloudflare API Token.
-            Wird via LoadCredentialEncrypted als mediNix-cf-token gemountet.
-            Erforderlich für DDNS + ACME (security.acme).
+            Path to the TPM-sealed .cred for the Cloudflare API token used by
+            513 DDNS ONLY (records + prune). Required when DDNS is enabled.
+            Must be a DIFFERENT token than ingress.tls.acmeCredential.
+            Scope: Zone:DNS:Edit on exactly the DDNS zone.
           '';
-        };
-        tokenCredential = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
-          default = null;
-          example = "/var/lib/credstore.encrypted/CF_DDNS_API_TOKEN.cred";
         };
         tokenFile = lib.mkOption {
           type    = lib.types.nullOr lib.types.str;
@@ -961,7 +1041,7 @@ in
 
     # mediNix Health CLI (Build-Zeit aus Registry generiert)
     environment.systemPackages = lib.mkIf cfg.cli.enable [
-      (pkgs.callPackage ./packages/mediNix-cli {
+      (pkgs.callPackage ./lib/cli.nix {
         inherit lib;
         registryJson = builtins.toJSON (import ./lib/registry.nix { inherit lib; }).services;
         mediaRoot   = cfg.storage.mediaRoot;

@@ -37,7 +37,6 @@ let
     "jellyfin.adminPasswordCredential" = cfg.jellyfin.adminPasswordCredential or null;
     "sabnzbd.serverCredentialFile" = cfg.sabnzbd.serverCredentialFile or null;
     "dns.ddns.cloudflareTokenCredential" = cfg.dns.ddns.cloudflareTokenCredential or null;
-    "dns.ddns.tokenCredential" = cfg.dns.ddns.tokenCredential or null;
     "ingress.tls.acmeCredential" = cfg.ingress.tls.acmeCredential or null;
     "vpn.privateKeyCredentialPath" = cfg.vpn.privateKeyCredentialPath or null;
     "maintenance.backup.passwordCredentialPath" = cfg.maintenance.backup.passwordCredentialPath or null;

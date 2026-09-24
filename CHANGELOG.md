@@ -3,6 +3,77 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-09-24 — Security-Audit 51/52: Explicit-Intent-Härtung (Batches A–F)
+
+Red-Team-Audit der Ordner `51-ingress` / `52-security` abgearbeitet (R1–R20),
+plus ein unabhängiger Cold-Start-Audit (9 weitere Findings). Prinzip:
+**Security by Explicit Intent** — unsichere Entscheidungen bleiben möglich,
+müssen aber erklärt werden; Defaults sind fail-closed.
+
+Die Änderungen werden durch `nix flake check` und gezielte Negativtests
+**geprüft**; das ist **kein** Beweis der Sicherheit — ein grüner Test beweist
+nur die getestete Eigenschaft (siehe F1: ein Test war grün, prüfte aber die
+eigentliche Invariante gar nicht). Der einzige verbleibende offene Punkt ist
+**F7** (Architekturentscheidung, bewusst nicht angefasst) —
+`docs/ingress-security-matrix.md`.
+
+### ⚠️ Breaking: umbenannte/entfernte Optionen (alt → neu)
+
+| alt | neu | Grund |
+|---|---|---|
+| `ingress.auth.skipPaths` | `ingress.auth.unauthenticatedPaths` | Name soll den Auth-Bypass benennen |
+| `ingress.vhosts.<n>.skipPaths` (war nie deklariert) | `ingress.vhosts.<n>.unauthenticatedPaths` | jetzt echte Option |
+| `dns.ddns.tokenCredential` | **entfernt** | generischer Token ermöglichte ACME/DDNS-Sharing (R11) |
+| `medinix.recyclarr.*` | `medinix.maintenance.recyclarr.*` | 572 las `maintenance.recyclarr` |
+| `medinix.updateNotifier.*` | `medinix.maintenance.updateNotifier.*` | 575 las `maintenance.updateNotifier` |
+
+### ⚠️ Geänderte Defaults (fail-closed)
+
+| Option | alt | neu |
+|---|---|---|
+| `hostIntegration.reverseProxy` | `"external"` | `"off"` (No-Touch — Import ≠ Übernahme) |
+| `ingress.auth.localBypass` | `true` | `false` (`.local` ist kein Trust-Boundary) |
+| `ingress.trustedCidrs` | breite Liste (10/8, CGNAT, 172.16/12, …) | `[]` — Pflicht; leer + aktive vHosts = Build-Fehler |
+
+### Neue Optionen
+- `ingress.vhosts.<n>.allowUnauthenticated` (bool, default `false`)
+- `ingress.vhosts.<n>.localBypass` (nullOr bool, default `null` = erbt global)
+- `ingress.vhosts.<n>.unauthenticatedPaths` (list, default `[]`)
+- `security.emergencyUser.allowedServices` (list, default `[]`) — **ersetzt** die frühere „alle Registry-Services"-Sudo-Regel
+- `medinix.factoryUnits` (internal) — die tatsächlich erzeugten Factory-Units
+
+### Sicherheits-Fixes (je Finding)
+- **R2/R3/R4/R6 (A):** `public` ohne Auth → Build-Fehler (bzw. `allowUnauthenticated`); `localBypass`/`trustedCidrs` fail-closed; `skipPaths` → `unauthenticatedPaths`.
+- **R8/R11 (B):** ACME (Lego) und DDNS nutzen **getrennte** Cloudflare-Tokens, kein Fallback; Scope dokumentiert.
+- **R12/R14 (C):** `firewall = "managed"` aktiviert die Firewall (500); C1-Guardrail + Ein-Eigentümer-Assertion (520); Emergency-User nur noch `allowedServices` (+ Existenz-/Leer-Assertions).
+- **R15/R16 (D):** 526 prüft `registry.uid == instance.uid == users.<unit-user>.uid`; IPv6 fail-closed (`ipv6 || !networking.enableIPv6`).
+- **R7 (E/F1):** `header` → **`request_header`** (511) — der alte Strip wirkte nur auf Response-Header.
+- **F2 (behoben):** *arr setzten `AUTH__METHOD=External` allein anhand `auth.mode=forward-auth` — aber 511 rendert `forward_auth` **nur** für `public`-vHosts, *arr sind `internal` ⇒ LAN-Admin ohne Login. Fix (532/533/536): `External` nur, wenn die **aufgelöste** vHost-Exposure `public` ist, sonst `Forms`. Regressionstest `mediNix-arr-auth-method`.
+- **F3 (E/F3):** 514 nutzte `security.acme.certs.<n>.environment` — diese Option existiert in nixpkgs **nicht** (nur `environmentFile`, ein *Pfad*) → `tls.acmeHost` brach die Eval, und `negative-token-shared` war dadurch vakuum-grün. Fix: Resolver über die gültige Option `dnsResolver`; die zwei lego-Tuning-Vars (`CLOUDFLARE_POLLING_INTERVAL`, `CLOUDFLARE_PROPAGATION_TIMEOUT`) über eine eigene Env-Datei im `EnvironmentFile` (die Modul-Option `environmentFile` hätte mit dem versiegelten Token-`EnvironmentFile` kollidiert). Bewusst **kein** 1:1-Rename `environment`→`environmentFile`: `environment` ist eine Map, `environmentFile` ein Pfad.
+- **F4 (fixed):** Landing in die `trustedCidrs`-Assertion einbezogen — Landing ist default an, damit ist `trustedCidrs` faktisch Pflicht (fail-closed).
+- **F5 (fixed):** Pocket-ID ist OIDC-OP, kein Forward-Auth-Proxy → Fallback entfernt; `auth.mode=forward-auth` verlangt expliziten `forwardAuthUpstream` + `authProxyPresent`.
+- **F6 (fixed):** Assertion `domain` ↔ `acmeHost` (Wildcard muss die vHosts decken).
+- **F8 (fixed):** `515-mdns` filtert `accessGroup=none`.
+- **F9 (fixed):** `unauthenticatedPaths` typ-validiert (`strMatching` `^/[^ \\t"{}]*$`).
+- **F7 (offen, DESIGN):** customConfig-only-vHosts — Architekturentscheidung, bewusst nicht angefasst.
+
+### Behobene Eval-/Build-Brecher (Batch B0)
+- `526-vpn-killswitch.nix`: fehlende schließende `}` (seit ≥60 Commits).
+- `576-backup.nix`: 2 fehlende `;`.
+- `default.nix`: CLI-Pfad `./packages/mediNix-cli` → `./lib/cli.nix`.
+- `511/512`: `authProxyPresent` unter falschem Pfad gelesen (`ingress.` statt top-level).
+- `lib/hardening-profiles.nix`: `OOMScoreAdjust` plain → `mkDefault` (SSoT = `memory-policy`).
+- `500` / `591` / `lib/service-factory.nix`: Factory-Check prüft echte Units statt Registry-Namen.
+- `lib/cli.nix`: `MEDIA_ROOT`/`METADATA_DIR` unbenutzt → `writeShellApplication`-shellcheck brach ab → `nixos-check`/`mediNix-smoke` nicht baubar; jetzt als Env exportiert.
+
+### Tests
+`nix flake check` (Eval) grün; `nixos-check` + `mediNix-smoke` bauen (volle Systeme). Neue Checks: `mediNix-negative-{uid-chain,vpn-ipv6,vpn,token-shared,emergency-empty,emergency-unknown,landing-cidrs,forward-auth-upstream,acme-domain}`, `mediNix-firewall-managed`, `mediNix-ingress-header-strip`, `mediNix-acme-positive`, `mediNix-arr-auth-method`. Negativtests prüfen per `expectAssertion` den **Grund** (nicht nur „fehlgeschlagen").
+
+> **Runtime-Test auf q958 steht weiterhin aus** — Grüne Eval/Builds beweisen keinen laufenden Dienst. Der Deploy-/Live-Test ist separat (q958 aus).
+
+> Lint (`nixfmt`/`statix`/`deadnix`) ist repo-weit **vorbestehend rot** und noch nicht saniert.
+> Doku-Inkonsistenz (nicht Security): Zeile 3 sagt „10-Domain-Architektur", Zeile 347 „9 Domains" — vor dem Architecture Freeze bereinigen.
+
 ## 2026-09-23 — ADR-0000: englische Verfassung (übersetzt) + gerettete Herkunft
 
 Die angereicherte Verfassung (`ADR-0000-dezimalrahmen-verfassung.md`) wurde aus der

@@ -34,6 +34,9 @@
             self.nixosModules.default
             {
               medinix.enable = true;
+              # Fail-closed: landing (default on) + ingress need a real trust
+              # boundary, so trustedCidrs is mandatory.
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "24.11";
@@ -76,6 +79,37 @@
             ${script}
             touch $out
           '';
+
+        baseModules = extra: [
+          self.nixosModules.default
+          {
+            medinix.enable = true;
+            boot.loader.grub.enable = false;
+            fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+            system.stateVersion = "24.11";
+            # Stack packages (e.g. unrar via sabnzbd) are unfree; check configs
+            # only need to evaluate, not to be redistributed.
+            nixpkgs.config.allowUnfree = true;
+          }
+          extra
+        ];
+
+        # Negative test WITH reason: the specific assertion (matched by a message
+        # substring) must be present AND evaluate to false. Guards against a test
+        # that goes green for the wrong cause (e.g. a broken option, not the
+        # security invariant under test).
+        expectAssertion = name: msgNeedle: extra:
+          let
+            asrt = (lib.nixosSystem { inherit system; modules = baseModules extra; })
+              .config.assertions;
+            hit = lib.findFirst (a: lib.hasInfix msgNeedle a.message) null asrt;
+          in
+          if hit == null then
+            throw "Negative test ${name}: assertion containing '${msgNeedle}' not found."
+          else if hit.assertion then
+            throw "Negative test ${name}: assertion '${msgNeedle}' evaluated true (not enforced)."
+          else
+            pkgs.runCommand "negative-${name}-ok" { } "echo 'ok: ${name} fired for the right reason' > $out";
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
@@ -102,8 +136,12 @@
                 self.nixosModules.default
                 {
                   medinix.enable = true;
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
                   medinix.usenet-confinement.enable = true;
                   medinix.sabnzbd.enable = true;
+                  # Keep R16 (IPv6) quiet so the missing VPN interface is the
+                  # assertion under test.
+                  services.vpnKillSwitch.ipv6 = true;
                   # Intentionally DO NOT provide medinix.vpn.interface
                   boot.loader.grub.enable = false;
                   fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
@@ -117,6 +155,156 @@
             throw "Negative Test Failed: usenet-confinement enabled without VPN interface should fail to evaluate, but it succeeded!"
           else
             pkgs.runCommand "negative-vpn-ok" {} "echo 'Negative test passed: Fail-Closed assertion triggered' > $out";
+
+        # ── Batch C: firewall ownership + emergency allowlist (C1–C6) ──────
+        checks.mediNix-negative-emergency-empty =
+          expectAssertion "emergency-empty" "empty allowedServices" {
+            medinix.security.emergencyUser.enable = true;
+          };
+        checks.mediNix-negative-emergency-unknown =
+          expectAssertion "emergency-unknown" "unknown service" {
+            medinix.security.emergencyUser.enable = true;
+            medinix.security.emergencyUser.allowedServices = [ "does-not-exist" ];
+          };
+        checks.mediNix-negative-token-shared =
+          expectAssertion "token-shared" "SEPARATE Cloudflare" {
+            medinix.ingress.tls.acmeHost = "example.com";
+            medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/same.cred";
+            medinix.dns.ddns.enable = true;
+            medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/same.cred";
+          };
+        # F3: tls.acmeHost must EVALUATE (regression: the former
+        # certs.<name>.environment option does not exist in nixpkgs).
+        checks.mediNix-acme-positive =
+          let
+            c = (lib.nixosSystem {
+              inherit system;
+              modules = baseModules {
+                medinix.domain = "example.com";
+                medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                medinix.authProxyPresent = true;
+                medinix.ingress.tls.acmeHost = "example.com";
+                medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+                medinix.seerr.enable = true;
+              };
+            }).config;
+            cert = c.security.acme.certs."example.com";
+          in
+          pkgs.runCommand "acme-positive-ok" { } ''
+            test "${cert.domain}" = "example.com" || { echo "FAIL: acme cert not rendered"; exit 1; }
+            echo "ok: tls.acmeHost evaluates and renders a cert" > $out
+          '';
+        # R7: forward_auth must strip client-supplied identity headers BEFORE
+        # copying the trusted ones (header-spoofing regression, checked on the
+        # actually rendered Caddyfile).
+        checks.mediNix-ingress-header-strip =
+          let
+            c = (lib.nixosSystem {
+              inherit system;
+              modules = baseModules {
+                medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+                medinix.ingress.auth.mode = "forward-auth";
+                medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:9999";
+                medinix.authProxyPresent = true;
+                medinix.seerr.enable = true; # public vhost → renders forward_auth
+              };
+            }).config;
+            caddyfile = pkgs.writeText "demo.Caddyfile" c.environment.etc."caddy-media/Caddyfile".text;
+          in
+          pkgs.runCommand "ingress-header-strip-ok" {
+            nativeBuildInputs = [ pkgs.gnugrep pkgs.coreutils ];
+          } ''
+            f=${caddyfile}
+            grep -q 'forward_auth' "$f" || { echo "FAIL: no forward_auth rendered"; exit 1; }
+            # F1: the strip MUST be request_header (response-only 'header' does
+            # not protect the upstream against client-supplied identity headers).
+            grep -q 'request_header' "$f" || { echo "FAIL: strip is not request_header"; exit 1; }
+            req=$(grep -n 'request_header' "$f" | head -1 | cut -d: -f1)
+            strip=$(grep -n -- '-Remote-User' "$f" | head -1 | cut -d: -f1)
+            fa=$(grep -n 'forward_auth' "$f" | head -1 | cut -d: -f1)
+            [ -n "$req" ] && [ -n "$strip" ] && [ -n "$fa" ] || { echo "FAIL: missing block"; exit 1; }
+            [ "$req" -lt "$strip" ] && [ "$strip" -lt "$fa" ] \
+              || { echo "FAIL: order request_header($req) < strip($strip) < forward_auth($fa) violated"; exit 1; }
+            echo "ok: identity headers stripped on the REQUEST before forward_auth" > $out
+          '';
+
+        # R15: a uid mismatch between registry and instance must fail — the
+        # nftables `skuid` would otherwise target the wrong process.
+        checks.mediNix-negative-uid-chain =
+          expectAssertion "uid-chain" "R15 identity chain broken" {
+            medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+            medinix.vpn.enable = true;
+            medinix.usenet-confinement.enable = true;
+            medinix.sabnzbd.enable = true;
+            services.vpnKillSwitch.ipv6 = true;
+            services.vpnKillSwitch.instances.sabnzbd =
+              lib.mkForce { enable = true; uid = 1; };
+          };
+        # R16: killswitch active + IPv6 enabled on the host + ipv6 = false
+        # must fail (no unfiltered IPv6 escape).
+        checks.mediNix-negative-vpn-ipv6 =
+          expectAssertion "vpn-ipv6" "R16 fail-open IPv6" {
+            medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+            medinix.vpn.enable = true;
+            medinix.usenet-confinement.enable = true;
+            medinix.sabnzbd.enable = true;
+          };
+        # F4: landing enabled + empty trustedCidrs must fail (landing must not
+        # bypass the CIDR trust boundary).
+        checks.mediNix-negative-landing-cidrs =
+          expectAssertion "landing-cidrs" "trustedCidrs is empty" {
+            medinix.ingress.landing.enable = true;
+          };
+        # F5: forward-auth without an explicit upstream must fail (Pocket-ID is
+        # an OIDC OP, not a forward-auth proxy).
+        checks.mediNix-negative-forward-auth-upstream =
+          expectAssertion "forward-auth-upstream" "explicit forward-auth" {
+            medinix.ingress.auth.mode = "forward-auth";
+          };
+        # F6: the acmeHost cert must cover the domain (else TLS breaks runtime).
+        checks.mediNix-negative-acme-domain =
+          expectAssertion "acme-domain" "does not cover" {
+            medinix.domain = "other.net";
+            medinix.ingress.tls.acmeHost = "example.com";
+            medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+          };
+        # F2 regression: *arr's AUTH__METHOD must follow the RESOLVED vhost
+        # exposure — External only behind forward_auth (public), never on
+        # internal (where 511 renders no forward_auth).
+        checks.mediNix-arr-auth-method =
+          let
+            common = {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+              medinix.ingress.auth.mode = "forward-auth";
+              medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:4180";
+              medinix.authProxyPresent = true;
+              medinix.sonarr.enable = true;
+            };
+            authOf = extra:
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules common ++ [ extra ];
+              }).config.systemd.services.sonarr.environment.SONARR__AUTH__METHOD;
+            internal = authOf { };
+            public = authOf { medinix.ingress.vhosts."sonarr".accessGroup = lib.mkForce "public"; };
+          in
+          pkgs.runCommand "arr-auth-method-ok" { } ''
+            test "${internal}" = "Forms" || { echo "FAIL: internal sonarr AUTH__METHOD=${internal} (want Forms)"; exit 1; }
+            test "${public}" = "External" || { echo "FAIL: public sonarr AUTH__METHOD=${public} (want External)"; exit 1; }
+            echo "ok: arr auth method follows the resolved vhost exposure" > $out
+          '';
+
+        checks.mediNix-firewall-managed =
+          let
+            c = (lib.nixosSystem {
+              inherit system;
+              modules = baseModules { medinix.hostIntegration.firewall = "managed"; };
+            }).config;
+          in
+          if c.networking.firewall.enable then
+            pkgs.runCommand "firewall-managed-ok" { } "echo 'ok: firewall=managed enables the firewall' > $out"
+          else
+            throw "C1 failed: hostIntegration.firewall = managed did not enable networking.firewall.enable.";
 
         checks.mediNix-smoke = (lib.nixosSystem {
           inherit system;

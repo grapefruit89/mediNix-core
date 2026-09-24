@@ -37,6 +37,19 @@ let
   mark = toString cfg.routingTable;
   table = toString cfg.routingTable;
   vpnIf = cfg.vpnInterface;
+
+  # R15: identity chain. nftables matches `meta skuid <instance.uid>`, so the
+  # instance uid, the registry uid and the uid of the user the unit actually
+  # runs as must be the same number — otherwise the killswitch targets the
+  # wrong process.
+  registry = import ../lib/registry.nix { inherit lib; };
+  instUidOf  = n: activeInstances.${n}.uid;
+  regUidOf   = n: (registry.services.${n} or { }).uid or null;
+  unitUserOf = n: ((config.systemd.services.${n} or { }).serviceConfig or { }).User or n;
+  sysUidOf   = n: (config.users.users.${unitUserOf n} or { }).uid or null;
+  identityBroken = lib.filter
+    (n: !(regUidOf n == instUidOf n && sysUidOf n == instUidOf n))
+    (lib.attrNames activeInstances);
 in
 {
   options.services.vpnKillSwitch = {
@@ -82,6 +95,25 @@ in
       {
         assertion = lib.all (n: lib.hasAttr n config.systemd.services) (lib.attrNames activeInstances);
         message = "vpnKillSwitch.instances.<name> must match an existing systemd service name.";
+      }
+      {
+        # R15: close registry → instance → systemd-user identity.
+        assertion = identityBroken == [ ];
+        message = ''
+          [vpnKillSwitch] R15 identity chain broken. For every active instance
+          registry.uid == instance.uid == users.<unit-user>.uid must hold.
+          Offenders: ${lib.concatStringsSep ", " identityBroken}
+        '';
+      }
+      {
+        # R16: fail-closed IPv6. IPv6 on the host without an IPv6 killswitch is
+        # an unfiltered escape from the confined uid.
+        assertion = cfg.ipv6 || !(config.networking.enableIPv6 or false);
+        message = ''
+          [vpnKillSwitch] R16 fail-open IPv6: networking.enableIPv6 is on but
+          services.vpnKillSwitch.ipv6 is false. Set ipv6 = true (or disable
+          IPv6 on the host).
+        '';
       }
     ];
 
@@ -182,6 +214,7 @@ in
           }
           '' else ""}
         '';
+        };
       };
     } // lib.mapAttrs (name: v: {
       requires = [ "medinix-vpn-route.service" ];

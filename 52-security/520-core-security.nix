@@ -28,6 +28,7 @@ let
   cfg = config.medinix;
   em  = cfg.security.emergencyUser;
   fde = cfg.security.fde or { enable = false; rootUuid = null; };
+  registry = import ../lib/registry.nix { inherit lib; };
 in {
   options.medinix.security.fde = {
     enable = lib.mkEnableOption "LUKS2 root + TPM2 unlock (initrd systemd)";
@@ -47,17 +48,30 @@ in {
         group = "media";
       };
 
-      assertions = [{
-        assertion =
-          (cfg.hostIntegration.firewall or "off") != "managed"
-          || config.networking.firewall.enable
-          || config.networking.nftables.enable;
-        message = ''
-          [mediNix] hostIntegration.firewall = managed only opens 80/443 lists.
-          It does not turn the host firewall on. Set networking.firewall.enable
-          or networking.nftables.enable, or set firewall = external|off.
-        '';
-      }];
+      assertions = [
+        # C1: firewall = managed → mediNix OWNS the packet filter AND it MUST be
+        # active. 500 enables networking.firewall.enable in that case; this
+        # assertion is the guardrail. external/off make no claim.
+        {
+          assertion =
+            cfg.hostIntegration.firewall != "managed"
+            || config.networking.firewall.enable
+            || config.networking.nftables.enable;
+          message = ''
+            [mediNix] hostIntegration.firewall = managed but no host firewall is
+            active (500 enables networking.firewall.enable). Ref: ADR-520.
+          '';
+        }
+        # One packet-filter owner only (firewall XOR nftables managed).
+        {
+          assertion = !(cfg.hostIntegration.firewall == "managed"
+            && cfg.hostIntegration.nftables == "managed");
+          message = ''
+            [mediNix] Set only one packet-filter owner: firewall = managed XOR
+            nftables = managed. Ref: ADR-520.
+          '';
+        }
+      ];
 
       # Host may apply these. 520 does not write boot.kernel.sysctl itself
       # (additive host integration — README).
@@ -87,17 +101,43 @@ in {
         openssh.authorizedKeys.keys = em.sshKeys;
       };
 
+      # R14 / C3+C6: only the explicitly allowed units — never "all registry
+      # services" (that would auto-grow the privileged surface with the registry).
       security.sudo.extraConfig =
         let
-          registry = import ../lib/registry.nix { inherit lib; };
-          restartCmds = lib.mapAttrsToList
-            (_: svc: "/run/current-system/sw/bin/systemctl restart ${svc.unitName}.service")
-            registry.services;
+          allowed = em.allowedServices;
+          unitOf = n: (registry.services.${n} or { }).unitName or n;
+          restartCmds = map
+            (n: "/run/current-system/sw/bin/systemctl restart ${unitOf n}.service")
+            allowed;
           cmdString = lib.concatStringsSep ", \\\n                                           " restartCmds;
-        in ''
+        in
+        lib.optionalString (restartCmds != []) ''
           media-admin ALL=(root) NOPASSWD: ${cmdString}
+        '' + ''
           media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status * --no-pager
         '';
+
+      assertions = [
+        # C6: an emergency user that may restart nothing is a config error —
+        # declare intent explicitly instead of an implicit empty default.
+        {
+          assertion = em.allowedServices != [ ];
+          message = ''
+            [mediNix] security.emergencyUser.enable with an empty allowedServices
+            is not allowed. List the units media-admin may restart. Ref: ADR-520.
+          '';
+        }
+        # C4+C5: every allowlist entry must be a known registry service.
+        {
+          assertion = lib.all (n: registry.services ? ${n}) em.allowedServices;
+          message = ''
+            [mediNix] security.emergencyUser.allowedServices has unknown service(s):
+            ${lib.concatStringsSep ", " (lib.filter (n: !(registry.services ? ${n})) em.allowedServices)}
+            Ref: ADR-520.
+          '';
+        }
+      ];
     })
 
     (lib.mkIf (cfg.enable && fde.enable) {

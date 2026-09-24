@@ -80,10 +80,11 @@
       acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
     };
 
-    # DDNS — keep dynamic IP in sync with Cloudflare
+    # DDNS — keep dynamic IP in sync with Cloudflare.
+    # Its OWN token, NOT the ACME token (separate blast radius).
     dns.ddns = {
-      enable                   = true;
-      cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-acme.cred";  # reuse
+      enable                    = true;
+      cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
     };
   };
 }
