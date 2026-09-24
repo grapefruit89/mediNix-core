@@ -10,7 +10,12 @@
 # ---
 # Optional pull path next to 576 restic. Encryption is SSH, not a second restic.
 # Never write an unencrypted tree under /tmp.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.security.backupSsh;

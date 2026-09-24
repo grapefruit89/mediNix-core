@@ -6,17 +6,24 @@
 # sprite: 50-core/icons.svg#feishin
 # adr: ADR-554
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.feishin;
   svc = config.medinix;
 in
 lib.mkIf cfg.enable {
-  assertions = [ {
-    assertion = svc.navidrome.enable || svc.jellyfin.enable || (cfg.serverUrl or null != null);
-    message = "554-feishin needs Navidrome, Jellyfin, or serverUrl.";
-  } ];
+  assertions = [
+    {
+      assertion = svc.navidrome.enable || svc.jellyfin.enable || (cfg.serverUrl or null != null);
+      message = "554-feishin needs Navidrome, Jellyfin, or serverUrl.";
+    }
+  ];
 
   medinix.ingress.vhosts."feishin" = {
     accessGroup = "public";

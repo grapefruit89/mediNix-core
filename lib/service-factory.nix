@@ -26,106 +26,122 @@ let
 
   # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
   # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.
-  mkPeerIsolation = selfName: allowedPeers:
+  mkPeerIsolation =
+    selfName: allowedPeers:
     let
-      allStateDirs = lib.mapAttrsToList (n: svc:
-        lib.optional ((svc.stateDir or null) != null && n != selfName && !(lib.elem n allowedPeers))
-          svc.stateDir
+      allStateDirs = lib.mapAttrsToList (
+        n: svc:
+        lib.optional (
+          (svc.stateDir or null) != null && n != selfName && !(lib.elem n allowedPeers)
+        ) svc.stateDir
       ) registry;
     in
-      lib.flatten allStateDirs;
+    lib.flatten allStateDirs;
 in
-{ name            # service name (kebab-case)
-, port ? null     # port number from registry
-, uid ? null      # UID from registry
-, execStart ? null # the start command as string
-, stateDir ? null # e.g. "/var/lib/jellyfin-5510"
-, profile ? "base" # hardening profile name (from registry.hardeningProfile)
-, allowedPeers ? [] # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
-, extraConfig ? {} # additional serviceConfig fields (service-specific deviations)
-, hardeningOnly ? false # return only serviceConfig for NixOS upstream modules
-, offloadMediaCover ? false # offload MediaCover to metadataDir via systemd BindPaths
+{
+  name, # service name (kebab-case)
+  port ? null, # port number from registry
+  uid ? null, # UID from registry
+  execStart ? null, # the start command as string
+  stateDir ? null, # e.g. "/var/lib/jellyfin-5510"
+  profile ? "base", # hardening profile name (from registry.hardeningProfile)
+  allowedPeers ? [ ], # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
+  extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)
+  hardeningOnly ? false, # return only serviceConfig for NixOS upstream modules
+  offloadMediaCover ? false, # offload MediaCover to metadataDir via systemd BindPaths
 }:
 let
   metadataDir = toString (config.medinix.storage.metadataDir or "/var/lib/media-metadata");
-  useMediaCover = offloadMediaCover && (config.medinix.storage.offloadMediaCover or true) && (stateDir != null);
+  useMediaCover =
+    offloadMediaCover && (config.medinix.storage.offloadMediaCover or true) && (stateDir != null);
   mediaCoverSource = "${metadataDir}/${name}-MediaCover";
 in
-if hardeningOnly then {
-  serviceConfig = lib.mkMerge [
-    {
-      SyslogIdentifier = name;
-      StandardOutput   = "journal";
-      StandardError    = "journal";
-    }
-    (profiles.${profile} or profiles.base)
-    (memoryPolicy.${name} or memoryPolicy.default)
-    (lib.optionalAttrs (stateDir != null) {
-      StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
-      StateDirectoryMode = "0750";
-    })
-    (let paths = mkPeerIsolation name allowedPeers; in
-    lib.optionalAttrs (paths != []) {
-      InaccessiblePaths = paths;
-    })
-    (lib.optionalAttrs useMediaCover {
-      ReadWritePaths = [ mediaCoverSource ];
-      BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
-    })
-    extraConfig
-  ];
-} else {
-  systemd.services."${name}" = {
-    wantedBy = [ "multi-user.target" ];
-    after    = [ "network.target" ];
-    requires = [ "network.target" ];
+if hardeningOnly then
+  {
     serviceConfig = lib.mkMerge [
-      # 0) Standard-Logging: alles in Journal (kein /var/log-File, kein stdout-Verlust)
       {
         SyslogIdentifier = name;
-        StandardOutput   = "journal";
-        StandardError    = "journal";
+        StandardOutput = "journal";
+        StandardError = "journal";
       }
-      # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
       (profiles.${profile} or profiles.base)
-      # 1b) Zentrale Memory- & OOM-Policy (lib/memory-policy.nix)
       (memoryPolicy.${name} or memoryPolicy.default)
-      # 2) Service-spezifische Basis (User/Exec/State)
-      {
-        User             = "${name}";
-        Group            = "media";
-        ExecStart        = execStart;
-        StateDirectory   = lib.removePrefix "/var/lib/" stateDir;
-        StateDirectoryMode = "0750";  # owner rw, group media r, world nichts (NIXH-40-MED)
-        RuntimeDirectory = name;
-      }
-      # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
-      (let paths = mkPeerIsolation name allowedPeers; in
-      lib.optionalAttrs (paths != []) {
-        InaccessiblePaths = paths;
+      (lib.optionalAttrs (stateDir != null) {
+        StateDirectory = lib.removePrefix "/var/lib/" stateDir;
+        StateDirectoryMode = "0750";
       })
-      # 3b) MediaCover offloading (State != Cache) via BindPaths
+      (
+        let
+          paths = mkPeerIsolation name allowedPeers;
+        in
+        lib.optionalAttrs (paths != [ ]) {
+          InaccessiblePaths = paths;
+        }
+      )
       (lib.optionalAttrs useMediaCover {
         ReadWritePaths = [ mediaCoverSource ];
         BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
       })
-      # 4) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
       extraConfig
     ];
-  };
-  # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup
-  systemd.tmpfiles.rules = lib.optionals useMediaCover [
-    "d '${stateDir}' 0750 ${name} media -"
-    "d '${stateDir}/MediaCover' 0775 ${name} media -"
-    "d '${mediaCoverSource}' 0775 ${name} media -"
-  ];
-  medinix.knownStateDirs = [ stateDir ];
-  medinix.factoryUnits."${name}" = { inherit uid stateDir; };
-  users.users."${name}" = {
-    uid         = uid;
-    group       = "media";
-    isSystemUser = true;
-    home        = stateDir;
-    createHome  = true;
-  };
-}
+  }
+else
+  {
+    systemd.services."${name}" = {
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+      requires = [ "network.target" ];
+      serviceConfig = lib.mkMerge [
+        # 0) Standard-Logging: alles in Journal (kein /var/log-File, kein stdout-Verlust)
+        {
+          SyslogIdentifier = name;
+          StandardOutput = "journal";
+          StandardError = "journal";
+        }
+        # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
+        (profiles.${profile} or profiles.base)
+        # 1b) Zentrale Memory- & OOM-Policy (lib/memory-policy.nix)
+        (memoryPolicy.${name} or memoryPolicy.default)
+        # 2) Service-spezifische Basis (User/Exec/State)
+        {
+          User = "${name}";
+          Group = "media";
+          ExecStart = execStart;
+          StateDirectory = lib.removePrefix "/var/lib/" stateDir;
+          StateDirectoryMode = "0750"; # owner rw, group media r, world nichts (NIXH-40-MED)
+          RuntimeDirectory = name;
+        }
+        # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
+        (
+          let
+            paths = mkPeerIsolation name allowedPeers;
+          in
+          lib.optionalAttrs (paths != [ ]) {
+            InaccessiblePaths = paths;
+          }
+        )
+        # 3b) MediaCover offloading (State != Cache) via BindPaths
+        (lib.optionalAttrs useMediaCover {
+          ReadWritePaths = [ mediaCoverSource ];
+          BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
+        })
+        # 4) Pro-Dienst-Abweichungen (ReadWritePaths, DeviceAllow, etc.)
+        extraConfig
+      ];
+    };
+    # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup
+    systemd.tmpfiles.rules = lib.optionals useMediaCover [
+      "d '${stateDir}' 0750 ${name} media -"
+      "d '${stateDir}/MediaCover' 0775 ${name} media -"
+      "d '${mediaCoverSource}' 0775 ${name} media -"
+    ];
+    medinix.knownStateDirs = [ stateDir ];
+    medinix.factoryUnits."${name}" = { inherit uid stateDir; };
+    users.users."${name}" = {
+      uid = uid;
+      group = "media";
+      isSystemUser = true;
+      home = stateDir;
+      createHome = true;
+    };
+  }

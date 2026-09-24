@@ -7,7 +7,12 @@
 # adr: ADR-551
 # ---
 # WAN stream + app login. 518 tiles this because accessGroup = stream.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.jellyfin;
@@ -21,9 +26,12 @@ let
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   adminCred =
-    if cfg.adminPasswordFile != null then cfg.adminPasswordFile
-    else if cfg.adminPasswordCredential != null then cfg.adminPasswordCredential
-    else null;
+    if cfg.adminPasswordFile != null then
+      cfg.adminPasswordFile
+    else if cfg.adminPasswordCredential != null then
+      cfg.adminPasswordCredential
+    else
+      null;
 
   jellyfinUrl =
     if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
@@ -38,10 +46,9 @@ let
   );
 
   networkXmlSeed = pkgs.writeText "jellyfin-network.xml" (
-    builtins.replaceStrings
-      [ "@JELLYFIN_PORT@" "@JELLYFIN_URL@" ]
-      [ (toString port) jellyfinUrl ]
-      (builtins.readFile ./data/jellyfin-network.xml)
+    builtins.replaceStrings [ "@JELLYFIN_PORT@" "@JELLYFIN_URL@" ] [ (toString port) jellyfinUrl ] (
+      builtins.readFile ./data/jellyfin-network.xml
+    )
   );
 
   brandingXmlSeed = ./data/jellyfin-branding.xml;
@@ -61,7 +68,10 @@ lib.mkIf cfg.enable {
   users.users.jellyfin = {
     uid = uid;
     group = "media";
-    extraGroups = [ "video" "render" ];
+    extraGroups = [
+      "video"
+      "render"
+    ];
     home = stateDir;
     isSystemUser = true;
   };
@@ -99,10 +109,16 @@ lib.mkIf cfg.enable {
         User = "jellyfin";
         Group = "media";
         UMask = "0002";
-        SupplementaryGroups = [ "video" "render" ];
+        SupplementaryGroups = [
+          "video"
+          "render"
+        ];
         DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
         StateDirectory = "jellyfin-${toString port}";
-        ReadWritePaths = [ stateDir metadataDir ];
+        ReadWritePaths = [
+          stateDir
+          metadataDir
+        ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
         InaccessiblePaths = [ creds.storeDir ];
         TemporaryFileSystem = "/transcode:size=4G";
@@ -116,21 +132,27 @@ lib.mkIf cfg.enable {
       JELLYFIN_PublishedServerUrl =
         if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
       JELLYFIN_TRANSCODE_DIR = "/transcode";
-    } // lib.optionalAttrs (svc.hardware.accel != "none") {
-      LIBVA_DRIVER_NAME = {
-        "auto" = "iHD";
-        "intel" = "iHD";
-        "vaapi" = "iHD";
-        "amd" = "radeonsi";
-        "nvidia" = null;
-      }.${svc.hardware.accel} or null;
+    }
+    // lib.optionalAttrs (svc.hardware.accel != "none") {
+      LIBVA_DRIVER_NAME =
+        {
+          "auto" = "iHD";
+          "intel" = "iHD";
+          "vaapi" = "iHD";
+          "amd" = "radeonsi";
+          "nvidia" = null;
+        }
+        .${svc.hardware.accel} or null;
       VDPAU_DRIVER = "va_gl";
-    } // lib.optionalAttrs (adminCred != null) {
+    }
+    // lib.optionalAttrs (adminCred != null) {
       JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin.service/jellyfin-admin-pw";
     };
   };
 
-  medinix.ingress.vhosts."jellyfin" = { accessGroup = "stream"; };
+  medinix.ingress.vhosts."jellyfin" = {
+    accessGroup = "stream";
+  };
 
   hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
     enable = true;

@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-12
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles"]
 # ports: []
@@ -20,7 +20,12 @@
 # adr: ADR-5043, ADR-5050
 # repo-harvest: Nix-Grok (drift-detection pattern)
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -29,7 +34,12 @@ let
 
   script = pkgs.writeShellApplication {
     name = "mediNix-drift-detection";
-    runtimeInputs = [ pkgs.findutils pkgs.coreutils pkgs.curl pkgs.util-linux ];
+    runtimeInputs = [
+      pkgs.findutils
+      pkgs.coreutils
+      pkgs.curl
+      pkgs.util-linux
+    ];
     text = ''
       set -euo pipefail
       NTFY="${ntfy}"
@@ -72,7 +82,7 @@ in
 lib.mkIf (cfg.enable && cfg.observability.driftDetection) {
   systemd.timers.mediNix-drift-detection = {
     wantedBy = [ "timers.target" ];
-    timerConfig.OnCalendar = "*:0/30";  # every 30 minutes
+    timerConfig.OnCalendar = "*:0/30"; # every 30 minutes
   };
 
   systemd.services.mediNix-drift-detection = {
@@ -84,7 +94,12 @@ lib.mkIf (cfg.enable && cfg.observability.driftDetection) {
         RateLimitIntervalSec = "30s";
       }
     ];
-    path = [ pkgs.findutils pkgs.coreutils pkgs.curl pkgs.util-linux ];
+    path = [
+      pkgs.findutils
+      pkgs.coreutils
+      pkgs.curl
+      pkgs.util-linux
+    ];
     script = "${lib.getExe script}";
   };
 }

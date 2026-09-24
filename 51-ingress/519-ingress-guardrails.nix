@@ -67,13 +67,14 @@ let
   keepOn = [
     {
       name = "caddy";
-      on = (config.services.caddy.enable or false)
-        || (builtins.hasAttr "caddy-media" config.systemd.services);
+      on =
+        (config.services.caddy.enable or false) || (builtins.hasAttr "caddy-media" config.systemd.services);
       hint = "the single ingress engine (global or standalone)";
     }
     {
       name = "firewall";
-      on = (config.networking.firewall.enable or false)
+      on =
+        (config.networking.firewall.enable or false)
         || (config.medinix.hostIntegration.firewall or "managed") == "external";
       hint = "the packet filter (managed or external)";
     }

@@ -26,10 +26,15 @@
 
 let
   cfg = config.medinix;
-  em  = cfg.security.emergencyUser;
-  fde = cfg.security.fde or { enable = false; rootUuid = null; };
+  em = cfg.security.emergencyUser;
+  fde =
+    cfg.security.fde or {
+      enable = false;
+      rootUuid = null;
+    };
   registry = import ../lib/registry.nix { inherit lib; };
-in {
+in
+{
   options.medinix.security.fde = {
     enable = lib.mkEnableOption "LUKS2 root + TPM2 unlock (initrd systemd)";
     rootUuid = lib.mkOption {
@@ -64,8 +69,8 @@ in {
         }
         # One packet-filter owner only (firewall XOR nftables managed).
         {
-          assertion = !(cfg.hostIntegration.firewall == "managed"
-            && cfg.hostIntegration.nftables == "managed");
+          assertion =
+            !(cfg.hostIntegration.firewall == "managed" && cfg.hostIntegration.nftables == "managed");
           message = ''
             [mediNix] Set only one packet-filter owner: firewall = managed XOR
             nftables = managed. Ref: ADR-520.
@@ -91,7 +96,11 @@ in {
         "net.ipv4.conf.default.rp_filter" = 2;
       };
       medinix.recommended.firewall.checkReversePath = false;
-      medinix.recommended.mountOptions.staging = [ "noexec" "nosuid" "nodev" ];
+      medinix.recommended.mountOptions.staging = [
+        "noexec"
+        "nosuid"
+        "nodev"
+      ];
     })
 
     (lib.mkIf (cfg.enable && em.enable) {
@@ -107,14 +116,13 @@ in {
         let
           allowed = em.allowedServices;
           unitOf = n: (registry.services.${n} or { }).unitName or n;
-          restartCmds = map
-            (n: "/run/current-system/sw/bin/systemctl restart ${unitOf n}.service")
-            allowed;
+          restartCmds = map (n: "/run/current-system/sw/bin/systemctl restart ${unitOf n}.service") allowed;
           cmdString = lib.concatStringsSep ", \\\n                                           " restartCmds;
         in
-        lib.optionalString (restartCmds != []) ''
+        lib.optionalString (restartCmds != [ ]) ''
           media-admin ALL=(root) NOPASSWD: ${cmdString}
-        '' + ''
+        ''
+        + ''
           media-admin ALL=(root) NOPASSWD: /run/current-system/sw/bin/systemctl status * --no-pager
         '';
 
@@ -141,14 +149,16 @@ in {
     })
 
     (lib.mkIf (cfg.enable && fde.enable) {
-      assertions = [{
-        assertion = fde.rootUuid != null;
-        message = ''
-          [mediNix] security.fde.enable requires security.fde.rootUuid.
-          Enroll before first boot:
-            systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7 /dev/disk/by-uuid/<UUID>
-        '';
-      }];
+      assertions = [
+        {
+          assertion = fde.rootUuid != null;
+          message = ''
+            [mediNix] security.fde.enable requires security.fde.rootUuid.
+            Enroll before first boot:
+              systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7 /dev/disk/by-uuid/<UUID>
+          '';
+        }
+      ];
       boot.initrd.systemd.enable = true;
       boot.initrd.luks.devices."root" = {
         device = "/dev/disk/by-uuid/${fde.rootUuid}";

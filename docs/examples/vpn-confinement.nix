@@ -32,36 +32,39 @@
     domain = "m7c5.de";
 
     storage = {
-      mediaRoot   = "/mnt/ssd/media";
+      mediaRoot = "/mnt/ssd/media";
       metadataDir = "/mnt/ssd/cache";
       backends = {
-        hot  = "/mnt/ssd";
+        hot = "/mnt/ssd";
         cold = "/mnt/hdd";
       };
     };
 
     # Services
-    jellyfin.enable   = true;
-    sonarr.enable     = true;
-    radarr.enable     = true;
+    jellyfin.enable = true;
+    sonarr.enable = true;
+    radarr.enable = true;
     sabnzbd = {
       enable = true;
       # TPM-sealed credential: systemd-creds encrypt --with-key=tpm2+host usenet.env out.cred
       serverCredentialFile = "/var/lib/credstore.encrypted/sabnzbd-server.cred";
     };
-    prowlarr.enable   = true;
+    prowlarr.enable = true;
 
     # VPN — flake-managed WireGuard interface (526-vpn-interface.nix)
     vpn = {
-      enable         = true;
-      interface      = "vpn0";
-      address        = [ "10.64.0.2/32" ];
-      dns            = [ "10.64.0.1" ];   # VPN-internal resolver (no leak)
+      enable = true;
+      interface = "vpn0";
+      address = [ "10.64.0.2/32" ];
+      dns = [ "10.64.0.1" ]; # VPN-internal resolver (no leak)
 
       peer = {
-        publicKey  = "PEER_PUBLIC_KEY_HERE";
-        endpoint   = "vpn.provider.com:51820";
-        allowedIPs = [ "0.0.0.0/0" "::/0" ];
+        publicKey = "PEER_PUBLIC_KEY_HERE";
+        endpoint = "vpn.provider.com:51820";
+        allowedIPs = [
+          "0.0.0.0/0"
+          "::/0"
+        ];
       };
 
       # TPM-sealed WireGuard private key
@@ -74,7 +77,7 @@
 
     # TLS — ACME wildcard via Cloudflare DNS-01 (no port 80/443 WAN needed)
     ingress.tls = {
-      mode     = "acme";
+      mode = "acme";
       acmeHost = "m7c5.de";
       # TPM-sealed Cloudflare token (CF_DNS_API_TOKEN=<token>)
       acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
@@ -83,7 +86,7 @@
     # DDNS — keep dynamic IP in sync with Cloudflare.
     # Its OWN token, NOT the ACME token (separate blast radius).
     dns.ddns = {
-      enable                    = true;
+      enable = true;
       cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
     };
   };

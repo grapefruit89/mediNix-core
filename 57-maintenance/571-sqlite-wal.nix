@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-19
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
@@ -18,7 +18,12 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.maintenance.sqliteOptimize;
@@ -26,18 +31,29 @@ let
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
   # Only grab active services that have a state directory and systemd unit
-  activeServices = lib.filterAttrs (n: s: s.stateDir != null && s.unitName != null && (svc.${n}.enable or false)) registry;
+  activeServices = lib.filterAttrs (
+    n: s: s.stateDir != null && s.unitName != null && (svc.${n}.enable or false)
+  ) registry;
 
   # Derive (systemd unit, StateDirectory, uid:gid) triples from Registry
-  serviceEntries = lib.mapAttrsToList
-    (n: s: { unit = "${s.unitName}.service"; dir = s.stateDir; owner = "${toString s.uid}:${toString s.gid}"; })
-    activeServices;
+  serviceEntries = lib.mapAttrsToList (n: s: {
+    unit = "${s.unitName}.service";
+    dir = s.stateDir;
+    owner = "${toString s.uid}:${toString s.gid}";
+  }) activeServices;
 
-  serviceEntriesLines = lib.concatMapStringsSep "\n" (e: "${e.unit} ${e.dir} ${e.owner}") serviceEntries;
+  serviceEntriesLines = lib.concatMapStringsSep "\n" (
+    e: "${e.unit} ${e.dir} ${e.owner}"
+  ) serviceEntries;
 
   passiveScript = pkgs.writeShellApplication {
     name = "sqlite-passive";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd pkgs.coreutils ];
+    runtimeInputs = [
+      pkgs.sqlite
+      pkgs.findutils
+      pkgs.systemd
+      pkgs.coreutils
+    ];
     text = ''
       set -euo pipefail
       SERVICE_ENTRIES='${serviceEntriesLines}'
@@ -62,7 +78,12 @@ let
 
   truncateScript = pkgs.writeShellApplication {
     name = "sqlite-truncate";
-    runtimeInputs = [ pkgs.sqlite pkgs.findutils pkgs.systemd pkgs.coreutils ];
+    runtimeInputs = [
+      pkgs.sqlite
+      pkgs.findutils
+      pkgs.systemd
+      pkgs.coreutils
+    ];
     text = ''
       set -euo pipefail
       SERVICE_ENTRIES='${serviceEntriesLines}'
@@ -124,7 +145,7 @@ lib.mkIf (svc.enable && cfg.enable) {
       (import ../lib/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
-        User = "root";  # needs write to state dirs
+        User = "root"; # needs write to state dirs
         UMask = "002";
         ExecStart = lib.getExe passiveScript;
         RateLimitBurst = 5;

@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-19
-# links: 
+# links:
 # provides: []
 # requires: ["lib/registry"]
 # ports: []
@@ -18,19 +18,28 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
-  
+
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   # Only services that are actually enabled
   enabledNames =
-    (lib.attrNames (lib.filterAttrs (n: vhost:
-      let
-        enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
-      in enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
-    ) cfg.ingress.vhosts))
+    (lib.attrNames (
+      lib.filterAttrs (
+        n: vhost:
+        let
+          enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+        in
+        enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
+      ) cfg.ingress.vhosts
+    ))
     ++ lib.optional (cfg.ingress.landing.enable) "home";
 
   aliasScript = pkgs.writeShellScript "medinix-mdns-aliases" ''
@@ -108,8 +117,14 @@ lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.discovery.mdns.enable && enabl
 
   systemd.services.medinix-mdns-aliases = {
     description = "medinix mDNS aliases ({service}.local -> LAN-IP)";
-    after = [ "avahi-daemon.service" "network-online.target" ];
-    wants = [ "avahi-daemon.service" "network-online.target" ];
+    after = [
+      "avahi-daemon.service"
+      "network-online.target"
+    ];
+    wants = [
+      "avahi-daemon.service"
+      "network-online.target"
+    ];
     wantedBy = [ "multi-user.target" ];
     unitConfig.StartLimitIntervalSec = 0;
     serviceConfig = {
@@ -121,7 +136,12 @@ lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.discovery.mdns.enable && enabl
       ProtectHome = true;
       PrivateTmp = true;
       NoNewPrivileges = true;
-      RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
     };
   };
 

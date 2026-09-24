@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/prowlarr.svg
-# links: 
+# links:
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
 # ports: []
@@ -19,7 +19,7 @@
 # uds_socket: false
 # systemd_hardened: true
 # adr: ADR-5320, ADR-5050
-# context7: 
+# context7:
 # - query: "systemd.services serviceConfig ProtectSystem example"
 # library: /websites/nixos_manual_nixos_unstable
 # ---
@@ -29,7 +29,12 @@
 # Netzwerk (ohne VPN). Der VPN-Killswitch ist ausschließlich für den Payload-
 # Downloader (SABnzbd) reserviert.
 # ─────────────────────────────────────────────────────────────────────────────
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.prowlarr;
@@ -46,63 +51,75 @@ let
   # method on the RESOLVED exposure of this vhost — External only when
   # forward_auth is actually in front, otherwise *arr would be unauthenticated.
   exposedPublic = (config.medinix.ingress.vhosts."prowlarr".accessGroup or "none") == "public";
-  authMethod = if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then "External" else "Forms";
+  authMethod =
+    if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
+      "External"
+    else
+      "Forms";
 in
-lib.mkIf cfg.enable (lib.mkMerge [ {
-  users.groups.media.gid = gid;
+lib.mkIf cfg.enable (
+  lib.mkMerge [
+    {
+      users.groups.media.gid = gid;
 
-  } (mkService {
-    name = "prowlarr";
-    port = port;
-    uid = uid;
-    execStart = "${pkgs.prowlarr}/bin/Prowlarr -nobrowser -data=${stateDir}";
-    stateDir = stateDir;
-    profile = "dotnet";
-    allowedPeers = [ "sabnzbd" ];
-    extraConfig = {
-      UMask          = "0002";
-      ReadWritePaths = [ stateDir ];
-    };
-  })
-  {
-    systemd.services.prowlarr = {
-    after    = [ "network.target" ];
-    requires = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    environment = lib.mkMerge [
-      (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) { PROWLARR_API_KEY_FILE = svc.secrets.prowlarrApiKeyFile; })
-      (arrSettings.mkProwlarr {
-        server = {
-          port        = port;
-          bindAddress = "127.0.0.1";
-          urlBase     = "";
-        };
-        auth = {
-          method   = authMethod;
-          required = "Enabled";
-        };
-        app = {
-          theme        = "dark";
-          instanceName = "Prowlarr";
-        };
-        log.level        = "info";
-        update.mechanism = "BuiltIn";
-      })
-    ];
-  };
+    }
+    (mkService {
+      name = "prowlarr";
+      port = port;
+      uid = uid;
+      execStart = "${pkgs.prowlarr}/bin/Prowlarr -nobrowser -data=${stateDir}";
+      stateDir = stateDir;
+      profile = "dotnet";
+      allowedPeers = [ "sabnzbd" ];
+      extraConfig = {
+        UMask = "0002";
+        ReadWritePaths = [ stateDir ];
+      };
+    })
+    {
+      systemd.services.prowlarr = {
+        after = [ "network.target" ];
+        requires = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        environment = lib.mkMerge [
+          (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
+            PROWLARR_API_KEY_FILE = svc.secrets.prowlarrApiKeyFile;
+          })
+          (arrSettings.mkProwlarr {
+            server = {
+              port = port;
+              bindAddress = "127.0.0.1";
+              urlBase = "";
+            };
+            auth = {
+              method = authMethod;
+              required = "Enabled";
+            };
+            app = {
+              theme = "dark";
+              instanceName = "Prowlarr";
+            };
+            log.level = "info";
+            update.mechanism = "BuiltIn";
+          })
+        ];
+      };
 
-  systemd.sockets.prowlarr = lib.mkIf svc.onDemand.enable {
-    wantedBy = [ "sockets.target" ];
-    listenStreams = [ "127.0.0.1:${toString port}" ];
-    socketConfig.Accept = false;
-  };
+      systemd.sockets.prowlarr = lib.mkIf svc.onDemand.enable {
+        wantedBy = [ "sockets.target" ];
+        listenStreams = [ "127.0.0.1:${toString port}" ];
+        socketConfig.Accept = false;
+      };
 
-  medinix.ingress.vhosts."prowlarr" = { accessGroup = reg.caddyClass; };
+      medinix.ingress.vhosts."prowlarr" = {
+        accessGroup = reg.caddyClass;
+      };
 
-  }
-  {
-    systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
-      serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
-    };
-  }
-])
+    }
+    {
+      systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
+        serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+      };
+    }
+  ]
+)

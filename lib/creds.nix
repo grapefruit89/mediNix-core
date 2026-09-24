@@ -15,23 +15,26 @@
 rec {
   storeDir = "/var/lib/medinix/secrets";
 
-  isSealedPath = path:
-    let p = toString path;
+  isSealedPath =
+    path:
+    let
+      p = toString path;
     in
-      p != ""
-      && (
-        lib.hasSuffix ".encrypted" p
-        || lib.hasSuffix ".cred" p
-        || lib.hasInfix "/credstore.encrypted/" p
-        || lib.hasInfix "/etc/credstore.encrypted/" p
-      );
+    p != ""
+    && (
+      lib.hasSuffix ".encrypted" p
+      || lib.hasSuffix ".cred" p
+      || lib.hasInfix "/credstore.encrypted/" p
+      || lib.hasInfix "/etc/credstore.encrypted/" p
+    );
 
-  underDir = root: path:
+  underDir =
+    root: path:
     let
       r = toString root;
       p = toString path;
     in
-      r != "" && p != "" && (p == r || lib.hasPrefix (r + "/") p);
+    r != "" && p != "" && (p == r || lib.hasPrefix (r + "/") p);
 
   check = name: path: {
     assertion = path == null || path == "" || isSealedPath path;

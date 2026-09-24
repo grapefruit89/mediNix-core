@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # logo: none — not in grapefruit89/logorepo yet
-# links: 
+# links:
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
 # ports: []
@@ -19,11 +19,16 @@
 # uds_socket: false
 # systemd_hardened: true
 # adr: ADR-5320, ADR-5050
-# context7: 
+# context7:
 # - query: "systemd.services serviceConfig ProtectSystem example"
 # library: /websites/nixos_manual_nixos_unstable
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.readarr;
@@ -37,60 +42,80 @@ let
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 in
-lib.mkIf cfg.enable (lib.mkMerge [ {
-  users.groups.media.gid = gid;
+lib.mkIf cfg.enable (
+  lib.mkMerge [
+    {
+      users.groups.media.gid = gid;
 
-  } (mkService {
-    name = "readarr";
-    port = port;
-    uid = uid;
-    execStart = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
-    stateDir = stateDir;
-    profile = "dotnet";
-    offloadMediaCover = true;
-    allowedPeers = [ "sabnzbd" "prowlarr" ];
-    extraConfig = {
-      UMask          = "0002";
-      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
-    };
-  })
-  {
-    systemd.services.readarr = {
-    after    = [ "network.target" "prowlarr.service" ];
-    requires = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    environment = lib.mkMerge [
-      (lib.mkIf (svc.secrets.readarrApiKeyFile or null != null) { READARR_API_KEY_FILE = svc.secrets.readarrApiKeyFile; })
-      (arrSettings.mkReadarr {
-        server = {
-          port        = port;
-          bindAddress = "127.0.0.1";
-          urlBase     = "";
-        };
-        auth = {
-          method   = "Forms";
-          required = "Enabled";
-        };
-        app = {
-          theme        = "dark";
-          instanceName = "Readarr";
-        };
-        log.level        = "info";
-        update.mechanism = "BuiltIn";
-      })
-    ];
-  };
+    }
+    (mkService {
+      name = "readarr";
+      port = port;
+      uid = uid;
+      execStart = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
+      stateDir = stateDir;
+      profile = "dotnet";
+      offloadMediaCover = true;
+      allowedPeers = [
+        "sabnzbd"
+        "prowlarr"
+      ];
+      extraConfig = {
+        UMask = "0002";
+        ReadWritePaths = [
+          stateDir
+          config.medinix.storage.mediaRoot
+        ];
+      };
+    })
+    {
+      systemd.services.readarr = {
+        after = [
+          "network.target"
+          "prowlarr.service"
+        ];
+        requires = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        environment = lib.mkMerge [
+          (lib.mkIf (svc.secrets.readarrApiKeyFile or null != null) {
+            READARR_API_KEY_FILE = svc.secrets.readarrApiKeyFile;
+          })
+          (arrSettings.mkReadarr {
+            server = {
+              port = port;
+              bindAddress = "127.0.0.1";
+              urlBase = "";
+            };
+            auth = {
+              method = "Forms";
+              required = "Enabled";
+            };
+            app = {
+              theme = "dark";
+              instanceName = "Readarr";
+            };
+            log.level = "info";
+            update.mechanism = "BuiltIn";
+          })
+        ];
+      };
 
-  systemd.sockets.readarr = lib.mkIf svc.onDemand.enable {
-    wantedBy = [ "sockets.target" ];
-    listenStreams = [ "127.0.0.1:${toString port}" ];
-    socketConfig.Accept = false;
-  };
+      systemd.sockets.readarr = lib.mkIf svc.onDemand.enable {
+        wantedBy = [ "sockets.target" ];
+        listenStreams = [ "127.0.0.1:${toString port}" ];
+        socketConfig.Accept = false;
+      };
 
-  medinix.ingress.vhosts."readarr" = { accessGroup = reg.caddyClass; };
+      medinix.ingress.vhosts."readarr" = {
+        accessGroup = reg.caddyClass;
+      };
 
-  } { systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];
-  };
+    }
+    {
+      systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
+        serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];
+      };
 
-} ])
+    }
+  ]
+)

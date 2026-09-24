@@ -15,7 +15,12 @@
 { lib }:
 
 let
-  mkLimits = { oomScore ? null, memoryHigh ? null, memoryMax ? null }:
+  mkLimits =
+    {
+      oomScore ? null,
+      memoryHigh ? null,
+      memoryMax ? null,
+    }:
     lib.filterAttrs (_: v: v != null) {
       OOMScoreAdjust = if oomScore != null then oomScore else null;
       MemoryHigh = if memoryHigh != null then memoryHigh else null;
@@ -26,33 +31,70 @@ in
   inherit mkLimits;
 
   # Ingress & Auth: Unantastbar (-900)
-  caddy        = mkLimits { oomScore = -900; };
-  caddy-media  = mkLimits { oomScore = -900; };
-  pocket-id    = mkLimits { oomScore = -900; };
+  caddy = mkLimits { oomScore = -900; };
+  caddy-media = mkLimits { oomScore = -900; };
+  pocket-id = mkLimits { oomScore = -900; };
 
   # Playback: Leicht positiv (+100 bis +150), sanftes Throttling
-  jellyfin       = mkLimits { oomScore = 100; memoryHigh = "4G"; };
-  audiobookshelf = mkLimits { oomScore = 150; memoryHigh = "1G"; };
-  navidrome      = mkLimits { oomScore = 150; memoryHigh = "512M"; };
+  jellyfin = mkLimits {
+    oomScore = 100;
+    memoryHigh = "4G";
+  };
+  audiobookshelf = mkLimits {
+    oomScore = 150;
+    memoryHigh = "1G";
+  };
+  navidrome = mkLimits {
+    oomScore = 150;
+    memoryHigh = "512M";
+  };
 
   # Acquisition (Arrs): Positiv (+200), großzügiges MemoryHigh, KEIN hartes MemoryMax
   # Verhindert SIGKILLs während großer Library-Scans / Batch-Imports.
-  sonarr   = mkLimits { oomScore = 200; memoryHigh = "1536M"; };
-  radarr   = mkLimits { oomScore = 200; memoryHigh = "1536M"; };
-  readarr  = mkLimits { oomScore = 200; memoryHigh = "1024M"; };
-  lidarr   = mkLimits { oomScore = 200; memoryHigh = "1024M"; };
-  prowlarr = mkLimits { oomScore = 200; memoryHigh = "512M"; };
+  sonarr = mkLimits {
+    oomScore = 200;
+    memoryHigh = "1536M";
+  };
+  radarr = mkLimits {
+    oomScore = 200;
+    memoryHigh = "1536M";
+  };
+  readarr = mkLimits {
+    oomScore = 200;
+    memoryHigh = "1024M";
+  };
+  lidarr = mkLimits {
+    oomScore = 200;
+    memoryHigh = "1024M";
+  };
+  prowlarr = mkLimits {
+    oomScore = 200;
+    memoryHigh = "512M";
+  };
 
   # Presentation & UI
-  seerr   = mkLimits { oomScore = 150; memoryHigh = "1G"; };
-  feishin = mkLimits { oomScore = 200; memoryHigh = "256M"; };
+  seerr = mkLimits {
+    oomScore = 150;
+    memoryHigh = "1G";
+  };
+  feishin = mkLimits {
+    oomScore = 200;
+    memoryHigh = "256M";
+  };
 
   # Observability
-  ntfy = mkLimits { oomScore = 100; memoryHigh = "256M"; };
+  ntfy = mkLimits {
+    oomScore = 100;
+    memoryHigh = "256M";
+  };
 
   # Transfer: Kontrolliertes Opferlamm (+300)
   # Bei akutem Speichermangel durch Entpacken wird SABnzbd zuerst beendet.
-  sabnzbd = mkLimits { oomScore = 300; memoryHigh = "2G"; memoryMax = "4G"; };
+  sabnzbd = mkLimits {
+    oomScore = 300;
+    memoryHigh = "2G";
+    memoryMax = "4G";
+  };
 
   # Default fallback for unlisted services
   default = mkLimits { oomScore = 200; };

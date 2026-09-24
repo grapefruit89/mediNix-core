@@ -2,26 +2,32 @@
   description = "mediNix-core — Portable NixOS Media Stack Module";
 
   inputs = {
-    nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url  = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      ...
+    }:
     let
-      overlay = _: _: { };  # Zukünftige Pakete hier
+      overlay = _: _: { }; # Zukünftige Pakete hier
       # Registry als JSON für Build-Zeit-Embedding (CLI-Tool)
       registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
-
 
     in
     {
       # Das Hauptprodukt: importierbar als nixosModules.default
       nixosModules.default = import ./default.nix;
-      nixosModules.mediNix = import ./default.nix;  # Alias für Abwärtskompatibilität
+      nixosModules.mediNix = import ./default.nix; # Alias für Abwärtskompatibilität
 
       overlays.default = overlay;
     }
-    // flake-utils.lib.eachDefaultSystem (system:
+    // flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         lib = nixpkgs.lib;
@@ -36,9 +42,15 @@
               medinix.enable = true;
               # Fail-closed: landing (default on) + ingress need a real trust
               # boundary, so trustedCidrs is mandatory.
-              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+              medinix.ingress.trustedCidrs = [
+                "10.0.0.0/8"
+                "192.168.0.0/16"
+              ];
               boot.loader.grub.enable = false;
-              fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+              fileSystems."/" = {
+                device = "none";
+                fsType = "tmpfs";
+              };
               system.stateVersion = "24.11";
             }
           ];
@@ -48,15 +60,16 @@
         # keine Duplikate. Nix-native Variante (kein bash grep).
         decimalFrameworkCheck =
           let
-            entries    = builtins.readDir ./.;
-            isModule   = name: type: type == "directory" && builtins.match "^[0-9]{2}-.*" name != null;
-            folders    = builtins.attrNames (lib.filterAttrs isModule entries);
-            number     = name: lib.toInt (builtins.head (builtins.match "^([0-9]{2})-.*" name));
-            numbers    = map number folders;
+            entries = builtins.readDir ./.;
+            isModule = name: type: type == "directory" && builtins.match "^[0-9]{2}-.*" name != null;
+            folders = builtins.attrNames (lib.filterAttrs isModule entries);
+            number = name: lib.toInt (builtins.head (builtins.match "^([0-9]{2})-.*" name));
+            numbers = map number folders;
             violations = lib.filter (v: v != null) (
-              map (name:
+              map (
+                name:
                 let
-                  num     = number name;
+                  num = number name;
                   project = num / 10;
                   problems = lib.concatStringsSep ", " (
                     lib.optional (project != 5) "fuehrende Ziffer ${toString project} != 5"
@@ -65,15 +78,19 @@
                 if problems == "" then null else "${name}: ${problems}"
               ) folders
             );
-            errors = violations
-              ++ lib.optional (lib.length numbers != lib.length (lib.unique numbers)) "doppelte Nummern in den Modulordnern";
+            errors =
+              violations
+              ++ lib.optional (
+                lib.length numbers != lib.length (lib.unique numbers)
+              ) "doppelte Nummern in den Modulordnern";
           in
           if errors == [ ] then
             pkgs.runCommand "decimal-framework-ok" { } "echo 'ADR-0000 Dezimalrahmen eingehalten' > $out"
           else
             throw ("ADR-0000 (Dezimalrahmen) verletzt:\n  " + lib.concatStringsSep "\n  " errors);
 
-        mkCheck = name: deps: script:
+        mkCheck =
+          name: deps: script:
           pkgs.runCommand "check-${name}" { nativeBuildInputs = deps pkgs; } ''
             cd ${self}
             ${script}
@@ -85,7 +102,10 @@
           {
             medinix.enable = true;
             boot.loader.grub.enable = false;
-            fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+            fileSystems."/" = {
+              device = "none";
+              fsType = "tmpfs";
+            };
             system.stateVersion = "24.11";
             # Stack packages (e.g. unrar via sabnzbd) are unfree; check configs
             # only need to evaluate, not to be redistributed.
@@ -98,10 +118,14 @@
         # substring) must be present AND evaluate to false. Guards against a test
         # that goes green for the wrong cause (e.g. a broken option, not the
         # security invariant under test).
-        expectAssertion = name: msgNeedle: extra:
+        expectAssertion =
+          name: msgNeedle: extra:
           let
-            asrt = (lib.nixosSystem { inherit system; modules = baseModules extra; })
-              .config.assertions;
+            asrt =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules extra;
+              }).config.assertions;
             hit = lib.findFirst (a: lib.hasInfix msgNeedle a.message) null asrt;
           in
           if hit == null then
@@ -126,7 +150,7 @@
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
-        
+
         # Negative Test: usenet-confinement without VPN interface must fail
         checks.mediNix-negative-vpn =
           let
@@ -136,7 +160,10 @@
                 self.nixosModules.default
                 {
                   medinix.enable = true;
-                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+                  medinix.ingress.trustedCidrs = [
+                    "10.0.0.0/8"
+                    "192.168.0.0/16"
+                  ];
                   medinix.usenet-confinement.enable = true;
                   medinix.sabnzbd.enable = true;
                   # Keep R16 (IPv6) quiet so the missing VPN interface is the
@@ -144,7 +171,10 @@
                   services.vpnKillSwitch.ipv6 = true;
                   # Intentionally DO NOT provide medinix.vpn.interface
                   boot.loader.grub.enable = false;
-                  fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+                  fileSystems."/" = {
+                    device = "none";
+                    fsType = "tmpfs";
+                  };
                   system.stateVersion = "24.11";
                 }
               ];
@@ -154,40 +184,41 @@
           if evalResult.success then
             throw "Negative Test Failed: usenet-confinement enabled without VPN interface should fail to evaluate, but it succeeded!"
           else
-            pkgs.runCommand "negative-vpn-ok" {} "echo 'Negative test passed: Fail-Closed assertion triggered' > $out";
+            pkgs.runCommand "negative-vpn-ok" { }
+              "echo 'Negative test passed: Fail-Closed assertion triggered' > $out";
 
         # ── Batch C: firewall ownership + emergency allowlist (C1–C6) ──────
         checks.mediNix-negative-emergency-empty =
-          expectAssertion "emergency-empty" "empty allowedServices" {
-            medinix.security.emergencyUser.enable = true;
-          };
-        checks.mediNix-negative-emergency-unknown =
-          expectAssertion "emergency-unknown" "unknown service" {
-            medinix.security.emergencyUser.enable = true;
-            medinix.security.emergencyUser.allowedServices = [ "does-not-exist" ];
-          };
-        checks.mediNix-negative-token-shared =
-          expectAssertion "token-shared" "SEPARATE Cloudflare" {
-            medinix.ingress.tls.acmeHost = "example.com";
-            medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/same.cred";
-            medinix.dns.ddns.enable = true;
-            medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/same.cred";
-          };
+          expectAssertion "emergency-empty" "empty allowedServices"
+            {
+              medinix.security.emergencyUser.enable = true;
+            };
+        checks.mediNix-negative-emergency-unknown = expectAssertion "emergency-unknown" "unknown service" {
+          medinix.security.emergencyUser.enable = true;
+          medinix.security.emergencyUser.allowedServices = [ "does-not-exist" ];
+        };
+        checks.mediNix-negative-token-shared = expectAssertion "token-shared" "SEPARATE Cloudflare" {
+          medinix.ingress.tls.acmeHost = "example.com";
+          medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/same.cred";
+          medinix.dns.ddns.enable = true;
+          medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/same.cred";
+        };
         # F3: tls.acmeHost must EVALUATE (regression: the former
         # certs.<name>.environment option does not exist in nixpkgs).
         checks.mediNix-acme-positive =
           let
-            c = (lib.nixosSystem {
-              inherit system;
-              modules = baseModules {
-                medinix.domain = "example.com";
-                medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-                medinix.authProxyPresent = true;
-                medinix.ingress.tls.acmeHost = "example.com";
-                medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
-                medinix.seerr.enable = true;
-              };
-            }).config;
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.authProxyPresent = true;
+                  medinix.ingress.tls.acmeHost = "example.com";
+                  medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+                  medinix.seerr.enable = true;
+                };
+              }).config;
             cert = c.security.acme.certs."example.com";
           in
           pkgs.runCommand "acme-positive-ok" { } ''
@@ -199,88 +230,106 @@
         # actually rendered Caddyfile).
         checks.mediNix-ingress-header-strip =
           let
-            c = (lib.nixosSystem {
-              inherit system;
-              modules = baseModules {
-                medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
-                medinix.ingress.auth.mode = "forward-auth";
-                medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:9999";
-                medinix.authProxyPresent = true;
-                medinix.seerr.enable = true; # public vhost → renders forward_auth
-              };
-            }).config;
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [
+                    "10.0.0.0/8"
+                    "192.168.0.0/16"
+                  ];
+                  medinix.ingress.auth.mode = "forward-auth";
+                  medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:9999";
+                  medinix.authProxyPresent = true;
+                  medinix.seerr.enable = true; # public vhost → renders forward_auth
+                };
+              }).config;
             caddyfile = pkgs.writeText "demo.Caddyfile" c.environment.etc."caddy-media/Caddyfile".text;
           in
-          pkgs.runCommand "ingress-header-strip-ok" {
-            nativeBuildInputs = [ pkgs.gnugrep pkgs.coreutils ];
-          } ''
-            f=${caddyfile}
-            grep -q 'forward_auth' "$f" || { echo "FAIL: no forward_auth rendered"; exit 1; }
-            # F1: the strip MUST be request_header (response-only 'header' does
-            # not protect the upstream against client-supplied identity headers).
-            grep -q 'request_header' "$f" || { echo "FAIL: strip is not request_header"; exit 1; }
-            req=$(grep -n 'request_header' "$f" | head -1 | cut -d: -f1)
-            strip=$(grep -n -- '-Remote-User' "$f" | head -1 | cut -d: -f1)
-            fa=$(grep -n 'forward_auth' "$f" | head -1 | cut -d: -f1)
-            [ -n "$req" ] && [ -n "$strip" ] && [ -n "$fa" ] || { echo "FAIL: missing block"; exit 1; }
-            [ "$req" -lt "$strip" ] && [ "$strip" -lt "$fa" ] \
-              || { echo "FAIL: order request_header($req) < strip($strip) < forward_auth($fa) violated"; exit 1; }
-            echo "ok: identity headers stripped on the REQUEST before forward_auth" > $out
-          '';
+          pkgs.runCommand "ingress-header-strip-ok"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.coreutils
+              ];
+            }
+            ''
+              f=${caddyfile}
+              grep -q 'forward_auth' "$f" || { echo "FAIL: no forward_auth rendered"; exit 1; }
+              # F1: the strip MUST be request_header (response-only 'header' does
+              # not protect the upstream against client-supplied identity headers).
+              grep -q 'request_header' "$f" || { echo "FAIL: strip is not request_header"; exit 1; }
+              req=$(grep -n 'request_header' "$f" | head -1 | cut -d: -f1)
+              strip=$(grep -n -- '-Remote-User' "$f" | head -1 | cut -d: -f1)
+              fa=$(grep -n 'forward_auth' "$f" | head -1 | cut -d: -f1)
+              [ -n "$req" ] && [ -n "$strip" ] && [ -n "$fa" ] || { echo "FAIL: missing block"; exit 1; }
+              [ "$req" -lt "$strip" ] && [ "$strip" -lt "$fa" ] \
+                || { echo "FAIL: order request_header($req) < strip($strip) < forward_auth($fa) violated"; exit 1; }
+              echo "ok: identity headers stripped on the REQUEST before forward_auth" > $out
+            '';
 
         # R15: a uid mismatch between registry and instance must fail — the
         # nftables `skuid` would otherwise target the wrong process.
-        checks.mediNix-negative-uid-chain =
-          expectAssertion "uid-chain" "R15 identity chain broken" {
-            medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
-            medinix.vpn.enable = true;
-            medinix.usenet-confinement.enable = true;
-            medinix.sabnzbd.enable = true;
-            services.vpnKillSwitch.ipv6 = true;
-            services.vpnKillSwitch.instances.sabnzbd =
-              lib.mkForce { enable = true; uid = 1; };
+        checks.mediNix-negative-uid-chain = expectAssertion "uid-chain" "R15 identity chain broken" {
+          medinix.ingress.trustedCidrs = [
+            "10.0.0.0/8"
+            "192.168.0.0/16"
+          ];
+          medinix.vpn.enable = true;
+          medinix.usenet-confinement.enable = true;
+          medinix.sabnzbd.enable = true;
+          services.vpnKillSwitch.ipv6 = true;
+          services.vpnKillSwitch.instances.sabnzbd = lib.mkForce {
+            enable = true;
+            uid = 1;
           };
+        };
         # R16: killswitch active + IPv6 enabled on the host + ipv6 = false
         # must fail (no unfiltered IPv6 escape).
-        checks.mediNix-negative-vpn-ipv6 =
-          expectAssertion "vpn-ipv6" "R16 fail-open IPv6" {
-            medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
-            medinix.vpn.enable = true;
-            medinix.usenet-confinement.enable = true;
-            medinix.sabnzbd.enable = true;
-          };
+        checks.mediNix-negative-vpn-ipv6 = expectAssertion "vpn-ipv6" "R16 fail-open IPv6" {
+          medinix.ingress.trustedCidrs = [
+            "10.0.0.0/8"
+            "192.168.0.0/16"
+          ];
+          medinix.vpn.enable = true;
+          medinix.usenet-confinement.enable = true;
+          medinix.sabnzbd.enable = true;
+        };
         # F4: landing enabled + empty trustedCidrs must fail (landing must not
         # bypass the CIDR trust boundary).
-        checks.mediNix-negative-landing-cidrs =
-          expectAssertion "landing-cidrs" "trustedCidrs is empty" {
-            medinix.ingress.landing.enable = true;
-          };
+        checks.mediNix-negative-landing-cidrs = expectAssertion "landing-cidrs" "trustedCidrs is empty" {
+          medinix.ingress.landing.enable = true;
+        };
         # F5: forward-auth without an explicit upstream must fail (Pocket-ID is
         # an OIDC OP, not a forward-auth proxy).
         checks.mediNix-negative-forward-auth-upstream =
-          expectAssertion "forward-auth-upstream" "explicit forward-auth" {
-            medinix.ingress.auth.mode = "forward-auth";
-          };
+          expectAssertion "forward-auth-upstream" "explicit forward-auth"
+            {
+              medinix.ingress.auth.mode = "forward-auth";
+            };
         # F6: the acmeHost cert must cover the domain (else TLS breaks runtime).
-        checks.mediNix-negative-acme-domain =
-          expectAssertion "acme-domain" "does not cover" {
-            medinix.domain = "other.net";
-            medinix.ingress.tls.acmeHost = "example.com";
-            medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
-          };
+        checks.mediNix-negative-acme-domain = expectAssertion "acme-domain" "does not cover" {
+          medinix.domain = "other.net";
+          medinix.ingress.tls.acmeHost = "example.com";
+          medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+        };
         # F2 regression: *arr's AUTH__METHOD must follow the RESOLVED vhost
         # exposure — External only behind forward_auth (public), never on
         # internal (where 511 renders no forward_auth).
         checks.mediNix-arr-auth-method =
           let
             common = {
-              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+              medinix.ingress.trustedCidrs = [
+                "10.0.0.0/8"
+                "192.168.0.0/16"
+              ];
               medinix.ingress.auth.mode = "forward-auth";
               medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:4180";
               medinix.authProxyPresent = true;
               medinix.sonarr.enable = true;
             };
-            authOf = extra:
+            authOf =
+              extra:
               (lib.nixosSystem {
                 inherit system;
                 modules = baseModules common ++ [ extra ];
@@ -296,29 +345,34 @@
 
         checks.mediNix-firewall-managed =
           let
-            c = (lib.nixosSystem {
-              inherit system;
-              modules = baseModules { medinix.hostIntegration.firewall = "managed"; };
-            }).config;
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules { medinix.hostIntegration.firewall = "managed"; };
+              }).config;
           in
           if c.networking.firewall.enable then
             pkgs.runCommand "firewall-managed-ok" { } "echo 'ok: firewall=managed enables the firewall' > $out"
           else
             throw "C1 failed: hostIntegration.firewall = managed did not enable networking.firewall.enable.";
 
-        checks.mediNix-smoke = (lib.nixosSystem {
-          inherit system;
-          modules = [
-            self.nixosModules.default
-            ./lib/smoke-test.nix
-            {
-              medinix.enable = true;
-              boot.loader.grub.enable = false;
-              fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
-              system.stateVersion = "24.11";
-            }
-          ];
-        }).config.system.build.toplevel;
+        checks.mediNix-smoke =
+          (lib.nixosSystem {
+            inherit system;
+            modules = [
+              self.nixosModules.default
+              ./lib/smoke-test.nix
+              {
+                medinix.enable = true;
+                boot.loader.grub.enable = false;
+                fileSystems."/" = {
+                  device = "none";
+                  fsType = "tmpfs";
+                };
+                system.stateVersion = "24.11";
+              }
+            ];
+          }).config.system.build.toplevel;
 
         # ── Dezimalrahmen-Enforcer (Priorität 1, neben der Ratsche) ─────────
         checks.decimal-framework = decimalFrameworkCheck;
@@ -346,7 +400,10 @@
         packages.docs = pkgs.stdenv.mkDerivation {
           name = "medinix-docs";
           src = ./.;
-          buildInputs = [ pkgs.mkdocs pkgs.python3Packages.mkdocs-material ];
+          buildInputs = [
+            pkgs.mkdocs
+            pkgs.python3Packages.mkdocs-material
+          ];
           buildPhase = ''
             cd docs
             mkdocs build --site-dir ../site

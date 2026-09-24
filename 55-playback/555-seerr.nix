@@ -7,7 +7,12 @@
 # provides: ["seerr"]
 # adr: ADR-5610
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.seerr;
@@ -20,20 +25,30 @@ let
   stateDir = reg.stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   seerrPkg =
-    if cfg.package != null then cfg.package
-    else if pkgs ? seerr then pkgs.seerr
-    else if pkgs ? jellyseerr then pkgs.jellyseerr
-    else pkgs.overseerr;
+    if cfg.package != null then
+      cfg.package
+    else if pkgs ? seerr then
+      pkgs.seerr
+    else if pkgs ? jellyseerr then
+      pkgs.jellyseerr
+    else
+      pkgs.overseerr;
 in
 lib.mkIf cfg.enable {
   users.users.seerr = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
+    uid = uid;
+    group = "media";
+    extraGroups = [ "media" ];
+    home = stateDir;
+    isSystemUser = true;
   };
   users.groups.media.gid = gid;
 
   systemd.services.seerr = {
-    after = [ "network.target" "jellyfin.service" ];
+    after = [
+      "network.target"
+      "jellyfin.service"
+    ];
     requires = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
@@ -59,5 +74,7 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."seerr" = { accessGroup = "public"; };
+  medinix.ingress.vhosts."seerr" = {
+    accessGroup = "public";
+  };
 }

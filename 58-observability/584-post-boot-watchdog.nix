@@ -6,7 +6,7 @@
 # status: active
 # complexity: 2
 # last_reviewed: 2026-08-12
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
@@ -20,7 +20,12 @@
 # adr: ADR-0000, ADR-5043
 # repo-harvest: NixmitGROK (post-boot-watchdog pattern)
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -30,14 +35,15 @@ let
 
   registry = import ../lib/registry.nix { inherit lib; };
   # All services from Registry with a systemd unit (excluding static SPAs like Feishin)
-  allUnits = lib.filter (u: u != null) (lib.mapAttrsToList
-    (_: svc: svc.unitName)
-    registry.services);
+  allUnits = lib.filter (u: u != null) (lib.mapAttrsToList (_: svc: svc.unitName) registry.services);
   unitList = lib.concatStringsSep " " allUnits;
 
   script = pkgs.writeShellApplication {
     name = "mediNix-boot-watchdog";
-    runtimeInputs = [ pkgs.systemd pkgs.curl ];
+    runtimeInputs = [
+      pkgs.systemd
+      pkgs.curl
+    ];
     text = ''
       set -euo pipefail
       NTFY="${ntfy}"
@@ -73,15 +79,20 @@ lib.mkIf (cfg.enable && cfg.observability.postBootWatchdog) {
   systemd.timers.mediNix-boot-watchdog = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnBootSec          = "180s";
-      Unit               = "mediNix-boot-watchdog.service";
-      RemainAfterElapse  = false;  # once, do not repeat
+      OnBootSec = "180s";
+      Unit = "mediNix-boot-watchdog.service";
+      RemainAfterElapse = false; # once, do not repeat
     };
   };
 
   systemd.services.mediNix-boot-watchdog = {
-    serviceConfig = profiles.script // { Type = "oneshot"; };
-    path = [ pkgs.systemd pkgs.curl ];
+    serviceConfig = profiles.script // {
+      Type = "oneshot";
+    };
+    path = [
+      pkgs.systemd
+      pkgs.curl
+    ];
     script = "${lib.getExe script}";
   };
 }

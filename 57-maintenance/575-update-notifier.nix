@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles"]
 # ports: []
@@ -20,19 +20,25 @@
 # adr: ADR-5043
 # skill: nixos-context7-gate
 # note: "NO auto-update. Only notifies. User decides when to rebuild."
-# context7: 
+# context7:
 # - query: "systemd.timers OnCalendar daily example"
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "timerConfig.OnCalendar = \"daily\" for scheduled checks"
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.maintenance.updateNotifier;
   # ntfy topic from observability.ntfy (if ntfy is running)
   ntfyTopic = config.medinix.observability.ntfy.topic or "mediNix-updates";
-  ntfyPort  = 5810;
-in lib.mkIf cfg.enable {
+  ntfyPort = 5810;
+in
+lib.mkIf cfg.enable {
   # Daily check: is a new mediNix-core version available?
   systemd.timers.mediNix-update-notifier = {
     wantedBy = [ "timers.target" ];
@@ -56,7 +62,11 @@ in lib.mkIf cfg.enable {
         BindReadOnlyPaths = [ "/nix/var/nix/daemon-socket" ];
       }
     ];
-    path = [ pkgs.nix pkgs.jq pkgs.curl ];  # nix + jq + curl explicitly in PATH
+    path = [
+      pkgs.nix
+      pkgs.jq
+      pkgs.curl
+    ]; # nix + jq + curl explicitly in PATH
     script = ''
       set -euo pipefail
       # Remote lastModified (GitHub HEAD of mediNix-core)

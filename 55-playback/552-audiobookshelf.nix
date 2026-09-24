@@ -6,7 +6,12 @@
 # sprite: 50-core/icons.svg#audiobookshelf
 # adr: ADR-5520
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.audiobookshelf;
@@ -21,8 +26,11 @@ let
 in
 lib.mkIf cfg.enable {
   users.users.audiobookshelf = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
+    uid = uid;
+    group = "media";
+    extraGroups = [ "media" ];
+    home = stateDir;
+    isSystemUser = true;
   };
   users.groups.media.gid = gid;
 
@@ -38,7 +46,10 @@ lib.mkIf cfg.enable {
         Group = "media";
         UMask = "0002";
         StateDirectory = "audiobookshelf-${toString port}";
-        ReadWritePaths = [ stateDir metadataDir ];
+        ReadWritePaths = [
+          stateDir
+          metadataDir
+        ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/audiobooks:${svc.storage.mediaRoot}/audiobooks" ];
         InaccessiblePaths = [ creds.storeDir ];
       }
@@ -51,5 +62,7 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."audiobookshelf" = { accessGroup = "stream"; };
+  medinix.ingress.vhosts."audiobookshelf" = {
+    accessGroup = "stream";
+  };
 }

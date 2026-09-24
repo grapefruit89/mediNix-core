@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-25
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []
@@ -18,7 +18,12 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -28,59 +33,67 @@ let
   ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-runtime";
 
   registry = import ../lib/registry.nix { inherit lib; };
-  portsList = lib.mapAttrsToList (_: svc: toString svc.port) (lib.filterAttrs (_: svc: svc.port != null) registry.services);
+  portsList = lib.mapAttrsToList (_: svc: toString svc.port) (
+    lib.filterAttrs (_: svc: svc.port != null) registry.services
+  );
   portsRegex = lib.concatStringsSep "|" portsList;
 
   hasVpnFilter = cfg.vpn.enable || cfg.usenet-confinement.enable;
 
   script = pkgs.writeShellApplication {
     name = "mediNix-runtime-guard";
-    runtimeInputs = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
+    runtimeInputs = [
+      pkgs.iproute2
+      pkgs.nftables
+      pkgs.curl
+      pkgs.procps
+      pkgs.jq
+    ];
     text = ''
-      set -euo pipefail
-      NTFY="${ntfy}"
+            set -euo pipefail
+            NTFY="${ntfy}"
 
-      alert() {
-        local msg="$1"
-        if ! curl --fail --silent --show-error -d "$msg" "$NTFY"; then
-          echo "CRITICAL: notification failed: $msg" >&2
-        fi
-      }
+            alert() {
+              local msg="$1"
+              if ! curl --fail --silent --show-error -d "$msg" "$NTFY"; then
+                echo "CRITICAL: notification failed: $msg" >&2
+              fi
+            }
 
-      # 1. Check actual mediNix VPN security object if enabled.
-      if [ "${if hasVpnFilter then "1" else "0"}" = "1" ]; then
-        if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
-          alert "CRITICAL: medinix_vpn_filter nftables table missing"
-          exit 1
-        fi
-        if ! nft list chain inet medinix_vpn_filter killswitch >/dev/null 2>&1; then
-          alert "CRITICAL: VPN killswitch chain missing"
-          exit 1
-        fi
-      fi
+            # 1. Check actual mediNix VPN security object if enabled.
+            if [ "${if hasVpnFilter then "1" else "0"}" = "1" ]; then
+              if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
+                alert "CRITICAL: medinix_vpn_filter nftables table missing"
+                exit 1
+              fi
+              if ! nft list chain inet medinix_vpn_filter killswitch >/dev/null 2>&1; then
+                alert "CRITICAL: VPN killswitch chain missing"
+                exit 1
+              fi
+            fi
 
-      # 2. Socket inspection must fail closed.
-      if ! LISTENERS="$(ss -H -ltnp)"; then
-        alert "CRITICAL: unable to inspect listening sockets"
-        exit 1
-      fi
-      BAD="$(printf '%s
-' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})\b' || true)"
-      if [ -n "$BAD" ]; then
-        alert "CRITICAL: wildcard listener detected: $BAD"
-        exit 1
-      fi
+            # 2. Socket inspection must fail closed.
+            if ! LISTENERS="$(ss -H -ltnp)"; then
+              alert "CRITICAL: unable to inspect listening sockets"
+              exit 1
+            fi
+            BAD="$(printf '%s
+      ' "$LISTENERS" | grep -E '(\[::\]|:::|\*|0\.0\.0\.0):(${portsRegex})\b' || true)"
+            if [ -n "$BAD" ]; then
+              alert "CRITICAL: wildcard listener detected: $BAD"
+              exit 1
+            fi
 
-      # 3. VPN interface.
-      IFACE="${toString cfg.vpn.interface}"
-      if [ -n "$IFACE" ]; then
-        if ! ip link show "$IFACE" >/dev/null 2>&1; then
-          alert "CRITICAL: VPN interface down"
-          exit 1
-        fi
-      fi
+            # 3. VPN interface.
+            IFACE="${toString cfg.vpn.interface}"
+            if [ -n "$IFACE" ]; then
+              if ! ip link show "$IFACE" >/dev/null 2>&1; then
+                alert "CRITICAL: VPN interface down"
+                exit 1
+              fi
+            fi
 
-      echo "Runtime-Guard OK"
+            echo "Runtime-Guard OK"
     '';
   };
 in
@@ -99,15 +112,21 @@ lib.mkIf (cfg.enable && cfg.observability.runtimeGuard) {
       StartLimitIntervalSec = "1h";
       StartLimitBurst = 2;
     };
-    serviceConfig = profiles.script // { 
+    serviceConfig = profiles.script // {
       Type = "oneshot";
       PrivateNetwork = false;
       # CAP_NET_ADMIN required for nft list (read-only queries need it too)
       CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
       AmbientCapabilities = [ "CAP_NET_ADMIN" ];
-      
+
     };
-    path = [ pkgs.iproute2 pkgs.nftables pkgs.curl pkgs.procps pkgs.jq ];
+    path = [
+      pkgs.iproute2
+      pkgs.nftables
+      pkgs.curl
+      pkgs.procps
+      pkgs.jq
+    ];
     script = "${lib.getExe script}";
   };
 }

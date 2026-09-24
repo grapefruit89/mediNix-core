@@ -12,7 +12,12 @@
 #   ingress.tls.acmeCredential
 # Scope: Zone:DNS:Edit on exactly this zone (TXT _acme-challenge). Keep it
 # separate from the DDNS token so a DDNS compromise cannot break TLS issuance.
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -33,9 +38,7 @@ let
     CLOUDFLARE_PROPAGATION_TIMEOUT=120
   '';
 
-  contactMail =
-    if (cfg.domain or null) != null then "admin@${cfg.domain}"
-    else "admin@${acmeHost}";
+  contactMail = if (cfg.domain or null) != null then "admin@${cfg.domain}" else "admin@${acmeHost}";
 
 in
 lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
@@ -51,9 +54,12 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       '';
     }
     {
-      assertion = !(ddns.enable
-        && (ddns.cloudflareTokenCredential or null) != null
-        && ing.tls.acmeCredential == ddns.cloudflareTokenCredential);
+      assertion =
+        !(
+          ddns.enable
+          && (ddns.cloudflareTokenCredential or null) != null
+          && ing.tls.acmeCredential == ddns.cloudflareTokenCredential
+        );
       message = ''
         [mediNix] ACME and DDNS must use SEPARATE Cloudflare credentials.
         ingress.tls.acmeCredential == dns.ddns.cloudflareTokenCredential.
@@ -99,8 +105,12 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
 
   systemd.services."acme-${acmeHost}" = {
     serviceConfig = {
-      EnvironmentFile = [ credRuntime cfTuningEnv ];
-    } // lib.optionalAttrs (credPath != null) {
+      EnvironmentFile = [
+        credRuntime
+        cfTuningEnv
+      ];
+    }
+    // lib.optionalAttrs (credPath != null) {
       LoadCredentialEncrypted = [ "cf-token:${credPath}" ];
     };
   };

@@ -15,12 +15,17 @@
 #   public    WAN+LAN — forward_auth if auth.mode = forward-auth
 #   idp       Pocket ID
 #   none      no vhost
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   name = "example";
-  cfg  = config.medinix.${name};
-  reg  = (import ../lib/registry.nix { inherit lib; }).services.${name};
+  cfg = config.medinix.${name};
+  reg = (import ../lib/registry.nix { inherit lib; }).services.${name};
 in
 lib.mkIf cfg.enable {
   systemd.services.${name} = {
@@ -47,7 +52,7 @@ lib.mkIf cfg.enable {
 
   medinix.ingress.vhosts.${name} = {
     accessGroup = reg.caddyClass;
-    landing     = true;
-    iconId      = name;   # optional; empty = vhost name = logorepo id
+    landing = true;
+    iconId = name; # optional; empty = vhost name = logorepo id
   };
 }

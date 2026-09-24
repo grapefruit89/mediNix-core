@@ -6,7 +6,12 @@
 # sprite: 50-core/icons.svg#navidrome
 # adr: ADR-5530
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.navidrome;
@@ -22,9 +27,11 @@ let
 in
 lib.mkIf cfg.enable {
   users.users.navidrome = {
-    uid = uid; group = "media";
+    uid = uid;
+    group = "media";
     extraGroups = lib.mkAfter [ "media" ];
-    home = stateDir; isSystemUser = true;
+    home = stateDir;
+    isSystemUser = true;
   };
   users.groups.media.gid = gid;
 
@@ -54,5 +61,7 @@ lib.mkIf cfg.enable {
     };
   };
 
-  medinix.ingress.vhosts."navidrome" = { accessGroup = "stream"; };
+  medinix.ingress.vhosts."navidrome" = {
+    accessGroup = "stream";
+  };
 }

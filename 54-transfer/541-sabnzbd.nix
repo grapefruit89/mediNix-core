@@ -10,7 +10,12 @@
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
 # Secrets are LoadCredentialEncrypted, never files under mediaRoot.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.sabnzbd;
@@ -23,17 +28,21 @@ let
   stateDir = reg.stateDir;
 
   vpnIf =
-    if (config.services.vpnKillSwitch.vpnInterface or "") != ""
-    then config.services.vpnKillSwitch.vpnInterface
-    else if svc.vpn.interface != null && svc.vpn.interface != ""
-    then svc.vpn.interface
-    else "wg0";
+    if (config.services.vpnKillSwitch.vpnInterface or "") != "" then
+      config.services.vpnKillSwitch.vpnInterface
+    else if svc.vpn.interface != null && svc.vpn.interface != "" then
+      svc.vpn.interface
+    else
+      "wg0";
 in
 {
   config = lib.mkIf cfg.enable {
     users.users.sabnzbd = {
-      uid = uid; group = "media"; extraGroups = [ "media" ];
-      home = stateDir; isSystemUser = true;
+      uid = uid;
+      group = "media";
+      extraGroups = [ "media" ];
+      home = stateDir;
+      isSystemUser = true;
     };
 
     services.sabnzbd = {
@@ -55,7 +64,10 @@ in
     };
 
     systemd.services.sabnzbd = {
-      after = [ "network.target" "run-sabnzbd\\x2dtmp.mount" ];
+      after = [
+        "network.target"
+        "run-sabnzbd\\x2dtmp.mount"
+      ];
       requires = [ "run-sabnzbd\\x2dtmp.mount" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = lib.mkMerge [
@@ -67,7 +79,11 @@ in
           StateDirectory = "sabnzbd-${toString port}";
           MemoryHigh = "2G";
           MemoryMax = "4G";
-          InaccessiblePaths = [ "/run/systemd/resolve" "/run/dbus/system_bus_socket" creds.storeDir ];
+          InaccessiblePaths = [
+            "/run/systemd/resolve"
+            "/run/dbus/system_bus_socket"
+            creds.storeDir
+          ];
           ReadWritePaths = [
             stateDir
             "${svc.storage.mediaRoot}/downloads"
@@ -76,12 +92,19 @@ in
         }
         # Defense-in-Depth: cgroup-BPF-Socketfilter im Linux-Kernel
         (lib.mkIf (svc.usenet-confinement.enable && vpnIf != "") {
-          RestrictNetworkInterfaces = [ "lo" vpnIf ];
+          RestrictNetworkInterfaces = [
+            "lo"
+            vpnIf
+          ];
         })
         {
           LoadCredentialEncrypted = lib.mkMerge [
-            (lib.mkIf (cfg.serverCredentialFile != null) [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ])
-            (lib.mkIf (svc.secrets.sabnzbdApiKeyFile != null) [ "sabnzbd-api-key:${svc.secrets.sabnzbdApiKeyFile}" ])
+            (lib.mkIf (cfg.serverCredentialFile != null) [
+              "mediNix-sabnzbd-server:${cfg.serverCredentialFile}"
+            ])
+            (lib.mkIf (svc.secrets.sabnzbdApiKeyFile != null) [
+              "sabnzbd-api-key:${svc.secrets.sabnzbdApiKeyFile}"
+            ])
           ];
         }
       ];
@@ -90,15 +113,19 @@ in
       };
     };
 
-    systemd.mounts = [{
-      what = "tmpfs";
-      where = "/run/sabnzbd-tmp";
-      type = "tmpfs";
-      options = "size=1G,mode=0700";
-    }];
+    systemd.mounts = [
+      {
+        what = "tmpfs";
+        where = "/run/sabnzbd-tmp";
+        type = "tmpfs";
+        options = "size=1G,mode=0700";
+      }
+    ];
 
     medinix.persist.extraPaths = [ stateDir ];
-    medinix.ingress.vhosts."sabnzbd" = { accessGroup = "internal"; };
+    medinix.ingress.vhosts."sabnzbd" = {
+      accessGroup = "internal";
+    };
 
     services.vpnKillSwitch.instances.sabnzbd = {
       enable = svc.usenet-confinement.enable;

@@ -1,5 +1,12 @@
 # mediNix Health CLI — registry unitName is the systemd unit.
-{ pkgs, lib, registryJson, mediaRoot ? "/data/media", metadataDir ? "/data/metadata", mediaDomain ? "" }:
+{
+  pkgs,
+  lib,
+  registryJson,
+  mediaRoot ? "/data/media",
+  metadataDir ? "/data/metadata",
+  mediaDomain ? "",
+}:
 
 let
   effectiveDomain = if mediaDomain != null then mediaDomain else "";
@@ -7,7 +14,15 @@ in
 pkgs.writeShellApplication {
   name = "medinix";
   runtimeInputs = with pkgs; [
-    systemd iproute2 sqlite curl jq coreutils util-linux gawk findutils
+    systemd
+    iproute2
+    sqlite
+    curl
+    jq
+    coreutils
+    util-linux
+    gawk
+    findutils
   ];
   text = ''
     set -euo pipefail

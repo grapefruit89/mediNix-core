@@ -9,7 +9,12 @@
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-576
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -17,10 +22,14 @@ let
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   registry = import ../lib/registry.nix { inherit lib; };
 
-  optEnable = name:
-    if name == "pocket-id" then cfg.pocketId.enable or false
-    else if name == "caddy" then cfg.ingress.enable or false
-    else cfg.${name}.enable or false;
+  optEnable =
+    name:
+    if name == "pocket-id" then
+      cfg.pocketId.enable or false
+    else if name == "caddy" then
+      cfg.ingress.enable or false
+    else
+      cfg.${name}.enable or false;
 
   stateful = lib.filterAttrs (_: s: s.stateDir != null) registry.services;
   enabledStateful = lib.filterAttrs (n: _: optEnable n) stateful;
@@ -36,7 +45,7 @@ let
     text = ''
       set -euo pipefail
       echo "mediNix-backup: stopping writers for DB-safety..."
-      ${lib.optionalString (mediaServices != []) ''
+      ${lib.optionalString (mediaServices != [ ]) ''
         systemctl stop ${lib.concatStringsSep " " mediaServices} || true
         sleep 2
       ''}
@@ -49,25 +58,29 @@ let
     text = ''
       set -euo pipefail
       echo "mediNix-backup: restarting writers..."
-      ${lib.optionalString (mediaServices != []) ''
+      ${lib.optionalString (mediaServices != [ ]) ''
         systemctl start ${lib.concatStringsSep " " mediaServices} || true
       ''}
     '';
   };
 
-  primaryPasswordFile =
-    "/run/credentials/restic-backups-mediNix.service/restic-password";
+  primaryPasswordFile = "/run/credentials/restic-backups-mediNix.service/restic-password";
 
-  offsitePasswordFile =
-    "/run/credentials/mediNix-backup-offsite-copy.service/restic-password-offsite";
+  offsitePasswordFile = "/run/credentials/mediNix-backup-offsite-copy.service/restic-password-offsite";
 
   ntfyPort = registry.services.ntfy.port;
-  ntfyUrl = "http://127.0.0.1:${toString ntfyPort}/${cfg.observability.ntfy.topic or "mediNix-backup"}";
+  ntfyUrl = "http://127.0.0.1:${toString ntfyPort}/${
+    cfg.observability.ntfy.topic or "mediNix-backup"
+  }";
   ntfyEnabled = cfg.observability.ntfy.enable or false;
 
   offsiteCopyCmd = pkgs.writeShellApplication {
     name = "mediNix-backup-offsite-copy";
-    runtimeInputs = [ pkgs.restic pkgs.rclone pkgs.curl ];
+    runtimeInputs = [
+      pkgs.restic
+      pkgs.rclone
+      pkgs.curl
+    ];
     text = ''
       set -euo pipefail
       echo "mediNix-backup: replicating latest snapshot offsite..."
@@ -85,7 +98,10 @@ let
 
   checkCmd = pkgs.writeShellApplication {
     name = "mediNix-backup-check";
-    runtimeInputs = [ pkgs.restic pkgs.curl ];
+    runtimeInputs = [
+      pkgs.restic
+      pkgs.curl
+    ];
     text = ''
       set -euo pipefail
       if ! restic -r "${bkp.repository}" --password-file "${primaryPasswordFile}" check; then
@@ -132,7 +148,11 @@ lib.mkIf (cfg.enable && bkp.enable) {
     timerConfig.OnCalendar = bkp.schedule;
     backupPrepareCommand = lib.getExe preCmd;
     backupCleanupCommand = lib.getExe postCmd;
-    pruneOpts = [ "--keep-daily 7" "--keep-weekly 4" "--keep-monthly 6" ];
+    pruneOpts = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+      "--keep-monthly 6"
+    ];
     extraBackupArgs = [
       "--exclude=transcodes"
       "--exclude=cache"
@@ -147,8 +167,9 @@ lib.mkIf (cfg.enable && bkp.enable) {
     LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
   };
 
-  systemd.services."restic-backups-mediNix".unitConfig.OnSuccess =
-    lib.mkIf bkp.offsite.enable [ "mediNix-backup-offsite-copy.service" ];
+  systemd.services."restic-backups-mediNix".unitConfig.OnSuccess = lib.mkIf bkp.offsite.enable [
+    "mediNix-backup-offsite-copy.service"
+  ];
 
   systemd.services."mediNix-backup-offsite-copy" = lib.mkIf bkp.offsite.enable {
     description = "mediNix offsite restic copy";
@@ -159,8 +180,9 @@ lib.mkIf (cfg.enable && bkp.enable) {
         ExecStart = lib.getExe offsiteCopyCmd;
         LoadCredentialEncrypted = lib.mkMerge [
           [ "restic-password-offsite:${toString bkp.offsite.passwordCredentialPath}" ]
-          (lib.optional (bkp.offsite.rcloneConfigFile != null)
-            "rclone.conf:${toString bkp.offsite.rcloneConfigFile}")
+          (lib.optional (
+            bkp.offsite.rcloneConfigFile != null
+          ) "rclone.conf:${toString bkp.offsite.rcloneConfigFile}")
         ];
       }
     ];

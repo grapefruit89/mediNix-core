@@ -10,7 +10,12 @@
 # systemd_hardened: true
 # ---
 # Loopback only. accessGroup=internal. ntfy itself is read-write; Caddy is the wall.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.observability.ntfy;
@@ -23,26 +28,39 @@ let
   stateDir = reg.stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfyGroup = svc.ingress.vhosts.ntfy.accessGroup or "internal";
-in lib.mkIf cfg.enable {
-  assertions = [{
-    assertion = !lib.elem ntfyGroup [ "public" "stream" "idp" ];
-    message = ''
-      [mediNix] ntfy is an internal backend. accessGroup must stay internal or none.
-      auth-default-access is read-write. WAN exposure would be unauthenticated.
-    '';
-  }];
+in
+lib.mkIf cfg.enable {
+  assertions = [
+    {
+      assertion =
+        !lib.elem ntfyGroup [
+          "public"
+          "stream"
+          "idp"
+        ];
+      message = ''
+        [mediNix] ntfy is an internal backend. accessGroup must stay internal or none.
+        auth-default-access is read-write. WAN exposure would be unauthenticated.
+      '';
+    }
+  ];
 
   users.users.ntfy = {
-    uid = uid; group = "media"; extraGroups = [ "media" ];
-    home = stateDir; isSystemUser = true;
+    uid = uid;
+    group = "media";
+    extraGroups = [ "media" ];
+    home = stateDir;
+    isSystemUser = true;
   };
 
-  systemd.mounts = [{
-    what = "tmpfs";
-    where = stateDir;
-    type = "tmpfs";
-    options = "size=256M,mode=0750,uid=${toString uid},gid=${toString gid}";
-  }];
+  systemd.mounts = [
+    {
+      what = "tmpfs";
+      where = stateDir;
+      type = "tmpfs";
+      options = "size=256M,mode=0750,uid=${toString uid},gid=${toString gid}";
+    }
+  ];
 
   services.ntfy-sh = {
     enable = true;
@@ -57,8 +75,16 @@ in lib.mkIf cfg.enable {
 
   systemd.services.ntfy-sh = {
     unitConfig.RequiresMountsFor = [ stateDir ];
-    serviceConfig = lib.mkMerge [ profiles.network { User = "ntfy"; Group = "media"; } ];
+    serviceConfig = lib.mkMerge [
+      profiles.network
+      {
+        User = "ntfy";
+        Group = "media";
+      }
+    ];
   };
 
-  medinix.ingress.vhosts."ntfy" = { accessGroup = "internal"; };
+  medinix.ingress.vhosts."ntfy" = {
+    accessGroup = "internal";
+  };
 }

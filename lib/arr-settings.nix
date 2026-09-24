@@ -27,21 +27,24 @@
 rec {
   # Rekursiv durch verschachtelte Attrsets iterieren.
   # Baut den VOLLEN Key inkl. Prefix (SONARR__SERVER__PORT), nicht nur den Suffix.
-  mkArrEnv = prefix: settings:
+  mkArrEnv =
+    prefix: settings:
     let
-      go = path: val:
-        if lib.isAttrs val
-        then lib.concatMapAttrs (k: v: go (path ++ [ k ]) v) val
-        else { "${prefix}__${lib.concatStringsSep "__" (map lib.toUpper path)}" = toString val; };
+      go =
+        path: val:
+        if lib.isAttrs val then
+          lib.concatMapAttrs (k: v: go (path ++ [ k ]) v) val
+        else
+          { "${prefix}__${lib.concatStringsSep "__" (map lib.toUpper path)}" = toString val; };
     in
-      go [ ] settings;
+    go [ ] settings;
 
   # Convenience-Wrapper für jeden Arr-Dienst (Prefix nach ASP.NET-Konvention)
-  mkSonarr     = mkArrEnv "SONARR";
-  mkRadarr     = mkArrEnv "RADARR";
-  mkReadarr    = mkArrEnv "READARR";
-  mkLidarr     = mkArrEnv "LIDARR";
-  mkProwlarr   = mkArrEnv "PROWLARR";
+  mkSonarr = mkArrEnv "SONARR";
+  mkRadarr = mkArrEnv "RADARR";
+  mkReadarr = mkArrEnv "READARR";
+  mkLidarr = mkArrEnv "LIDARR";
+  mkProwlarr = mkArrEnv "PROWLARR";
   # Seerr nutzt SEERR (nicht JELLYFIN — eigene App)
   mkSeerr = mkArrEnv "SEERR";
 }

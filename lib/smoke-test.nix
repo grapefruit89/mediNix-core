@@ -1,7 +1,12 @@
 # tests/smoke-test.nix
 # Smoke-Test für mediNix-core — läuft in `nix flake check` via flake.nix checks.mediNix-smoke
 # Minimaler Test: Navidrome-Port/-UID in der Registry == Dezimalrahmen (5530).
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
@@ -13,7 +18,10 @@ in
     {
       medinix.navidrome.enable = true;
       # trustedCidrs has no broad default anymore (fail-closed) — set one.
-      medinix.ingress.trustedCidrs = [ "10.0.0.0/8" "192.168.0.0/16" ];
+      medinix.ingress.trustedCidrs = [
+        "10.0.0.0/8"
+        "192.168.0.0/16"
+      ];
     }
     (lib.mkIf (cfg.enable && cfg.navidrome.enable) {
       # Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port

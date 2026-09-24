@@ -12,43 +12,54 @@
 # .local is a hostname, not a network. WAN clients can send Host: jellyfin.local
 # to :80. Every .local site therefore gets the same remote_ip abort as internal.
 # localBypass only skips forward_auth *after* that CIDR check.
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
   cfg = config.medinix;
   ing = cfg.ingress;
   ingressMode = ing.mode or "auto";
   useGlobal =
-    if ingressMode == "global" then true
-    else if ingressMode == "standalone" then false
-    else config.services.caddy.enable;
+    if ingressMode == "global" then
+      true
+    else if ingressMode == "standalone" then
+      false
+    else
+      config.services.caddy.enable;
 
   registry = (import ../lib/registry.nix { inherit lib; }).services;
-  enabledServices = lib.filterAttrs (n: vhost:
+  enabledServices = lib.filterAttrs (
+    n: vhost:
     let
       enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
       hasPort = (registry.${n}.port or null) != null;
       hasStatic = (vhost.customConfig or "") != "";
     in
-      enabled && vhost.accessGroup != "none" && (hasPort || hasStatic)
+    enabled && vhost.accessGroup != "none" && (hasPort || hasStatic)
   ) cfg.ingress.vhosts;
 
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
-  publicWithoutAuth = lib.filterAttrs
-    (_: v: v.accessGroup == "public" && !(v.allowUnauthenticated or false))
-    enabledServices;
+  publicWithoutAuth = lib.filterAttrs (
+    _: v: v.accessGroup == "public" && !(v.allowUnauthenticated or false)
+  ) enabledServices;
 
   # Enabled public vhosts that carry an auth-bypass path list.
-  publicBypassPaths = lib.filterAttrs
-    (_: v: v.accessGroup == "public" && (v.unauthenticatedPaths or [ ]) != [ ] && !(v.allowUnauthenticated or false))
-    enabledServices;
+  publicBypassPaths = lib.filterAttrs (
+    _: v:
+    v.accessGroup == "public"
+    && (v.unauthenticatedPaths or [ ]) != [ ]
+    && !(v.allowUnauthenticated or false)
+  ) enabledServices;
 
   trustedCidrs = ing.trustedCidrs;
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
-  tlsEnabled =
-    ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
+  tlsEnabled = ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
 
   tlsDirective =
     if ing.tls.acmeHost != null then
@@ -85,7 +96,7 @@ let
 
   # Only meaningful with a non-empty trust list; the assertion below makes an
   # empty trustedCidrs alongside enabled vhosts a build error.
-  lanAbort = lib.optionalString (trustedCidrs != []) ''
+  lanAbort = lib.optionalString (trustedCidrs != [ ]) ''
     @blocked not remote_ip ${trustedCidrsStr}
     abort @blocked
   '';
@@ -95,7 +106,8 @@ let
     auto_https off
   '';
 
-  mkProxy = n: extra:
+  mkProxy =
+    n: extra:
     lib.optionalString ((registry.${n}.port or null) != null) ''
       reverse_proxy http://127.0.0.1:${toString registry.${n}.port} {
         header_up X-Real-IP {client_ip}
@@ -120,30 +132,33 @@ let
   # the upstream must be set explicitly — no Pocket-ID fallback.
   authUpstream = ing.auth.forwardAuthUpstream;
 
-  unauthenticatedPathsOf = vhost:
+  unauthenticatedPathsOf =
+    vhost:
     let
-      local = vhost.unauthenticatedPaths or [];
-      global = ing.auth.unauthenticatedPaths or [];
-    in lib.unique (global ++ local);
+      local = vhost.unauthenticatedPaths or [ ];
+      global = ing.auth.unauthenticatedPaths or [ ];
+    in
+    lib.unique (global ++ local);
 
   # Per-vhost override wins; null means inherit the global default.
-  localBypassOf = vhost:
-    if (vhost.localBypass or null) != null then vhost.localBypass
-    else ing.auth.localBypass;
+  localBypassOf =
+    vhost: if (vhost.localBypass or null) != null then vhost.localBypass else ing.auth.localBypass;
 
-  mkBaseConfig = n: vhost: { isLocal ? false }:
+  mkBaseConfig =
+    n: vhost:
+    {
+      isLocal ? false,
+    }:
     let
-      applyAuth =
-        ing.auth.mode == "forward-auth"
-        && (!isLocal || !(localBypassOf vhost));
+      applyAuth = ing.auth.mode == "forward-auth" && (!isLocal || !(localBypassOf vhost));
       skipPaths = unauthenticatedPathsOf vhost;
-      skipMatcher = lib.optionalString (applyAuth && skipPaths != []) ''
+      skipMatcher = lib.optionalString (applyAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
       authBlock = lib.optionalString applyAuth ''
         ${stripAuthHeaders}
         ${skipMatcher}
-        forward_auth ${lib.optionalString (skipPaths != []) "@needAuth "}${authUpstream} {
+        forward_auth ${lib.optionalString (skipPaths != [ ]) "@needAuth "}${authUpstream} {
           uri ${ing.auth.forwardAuthUri}
           copy_headers Remote-User Remote-Email Remote-Groups \
                        X-Auth-Request-User X-Auth-Request-Email
@@ -152,7 +167,8 @@ let
       # .local always CIDR-gated. Domain internal too. Stream/public/idp on
       # the real hostname stay reachable from WAN when that is the policy.
       cidrGate = lib.optionalString (isLocal || vhost.accessGroup == "internal") lanAbort;
-    in {
+    in
+    {
       stream = ''
         ${lib.optionalString isLocal lanAbort}
         encode off
@@ -178,7 +194,8 @@ let
         ${vhost.customConfig}
         ${mkProxy n ""}
       '';
-    }.${vhost.accessGroup};
+    }
+    .${vhost.accessGroup};
 
   mkHttpsBody = n: vhost: ''
     ${tlsDirective}
@@ -190,23 +207,27 @@ let
 
   mkSite = name: body: { inherit name body; };
 
-  publicNames = n:
-    lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
+  publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
 
-  mkDomainSites = n: vhost: hostName:
-    if tlsEnabled then [
-      (mkSite "http://${hostName}.${cfg.domain}" "redir https://{host}{uri} permanent")
-      (mkSite "${hostName}.${cfg.domain}" (mkHttpsBody n vhost))
-    ] else [
-      (mkSite "http://${hostName}.${cfg.domain}" (mkHttpBody n vhost))
-    ];
+  mkDomainSites =
+    n: vhost: hostName:
+    if tlsEnabled then
+      [
+        (mkSite "http://${hostName}.${cfg.domain}" "redir https://{host}{uri} permanent")
+        (mkSite "${hostName}.${cfg.domain}" (mkHttpsBody n vhost))
+      ]
+    else
+      [
+        (mkSite "http://${hostName}.${cfg.domain}" (mkHttpBody n vhost))
+      ];
 
-  serviceSites = lib.concatLists (lib.mapAttrsToList (n: vhost:
-    (lib.optionals (cfg.domain != null) (
-      lib.concatMap (mkDomainSites n vhost) (publicNames n)
-    ))
-    ++ [ (mkSite "http://${n}.local" (mkLocalBody n vhost)) ]
-  ) enabledServices);
+  serviceSites = lib.concatLists (
+    lib.mapAttrsToList (
+      n: vhost:
+      (lib.optionals (cfg.domain != null) (lib.concatMap (mkDomainSites n vhost) (publicNames n)))
+      ++ [ (mkSite "http://${n}.local" (mkLocalBody n vhost)) ]
+    ) enabledServices
+  );
 
   landingOn = ing.landing.enable && ing.landing.root != null;
   landingFiles = lib.optionalString landingOn ''
@@ -248,9 +269,7 @@ let
 
   allSites = serviceSites ++ landingSites ++ catchAllSites;
 
-  siteNameCounts = lib.foldl' (acc: e:
-    acc // { ${e.name} = (acc.${e.name} or 0) + 1; }
-  ) {} allSites;
+  siteNameCounts = lib.foldl' (acc: e: acc // { ${e.name} = (acc.${e.name} or 0) + 1; }) { } allSites;
   duplicateSiteNames = lib.sort builtins.lessThan (
     lib.attrNames (lib.filterAttrs (_: c: c > 1) siteNameCounts)
   );
@@ -260,7 +279,8 @@ let
       ${globalOptions}
     }
 
-  '' + lib.concatMapStrings (e: ''
+  ''
+  + lib.concatMapStrings (e: ''
     ${e.name} {
       ${e.body}
     }
@@ -285,7 +305,8 @@ let
     };
   };
 
-in lib.mkMerge [
+in
+lib.mkMerge [
   (lib.mkIf (cfg.enable && ing.enable) {
     assertions = [
       {
@@ -293,7 +314,9 @@ in lib.mkMerge [
         message = "[mediNix] Do not set both acmeHost and certFile.";
       }
       {
-        assertion = cfg.ingress.tls.mode != "custom" || (cfg.ingress.tls.certFile != null && cfg.ingress.tls.keyFile != null);
+        assertion =
+          cfg.ingress.tls.mode != "custom"
+          || (cfg.ingress.tls.certFile != null && cfg.ingress.tls.keyFile != null);
         message = "[mediNix] Custom TLS needs certFile and keyFile.";
       }
       {
@@ -313,7 +336,7 @@ in lib.mkMerge [
         message = "[mediNix] ingress.mode = global requires services.caddy.enable.";
       }
       {
-        assertion = duplicateSiteNames == [];
+        assertion = duplicateSiteNames == [ ];
         message = "[mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}";
       }
       {
@@ -333,10 +356,14 @@ in lib.mkMerge [
     services.caddy.globalConfig = lib.mkIf useGlobal globalOptions;
 
     services.caddy.virtualHosts = lib.mkIf useGlobal (
-      lib.listToAttrs (map (e: {
-        name = e.name;
-        value = { extraConfig = e.body; };
-      }) allSites)
+      lib.listToAttrs (
+        map (e: {
+          name = e.name;
+          value = {
+            extraConfig = e.body;
+          };
+        }) allSites
+      )
     );
 
     systemd.services.caddy.serviceConfig.OOMScoreAdjust = lib.mkIf useGlobal (-900);
@@ -345,16 +372,26 @@ in lib.mkMerge [
       text = caddyConfigStr;
     };
 
-    networking.firewall.allowedTCPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
-      (if tlsEnabled then [ 80 443 ] else [ 80 ]);
-    networking.firewall.allowedUDPPorts = lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed" && tlsEnabled)
-      [ 443 ];
+    networking.firewall.allowedTCPPorts =
+      lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
+        (
+          if tlsEnabled then
+            [
+              80
+              443
+            ]
+          else
+            [ 80 ]
+        );
+    networking.firewall.allowedUDPPorts = lib.mkIf (
+      !useGlobal && cfg.hostIntegration.firewall == "managed" && tlsEnabled
+    ) [ 443 ];
   })
 
   (lib.mkIf (cfg.enable && ing.enable && !useGlobal) caddyStandalone)
 
   (lib.mkIf (cfg.enable && ing.enable && ing.tls.acmeHost != null) {
-    users.groups.caddy = {};
+    users.groups.caddy = { };
     security.acme.certs.${ing.tls.acmeHost}.reloadServices =
       if useGlobal then [ "caddy.service" ] else [ "caddy-media.service" ];
   })

@@ -6,7 +6,7 @@
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-18
-# links: 
+# links:
 # provides: []
 # requires: []
 # ports: []
@@ -28,38 +28,52 @@
 #
 # ADR-5710: Host mounts physical disks (fileSystems."/mnt/ssd" etc.),
 #           flake creates the logical structure + pools.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
-  st  = cfg.storage;
+  st = cfg.storage;
 
-  dataRoot    = toString st.mediaRoot;     # e.g. "/data"
-  mediaTypes  = [ "movies" "series" "books" "music" ];
-  hasHot      = st.backends ? hot;
-  hasCold     = st.backends ? cold;
+  dataRoot = toString st.mediaRoot; # e.g. "/data"
+  mediaTypes = [
+    "movies"
+    "series"
+    "books"
+    "music"
+  ];
+  hasHot = st.backends ? hot;
+  hasCold = st.backends ? cold;
   hasBackends = hasHot && hasCold;
-  hot         = st.backends.hot  or "";
-  cold        = st.backends.cold or "";
+  hot = st.backends.hot or "";
+  cold = st.backends.cold or "";
 
   # Logical paths (Services always point here — regardless of mode)
-  logicalDirs = map (t: "${dataRoot}/${t}") mediaTypes
-    ++ [ "${dataRoot}/downloads" "${dataRoot}/cache" "${dataRoot}/incomplete" ];
+  logicalDirs = map (t: "${dataRoot}/${t}") mediaTypes ++ [
+    "${dataRoot}/downloads"
+    "${dataRoot}/cache"
+    "${dataRoot}/incomplete"
+  ];
 
   # tmpfiles: Base directory structure (including metadataDir)
   baseTmpfiles = map (d: "d '${d}' 0775 root media -") (logicalDirs ++ [ (toString st.metadataDir) ]);
 
   # tmpfiles: Backend subdirectories (SSD + HDD sides for MergerFS)
-  backendTmpfiles = lib.optionals hasBackends
-    (  map (t: "d '${hot}/${t}' 0775 root media -") mediaTypes
-    ++ map (t: "d '${cold}/${t}' 0775 root media -") mediaTypes );
+  backendTmpfiles = lib.optionals hasBackends (
+    map (t: "d '${hot}/${t}' 0775 root media -") mediaTypes
+    ++ map (t: "d '${cold}/${t}' 0775 root media -") mediaTypes
+  );
 
   # MergerFS mount for a media type
   mergerfsMount = mediaType: {
-    name  = "${dataRoot}/${mediaType}";
+    name = "${dataRoot}/${mediaType}";
     value = {
-      device  = "${hot}/${mediaType}:${cold}/${mediaType}";
-      fsType  = "fuse.mergerfs";
+      device = "${hot}/${mediaType}:${cold}/${mediaType}";
+      fsType = "fuse.mergerfs";
       options = [
         "defaults"
         "allow_other"
@@ -75,7 +89,10 @@ let
         "minfreespace=10G"
       ];
       # Backend mounts must be ready before MergerFS mount
-      depends = [ hot cold ];
+      depends = [
+        hot
+        cold
+      ];
       noCheck = true;
     };
   };
@@ -89,9 +106,12 @@ lib.mkIf (cfg.enable && st.enable) {
   systemd.tmpfiles.rules = baseTmpfiles ++ backendTmpfiles;
 
   # MergerFS pools (only if hot + cold both defined)
-  fileSystems = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed")
-    (lib.listToAttrs (map mergerfsMount mediaTypes));
+  fileSystems = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") (
+    lib.listToAttrs (map mergerfsMount mediaTypes)
+  );
 
   # mergerfs package must be in PATH for FUSE mounts
-  environment.systemPackages = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") [ pkgs.mergerfs ];
+  environment.systemPackages = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") [
+    pkgs.mergerfs
+  ];
 }

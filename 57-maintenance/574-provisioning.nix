@@ -4,13 +4,18 @@
 # domain: 57
 # last_reviewed: 2026-09-02
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
   flagFile = "/var/lib/mediNix-state/provisioned";
   registry = (import ../lib/registry.nix { inherit lib; }).services;
-  arrProv = pkgs.callPackage ../lib/arr-provision {};
+  arrProv = pkgs.callPackage ../lib/arr-provision { };
   cred = name: src: "${name}:${src}";
   credPath = name: "/run/credentials/mediNix-provision.service/${name}";
 
@@ -130,18 +135,25 @@ let
     dir = special
     newzbin = special
   '';
-in lib.mkIf cfg.maintenance.provisioning.enable {
+in
+lib.mkIf cfg.maintenance.provisioning.enable {
   systemd.services.mediNix-provision = {
     description = "Register download clients / indexers / libraries via API";
-    after = [ "network.target" "sabnzbd.service" "prowlarr.service"
-              "sonarr.service" "radarr.service" ]
-      ++ lib.optional cfg.jellyfin.enable "jellyfin.service"
-      ++ lib.optional cfg.seerr.enable "seerr.service"
-      ++ lib.optional cfg.lidarr.enable "lidarr.service"
-      ++ lib.optional cfg.readarr.enable "readarr.service";
+    after = [
+      "network.target"
+      "sabnzbd.service"
+      "prowlarr.service"
+      "sonarr.service"
+      "radarr.service"
+    ]
+    ++ lib.optional cfg.jellyfin.enable "jellyfin.service"
+    ++ lib.optional cfg.seerr.enable "seerr.service"
+    ++ lib.optional cfg.lidarr.enable "lidarr.service"
+    ++ lib.optional cfg.readarr.enable "readarr.service";
     wantedBy = [ "multi-user.target" ];
-    unitConfig.ConditionPathExists = lib.mkIf (!cfg.maintenance.provisioning.enforce)
-      (if cfg.maintenance.provisioning.force then null else "!${flagFile}");
+    unitConfig.ConditionPathExists = lib.mkIf (!cfg.maintenance.provisioning.enforce) (
+      if cfg.maintenance.provisioning.force then null else "!${flagFile}"
+    );
     serviceConfig = lib.mkMerge [
       (import ../lib/hardening-profiles.nix { inherit lib; }).client
       {
@@ -156,10 +168,14 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
         StateDirectoryMode = "0750";
         ReadWritePaths = [ "/var/lib/mediNix-state" ];
         LoadCredentialEncrypted = lib.flatten [
-          (lib.optional (cfg.jellyfin.enable && (cfg.jellyfin.adminPasswordFile or null) != null)
-            (cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordFile))
-          (lib.optional (cfg.jellyfin.enable && (cfg.jellyfin.adminPasswordFile or null) == null && (cfg.jellyfin.adminPasswordCredential or null) != null)
-            (cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordCredential))
+          (lib.optional (cfg.jellyfin.enable && (cfg.jellyfin.adminPasswordFile or null) != null) (
+            cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordFile
+          ))
+          (lib.optional (
+            cfg.jellyfin.enable
+            && (cfg.jellyfin.adminPasswordFile or null) == null
+            && (cfg.jellyfin.adminPasswordCredential or null) != null
+          ) (cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordCredential))
           (lib.optional cfg.sonarr.enable (cred "sonarr-apikey" cfg.secrets.sonarrApiKeyFile))
           (lib.optional cfg.radarr.enable (cred "radarr-apikey" cfg.secrets.radarrApiKeyFile))
           (lib.optional cfg.prowlarr.enable (cred "prowlarr-apikey" cfg.secrets.prowlarrApiKeyFile))
@@ -210,13 +226,15 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
       CATEGORIES_INI = sabnzbdCategoriesIni;
       APPS_JSON = builtins.toJSON prowlarrApps;
       INDEXERS_JSON = builtins.toJSON prowlarrIndexers;
-    } // lib.optionalAttrs cfg.jellyfin.enable {
+    }
+    // lib.optionalAttrs cfg.jellyfin.enable {
       JELLYFIN_PORT = toString registry.jellyfin.port;
       JELLYFIN_MOVIES_PATH = "${cfg.storage.mediaRoot}/movies";
       JELLYFIN_TV_PATH = "${cfg.storage.mediaRoot}/series";
       JELLYFIN_ADMIN_USER = "admin";
       JELLYFIN_ADMIN_PASSWORD_FILE = credPath "jellyfin-admin-pw";
-    } // lib.optionalAttrs cfg.seerr.enable {
+    }
+    // lib.optionalAttrs cfg.seerr.enable {
       SEERR_PORT = toString registry.seerr.port;
       SEERR_CONFIG_JSON = builtins.toJSON {
         jellyfinHost = "127.0.0.1";
@@ -239,10 +257,12 @@ in lib.mkIf cfg.maintenance.provisioning.enable {
           apiKeyFile = credPath "radarr-apikey";
         };
       };
-    } // lib.optionalAttrs cfg.sonarr.enable {
+    }
+    // lib.optionalAttrs cfg.sonarr.enable {
       SONARR_ROOT = cfg.sonarr.rootFolder;
       SONARR_ROOT_FOLDER = cfg.sonarr.rootFolder;
-    } // lib.optionalAttrs cfg.radarr.enable {
+    }
+    // lib.optionalAttrs cfg.radarr.enable {
       RADARR_ROOT = cfg.radarr.rootFolder;
       RADARR_ROOT_FOLDER = cfg.radarr.rootFolder;
     };

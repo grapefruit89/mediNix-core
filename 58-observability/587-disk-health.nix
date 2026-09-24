@@ -10,7 +10,12 @@
 # Monitors physical drive health (reallocated/pending sectors, temperatures, drive failures)
 # while strictly preserving HDD spindown using smartd's '-n standby,q' flag.
 # Alerts are dispatched directly to mediNix's internal ntfy instance (Domain 581).
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.diskHealth;
@@ -38,13 +43,15 @@ let
 
   standbyOpt = if cfg.spindownPreservation then "-n standby,q" else "";
   alertOpt = "-m root -M exec ${smartdAlertScript}";
-  smartdOpts = lib.concatStringsSep " " (lib.filter (s: s != "") [
-    "-a"
-    "-o on"
-    "-S on"
-    standbyOpt
-    alertOpt
-  ]);
+  smartdOpts = lib.concatStringsSep " " (
+    lib.filter (s: s != "") [
+      "-a"
+      "-o on"
+      "-S on"
+      standbyOpt
+      alertOpt
+    ]
+  );
 in
 lib.mkIf (svc.enable && cfg.enable) {
   services.smartd = {

@@ -6,19 +6,22 @@
 # CORRECT (no double-prefix bug): leaf builds full key incl. prefix.
 { lib }:
 rec {
-  mkArrEnv = prefix: settings:
+  mkArrEnv =
+    prefix: settings:
     let
-      go = path: val:
-        if lib.isAttrs val
-        then lib.concatMapAttrs (k: v: go (path ++ [ k ]) v) val
-        else { "${prefix}__${lib.concatStringsSep "__" (map lib.toUpper path)}" = toString val; };
+      go =
+        path: val:
+        if lib.isAttrs val then
+          lib.concatMapAttrs (k: v: go (path ++ [ k ]) v) val
+        else
+          { "${prefix}__${lib.concatStringsSep "__" (map lib.toUpper path)}" = toString val; };
     in
-      go [ ] settings;
+    go [ ] settings;
 
-  mkSonarr     = mkArrEnv "SONARR";
-  mkRadarr     = mkArrEnv "RADARR";
-  mkReadarr    = mkArrEnv "READARR";
-  mkLidarr     = mkArrEnv "LIDARR";
-  mkProwlarr   = mkArrEnv "PROWLARR";
+  mkSonarr = mkArrEnv "SONARR";
+  mkRadarr = mkArrEnv "RADARR";
+  mkReadarr = mkArrEnv "READARR";
+  mkLidarr = mkArrEnv "LIDARR";
+  mkProwlarr = mkArrEnv "PROWLARR";
   mkSeerr = mkArrEnv "SEERR";
 }

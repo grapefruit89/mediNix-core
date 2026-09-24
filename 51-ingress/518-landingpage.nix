@@ -8,32 +8,44 @@
 # Renderer only. No program names. A vhost with accessGroup stream|public
 # becomes a tile. landing=false opts out. Sprite file: 50-core/icons.svg
 # served as /icons.svg. Fragment = service name.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix;
-  wanGroups = [ "stream" "public" ];
+  wanGroups = [
+    "stream"
+    "public"
+  ];
 
-  tiles = lib.filterAttrs (_n: vhost:
-    (vhost.landing or true)
-    && lib.elem (vhost.accessGroup or "none") wanGroups
-  ) (cfg.ingress.vhosts or {});
+  tiles = lib.filterAttrs (
+    _n: vhost: (vhost.landing or true) && lib.elem (vhost.accessGroup or "none") wanGroups
+  ) (cfg.ingress.vhosts or { });
 
   names = lib.sort builtins.lessThan (lib.attrNames tiles);
 
-  publicHost = n: (cfg.dns.hostnames or {}).${n} or n;
+  publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
 
-  hrefFor = n:
-    if cfg.domain != null then "https://${publicHost n}.${cfg.domain}"
-    else "http://${n}.local";
+  hrefFor =
+    n: if cfg.domain != null then "https://${publicHost n}.${cfg.domain}" else "http://${n}.local";
 
-  fragment = n: vhost:
-    let raw = vhost.iconId or "";
-    in if raw != "" then raw else n;
+  fragment =
+    n: vhost:
+    let
+      raw = vhost.iconId or "";
+    in
+    if raw != "" then raw else n;
 
-  mkTile = n:
-    let id = fragment n tiles.${n};
-    in ''
+  mkTile =
+    n:
+    let
+      id = fragment n tiles.${n};
+    in
+    ''
       <a class="srv" href="${hrefFor n}" aria-label="${n}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
           <use href="/icons.svg#${id}"></use>
@@ -71,12 +83,13 @@ let
   # Repo copy lives at 50-core/icons.svg (logorepo dist/icons.svg).
   # Fetch pin until that file is in the tree; 518 still only copies it.
   iconsSvg =
-    if builtins.pathExists ../50-core/icons.svg
-    then ../50-core/icons.svg
-    else pkgs.fetchurl {
-      url = "https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@7172697e434ff45ba9d2b2374e32919486cb545e/dist/icons.svg";
-      hash = "sha256-qisWUumOeQ6NM/+UeIx04sP+DB0EMgjq9BZRcvMAfyg=";
-    };
+    if builtins.pathExists ../50-core/icons.svg then
+      ../50-core/icons.svg
+    else
+      pkgs.fetchurl {
+        url = "https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@7172697e434ff45ba9d2b2374e32919486cb545e/dist/icons.svg";
+        hash = "sha256-qisWUumOeQ6NM/+UeIx04sP+DB0EMgjq9BZRcvMAfyg=";
+      };
 
   landingRoot = pkgs.runCommand "medinix-landing" { } ''
     mkdir -p $out
@@ -86,15 +99,18 @@ let
     cp ${iconsSvg} $out/icons.svg
   '';
 
-in {
+in
+{
   options.medinix.ingress.vhosts = lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      options.iconId = lib.mkOption {
-        type = lib.types.str;
-        default = "";
-        description = "Sprite id. Empty = service name.";
-      };
-    });
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        options.iconId = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Sprite id. Empty = service name.";
+        };
+      }
+    );
   };
 
   config = lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.ingress.landing.enable) {

@@ -6,7 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-13
-# links: 
+# links:
 # provides: []
 # requires: ["lib/hardening-profiles"]
 # ports: []
@@ -21,7 +21,12 @@
 # skill: medinix-implement-discipline
 # note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.mover;
@@ -29,7 +34,13 @@ let
 
   moverScript = pkgs.writeShellApplication {
     name = "mediNix-mover";
-    runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.gawk pkgs.util-linux pkgs.lsof ];
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.findutils
+      pkgs.gawk
+      pkgs.util-linux
+      pkgs.lsof
+    ];
     text = ''
       set -euo pipefail
 
@@ -90,7 +101,9 @@ let
 
       # 2. Only whitelisted extensions AND >= 50MB, not modified in last 5 minutes (-mmin +5)
       mkdir -p "$ARCHIVE/.staging_mover"
-      find "$STAGING" -type f -size +50M -mmin +5 \( ${lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions} \) -print0 \
+      find "$STAGING" -type f -size +50M -mmin +5 \( ${
+        lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions
+      } \) -print0 \
         | while IFS= read -r -d $'\0' f; do
           [ -f "$f" ] || continue
 
@@ -175,7 +188,10 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
     # StartLimit belongs in [Unit] (= unitConfig), not in [Service] (serviceConfig).
     # Limits real service starts if staging is noisy.
     unitConfig = {
-      RequiresMountsFor = [ cfg.stagingDir cfg.archiveDir ];
+      RequiresMountsFor = [
+        cfg.stagingDir
+        cfg.archiveDir
+      ];
       StartLimitBurst = 3;
       StartLimitIntervalSec = "60";
     };
@@ -186,14 +202,16 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
         User = "media";
         Group = "media";
         UMask = "002";
-      
+
         RuntimeDirectory = "medinix-mover";
-        ReadWritePaths = [ cfg.stagingDir cfg.archiveDir ];
+        ReadWritePaths = [
+          cfg.stagingDir
+          cfg.archiveDir
+        ];
       }
     ];
     script = "${lib.getExe moverScript}";
   };
-
 
   # Fund 2: Safety backstop timer because PathChanged isn't recursive
   systemd.timers.mediNix-mover-safety = {

@@ -16,16 +16,30 @@
 rec {
   networkPolicy.loopback = {
     IPAddressDeny = [ "any" ];
-    IPAddressAllow = [ "127.0.0.1" "::1" ];
+    IPAddressAllow = [
+      "127.0.0.1"
+      "::1"
+    ];
     SocketBindDeny = [ "any" ];
-    SocketBindAllow = [ "127.0.0.1" "::1" ];
+    SocketBindAllow = [
+      "127.0.0.1"
+      "::1"
+    ];
   };
   # Connect anywhere; still bind only localhost. 526 is the WAN choke.
   networkPolicy.internet = {
     IPAddressDeny = [ "any" ];
-    IPAddressAllow = [ "127.0.0.1" "::1" "0.0.0.0/0" "::/0" ];
+    IPAddressAllow = [
+      "127.0.0.1"
+      "::1"
+      "0.0.0.0/0"
+      "::/0"
+    ];
     SocketBindDeny = [ "any" ];
-    SocketBindAllow = [ "127.0.0.1" "::1" ];
+    SocketBindAllow = [
+      "127.0.0.1"
+      "::1"
+    ];
   };
   networkPolicy.proxy = {
     SocketBindAllow = [ "any" ];
@@ -55,7 +69,12 @@ rec {
     RemoveIPC = true;
     # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
     OOMScoreAdjust = lib.mkDefault 500;
-    RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
+    RestrictAddressFamilies = [
+      "AF_UNIX"
+      "AF_INET"
+      "AF_INET6"
+      "AF_NETLINK"
+    ];
     PrivateUsers = true;
     CapabilityBoundingSet = [ "" ];
     AmbientCapabilities = [ "" ];
@@ -71,39 +90,54 @@ rec {
     ];
   };
 
-  dotnet = base // {
-    MemoryDenyWriteExecute = false;
-    PrivateDevices = true;
-    UMask = lib.mkDefault "0002";
-  } // networkPolicy.internet;
+  dotnet =
+    base
+    // {
+      MemoryDenyWriteExecute = false;
+      PrivateDevices = true;
+      UMask = lib.mkDefault "0002";
+    }
+    // networkPolicy.internet;
 
   # VA-API /dev/dri lives in the host user namespace. PrivateUsers would
   # hide the render node from the jellyfin uid even with DeviceAllow.
-  dotnet-gpu = dotnet // {
-    PrivateDevices = false;
-    PrivateUsers = false;
-  } // networkPolicy.internet;
+  dotnet-gpu =
+    dotnet
+    // {
+      PrivateDevices = false;
+      PrivateUsers = false;
+    }
+    // networkPolicy.internet;
 
   # SABnzbd: bind 127.0.0.1, talk to NNTP anywhere. Path is 526, not eBPF deny.
-  python = base // {
-    MemoryDenyWriteExecute = true;
-    PrivateDevices = true;
-  } // networkPolicy.internet;
+  python =
+    base
+    // {
+      MemoryDenyWriteExecute = true;
+      PrivateDevices = true;
+    }
+    // networkPolicy.internet;
 
-  nodejs = base // {
-    MemoryDenyWriteExecute = false;
-    PrivateDevices = true;
-  } // networkPolicy.internet;
+  nodejs =
+    base
+    // {
+      MemoryDenyWriteExecute = false;
+      PrivateDevices = true;
+    }
+    // networkPolicy.internet;
 
-  network = base // {
-    MemoryDenyWriteExecute = true;
-    PrivateDevices = true;
-    PrivateUsers = false;
-    AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
-    CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
-    # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
-    OOMScoreAdjust = lib.mkDefault (-500);
-  } // networkPolicy.proxy;
+  network =
+    base
+    // {
+      MemoryDenyWriteExecute = true;
+      PrivateDevices = true;
+      PrivateUsers = false;
+      AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+      CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+      # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
+      OOMScoreAdjust = lib.mkDefault (-500);
+    }
+    // networkPolicy.proxy;
 
   client = base // {
     MemoryDenyWriteExecute = true;
@@ -111,10 +145,13 @@ rec {
     PrivateNetwork = false;
   };
 
-  script = base // {
-    MemoryDenyWriteExecute = true;
-    PrivateDevices = true;
-    PrivateNetwork = true;
-    RestrictAddressFamilies = [ "AF_UNIX" ];
-  } // networkPolicy.loopback;
+  script =
+    base
+    // {
+      MemoryDenyWriteExecute = true;
+      PrivateDevices = true;
+      PrivateNetwork = true;
+      RestrictAddressFamilies = [ "AF_UNIX" ];
+    }
+    // networkPolicy.loopback;
 }

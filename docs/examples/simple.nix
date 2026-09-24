@@ -30,29 +30,29 @@
   # ── mediNix-core ────────────────────────────────────────────────────────
   medinix = {
     enable = true;
-    domain = "media.example.com";   # LAN unicast domain (NOT .local)
+    domain = "media.example.com"; # LAN unicast domain (NOT .local)
 
     # Storage — points to physical mount
     storage = {
-      mediaRoot   = "/mnt/ssd/media";
+      mediaRoot = "/mnt/ssd/media";
       metadataDir = "/mnt/ssd/cache";
       backends = {
-        hot  = "/mnt/ssd";
+        hot = "/mnt/ssd";
         cold = "/mnt/hdd";
       };
     };
 
     # Services — enable what you need
-    jellyfin.enable    = true;
-    sonarr.enable      = true;
-    radarr.enable      = true;
-    prowlarr.enable    = true;
-    seerr.enable  = true;
+    jellyfin.enable = true;
+    sonarr.enable = true;
+    radarr.enable = true;
+    prowlarr.enable = true;
+    seerr.enable = true;
 
     # Ingress — Caddy, no TLS (LAN-only without ACME)
     ingress = {
-      enable   = true;
-      tls.mode = "off";   # TLS-003 assertion: not for jellyfin! use "acme" for WAN.
+      enable = true;
+      tls.mode = "off"; # TLS-003 assertion: not for jellyfin! use "acme" for WAN.
     };
   };
 }

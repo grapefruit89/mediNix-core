@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-11
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg
-# links: 
+# links:
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
 # ports: []
@@ -21,12 +21,17 @@
 # adr: ADR-5320, ADR-5050
 # skill: nixos-context7-gate
 # repo-harvest: Sonarr/Sonarr (sonarr.service: -data=/var/lib/sonarr, UMask=002)
-# context7: 
+# context7:
 # - query: "systemd.services serviceConfig NoNewPrivileges ProtectSystem example"
 # library: /websites/nixos_manual_nixos_unstable
 # snippet: "NoNewPrivileges=true, ProtectSystem=strict, MemoryDenyWriteExecute valid"
 # ---
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.medinix.sonarr;
@@ -43,63 +48,87 @@ let
   # method on the RESOLVED exposure of this vhost — External only when
   # forward_auth is actually in front, otherwise *arr would be unauthenticated.
   exposedPublic = (config.medinix.ingress.vhosts."sonarr".accessGroup or "none") == "public";
-  authMethod = if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then "External" else "Forms";
+  authMethod =
+    if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
+      "External"
+    else
+      "Forms";
 in
-lib.mkIf cfg.enable (lib.mkMerge [ {
-  users.groups.media.gid = gid;
+lib.mkIf cfg.enable (
+  lib.mkMerge [
+    {
+      users.groups.media.gid = gid;
 
-  } (mkService {
-    name = "sonarr";
-    port = port;
-    uid = uid;
-    execStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
-    stateDir = stateDir;
-    profile = "dotnet";
-    offloadMediaCover = true;
-    allowedPeers = [ "sabnzbd" "prowlarr" ];
-    extraConfig = {
-      User           = "sonarr";
-      UMask          = "0002";
-      ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ];
-    };
-  })
-  {
-    systemd.services.sonarr = {
-    after    = [ "network.target" "prowlarr.service" ];
-    requires = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    environment = lib.mkMerge [
-      (lib.mkIf (svc.secrets.sonarrApiKeyFile or null != null) { SONARR_API_KEY_FILE = svc.secrets.sonarrApiKeyFile; })
-      (arrSettings.mkSonarr {
-        server = {
-          port        = port;
-          bindAddress = "127.0.0.1";
-          urlBase     = "";
-        };
-        auth = {
-          method   = authMethod;
-          required = "Enabled";
-        };
-        app = {
-          theme        = "dark";
-          instanceName = "Sonarr";
-        };
-        log.level        = "info";
-        update.mechanism = "BuiltIn";
-      })
-    ];
-  };
+    }
+    (mkService {
+      name = "sonarr";
+      port = port;
+      uid = uid;
+      execStart = "${pkgs.sonarr}/bin/Sonarr -nobrowser -data=${stateDir}";
+      stateDir = stateDir;
+      profile = "dotnet";
+      offloadMediaCover = true;
+      allowedPeers = [
+        "sabnzbd"
+        "prowlarr"
+      ];
+      extraConfig = {
+        User = "sonarr";
+        UMask = "0002";
+        ReadWritePaths = [
+          stateDir
+          config.medinix.storage.mediaRoot
+        ];
+      };
+    })
+    {
+      systemd.services.sonarr = {
+        after = [
+          "network.target"
+          "prowlarr.service"
+        ];
+        requires = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        environment = lib.mkMerge [
+          (lib.mkIf (svc.secrets.sonarrApiKeyFile or null != null) {
+            SONARR_API_KEY_FILE = svc.secrets.sonarrApiKeyFile;
+          })
+          (arrSettings.mkSonarr {
+            server = {
+              port = port;
+              bindAddress = "127.0.0.1";
+              urlBase = "";
+            };
+            auth = {
+              method = authMethod;
+              required = "Enabled";
+            };
+            app = {
+              theme = "dark";
+              instanceName = "Sonarr";
+            };
+            log.level = "info";
+            update.mechanism = "BuiltIn";
+          })
+        ];
+      };
 
-  systemd.sockets.sonarr = lib.mkIf svc.onDemand.enable {
-    wantedBy = [ "sockets.target" ];
-    listenStreams = [ "127.0.0.1:${toString port}" ];
-    socketConfig.Accept = false;
-  };
+      systemd.sockets.sonarr = lib.mkIf svc.onDemand.enable {
+        wantedBy = [ "sockets.target" ];
+        listenStreams = [ "127.0.0.1:${toString port}" ];
+        socketConfig.Accept = false;
+      };
 
-  medinix.ingress.vhosts."sonarr" = { accessGroup = reg.caddyClass; };
+      medinix.ingress.vhosts."sonarr" = {
+        accessGroup = reg.caddyClass;
+      };
 
-  } { systemd.services."sonarr" = lib.mkIf (svc.secrets.sonarrApiKeyFile != null) {
-    serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];
-  };
+    }
+    {
+      systemd.services."sonarr" = lib.mkIf (svc.secrets.sonarrApiKeyFile != null) {
+        serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];
+      };
 
-} ])
+    }
+  ]
+)

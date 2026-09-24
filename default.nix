@@ -6,7 +6,7 @@
 # status: active
 # complexity: 5
 # last_reviewed: 2026-08-11
-# links: 
+# links:
 # provides: ["options.medinix"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: []
@@ -27,35 +27,44 @@
 #
 # Options API ported from grapefruit89/mediNix (709-line default.nix), made
 # portable: no my.* references, all paths/domains via options (Regel 3).
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
   cfg = config.medinix;
 
   # Helper: optional package override (null = nixpkgs default)
-  mkPackageOption = svc: lib.mkOption {
-    type        = lib.types.nullOr lib.types.package;
-    default     = null;
-    defaultText = lib.literalExpression "null";
-    description = ''
-      Optionales Paket-Override für ${svc}.
-      null = NixOS-Modul-Default aus nixpkgs.
-    '';
-  };
+  mkPackageOption =
+    svc:
+    lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      defaultText = lib.literalExpression "null";
+      description = ''
+        Optionales Paket-Override für ${svc}.
+        null = NixOS-Modul-Default aus nixpkgs.
+      '';
+    };
 
   # Auto-import: every XX-domain/NNN-*.nix module (lib.pipe für Idiomatik)
   moduleFiles =
     let
-      entries     = builtins.readDir ./.;
+      entries = builtins.readDir ./.;
       isModuleDir = n: t: t == "directory" && builtins.match "^[0-9]{2}-.*" n != null;
-      importFromDir = dir:
+      importFromDir =
+        dir:
         let
           files = builtins.readDir (./. + "/${dir}");
         in
-        map (n: ./. + "/${dir}/${n}")
-          (builtins.attrNames (lib.filterAttrs
-            (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null)
-            files));
+        map (n: ./. + "/${dir}/${n}") (
+          builtins.attrNames (
+            lib.filterAttrs (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null) files
+          )
+        );
     in
     lib.pipe entries [
       (lib.filterAttrs isModuleDir)
@@ -71,7 +80,11 @@ in
 
     hostIntegration = {
       reverseProxy = lib.mkOption {
-        type = lib.types.enum [ "external" "managed" "off" ];
+        type = lib.types.enum [
+          "external"
+          "managed"
+          "off"
+        ];
         default = "off";
         description = ''
           Ownership of the host reverse proxy. "off" (default) = mediNix makes
@@ -80,28 +93,76 @@ in
           a compatible host Caddy already exists (must be enabled by the host).
         '';
       };
-      nftables     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
-      firewall     = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
-      storage      = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
-      vpn          = lib.mkOption { type = lib.types.enum [ "external" "managed" "off" ]; default = "external"; };
+      nftables = lib.mkOption {
+        type = lib.types.enum [
+          "external"
+          "managed"
+          "off"
+        ];
+        default = "external";
+      };
+      firewall = lib.mkOption {
+        type = lib.types.enum [
+          "external"
+          "managed"
+          "off"
+        ];
+        default = "external";
+      };
+      storage = lib.mkOption {
+        type = lib.types.enum [
+          "external"
+          "managed"
+          "off"
+        ];
+        default = "external";
+      };
+      vpn = lib.mkOption {
+        type = lib.types.enum [
+          "external"
+          "managed"
+          "off"
+        ];
+        default = "external";
+      };
     };
 
     host = {
-      credentials = lib.mkOption { 
-        type = lib.types.attrsOf lib.types.path; 
-        default = {}; 
+      credentials = lib.mkOption {
+        type = lib.types.attrsOf lib.types.path;
+        default = { };
         description = "Paths to the TPM-sealed .cred files provided by the host. (e.g. usenet-server = /var/lib/credstore/usenet.cred)";
       };
       # Future host facts can be added here
     };
 
     recommended = {
-      sysctl = lib.mkOption { type = lib.types.attrsOf lib.types.anything; internal = true; default = {}; };
-      nftables = lib.mkOption { type = lib.types.attrsOf lib.types.anything; internal = true; default = {}; };
-      mountOptions = lib.mkOption { type = lib.types.attrsOf (lib.types.listOf lib.types.str); internal = true; default = {}; };
+      sysctl = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        internal = true;
+        default = { };
+      };
+      nftables = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        internal = true;
+        default = { };
+      };
+      mountOptions = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+        internal = true;
+        default = { };
+      };
       firewall = {
-        checkReversePath = lib.mkOption { type = lib.types.nullOr lib.types.bool; internal = true; default = null; };
-        extraReversePathFilterRules = lib.mkOption { type = lib.types.nullOr lib.types.str; internal = true; default = null; };
+        checkReversePath = lib.mkOption {
+          type = lib.types.nullOr lib.types.bool;
+          internal = true;
+          default = null;
+        };
+        extraReversePathFilterRules = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          internal = true;
+          default = null;
+        };
       };
     };
 
@@ -109,14 +170,14 @@ in
 
     cli = {
       enable = lib.mkOption {
-        type    = lib.types.bool;
+        type = lib.types.bool;
         default = true;
         description = "medinix CLI-Tool installieren (check/repair/status/vpn/secrets).";
       };
     };
 
     domain = lib.mkOption {
-      type    = lib.types.nullOr lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       default = null;
       example = "media.example.com";
       description = ''
@@ -128,18 +189,19 @@ in
 
     # --- Service enable + package overrides ---
     jellyfin = {
-      enable  = lib.mkEnableOption "Jellyfin Media Server";
+      enable = lib.mkEnableOption "Jellyfin Media Server";
       package = mkPackageOption "jellyfin";
       adminPasswordFile = lib.mkOption {
-        type    = lib.types.nullOr lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
-        description = ''Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
-          ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
-          MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.'';
+        description = ''
+          Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
+                    ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
+                    MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.'';
       };
       # Jellyfin Admin (First-Run Bootstrap) — TPM-cred Workflow
       adminPasswordCredential = lib.mkOption {
-        type    = lib.types.nullOr lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = ''
           Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Jellyfin Admin-Passwort.
@@ -148,39 +210,55 @@ in
       };
     };
     seerr = {
-      enable  = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
+      enable = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
       package = mkPackageOption "seerr";
     };
     bazarr = {
-      enable  = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
+      enable = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
       package = mkPackageOption "bazarr";
     };
     sonarr = {
-      enable  = lib.mkEnableOption "Sonarr TV Series Manager";
+      enable = lib.mkEnableOption "Sonarr TV Series Manager";
       package = mkPackageOption "sonarr";
-      rootFolder     = lib.mkOption { type = lib.types.str;  default = cfg.storage.mediaRoot + "/series"; description = "Arr root folder (API-configured via provisioning)."; };
-      qualityProfile = lib.mkOption { type = lib.types.str;  default = "HD-1080p";                       description = "Arr quality profile name (API-configured via provisioning)."; };
+      rootFolder = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.storage.mediaRoot + "/series";
+        description = "Arr root folder (API-configured via provisioning).";
+      };
+      qualityProfile = lib.mkOption {
+        type = lib.types.str;
+        default = "HD-1080p";
+        description = "Arr quality profile name (API-configured via provisioning).";
+      };
     };
     radarr = {
-      enable  = lib.mkEnableOption "Radarr Movies Manager";
+      enable = lib.mkEnableOption "Radarr Movies Manager";
       package = mkPackageOption "radarr";
-      rootFolder     = lib.mkOption { type = lib.types.str;  default = cfg.storage.mediaRoot + "/movies"; description = "Arr root folder (API-configured via provisioning)."; };
-      qualityProfile = lib.mkOption { type = lib.types.str;  default = "HD-1080p";                        description = "Arr quality profile name (API-configured via provisioning)."; };
+      rootFolder = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.storage.mediaRoot + "/movies";
+        description = "Arr root folder (API-configured via provisioning).";
+      };
+      qualityProfile = lib.mkOption {
+        type = lib.types.str;
+        default = "HD-1080p";
+        description = "Arr quality profile name (API-configured via provisioning).";
+      };
     };
     readarr = {
-      enable  = lib.mkEnableOption "Readarr Books Manager";
+      enable = lib.mkEnableOption "Readarr Books Manager";
       package = mkPackageOption "readarr";
     };
     prowlarr = {
-      enable  = lib.mkEnableOption "Prowlarr Indexer Proxy";
+      enable = lib.mkEnableOption "Prowlarr Indexer Proxy";
       package = mkPackageOption "prowlarr";
     };
     sabnzbd = {
-      enable  = lib.mkEnableOption "SABnzbd Usenet Downloader";
+      enable = lib.mkEnableOption "SABnzbd Usenet Downloader";
       package = mkPackageOption "sabnzbd";
       # SABnzbd Usenet-Provider (wurde vergessen!)
       serverCredentialFile = lib.mkOption {
-        type    = lib.types.nullOr lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
         description = ''
           Pfad zur systemd-credential-Datei (.cred) mit Usenet-Server-Credentials.
@@ -195,11 +273,11 @@ in
       };
     };
     audiobookshelf = {
-      enable  = lib.mkEnableOption "Audiobookshelf Server";
+      enable = lib.mkEnableOption "Audiobookshelf Server";
       package = mkPackageOption "audiobookshelf";
       enableQuickSync = lib.mkOption {
-        type        = lib.types.bool;
-        default     = true;
+        type = lib.types.bool;
+        default = true;
         description = ''
           NOTE (misnomer): enableQuickSync benennt Intel QSV Transcode-Mapping.
           In mediNix-core zeigt dies korrekt auf Audiobookshelf-Hardware-Zugriff,
@@ -208,21 +286,24 @@ in
       };
     };
     navidrome = {
-      enable  = lib.mkEnableOption "Navidrome Music Server";
+      enable = lib.mkEnableOption "Navidrome Music Server";
       package = mkPackageOption "navidrome";
     };
     lidarr = {
-      enable  = lib.mkEnableOption "Lidarr Music Download Manager";
+      enable = lib.mkEnableOption "Lidarr Music Download Manager";
       package = mkPackageOption "lidarr";
     };
     exporters = {
-      enable           = lib.mkEnableOption "Prometheus exporters for Arr stack";
-      lidarr.enable    = lib.mkEnableOption "Enable metrics exporter for Lidarr";
+      enable = lib.mkEnableOption "Prometheus exporters for Arr stack";
+      lidarr.enable = lib.mkEnableOption "Enable metrics exporter for Lidarr";
     };
     mover = {
       enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
       mode = lib.mkOption {
-        type = lib.types.enum [ "ondemand" "off" ];
+        type = lib.types.enum [
+          "ondemand"
+          "off"
+        ];
         default = "ondemand";
         description = ''
           "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + systemd.path-Klingel).
@@ -230,17 +311,25 @@ in
           "off": Mover komplett inaktiv.
         '';
       };
-        minFreeGb = lib.mkOption {
-          type = lib.types.int;
-          default = 20;
-          description = ''
-            Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
-            Nur relevant wenn mode = "ondemand".
-          '';
-        };
+      minFreeGb = lib.mkOption {
+        type = lib.types.int;
+        default = 20;
+        description = ''
+          Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
+          Nur relevant wenn mode = "ondemand".
+        '';
+      };
       mediaExtensions = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ ".mkv" ".mp4" ".m4b" ".mp3" ".flac" ".webm" ".ts" ];
+        default = [
+          ".mkv"
+          ".mp4"
+          ".m4b"
+          ".mp3"
+          ".flac"
+          ".webm"
+          ".ts"
+        ];
         description = ''
           Whitelist: nur Dateien mit diesen Endungen werden nach archiveDir (Tier-C/HDD) verschoben.
           Metadaten (NFO/JPG/Poster/DB) bleiben auf der SSD-Arbeitsseite.
@@ -248,7 +337,11 @@ in
       };
       stagingDir = lib.mkOption {
         type = lib.types.path;
-        default = if cfg.storage.backends ? hot then cfg.storage.backends.hot else cfg.storage.mediaRoot + "/downloads";
+        default =
+          if cfg.storage.backends ? hot then
+            cfg.storage.backends.hot
+          else
+            cfg.storage.mediaRoot + "/downloads";
         description = ''
           Quell-Pfad auf Tier-B (SSD): physisches Hot-Backend oder Staging-Verzeichnis.
           Wenn storage.backends.hot gesetzt ist, zeigt dies direkt auf das physische SSD-Backend,
@@ -257,7 +350,11 @@ in
       };
       archiveDir = lib.mkOption {
         type = lib.types.path;
-        default = if cfg.storage.backends ? cold then cfg.storage.backends.cold else cfg.storage.mediaRoot + "/library";
+        default =
+          if cfg.storage.backends ? cold then
+            cfg.storage.backends.cold
+          else
+            cfg.storage.mediaRoot + "/library";
         description = ''
           Ziel-Pfad auf Tier-C (HDD): physisches Cold-Backend oder Archiv-Verzeichnis.
           Wenn storage.backends.cold gesetzt ist, zeigt dies direkt auf das physische HDD-Backend.
@@ -272,22 +369,21 @@ in
       };
     };
     feishin = {
-      enable  = lib.mkEnableOption "Feishin SPA (static files)";
+      enable = lib.mkEnableOption "Feishin SPA (static files)";
       package = mkPackageOption "feishin";
     };
     pocketId = {
-      enable  = lib.mkEnableOption "Pocket ID OIDC Provider";
+      enable = lib.mkEnableOption "Pocket ID OIDC Provider";
       package = mkPackageOption "pocket-id";
     };
-    usenet-confinement.enable = lib.mkEnableOption
-      "Run Usenet stack (SABnzbd/Prowlarr) isolated under WireGuard VPN interface";
+    usenet-confinement.enable = lib.mkEnableOption "Run Usenet stack (SABnzbd/Prowlarr) isolated under WireGuard VPN interface";
 
     maintenance = {
       recyclarr = {
-        enable  = lib.mkEnableOption "Recyclarr custom format synchronization";
+        enable = lib.mkEnableOption "Recyclarr custom format synchronization";
         package = mkPackageOption "recyclarr";
         schedule = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "daily";
           description = "Systemd calendar interval for Recyclarr runs.";
         };
@@ -311,12 +407,12 @@ in
       backup = {
         enable = lib.mkEnableOption "Restic-Backup mit DB-Safety (stoppt Dienste vor Backup)";
         repository = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "";
           description = "Restic repository (local path, sftp:, s3:, rclone:<remote>:, ...). Host-Config.";
         };
         passwordFile = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "";
           description = ''
             Legacy: plain filesystem path to the restic password file. Used only when
@@ -325,7 +421,7 @@ in
           '';
         };
         passwordCredentialPath = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
             Empfohlen: Pfad zu einem TPM-versiegelten Restic-Passwort-Credential,
@@ -337,7 +433,7 @@ in
           '';
         };
         schedule = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "02:00";
           description = "systemd OnCalendar for backup timer.";
         };
@@ -349,22 +445,22 @@ in
             Service-Stop noetig. ADR-576-backup-classification.
           '';
           repository = lib.mkOption {
-            type    = lib.types.str;
+            type = lib.types.str;
             default = "";
             description = "Zweites Restic-Repository (z.B. rclone:koofr:mediNix-backup, oder Pfad auf einer zweiten externen Platte). Host-Config.";
           };
           passwordFile = lib.mkOption {
-            type    = lib.types.str;
+            type = lib.types.str;
             default = "";
             description = "Legacy: siehe maintenance.backup.passwordFile, gilt fuer das Offsite-Repo.";
           };
           passwordCredentialPath = lib.mkOption {
-            type    = lib.types.nullOr lib.types.str;
+            type = lib.types.nullOr lib.types.str;
             default = null;
             description = "Empfohlen: siehe maintenance.backup.passwordCredentialPath, gilt fuer das Offsite-Repo.";
           };
           rcloneConfigFile = lib.mkOption {
-            type    = lib.types.nullOr lib.types.str;
+            type = lib.types.nullOr lib.types.str;
             default = null;
             description = "rclone.conf, falls offsite.repository mit rclone: beginnt (z.B. Koofr WebDAV remote).";
           };
@@ -373,25 +469,33 @@ in
       sqliteOptimize = {
         enable = lib.mkEnableOption "Periodisches SQLite optimize/ANALYZE für Arr/SABnzbd/Jellyfin";
         schedule = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "04:00";
           description = "systemd OnCalendar for heavy TRUNCATE timer (default: 04:00).";
         };
         services = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
-          default = [ "sonarr" "radarr" "prowlarr" "lidarr" "readarr" "sabnzbd" "jellyfin" ];
+          type = lib.types.listOf lib.types.str;
+          default = [
+            "sonarr"
+            "radarr"
+            "prowlarr"
+            "lidarr"
+            "readarr"
+            "sabnzbd"
+            "jellyfin"
+          ];
           description = "SQLite-Nutzer deren DBs optimiert werden (Registry-Namen).";
         };
       };
       orphanCleanup = {
         enable = lib.mkEnableOption "Orphan/Incomplete Cleanup (SABnzbd incomplete + verwaiste Fragmente)";
         schedule = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "daily";
           description = "systemd OnCalendar for cleanup timer (default: daily).";
         };
         minAgeDays = lib.mkOption {
-          type    = lib.types.int;
+          type = lib.types.int;
           default = 7;
           description = "Mindestalter (Tage) bevor incomplete/Fragmente gelöscht werden.";
         };
@@ -399,8 +503,8 @@ in
     };
 
     authProxyPresent = lib.mkOption {
-      type        = lib.types.bool;
-      default     = false;
+      type = lib.types.bool;
+      default = false;
       description = ''
         true = Forward-Auth-Proxy (oauth2-proxy, Pocket-ID, Authentik) aktiv.
         Dann AUTH__METHOD=External für *arr. false = Forms-Auth.
@@ -411,14 +515,17 @@ in
     # --- Chameleon Ingress ---
     ingress = {
       enable = lib.mkOption {
-        type    = lib.types.bool;
+        type = lib.types.bool;
         default = true;
         description = "Enable Caddy ingress mapping (reverse proxying).";
       };
       trustedCidrs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        example = [ "192.168.2.0/24" "fd42:1234:5678::/64" ];
+        example = [
+          "192.168.2.0/24"
+          "fd42:1234:5678::/64"
+        ];
         description = ''
           Trust boundary: only these CIDRs may reach internal vhosts and the
           `.local` sites. Deliberately has NO broad default (10/8, 192.168/16,
@@ -427,55 +534,68 @@ in
         '';
       };
       vhosts = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submodule {
-          options = {
-            accessGroup = lib.mkOption { type = lib.types.enum [ "stream" "internal" "public" "idp" "none" ]; };
-            customConfig = lib.mkOption { type = lib.types.lines; default = ""; };
-            allowUnauthenticated = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = ''
-                Explicitly acknowledge an intentionally unauthenticated public
-                vhost. Without it, `accessGroup = "public"` while
-                ingress.auth.mode != "forward-auth" is a build error, and a
-                public vhost carrying unauthenticatedPaths needs it too.
-              '';
+        type = lib.types.attrsOf (
+          lib.types.submodule {
+            options = {
+              accessGroup = lib.mkOption {
+                type = lib.types.enum [
+                  "stream"
+                  "internal"
+                  "public"
+                  "idp"
+                  "none"
+                ];
+              };
+              customConfig = lib.mkOption {
+                type = lib.types.lines;
+                default = "";
+              };
+              allowUnauthenticated = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = ''
+                  Explicitly acknowledge an intentionally unauthenticated public
+                  vhost. Without it, `accessGroup = "public"` while
+                  ingress.auth.mode != "forward-auth" is a build error, and a
+                  public vhost carrying unauthenticatedPaths needs it too.
+                '';
+              };
+              localBypass = lib.mkOption {
+                type = lib.types.nullOr lib.types.bool;
+                default = null;
+                description = ''
+                  Per-vhost override for ingress.auth.localBypass (null = inherit).
+                  When true, http://{service}.local skips forward_auth (still
+                  CIDR-gated). Set only where the app login is authoritative.
+                '';
+              };
+              unauthenticatedPaths = lib.mkOption {
+                # Caddy path matchers must start with `/` and a whitespace would
+                # split into MULTIPLE matchers (silently widening the bypass).
+                # Quotes/braces would break Caddy tokenization.
+                type = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
+                default = [ ];
+                description = ''
+                  Paths exempt from forward_auth (Caddy `@needAuth not path …`).
+                  This is an AUTHENTICATION BYPASS list — the name is deliberate.
+                  Each entry must start with `/`, use `*` for prefixes, and carry
+                  no whitespace/quotes/braces. Merged with the global option.
+                '';
+              };
+              landing = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Show this service on the 518 family page (organ of 511).";
+              };
+              iconSvg = lib.mkOption {
+                type = lib.types.lines;
+                default = "";
+                description = "Inline SVG for the 518 tile. Declared next to the service, not in 518.";
+              };
             };
-            localBypass = lib.mkOption {
-              type = lib.types.nullOr lib.types.bool;
-              default = null;
-              description = ''
-                Per-vhost override for ingress.auth.localBypass (null = inherit).
-                When true, http://{service}.local skips forward_auth (still
-                CIDR-gated). Set only where the app login is authoritative.
-              '';
-            };
-            unauthenticatedPaths = lib.mkOption {
-              # Caddy path matchers must start with `/` and a whitespace would
-              # split into MULTIPLE matchers (silently widening the bypass).
-              # Quotes/braces would break Caddy tokenization.
-              type = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
-              default = [ ];
-              description = ''
-                Paths exempt from forward_auth (Caddy `@needAuth not path …`).
-                This is an AUTHENTICATION BYPASS list — the name is deliberate.
-                Each entry must start with `/`, use `*` for prefixes, and carry
-                no whitespace/quotes/braces. Merged with the global option.
-              '';
-            };
-            landing = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = "Show this service on the 518 family page (organ of 511).";
-            };
-            iconSvg = lib.mkOption {
-              type = lib.types.lines;
-              default = "";
-              description = "Inline SVG for the 518 tile. Declared next to the service, not in 518.";
-            };
-          };
-        });
-        default = {};
+          }
+        );
+        default = { };
         description = "Per-service Caddy vhost configuration.";
       };
       guardrails = {
@@ -499,7 +619,11 @@ in
         };
       };
       mode = lib.mkOption {
-        type    = lib.types.enum [ "auto" "global" "standalone" ];
+        type = lib.types.enum [
+          "auto"
+          "global"
+          "standalone"
+        ];
         default = "auto";
         description = ''
           auto: Hook into global caddy if config.services.caddy.enable, else standalone.
@@ -509,7 +633,11 @@ in
       };
       tls = {
         mode = lib.mkOption {
-          type    = lib.types.enum [ "off" "internal" "custom" ];
+          type = lib.types.enum [
+            "off"
+            "internal"
+            "custom"
+          ];
           default = "off";
           description = ''
             off: HTTP :80 only — unless tls.acmeHost is set, which always enables
@@ -519,19 +647,19 @@ in
           '';
         };
         certFile = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "/var/lib/acme/example.com/cert.pem";
         };
         keyFile = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "/var/lib/acme/example.com/key.pem";
         };
         # TLS via security.acme (Lego, DNS-01 via Cloudflare) — flake-managed.
         # 514-acme.nix konfiguriert security.acme wenn acmeHost != null.
         acmeHost = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "example.com";
           description = ''
@@ -545,7 +673,7 @@ in
         };
         # Dedizierter ACME-Token (Lego), unabhaengig vom DDNS-Token.
         acmeCredential = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "/var/lib/credstore.encrypted/cf-acme-token.cred";
           description = ''
@@ -560,22 +688,28 @@ in
       };
       auth = {
         mode = lib.mkOption {
-          type    = lib.types.enum [ "none" "forward-auth" ];
+          type = lib.types.enum [
+            "none"
+            "forward-auth"
+          ];
           default = "none";
         };
         forwardAuthUpstream = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "";
           example = "http://127.0.0.1:4180";
         };
         forwardAuthUri = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "/oauth2/auth";
         };
         unauthenticatedPaths = lib.mkOption {
-          type    = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
+          type = lib.types.listOf (lib.types.strMatching "^/[^ \t\"{}]*$");
           default = [ ];
-          example = [ "/metrics" "/health" ];
+          example = [
+            "/metrics"
+            "/health"
+          ];
           description = ''
             Global authentication-bypass list, merged into every vhost's
             unauthenticatedPaths. Prefer the per-vhost option. Any path listed
@@ -584,7 +718,7 @@ in
           '';
         };
         localBypass = lib.mkOption {
-          type    = lib.types.bool;
+          type = lib.types.bool;
           default = false;
           description = ''
             Default for vhosts.localBypass. false means http://{service}.local
@@ -616,21 +750,24 @@ in
     # --- Security (guardrails) ---
     security = {
       enable = lib.mkOption {
-        type    = lib.types.bool;
+        type = lib.types.bool;
         default = true;
         description = "Enable mediNix security guardrails (assertions, no-password-auth).";
       };
       emergencyUser = {
         enable = lib.mkEnableOption "media-admin emergency user (restricted sudo)";
         sshKeys = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
+          type = lib.types.listOf lib.types.str;
           default = [ ];
           description = "SSH public keys for media-admin user.";
         };
         allowedServices = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
+          type = lib.types.listOf lib.types.str;
           default = [ ];
-          example = [ "caddy-media" "pocket-id" ];
+          example = [
+            "caddy-media"
+            "pocket-id"
+          ];
           description = ''
             EXACT units media-admin may `systemctl restart`. Deliberately NOT
             "all registry services": the privileged surface is explicit and
@@ -643,27 +780,28 @@ in
       backupSsh = {
         enable = lib.mkEnableOption "read-only backup SSH user (rsync pull of State-Dirs)";
         sshKeys = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
+          type = lib.types.listOf lib.types.str;
           default = [ ];
           description = "SSH public keys for backup user.";
         };
       };
     };
 
-
     knownStateDirs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [];
+      default = [ ];
       description = "Auto-generated list of all state directories for orphan detection";
     };
 
     factoryUnits = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          uid = lib.mkOption { type = lib.types.int; };
-          stateDir = lib.mkOption { type = lib.types.str; };
-        };
-      });
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            uid = lib.mkOption { type = lib.types.int; };
+            stateDir = lib.mkOption { type = lib.types.str; };
+          };
+        }
+      );
       default = { };
       internal = true;
       description = ''
@@ -678,7 +816,7 @@ in
       ntfy = {
         enable = lib.mkEnableOption "ntfy.sh push notifications for Arr stack + Jellyfin";
         baseUrl = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "https://ntfy.sh";
           description = ''
             ntfy server URL. Default ntfy.sh (free, no self-host) oder
@@ -686,7 +824,7 @@ in
           '';
         };
         topic = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "mediNix";
           description = "ntfy topic name for mediNix notifications.";
         };
@@ -694,7 +832,7 @@ in
       crowdsec = {
         enable = lib.mkEnableOption "CrowdSec native WAF/IPS agent (no Docker)";
         enrollKeyFile = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
             Path to CrowdSec enrollment token file (LoadCredentialEncrypted).
@@ -710,7 +848,10 @@ in
     # --- DNS ---
     dns = {
       mode = lib.mkOption {
-        type    = lib.types.enum [ "host" "standalone" ];
+        type = lib.types.enum [
+          "host"
+          "standalone"
+        ];
         default = "host";
         description = ''
           host: Modul liefert nur Tier-Listen + vHost-Namen. DDNS/ACME macht Host.
@@ -719,9 +860,11 @@ in
         '';
       };
       hostnames = lib.mkOption {
-        type    = lib.types.attrsOf lib.types.str;
+        type = lib.types.attrsOf lib.types.str;
         default = { };
-        example = { feishin = "music"; };
+        example = {
+          feishin = "music";
+        };
         description = ''
           Extra public hostname for a registry service. 511 serves the same
           template on {alias}.{domain}; 513 prunes leftover CNAMEs for both names.
@@ -729,19 +872,19 @@ in
         '';
       };
       ddns = {
-        enable    = lib.mkEnableOption "Eigener dynamischer DNS-Sync (standalone only)";
-        zone      = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+        enable = lib.mkEnableOption "Eigener dynamischer DNS-Sync (standalone only)";
+        zone = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "example.com";
         };
-        interval  = lib.mkOption {
-          type    = lib.types.str;
+        interval = lib.mkOption {
+          type = lib.types.str;
           default = "5m";
         };
         # Cloudflare token for DDNS (513) — TPM-cred workflow. NOT for ACME.
         cloudflareTokenCredential = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           description = ''
             Path to the TPM-sealed .cred for the Cloudflare API token used by
@@ -751,7 +894,7 @@ in
           '';
         };
         tokenFile = lib.mkOption {
-          type    = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.str;
           default = null;
           example = "/run/secrets/cloudflare_ddns_token";
         };
@@ -759,22 +902,30 @@ in
     };
 
     # --- Declarative Ports (SSoT from registry) ---
-    ports = lib.mapAttrs
-      (name: default: lib.mkOption {
-        type        = lib.types.port;
+    ports = lib.mapAttrs (
+      name: default:
+      lib.mkOption {
+        type = lib.types.port;
         inherit default;
         description = "Port für ${name}. Abgeleitet: Num × 10 (ADR-5043).";
-      })
-      (import ./lib/registry.nix { inherit lib; }).ports;
+      }
+    ) (import ./lib/registry.nix { inherit lib; }).ports;
 
     # --- Hardware ---
     hardware = {
       ramGB = lib.mkOption {
-        type    = lib.types.int;
+        type = lib.types.int;
         default = 16;
       };
       accel = lib.mkOption {
-        type    = lib.types.enum [ "auto" "intel" "amd" "nvidia" "vaapi" "none" ];
+        type = lib.types.enum [
+          "auto"
+          "intel"
+          "amd"
+          "nvidia"
+          "vaapi"
+          "none"
+        ];
         default = "auto";
         description = ''
           Hardwarebeschleunigung für Transkodierung. Eine Angabe → DeviceAllow,
@@ -782,41 +933,57 @@ in
         '';
       };
       renderDevice = lib.mkOption {
-        type    = lib.types.nullOr lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
         example = "/dev/dri/renderD129";
       };
     };
 
     locale = {
-      language = lib.mkOption { type = lib.types.str; default = "en"; };
-      default  = lib.mkOption { type = lib.types.str; default = "en_US.UTF-8"; };
+      language = lib.mkOption {
+        type = lib.types.str;
+        default = "en";
+      };
+      default = lib.mkOption {
+        type = lib.types.str;
+        default = "en_US.UTF-8";
+      };
     };
 
     storage = {
-      enable     = lib.mkOption { type = lib.types.bool; default = true; };
-      mediaRoot  = lib.mkOption {
-        type        = lib.types.path;
-        default     = "/data";
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+      };
+      mediaRoot = lib.mkOption {
+        type = lib.types.path;
+        default = "/data";
         description = "Base directory for media storage downloads/library.";
       };
       metadataDir = lib.mkOption {
-        type        = lib.types.path;
-        default     = if cfg.storage.backends ? hot then cfg.storage.backends.hot + "/cache" else "/var/lib/media-metadata";
+        type = lib.types.path;
+        default =
+          if cfg.storage.backends ? hot then
+            cfg.storage.backends.hot + "/cache"
+          else
+            "/var/lib/media-metadata";
         description = "Base directory for heavy metadata artwork stores.";
       };
       offloadMediaCover = lib.mkOption {
-        type        = lib.types.bool;
-        default     = true;
+        type = lib.types.bool;
+        default = true;
         description = ''
           Offload MediaCover image caches from /var/lib/{arr}/MediaCover to storage.metadataDir via systemd BindPaths.
           Enforces 'State != Cache' principle to keep backups of /var/lib minimal and prevent SSD wear.
         '';
       };
       backends = lib.mkOption {
-        type    = lib.types.attrsOf lib.types.str;
-        default = {};
-        example = { hot = "/mnt/ssd"; cold = "/mnt/hdd"; };
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = {
+          hot = "/mnt/ssd";
+          cold = "/mnt/hdd";
+        };
         description = ''
           Storage-Backends für Multi-Tier-Betrieb (ADR-5710).
           Leer (Default) = einfacher Modus: nur mediaRoot, kein MergerFS.
@@ -856,15 +1023,30 @@ in
     };
 
     onDemand = {
-      enable         = lib.mkOption { type = lib.types.bool; default = false; };
-      internalOffset = lib.mkOption { type = lib.types.int;  default = 1000; };
-      idleTimeoutSec = lib.mkOption { type = lib.types.int;  default = 900; };
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+      };
+      internalOffset = lib.mkOption {
+        type = lib.types.int;
+        default = 1000;
+      };
+      idleTimeoutSec = lib.mkOption {
+        type = lib.types.int;
+        default = 900;
+      };
     };
 
     discovery = {
       mdns = {
-        enable       = lib.mkOption { type = lib.types.bool; default = true; };
-        openFirewall = lib.mkOption { type = lib.types.bool; default = true; };
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+        };
+        openFirewall = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+        };
       };
     };
 
@@ -872,7 +1054,7 @@ in
       enable = lib.mkEnableOption "Flake-managed WireGuard VPN (mediNix erstellt das Interface selbst)";
 
       interface = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "";
         example = "wg0";
         description = ''
@@ -886,21 +1068,21 @@ in
       };
 
       interfaceName = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "wg-medinix";
         description = "Name des WireGuard-Interfaces das mediNix selbst anlegt (vpn.enable = true). Wird als networking.wireguard.interfaces.<interfaceName> registriert.";
       };
 
       address = lib.mkOption {
-        type    = lib.types.listOf lib.types.str;
-        default = [];
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
         example = [ "10.64.0.2/32" ];
         description = "IP-Adressen (CIDR) des WireGuard-Interfaces.";
       };
 
       dns = lib.mkOption {
-        type    = lib.types.listOf lib.types.str;
-        default = [];
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
         example = [ "10.64.0.1" ];
         description = ''
           DNS-Server für das WireGuard-Interface (DNS-Leak-Schutz).
@@ -910,30 +1092,33 @@ in
 
       peer = {
         publicKey = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "";
           description = "WireGuard Public Key des VPN-Peers.";
         };
         endpoint = lib.mkOption {
-          type    = lib.types.str;
+          type = lib.types.str;
           default = "";
           example = "vpn.provider.com:51820";
           description = "Endpunkt des VPN-Peers (host:port).";
         };
         allowedIPs = lib.mkOption {
-          type    = lib.types.listOf lib.types.str;
-          default = [ "0.0.0.0/0" "::/0" ];
+          type = lib.types.listOf lib.types.str;
+          default = [
+            "0.0.0.0/0"
+            "::/0"
+          ];
           description = "AllowedIPs für den VPN-Peer (Default: Full-Tunnel).";
         };
         persistentKeepalive = lib.mkOption {
-          type    = lib.types.int;
+          type = lib.types.int;
           default = 25;
           description = "PersistentKeepalive in Sekunden.";
         };
       };
 
       privateKeyCredentialPath = lib.mkOption {
-        type    = lib.types.nullOr lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         default = null;
         example = "/var/lib/credstore.encrypted/wg-private-key.cred";
         description = ''
@@ -946,7 +1131,7 @@ in
       };
 
       useExistingInterface = lib.mkOption {
-        type    = lib.types.bool;
+        type = lib.types.bool;
         default = false;
         description = ''
           false (Default): mediNix erstellt das WireGuard-Interface selbst (flake-first).
@@ -956,8 +1141,8 @@ in
       };
 
       dnsServers = lib.mkOption {
-        type    = lib.types.listOf lib.types.str;
-        default = []; # Fail-Closed: Keine automatischen Public-DNS Fallbacks
+        type = lib.types.listOf lib.types.str;
+        default = [ ]; # Fail-Closed: Keine automatischen Public-DNS Fallbacks
         example = [ "10.8.0.1" ];
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
@@ -971,62 +1156,79 @@ in
 
     secrets = {
       secretsDir = lib.mkOption {
-        type        = lib.types.str;
-        default     = "/var/lib/media-secrets";
+        type = lib.types.str;
+        default = "/var/lib/media-secrets";
         description = "Base path for all internal and generated secrets.";
       };
       arrApiKeyFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/arr-apikey";
       };
-      sonarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
-      radarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
-      prowlarrApiKeyFile  = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
-      lidarrApiKeyFile    = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
-      readarrApiKeyFile   = lib.mkOption { type = lib.types.str; default = cfg.secrets.arrApiKeyFile; };
+      sonarrApiKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.secrets.arrApiKeyFile;
+      };
+      radarrApiKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.secrets.arrApiKeyFile;
+      };
+      prowlarrApiKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.secrets.arrApiKeyFile;
+      };
+      lidarrApiKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.secrets.arrApiKeyFile;
+      };
+      readarrApiKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = cfg.secrets.arrApiKeyFile;
+      };
       seerrApiKeyFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/seerr_api_key";
       };
       sabnzbdApiKeyFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/sabnzbd_api_key";
       };
       treasureMapsApiKeyFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/treasuremaps_api_key";
         description = "API key for the treasure-maps.com Newznab indexer, registered in Prowlarr.";
       };
       jellyfinAdminPasswordFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/jellyfin_admin_password";
       };
       navidromeOidcFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/navidrome-oidc.env";
       };
       seerrEnvFile = lib.mkOption {
-        type    = lib.types.str;
+        type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/seerr.env";
       };
       autoGenerate = lib.mkOption {
-        type        = lib.types.bool;
-        default     = false;
+        type = lib.types.bool;
+        default = false;
         description = "Generate shared Arr API key + per-service env at boot.";
       };
     };
 
     persist = {
-      enable     = lib.mkEnableOption "Hook state paths into local impermanence bindings";
+      enable = lib.mkEnableOption "Hook state paths into local impermanence bindings";
       extraPaths = lib.mkOption {
-        type    = lib.types.listOf lib.types.str;
+        type = lib.types.listOf lib.types.str;
         default = [ ];
       };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    users.groups.media = { gid = 5000; };
+    users.groups.media = {
+      gid = 5000;
+    };
 
     # Binary-Cache defaults — flake-first: nothing gets compiled on the media host.
     # mkDefault allows the host to extend or override the list without conflict.
@@ -1044,7 +1246,7 @@ in
       (pkgs.callPackage ./lib/cli.nix {
         inherit lib;
         registryJson = builtins.toJSON (import ./lib/registry.nix { inherit lib; }).services;
-        mediaRoot   = cfg.storage.mediaRoot;
+        mediaRoot = cfg.storage.mediaRoot;
         metadataDir = cfg.storage.metadataDir;
         mediaDomain = cfg.domain or "";
       })

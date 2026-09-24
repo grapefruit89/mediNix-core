@@ -44,23 +44,31 @@
 #     "idp"      — WAN login (default, mkDefault)
 #     "internal" — only trustedCidrs
 #     "none"     — no vhost at all (forward_auth to loopback still works)
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
   cfg = config.medinix;
   ing = cfg.ingress;
   svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
 
-  externalAuth =
-    (cfg.authProxyPresent or false)
-    && ((ing.auth.forwardAuthUpstream or "") != "");
+  externalAuth = (cfg.authProxyPresent or false) && ((ing.auth.forwardAuthUpstream or "") != "");
 
   # No more implicit enable from auth.mode. Fail-closed, matches 511.
   active = cfg.pocketId.enable;
 
-in {
+in
+{
   options.medinix.pocketId.exposure = lib.mkOption {
-    type = lib.types.enum [ "idp" "internal" "none" ];
+    type = lib.types.enum [
+      "idp"
+      "internal"
+      "none"
+    ];
     default = "idp";
     description = ''
       How 511 publishes pocket-id when the service is enabled.
@@ -79,7 +87,13 @@ in {
   config = lib.mkIf (cfg.enable && active) {
     assertions = [
       {
-        assertion = !(ing.auth.mode == "forward-auth" && externalAuth && cfg.pocketId.enable && ing.auth.forwardAuthUpstream == "127.0.0.1:${toString svc.port}");
+        assertion =
+          !(
+            ing.auth.mode == "forward-auth"
+            && externalAuth
+            && cfg.pocketId.enable
+            && ing.auth.forwardAuthUpstream == "127.0.0.1:${toString svc.port}"
+          );
         message = ''
           [mediNix] Pocket-ID is enabled and authProxyPresent points forwardAuthUpstream
           back at 127.0.0.1:${toString svc.port}. Pick one owner: local Pocket-ID
@@ -103,8 +117,8 @@ in {
         HOST = "127.0.0.1";
         PORT = svc.port;
       };
-      user  = "pocket-id";
-      group = "media";  # shared GID 5000 per ADR-0000
+      user = "pocket-id";
+      group = "media"; # shared GID 5000 per ADR-0000
     };
 
     # Hardening: network profile. Loopback-only — Caddy is the only WAN face.

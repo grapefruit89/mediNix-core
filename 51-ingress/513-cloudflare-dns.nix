@@ -15,24 +15,32 @@
 # Keep it separate from the ACME token so a DDNS compromise cannot also break
 # TLS issuance (R11).
 # Loaded as cf-ddns-token. File is the token or KEY=value.
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
-  cfg  = config.medinix;
+  cfg = config.medinix;
   ddns = cfg.dns.ddns;
   zone = if ddns.zone != null then ddns.zone else cfg.domain;
 
-  vhosts = cfg.ingress.vhosts or {};
-  aliases = cfg.dns.hostnames or {};
+  vhosts = cfg.ingress.vhosts or { };
+  aliases = cfg.dns.hostnames or { };
 
-  ownedLabels = lib.unique (
-    lib.attrNames vhosts
-    ++ lib.attrValues aliases
-  );
+  ownedLabels = lib.unique (lib.attrNames vhosts ++ lib.attrValues aliases);
 
-  reservedLabels = [ "wan" "lan" "*" "@" ];
+  reservedLabels = [
+    "wan"
+    "lan"
+    "*"
+    "@"
+  ];
 
-  isProtectedLabel = n:
+  isProtectedLabel =
+    n:
     n == ""
     || builtins.elem n reservedLabels
     || (zone != null && n == zone)
@@ -80,17 +88,24 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
-      } // lib.optionalAttrs (credPath != null) {
+      }
+      // lib.optionalAttrs (credPath != null) {
         LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
       };
     })
     {
       description = "mediNix-core 513 anchor DDNS (wan + lan, wildcard → wan)";
       wantedBy = [ "multi-user.target" ];
-      after    = [ "network-online.target" ];
-      wants    = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
 
-      path = [ pkgs.curl pkgs.jq pkgs.iproute2 pkgs.gawk pkgs.gnugrep ];
+      path = [
+        pkgs.curl
+        pkgs.jq
+        pkgs.iproute2
+        pkgs.gawk
+        pkgs.gnugrep
+      ];
 
       script = ''
         set -euo pipefail
