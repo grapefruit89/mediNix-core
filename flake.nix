@@ -352,21 +352,17 @@
         };
         # ── Red-Team Runde 3 (51-ingress, 2026-10-02) ──────────────────────
         # RT-2: first-run admin race on WAN-exposed stream services.
-        checks.mediNix-negative-first-run =
-          expectAssertion "first-run" "first-run setup"
-            {
-              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-              medinix.audiobookshelf.enable = true;
-              medinix.navidrome.enable = true;
-            };
+        checks.mediNix-negative-first-run = expectAssertion "first-run" "first-run setup" {
+          medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+          medinix.audiobookshelf.enable = true;
+          medinix.navidrome.enable = true;
+        };
         # RT-5/F7: a declared vhost whose service enable flag cannot be
         # resolved must fail the build (was: silently dropped site).
-        checks.mediNix-negative-vhost-unresolved =
-          expectAssertion "vhost-unresolved" "cannot be resolved"
-            {
-              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-              medinix.ingress.vhosts."ghost-app".accessGroup = "internal";
-            };
+        checks.mediNix-negative-vhost-unresolved = expectAssertion "vhost-unresolved" "cannot be resolved" {
+          medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+          medinix.ingress.vhosts."ghost-app".accessGroup = "internal";
+        };
         # RT-1/RT-3/RT-5 (positive): ntfy's vhost (enable flag under
         # observability) must render, the admin endpoint must be the hardened
         # unix socket, and access logging must be active.

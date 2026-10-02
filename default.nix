@@ -563,9 +563,7 @@ in
         # RT-7: values are interpolated verbatim into the Caddyfile
         # `remote_ip` matcher — unvalidated strings could inject Caddyfile
         # syntax. CIDR charset only (IPv4 + IPv6), like F9 did for paths.
-        type = lib.types.listOf (
-          lib.types.strMatching "^[0-9A-Fa-f:.]+/[0-9]{1,3}$"
-        );
+        type = lib.types.listOf (lib.types.strMatching "^[0-9A-Fa-f:.]+/[0-9]{1,3}$");
         default = [ ];
         example = [
           "192.168.2.0/24"
@@ -746,7 +744,9 @@ in
           # RT-7: the upstream is interpolated into `forward_auth …` —
           # whitespace/braces/quotes would inject Caddyfile syntax.
           # http(s) upstreams and unix sockets only (empty = unset).
-          type = lib.types.strMatching "^(|https?://[A-Za-z0-9._~:/\\-\\[\\]@]+|unix//[A-Za-z0-9._/-]+)$";
+          # Note: `]` must be first and `-` last inside the bracket expression
+          # (POSIX ERE) — escaping them (`\[`/`\]`) broke valid URLs.
+          type = lib.types.strMatching "^(|https?://[]A-Za-z0-9._~:/@[-]+|unix//[A-Za-z0-9._/-]+)$";
           default = "";
           example = "http://127.0.0.1:4180";
         };
@@ -914,9 +914,7 @@ in
       hostnames = lib.mkOption {
         # RT-7: aliases become Caddy site addresses ({alias}.{domain});
         # single DNS label only — no whitespace/braces/quotes.
-        type = lib.types.attrsOf (
-          lib.types.strMatching "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$"
-        );
+        type = lib.types.attrsOf (lib.types.strMatching "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
         default = { };
         example = {
           feishin = "music";

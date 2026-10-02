@@ -39,8 +39,7 @@ let
   # resolvable enable flag is a BUILD ERROR (assertion below), never a
   # silently dropped site (F7).
   enabledOf =
-    n:
-    cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
+    n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
 
   enabledServices = lib.filterAttrs (
     n: vhost:
@@ -52,9 +51,9 @@ let
   ) cfg.ingress.vhosts;
 
   # Declared-but-unresolvable vhosts (F7 made loud instead of silently dead).
-  unresolvedVhosts =
-    lib.filter (n: !enabledOf n)
-      (lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") cfg.ingress.vhosts));
+  unresolvedVhosts = lib.filter (n: !enabledOf n) (
+    lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") cfg.ingress.vhosts)
+  );
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (

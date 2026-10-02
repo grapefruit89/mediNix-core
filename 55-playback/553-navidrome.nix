@@ -68,34 +68,36 @@ lib.mkIf cfg.enable {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = lib.mkMerge [
       profiles.nodejs
-      {
-        # RT-2: wrapper statt direktem ExecStart — das initiale Admin-Passwort
-        # wird aus dem entschlüsselten Credential gelesen und NUR in der
-        # Prozess-Umgebung gesetzt (nicht in der Unit-Definition, nicht im
-        # Store). ND_DEVAUTOCREATEADMINPASSWORD wirkt ausschließlich, solange
-        # der Initial-Setup nicht abgeschlossen ist (maintainer-bestätigt).
-        ExecStart = pkgs.writeShellScript "navidrome-start" ''
-          set -euo pipefail
-          if [ -f "''${CREDENTIALS_DIRECTORY:-}/nd-admin-pw" ]; then
-            pw="$(cat "$CREDENTIALS_DIRECTORY/nd-admin-pw")"
-            case "$pw" in
-              ND_ADMIN_PASSWORD=*) pw="''${pw#ND_ADMIN_PASSWORD=}" ;;
-            esac
-            export ND_DEVAUTOCREATEADMINPASSWORD="$pw"
-          fi
-          exec ${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml
-        '';
-        User = "navidrome";
-        Group = "media";
-        UMask = "0002";
-        StateDirectory = "navidrome-${toString port}";
-        ReadWritePaths = [ stateDir ];
-        BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
-        InaccessiblePaths = [ "-${creds.storeDir}" ];
-      }
-      // lib.optionalAttrs (adminCred != null) {
-        LoadCredentialEncrypted = [ "nd-admin-pw:${adminCred}" ];
-      }
+      (
+        {
+          # RT-2: wrapper statt direktem ExecStart — das initiale Admin-Passwort
+          # wird aus dem entschlüsselten Credential gelesen und NUR in der
+          # Prozess-Umgebung gesetzt (nicht in der Unit-Definition, nicht im
+          # Store). ND_DEVAUTOCREATEADMINPASSWORD wirkt ausschließlich, solange
+          # der Initial-Setup nicht abgeschlossen ist (maintainer-bestätigt).
+          ExecStart = pkgs.writeShellScript "navidrome-start" ''
+            set -euo pipefail
+            if [ -f "''${CREDENTIALS_DIRECTORY:-}/nd-admin-pw" ]; then
+              pw="$(cat "$CREDENTIALS_DIRECTORY/nd-admin-pw")"
+              case "$pw" in
+                ND_ADMIN_PASSWORD=*) pw="''${pw#ND_ADMIN_PASSWORD=}" ;;
+              esac
+              export ND_DEVAUTOCREATEADMINPASSWORD="$pw"
+            fi
+            exec ${pkgs.navidrome}/bin/navidrome --configfile ${stateDir}/navidrome.toml
+          '';
+          User = "navidrome";
+          Group = "media";
+          UMask = "0002";
+          StateDirectory = "navidrome-${toString port}";
+          ReadWritePaths = [ stateDir ];
+          BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
+          InaccessiblePaths = [ "-${creds.storeDir}" ];
+        }
+        // lib.optionalAttrs (adminCred != null) {
+          LoadCredentialEncrypted = [ "nd-admin-pw:${adminCred}" ];
+        }
+      )
     ];
     environment = {
       ND_PORT = toString port;
