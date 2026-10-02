@@ -348,6 +348,9 @@ let
       MemoryHigh = lib.mkDefault "512M";
       MemoryMax = lib.mkDefault "768M";
       ManagedOOMPreference = lib.mkDefault "avoid";
+      # RT-1: admin socket lives in the RuntimeDirectory — owner-only (0700),
+      # so no other local service/user can connect to the admin API.
+      RuntimeDirectoryMode = "0700";
       # RT-1: reload through the admin unix socket instead of a hard restart.
       # ACME (514) runs `systemctl try-reload-or-restart` on renewal — without
       # ExecReload that degraded to a full proxy restart.
@@ -440,6 +443,7 @@ lib.mkMerge [
       serviceConfig = {
         OOMScoreAdjust = -900;
         RuntimeDirectory = "caddy";
+        RuntimeDirectoryMode = "0700";
       };
     };
     environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {

@@ -5,7 +5,8 @@
 # folder: 50-media
 # status: active
 # complexity: 5
-# last_reviewed: 2026-10-02# links:
+# last_reviewed: 2026-10-02
+# links:
 # provides: ["options.medinix"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: []
@@ -652,7 +653,8 @@ in
             is NOT blocked (RT-3): CrowdSec (516) is planned but unimplemented,
             and a fail2ban jail on the Caddy access logs is the sanctioned
             interim edge bouncer.
-            Disable to opt out of the opinionated defaults entirely.          '';
+            Disable to opt out of the opinionated defaults entirely.
+          '';
         };
         allow = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -906,7 +908,8 @@ in
           host: Modul liefert nur Tier-Listen + vHost-Namen. DDNS/ACME macht Host.
           standalone: 513 hält den Anker wan (WAN-IP) plus Wildcard/Apex-CNAME
           auf wan; lan (LAN-IP) nur mit dns.ddns.publishLanRecord = true (RT-4).
-          Keine per-service CNAMEs.        '';
+          Keine per-service CNAMEs.
+        '';
       };
       hostnames = lib.mkOption {
         # RT-7: aliases become Caddy site addresses ({alias}.{domain});
