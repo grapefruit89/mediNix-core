@@ -88,7 +88,7 @@ stdenv.mkDerivation {
   };
 
   meta = {
-    description = "Declarative API provisioning for the q958 media stack";
+    description = "Declarative API provisioning for the mediNix media stack";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;
   };

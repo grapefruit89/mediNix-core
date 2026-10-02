@@ -566,7 +566,7 @@ in
         type = lib.types.listOf (lib.types.strMatching "^[0-9A-Fa-f:.]+/[0-9]{1,3}$");
         default = [ ];
         example = [
-          "192.168.2.0/24"
+          "192.168.0.0/16"
           "fd42:1234:5678::/64"
         ];
         description = ''
@@ -1218,7 +1218,7 @@ in
       dnsServers = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ]; # Fail-Closed: Keine automatischen Public-DNS Fallbacks
-        example = [ "10.8.0.1" ];
+        example = [ "10.0.0.1" ];
         description = ''
           DNS-Server für Usenet-Sandbox (VPN-DNS). LEER default (kein stiller Public-DNS).
           Wenn vpn.enable = true: automatisch aus vpn.dns befüllt (mkDefault).
