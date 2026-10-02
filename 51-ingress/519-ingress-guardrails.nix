@@ -11,9 +11,15 @@
 # ---
 # Local invariants of the ingress domain — the `_9` anchor at domain level.
 #
-# Philosophy: the edge has ONE engine (Caddy), ONE edge-bouncer (CrowdSec) and
-# ONE packet filter (nftables). Generic "standard" stacks (nginx, apache,
-# iptables, fail2ban) are treated as legacy here.
+# Philosophy: the edge has ONE engine (Caddy), ONE edge-bouncer and ONE
+# packet filter (nftables). Generic "standard" stacks (nginx, apache,
+# iptables) are treated as legacy here.
+#
+# RT-3: fail2ban is NOT on the legacy list. CrowdSec (516) is planned but
+# unimplemented — a guardrail that blocks fail2ban while pointing at a
+# non-existent module leaves the edge with NO bouncer at all. Until 516
+# exists, a fail2ban jail on the Caddy access logs (511, RT-3) is the
+# sanctioned interim.
 #
 # These are build-time ASSERTIONS, not a bash gate. Each one carries its reason
 # AND how to silence it — nobody should ever be stuck:
@@ -43,13 +49,10 @@ let
       why = "The stack filters packets with nftables natively (ADR-52).";
       instead = "nftables";
     };
-    fail2ban = {
-      enabled = config.services.fail2ban.enable or false;
-      why = "CrowdSec bans at the kernel via its nftables bouncer.";
-      instead = "CrowdSec (516)";
-    };
+    # fail2ban deliberately NOT asserted (RT-3): CrowdSec (516) does not exist
+    # yet — until then fail2ban on the Caddy access logs is the sanctioned
+    # interim edge bouncer, not legacy.
   };
-
   legacyAssertions = lib.mapAttrsToList (n: v: {
     assertion = !(v.enabled && !(lib.elem n g.allow));
     message = ''
@@ -81,9 +84,12 @@ let
   ];
 
   keepAssertions = lib.map (k: {
-    assertion = k.on;
+    # RT-8: selective escape hatch — a single `allow` entry silences exactly
+    # one keepOn requirement; disabling ALL of 519 is no longer the only way.
+    assertion = k.on || lib.elem k.name g.allow;
     message = ''
       [mediNix/519] ${k.name} is disabled — the ingress domain requires it (${k.hint}).
+        Allow explicitly: medinix.ingress.guardrails.allow = [ "${k.name}" ];
         Disable guardrails: medinix.ingress.guardrails.enable = false;
     '';
   }) keepOn;

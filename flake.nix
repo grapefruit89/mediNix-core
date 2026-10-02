@@ -350,6 +350,74 @@
           medinix.ingress.tls.acmeHost = "example.com";
           medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
         };
+        # ── Red-Team Runde 3 (51-ingress, 2026-10-02) ──────────────────────
+        # RT-2: first-run admin race on WAN-exposed stream services.
+        checks.mediNix-negative-first-run =
+          expectAssertion "first-run" "first-run setup"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.audiobookshelf.enable = true;
+              medinix.navidrome.enable = true;
+            };
+        # RT-5/F7: a declared vhost whose service enable flag cannot be
+        # resolved must fail the build (was: silently dropped site).
+        checks.mediNix-negative-vhost-unresolved =
+          expectAssertion "vhost-unresolved" "cannot be resolved"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.ingress.vhosts."ghost-app".accessGroup = "internal";
+            };
+        # RT-1/RT-3/RT-5 (positive): ntfy's vhost (enable flag under
+        # observability) must render, the admin endpoint must be the hardened
+        # unix socket, and access logging must be active.
+        checks.mediNix-ntfy-vhost-and-admin-socket =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.observability.ntfy.enable = true;
+                };
+              }).config;
+            caddyfile = pkgs.writeText "ntfy.Caddyfile" c.environment.etc."caddy-media/Caddyfile".text;
+          in
+          pkgs.runCommand "ntfy-vhost-and-admin-socket-ok"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.coreutils
+              ];
+            }
+            ''
+              grep -q 'ntfy.local' ${caddyfile} || {
+                echo "FAIL: ntfy vhost (observability enable path) not rendered"; exit 1;
+              }
+              grep -q 'admin unix//run/caddy-media/admin.sock' ${caddyfile} || {
+                echo "FAIL: admin endpoint is not the hardened unix socket"; exit 1;
+              }
+              grep -q 'output stdout' ${caddyfile} || {
+                echo "FAIL: access logging not enabled"; exit 1;
+              }
+              echo 'ok: ntfy vhost rendered; admin socket + access logs active' > $out
+            '';
+        # RT-7: trustedCidrs is interpolated into the Caddyfile — an injection
+        # payload must fail the eval (type check, analogous to F9).
+        checks.mediNix-negative-cidr-injection =
+          let
+            testConfig = lib.nixosSystem {
+              inherit system;
+              modules = baseModules {
+                medinix.ingress.trustedCidrs = [ "10.0.0.0/8 }" ];
+              };
+            };
+            evalResult = builtins.tryEval testConfig.config.system.build.toplevel.drvPath;
+          in
+          if evalResult.success then
+            throw "Negative Test Failed: trustedCidrs with a Caddyfile-injection payload should fail to evaluate, but it succeeded!"
+          else
+            pkgs.runCommand "negative-cidr-injection-ok" { }
+              "echo 'Negative test passed: trustedCidrs type rejects injection payloads' > $out";
         # F2 regression: *arr's AUTH__METHOD must follow the RESOLVED vhost
         # exposure — External only behind forward_auth (public), never on
         # internal (where 511 renders no forward_auth).

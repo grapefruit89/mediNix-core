@@ -16,6 +16,9 @@ in
   config = lib.mkMerge [
     {
       medinix.navidrome.enable = true;
+      # RT-2: WAN stream vhost without pre-seeded admin or explicit ack would
+      # fail the build (553 assertion) — this config is eval/build-only.
+      medinix.navidrome.setupCompleted = true;
       # trustedCidrs has no broad default anymore (fail-closed) — set one.
       medinix.ingress.trustedCidrs = [
         "10.0.0.0/8"

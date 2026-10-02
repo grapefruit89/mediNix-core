@@ -35,9 +35,9 @@ caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · 
 landingpage · `519` guardrails. **`516` and `517` are free** (planned: CrowdSec /
 edge-firewall) and **not implemented**.
 
-Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables/fail2ban;
-Caddy + firewall stay on). Escape hatch: `medinix.ingress.guardrails`.
-
+Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables; Caddy +
+firewall stay on; fail2ban allowed as the interim edge bouncer until CrowdSec 516
+exists — RT-3). Escape hatch: `medinix.ingress.guardrails`.
 ## Checklist
 
 1. Add the service to `lib/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).

@@ -4,7 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
-# last_reviewed: 2026-09-02
+# last_reviewed: 2026-10-02
 # provides: ["caddy", "ingress"]
 # requires: ["lib/service-factory", "lib/registry"]
 # adr: ADR-511
@@ -32,16 +32,29 @@ let
       config.services.caddy.enable;
 
   registry = (import ../lib/registry.nix { inherit lib; }).services;
+
+  # RT-5 (ntfy lesson): the enable flag of a vhost key <n> must resolve via
+  # medinix.<n>.enable, medinix.<camelCase n>.enable (pocket-id → pocketId) or
+  # medinix.observability.<n>.enable (domain-58 organs). A vhost key without a
+  # resolvable enable flag is a BUILD ERROR (assertion below), never a
+  # silently dropped site (F7).
+  enabledOf =
+    n:
+    cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
+
   enabledServices = lib.filterAttrs (
     n: vhost:
     let
-      enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
       hasPort = (registry.${n}.port or null) != null;
       hasStatic = (vhost.customConfig or "") != "";
     in
-    enabled && vhost.accessGroup != "none" && (hasPort || hasStatic)
+    enabledOf n && vhost.accessGroup != "none" && (hasPort || hasStatic)
   ) cfg.ingress.vhosts;
 
+  # Declared-but-unresolvable vhosts (F7 made loud instead of silently dead).
+  unresolvedVhosts =
+    lib.filter (n: !enabledOf n)
+      (lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") cfg.ingress.vhosts));
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (
@@ -101,11 +114,21 @@ let
     abort @blocked
   '';
 
+  # RT-1: the admin API is unauthenticated and accepts POST /load (full config
+  # replacement). On 127.0.0.1:2019 EVERY sandboxed service could reach it —
+  # the hardening profiles allow loopback egress (Prowlarr talks WAN indexers),
+  # so a compromised service could take over the whole edge without root.
+  # A unix socket inside the unit's RuntimeDirectory is owner-only by default.
+  # Reloads keep working: `caddy reload` reads the admin address from the
+  # config file (upstream fix in v2.6.1; do NOT append a |mode suffix — that
+  # breaks reload, caddy#5694).
+  adminEndpoint =
+    if useGlobal then "admin unix//run/caddy/admin.sock" else "admin unix//run/caddy-media/admin.sock";
+
   globalOptions = ''
-    admin localhost:2019
+    ${adminEndpoint}
     auto_https off
   '';
-
   mkProxy =
     n: extra:
     lib.optionalString ((registry.${n}.port or null) != null) ''
@@ -205,8 +228,31 @@ let
   mkHttpBody = n: vhost: mkBaseConfig n vhost { isLocal = false; };
   mkLocalBody = n: vhost: mkBaseConfig n vhost { isLocal = true; };
 
-  mkSite = name: body: { inherit name body; };
+  # RT-3: access logs are the substrate for forensics AND any future edge
+  # bouncer (516 CrowdSec / fail2ban) — without logs neither can exist.
+  # Reduced format: Caddy already logs Cookie/Set-Cookie/Authorization/
+  # Proxy-Authorization as REDACTED; we additionally strip the full query
+  # string (API keys are commonly passed as ?apikey=…) and delete the auth
+  # headers outright (defense in depth against a future log_credentials).
+  # Output goes to stdout → journald (factory: StandardOutput=journal).
+  accessLogBlock = ''
+    log {
+      output stdout
+      format filter {
+        wrap json
+        fields {
+          request>uri regexp "\?.*" "?"
+          request>headers>Authorization delete
+          request>headers>Cookie delete
+        }
+      }
+    }
+  '';
 
+  mkSite = name: body: {
+    inherit name;
+    body = body + "\n" + accessLogBlock;
+  };
   publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
 
   mkDomainSites =
@@ -302,9 +348,12 @@ let
       MemoryHigh = lib.mkDefault "512M";
       MemoryMax = lib.mkDefault "768M";
       ManagedOOMPreference = lib.mkDefault "avoid";
+      # RT-1: reload through the admin unix socket instead of a hard restart.
+      # ACME (514) runs `systemctl try-reload-or-restart` on renewal — without
+      # ExecReload that degraded to a full proxy restart.
+      ExecReload = "${pkgs.caddy}/bin/caddy reload --config /etc/caddy-media/Caddyfile --adapter caddyfile --force";
     };
   };
-
 in
 lib.mkMerge [
   (lib.mkIf (cfg.enable && ing.enable) {
@@ -340,6 +389,21 @@ lib.mkMerge [
         message = "[mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}";
       }
       {
+        # RT-5: a declared vhost whose service enable flag cannot be resolved
+        # is a config error, not a silent no-op (this silently killed ntfy's
+        # vhost and keeps F7's customConfig-only vhosts dead).
+        assertion = unresolvedVhosts == [ ];
+        message = ''
+          [mediNix] ingress.vhosts declares hostnames whose service enable
+          flag cannot be resolved: ${lib.concatStringsSep ", " unresolvedVhosts}.
+          A vhost key must match a service option: medinix.<name>.enable,
+          medinix.<camelCaseName>.enable (pocket-id → pocketId) or
+          medinix.observability.<name>.enable (ntfy). customConfig-only vhosts
+          need their service enabled as well (F7). accessGroup = "none" opts
+          a vhost out entirely.
+        '';
+      }
+      {
         assertion = cfg.ingress.auth.mode == "forward-auth" || publicWithoutAuth == { };
         message = "[mediNix] public vhost(s) without authentication: ${lib.concatStringsSep ", " (lib.attrNames publicWithoutAuth)}. Set ingress.auth.mode = \"forward-auth\", or acknowledge each with allowUnauthenticated = true.";
       }
@@ -369,10 +433,15 @@ lib.mkMerge [
     # H12b: guard the WHOLE unit, not just the value. `mkIf` on a leaf still
     # materializes the `systemd.services.caddy` option path, creating an empty
     # phantom caddy.service in standalone mode. Standalone owns caddy-media only.
+    # RT-1: RuntimeDirectory hosts the admin unix socket (nixpkgs' caddy unit
+    # does not create /run/caddy by itself; systemd cleans it on restart,
+    # which also removes stale admin sockets).
     systemd.services.caddy = lib.mkIf useGlobal {
-      serviceConfig.OOMScoreAdjust = -900;
+      serviceConfig = {
+        OOMScoreAdjust = -900;
+        RuntimeDirectory = "caddy";
+      };
     };
-
     environment.etc."caddy-media/Caddyfile" = lib.mkIf (!useGlobal) {
       text = caddyConfigStr;
     };

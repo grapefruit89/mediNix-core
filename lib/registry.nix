@@ -57,7 +57,10 @@ rec {
     feishin = mkNoPort "feishin" 554 "network" "none";
     seerr = mkService "seerr" 561 "nodejs" "public";
 
-    ntfy = mkServiceWithUnit "ntfy" 581 "network" "none" "ntfy-sh";
+    # caddyClass "internal" (RT-5/Doc-Konsistenz): 581 veröffentlicht den
+    # ntfy-vHost als internal (Assertion verbietet public/stream) — die
+    # Registry dokumentiert dasselbe, statt "none" zu behaupten.
+    ntfy = mkServiceWithUnit "ntfy" 581 "network" "internal" "ntfy-sh";
   };
 
   ports = lib.filterAttrs (_: v: v != null) (builtins.mapAttrs (_: svc: svc.port) services);

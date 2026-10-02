@@ -5,8 +5,7 @@
 # folder: 50-media
 # status: active
 # complexity: 5
-# last_reviewed: 2026-08-11
-# links:
+# last_reviewed: 2026-10-02# links:
 # provides: ["options.medinix"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: []
@@ -284,10 +283,54 @@ in
           NICHT auf Jellyfin (ursprünglicher Fehler im Quell-Repo, hier korrigiert).
         '';
       };
+      # RT-2: Audiobookshelf hat KEINE env-basierte Admin-Erstellung (nur der
+      # First-Run-Setup-Screen im Browser). Daher Ack-only statt Pre-Seed.
+      setupCompleted = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Explizite Bestätigung, dass der Root-User über den First-Run-Setup
+          erstellt wurde. Prozedur: vHost auf accessGroup = "internal"
+          (LAN-only) deployen, Setup in der Web-UI abschließen, danach erst auf
+          stream exponieren und diesen Schalter setzen. Ohne Bestätigung ist
+          ein WAN-exponiertes Audiobookshelf ein Build-Fehler — der erste
+          Besucher des offenen Setup-Screens würde sonst zum Root-User.
+        '';
+      };
     };
     navidrome = {
       enable = lib.mkEnableOption "Navidrome Music Server";
       package = mkPackageOption "navidrome";
+      # RT-2 (first-run race): stream vHosts are WAN-reachable with NO proxy
+      # auth, and Navidrome's first run shows an open setup screen — any first
+      # visitor would create the admin account (fresh wildcard DNS + CT logs
+      # make new deployments findable within minutes). Pre-seed the admin.
+      adminPasswordCredential = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Pfad zur .cred-Datei (systemd-creds, TPM-versiegelt) mit dem initialen
+          Navidrome-Admin-Passwort. Inhalt: Rohtext-Passwort oder
+          ND_ADMIN_PASSWORD=<pw>. 553 exportiert den Wert beim Start als
+          ND_DEVAUTOCREATEADMINPASSWORD — Navidrome legt den Admin NUR an,
+          solange der Initial-Setup noch nicht abgeschlossen ist (danach wird
+          die Variable ignoriert; in der UI geänderte Passwörter bleiben
+          erhalten). Pflicht bei WAN-Exposure (stream), alternativ
+          setupCompleted = true nach Setup über einen internal-vHost.
+        '';
+      };
+      setupCompleted = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Explizite Bestätigung (Ack im Stil von allowUnauthenticated), dass
+          das initiale Admin-Konto bereits in der Web-UI erstellt wurde —
+          Setup-Prozedur: vHost auf accessGroup = "internal" (LAN-only)
+          deployen, Setup abschließen, dann erst auf stream exponieren und
+          diesen Schalter setzen. Ohne adminPasswordCredential ODER
+          setupCompleted ist ein WAN-exponiertes Navidrome ein Build-Fehler.
+        '';
+      };
     };
     lidarr = {
       enable = lib.mkEnableOption "Lidarr Music Download Manager";
@@ -498,9 +541,13 @@ in
       type = lib.types.bool;
       default = false;
       description = ''
-        true = Forward-Auth-Proxy (oauth2-proxy, Pocket-ID, Authentik) aktiv.
-        Dann AUTH__METHOD=External für *arr. false = Forms-Auth.
-        NIEMALS true ohne echten Proxy (Fail-Open-Risk).
+        true = ein echter Forward-Auth-Proxy (oauth2-proxy, tinyauth,
+        caddy-security) lauscht auf ingress.auth.forwardAuthUpstream. Dann
+        AUTH__METHOD=External für *arr (nur bei tatsächlich publicer
+        vHost-Exposure, siehe F2). false = Forms-Auth.
+        Pocket-ID ist KEIN Forward-Auth-Proxy (reiner OIDC-OP, F5) und darf
+        NICHT als Upstream eingetragen werden. NIEMALS true ohne echten
+        Proxy (Fail-Open-Risk).
       '';
     };
 
@@ -512,7 +559,12 @@ in
         description = "Enable Caddy ingress mapping (reverse proxying).";
       };
       trustedCidrs = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
+        # RT-7: values are interpolated verbatim into the Caddyfile
+        # `remote_ip` matcher — unvalidated strings could inject Caddyfile
+        # syntax. CIDR charset only (IPv4 + IPv6), like F9 did for paths.
+        type = lib.types.listOf (
+          lib.types.strMatching "^[0-9A-Fa-f:.]+/[0-9]{1,3}$"
+        );
         default = [ ];
         example = [
           "192.168.2.0/24"
@@ -596,9 +648,11 @@ in
           default = true;
           description = ''
             Build-time assertions (519) that keep the ingress on the mediNix path:
-            no nginx/httpd/iptables/fail2ban; Caddy and the firewall stay on.
-            Disable to opt out of the opinionated defaults entirely.
-          '';
+            no nginx/httpd/iptables; Caddy and the firewall stay on. fail2ban
+            is NOT blocked (RT-3): CrowdSec (516) is planned but unimplemented,
+            and a fail2ban jail on the Caddy access logs is the sanctioned
+            interim edge bouncer.
+            Disable to opt out of the opinionated defaults entirely.          '';
         };
         allow = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -687,7 +741,10 @@ in
           default = "none";
         };
         forwardAuthUpstream = lib.mkOption {
-          type = lib.types.str;
+          # RT-7: the upstream is interpolated into `forward_auth …` —
+          # whitespace/braces/quotes would inject Caddyfile syntax.
+          # http(s) upstreams and unix sockets only (empty = unset).
+          type = lib.types.strMatching "^(|https?://[A-Za-z0-9._~:/\\-\\[\\]@]+|unix//[A-Za-z0-9._/-]+)$";
           default = "";
           example = "http://127.0.0.1:4180";
         };
@@ -847,12 +904,16 @@ in
         default = "host";
         description = ''
           host: Modul liefert nur Tier-Listen + vHost-Namen. DDNS/ACME macht Host.
-          standalone: 513 hält die Anker wan (WAN-IP) und lan (LAN-IP) plus
-          Wildcard/Apex-CNAME auf wan. Keine per-service CNAMEs.
-        '';
+          standalone: 513 hält den Anker wan (WAN-IP) plus Wildcard/Apex-CNAME
+          auf wan; lan (LAN-IP) nur mit dns.ddns.publishLanRecord = true (RT-4).
+          Keine per-service CNAMEs.        '';
       };
       hostnames = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
+        # RT-7: aliases become Caddy site addresses ({alias}.{domain});
+        # single DNS label only — no whitespace/braces/quotes.
+        type = lib.types.attrsOf (
+          lib.types.strMatching "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$"
+        );
         default = { };
         example = {
           feishin = "music";
@@ -869,6 +930,15 @@ in
           type = lib.types.nullOr lib.types.str;
           default = null;
           example = "example.com";
+          description = ''
+            Cloudflare-Zone (nur API-/Prune-Ziel, ADR-5130 — von ihr wird
+            NIEMALS ein Service-Hostname abgeleitet). RT-8 Wildcard-Lücke:
+            513 legt nur *.zone an; Wildcards matchen genau EINE Label-Ebene.
+            Ist medinix.domain ein Subdomain der Zone (z.B. home.example.com
+            bei zone example.com), sind {service}.{domain} DNS-seitig NICHT
+            vom Wildcard gedeckt — Split-DNS bleibt host-seitig (ADR-5115)
+            oder zone == domain setzen.
+          '';
         };
         interval = lib.mkOption {
           type = lib.types.str;
@@ -889,6 +959,18 @@ in
           type = lib.types.nullOr lib.types.str;
           default = null;
           example = "/run/secrets/cloudflare_ddns_token";
+        };
+        publishLanRecord = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            RT-4: publiziert lan.{zone} als öffentlichen A-Record mit der
+            privaten RFC1918-Adresse. Default false — interne Adressen gehören
+            nicht ins öffentliche DNS (pure Recon-Hilfe für Angreifer, kein
+            externer Nutzen; Split-DNS ist host-seitig, ADR-5115). Beim
+            Default räumt 513 zusätzlich übrig gebliebene lan-Records aktiv ab
+            (self-healing). true = Legacy-Verhalten für bestehende Setups.
+          '';
         };
       };
     };

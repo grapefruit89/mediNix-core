@@ -56,8 +56,26 @@ read this file. They are kept separate from R1–R20.
 | F8  | fixed | `515-mdns` filter now also requires `accessGroup != "none"`. |
 | F9  | fixed | `unauthenticatedPaths` typed `strMatching "^/[^ \t\"{}]*$"` (global + per-vhost) → whitespace/quotes/braces rejected, no silent bypass widening. |
 
-## Runtime access matrix
+## Findings from the 51-ingress red-team round 3 (2026-10-02)
 
+Depth dissection of the ingress domain against the repo's own threat model
+(a compromised service is assumed; LAN semi-trusted, WAN hostile). Static
+analysis — `nix flake check` must be run on the target; runtime verification
+is still pending (see 51-ingress README).
+
+| ID  | Verdict | Action taken |
+| --- | --- | --- |
+| RT-1 | REAL → fixed | Caddy admin API was unauthenticated on `127.0.0.1:2019`, reachable from EVERY sandboxed service (hardening profiles allow loopback egress) — full edge takeover without root. Now a unix socket inside the unit's RuntimeDirectory (`/run/caddy-media/admin.sock`, global `/run/caddy/admin.sock` + `RuntimeDirectory`); `caddy reload` reads the admin address from the config (upstream fix v2.6.1). `caddy-media` gets `ExecReload` (ACME `try-reload-or-restart` degraded to a restart before). |
+| RT-2 | REAL → fixed | First-run admin race: navidrome/audiobookshelf on WAN `stream` with an open first-run setup (any first visitor becomes admin; wildcard DNS + CT logs expose fresh deployments). 553 pre-seeds via `ND_DEVAUTOCREATEADMINPASSWORD` (sealed credential; maintainer-confirmed create-only-if-setup-incomplete) or requires `setupCompleted = true`; 552 requires the internal-first procedure + `setupCompleted`. Check: `mediNix-negative-first-run`. |
+| RT-3 | REAL → fixed | No edge bouncer AND 519 blocked fail2ban pointing at the non-existent CrowdSec 516 AND no access logs at all. 511 now logs every site (filtered JSON, query stripped, auth headers deleted — Caddy redacts Cookie/Authorization by default); 519 no longer blocks fail2ban (sanctioned interim until 516). |
+| RT-4 | REAL → fixed | 513 published the RFC1918 LAN IP as a public A record and fed unvalidated third-party echo-service output into the Cloudflare API. `lan.{zone}` is now opt-in (`dns.ddns.publishLanRecord`, default false, self-healing prune of leftovers) + strict IPv4 format validation for WAN/LAN IP. |
+| RT-5 | REAL → fixed | ntfy's vhost never rendered (enable flag lives at `observability.ntfy`; `enabledOf` only checked two paths) while 581 claims "Caddy is the wall". `enabledOf` now has three lookup paths (511/515/518), and a declared vhost that cannot be resolved is a BUILD ERROR (F7 loud instead of silently dead). Checks: `mediNix-ntfy-vhost-and-admin-socket`, `mediNix-negative-vhost-unresolved`. |
+| RT-6 | REAL (doc) → fixed | ADR-518 described protections that never existed in code (`data-go`, `/go/X` routes, honeypot elements, CrowdSec bans). Rewritten to describe actual behavior; phantom measures moved to an explicit "never implemented" section. |
+| RT-7 | REAL → fixed | `trustedCidrs`, `dns.hostnames`, `ingress.auth.forwardAuthUpstream` were unvalidated strings interpolated into the Caddyfile (injection by admin typo — inconsistent with the F9 care for `unauthenticatedPaths`). Now charset-typed; check: `mediNix-negative-cidr-injection`. |
+| RT-8 | DOCUMENTED / fixed | Zone≠domain wildcard gap (F6-allowed config yields service FQDNs the one-level wildcard cannot cover) documented at `dns.ddns.zone` + 513; 519 escape hatch is now selective (`allow` silences a single keepOn requirement instead of forcing `enable = false`). |
+| RT-9 | OPEN (design) | Loopback is treated as a trusted zone (e.g. ntfy listens read-write on 127.0.0.1:5810 without auth — a compromised service can read/phish notifications). Cross-domain design topic for a future round. |
+
+## Runtime access matrix
 | Source        | Host                | accessGroup | Expectation                    |
 | ------------- | ------------------- | ----------- | ------------------------------ |
 | WAN           | `svc.{domain}`      | `internal`  | abort (not in trustedCidrs)     |

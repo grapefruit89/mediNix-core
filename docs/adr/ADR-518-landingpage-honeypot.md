@@ -1,16 +1,37 @@
-# ADR-518-landingpage-honeypot: Minimal Static Landingpage & Honeypot
+# ADR-518-landingpage-honeypot: Minimal Static Landingpage (LAN-only)
 
 ## Context
-A central entry point (apex domain) is needed for guests to access exposed services (Jellyfin, Seerr, Audiobookshelf). We need to prevent automated crawlers from discovering the subdomains and services, while simultaneously penalizing malicious bots.
+A central entry point (apex domain / `home.local`) is needed for the family to
+reach exposed services (Jellyfin, Seerr, Audiobookshelf).
 
 ## Decision
-- **Minimal Static HTML:** The landing page is a single, static HTML file baked into the Nix store (`518-landingpage.nix`) and served by Caddy as a simple `file_server`.
-- **No `href` links:** Navigation is handled via `data-go` attributes and a small JavaScript snippet that redirects the browser (`location.href = "/go/X"`). This prevents simple HTML parsers from extracting target URLs.
-- **HTTP 302 Redirects over Path-Proxying:** Caddy intercepts `/go/X` routes and issues an HTTP 302 redirect to the respective subdomain (e.g., `jellyfin.domain.com`). We explicitly avoid `reverse_proxy` with `handle_path` here because path-routing frequently breaks WebSockets (e.g., in Audiobookshelf).
-- **Log-based Honeypots:** The HTML contains hidden elements pointing to typical crawler targets (`/.env`, `/wp-admin`). Caddy naturally logs these as 404s. CrowdSec's `http-sensitive-files` scenario parses these logs and bans the offending IPs in `nftables` at Layer 3/4. We avoid building complex honeypot logic directly into Caddy.
+- **Minimal Static HTML:** The landing page is a single, static HTML file baked
+  into the Nix store (`518-landingpage.nix`) and served by Caddy as a
+  `file_server` — a plain grid of `<a href>` tiles. No JavaScript.
+- **LAN-only:** The page is served exclusively behind the `trustedCidrs` abort
+  (`https://{domain}`, `http://home.local`); `noindex, nofollow, noarchive,
+  nosnippet` in the head. WAN requests are aborted, not redirected.
+- **Renderer only:** 518 renders exclusively ENABLED stream/public vHosts as
+  tiles (H14 — a tile must correspond to a servable vhost) and the link scheme
+  follows the actual TLS state (H19). No program names inside 518.
+
+## Removed / never implemented (documented honestly — RT-6, 2026-10-02)
+
+A previous version of this ADR described measures that NEVER existed in code:
+- `data-go` attributes + JS redirects and `/go/X` 302 routes instead of `href`s
+- hidden honeypot elements (`/.env`, `/wp-admin`)
+- CrowdSec's `http-sensitive-files` scenario banning scanner IPs via nftables
+
+Treating them as existing protection would have been dangerous: the security
+matrix and this wiki are decision bases. The prerequisite for any log-based
+banning — access logs — only landed with RT-3 (511, filtered JSON to journald).
+The bouncer itself (CrowdSec, slot 516) remains **planned, not implemented**;
+until it exists, a fail2ban jail on the Caddy logs is the sanctioned interim
+(519).
 
 ## Consequences
 - The web server configuration remains completely flat and declarative.
-- Malicious scanners are automatically banned without exposing any actual backend infrastructure.
-- Zero maintenance required for the landing page since it has no runtime dependencies.
-- **Drop & Forget Compliance:** The entire landing page logic is firmly wrapped in a `config = lib.mkIf (config.medinix.enable)` check, ensuring that it cleanly vanishes if the media stack is disabled.
+- Zero maintenance for the landing page: no runtime dependencies.
+- **Drop & Forget:** the landing page vanishes completely when the stack is
+  disabled (`lib.mkIf` on `medinix.enable`).
+- Crawler/bot handling is NOT solved by this page — it is future work (516).

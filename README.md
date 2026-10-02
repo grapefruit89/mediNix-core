@@ -22,7 +22,7 @@ A service describes itself. Ingress organs only consume that description.
 | `54-transfer` | Usenet + mover | 541-sabnzbd, 543-mover |
 | `55-playback` | Playback & Requests | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 555-seerr |
 | `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 573-exportarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
-| `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog |
+| `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog, 587-disk-health |
 | `59-guardrails` | Assertions | 591-cross-domain |
 
 How to attach a new program: [`51-ingress/510-ingress-SERVICE.md`](51-ingress/510-ingress-SERVICE.md).
@@ -45,8 +45,7 @@ How to attach a new program: [`51-ingress/510-ingress-SERVICE.md`](51-ingress/51
 | Navidrome | 553 | 5530 | 5530 | 5000 | stream | 127.0.0.1 |
 | Feishin | 554 | – | – | 5000 | stream | – (static SPA) |
 | Seerr | 561 | 5610 | 5610 | 5000 | public | 127.0.0.1 |
-| ntfy | 581 | 5810 | 5810 | 5000 | public | 127.0.0.1 |
-
+| ntfy | 581 | 5810 | 5810 | 5000 | internal | 127.0.0.1 |
 **caddyClass / `accessGroup`:** `stream` (media, no auth), `internal` (LAN abort), `public` (forward-auth when on), `idp` (Pocket ID UI), `none` (no vhost). `.local` is always HTTP.
 
 ## Quickstart

@@ -5,7 +5,7 @@
 # folder: 51-ingress
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-19
+# last_reviewed: 2026-10-02
 # links:
 # provides: []
 # requires: ["lib/registry"]
@@ -35,7 +35,10 @@ let
       lib.filterAttrs (
         n: vhost:
         let
-          enabled = cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
+          # RT-5: keep in sync with 511's enabledOf — three lookup paths
+          # (direct, camelCase, observability.<name>).
+          enabled =
+            cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
         in
         enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
       ) cfg.ingress.vhosts

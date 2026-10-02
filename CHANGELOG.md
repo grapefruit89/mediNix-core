@@ -3,8 +3,77 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
-## 2026-09-24 — Security-Audit 51/52: Explicit-Intent-Härtung (Batches A–F)
+## 2026-10-02 — Red-Team-Runde 3: 51-ingress-Dissektion (RT-1 bis RT-9)
 
+Tiefe feindliche Analyse der Ingress-Domäne gegen das eigene Bedrohungsmodell
+(Dienst-Kompromittierung wird angenommen). Details & Begründungen:
+`docs/ingress-security-matrix.md` (Abschnitt „red-team round 3").
+**Vorbehalt:** Die Analyse-Umgebung hatte kein Nix — `nix flake check` ist auf
+dem Zielsystem auszuführen; Runtime-Verifikation (q958) bleibt ausständig.
+
+### ⚠️ Breaking
+- Ein deklarierter vHost (`accessGroup != "none"`), dessen Service-Enable-Flag
+  nicht auflösbar ist, ist jetzt ein Build-Fehler (vorher: still gedroppt —
+  das killte unbemerkt ntfys vHost und F7s customConfig-only-vHosts).
+  Auflösung: `medinix.<name>.enable`, `medinix.<camelCase>.enable` oder
+  `medinix.observability.<name>.enable`.
+- `dns.ddns.publishLanRecord` default **false**: `lan.{zone}` (RFC1918) wird
+  nicht mehr öffentlich publiziert; bestehende lan-Records werden aktiv
+  entfernt (self-healing). Alt-Verhalten explizit mit `= true`.
+- Navidrome/Audiobookshelf auf WAN (`stream`) ohne Admin-Pre-Seed bzw. ohne
+  `setupCompleted = true` = Build-Fehler (First-Run-Race, RT-2).
+  `lib/smoke-test.nix` entsprechend ergänzt.
+- `ingress.trustedCidrs`, `dns.hostnames`, `ingress.auth.forwardAuthUpstream`
+  sind jetzt typvalidiert (Injection-Charset, analog F9) — ungültige Werte
+  brechen die Eval.
+
+### Fixes (je Finding)
+- **RT-1 (Edge-Übernahme):** Caddy-Admin-API (`POST /load`, unauthentifiziert)
+  von `127.0.0.1:2019` — aus jedem Sandbox-Dienst erreichbar (Profile erlauben
+  Loopback-Egress) — auf Unix-Socket im RuntimeDirectory umgestellt
+  (`/run/caddy-media/admin.sock`; global `/run/caddy/admin.sock` +
+  `RuntimeDirectory = "caddy"`). `caddy reload` liest die Admin-Adresse aus
+  der Config (Upstream-Fix v2.6.1; bewusst KEIN `|mode`-Suffix — bricht
+  Reload, caddy#5694). `caddy-media` erhält `ExecReload` (ACME
+  `try-reload-or-restart` war zuvor ein harter Proxy-Restart).
+- **RT-2 (First-Run-Race):** 553 pre-seeded den initialen Admin via
+  `ND_DEVAUTOCREATEADMINPASSWORD` aus einem versiegelten Credential
+  (`medinix.navidrome.adminPasswordCredential`; maintainer-bestätigt: wirkt
+  nur, solange der Initial-Setup nicht abgeschlossen ist); 552 (keine
+  env-basierte Admin-Erstellung möglich) erzwingt die Prozedur
+  internal-vHost → Setup → `setupCompleted = true`. Beide prüfen die
+  RESOLVED vHost-Exposure (F2-Muster), nicht die Registry-Klasse.
+- **RT-3 (Bouncer-Vakuum):** 511 loggt jetzt jeden Site-Block (Access-Logs):
+  gefiltertes JSON nach stdout → journald; Query-String wird komplett
+  entfernt (`?apikey=…`-Leck), Authorization/Cookie zusätzlich gelöscht
+  (Caddy redacted sie ohnehin). 519 blockt fail2ban nicht mehr — der Verweis
+  auf das nicht existierende CrowdSec-Modul 516 war eine Sackgasse; bis 516
+  existiert, ist eine fail2ban-Jail auf den Caddy-Logs der sanktionierte
+  Interim.
+- **RT-4 (DNS):** 513 validiert WAN/LAN-IP-Format strikt (IPv4-Regex), bevor
+  etwas die Cloudflare-API erreicht; `lan.{zone}` nur noch opt-in.
+- **RT-5 (ntfy-vHost):** `enabledOf` in 511/515/518 um den dritten Lookup-Pfad
+  (`observability.<name>`) erweitert + Unresolved-vHost-Assertion (fail-closed
+  statt stiller Verlust). Registry: ntfy caddyClass `none` → `internal`
+  (Konsistenz mit 581s Assertion).
+- **RT-6 (Doc-Fiktion):** ADR-518 beschrieb nie existierenden Schutz
+  (data-go, /go/X-Routen, Honeypot-Elemente, CrowdSec-Bans) — auf Realität
+  zurückgeschrieben, Phantom-Maßnahmen explizit als „never implemented"
+  markiert. `authProxyPresent`-Doku nennt Pocket-ID nicht mehr als
+  Forward-Auth-Proxy (Widerspruch zum F5-Fix).
+- **RT-7 (Injection):** Typvalidierung s.o.; `dns.ddns.zone`-Doku warnt vor
+  der Wildcard-Lücke (zone ≠ domain → {service}.{domain} vom einstufigen
+  `*.{zone}` nicht gedeckt — F6 erlaubt diese Konfiguration, DNS-seitig ist
+  sie ein Loch; Split-DNS bleibt host-seitig, ADR-5115).
+- **RT-8/9:** 519-Escape-Hatch jetzt selektiv (`allow` pro keepOn-Name);
+  Loopback-als-Trust-Zone als offener Design-Punkt dokumentiert (RT-9).
+
+### Tests
+Neu: `mediNix-negative-first-run`, `mediNix-negative-vhost-unresolved`,
+`mediNix-ntfy-vhost-and-admin-socket` (positiv: vHost-Rendering + Admin-Socket
++ Access-Logs), `mediNix-negative-cidr-injection` (tryEval-Muster).
+
+## 2026-09-24 — Security-Audit 51/52: Explicit-Intent-Härtung (Batches A–F)
 Red-Team-Audit der Ordner `51-ingress` / `52-security` abgearbeitet (R1–R20),
 plus ein unabhängiger Cold-Start-Audit (9 weitere Findings). Prinzip:
 **Security by Explicit Intent** — unsichere Entscheidungen bleiben möglich,

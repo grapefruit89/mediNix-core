@@ -35,11 +35,9 @@ Therefore, edge-facing controls belong in `51-ingress`, including:
 
 * access-group policy
 * authentication boundaries
-* Geo-IP policy where enabled
-* CrowdSec integration where enabled
-* request/rate limiting where implemented
+* access logging (filtered, since RT-3) as the substrate for forensics and a future edge bouncer
+* edge bouncer (CrowdSec slot 516) — planned, NOT implemented; until then a fail2ban jail on the Caddy access logs is the sanctioned interim (519, RT-3)
 * edge request filtering
-
 Host-level protection belongs in `52-security`, including:
 
 * host firewall ownership
@@ -432,9 +430,11 @@ Examples include detection of competing ingress technologies or ownership confli
 nginx
 httpd
 iptables
-fail2ban
 ```
 
+fail2ban is deliberately NOT on this list (RT-3): CrowdSec (slot 516) is
+planned but unimplemented — blocking the available interim bouncer while
+pointing at a module that does not exist would leave the edge with nothing.
 The purpose is not to claim that mediNix can control every possible host configuration.
 
 Instead, the guardrails make the intended ownership model explicit and provide a controlled escape hatch through:

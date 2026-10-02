@@ -5,7 +5,7 @@
 # folder: 51-ingress
 # status: active
 # complexity: 2
-# last_reviewed: 2026-09-02
+# last_reviewed: 2026-10-02
 # provides: ["landing-html"]
 # requires: ["511-caddy"]
 # adr: ADR-518-landingpage-honeypot
@@ -29,8 +29,10 @@ let
 
   # H14: a tile must correspond to a vhost the ingress actually serves
   # (enabled), never to a merely declared one.
-  enabledOf = n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or false;
-
+  # RT-5: keep in sync with 511's enabledOf — three lookup paths
+  # (direct, camelCase, observability.<name>).
+  enabledOf =
+    n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
   tlsEnabled =
     cfg.ingress.tls.acmeHost != null
     || cfg.ingress.tls.mode == "custom"

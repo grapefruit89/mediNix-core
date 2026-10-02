@@ -4,7 +4,7 @@
 # domain: 50
 # folder: 51-ingress
 # status: active
-# last_reviewed: 2026-09-02
+# last_reviewed: 2026-10-02
 # provides: ["ddns", "cloudflare"]
 # requires: ["lib/service-factory"]
 # adr: ADR-5130
@@ -145,7 +145,13 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           echo "FATAL: Could not determine WAN IP." >&2
           exit 1
         fi
-
+        # RT-4: third-party echo services are a trusted NETWORK, not trusted
+        # DATA. Any 200-body (error page, captive portal, garbage) must never
+        # reach the Cloudflare API — validate the format before using it.
+        if ! printf '%s' "$WAN_IP" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+          echo "FATAL: WAN_IP is not a valid IPv4: '$WAN_IP'" >&2
+          exit 1
+        fi
         LAN_IP=$(ip -4 route get 1.1.1.1 2>/dev/null \
           | awk '{ for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit } }')
         if [ -z "$LAN_IP" ]; then
@@ -156,7 +162,10 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           echo "FATAL: Could not determine LAN IP." >&2
           exit 1
         fi
-
+        if ! printf '%s' "$LAN_IP" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+          echo "FATAL: LAN_IP is not a valid IPv4: '$LAN_IP'" >&2
+          exit 1
+        fi
         echo "Detected WAN IP: $WAN_IP"
         echo "Detected LAN IP: $LAN_IP"
 
@@ -247,10 +256,22 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         }
 
         update_record "wan.$ZONE" "A" "$WAN_IP"
-        update_record "lan.$ZONE" "A" "$LAN_IP"
+        # RT-4: lan.{zone} publishes a private RFC1918 address to PUBLIC DNS —
+        # recon gold for attackers, zero external benefit (split-DNS is
+        # host-side, ADR-5115). Opt-in via dns.ddns.publishLanRecord; when
+        # off, actively remove leftovers from earlier runs (self-healing).
+        if [ "${toString ddns.publishLanRecord}" = "1" ]; then
+          update_record "lan.$ZONE" "A" "$LAN_IP"
+        else
+          echo "  lan record: publishLanRecord=false — pruning public RFC1918 leftovers"
+          prune_label "lan.$ZONE"
+        fi
+        # RT-8: a wildcard covers exactly ONE label below the zone. With
+        # domain != zone (e.g. home.example.com under example.com) the service
+        # FQDNs {label}.{domain} are NOT covered by *.{zone} — split-DNS stays
+        # host-side (ADR-5115); see the dns.ddns.zone option description.
         update_record "*.$ZONE" "CNAME" "wan.$ZONE"
         update_record "$ZONE" "CNAME" "wan.$ZONE"
-
         # PRUNE_NAMES holds canonical FQDNs ({label}.${cfg.domain}), built in
         # Nix — the zone must not be appended here.
         for n in $PRUNE_NAMES; do
