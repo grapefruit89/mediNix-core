@@ -9,7 +9,7 @@ Tiefe feindliche Analyse der Ingress-Domäne gegen das eigene Bedrohungsmodell
 (Dienst-Kompromittierung wird angenommen). Details & Begründungen:
 `docs/ingress-security-matrix.md` (Abschnitt „red-team round 3").
 **Vorbehalt:** Die Analyse-Umgebung hatte kein Nix — `nix flake check` ist auf
-dem Zielsystem auszuführen; Runtime-Verifikation (q958) bleibt ausständig.
+dem Zielsystem auszuführen; Runtime-Verifikation (mediahost) bleibt ausständig.
 
 ### ⚠️ Breaking
 - Ein deklarierter vHost (`accessGroup != "none"`), dessen Service-Enable-Flag
@@ -138,7 +138,7 @@ eigentliche Invariante gar nicht). Der einzige verbleibende offene Punkt ist
 ### Tests
 `nix flake check` (Eval) grün; `nixos-check` + `mediNix-smoke` bauen (volle Systeme). Neue Checks: `mediNix-negative-{uid-chain,vpn-ipv6,vpn,token-shared,emergency-empty,emergency-unknown,landing-cidrs,forward-auth-upstream,acme-domain}`, `mediNix-firewall-managed`, `mediNix-ingress-header-strip`, `mediNix-acme-positive`, `mediNix-arr-auth-method`. Negativtests prüfen per `expectAssertion` den **Grund** (nicht nur „fehlgeschlagen").
 
-> **Runtime-Test auf q958 steht weiterhin aus** — Grüne Eval/Builds beweisen keinen laufenden Dienst. Der Deploy-/Live-Test ist separat (q958 aus).
+> **Runtime-Test auf mediahost steht weiterhin aus** — Grüne Eval/Builds beweisen keinen laufenden Dienst. Der Deploy-/Live-Test ist separat (mediahost aus).
 
 > Lint (`nixfmt`/`statix`/`deadnix`) ist repo-weit **vorbestehend rot** und noch nicht saniert.
 > Doku-Inkonsistenz (nicht Security): Zeile 3 sagt „10-Domain-Architektur", Zeile 347 „9 Domains" — vor dem Architecture Freeze bereinigen.
@@ -154,7 +154,7 @@ ISO 25010, STRIDE, Design by Contract, Diátaxis).
 **Herkunft der Verfassung** (aus dem alten §11 „Origin and Version History" gerettet):
 
 Aus einer Brainstorm-Reihe des Repo-Eigentümers (Juli 2026), Slot für Slot gegen die
-Realität auf q958 geprüft. Meilensteine: die Vier-Anker-Erkenntnis (als
+Realität auf mediahost geprüft. Meilensteine: die Vier-Anker-Erkenntnis (als
 `20-security` und `90-policy` sich als zwei Dinge erwiesen), die GID-Regel
 `Projekt × 1000` und der Kollisions-Beweis über die `N00`-Regel — alle drei vom
 Eigentümer, hier verifiziert und begründet.
@@ -290,7 +290,7 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
 - **ADMIN-HANDOFF.md**: saubere Trennung Host-Verantwortung vs. Modul (Binary-Cache, Impermanence, Tier-HW, SSH/TPM)
 - **Single Source of Truth (ADMIN-HANDOFF.md)**: Alle Host-Pflichten (Binary-Cache, Impermanence,
   Storage-Mounts, VPN, ACME, TPM-Secrets, SSH, nftables, Checkliste, Fallstricke) in genau einer
-  MD-Datei konsolidiert. Flake ist 100% portabel ohne q958-Annahmen (q958-Referenzen aus Code/AGENTS entfernt).
+  MD-Datei konsolidiert. Flake ist 100% portabel ohne mediahost-Annahmen (mediahost-Referenzen aus Code/AGENTS entfernt).
 - **Legacy-Bereinigung**: 57-maintenance/jellyfin.nix, profiles.nix, prowlarr.nix, seerr.nix, settings.nix gelöscht
   (inert, kein NNN-Präfix → nicht auto-importiert; veraltete Arrangement-Logik vor der Factory-Umstellung)
 - **574-provisioning.nix**: `after =`-Unit-Namen korrigiert (waren `sonarr-5320.service` etc.,
@@ -338,13 +338,13 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
   Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
 
 ## Phase 8 — Private Benennungen bereinigt (portabel, keine Hausnamen als Default)
-- **default.nix**: `vpn.interface` example `privado` → `wg0`; Domain example `m7c5.de` → `example.com`.
-- **mediNix-cli/default.nix**: VPN-Heuristic `privado|wg|vpn` → `wg|vpn` (privado aus Code entfernt).
-- **README.md**: Quickstart-Beispiel `m7c5.de` → `example.com`.
-- **AGENTS.md**: q958-Kontext als "physischer Deploy-Host, aber portabel" neutralisiert.
-- **rg-Scan**: `*.nix` sauber (kein privado/q958/m7c5/192.168). Nur generische Examples (wg0, 10.8.0.1, example.com).
-- Bewusst unverändert: docs/*.md ADRs (historische m7c5.de-Entscheidungen bleiben), docs/ONBOARDING.md
-  (q958-spezifisches Deploy-Handoff, bewusst host-spezifisch).
+- **default.nix**: `vpn.interface` example `wg0` → `wg0`; Domain example `example.com` → `example.com`.
+- **mediNix-cli/default.nix**: VPN-Heuristic `wg0|wg|vpn` → `wg|vpn` (wg0 aus Code entfernt).
+- **README.md**: Quickstart-Beispiel `example.com` → `example.com`.
+- **AGENTS.md**: mediahost-Kontext als "physischer Deploy-Host, aber portabel" neutralisiert.
+- **rg-Scan**: `*.nix` sauber (kein wg0/mediahost/example/192.168). Nur generische Examples (wg0, 10.0.0.1, example.com).
+- Bewusst unverändert: docs/*.md ADRs (historische example.com-Entscheidungen bleiben), docs/ONBOARDING.md
+  (mediahost-spezifisches Deploy-Handoff, bewusst host-spezifisch).
 
 ## Phase 9 — 576-backup gehärtet (Unit-Namen + enge Pfade + Retention)
 - **576-backup.nix**: Unit-Namen in Pre/Post korrigiert (`sonarr-5320` → `sonarr.service`, plain).
@@ -422,7 +422,7 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
   parallelem 526. Entscheidung nötig vor Integration ins Repo.
 
 ## Offen (vor erstem Deploy)
-- **nix flake check auf q958**: noch nicht ausgeführt (q958 AUS, Warte auf Freigabe)
+- **nix flake check auf mediahost**: noch nicht ausgeführt (mediahost AUS, Warte auf Freigabe)
 - **Provisioning-Automatisierung für Ntfy-Connections**: aktuell manuell (Settings → Connect → Ntfy)
 - **INV-STORE-xx**: State-Pfad-Whitelist als Guardrail (Roadmap, Impermanence-Whitelist-Ansatz)
 

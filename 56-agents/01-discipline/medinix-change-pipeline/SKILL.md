@@ -34,7 +34,7 @@ with `medinix-pre-commit` (scanners) and `medinix-governance` (commit discipline
 ```bash
 git status --short            # MUST be clean; if not, stop
 git rev-parse --short HEAD    # BASELINE = X  (fallback: git reset --hard X)
-nix flake check               # eval ratchet; on hosts without nix: run on q958
+nix flake check               # eval ratchet; on hosts without nix: run on mediahost
 git diff --check
 ```
 `git reset --hard X` is the defined way back.
@@ -95,7 +95,7 @@ the lint commit.
 ### 8. Commit #2 (single style/lint commit) → push → CI → runtime
 Prefer **two** commits, not four tool-commits:
 `COMMIT 1 = functional/security`, `COMMIT 2 = style/lint (nixfmt+statix+deadnix together)`.
-Push only on explicit user "push". GitHub CI re-verifies; q958 runtime is a separate,
+Push only on explicit user "push". GitHub CI re-verifies; mediahost runtime is a separate,
 final level.
 
 ## Deadnix rule (mandatory)

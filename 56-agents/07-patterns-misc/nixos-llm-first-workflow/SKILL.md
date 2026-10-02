@@ -112,19 +112,19 @@ Leichte Warnungen (kein Abbruch):
 
 ## Infrastruktur-Unterscheidung (WICHTIG!)
 
-**Hermes Agent läuft auf Unraid (192.168.2.250:53844) in einem Docker Container.**
+**Hermes Agent läuft auf Unraid (192.168.0.250:53844) in einem Docker Container.**
 - **Unraid = Host-System** (Hermes Container läuft hier)
-- **q958 (192.168.2.73:22) = Remote NixOS Target** (Deployment-Ziel, User: jarvis)
-- **SSH-Zugriff:** Von Hermes-Container zu q958 funktioniert (Key: `/tmp/q958_key`)
+- **mediahost (192.168.0.10:22) = Remote NixOS Target** (Deployment-Ziel, User: mediahost)
+- **SSH-Zugriff:** Von Hermes-Container zu mediahost funktioniert (Key: `/tmp/mediahost_key`)
 - **Kein SSH-Zugriff:** Von Hermes-Container zu Unraid (Key wird nicht akzeptiert)
-- **MCP-Server:** Auf q958 installieren (via `nix-env`), nicht im Hermes-Container
-- **Bei Hard-Reset von q958:** User muss physisch Strom ziehen (kein IPMI/IDRAC). Backup-SSH (Port 2222) wurde in alten Repos (`mynixos-v5`) erwähnt, aber auf jungfräulichem q958 nicht konfiguriert.
+- **MCP-Server:** Auf mediahost installieren (via `nix-env`), nicht im Hermes-Container
+- **Bei Hard-Reset von mediahost:** User muss physisch Strom ziehen (kein IPMI/IDRAC). Backup-SSH (Port 2222) wurde in alten Repos (`mynixos-v5`) erwähnt, aber auf jungfräulichem mediahost nicht konfiguriert.
 
 **Konsequenz:**
-- NixOS Deployments laufen auf q958 (via SSH)
+- NixOS Deployments laufen auf mediahost (via SSH)
 - Unraid ist nur der Host für den Hermes Agent
-- Dateien für q958: Per `scp` vom Hermes-Container auf q958 übertragen
-- Config-Tests: Auf q958 mit `nixos-rebuild dry-run --flake .#check`
+- Dateien für mediahost: Per `scp` vom Hermes-Container auf mediahost übertragen
+- Config-Tests: Auf mediahost mit `nixos-rebuild dry-run --flake .#check`
 
 ## Container-Isolation (systemd-native, kein netns!)
 
@@ -162,13 +162,13 @@ systemd.services.${name}.serviceConfig = lib.mkMerge (
 - `nixos-rebuild dry-run --flake .#check` läuft durch
 - Aber: Systemd-Optionen tauchen in gebauter Config nicht auf, wenn Injection fehlt
 
-**Live-Debugging auf q958:**
+**Live-Debugging auf mediahost:**
 ```bash
-# Auf q958 einloggen
-ssh jarvis@192.168.2.73
+# Auf mediahost einloggen
+ssh mediahost@192.168.0.10
 
 # Config bauen
-cd /home/jarvis/mediNix
+cd /home/mediahost/mediNix
 nixos-rebuild build --flake .#check
 
 # Systemd-Unit prüfen
@@ -180,11 +180,11 @@ grep 'RestrictNetworkInterfaces' /nix/store/.../etc/systemd/system/sonarr.servic
 ## NixOS MCP-Server (Live-Debugging)
 
 - **nixos-mcp** ist der offizielle NixOS MCP-Server für Live-Abfragen von Optionen, Services, etc.
-- **Installation auf q958:** `ssh jarvis@192.168.2.73` dann `nix-env -iA nixpkgs.nixos-mcp` (falls in nixpkgs verfügbar)
+- **Installation auf mediahost:** `ssh mediahost@192.168.0.10` dann `nix-env -iA nixpkgs.nixos-mcp` (falls in nixpkgs verfügbar)
 - **Alternative:** `nix search nixpkgs ^nixos-mcp^` um Paket zu finden
 - **Nutzen:** Hilft beim Debuggen, warum `RestrictNetworkInterfaces` nicht greift (Live-Inspektion von `systemd.services.*.serviceConfig`)
 - **Ohne MCP:** `nixos-rebuild build` + `grep` in `/nix/store/.../etc/systemd/system/` Configs
-- **Hinweis:** MCP-Server kann nicht im Hermes-Container installiert werden (kein Nix im PATH). Muss auf q958 installiert werden.
+- **Hinweis:** MCP-Server kann nicht im Hermes-Container installiert werden (kein Nix im PATH). Muss auf mediahost installiert werden.
 
 ## 10/10 Review-Prozess
 
@@ -214,7 +214,7 @@ Siehe `references/knowledge-base-layout.md` für detaillierte Struktur.
   - Desktop-App-GUI (falls verfügbar), oder
   - Ein Setup-Script als Download, das der Nutzer auf einer Maschine mit Hermes-CLI ausführt.
 - **Frustrations-Trigger:** Dem Nutzer zu sagen "führe diesen Bash-Befehl aus" wenn er keine Shell hat, führt zu Frustration. Lieber direkt sagen was möglich ist und was nicht, ohne Workaround-Schleifen.
-- **Unraid-Server:** 192.168.2.250, SSH Port 53844. SSH-Key ist in der Session verfügbar. Nicht verwechseln mit Windows-PC.
+- **Unraid-Server:** 192.168.0.250, SSH Port 53844. SSH-Key ist in der Session verfügbar. Nicht verwechseln mit Windows-PC.
 
 ## Pitfalls
 
@@ -228,7 +228,7 @@ Siehe `references/knowledge-base-layout.md` für detaillierte Struktur.
 - SSH-Passwort-Login aus Agenten-Umgebung scheitert meist (`/dev/tty` fehlt). Agent hat **keinen SSH-Client** für externe Hosts. Feste Regel: Nutzer lokal am Remote-Host die Vorbereitung ausführen lassen, Agent liefert nur Kommandos. Nutzer widerspricht manchmal ("Ich weiss das du dich per ssh verbindne kannst") — einmal klären, dann direkt zum Befehl wechseln.
 - `nix` nach Installer-Lauf nicht im PATH: Dann `. /root/.nix-profile/etc/profile.d/nix.sh` ausführen oder eine neue SSH-Session öffnen.
 - Validator-Pfade sind an die **tatsächliche Projektstruktur** gebunden: Realer ADR-Ordner kann `/ADR`, `/docs/adr` oder anders heißen. Vor dem Patch prüfen, ob `ADR/` existiert, sonst Pfad anpassen oder Warnung ausgeben.
-- `nixos-anywhere` braucht einen **echten Hostnamen** aus der `flake.nix` (z. B. `.#q958`), kein Placeholder wie `<HOSTNAME>`.
+- `nixos-anywhere` braucht einen **echten Hostnamen** aus der `flake.nix` (z. B. `.#mediahost`), kein Placeholder wie `<HOSTNAME>`.
 - Neue Maschinen werden **unter `<project-root>/hosts/<hostname>/` angelegt** (aktuell: `Nix Files/hosts/<hostname>/`, siehe `references/project-structure.md`). Name muss eindeutig sein, idealerweise hostname-basiert.
 - Curl-Installer-Abbruch: Wenn der Nutzer `^C` drückt, ist Nix nur teilweise installiert und danach nicht im PATH. Bessere Diagnose: `ls /nix`, dann gezielt nachinstallieren statt Installer blind zu wiederholen.
 
@@ -282,7 +282,7 @@ Hinweis: Diese Schritte müssen vom Nutzer auf der Remote-Konsole ausgeführt we
 
 Der Nutzer referenziert häufig Windows-Pfade wie `Z:\\hermes_knowledge\\...`. Das ist ein auf Unraid gemountetes SMB-Share. Die zugehörige Server-Seite ist:
 
-- Server: `192.168.2.250` (SSH Port `53844`)
+- Server: `192.168.0.250` (SSH Port `53844`)
 - Server-Pfad: `/mnt/user/data/hermes_knowledge/...`
 - Lokaler Hermes-Mount: `/opt/data/knowledge/...` (read-only)
 
@@ -291,7 +291,7 @@ Der Nutzer referenziert häufig Windows-Pfade wie `Z:\\hermes_knowledge\\...`. D
 ## Harte Grenze: Remote-Write auf Unraid-Shares aus dieser Session
 
 - Der lokale Hermes-Mount unter `/opt/data/knowledge/` ist **read-only**.
-- SSH auf den Unraid-Server (`192.168.2.250:53844`) ist aus dieser Session **nicht möglich**, weil die Auth fehlschlägt.
+- SSH auf den Unraid-Server (`192.168.0.250:53844`) ist aus dieser Session **nicht möglich**, weil die Auth fehlschlägt.
 - Folge: **Löschen, Verschieben oder Schreiben in `Z:\\hermes_knowledge\\...` kann hier nicht ausgeführt werden.**
 
 Wenn der Nutzer so etwas verlangt, direkt sagen: *"Das geht aus dieser Session nicht, weil der Mount read-only ist und ich keinen SSH-Zugang zum Unraid habe."* Dann anbieten, stattdessen lokal in `/opt/data/` zu arbeiten, oder dem Nutzer die nötigen Schritte/Script zum direkten Ausführen auf Unraid zu geben.

@@ -13,7 +13,7 @@ links:
 ---
 # 📋 SERVICE-MANIFEST: Der mynixos Stack
 
-Dieses Manifest ist die unveränderliche Single Source of Truth für alle Dienste, die auf dem Fujitsu Q958 (Tower) betrieben werden. Jede Änderung erfordert eine ADR.
+Dieses Manifest ist die unveränderliche Single Source of Truth für alle Dienste, die auf dem Fujitsu Mediahost (Tower) betrieben werden. Jede Änderung erfordert eine ADR.
 
 ## 1. User Layer (KISS)
 Hier stehen alle Programme, die dein Server ausführen wird. Wir haben "Müll" (ineffiziente oder nicht-native Software) entfernt und durch Aviation-Grade Alternativen ersetzt. Ziel: Ein stabiles, schnelles System, das komplett deklarativ ist.

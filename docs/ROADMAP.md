@@ -14,7 +14,7 @@
 Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Streaming-Traffic und Fehler-Spitzen, ohne auf Cloud-Dienste angewiesen zu sein.
 
 ### A. Gatus: Visuelles Health- & Status-Dashboard (Nächster Schritt)
-- **Quell-Dateien:** [`NixmitGROK/modules/40-observability.nix`](/home/moritz/repos/NixmitGROK/modules/40-observability.nix) & [`NixmitGROK/lib/gatus-endpoints.nix`](/home/moritz/repos/NixmitGROK/lib/gatus-endpoints.nix)
+- **Quell-Dateien:** [`NixmitGROK/modules/40-observability.nix`](/home/mediahost/repos/NixmitGROK/modules/40-observability.nix) & [`NixmitGROK/lib/gatus-endpoints.nix`](/home/mediahost/repos/NixmitGROK/lib/gatus-endpoints.nix)
 - **Konzept:**
   - Extrem schlanker Go-basierter Status-Server mit sauberem Web-UI (`585-gatus.nix`).
   - Automatische Generierung von Endpoints für alle aktiven mediNix-Dienste:
@@ -24,7 +24,7 @@ Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Stream
   - Caddy vHost: `status.${domain}` mit `accessGroup = "internal"`.
 
 ### B. Vector + Loki + Grafana: Die Medien-Logging-Pipeline (Optional / Später)
-- **Quell-Datei:** [`NixmitGROK/modules/40-observability.nix`](/home/moritz/repos/NixmitGROK/modules/40-observability.nix)
+- **Quell-Datei:** [`NixmitGROK/modules/40-observability.nix`](/home/mediahost/repos/NixmitGROK/modules/40-observability.nix)
 - **Architektur:**
   ```text
   [ Caddy JSON-Logs ] ──┐
@@ -40,8 +40,8 @@ Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Stream
 ## 2. Storage-Erweiterungen (Optional / Später)
 
 ### A. HDD-freundliche Deferred Deletion Queue
-- **Quell-Datei:** [`NixmitGROK/modules/05-deferred-ops.nix`](/home/moritz/repos/NixmitGROK/modules/05-deferred-ops.nix)  
-  *Dokumentation:** [`NixmitGROK/docs/guides/GUIDE-storage-tiers.md`](/home/moritz/repos/NixmitGROK/docs/guides/GUIDE-storage-tiers.md)
+- **Quell-Datei:** [`NixmitGROK/modules/05-deferred-ops.nix`](/home/mediahost/repos/NixmitGROK/modules/05-deferred-ops.nix)  
+  *Dokumentation:** [`NixmitGROK/docs/guides/GUIDE-storage-tiers.md`](/home/mediahost/repos/NixmitGROK/docs/guides/GUIDE-storage-tiers.md)
 - **Konzept:**
   - Löschanfragen für Tier C wandern in eine Queue auf Tier B (`${storage.mediaRoot}/delete_queue`).
   - Periodischer Timer prüft via `hdparm -C` den Status der Platten:
@@ -54,7 +54,7 @@ Ein vollwertiger Medien-Stack benötigt Transparenz über Service-Health, Stream
   - Spätestens nach `maxAgeDays = 7` wird das Löschen beim nächsten regulären Aufwachen forciert.
 
 ### B. Label-basiertes Automounting & MergerFS
-- **Quell-Datei:** [`NixmitGROK/modules/35-automount.nix`](/home/moritz/repos/NixmitGROK/modules/35-automount.nix)
+- **Quell-Datei:** [`NixmitGROK/modules/35-automount.nix`](/home/mediahost/repos/NixmitGROK/modules/35-automount.nix)
 - **Konzept:**
   - Automatisches Einhängen anhand von Dateisystem-Labels (`NIXDATA`, `NIXMEDIA`, `NIXBACKUP`).
   - Dynamisches Hinzufügen von Zweigen zum MergerFS-Pool ohne manuelles Bearbeiten der Host-fstab.

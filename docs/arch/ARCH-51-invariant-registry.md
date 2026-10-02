@@ -101,7 +101,7 @@ precision.
   legitimately means global Caddy. `services.caddy.enable` may also arrive via
   `hostIntegration.reverseProxy = "managed"` (`500:31`).
 
-- **H12b** (found on q958 at eval time, fixed in `6d47422`) is H12 at the
+- **H12b** (found on mediahost at eval time, fixed in `6d47422`) is H12 at the
   systemd-unit level: `mkIf` on a **leaf**
   (`systemd.services.caddy.serviceConfig.OOMScoreAdjust = lib.mkIf useGlobal v`)
   still builds the option path → an empty phantom `caddy.service` appears in
@@ -110,7 +110,7 @@ precision.
   `checks.mediNix-caddy-single-owner` (standalone ⇒ `caddy-media` only; global ⇒
   `caddy` + `OOMScoreAdjust`).
 
-- **H28** (found at **runtime** on q958, fixed in `4cf2b51`): systemd
+- **H28** (found at **runtime** on mediahost, fixed in `4cf2b51`): systemd
   `InaccessiblePaths=` without the `-` prefix requires the path to exist; a
   missing path (`/run/secrets`, or a foreign `/var/lib/<svc>` before its first
   run) aborts the unit with `226/NAMESPACE` at mount-namespace setup. Every
@@ -118,7 +118,7 @@ precision.
   in `lib/hardening-profiles.nix`, `lib/service-factory.nix` and 541/551/552/553.
   Enforced by `checks.mediNix-inaccessible-paths-optional`.
 
-- **H29** (found at **runtime** on q958, fixed in `ebe0d28`): the factory's peer
+- **H29** (found at **runtime** on mediahost, fixed in `ebe0d28`): the factory's peer
   isolation excluded by **unit name**, but `caddy-media` (unit) ≠ `caddy`
   (registry key), so a unit made its **own** StateDirectory inaccessible →
   `EACCES`; Caddy could not write autosave/storage. Fix: also exclude by the

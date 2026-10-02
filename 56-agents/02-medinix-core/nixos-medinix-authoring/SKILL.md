@@ -35,7 +35,7 @@ Shared reference files (read directly, do not duplicate) live in
 - NEVER write to `/opt/data/github_repos/` unasked.
 - Own files: `/opt/data/docs/{ADR,OPS,nix}/`, `/opt/data/50-mediNix/`
   (boilerplate SSoT in `lib/`).
-- q958 configs land via scp under `/home/jarvis/mediNix/` ON THE SERVER.
+- mediahost configs land via scp under `/home/mediahost/mediNix/` ON THE SERVER.
 
 ## Dezimalrahmen (Verfassung ADR-0000 — einzige Wahrheit)
 Jede Zahl aus der **dreistelligen Dienstnummer** abgeleitet:
@@ -63,25 +63,25 @@ Isomorphie: Port=UID=ADR-Präfix, GID=5000. 511=Caddy (nie Pocket ID).
 
 ### Portabilität K.O. (hart)
 Keine hardcoded IPs/CIDRs/Hostnamen in portablen Modulen. Kein `192.168.x`,
-`10.0.0.0/8`, `q958`, `jarvis`, `moritz`. LAN-Ranges/Host-Pfade →
+`10.0.0.0/8`, `mediahost`, `mediahost`, `moritz`. LAN-Ranges/Host-Pfade →
 `nullOr`-Optionen (default null) in der Host-Config.
 
 ### Sprache
 Chat Deutsch. Alle `.nix`, Inline-Kommentare, ADRs auf **Englisch**.
 
-### q958-Regel
-"Halt! Der q958 wird heute nicht gestartet" = ABSOLUTER Stop. Kein Deployment,
+### mediahost-Regel
+"Halt! Der mediahost wird heute nicht gestartet" = ABSOLUTER Stop. Kein Deployment,
 kein Reboot. Auf Planung/Docs/Boilerplate wechseln.
 
 ### Module-Kontext vs. Container-Kontext (HART — Portabilität)
-Ein portables Modul läuft auf dem ZIEL-HOST (q958), NICHT im Hermes-Container.
-- Dienste die lokal auf q958 laufen (ntfy, die *arr via Caddy) sind unter
+Ein portables Modul läuft auf dem ZIEL-HOST (mediahost), NICHT im Hermes-Container.
+- Dienste die lokal auf mediahost laufen (ntfy, die *arr via Caddy) sind unter
   `127.0.0.1` erreichbar — das ist KORREKT und darf NICHT auf eine Tower-/LAN-IP
   geändert werden.
-- Hardcoded `192.168.2.250` / Tower-IP in einem portablen Modul verletzt das
+- Hardcoded `192.168.0.250` / Tower-IP in einem portablen Modul verletzt das
   Portabilitäts-K.O. (siehe oben) und ist ein echter Fehler, kein Fix.
 - Hermes-Watchdog-Cron (läuft im Container) und 575-update-notifier.nix
-  (systemd-Service auf q958) sind ZWEI VERSCHIEDENE Konstrukte — nicht
+  (systemd-Service auf mediahost) sind ZWEI VERSCHIEDENE Konstrukte — nicht
   verwechseln. Cron-URLs können Tower-IP zeigen; Modul-URLs nicht.
 
 ### AI-Audit Cross-Validation (HART — Phantom-Bugs)

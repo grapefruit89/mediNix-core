@@ -11,15 +11,15 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# NixOS Basis-Konfiguration (Host: q958)
+# NixOS Basis-Konfiguration (Host: mediahost)
 
 ## 1. User Layer (KISS)
-Diese Datei dokumentiert die fundamentale Betriebssystem-Konfiguration des Fujitsu Q958. Sie beinhaltet die Grundeinstellungen für den Bootvorgang, das Netzwerk, die Systemsprache (Deutsch) und den primären Benutzer "moritz". Um den Einstieg zu erleichtern, wurde initial eine grafische Oberfläche (XFCE) installiert, die jedoch später durch ein rein terminalbasiertes System ersetzt wird. Der Fernzugriff via SSH ist bereits vorkonfiguriert, sodass der Server bequem von anderen Geräten im Netzwerk verwaltet werden kann.
+Diese Datei dokumentiert die fundamentale Betriebssystem-Konfiguration des Fujitsu Mediahost. Sie beinhaltet die Grundeinstellungen für den Bootvorgang, das Netzwerk, die Systemsprache (Deutsch) und den primären Benutzer "moritz". Um den Einstieg zu erleichtern, wurde initial eine grafische Oberfläche (XFCE) installiert, die jedoch später durch ein rein terminalbasiertes System ersetzt wird. Der Fernzugriff via SSH ist bereits vorkonfiguriert, sodass der Server bequem von anderen Geräten im Netzwerk verwaltet werden kann.
 
 ## 2. Technical Layer (Aviation-Grade)
 
 ### System-Fundament
-*   **Hostname:** `q958`
+*   **Hostname:** `mediahost`
 *   **Bootloader:** `systemd-boot` mit EFI-Unterstützung.
 *   **Zustands-Version:** `system.stateVersion = "25.11"` (Fixpunkt für Kompatibilität).
 *   **Dateisystem:** Import der `hardware-configuration.nix` (Auto-generiert).

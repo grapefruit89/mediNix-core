@@ -17,7 +17,7 @@ links:
 
 ## Projekt
 Portables NixOS Media-Stack-Modul. Repo: `github:grapefruit89/mediNix-core`, Branch `main`.
-Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: q958 (192.168.2.73, AUS bis Freigabe).
+Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: mediahost (192.168.0.10, AUS bis Freigabe).
 
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
 - **Dezimalrahmen:** Port = ServiceNum × 10 | UID = Port | GID = 5000
@@ -29,9 +29,9 @@ Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: q958 (192.168.2.7
 - **Keine Inline-Secrets:** nur `LoadCredentialEncrypted` / `EnvironmentFile`
 
 ## Build-Status (Stand: 2863ff9)
-- ~80% fertig. Vor erstem Deploy auf q958: CrowdSec-Plugin-Hash via `nix build` in `511-caddy.nix`
+- ~80% fertig. Vor erstem Deploy auf mediahost: CrowdSec-Plugin-Hash via `nix build` in `511-caddy.nix`
   ermitteln (aktuell `lib.fakeHash` Platzhalter), dann `nix flake check .#checks.x86_64-linux.nixos-check`.
-- Nix-Verifikation bisher UNTESTED (kein nix-Binary im Hermes-Container, q958 AUS).
+- Nix-Verifikation bisher UNTESTED (kein nix-Binary im Hermes-Container, mediahost AUS).
 
 ## Deklaratives Modul-Muster (VORBILD)
 Jedes Service-Modul:

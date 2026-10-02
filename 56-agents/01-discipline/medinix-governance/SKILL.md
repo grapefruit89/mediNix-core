@@ -15,10 +15,10 @@ and must be `hermes curator adopt`-ed to patch — see bottom).
   in `AGMIN-HANDOFF.md` at repo root.
 - NO scattered Host hints in AGENTS.md, README, or module comments. If you find one, replace it
   with "siehe ADMIN-HANDOFF.md §X".
-- **No q958 / 192.168.x / m7c5.de / privado in `.nix` as defaults or code heuristics.** Examples in
+- **No mediahost / 192.168.x / example.com / wg0 in `.nix` as defaults or code heuristics.** Examples in
   `default.nix` `example =` fields are allowed BUT must be generic (`"wg0"`, `"example.com"`,
-  `[ "10.8.0.1" ]`); the house VPN name `privado` must NEVER appear in code — strip it from any
-  grep-heuristic too (e.g. `mediNix-cli` VPN probe was `grep -iE 'privado|wg|vpn'` → reduced to
+  `[ "10.0.0.1" ]`); the house VPN name `wg0` must NEVER appear in code — strip it from any
+  grep-heuristic too (e.g. `mediNix-cli` VPN probe was `grep -iE 'wg0|wg|vpn'` → reduced to
   `wg|vpn`). `mkOption default =` must never hardcode a host value.
 - Flake must evaluate with zero Host assumptions. A new consumer must learn everything they need
   to set on their machine from ADMIN-HANDOFF alone.
@@ -33,7 +33,7 @@ and must be `hermes curator adopt`-ed to patch — see bottom).
 Before building new features, prove the current `main` is sound with **line-cited evidence**,
 not memory:
 1. Run a portability scan (see references/portability-scan.md) — `grep -rn` for
-   `q958|192\.168\.|m7c5\.de|10\.8\.|privado` in `*.nix`. Treffer only in `example =` fields
+   `mediahost|192\.168\.|example\.de|10\.8\.|wg0` in `*.nix`. Treffer only in `example =` fields
    or the `mediNix-cli` host-heuristic are OK; anything else is a K.O. violation.
 2. Verify each claimed fix against the actual file+line. Quote the line.
 3. Only after "OK / BUG / FIXED" report, proceed to features.

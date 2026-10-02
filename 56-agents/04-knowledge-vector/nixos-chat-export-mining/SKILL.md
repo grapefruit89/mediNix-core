@@ -13,7 +13,7 @@ description: Mine NixOS Gold-Standards from chat-export JSONs.
 ## Why this skill exists
 A 50–70 MB `conversations.json` export is too big for `grep` (truncated output,
 misses most matches). The validated WORKING method is BERTopic semantic
-clustering on a remote host with Python+pip (Unraid Tower: root@192.168.2.250:53844,
+clustering on a remote host with Python+pip (Unraid Tower: root@192.168.0.250:53844,
 key /tmp/hermes_key). The Hermes container itself has no pip/numpy/sentence-transformers.
 The previous pure-stdlib regex approach (nixos_pure_extract.py) is a weak fallback
 only — BERTopic with bge-base embeddings finds real semantic clusters, not keyword bags.

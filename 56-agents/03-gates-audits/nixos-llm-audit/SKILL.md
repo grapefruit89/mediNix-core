@@ -42,8 +42,8 @@ DeepSeek claimed `vpn.dns` correct / `vpn.dnsServers` a drift bug; reverse was t
 
 ## PITFALL — portability context (K.O.)
 mediNIX-core is portable: never hardcode IPs in modules. But distinguish run contexts:
-- q958 (deploy host): ntfy local → `127.0.0.1:5810` is CORRECT in modules.
-- Hermes container: `127.0.0.1:5810` unreachable → use `192.168.2.250:5810`.
+- mediahost (deploy host): ntfy local → `127.0.0.1:5810` is CORRECT in modules.
+- Hermes container: `127.0.0.1:5810` unreachable → use `192.168.0.250:5810`.
 Confusing them caused a real regression this session.
 
 ## PITFALL — show-before-commit

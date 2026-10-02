@@ -199,7 +199,7 @@ produce at most `9990`.
 ### 5.3 Unix sockets — rule reserved
 
 If ever needed: `/run/{project}/{number}.sock`. Currently no service supports
-HTTP over a Unix socket (checked on q958: the *arrs bind TCP only). The rule stands
+HTTP over a Unix socket (checked on mediahost: the *arrs bind TCP only). The rule stands
 ready, but is not applied.
 
 ---
@@ -338,7 +338,7 @@ connectable; **C4** gives the diagrams a fixed level of abstraction.
 | 12. Glossary | `docs/INDEX.md`, `docs/repository.yaml` |
 
 **C4 (diagrams, `C4-PlantUML` stdlib, not Mermaid):**
-- **Context:** host (q958) · WAN/Cloudflare · client — plus the `_1`/`_2` ingress boundary.
+- **Context:** host (mediahost) · WAN/Cloudflare · client — plus the `_1`/`_2` ingress boundary.
 - **Container:** NixOS host · systemd services · Caddy ingress · `systemd-creds`.
 - **Component:** `lib/service-factory.nix`, `lib/registry.nix`, `51-ingress`, `59-guardrails`.
 - **Code:** only where needed (e.g. the assertion chain in `591-cross-domain.nix`).

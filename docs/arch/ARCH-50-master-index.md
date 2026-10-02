@@ -19,7 +19,7 @@ Willkommen im physisch verifizierten digitalen Gehirn deiner Self-Hosting Distri
 
 ## 🏗️ SEKTION: DIE DISTRIBUTIONS-ARCHITEKTUR
 | Thema | Dokument | Status |
-| **Q958 Hardware** | [`adr/hardware-spec-q958.md`](adr/hardware-spec-q958.md) | 💎 Physical SSoT |
+| **Mediahost Hardware** | [`adr/hardware-spec-mediahost.md`](adr/hardware-spec-mediahost.md) | 💎 Physical SSoT |
 | :--- | :--- | :--- |
 | **Framework Engine** | [`adr/den-framework-foundation.md`](adr/den-framework-foundation.md) | ✅ Dendritic v1.0 |
 | **Storage Masterplan** | [`adr/storage-tiering-strategy.md`](adr/storage-tiering-strategy.md) | 💎 Definitive v5.3 |

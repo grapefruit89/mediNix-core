@@ -15,7 +15,7 @@ Dieses Skill steuert die Wissens-Pipeline von großen Chat-Exporten (oder strukt
 
 ## 2. Der Build-Prozess (JSON -> Vector-Store)
 **Umgebung:**
-- Führe den Embed-Prozess IMMER auf dem Remote-Host aus (`root@192.168.2.250:53844`), da der Hermes-Container kein `pip`/`numpy` hat.
+- Führe den Embed-Prozess IMMER auf dem Remote-Host aus (`root@192.168.0.250:53844`), da der Hermes-Container kein `pip`/`numpy` hat.
 - Nutze das Modell `BAAI/bge-base-en-v1.5` (CPU-only).
 
 **RAM-Aware Workflow (Kritisch):**

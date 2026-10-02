@@ -6,7 +6,7 @@ description: SSH from Hermes container to Unraid host.
 # Unraid SSH Access (Hermes → Unraid Host)
 
 ## Context
-Hermes often runs inside a Docker container on the Unraid host itself (192.168.2.250). The container is isolated — no direct filesystem access to the host, but network access to the host's SSH port (53844) is possible.
+Hermes often runs inside a Docker container on the Unraid host itself (192.168.0.250). The container is isolated — no direct filesystem access to the host, but network access to the host's SSH port (53844) is possible.
 
 ## Key Generation in Restricted Containers
 
@@ -39,17 +39,17 @@ echo "ssh-ed25519 AAAA... hermes-agent@unraid" >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 ```
 
-**Important:** Unraid runs as `root`, so the key goes to `/root/.ssh/authorized_keys`, NOT `/home/moritz/.ssh/`.
+**Important:** Unraid runs as `root`, so the key goes to `/root/.ssh/authorized_keys`, NOT `/home/mediahost/.ssh/`.
 
 ## Connectivity Test
 
 ```bash
-ssh -o StrictHostKeyChecking=no -p 53844 root@192.168.2.250 "hostname"
+ssh -o StrictHostKeyChecking=no -p 53844 root@192.168.0.250 "hostname"
 ```
 
 If using user `moritz` (configured in Unraid SSH settings):
 ```bash
-ssh -o StrictHostKeyChecking=no -p 53844 moritz@192.168.2.250 "hostname"
+ssh -o StrictHostKeyChecking=no -p 53844 moritz@192.168.0.250 "hostname"
 ```
 
 ## Unraid as a Compute Node (installing heavy Python tooling)
@@ -62,8 +62,8 @@ Unraid (Tower) instead.**
 
 Unraid's `root` Python 3.12 ships WITHOUT pip. Bootstrap it first:
 ```bash
-ssh -i /tmp/hermes_key -p 53844 root@192.168.2.250 "python3 -m ensurepip --upgrade"
-ssh -i /tmp/hermes_key -p 53844 root@192.168.2.250 "python3 -m pip --version"
+ssh -i /tmp/hermes_key -p 53844 root@192.168.0.250 "python3 -m ensurepip --upgrade"
+ssh -i /tmp/hermes_key -p 53844 root@192.168.0.250 "python3 -m pip --version"
 ```
 Then create a venv on a persistent Unraid share and install there:
 ```bash
@@ -84,7 +84,7 @@ on Unraid (user does it via terminal or WebUI), then connect with `-i /tmp/herme
 - **Unraid SSH port** → Default is 22, but Moritz's setup uses `53844`. Always specify `-p 53844`.
 - **Key not working after adding** → Unraid may need SSH service restart: `/etc/rc.d/rc.sshd restart`
 - **User copies formatting chars** → User may copy `─ bash` or box-drawing chars from chat. Tell them: "Kopiere NUR die Befehlszeile, ohne `bash` oder `─` davor." Provide a single-line command they can paste as-is.
-- **"SSH is not running" but port responds** → If `ssh` returns `Permission denied`, SSH IS running. That's an SSH handshake rejection, not a closed port. Closed port = `Connection refused` or `Timeout`. Always test first: `nc -zv 192.168.2.250 53844` before assuming SSH is off.
+- **"SSH is not running" but port responds** → If `ssh` returns `Permission denied`, SSH IS running. That's an SSH handshake rejection, not a closed port. Closed port = `Connection refused` or `Timeout`. Always test first: `nc -zv 192.168.0.250 53844` before assuming SSH is off.
 
 ## User Instruction Format (Critical)
 
@@ -103,7 +103,7 @@ When giving the user commands to run on Unraid:
 If connection fails entirely:
 ```bash
 ip addr show  # Check if container has network
-nc -zv 192.168.2.250 53844  # Test port reachability
+nc -zv 192.168.0.250 53844  # Test port reachability
 ```
 
 If `ip` command missing, check `/etc/hosts` for Docker bridge IPs.

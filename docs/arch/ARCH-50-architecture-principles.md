@@ -51,7 +51,7 @@ Ein spezialisierter MCP-Server (`nixhome-forge`) unterstützt den Workflow:
 
 ### Philosophische Herleitung
 *   **Anti-Container-Entscheidung:** In einer rein deklarativen Umgebung wie NixOS bieten Container oft nur eine zusätzliche Abstraktionsschicht ohne echten Mehrwert bei der Reproduzierbarkeit, erhöhen aber den Ressourcenverbrauch und die Komplexität des Netzwerk-Stackings.
-*   **Binary-only Mandat:** Schont die Hardware (i3-9100) und sorgt für deterministische Deployment-Zeiten. Da der Fujitsu Q958 keine Compile-Farm ist, wird die Rechenleistung für Dienste reserviert.
+*   **Binary-only Mandat:** Schont die Hardware (i3-9100) und sorgt für deterministische Deployment-Zeiten. Da der Fujitsu Mediahost keine Compile-Farm ist, wird die Rechenleistung für Dienste reserviert.
 *   **ID-System:** Die NIXH-ID ist notwendig, um in einer wachsenden Konfiguration mit über 40 Diensten die Übersicht zu behalten und Port-Kollisionen (Bereich 49152+) automatisiert zu verhindern.
 
 ---

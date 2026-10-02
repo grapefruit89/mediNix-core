@@ -29,5 +29,5 @@ devNIX `flake.nix` (main) — ADR-8000 pattern. mediNIX-core adapted it with the
   `nixosConfigurations.check` to top-level so it's reusable, don't duplicate it.
 
 ## Verification gap (honest)
-`nix flake check` could NOT be run in the agent container (no nix binary, q958 off).
+`nix flake check` could NOT be run in the agent container (no nix binary, mediahost off).
 Syntax is plausible but the eval test is pending until a host with nix builds it.

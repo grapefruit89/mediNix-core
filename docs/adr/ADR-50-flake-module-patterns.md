@@ -34,5 +34,5 @@ module options, and host composition must be captured.
 - ✅ Fits Nix-Grok architecture (ADR-5001)
 
 ## Gold-Standard (from chat)
-> "6-Layer-Architektur mit klarer Trennung (flake.nix → machines/q958/ → users/
+> "6-Layer-Architektur mit klarer Trennung (flake.nix → machines/mediahost/ → users/
 > → modules/ → mcp/ → lib/)" — confirmed by Nix-Grok review (ADR-5001).

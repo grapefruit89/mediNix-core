@@ -53,7 +53,7 @@ deleted); `59-guardrails/` had 592-emergency-user (dup of 593), 595-ssh-assertio
 ## 4. Portability / artifact verification
 ```bash
 grep -rn "192\.168\." . --include="*.nix" && echo FAIL || echo OK   # no hardcoded IPs
-grep -rn "q958\|jarvis\|moritz" . --include="*.nix" && echo FAIL || echo OK  # no machine-names
+grep -rn "mediahost\|mediahost\|moritz" . --include="*.nix" && echo FAIL || echo OK  # no machine-names
 for d in [0-9][0-9]-*/; do c=$(find "$d" -name "[0-9][0-9][0-9]-*.nix"|wc -l); echo "$d: $c"; done
 ls CLAUDE.md compat-my.nix handoff-*.md 2>/dev/null && echo FAIL || echo OK  # no dev-artefacts
 ```

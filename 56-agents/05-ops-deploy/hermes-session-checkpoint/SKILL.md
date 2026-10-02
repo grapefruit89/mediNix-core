@@ -48,7 +48,7 @@ description: "Before /reset or deploy: snapshot repo and Memory safe."
 - Memory file lives at `/opt/data/.hermes/memories/MEMORY.md` — if it does NOT exist, CREATE it (it was missing once and caused near-loss).
 - Never leave uncommitted work before reporting "safe" — reset destroys the working tree.
 - AGENTS.md is the ultimate reset-survival doc: it is in the repo, not in Memory.
-- q958 (192.168.2.73) is OFF — do not deploy without explicit go-ahead.
+- mediahost (192.168.0.10) is OFF — do not deploy without explicit go-ahead.
 
 ## Verification
 ```bash

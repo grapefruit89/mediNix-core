@@ -33,7 +33,7 @@ Dieses Skill kombiniert die Erstellung neuer Module und die Integration aus Refe
 - **Isolierung:** Container-Isolation in Systemd MUSS eine Liste sein (z.B. `lib.mkMerge [ [ isolation ] {…} ]`).
 
 ## 5. Portabilität (K.O. Kriterium)
-- **Niemals:** Harte IPs (wie `192.168.x.x`), hartkodierte Hostnamen (`q958`, `jarvis`), oder spezifische `/opt/data/` Pfade, die nicht als Option konfigurierbar sind.
+- **Niemals:** Harte IPs (wie `192.168.x.x`), hartkodierte Hostnamen (`mediahost`, `mediahost`), oder spezifische `/opt/data/` Pfade, die nicht als Option konfigurierbar sind.
 - Das Modul muss isoliert kompilieren können, egal auf welchem Host es ausgerollt wird.
 
 ## 6. Verifikation & Nächste Schritte

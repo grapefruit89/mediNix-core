@@ -16,7 +16,7 @@ HEADER** (`Mcp-Session-Id`), not the JSON body. You must ALSO send
 ## Proven client (worked against vec-mcp, 2026-08-11)
 ```python
 import json, urllib.request, urllib.error
-MCP = "http://192.168.2.250:8000/mcp"
+MCP = "http://192.168.0.250:8000/mcp"
 HEAD = {"Content-Type":"application/json",
         "Accept":"application/json, text/event-stream"}
 

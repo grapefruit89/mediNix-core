@@ -30,7 +30,7 @@ Seit Version **2025.2** verfügt Home Assistant über einen eingebauten MCP-Serv
       "command": "uvx",
       "args": ["ha-mcp@latest"],
       "env": {
-        "HOMEASSISTANT_URL": "http://192.168.2.73:8123",
+        "HOMEASSISTANT_URL": "http://192.168.0.10:8123",
         "HOMEASSISTANT_TOKEN": "DEIN_TOKEN"
       }
     }

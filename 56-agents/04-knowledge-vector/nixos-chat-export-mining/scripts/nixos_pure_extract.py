@@ -20,12 +20,12 @@ DEFAULT_JSON = "/opt/data/cache/documents/extracted_batch/conversations.json"
 DEFAULT_OUT = "/opt/data/docs/nixos-topics"
 
 TOPICS = {
-    "Caddy-Ingress": r"caddy|ingress|reverse_proxy|tls|domain|m7c5\.de",
+    "Caddy-Ingress": r"caddy|ingress|reverse_proxy|tls|domain|example\.de",
     "Media-Stack": r"jellyfin|sonarr|radarr|sabnzbd|prowlarr|readarr|lidarr|audiobookshelf|navidrome|feishin",
     "Storage-ABC": r"mergerfs|tier|storage|disk|mount|hdd|ssd|nvme|zfs",
     "Security-AntiLockout": r"anti-lockout|ssh|assertion|firewall|nftables|fail2ban|sovereign",
     "Dezimalrahmen-SSoT": r"dezimalrahmen|isomorphie|registry|uid|port|sso|nms",
-    "Proxmox-NixOS": r"proxmox|q958|nixos|flake|module|systemd|rollout",
+    "Proxmox-NixOS": r"proxmox|mediahost|nixos|flake|module|systemd|rollout",
 }
 
 def main():

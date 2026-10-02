@@ -20,13 +20,13 @@ links:
 
 ## Context
 Stream services (Jellyfin/ABS/Navidrome/Feishin, caddyClass=stream) are WAN-exposed.
-If a client in the LAN accesses `https://jellyfin.m7c5.de`, the resolution must point to the **server's LAN IP** - not the WAN IP (otherwise Hairpin-NAT occurs: the packet goes out to the router, then back in, causing performance loss and potential blockages).
+If a client in the LAN accesses `https://jellyfin.example.com`, the resolution must point to the **server's LAN IP** - not the WAN IP (otherwise Hairpin-NAT occurs: the packet goes out to the router, then back in, causing performance loss and potential blockages).
 
 ## Decision
 **mediNix-core does NOT handle Split-DNS itself.** That is host infrastructure.
 Possible solutions (host-side):
-- Router with Custom-DNS (e.g., Speedport): `jellyfin.m7c5.de   192.168.2.x` (LAN)
-- Blocky / AdGuard Home: Local-zone Override for `*.m7c5.de` -> LAN-IP
+- Router with Custom-DNS (e.g., Speedport): `jellyfin.example.com   192.168.0.x` (LAN)
+- Blocky / AdGuard Home: Local-zone Override for `*.example.com` -> LAN-IP
 - Pi-hole: Local DNS Record
 
 ## Consequences

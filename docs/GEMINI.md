@@ -33,7 +33,7 @@ Nach jeder Operation: ls -la /root/ → Reinheits-Nachweis.
 ═══════════════════════════════════════════════
 
 Migration von Unraid/Docker/Traefik zu nativem NixOS-Homeserver.
-Hardware: Fujitsu Q958 | i3-9100 | 16GB RAM | Intel UHD 630
+Hardware: Fujitsu Mediahost | i3-9100 | 16GB RAM | Intel UHD 630
 
 ZIEL-STACK (nach Migration):
   Infrastruktur : Caddy, AdGuardHome, Tailscale, Cloudflared

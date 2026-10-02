@@ -229,7 +229,7 @@ Da Jellyfin (ohne instabile Drittanbieter-Plugins) kein Single-Sign-On (SSO / Po
    * **Der Effekt:** Es entsteht ein Sicherheitspuffer von 5 weiteren Fehlversuchen nach der Kontosperre. Scheitert ein menschlicher Nutzer 5-mal, greift nur die Kontosperre. Erst wenn ein automatisierter Bot trotz gesperrtem Konto stur weiter hämmert und Versuch 10 erreicht, sperrt CrowdSec die Angreifer-IP an der Haustür in Caddy (`HTTP 403 Forbidden`).
 5. **Lokales Subnetz & LAN-Whitelist:**
    * Private RFC1918-Netze (`192.168.0.0/16`, `10.0.0.0/8`, `172.16.0.0/12`) sind in CrowdSec dauerhaft auf der Whitelist.
-   * `LocalNetworkSubnets = "192.168.2.0/24"` in Jellyfin verhindert Bandbreitendrosselung lokaler Clients hinter Caddy.
+   * `LocalNetworkSubnets = "192.168.0.0/16"` in Jellyfin verhindert Bandbreitendrosselung lokaler Clients hinter Caddy.
 
 ---
 

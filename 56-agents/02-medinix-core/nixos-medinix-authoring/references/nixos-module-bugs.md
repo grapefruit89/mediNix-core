@@ -63,7 +63,7 @@ Secrets NIEMALS im Nix-Store / in Optionen als Plaintext. Pattern:
 - Option: `cfg.sabnzbd.serverCredentialFile` (nullOr path, .cred-Pfad).
 - Unit: `serviceConfig.LoadCredentialEncrypted = [ "mediNix-sabnzbd-server:${cfg.serverCredentialFile}" ];`
 - Env: `SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";`
-- Erzeugung auf q958: `systemd-creds encrypt --with-key=tpm2+host /tmp/plain.txt /var/lib/systemd/credential.d/mediNix-<name>.cred`
+- Erzeugung auf mediahost: `systemd-creds encrypt --with-key=tpm2+host /tmp/plain.txt /var/lib/systemd/credential.d/mediNix-<name>.cred`
 - `.cred`-Datei ist ohne DIESES TPM wertlos → darf ins Repo.
 - `INV-SECRET` Invariante (599-cross-domain.nix) bricht den Build wenn ein
   Secret-Pfad mit `/nix/store/` beginnt.

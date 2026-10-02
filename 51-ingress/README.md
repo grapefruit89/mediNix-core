@@ -541,7 +541,7 @@ The verification boundary is important:
 The following runtime layer remains separately unverified until tested on the target machine:
 
 ```text
-q958
+mediahost
  ├── systemd activation
  ├── service startup
  ├── firewall behavior
@@ -650,7 +650,7 @@ These are plans, not current capabilities.
 ## Runtime verification still required
 
 ```text
-q958 deployment
+mediahost deployment
 systemd runtime behavior
 Caddy live route matrix
 ACME issuance/renewal

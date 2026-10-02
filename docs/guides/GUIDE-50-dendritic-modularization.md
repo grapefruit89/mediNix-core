@@ -20,7 +20,7 @@ Jede Datei in mynixos ist ein Top-Level Modul innerhalb eines fest definierten L
 
 ### /home/mynixos/
 - `flake.nix` (Einstieg)
-- `hosts/q958.nix` (Hardware & Enable-Flags)
+- `hosts/mediahost.nix` (Hardware & Enable-Flags)
 - `modules/00-core/` (OS-Fundament)
 - `modules/10-gateway/` (Erreichbarkeit)
 - `modules/20-data/` (Datenbanken)

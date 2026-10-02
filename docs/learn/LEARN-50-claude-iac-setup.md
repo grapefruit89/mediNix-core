@@ -11,15 +11,15 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# NixOS Server Infrastructure as Code Setup (Fujitsu Q958)
+# NixOS Server Infrastructure as Code Setup (Fujitsu Mediahost)
 
 ## 1. User Layer (KISS)
-Dieses Dokument beschreibt den Masterplan für den Aufbau eines hochverfügbaren und sicheren Heimservers auf Basis von **NixOS**. Das Ziel ist ein "Infrastructure as Code" (IaC) Ansatz, bei dem die gesamte Serverkonfiguration in Textdateien (Nix Flakes) gespeichert wird. Dies ermöglicht eine exakte Wiederherstellung und einfache Wartung. Der Server (ein Fujitsu Q958) dient als Zentrale für Medien (Jellyfin), Hausautomatisierung (Home Assistant) und Passwortverwaltung (Vaultwarden), wobei der Zugriff streng nach Sicherheitsstufen (Tiers) unterteilt ist.
+Dieses Dokument beschreibt den Masterplan für den Aufbau eines hochverfügbaren und sicheren Heimservers auf Basis von **NixOS**. Das Ziel ist ein "Infrastructure as Code" (IaC) Ansatz, bei dem die gesamte Serverkonfiguration in Textdateien (Nix Flakes) gespeichert wird. Dies ermöglicht eine exakte Wiederherstellung und einfache Wartung. Der Server (ein Fujitsu Mediahost) dient als Zentrale für Medien (Jellyfin), Hausautomatisierung (Home Assistant) und Passwortverwaltung (Vaultwarden), wobei der Zugriff streng nach Sicherheitsstufen (Tiers) unterteilt ist.
 
 ## 2. Technical Layer (Aviation-Grade)
 
 ### Hardware-Spezifikation & Optimierung
-*   **Host:** Fujitsu Q958.
+*   **Host:** Fujitsu Mediahost.
 *   **Storage-Strategie:** 
     *   **OS/Appdata:** NVMe SSD (Samsung/Micron).
     *   **Download-Cache:** Separate NVMe (Apacer) zur Entlastung der HDDs.
@@ -43,7 +43,7 @@ Der Zugriff wird über Traefik als Reverse Proxy mit mTLS und SSO (Pocket ID) ge
 nix-config/
 ├── flake.nix                  # Zentrale Definition
 ├── hosts/
-│   └── q958/                  # Host-spezifisch
+│   └── mediahost/                  # Host-spezifisch
 ├── common/                    # Gemeinsame Module (User, SSH, Firewall)
 └── modules/
     ├── 00-system/             # Storage, Nix-Settings

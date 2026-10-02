@@ -29,7 +29,7 @@
   # ── mediNix-core ────────────────────────────────────────────────────────
   medinix = {
     enable = true;
-    domain = "m7c5.de";
+    domain = "example.com";
 
     storage = {
       mediaRoot = "/mnt/ssd/media";
@@ -78,7 +78,7 @@
     # TLS — ACME wildcard via Cloudflare DNS-01 (no port 80/443 WAN needed)
     ingress.tls = {
       mode = "acme";
-      acmeHost = "m7c5.de";
+      acmeHost = "example.com";
       # TPM-sealed Cloudflare token (CF_DNS_API_TOKEN=<token>)
       acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
     };

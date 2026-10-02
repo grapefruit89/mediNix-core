@@ -11,15 +11,15 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# NixOS Architecture Master Blueprint (Host: q958)
+# NixOS Architecture Master Blueprint (Host: mediahost)
 
 ## 1. User Layer (KISS)
-Dieser Master-Blueprint dient als zentrale Wissensbasis für den Aufbau und Betrieb des Fujitsu Q958 Homeservers. Die Architektur folgt dem Prinzip **"Infrastructure as Code" (IaC)** unter Nutzung von **NixOS Flakes**. Das System ist so konzipiert, dass es vollständig reproduzierbar ist und alle Dienste (Medien, Infrastruktur, Hausautomatisierung) in logischen Schichten (Tiers) organisiert sind. Der Fokus liegt auf maximaler Sicherheit (SSO/mTLS) bei gleichzeitig hoher Effizienz (HDD Spindown/QuickSync).
+Dieser Master-Blueprint dient als zentrale Wissensbasis für den Aufbau und Betrieb des Fujitsu Mediahost Homeservers. Die Architektur folgt dem Prinzip **"Infrastructure as Code" (IaC)** unter Nutzung von **NixOS Flakes**. Das System ist so konzipiert, dass es vollständig reproduzierbar ist und alle Dienste (Medien, Infrastruktur, Hausautomatisierung) in logischen Schichten (Tiers) organisiert sind. Der Fokus liegt auf maximaler Sicherheit (SSO/mTLS) bei gleichzeitig hoher Effizienz (HDD Spindown/QuickSync).
 
 ## 2. Technical Layer (Aviation-Grade)
 
 ### Hardware-Plattform
-*   **Maschine:** Fujitsu Q958 (i3-9100, 16GB RAM).
+*   **Maschine:** Fujitsu Mediahost (i3-9100, 16GB RAM).
 *   **Grafik:** Intel UHD 630 (QuickSync Support für H.264/H.265/HEVC).
 *   **Storage-Layout:**
     *   **OS/Appdata:** Micron/Crucial SATA SSD (~512 GB).
@@ -41,7 +41,7 @@ Dieser Master-Blueprint dient als zentrale Wissensbasis für den Aufbau und Betr
 ```text
 mynixos/
 ├── hosts/
-│   ├── q958/                  # Host-spezifische Config (hardware-configuration.nix, default.nix)
+│   ├── mediahost/                  # Host-spezifische Config (hardware-configuration.nix, default.nix)
 │   └── common/core/           # Basis-Konfiguration (Users, SSH, Firewall)
 └── modules/
     ├── 00-system/             # Nix-Settings, Storage/Mounts

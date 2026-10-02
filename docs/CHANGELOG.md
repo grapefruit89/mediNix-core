@@ -50,7 +50,7 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 ## Offen (Phase 2)
 - **Backup-Strategie Tier 1 State-Dirs**: 595-backup-ssh ist Basis, vollständige Backup-Rotation fehlt
 - **CrowdSec-Plugin-Hash**: `lib.fakeHash` in 511-caddy.nix — vor erstem Build via `nix build` ersetzen (Build-Fehler zeigt korrekten Hash)
-- **nix flake check auf q958**: noch nicht ausgeführt (q958 aus, Warte auf Freigabe)
+- **nix flake check auf mediahost**: noch nicht ausgeführt (mediahost aus, Warte auf Freigabe)
 - **Vollständige cross-service InaccessiblePaths für Playback-Module**: base.InaccessiblePaths (System-Pfade) drin, service-übergreifend nur bei Arr/SABnzbd
 - **Provisioning-Automatisierung für Ntfy-Connections**: aktuell manuell (Settings → Connect → Ntfy)
 - **Vektor-DB Grok-Chunks**: zu 5 Themen-Pivots verdichtet (granulare Suche limitiert), Chat-Chunks (4003) haben vollen Body

@@ -18,7 +18,7 @@ links:
 
 # ARCH 51 — Closure Matrix (OPEN + Edge Security)
 
-Baseline: `main` @ `3c53507`; q958 pinned to `ebe0d28` (code) and **runtime-verified
+Baseline: `main` @ `3c53507`; mediahost pinned to `ebe0d28` (code) and **runtime-verified
 for the Gate-4 base** (`caddy-media` serves `http://home.local` 200, CIDR-gated).
 
 Rule for this document: **no bare `OPEN`.** Every item ends as one of:
@@ -43,9 +43,9 @@ config and does it act at runtime?"
 | mDNS (`{svc}.local`) | ✓ `515` | ✓ | ✓ `avahi-publish` | ✓ running | ✓ `home.local` resolves | **VERIFIED** |
 | Landing page | ✓ `518` | ✓ | ✓ `root`/`file_server` | ✓ | ✓ HTTP 200 | **VERIFIED** |
 | Header strip (`request_header`) | ✓ `511:87-95` | ✓ `mediNix-ingress-header-strip` | ✓ | ✗ (needs forward-auth vhost) | ✗ | **partial** (eval/build only) |
-| TLS / ACME | ✓ `514` | ✓ `mediNix-acme-positive` | ✗ (no `acmeHost` on q958) | ✗ | ✗ | **not runtime-verified** |
-| DNS / DDNS | ✓ `513` | ✓ `mediNix-ddns-prune-fqdn` | ✗ (no ddns on q958) | ✗ | ✗ | **not runtime-verified** |
-| Firewall | host-owned (`external`) | — | — | ✗ disabled on q958 | — | **ACCEPTED** (host owns it) |
+| TLS / ACME | ✓ `514` | ✓ `mediNix-acme-positive` | ✗ (no `acmeHost` on mediahost) | ✗ | ✗ | **not runtime-verified** |
+| DNS / DDNS | ✓ `513` | ✓ `mediNix-ddns-prune-fqdn` | ✗ (no ddns on mediahost) | ✗ | ✗ | **not runtime-verified** |
+| Firewall | host-owned (`external`) | — | — | ✗ disabled on mediahost | — | **ACCEPTED** (host owns it) |
 | **CrowdSec** | option only, **no module reads it** (`default.nix:824`) | ✗ | ✗ | ✗ | ✗ | **NOT IMPLEMENTED** |
 | **Rate limiting** | ✗ | ✗ | ✗ | ✗ | ✗ | **NOT IMPLEMENTED** |
 | **Geo blocking** | ✗ | ✗ | ✗ | ✗ | ✗ | **NOT IMPLEMENTED** |
@@ -57,7 +57,7 @@ Notes:
   "CrowdSec (516)" in comments/assertion text and there is **no `516` module**.
   Dead option → remove or implement.
 - **Rate limit / Geo block**: no source, no generated directive, no runtime.
-  Geo blocking has **no realistic runtime test path** on q958 (no external egress
+  Geo blocking has **no realistic runtime test path** on mediahost (no external egress
   geography) → if ever implemented, that must be documented as a runtime gap, not
   claimed as working.
 - Header strip is proven only at eval/build (generated `request_header` order);

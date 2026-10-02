@@ -20,7 +20,7 @@ links:
 ## Source: Grok raw "NixOS PrivEsc Audit: K2-K6/H3 Review & Plan" (82 msgs, 220K chars)
 
 ## Context
-User requested a critical, no-assumptions security audit of the NixOS repo (q958) with
+User requested a critical, no-assumptions security audit of the NixOS repo (mediahost) with
 focus on Privilege Escalation vectors (K2-K6/H3 taxonomy). Mandate: verify current
 state with `rg`/`fd`/`bash`, never guess.
 

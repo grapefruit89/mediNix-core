@@ -11,15 +11,15 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# mediNix-core — q958 Onboarding Checklist
+# mediNix-core — mediahost Onboarding Checklist
 
-Vor dem ersten `nixos-rebuild switch` auf q958 (192.168.2.73) — strukturell
+Vor dem ersten `nixos-rebuild switch` auf mediahost (192.168.0.10) — strukturell
 vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
 
 ## Vor dem ersten Build
 
-- [ ] `security.acme` in der Host-Config konfiguriert (DNS-01, Cloudflare API-Token, Wildcard `*.m7c5.de`)
-- [ ] `/var/lib/acme/m7c5.de/` existiert mit `cert.pem` + `key.pem` (von Lego erzeugt)
+- [ ] `security.acme` in der Host-Config konfiguriert (DNS-01, Cloudflare API-Token, Wildcard `*.example.com`)
+- [ ] `/var/lib/acme/example.com/` existiert mit `cert.pem` + `key.pem` (von Lego erzeugt)
 - [ ] Tier-B Pfad gemountet: `${cfg.storage.mediaRoot}/downloads/` auf SSD (für SABnzbd temp)
 - [ ] Tier-C Pfad gemountet: `${cfg.storage.mediaRoot}/library/` auf HDD-Array (finale Mediathek)
 - [ ] `${cfg.storage.metadataDir}` zeigt auf SSD (nicht HDD — Jellyfin/ABS Metadaten sind I/O-heavy)
@@ -28,7 +28,7 @@ vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
 - [ ] `cfg.secrets.*ApiKeyFile` Pfade zeigen auf die `.cred`-Dateien (LoadCredentialEncrypted)
 - [ ] SSH-Keys für `media-admin` + `backup` User in `security.emergencyUser.sshKeys` / `security.backupSsh.sshKeys`
 
-## Secrets einrichten (einmalig auf q958)
+## Secrets einrichten (einmalig auf mediahost)
 
 Alle Secrets werden mit **TPM2 verschlüsselt** und als `.cred`-Dateien gespeichert.
 Die `.cred`-Dateien können ins Repo — sie sind ohne DIESES TPM wertlos.
@@ -72,9 +72,9 @@ prüft das via `INV-SECRET` Invariante. Violation → Build-Abbruch.
 
 - [ ] `nix flake check .#checks.x86_64-linux.nixos-check` — darf nicht fehlschlagen
 - [ ] `systemctl status jellyfin-5510 audiobookshelf-5520 navidrome-5530 feishin-5540`
-- [ ] Caddy erreichbar: `curl -I https://jellyfin.m7c5.de`
+- [ ] Caddy erreichbar: `curl -I https://jellyfin.example.com`
 - [ ] Sonarr: `curl -I http://127.0.0.1:5320` (LAN only — von außen blockiert durch Caddy `internal`-Template)
-- [ ] ntfy (falls `observability.ntfy.enable`): `curl -I https://ntfy.m7c5.de`
+- [ ] ntfy (falls `observability.ntfy.enable`): `curl -I https://ntfy.example.com`
 - [ ] 574-provisioning abgewartet: `journalctl -u mediNix-provisioning` (registriert SABnzbd + Prowlarr in *arr)
 - [ ] Arr-Apps: Settings → Connect → Ntfy manuell eintragen (Server `http://127.0.0.1:5810`, Topic aus `observability.ntfy.topic`)
 
@@ -82,7 +82,7 @@ prüft das via `INV-SECRET` Invariante. Violation → Build-Abbruch.
 
 - **CrowdSec:** Caddy-Plugin-Hash (`caddy-cs-bouncer`) muss vor erstem Build via `nix build` ermittelt und in `511-caddy.nix` (`services.caddy.package` bei `observability.crowdsec.enable`) eingetragen werden. Aktuell `lib.fakeHash` als Platzhalter — Build-Fehler zeigt den korrekten Hash. Nur nötig wenn `observability.crowdsec.enable = true`.
 
-  Hash ermitteln (einmalig auf q958):
+  Hash ermitteln (einmalig auf mediahost):
   ```bash
   nix build --impure --expr \
     '(import <nixpkgs> {}).caddy.withPlugins {
@@ -102,7 +102,7 @@ prüft das via `INV-SECRET` Invariante. Violation → Build-Abbruch.
 
 ## Anti-Lockout (kritisch bei Remote-Deploy)
 
-- `594-no-password-auth.nix`: `PasswordAuthentication=false`, SSH-Keys only (kein `jarvis ALL=(ALL) NOPASSWD:ALL` — das war ein Bug, entfernt).
+- `594-no-password-auth.nix`: `PasswordAuthentication=false`, SSH-Keys only (kein `mediahost ALL=(ALL) NOPASSWD:ALL` — das war ein Bug, entfernt).
 - `595-backup-ssh.nix`: 2. SSH-Dienst Port 2222 (LAN reachable, keys only) für Notfälle.
 - `521-nftables.nix`: Port 22 + 2222 in `allowedTCPPorts`. Nie `IPAddressDeny=[any]` (blockiert Loopback).
 - Immer `nixos-rebuild boot` statt `switch` bei Unsicherheit — bei Boot-Fail rollt Grub zurück.

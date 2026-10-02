@@ -25,10 +25,10 @@ auto-import regex before deleting.
 
 ## flake.nix status (this project)
 - `lib.fakeHash` at 511-caddy.nix:105 is a DELIBERATE placeholder. It only enters the build
-  path when `observability.crowdsec.enable = true` (default false). Before first deploy on q958,
+  path when `observability.crowdsec.enable = true` (default false). Before first deploy on mediahost,
   run `nix build` to get the real caddy+crowdsec-bouncer hash and substitute it. This is a
   real P0 blocker ONLY if CrowdSec is enabled.
-- `nix flake check` is UNTESTED (no nix binary in Hermes container, q958 is OFF). All module
+- `nix flake check` is UNTESTED (no nix binary in Hermes container, mediahost is OFF). All module
   changes are syntactically plausible + Context7-verified but not eval-proven until a Nix host runs.
 
 ## Shift-Left adoption (devNIX harvest, in flake.nix)

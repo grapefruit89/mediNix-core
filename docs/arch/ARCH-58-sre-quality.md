@@ -35,7 +35,7 @@ in {
   };
 }
 ```
-*   **Vorteil:** Dienste werden zentral in der `hosts/q958/default.nix` via `mynixos.services.jellyfin.enable = true;` gesteuert, anstatt Dateien im Dateisystem zu verschieben.
+*   **Vorteil:** Dienste werden zentral in der `hosts/mediahost/default.nix` via `mynixos.services.jellyfin.enable = true;` gesteuert, anstatt Dateien im Dateisystem zu verschieben.
 
 ### Systemd Sandboxing (GPU-Spezialfall)
 Um Hardware-Transcoding (Intel QuickSync) zu ermöglichen, müssen die Sicherheitsregeln für GPU-Dienste angepasst werden:

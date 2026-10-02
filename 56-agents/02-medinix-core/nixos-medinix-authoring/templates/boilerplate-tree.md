@@ -9,7 +9,7 @@ Kopieren als Startpunkt für neue mediNix-Module. Liegt auf dem Agent-Host unter
 │   ├── registry.nix               # SSoT: mkService name port -> {uid=5000+port/10, gid=5000, wan, stream}
 │   └── service-factory.nix        # mkService + containerIsolation (Loopback only!)
 ├── 51-zugang/
-│   └── 512-three-way-ingress.nix  # Caddy: {svc}.local / .m7c5 / .m7c5.de(wan)
+│   └── 512-three-way-ingress.nix  # Caddy: {svc}.local / .example / .example.com(wan)
 ├── 52-sicherheit/
 │   ├── 522-service-slimming.nix   # systemd hardening (NoNewPrivileges etc.)
 │   └── 523-nftables-hardening.nix # nftables.enable, allowedTCPPorts=[22]

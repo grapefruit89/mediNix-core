@@ -13,7 +13,7 @@ from typing import Any, Optional
 from arr_provision.common import http_json, read_key_file, wait_for_url
 
 _EMBY_AUTH = (
-    'MediaBrowser Client="arr-provision", Device="q958", DeviceId="q958-arr-provision", Version="1.0.0"'
+    'MediaBrowser Client="arr-provision", Device="mediahost", DeviceId="mediahost-arr-provision", Version="1.0.0"'
 )
 
 _DECLARED_LIBRARIES = ("Filme", "Serien")

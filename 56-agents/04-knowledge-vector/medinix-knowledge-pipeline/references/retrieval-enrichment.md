@@ -19,7 +19,7 @@ Right loop: `search to find RELEVANT TOPICS → SSH to Tower → grep the actual
 ## 2. The SSH-to-Tower path (authoritative, FULL TEXT)
 The real bodies live on the Unraid Tower, not in the Hermes container.
 
-- Host: `root@192.168.2.250:53844` (NOT :22 — standard SSH refused; Tower uses 53844).
+- Host: `root@192.168.0.250:53844` (NOT :22 — standard SSH refused; Tower uses 53844).
   Key: `/tmp/hermes_key` (on Hermes container). Mount `/mnt/user/...` is NOT reachable
   from the container — must SSH.
 - Store dir: `/mnt/user/data/hermes_knowledge/nixos_vectors/`
@@ -35,7 +35,7 @@ The real bodies live on the Unraid Tower, not in the Hermes container.
 
 ### Enrichment extraction snippet (run via ssh on Tower)
 ```bash
-ssh -i /tmp/hermes_key -p 53844 root@192.168.2.250 'cd /mnt/user/data/hermes_knowledge/nixos_vectors/ && python3 -c "
+ssh -i /tmp/hermes_key -p 53844 root@192.168.0.250 'cd /mnt/user/data/hermes_knowledge/nixos_vectors/ && python3 -c "
 import json, re
 chat = json.load(open(\"chunks.json\"))
 grok = json.load(open(\"grok_pivots_raw.json\"))
@@ -63,7 +63,7 @@ hardlink, AUTH__METHOD) — NOT bare service names.
 
 ## Real bugs this workflow caught (do not regress)
 - Jellyfin: missing `render` group + `DeviceAllow=/dev/dri/renderD128` + `LIBVA_DRIVER_NAME`
-  → VA-API transcode would have failed on q958.
+  → VA-API transcode would have failed on mediahost.
 - All services: `StateDirectoryMode` unset → state dirs 0755 (world-readable).
 - Caddy-CrowdSec plugin name WRONG: `crowdsecurity/caddy-cs-bouncer` → CORRECT
   `hslatman/caddy-crowdsec-bouncer`. `pkgs.caddy.withPlugins` with old name fails.

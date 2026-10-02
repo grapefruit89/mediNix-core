@@ -23,7 +23,7 @@ Kritische Dienste (SABnzbd, Prowlarr) werden physisch auf einen VPN-Namespace be
 - **Vorteil:** Keine "Lecks" der IP-Adresse.
 
 ## ⚡ Hardware-Transcoding (Intel QuickSync)
-Dein Fujitsu Q958 nutzt die Intel UHD 630 GPU.
+Dein Fujitsu Mediahost nutzt die Intel UHD 630 GPU.
 - **Treiber:** Wir nutzen konsequent den `intel-media-driver` (iHD).
 - **Konfiguration:** `nixpkgs.config.packageOverrides = pkgs: { vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; }; };` (oder neuer Standard).
 

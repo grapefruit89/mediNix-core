@@ -56,7 +56,7 @@ KISS: keine zweite Architektur neben Registry/Factory.
 - Deklarativ über `medinix.*`-Optionen; keine Host-IPs/Namen als Default.
 - Registry = SSoT für Port/UID/GID (Port = Num×10, UID = Port, GID = 5000).
 - Unit-Namen = plain (`sonarr.service`); StateDirectory darf Port-Suffix haben.
-- Portabel: keine q958 / m7c5 / 192.168 / privado als Modul-Wahrheit.
+- Portabel: keine mediahost / example / 192.168 / wg0 als Modul-Wahrheit.
 - Kein netns, kein `NetworkNamespacePath`.
 - VPN: RestrictNetworkInterfaces + Policy-Routing-Logik an `vpn.interface`; Host liefert Interface.
 - DNS: Sandbox-resolv nur aus `vpn.dnsServers`; leer + confinement → Assert.
@@ -85,7 +85,7 @@ Fertig nur wenn z. B.:
 - Wo ein Nix-Check-Host verfügbar ist: `nix eval` / `nix flake check` nach dem Patch ausführen.
 - Betroffene Assertions benennen (nicht nur "Patch gelesen → fertig" behaupten).
 - Kein "fertig" allein aus dem eigenen Patch-Review — echte Eval schlägt mehr als Lesen.
-- Kein Check-Host / q958 AUS: ehrlich melden "Check nicht gelaufen — P0 bleibt offen". Nicht fake-grün.
+- Kein Check-Host / mediahost AUS: ehrlich melden "Check nicht gelaufen — P0 bleibt offen". Nicht fake-grün.
 
 ---
 

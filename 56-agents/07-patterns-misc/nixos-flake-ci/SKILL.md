@@ -148,8 +148,8 @@ inside each directory. Use the file-walking version above.
   `grapefruit89/mediNIX-core` dies with "Permission denied (publickey)"
   because the deploy key is not the default agent key. MUST use:
   `GIT_SSH_COMMAND="ssh -i /opt/data/.ssh/mediNIX_core_deploy -o IdentitiesOnly=yes" git push`
-- **Never hardcode the Tower IP (192.168.2.250) inside a NixOS module that
-  runs on the deploy host (q958)**. That host reaches ntfy via `127.0.0.1`.
+- **Never hardcode the Tower IP (192.168.0.250) inside a NixOS module that
+  runs on the deploy host (mediahost)**. That host reaches ntfy via `127.0.0.1`.
   The Tower IP is only valid from the Hermes-container context. Confusing the
   two caused a portability regression this session — the file was reverted.
 - **`types.path` for secret files leaks them world-readable into the Nix

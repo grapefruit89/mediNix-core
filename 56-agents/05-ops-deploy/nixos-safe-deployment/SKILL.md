@@ -1,17 +1,17 @@
 ---
 name: nixos-safe-deployment
-description: NixOS deployment on q958 with anti-lockout guarantees.
+description: NixOS deployment on mediahost with anti-lockout guarantees.
 ---
 
-# NixOS Safe Deployment (q958)
+# NixOS Safe Deployment (mediahost)
 
 ## Ziel
-mediNix auf q958 (192.168.2.73) deployen ohne SSH zu killen. Nutzt Anti-Lockout Stack (593, 594, 595) und 3-Wege-Ingress (512).
+mediNix auf mediahost (192.168.0.10) deployen ohne SSH zu killen. Nutzt Anti-Lockout Stack (593, 594, 595) und 3-Wege-Ingress (512).
 
 ## Voraussetzungen
-- SSH-Key: `/tmp/q958_key`
-- mediNix auf q958: `/home/jarvis/mediNix/`
-- Host: `jarvis@192.168.2.73:22`, Backup: Port `2222`
+- SSH-Key: `/tmp/mediahost_key`
+- mediNix auf mediahost: `/home/mediahost/mediNix/`
+- Host: `mediahost@192.168.0.10:22`, Backup: Port `2222`
 
 ## Schritt 1: Configs prüfen
 In `59-leitplanken/`:
@@ -34,22 +34,22 @@ imports = [
 
 ## Schritt 3: Dry-Run (IMMER ZUERST!)
 ```bash
-ssh -i /tmp/q958_key jarvis@192.168.2.73 "cd /home/jarvis/mediNix && nixos-rebuild dry-run --flake .#check 2>&1 | tail -20"
+ssh -i /tmp/mediahost_key mediahost@192.168.0.10 "cd /home/mediahost/mediNix && nixos-rebuild dry-run --flake .#check 2>&1 | tail -20"
 ```
 Bei `assertion failed` → **STOPP!**
 
 ## Schritt 4: Switch
 ```bash
-ssh -i /tmp/q958_key jarvis@192.168.2.73 "cd /home/jarvis/mediNix && sudo nixos-rebuild switch --flake .#check 2>&1 | tail -30"
+ssh -i /tmp/mediahost_key mediahost@192.168.0.10 "cd /home/mediahost/mediNix && sudo nixos-rebuild switch --flake .#check 2>&1 | tail -30"
 ```
 
 ## Schritt 5: Verifikation
-1. SSH: `ssh -i /tmp/q958_key jarvis@192.168.2.73`
-2. Backup-SSH: `ssh -i /tmp/q958_key -p 2222 jarvis@192.168.2.73`
+1. SSH: `ssh -i /tmp/mediahost_key mediahost@192.168.0.10`
+2. Backup-SSH: `ssh -i /tmp/mediahost_key -p 2222 mediahost@192.168.0.10`
 3. 3-Wege-Zugang: `curl http://sonarr.local`
 
 ## Fehlerbehebung
-- **SSH weg:** q958 neu starten (Strom aus/an), dann Port 2222 nutzen
+- **SSH weg:** mediahost neu starten (Strom aus/an), dann Port 2222 nutzen
 - **nftables blockiert:** `systemctl stop nftables` (via TTY)
 - **Rollback:** `nixos-rebuild rollback`
 
@@ -60,4 +60,4 @@ ssh -i /tmp/q958_key jarvis@192.168.2.73 "cd /home/jarvis/mediNix && sudo nixos-
 4. Backup-SSH (Port 2222) immer konfiguriert
 
 ## User-Präferenz (TTY)
-Bei direktem Zugriff am q958: **Kurze Befehle**, keine langen Erklärungen.
+Bei direktem Zugriff am mediahost: **Kurze Befehle**, keine langen Erklärungen.
