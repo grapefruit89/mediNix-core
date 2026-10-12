@@ -188,33 +188,6 @@ in
     };
 
     # --- Service enable + package overrides ---
-    audiobookshelf = {
-      enable = lib.mkEnableOption "Audiobookshelf Server";
-      package = mkPackageOption "audiobookshelf";
-      enableQuickSync = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = ''
-          NOTE (misnomer): enableQuickSync benennt Intel QSV Transcode-Mapping.
-          In mediNix-core zeigt dies korrekt auf Audiobookshelf-Hardware-Zugriff,
-          NICHT auf Jellyfin (ursprünglicher Fehler im Quell-Repo, hier korrigiert).
-        '';
-      };
-      # RT-2: Audiobookshelf hat KEINE env-basierte Admin-Erstellung (nur der
-      # First-Run-Setup-Screen im Browser). Daher Ack-only statt Pre-Seed.
-      setupCompleted = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Explizite Bestätigung, dass der Root-User über den First-Run-Setup
-          erstellt wurde. Prozedur: vHost auf accessGroup = "internal"
-          (LAN-only) deployen, Setup in der Web-UI abschließen, danach erst auf
-          stream exponieren und diesen Schalter setzen. Ohne Bestätigung ist
-          ein WAN-exponiertes Audiobookshelf ein Build-Fehler — der erste
-          Besucher des offenen Setup-Screens würde sonst zum Root-User.
-        '';
-      };
-    };
     navidrome = {
       enable = lib.mkEnableOption "Navidrome Music Server";
       package = mkPackageOption "navidrome";
