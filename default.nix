@@ -187,41 +187,6 @@ in
       '';
     };
 
-    # --- Service enable + package overrides ---
-    navidrome = {
-      enable = lib.mkEnableOption "Navidrome Music Server";
-      package = mkPackageOption "navidrome";
-      # RT-2 (first-run race): stream vHosts are WAN-reachable with NO proxy
-      # auth, and Navidrome's first run shows an open setup screen — any first
-      # visitor would create the admin account (fresh wildcard DNS + CT logs
-      # make new deployments findable within minutes). Pre-seed the admin.
-      adminPasswordCredential = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = ''
-          Pfad zur .cred-Datei (systemd-creds, TPM-versiegelt) mit dem initialen
-          Navidrome-Admin-Passwort. Inhalt: Rohtext-Passwort oder
-          ND_ADMIN_PASSWORD=<pw>. 553 exportiert den Wert beim Start als
-          ND_DEVAUTOCREATEADMINPASSWORD — Navidrome legt den Admin NUR an,
-          solange der Initial-Setup noch nicht abgeschlossen ist (danach wird
-          die Variable ignoriert; in der UI geänderte Passwörter bleiben
-          erhalten). Pflicht bei WAN-Exposure (stream), alternativ
-          setupCompleted = true nach Setup über einen internal-vHost.
-        '';
-      };
-      setupCompleted = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Explizite Bestätigung (Ack im Stil von allowUnauthenticated), dass
-          das initiale Admin-Konto bereits in der Web-UI erstellt wurde —
-          Setup-Prozedur: vHost auf accessGroup = "internal" (LAN-only)
-          deployen, Setup abschließen, dann erst auf stream exponieren und
-          diesen Schalter setzen. Ohne adminPasswordCredential ODER
-          setupCompleted ist ein WAN-exponiertes Navidrome ein Build-Fehler.
-        '';
-      };
-    };
     exporters = {
       enable = lib.mkEnableOption "Prometheus exporters for Arr stack";
       lidarr.enable = lib.mkEnableOption "Enable metrics exporter for Lidarr";
