@@ -118,6 +118,7 @@ in
     after = [ "network-online.target" ];
     requires = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
+    onFailure = [ "alert-ntfy@%n.service" ];
     preStart = ''
       ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/config'
       if [ ! -f '${stateDir}/config/system.xml' ]; then
