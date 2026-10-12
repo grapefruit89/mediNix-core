@@ -74,7 +74,7 @@ let
     ];
 in
 {
-  imports = moduleFiles;
+  imports = moduleFiles ++ [ ./lib/service-contract.nix ];
 
   options.medinix = {
 
