@@ -188,14 +188,6 @@ in
     };
 
     # --- Service enable + package overrides ---
-    seerr = {
-      enable = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
-      package = mkPackageOption "seerr";
-    };
-    bazarr = {
-      enable = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
-      package = mkPackageOption "bazarr";
-    };
     audiobookshelf = {
       enable = lib.mkEnableOption "Audiobookshelf Server";
       package = mkPackageOption "audiobookshelf";

@@ -19,55 +19,119 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.seerr;
-  inherit (reg) port;
-  inherit (reg) uid;
+  meta = config.medinix.manifest.seerr;
+
+  inherit (meta) port uid stateDir;
   inherit (reg) gid;
-  inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   seerrPkg =
     if cfg.package != null then cfg.package else pkgs.seerr or (pkgs.jellyseerr or pkgs.overseerr);
 in
-lib.mkIf cfg.enable {
-  users.users.seerr = {
-    inherit uid;
-    group = "media";
-    extraGroups = [ "media" ];
-    home = stateDir;
-    isSystemUser = true;
-  };
-  users.groups.media.gid = gid;
+{
+  options.medinix.seerr = {
+    enable = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
 
-  systemd.services.seerr = {
-    after = [
-      "network.target"
-      "jellyfin.service"
-    ];
-    requires = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = lib.mkMerge [
-      profiles.nodejs
-      {
-        ExecStart = lib.getExe seerrPkg;
-        User = "seerr";
-        Group = "media";
-        UMask = "0002";
-        StateDirectory = "seerr-${toString port}";
-        ReadWritePaths = [ stateDir ];
-      }
-      (lib.mkIf (cfg.envFile or null != null) {
-        EnvironmentFile = cfg.envFile;
-      })
-      (lib.mkIf (svc.secrets.seerrApiKeyFile or null != null) {
-        LoadCredentialEncrypted = [ "seerr-api-key:${svc.secrets.seerrApiKeyFile}" ];
-      })
-    ];
-    environment = {
-      PORT = toString port;
-      HOST = "127.0.0.1";
+    package = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      defaultText = lib.literalExpression "null";
+      description = ''
+        Optionales Paket-Override für Seerr.
+        null = NixOS-Modul-Default aus nixpkgs.
+      '';
+    };
+
+    envFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "Optionale EnvironmentFile für Seerr-Laufzeitvariablen.";
     };
   };
 
-  medinix.ingress.vhosts."seerr" = {
-    accessGroup = "public";
-  };
+  config = lib.mkMerge [
+    # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
+    {
+      medinix.manifest.seerr = {
+        enable = cfg.enable;
+        num = reg.num;
+        accessGroup = "public";
+
+        ui = {
+          title = "Seerr";
+          description = "Medien-Anfragen & Entdeckung";
+          icon = "seerr";
+          group = "Media";
+        };
+
+        monitoring = {
+          enable = cfg.enable;
+          type = "http";
+          healthPath = "/api/v1/status";
+          expectedStatus = 200;
+        };
+
+        ops = {
+          priority = "medium";
+          ramBudget = "1G";
+          notes = "Request Manager (Jellyseerr/Overseerr).";
+        };
+      };
+    }
+
+    # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
+    (lib.mkIf cfg.enable {
+      assertions = [
+        {
+          assertion = meta.num == reg.num;
+          message = "[mediNix/555-seerr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+        }
+      ];
+
+      users.users.seerr = {
+        inherit uid;
+        group = "media";
+        extraGroups = [ "media" ];
+        home = stateDir;
+        isSystemUser = true;
+      };
+      users.groups.media.gid = gid;
+
+      systemd.services.seerr = {
+        after = [
+          "network.target"
+          "jellyfin.service"
+        ];
+        requires = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        onFailure = [ "alert-ntfy@%n.service" ];
+        serviceConfig = lib.mkMerge [
+          profiles.nodejs
+          memoryPolicy.seerr
+          {
+            ExecStart = lib.getExe seerrPkg;
+            User = "seerr";
+            Group = "media";
+            UMask = "0002";
+            StateDirectory = "seerr-${toString port}";
+            ReadWritePaths = [ stateDir ];
+          }
+          (lib.mkIf (cfg.envFile != null) {
+            EnvironmentFile = cfg.envFile;
+          })
+          (lib.mkIf (svc.secrets.seerrApiKeyFile or null != null) {
+            LoadCredentialEncrypted = [ "seerr-api-key:${svc.secrets.seerrApiKeyFile}" ];
+          })
+        ];
+        environment = {
+          PORT = toString port;
+          HOST = "127.0.0.1";
+        };
+      };
+
+      medinix.ingress.vhosts."seerr" = {
+        accessGroup = meta.accessGroup;
+      };
+    })
+  ];
 }
