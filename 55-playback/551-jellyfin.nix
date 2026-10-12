@@ -17,11 +17,13 @@
 let
   cfg = config.medinix.jellyfin;
   svc = config.medinix;
-  creds = import ../lib/creds.nix { inherit lib; };
-  port = 5510;
-  uid = 5510;
+  reg = (import ../lib/registry.nix { inherit lib; }).services.jellyfin;
+  meta = config.medinix.manifest.jellyfin;
+
+  # Kanonisch aus dem Manifest abgeleitet:
+  inherit (meta) port uid stateDir;
   gid = 5000;
-  stateDir = "/var/lib/jellyfin-${toString port}";
+  creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
@@ -53,17 +55,47 @@ let
 
   brandingXmlSeed = ./data/jellyfin-branding.xml;
 in
-lib.mkIf cfg.enable {
-  assertions = [
+{
+  config = lib.mkMerge [
+    # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
-      assertion = adminCred != null;
-      message = ''
-        [mediNix] jellyfin is on the WAN stream vhost. Set
-        medinix.jellyfin.adminPasswordCredential (or adminPasswordFile)
-        to a systemd-creds blob. No default admin. No Pocket-ID SSO.
-      '';
+      medinix.manifest.jellyfin = {
+        enable = cfg.enable;
+        num = reg.num;
+        accessGroup = "stream";
+
+        ui = {
+          title = "Jellyfin";
+          description = "Medien-Streaming (Filme & Serien)";
+          icon = "jellyfin";
+          group = "Media";
+        };
+
+        monitoring = {
+          enable = cfg.enable;
+          type = "http";
+          healthPath = "/health";
+          expectedStatus = 200;
+        };
+      };
     }
-  ];
+
+    # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
+    (lib.mkIf cfg.enable {
+      assertions = [
+        {
+          assertion = adminCred != null;
+          message = ''
+            [mediNix] jellyfin is on the WAN stream vhost. Set
+            medinix.jellyfin.adminPasswordCredential (or adminPasswordFile)
+            to a systemd-creds blob. No default admin. No Pocket-ID SSO.
+          '';
+        }
+        {
+          assertion = meta.num == reg.num;
+          message = "[mediNix/551-jellyfin] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+        }
+      ];
 
   users.users.jellyfin = {
     inherit uid;
@@ -154,13 +186,15 @@ lib.mkIf cfg.enable {
     accessGroup = "stream";
   };
 
-  hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver
-      vpl-gpu-rt
-      intel-vaapi-driver
-      intel-compute-runtime
-    ];
-  };
+    hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
+      enable = true;
+      extraPackages = with pkgs; [
+        intel-media-driver
+        vpl-gpu-rt
+        intel-vaapi-driver
+        intel-compute-runtime
+      ];
+    };
+  })
+];
 }
