@@ -662,6 +662,79 @@
         # ── Dezimalrahmen-Enforcer (Priorität 1, neben der Ratsche) ─────────
         checks.decimal-framework = decimalFrameworkCheck;
 
+        # ── Service-Compliance-Ratsche (ADR-0010) ──────────────────────────
+        serviceComplianceCheck =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.sonarr.enable = true;
+                  medinix.radarr.enable = true;
+                  medinix.readarr.enable = true;
+                  medinix.lidarr.enable = true;
+                  medinix.prowlarr.enable = true;
+                  medinix.sabnzbd.enable = true;
+                  medinix.jellyfin.enable = true;
+                  medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+                  medinix.audiobookshelf.enable = true;
+                  medinix.navidrome.enable = true;
+                  medinix.seerr.enable = true;
+                };
+              }).config;
+            activeServices = lib.filterAttrs (_: m: m.enable) (c.medinix.manifest or { });
+
+            # 1. schemaVersion == 1
+            badSchema = lib.mapAttrsToList (n: m: "${n}: schemaVersion ${toString m.schemaVersion} != 1") (
+              lib.filterAttrs (_: m: m.schemaVersion != 1) activeServices
+            );
+
+            # 2. Keine Port-/UID-Kollisionen (m.num eindeutig)
+            nums = lib.mapAttrsToList (_: m: m.num) activeServices;
+            numDuplicates =
+              if (lib.length nums != lib.length (lib.unique nums)) then
+                [ "Kollision in medinix.manifest num/port: doppelte Ziffern gefunden" ]
+              else
+                [ ];
+
+            # 3. Keine Kachel-Kollisionen auf der Landingpage (m.ui.title eindeutig)
+            landingServices = lib.filterAttrs (_: m: (m.ui.showOnLanding or true) && m.accessGroup != "none") activeServices;
+            titles = lib.mapAttrsToList (_: m: m.ui.title) landingServices;
+            titleDuplicates =
+              if (lib.length titles != lib.length (lib.unique titles)) then
+                [ "Kollision in ui.title auf der Landingpage: doppelte Titel gefunden" ]
+              else
+                [ ];
+
+            # 4. Valide Healthcheck-Syntax (monitoring.healthPath beginnt mit /, falls monitoring.enable = true)
+            badHealth = lib.mapAttrsToList (n: m: "${n}: monitoring.healthPath '${m.monitoring.healthPath}' beginnt nicht mit '/'") (
+              lib.filterAttrs (_: m: m.monitoring.enable && !(lib.hasPrefix "/" m.monitoring.healthPath)) activeServices
+            );
+
+            # 5. Valide accessGroup (Enum-Prüfung)
+            allowedGroups = [
+              "stream"
+              "internal"
+              "public"
+              "idp"
+              "none"
+            ];
+            badAccess = lib.mapAttrsToList (n: m: "${n}: ungültige accessGroup '${m.accessGroup}'") (
+              lib.filterAttrs (_: m: !(lib.elem m.accessGroup allowedGroups)) activeServices
+            );
+
+            errors = badSchema ++ numDuplicates ++ titleDuplicates ++ badHealth ++ badAccess;
+          in
+          if errors == [ ] then
+            pkgs.runCommand "service-compliance-ok" { } ''
+              echo 'ok: mediNix Service-Compliance-Check (ADR-0010) bestanden' > $out
+            ''
+          else
+            throw ("mediNix Service-Compliance-Check fehlgeschlagen:\n  " + lib.concatStringsSep "\n  " errors);
+
+        checks.serviceComplianceCheck = serviceComplianceCheck;
+
         # ── Linting (Priorität 2): kopiert aus devNIX mkCheck-Pattern ───────
         checks.nixfmt-check = mkCheck "nixfmt" (pkgs: [ pkgs.nixfmt-rfc-style ]) ''
           nixfmt --check $(find . -name '*.nix' -not -path './.git/*') \
@@ -680,6 +753,30 @@
 
         # ── Formatter + devShell (Priorität 3) ──────────────────────────────
         formatter = pkgs.nixfmt-rfc-style;
+
+        # Manifest JSON Export
+        packages.manifest-json =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.sonarr.enable = true;
+                  medinix.radarr.enable = true;
+                  medinix.readarr.enable = true;
+                  medinix.lidarr.enable = true;
+                  medinix.prowlarr.enable = true;
+                  medinix.sabnzbd.enable = true;
+                  medinix.jellyfin.enable = true;
+                  medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+                  medinix.audiobookshelf.enable = true;
+                  medinix.navidrome.enable = true;
+                  medinix.seerr.enable = true;
+                };
+              }).config;
+          in
+          pkgs.writeText "medinix-manifest.json" (builtins.toJSON (c.medinix.manifest or { }));
 
         # Knowledge Base Build
         packages.docs = pkgs.stdenv.mkDerivation {

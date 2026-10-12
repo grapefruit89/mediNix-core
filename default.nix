@@ -176,17 +176,6 @@ in
       };
     };
 
-    domain = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "media.example.com";
-      description = ''
-        Optionale Unicast-Base-Domain für die L2-vHosts ({service}.{domain}).
-        null = KEINE L2-Namen. L1-mDNS ({service}.local) läuft unabhängig immer.
-        WICHTIG: NIEMALS auf .local enden — .local ist Multicast-DNS (RFC 6762).
-      '';
-    };
-
     mover = {
       enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
       mode = lib.mkOption {
