@@ -9,19 +9,8 @@
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/prowlarr.svg
 # links:
 # provides: []
-# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
-# ports: []
-# upstream_docs: []
-# forum_links: []
-# upstream_github: ""
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: true
+# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-5320, ADR-5050
-# context7:
-# - query: "systemd.services serviceConfig ProtectSystem example"
-# library: /websites/nixos_manual_nixos_unstable
 # ---
 # ─────────────────────────────────────────────────────────────────────────────
 # ARCHITEKTUR-VORGABE: PROWLARR WIRD NICHT AN DEN VPN-KILLSWITCH GEBUNDEN!
@@ -41,85 +30,141 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.prowlarr;
-  inherit (reg) port;
-  inherit (reg) uid;
+  meta = config.medinix.manifest.prowlarr;
+
+  inherit (meta) port uid stateDir;
   inherit (reg) gid;
-  inherit (reg) stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
-  # F2: 511 renders forward_auth ONLY for `public` vhosts. Base *arr's auth
-  # method on the RESOLVED exposure of this vhost — External only when
-  # forward_auth is actually in front, otherwise *arr would be unauthenticated.
-  exposedPublic = (config.medinix.ingress.vhosts."prowlarr".accessGroup or "none") == "public";
+
+  package = if cfg.package != null then cfg.package else pkgs.prowlarr;
+
+  # F2: Forward-auth detection decoupled from ingress.vhosts
+  exposedPublic = meta.accessGroup == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"
     else
       "Forms";
 in
-lib.mkIf cfg.enable (
-  lib.mkMerge [
+{
+  options.medinix.prowlarr = {
+    enable = lib.mkEnableOption "Prowlarr Indexer Proxy";
+
+    package = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      defaultText = lib.literalExpression "null";
+      description = ''
+        Optionales Paket-Override für Prowlarr.
+        null = NixOS-Modul-Default aus nixpkgs.
+      '';
+    };
+  };
+
+  config = lib.mkMerge [
+    # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
-      users.groups.media.gid = gid;
+      medinix.manifest.prowlarr = {
+        enable = cfg.enable;
+        num = reg.num;
+        accessGroup = "internal";
 
-    }
-    (mkService {
-      name = "prowlarr";
-      inherit port;
-      inherit uid;
-      execStart = "${pkgs.prowlarr}/bin/Prowlarr -nobrowser -data=${stateDir}";
-      inherit stateDir;
-      profile = "dotnet";
-      allowedPeers = [ "sabnzbd" ];
-      extraConfig = {
-        UMask = "0002";
-        ReadWritePaths = [ stateDir ];
-      };
-    })
-    {
-      systemd.services.prowlarr = {
-        after = [ "network.target" ];
-        requires = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        environment = lib.mkMerge [
-          (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
-            PROWLARR_API_KEY_FILE = svc.secrets.prowlarrApiKeyFile;
-          })
-          (arrSettings.mkProwlarr {
-            server = {
-              inherit port;
-              bindAddress = "127.0.0.1";
-              urlBase = "";
-            };
-            auth = {
-              method = authMethod;
-              required = "Enabled";
-            };
-            app = {
-              theme = "dark";
-              instanceName = "Prowlarr";
-            };
-            log.level = "info";
-            update.mechanism = "BuiltIn";
-          })
-        ];
-      };
+        ui = {
+          title = "Prowlarr";
+          description = "Indexer-Proxy & Integration";
+          icon = "prowlarr";
+          group = "Acquisition";
+        };
 
-      systemd.sockets.prowlarr = lib.mkIf svc.onDemand.enable {
-        wantedBy = [ "sockets.target" ];
-        listenStreams = [ "127.0.0.1:${toString port}" ];
-        socketConfig.Accept = false;
-      };
+        monitoring = {
+          enable = cfg.enable;
+          type = "http";
+          healthPath = "/api/v1/system/status";
+          expectedStatus = 200;
+        };
 
-      medinix.ingress.vhosts."prowlarr" = {
-        accessGroup = reg.caddyClass;
-      };
-
-    }
-    {
-      systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
-        serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+        ops = {
+          priority = "medium";
+          ramBudget = "512M";
+          notes = "Indexer-Proxy für Sonarr, Radarr, Lidarr und Readarr.";
+        };
       };
     }
-  ]
-)
+
+    # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
+    (lib.mkIf cfg.enable (
+      lib.mkMerge [
+        {
+          assertions = [
+            {
+              assertion = meta.num == reg.num;
+              message = "[mediNix/536-prowlarr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+            }
+          ];
+
+          users.groups.media.gid = gid;
+        }
+        (mkService {
+          name = "prowlarr";
+          inherit port;
+          inherit uid;
+          execStart = "${package}/bin/Prowlarr -nobrowser -data=${stateDir}";
+          inherit stateDir;
+          profile = "dotnet";
+          allowedPeers = [ "sabnzbd" ];
+          extraConfig = {
+            User = "prowlarr";
+            UMask = "0002";
+            ReadWritePaths = [ stateDir ];
+          };
+        })
+        {
+          systemd.services.prowlarr = {
+            after = [ "network.target" ];
+            requires = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            onFailure = [ "alert-ntfy@%n.service" ];
+            environment = lib.mkMerge [
+              (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
+                PROWLARR_API_KEY_FILE = svc.secrets.prowlarrApiKeyFile;
+              })
+              (arrSettings.mkProwlarr {
+                server = {
+                  inherit port;
+                  bindAddress = "127.0.0.1";
+                  urlBase = "";
+                };
+                auth = {
+                  method = authMethod;
+                  required = "Enabled";
+                };
+                app = {
+                  theme = "dark";
+                  instanceName = "Prowlarr";
+                };
+                log.level = "info";
+                update.mechanism = "BuiltIn";
+              })
+            ];
+          };
+
+          systemd.sockets.prowlarr = lib.mkIf svc.onDemand.enable {
+            wantedBy = [ "sockets.target" ];
+            listenStreams = [ "127.0.0.1:${toString port}" ];
+            socketConfig.Accept = false;
+          };
+
+          medinix.ingress.vhosts."prowlarr" = {
+            accessGroup = meta.accessGroup;
+          };
+        }
+        {
+          systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
+            serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+          };
+        }
+      ]
+    ))
+  ];
+}

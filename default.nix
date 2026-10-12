@@ -200,10 +200,6 @@ in
       enable = lib.mkEnableOption "Readarr Books Manager";
       package = mkPackageOption "readarr";
     };
-    prowlarr = {
-      enable = lib.mkEnableOption "Prowlarr Indexer Proxy";
-      package = mkPackageOption "prowlarr";
-    };
     audiobookshelf = {
       enable = lib.mkEnableOption "Audiobookshelf Server";
       package = mkPackageOption "audiobookshelf";
