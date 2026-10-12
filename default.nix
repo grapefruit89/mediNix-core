@@ -232,25 +232,6 @@ in
       enable = lib.mkEnableOption "Prowlarr Indexer Proxy";
       package = mkPackageOption "prowlarr";
     };
-    sabnzbd = {
-      enable = lib.mkEnableOption "SABnzbd Usenet Downloader";
-      package = mkPackageOption "sabnzbd";
-      # SABnzbd Usenet-Provider (wurde vergessen!)
-      serverCredentialFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = ''
-          Pfad zur systemd-credential-Datei (.cred) mit Usenet-Server-Credentials.
-          Format der entschlüsselten Datei:
-            HOST=news.provider.com
-            PORT=563
-            USER=meinuser
-            PASS=meinpasswort
-            SSL=1
-          Erfordert: systemd-creds encrypt --with-key=tpm2+host (siehe ONBOARDING.md).
-        '';
-      };
-    };
     audiobookshelf = {
       enable = lib.mkEnableOption "Audiobookshelf Server";
       package = mkPackageOption "audiobookshelf";
