@@ -338,7 +338,7 @@ let
     stateDir = registry.caddy.stateDir;
     profile = "network";
     extraConfig = {
-      Type = lib.mkDefault "notify";
+      Type = lib.mkDefault "exec";
       WatchdogSec = lib.mkDefault "60s";
       CPUWeight = lib.mkDefault 400;
       IOWeight = lib.mkDefault 200;

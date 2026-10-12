@@ -63,7 +63,7 @@ rec {
     LockPersonality = true;
     SystemCallFilter = [ "@system-service" ];
     SystemCallErrorNumber = "EPERM";
-    SystemCallArchitectures = [ "native" ];
+    SystemCallArchitectures = "native";
     ProtectClock = true;
     ProtectHostname = true;
     RemoveIPC = true;
@@ -80,6 +80,13 @@ rec {
     AmbientCapabilities = [ "" ];
     Restart = "on-failure";
     RestartSec = "5s";
+    StartLimitBurst = 5;
+    StartLimitIntervalSec = 60;
+    SuccessExitStatus = [
+      0
+      143
+    ];
+    OnFailure = [ "alert-ntfy@%n.service" ];
     # "-" prefix (systemd.exec): ignore the entry when the path does not exist.
     # Without it a missing path (e.g. /run/secrets, legacy) aborts the unit with
     # 226/NAMESPACE at namespace setup. All entries are "deny if present".
