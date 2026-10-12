@@ -9,18 +9,30 @@ let
   cfg = config.medinix;
 in
 {
+  options.medinix.schemaVersion = lib.mkOption {
+    type = lib.types.int;
+    default = 1;
+    description = "Version des mediNix-Manifest-Vertrags (ADR-0010).";
+  };
+
   options.medinix.manifest = lib.mkOption {
     description = ''
       Deklarativer Dienst-Steckbrief. Jeder Dienst in mediNix deklariert
       hier seine Identität, Routing-Klasse, UI-Daten und Monitoring-Ziele.
     '';
-    default = { };
-    type = lib.types.attrsOf (
-      lib.types.submodule (
-        { name, config, ... }:
-        {
-          options = {
-            enable = lib.mkOption {
+      default = { };
+      type = lib.types.attrsOf (
+        lib.types.submodule (
+          { name, config, ... }:
+          {
+            options = {
+              schemaVersion = lib.mkOption {
+                type = lib.types.int;
+                default = 1;
+                description = "Version des mediNix-Manifest-Vertrags (ADR-0010).";
+              };
+
+              enable = lib.mkOption {
               type = lib.types.bool;
               default = true;
               description = "Aktivierungsstatus des Dienstes im Gesamtsystem.";
@@ -226,6 +238,24 @@ in
         );
       in
       lib.flatten [
+        # 0. Schema-Version Invariante (ADR-0010): schemaVersion muss 1 sein
+        [
+          {
+            assertion = cfg.schemaVersion == 1;
+            message = ''
+              [mediNix/contract] Inkompatible Manifest-Schema-Version (${toString cfg.schemaVersion})!
+              Erwartet wird Version 1 (ADR-0010).
+            '';
+          }
+        ]
+        (lib.mapAttrsToList (name: m: {
+          assertion = m.schemaVersion == 1;
+          message = ''
+            [mediNix/manifest] Dienst '${name}' deklariert inkompatible schemaVersion = ${toString m.schemaVersion}!
+            Erwartet wird Version 1 (ADR-0010).
+          '';
+        }) cfg.manifest)
+
         # 1. Monitoring Invariante: Wenn type == "http", muss ein healthPath angegeben sein
         (lib.mapAttrsToList (name: m: {
           assertion =
