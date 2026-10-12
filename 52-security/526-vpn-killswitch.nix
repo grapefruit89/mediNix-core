@@ -116,7 +116,14 @@ in
           IPv6 on the host).
         '';
       }
+      {
+        assertion = config.networking.firewall.checkReversePath != true;
+        message = "[mediNix/vpn] 'checkReversePath = true' (strict) verwirft asymmetrische Pakete im WireGuard-Routing! Zwingend 'loose' oder false erforderlich.";
+      }
     ];
+
+    networking.firewall.checkReversePath = lib.mkDefault "loose";
+    networking.firewall.logReversePathDrops = lib.mkDefault true;
 
     networking.nftables.tables.medinix_vpn_mark = {
       family = "inet";

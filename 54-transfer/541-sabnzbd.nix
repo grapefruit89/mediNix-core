@@ -116,6 +116,14 @@ in
           assertion = meta.num == reg.num;
           message = "[mediNix/541-sabnzbd] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
         }
+        {
+          assertion = !(config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false);
+          message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist strikt verboten! SABnzbd nutzt UID-basiertes Routing (skuid 5410) auf Host-Ebene, damit Sonarr und Radarr über 127.0.0.1:5410 ungehindert kommunizieren können.";
+        }
+        {
+          assertion = (!svc.usenet-confinement.enable) || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
+          message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID 5410 nutzen.";
+        }
       ];
 
       users.users.sabnzbd = {
