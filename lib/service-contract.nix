@@ -116,6 +116,27 @@ in
               };
             };
 
+            # --- OPERATIONAL METADATA (OPS) ---
+            ops = {
+              priority = lib.mkOption {
+                type = lib.types.str;
+                default = "medium";
+                description = "Betriebspriorität des Dienstes (z. B. high, medium, low).";
+              };
+
+              ramBudget = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = "Erwartetes RAM-Budget.";
+              };
+
+              notes = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = "Betriebsnotizen für Administratoren.";
+              };
+            };
+
             # --- ABGELEITETE SSoT-WERTE (Internal: Aus num mathematisch berechnet) ---
             port = lib.mkOption {
               type = lib.types.port;
