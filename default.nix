@@ -187,10 +187,6 @@ in
       '';
     };
 
-    exporters = {
-      enable = lib.mkEnableOption "Prometheus exporters for Arr stack";
-      lidarr.enable = lib.mkEnableOption "Enable metrics exporter for Lidarr";
-    };
     mover = {
       enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
       mode = lib.mkOption {

@@ -83,6 +83,25 @@ in
               };
             };
 
+            # --- METRICS (Prometheus Exporter) ---
+            metrics = {
+              enable = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Prometheus-Metriken aktivieren.";
+              };
+
+              type = lib.mkOption {
+                type = lib.types.enum [
+                  "exportarr"
+                  "native"
+                  "none"
+                ];
+                default = "none";
+                description = "Art des Metriken-Exporters (exportarr, native, none).";
+              };
+            };
+
             # --- UI & LANDINGPAGE (518) ---
             ui = {
               title = lib.mkOption {
