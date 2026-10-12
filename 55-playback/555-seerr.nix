@@ -128,10 +128,6 @@ in
           HOST = "127.0.0.1";
         };
       };
-
-      medinix.ingress.vhosts."seerr" = {
-        accessGroup = meta.accessGroup;
-      };
     })
   ];
 }

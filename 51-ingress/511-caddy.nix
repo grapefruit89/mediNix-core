@@ -41,31 +41,60 @@ let
   enabledOf =
     n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
 
-  enabledServices = lib.filterAttrs (
+  # Reiner Manifest-Konsument: Liest Dienste direkt aus config.medinix.manifest
+  manifestServices = lib.mapAttrs (
+    n: m:
+    let
+      vhost = (cfg.ingress.vhosts or { }).${n} or { };
+    in
+    m // {
+      accessGroup = vhost.accessGroup or m.accessGroup;
+      customConfig = vhost.customConfig or (m.customConfig or "");
+      allowUnauthenticated = vhost.allowUnauthenticated or (m.allowUnauthenticated or false);
+      localBypass = if (vhost.localBypass or null) != null then vhost.localBypass else (m.localBypass or null);
+      unauthenticatedPaths = (m.unauthenticatedPaths or [ ]) ++ (vhost.unauthenticatedPaths or [ ]);
+    }
+  ) (lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (config.medinix.manifest or { }));
+
+  # Legacy-Kompatibilität für vhosts außerhalb des Manifests (z. B. pocket-id)
+  legacyVhosts = lib.filterAttrs (
     n: vhost:
     let
       hasPort = (registry.${n}.port or null) != null;
       hasStatic = (vhost.customConfig or "") != "";
     in
-    enabledOf n && vhost.accessGroup != "none" && (hasPort || hasStatic)
-  ) cfg.ingress.vhosts;
+    !(manifestServices ? ${n}) && enabledOf n && vhost.accessGroup != "none" && (hasPort || hasStatic)
+  ) (cfg.ingress.vhosts or { });
+
+  legacyNormalized = lib.mapAttrs (
+    n: vhost: {
+      port = registry.${n}.port or null;
+      accessGroup = vhost.accessGroup;
+      customConfig = vhost.customConfig or "";
+      allowUnauthenticated = vhost.allowUnauthenticated or false;
+      localBypass = vhost.localBypass or null;
+      unauthenticatedPaths = vhost.unauthenticatedPaths or [ ];
+    }
+  ) legacyVhosts;
+
+  enabledServices = manifestServices // legacyNormalized;
 
   # Declared-but-unresolvable vhosts (F7 made loud instead of silently dead).
-  unresolvedVhosts = lib.filter (n: !enabledOf n) (
-    lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") cfg.ingress.vhosts)
+  unresolvedVhosts = lib.filter (n: !(manifestServices ? ${n}) && !enabledOf n) (
+    lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") (cfg.ingress.vhosts or { }))
   );
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (
-    _: v: v.accessGroup == "public" && !(v.allowUnauthenticated or false)
+    _: m: m.accessGroup == "public" && !(m.allowUnauthenticated or false)
   ) enabledServices;
 
   # Enabled public vhosts that carry an auth-bypass path list.
   publicBypassPaths = lib.filterAttrs (
-    _: v:
-    v.accessGroup == "public"
-    && (v.unauthenticatedPaths or [ ]) != [ ]
-    && !(v.allowUnauthenticated or false)
+    _: m:
+    m.accessGroup == "public"
+    && (m.unauthenticatedPaths or [ ]) != [ ]
+    && !(m.allowUnauthenticated or false)
   ) enabledServices;
 
   inherit (ing) trustedCidrs;
@@ -129,9 +158,12 @@ let
     auto_https off
   '';
   mkProxy =
-    n: extra:
-    lib.optionalString ((registry.${n}.port or null) != null) ''
-      reverse_proxy http://127.0.0.1:${toString registry.${n}.port} {
+    n: m: extra:
+    let
+      targetPort = m.port or registry.${n}.port or null;
+    in
+    lib.optionalString (targetPort != null) ''
+      reverse_proxy http://127.0.0.1:${toString targetPort} {
         header_up X-Real-IP {client_ip}
         header_up X-Forwarded-For {client_ip}
         header_up X-Forwarded-Proto {scheme}
@@ -155,25 +187,25 @@ let
   authUpstream = ing.auth.forwardAuthUpstream;
 
   unauthenticatedPathsOf =
-    vhost:
+    m:
     let
-      local = vhost.unauthenticatedPaths or [ ];
+      local = m.unauthenticatedPaths or [ ];
       global = ing.auth.unauthenticatedPaths or [ ];
     in
     lib.unique (global ++ local);
 
-  # Per-vhost override wins; null means inherit the global default.
+  # Per-service override wins; null means inherit the global default.
   localBypassOf =
-    vhost: if (vhost.localBypass or null) != null then vhost.localBypass else ing.auth.localBypass;
+    m: if (m.localBypass or null) != null then m.localBypass else ing.auth.localBypass;
 
   mkBaseConfig =
-    n: vhost:
+    n: m:
     {
       isLocal ? false,
     }:
     let
-      applyAuth = ing.auth.mode == "forward-auth" && (!isLocal || !(localBypassOf vhost));
-      skipPaths = unauthenticatedPathsOf vhost;
+      applyAuth = ing.auth.mode == "forward-auth" && (!isLocal || !(localBypassOf m));
+      skipPaths = unauthenticatedPathsOf m;
       skipMatcher = lib.optionalString (applyAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
@@ -188,44 +220,45 @@ let
       '';
       # .local always CIDR-gated. Domain internal too. Stream/public/idp on
       # the real hostname stay reachable from WAN when that is the policy.
-      cidrGate = lib.optionalString (isLocal || vhost.accessGroup == "internal") lanAbort;
+      cidrGate = lib.optionalString (isLocal || m.accessGroup == "internal") lanAbort;
+      customConfig = m.customConfig or "";
     in
     {
       stream = ''
         ${lib.optionalString isLocal lanAbort}
         encode off
-        ${vhost.customConfig}
-        ${mkProxy n streamTransport}
+        ${customConfig}
+        ${mkProxy n m streamTransport}
       '';
       internal = ''
         ${cidrGate}
         encode zstd gzip
-        ${vhost.customConfig}
-        ${mkProxy n ""}
+        ${customConfig}
+        ${mkProxy n m ""}
       '';
       public = ''
         ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
         ${authBlock}
-        ${vhost.customConfig}
-        ${mkProxy n ""}
+        ${customConfig}
+        ${mkProxy n m ""}
       '';
       idp = ''
         ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
-        ${vhost.customConfig}
-        ${mkProxy n ""}
+        ${customConfig}
+        ${mkProxy n m ""}
       '';
     }
-    .${vhost.accessGroup};
+    .${m.accessGroup};
 
-  mkHttpsBody = n: vhost: ''
+  mkHttpsBody = n: m: ''
     ${tlsDirective}
     ${securityHeaders}
-    ${mkBaseConfig n vhost { isLocal = false; }}
+    ${mkBaseConfig n m { isLocal = false; }}
   '';
-  mkHttpBody = n: vhost: mkBaseConfig n vhost { isLocal = false; };
-  mkLocalBody = n: vhost: mkBaseConfig n vhost { isLocal = true; };
+  mkHttpBody = n: m: mkBaseConfig n m { isLocal = false; };
+  mkLocalBody = n: m: mkBaseConfig n m { isLocal = true; };
 
   # RT-3: access logs are the substrate for forensics AND any future edge
   # bouncer (516 CrowdSec / fail2ban) — without logs neither can exist.
@@ -255,22 +288,22 @@ let
   publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
 
   mkDomainSites =
-    n: vhost: hostName:
+    n: m: hostName:
     if tlsEnabled then
       [
         (mkSite "http://${hostName}.${cfg.domain}" "redir https://{host}{uri} permanent")
-        (mkSite "${hostName}.${cfg.domain}" (mkHttpsBody n vhost))
+        (mkSite "${hostName}.${cfg.domain}" (mkHttpsBody n m))
       ]
     else
       [
-        (mkSite "http://${hostName}.${cfg.domain}" (mkHttpBody n vhost))
+        (mkSite "http://${hostName}.${cfg.domain}" (mkHttpBody n m))
       ];
 
   serviceSites = lib.concatLists (
     lib.mapAttrsToList (
-      n: vhost:
-      (lib.optionals (cfg.domain != null) (lib.concatMap (mkDomainSites n vhost) (publicNames n)))
-      ++ [ (mkSite "http://${n}.local" (mkLocalBody n vhost)) ]
+      n: m:
+      (lib.optionals (cfg.domain != null) (lib.concatMap (mkDomainSites n m) (publicNames n)))
+      ++ [ (mkSite "http://${n}.local" (mkLocalBody n m)) ]
     ) enabledServices
   );
 

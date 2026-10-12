@@ -164,10 +164,6 @@ in
           AUDIOBOOKS_PATH = "${svc.storage.mediaRoot}/audiobooks";
         };
       };
-
-      medinix.ingress.vhosts."audiobookshelf" = {
-        accessGroup = meta.accessGroup;
-      };
     })
   ];
 }

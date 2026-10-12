@@ -194,9 +194,6 @@ in
       };
 
       medinix.persist.extraPaths = [ stateDir ];
-      medinix.ingress.vhosts."sabnzbd" = {
-        accessGroup = "internal";
-      };
 
       services.vpnKillSwitch.instances.sabnzbd = {
         enable = svc.usenet-confinement.enable;

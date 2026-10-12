@@ -38,9 +38,30 @@ let
     || cfg.ingress.tls.mode == "custom"
     || cfg.ingress.tls.mode == "internal";
 
-  tiles = lib.filterAttrs (
-    n: vhost: (vhost.landing or true) && lib.elem (vhost.accessGroup or "none") wanGroups && enabledOf n
+  manifestTiles = lib.filterAttrs (
+    n: m: (m.ui.showOnLanding or true) && lib.elem (m.accessGroup or "none") wanGroups && m.enable
+  ) (config.medinix.manifest or { });
+
+  legacyTiles = lib.filterAttrs (
+    n: vhost:
+      !(manifestTiles ? ${n})
+      && (vhost.landing or true)
+      && lib.elem (vhost.accessGroup or "none") wanGroups
+      && enabledOf n
   ) (cfg.ingress.vhosts or { });
+
+  legacyNormalized = lib.mapAttrs (
+    n: vhost: {
+      ui = {
+        title = n;
+        icon = if (vhost.iconId or "") != "" then vhost.iconId else n;
+        description = "";
+        group = "Media";
+      };
+    }
+  ) legacyTiles;
+
+  tiles = manifestTiles // legacyNormalized;
 
   names = lib.sort builtins.lessThan (lib.attrNames tiles);
 
@@ -57,19 +78,21 @@ let
       "http://${n}.local";
 
   fragment =
-    n: vhost:
+    n: m:
     let
-      raw = vhost.iconId or "";
+      raw = m.ui.icon or "";
     in
     if raw != "" then raw else n;
 
   mkTile =
     n:
     let
-      id = fragment n tiles.${n};
+      m = tiles.${n};
+      id = fragment n m;
+      title = m.ui.title or n;
     in
     ''
-      <a class="srv" href="${hrefFor n}" aria-label="${n}">
+      <a class="srv" href="${hrefFor n}" aria-label="${title}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
           <use href="/icons.svg#${id}"></use>
         </svg>

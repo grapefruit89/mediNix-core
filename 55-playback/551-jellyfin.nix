@@ -230,10 +230,6 @@ in
     };
   };
 
-  medinix.ingress.vhosts."jellyfin" = {
-    accessGroup = "stream";
-  };
-
     hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
       enable = true;
       extraPackages = with pkgs; [

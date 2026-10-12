@@ -90,6 +90,11 @@ in
           expectedStatus = 200;
         };
 
+        metrics = {
+          enable = cfg.enable;
+          type = "exportarr";
+        };
+
         ops = {
           priority = "medium";
           ramBudget = "1.5G";
@@ -169,10 +174,6 @@ in
             wantedBy = [ "sockets.target" ];
             listenStreams = [ "127.0.0.1:${toString port}" ];
             socketConfig.Accept = false;
-          };
-
-          medinix.ingress.vhosts."radarr" = {
-            accessGroup = meta.accessGroup;
           };
         }
         {

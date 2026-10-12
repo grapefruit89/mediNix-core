@@ -132,11 +132,6 @@ in
           Environment = [ "PORT=${toString port}" ];
         };
       };
-
-      # Ingress-Registrierung für Chameleon-Caddy
-      medinix.ingress.vhosts."status" = {
-        accessGroup = "internal";
-      };
     })
   ];
 }

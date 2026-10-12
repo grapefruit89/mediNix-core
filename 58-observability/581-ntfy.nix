@@ -26,7 +26,7 @@ let
   inherit (reg) gid;
   inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfyGroup = svc.ingress.vhosts.ntfy.accessGroup or "internal";
+  ntfyGroup = config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
 in
 lib.mkIf cfg.enable {
   assertions = [
@@ -83,7 +83,27 @@ lib.mkIf cfg.enable {
     ];
   };
 
-  medinix.ingress.vhosts."ntfy" = {
+  medinix.manifest.ntfy = {
+    enable = cfg.enable;
+    num = reg.num;
     accessGroup = "internal";
+
+    ui = {
+      title = "ntfy";
+      description = "Internal notification backend";
+      icon = "ntfy";
+      group = "Observability";
+    };
+
+    monitoring = {
+      enable = false;
+      type = "none";
+    };
+
+    ops = {
+      priority = "high";
+      ramBudget = "256M";
+      notes = "Alerting Backend für systemd und Gatus.";
+    };
   };
 }

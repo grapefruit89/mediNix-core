@@ -189,10 +189,6 @@ in
           ND_ENABLEUSERSONSIGNUP = "false";
         };
       };
-
-      medinix.ingress.vhosts."navidrome" = {
-        accessGroup = meta.accessGroup;
-      };
     })
   ];
 }
