@@ -114,6 +114,32 @@ in
               };
             };
 
+            # --- ARR STACK & PROVISIONING (574) ---
+            arr = {
+              role = lib.mkOption {
+                type = lib.types.enum [
+                  "none"
+                  "media-manager"
+                  "indexer"
+                  "downloader"
+                ];
+                default = "none";
+                description = "Rolle im Arr-Automations-Stack für generisches Provisioning.";
+              };
+
+              category = lib.mkOption {
+                type = lib.types.str;
+                default = name;
+                description = "SABnzbd-Download-Kategorie für diesen Media-Manager.";
+              };
+
+              apiVersion = lib.mkOption {
+                type = lib.types.str;
+                default = "v3";
+                description = "API-Version des *arr-Dienstes (v3 für Sonarr/Radarr, v1 für Lidarr/Readarr/Prowlarr).";
+              };
+            };
+
             # --- UI & LANDINGPAGE (518) ---
             ui = {
               title = lib.mkOption {

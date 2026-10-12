@@ -89,6 +89,11 @@ in
           type = "exportarr";
         };
 
+        arr = {
+          role = "indexer";
+          apiVersion = "v1";
+        };
+
         ops = {
           priority = "medium";
           ramBudget = "512M";

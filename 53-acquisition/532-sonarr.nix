@@ -95,6 +95,11 @@ in
           type = "exportarr";
         };
 
+        arr = {
+          role = "media-manager";
+          category = "tv";
+        };
+
         ops = {
           priority = "medium";
           ramBudget = "1.5G";

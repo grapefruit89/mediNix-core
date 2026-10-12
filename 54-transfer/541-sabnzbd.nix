@@ -89,6 +89,10 @@ in
           expectedStatus = 200;
         };
 
+        arr = {
+          role = "downloader";
+        };
+
         ops = {
           priority = "medium";
           ramBudget = "4G";

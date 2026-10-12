@@ -75,6 +75,12 @@ in
           type = "exportarr";
         };
 
+        arr = {
+          role = "media-manager";
+          category = "books";
+          apiVersion = "v1";
+        };
+
         ops = {
           priority = "medium";
           ramBudget = "1G";
