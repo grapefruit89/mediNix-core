@@ -188,27 +188,6 @@ in
     };
 
     # --- Service enable + package overrides ---
-    jellyfin = {
-      enable = lib.mkEnableOption "Jellyfin Media Server";
-      package = mkPackageOption "jellyfin";
-      adminPasswordFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = ''
-          Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
-                    ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
-                    MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.'';
-      };
-      # Jellyfin Admin (First-Run Bootstrap) — TPM-cred Workflow
-      adminPasswordCredential = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = ''
-          Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Jellyfin Admin-Passwort.
-          Wird via LoadCredentialEncrypted als mediNix-jellyfin-admin gemountet.
-        '';
-      };
-    };
     seerr = {
       enable = lib.mkEnableOption "Seerr request manager (https://seerr.dev)";
       package = mkPackageOption "seerr";

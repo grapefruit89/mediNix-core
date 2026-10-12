@@ -56,6 +56,39 @@ let
   brandingXmlSeed = ./data/jellyfin-branding.xml;
 in
 {
+  options.medinix.jellyfin = {
+    enable = lib.mkEnableOption "Jellyfin Media Server";
+
+    package = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      defaultText = lib.literalExpression "null";
+      description = ''
+        Optionales Paket-Override für jellyfin.
+        null = NixOS-Modul-Default aus nixpkgs.
+      '';
+    };
+
+    adminPasswordFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
+        ADR-5510: Jellyfin speichert First-Run-Status in DB (nicht Config) — Passwort
+        MUSS vor dem ersten Start da sein (LoadCredentialEncrypted). Ohne: Web-UI blockiert.
+      '';
+    };
+
+    adminPasswordCredential = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Jellyfin Admin-Passwort.
+        Wird via LoadCredentialEncrypted als mediNix-jellyfin-admin gemountet.
+      '';
+    };
+  };
+
   config = lib.mkMerge [
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
@@ -76,6 +109,12 @@ in
           type = "http";
           healthPath = "/health";
           expectedStatus = 200;
+        };
+
+        ops = {
+          priority = "high";
+          ramBudget = "6G";
+          notes = "Haupt-Mediaserver mit Hardware-Transcoding.";
         };
       };
     }
