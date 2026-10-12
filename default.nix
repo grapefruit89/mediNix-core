@@ -196,20 +196,6 @@ in
       enable = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
       package = mkPackageOption "bazarr";
     };
-    sonarr = {
-      enable = lib.mkEnableOption "Sonarr TV Series Manager";
-      package = mkPackageOption "sonarr";
-      rootFolder = lib.mkOption {
-        type = lib.types.str;
-        default = cfg.storage.mediaRoot + "/series";
-        description = "Arr root folder (API-configured via provisioning).";
-      };
-      qualityProfile = lib.mkOption {
-        type = lib.types.str;
-        default = "HD-1080p";
-        description = "Arr quality profile name (API-configured via provisioning).";
-      };
-    };
     radarr = {
       enable = lib.mkEnableOption "Radarr Movies Manager";
       package = mkPackageOption "radarr";
