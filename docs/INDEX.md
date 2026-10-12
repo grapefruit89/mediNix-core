@@ -40,6 +40,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Decimal Framework — the Constitution of the Numbering Scheme](adr/ADR-0000-dezimalrahmen-verfassung.md)
 - [ADR 0001 source repository registry](adr/ADR-0001-source-repository-registry.md)
 - [ADR-0010 — Demarkationslinie: Boot-Seeds (Dateisystem) vs. Fachlogik (REST-API)](adr/ADR-0010-api-vs-filesystem.md)
+- [ADR-0011 — UID-basiertes nftables-Routing vs. Network Namespaces (netns)](adr/ADR-0011-uid-routing-vs-netns.md)
 - [ADR 5030 flake module patterns](adr/ADR-50-flake-module-patterns.md)
 - [ADR 5020 knowledge extraction pipeline](adr/ADR-50-knowledge-extraction-pipeline.md)
 - [ADR 5000 native services over docker](adr/ADR-50-native-services-over-docker.md)
