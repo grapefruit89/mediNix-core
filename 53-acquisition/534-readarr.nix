@@ -9,19 +9,8 @@
 # logo: none — not in grapefruit89/logorepo yet
 # links:
 # provides: []
-# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry"]
-# ports: []
-# upstream_docs: []
-# forum_links: []
-# upstream_github: ""
-# nixpkgs_attr: ""
-# state_dir: ""
-# uds_socket: false
-# systemd_hardened: true
+# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-5320, ADR-5050
-# context7:
-# - query: "systemd.services serviceConfig ProtectSystem example"
-# library: /websites/nixos_manual_nixos_unstable
 # ---
 {
   config,
@@ -35,87 +24,143 @@ let
   svc = config.medinix;
   registry = (import ../lib/registry.nix { inherit lib; }).services;
   reg = registry.readarr;
-  inherit (reg) port;
-  inherit (reg) uid;
+  meta = config.medinix.manifest.readarr;
+
+  inherit (meta) port uid stateDir;
   inherit (reg) gid;
-  inherit (reg) stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+
+  package = if cfg.package != null then cfg.package else pkgs.readarr;
 in
-lib.mkIf cfg.enable (
-  lib.mkMerge [
+{
+  options.medinix.readarr = {
+    enable = lib.mkEnableOption "Readarr Books Manager";
+
+    package = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      defaultText = lib.literalExpression "null";
+      description = ''
+        Optionales Paket-Override für Readarr.
+        null = NixOS-Modul-Default aus nixpkgs.
+      '';
+    };
+  };
+
+  config = lib.mkMerge [
+    # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
-      users.groups.media.gid = gid;
+      medinix.manifest.readarr = {
+        enable = cfg.enable;
+        num = reg.num;
+        accessGroup = "internal";
 
+        ui = {
+          title = "Readarr";
+          description = "Bücher- & Hörbuch-Verwaltung";
+          icon = "readarr";
+          group = "Acquisition";
+        };
+
+        monitoring = {
+          enable = cfg.enable;
+          type = "http";
+          healthPath = "/api/v1/system/status";
+          expectedStatus = 200;
+        };
+
+        ops = {
+          priority = "medium";
+          ramBudget = "1G";
+          notes = "Arr-Book-Management mit Prowlarr- und SABnzbd-Kopplung.";
+        };
+      };
     }
-    (mkService {
-      name = "readarr";
-      inherit port;
-      inherit uid;
-      execStart = "${pkgs.readarr}/bin/Readarr -nobrowser -data=${stateDir}";
-      inherit stateDir;
-      profile = "dotnet";
-      offloadMediaCover = true;
-      allowedPeers = [
-        "sabnzbd"
-        "prowlarr"
-      ];
-      extraConfig = {
-        UMask = "0002";
-        ReadWritePaths = [
-          stateDir
-          config.medinix.storage.mediaRoot
-        ];
-      };
-    })
-    {
-      systemd.services.readarr = {
-        after = [
-          "network.target"
-          "prowlarr.service"
-        ];
-        requires = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        environment = lib.mkMerge [
-          (lib.mkIf (svc.secrets.readarrApiKeyFile or null != null) {
-            READARR_API_KEY_FILE = svc.secrets.readarrApiKeyFile;
-          })
-          (arrSettings.mkReadarr {
-            server = {
-              inherit port;
-              bindAddress = "127.0.0.1";
-              urlBase = "";
-            };
-            auth = {
-              method = "Forms";
-              required = "Enabled";
-            };
-            app = {
-              theme = "dark";
-              instanceName = "Readarr";
-            };
-            log.level = "info";
-            update.mechanism = "BuiltIn";
-          })
-        ];
-      };
 
-      systemd.sockets.readarr = lib.mkIf svc.onDemand.enable {
-        wantedBy = [ "sockets.target" ];
-        listenStreams = [ "127.0.0.1:${toString port}" ];
-        socketConfig.Accept = false;
-      };
+    # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
+    (lib.mkIf cfg.enable (
+      lib.mkMerge [
+        {
+          assertions = [
+            {
+              assertion = meta.num == reg.num;
+              message = "[mediNix/534-readarr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+            }
+          ];
 
-      medinix.ingress.vhosts."readarr" = {
-        accessGroup = reg.caddyClass;
-      };
+          users.groups.media.gid = gid;
+        }
+        (mkService {
+          name = "readarr";
+          inherit port;
+          inherit uid;
+          execStart = "${package}/bin/Readarr -nobrowser -data=${stateDir}";
+          inherit stateDir;
+          profile = "dotnet";
+          offloadMediaCover = true;
+          allowedPeers = [
+            "sabnzbd"
+            "prowlarr"
+          ];
+          extraConfig = {
+            User = "readarr";
+            UMask = "0002";
+            ReadWritePaths = [
+              stateDir
+              config.medinix.storage.mediaRoot
+            ];
+          };
+        })
+        {
+          systemd.services.readarr = {
+            after = [
+              "network.target"
+              "prowlarr.service"
+            ];
+            requires = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            onFailure = [ "alert-ntfy@%n.service" ];
+            environment = lib.mkMerge [
+              (lib.mkIf (svc.secrets.readarrApiKeyFile or null != null) {
+                READARR_API_KEY_FILE = svc.secrets.readarrApiKeyFile;
+              })
+              (arrSettings.mkReadarr {
+                server = {
+                  inherit port;
+                  bindAddress = "127.0.0.1";
+                  urlBase = "";
+                };
+                auth = {
+                  method = "Forms";
+                  required = "Enabled";
+                };
+                app = {
+                  theme = "dark";
+                  instanceName = "Readarr";
+                };
+                log.level = "info";
+                update.mechanism = "BuiltIn";
+              })
+            ];
+          };
 
-    }
-    {
-      systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
-        serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];
-      };
+          systemd.sockets.readarr = lib.mkIf svc.onDemand.enable {
+            wantedBy = [ "sockets.target" ];
+            listenStreams = [ "127.0.0.1:${toString port}" ];
+            socketConfig.Accept = false;
+          };
 
-    }
-  ]
-)
+          medinix.ingress.vhosts."readarr" = {
+            accessGroup = meta.accessGroup;
+          };
+        }
+        {
+          systemd.services."readarr" = lib.mkIf (svc.secrets.readarrApiKeyFile != null) {
+            serviceConfig.LoadCredentialEncrypted = [ "readarr-api-key:${svc.secrets.readarrApiKeyFile}" ];
+          };
+        }
+      ]
+    ))
+  ];
+}

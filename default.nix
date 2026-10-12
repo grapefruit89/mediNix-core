@@ -196,10 +196,6 @@ in
       enable = lib.mkEnableOption "Bazarr Subtitle Downloader (Sonarr/Radarr)";
       package = mkPackageOption "bazarr";
     };
-    readarr = {
-      enable = lib.mkEnableOption "Readarr Books Manager";
-      package = mkPackageOption "readarr";
-    };
     audiobookshelf = {
       enable = lib.mkEnableOption "Audiobookshelf Server";
       package = mkPackageOption "audiobookshelf";
