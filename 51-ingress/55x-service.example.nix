@@ -1,20 +1,9 @@
 # ---
-# id: "55x-example"
-# title: "Example service — copy this file, never edit 511/518 for a new app"
-# domain: 55
-# folder: 55-playback
+# id: "5xx-service-template"
+# title: "Agent Blueprint — Kopiere diese Vorlage für jeden neuen Dienst"
 # status: template
+# contract: schemaVersion = 1 (ADR-0010)
 # ---
-# Logos live in github.com/grapefruit89/logorepo (logos/<name>.svg).
-# Service key == filename == symbol id. 518 renders <use href="/icons.svg#name">.
-# Tile only if landing=true and accessGroup is stream|public|idp (WAN).
-#
-# accessGroup:
-#   stream    media — no compress, long timeouts, no auth
-#   internal  LAN only — no family tile
-#   public    WAN+LAN — forward_auth if auth.mode = forward-auth
-#   idp       Pocket ID
-#   none      no vhost
 {
   config,
   lib,
@@ -23,36 +12,106 @@
 }:
 
 let
-  name = "example";
-  cfg = config.medinix.${name};
-  reg = (import ../lib/registry.nix { inherit lib; }).services.${name};
+  # ══════════════════════════════════════════════════════════════════════════
+  # 1. PARAMETER DES DIENSTES (Hier ausfüllen)
+  # ══════════════════════════════════════════════════════════════════════════
+  serviceName = "myservice"; # Kleinbuchstaben, z. B. "audiobookshelf"
+  svcNum      = 559;         # Modul-ID aus lib/registry.nix (500–599)
+  accessGroup = "internal";  # "internal" | "stream" | "public" | "idp" | "none"
+
+  # Ableitungen (Dezimalrahmen: Port = UID = Num * 10)
+  cfg      = config.medinix.${serviceName};
+  meta     = config.medinix.manifest.${serviceName};
+  inherit (meta) port uid stateDir;
+
+  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
 in
-lib.mkIf cfg.enable {
-  systemd.services.${name} = {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    serviceConfig = {
-      ExecStart = lib.getExe pkgs.hello;
-      User = name;
-      Group = "media";
-    };
-    environment = {
-      HOST = "127.0.0.1";
-      PORT = toString reg.port;
+{
+  # ══════════════════════════════════════════════════════════════════════════
+  # 2. DIENST-OPTIONEN (Privater Scope des Moduls)
+  # ══════════════════════════════════════════════════════════════════════════
+  options.medinix.${serviceName} = {
+    enable = lib.mkEnableOption "${serviceName} service";
+
+    package = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.${serviceName};
+      description = "Zu verwendendes Upstream-Paket.";
     };
   };
 
-  users.users.${name} = {
-    inherit (reg) uid;
-    group = "media";
-    isSystemUser = true;
-    home = reg.stateDir;
-    createHome = true;
+  # ══════════════════════════════════════════════════════════════════════════
+  # 3. MANIFEST-PUBLISHER (Öffentliches Schwarzes Brett für Caddy & Gatus)
+  # ══════════════════════════════════════════════════════════════════════════
+  config.medinix.manifest.${serviceName} = {
+    enable = cfg.enable;
+    num = svcNum;
+    inherit accessGroup;
+
+    ui = {
+      title = "${serviceName}";
+      description = "Kurzbeschreibung des Dienstes";
+      icon = "${serviceName}";
+      group = "Media"; # "Media" | "Downloads" | "System"
+    };
+
+    monitoring = {
+      enable = cfg.enable;
+      type = "http"; # "http" | "tcp" | "none"
+      healthPath = "/health"; # Muss mit / beginnen!
+      expectedStatus = 200;
+    };
+
+    ops = {
+      priority = "medium"; # "high" | "medium" | "low"
+      ramBudget = "512M";
+      notes = "Standard-Dienst.";
+    };
+
+    sources = {
+      upstream = "https://example.com";
+      repo     = "https://github.com/example/repo";
+      nixos    = "https://search.nixos.org/options";
+      api      = "https://example.com/api-docs";
+    };
   };
 
-  medinix.ingress.vhosts.${name} = {
-    accessGroup = reg.caddyClass;
-    landing = true;
-    iconId = name; # optional; empty = vhost name = logorepo id
+  # ══════════════════════════════════════════════════════════════════════════
+  # 4. SYSTEMD & RUNTIME (Wird nur instanziiert, wenn enable = true)
+  # ══════════════════════════════════════════════════════════════════════════
+  config = lib.mkIf cfg.enable {
+    # Fail-Closed Invariante gegen Desynchronisation
+    assertions = [
+      {
+        assertion = meta.port == svcNum * 10 && meta.uid == svcNum * 10;
+        message = "[mediNix/${toString svcNum}-${serviceName}] Port/UID-Invariante verletzt!";
+      }
+    ];
+
+    # Eigener System-User im Dezimalrahmen
+    users.users.${serviceName} = {
+      inherit uid;
+      group = "media";
+      home = stateDir;
+      isSystemUser = true;
+    };
+
+    systemd.services.${serviceName} = {
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+      onFailure = [ "alert-ntfy@%n.service" ];
+
+      serviceConfig = lib.mkMerge [
+        profiles.base # oder profiles.network, profiles.python
+        {
+          ExecStart = "${cfg.package}/bin/${serviceName} --port ${toString port}";
+          User = serviceName;
+          Group = "media";
+          StateDirectory = "${serviceName}-${toString port}";
+          Restart = "on-failure";
+          RestartSec = "10s";
+        }
+      ];
+    };
   };
 }
