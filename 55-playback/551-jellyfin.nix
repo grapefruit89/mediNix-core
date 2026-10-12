@@ -185,7 +185,7 @@ in
       profiles.dotnet-gpu
       memoryPolicy.jellyfin
       {
-        ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir ${metadataDir} --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
+        ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
         User = "jellyfin";
         Group = "media";
         UMask = "0002";
@@ -195,9 +195,11 @@ in
         ];
         DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
         StateDirectory = "jellyfin-${toString port}";
+        CacheDirectory = "jellyfin-cache";
         ReadWritePaths = [
           stateDir
           metadataDir
+          "/var/cache/jellyfin-cache"
         ];
         BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
         InaccessiblePaths = [ "-${creds.storeDir}" ];

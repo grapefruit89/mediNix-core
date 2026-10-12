@@ -1,0 +1,1 @@
+../50-core/BANNED_TECHNOLOGIES.md
