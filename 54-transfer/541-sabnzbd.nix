@@ -94,6 +94,14 @@ in
           ramBudget = "4G";
           notes = "Usenet-Download-Client mit cgroup-VPN-Bindung.";
         };
+
+        sources = {
+          upstream = "https://sabnzbd.org/wiki/";
+          repo = "https://github.com/sabnzbd/sabnzbd";
+          nixos = "https://wiki.nixos.org/wiki/SABnzbd";
+          nixpkgsTest = "https://github.com/NixOS/nixpkgs/blob/master/nixos/tests/sabnzbd.nix";
+          api = "https://sabnzbd.org/wiki/advanced/api";
+        };
       };
     }
 

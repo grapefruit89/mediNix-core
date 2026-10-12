@@ -137,6 +137,39 @@ in
               };
             };
 
+            # --- QUELLEN & DOKUMENTATION (SOURCES) ---
+            sources = {
+              upstream = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "Offizielle Dokumentation.";
+              };
+
+              repo = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "Quellcode-Repository.";
+              };
+
+              nixos = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "NixOS Wiki oder Nixpkgs Package Search.";
+              };
+
+              nixpkgsTest = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "Referenz-Integrationstest in nixpkgs/nixos/tests.";
+              };
+
+              api = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "API-Dokumentation / Swagger.";
+              };
+            };
+
             # --- ABGELEITETE SSoT-WERTE (Internal: Aus num mathematisch berechnet) ---
             port = lib.mkOption {
               type = lib.types.port;

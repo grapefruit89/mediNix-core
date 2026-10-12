@@ -116,6 +116,14 @@ in
           ramBudget = "6G";
           notes = "Haupt-Mediaserver mit Hardware-Transcoding.";
         };
+
+        sources = {
+          upstream = "https://jellyfin.org/docs/";
+          repo = "https://github.com/jellyfin/jellyfin";
+          nixos = "https://wiki.nixos.org/wiki/Jellyfin";
+          nixpkgsTest = "https://github.com/NixOS/nixpkgs/blob/master/nixos/tests/jellyfin.nix";
+          api = "https://api.jellyfin.org/";
+        };
       };
     }
 
