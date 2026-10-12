@@ -1,108 +1,90 @@
 ---
 id: "ONBOARDING"
-title: "ONBOARDING"
+title: "mediNix-core — Architektur & Onboarding Guide"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-12
 tags:
-  - general
+  - architecture
+  - onboarding
+  - invariants
+  - security
 links:
-  adr: ""
-  repo-harvest: ""
+  adr: ADR-0000
 ---
-# mediNix-core — mediahost Onboarding Checklist
 
-Vor dem ersten `nixos-rebuild switch` auf mediahost (192.168.0.10) — strukturell
-vorbereiten, sonst failen die Runtime-Asserts oder Dienste starten nicht.
+# mediNix-core — Architektur & Onboarding Guide
 
-## Vor dem ersten Build
+Willkommen bei `mediNix-core`. Dieses Repository ist kein herkömmliches "Docker-Compose-Ersatzlager", sondern eine **containerfreie, deklarative, dendritisch organisierte Linux-Plattform**.
 
-- [ ] `security.acme` in der Host-Config konfiguriert (DNS-01, Cloudflare API-Token, Wildcard `*.example.com`)
-- [ ] `/var/lib/acme/example.com/` existiert mit `cert.pem` + `key.pem` (von Lego erzeugt)
-- [ ] Tier-B Pfad gemountet: `${cfg.storage.mediaRoot}/downloads/` auf SSD (für SABnzbd temp)
-- [ ] Tier-C Pfad gemountet: `${cfg.storage.mediaRoot}/library/` auf HDD-Array (finale Mediathek)
-- [ ] `${cfg.storage.metadataDir}` zeigt auf SSD (nicht HDD — Jellyfin/ABS Metadaten sind I/O-heavy)
-- [ ] systemd-credentials für API-Keys vorbereitet: `systemd-creds encrypt apikey.txt apikey.cred`
-- [ ] `cfg.vpn.interface` gesetzt wenn `usenet-confinement.enable` (WireGuard ns muss existieren)
-- [ ] `cfg.secrets.*ApiKeyFile` Pfade zeigen auf die `.cred`-Dateien (LoadCredentialEncrypted)
-- [ ] SSH-Keys für `media-admin` + `backup` User in `security.emergencyUser.sshKeys` / `security.backupSsh.sshKeys`
+Bevor du Änderungen vornimmst oder neue Dienste anlegst, musst du die folgenden Grundgesetze verstehen. Verletzungen dieser Gesetze führen zu Compile-Time-Abbrüchen durch NixOS-Assertions.
 
-## Secrets einrichten (einmalig auf mediahost)
+---
+
+## 1. Die Goldenen Gesetze (Invariante Architektur)
+
+1. **Zero Containers:** 
+   Wir nutzen weder Docker, Podman noch Container-Bridges. Dienste laufen als native systemd-Services mit strikten Härtungsprofilen (`ProtectSystem=strict`, `DynamicUser` oder dezimale UIDs, systemd-Sandboxing).
+2. **Dezimalrahmen (Single Source of Truth):**
+   Jeder Dienst besitzt eine deterministische Modul-ID `5xx` aus `lib/registry.nix`:
+   - `Port = UID = Modul-ID × 10` (z. B. Sonarr: ID 532 -> UID 5320 -> Port 5320).
+   - Manuelle, willkürliche Portvergaben sind strikt verboten.
+3. **Drop-a-File (Pub/Sub via Manifest):**
+   Ein Dienst registriert sich über `config.medinix.manifest.<svc>`.
+   Konsumenten (Caddy für Ingress, Gatus für Monitoring, VictoriaMetrics-Exporter, Landingpage) lesen **ausschließlich** das Manifest (`schemaVersion = 1`). Ein Dienst wird gelöscht, indem seine Datei entfernt wird – es bleiben keine Restkonfigurationen zurück.
+4. **Keine Network Namespaces (`netns`):**
+   Network Namespaces (`PrivateNetwork=true`, veth-Pairs) sind verboten (ADR-0011). VPN-Confinement erfolgt ausschließlich über UID-basiertes nftables-Routing (`meta skuid`).
+5. **ADR-0010 (Boot-Seeds vs. REST-API):**
+   - **Dateisystem / Seeds:** Nur für Boot-Infrastruktur (Ports, DB-Pragmas, Wizard-Bypässe wie `system.xml`).
+   - **REST-API:** Für die Fachlogik (Bibliotheken, User, Root-Folders). Niemals direkte SQL-Eingriffe in laufende Datenbanken!
+
+---
+
+## 2. Der Host-Vertrag (`medinix.host.*`)
+
+`mediNix-core` ist ein Service-Modul. Es schreibt dem Host weder Zeitzone, Tastaturlayout noch MOTD vor. 
+Für die Außenanbindung verlangt es lediglich:
+
+```nix
+medinix.host = {
+  domain = "deine-domain.tld";      # Pflicht: Valide Unicast-Domain
+  adminEmail = "admin@domain.tld";   # Pflicht: Valide E-Mail für ACME/Let's Encrypt
+};
+```
+
+---
+
+## 3. Das VPN-Confinement (SABnzbd & Usenet)
+
+* **SABnzbd (UID 5410)** ist der **einzige** Dienst, der durch das WireGuard-VPN geroutet wird.
+* Es gibt kein Torrenting und keine anderen VPN-Dienste im System.
+* **Localhost-Bypass:** SABnzbd lauscht auf `127.0.0.1:5410`. Lokaler Traffic (`lo`) ist vom VPN ausgenommen, damit Sonarr/Radarr die API ungehindert steuern können.
+* **Kernel-Routing:** `networking.firewall.checkReversePath` muss auf `"loose"` stehen, um asymmetrische Drops im WireGuard-Rückpfad zu verhindern.
+* **DNS-Leak-Schutz:** SABnzbd erhält eine isolierte `resolv.conf`, die ausschließlich die VPN-DNS-Server nutzt.
+
+---
+
+## 4. Secrets einrichten (TPM2-Workflow)
 
 Alle Secrets werden mit **TPM2 verschlüsselt** und als `.cred`-Dateien gespeichert.
-Die `.cred`-Dateien können ins Repo — sie sind ohne DIESES TPM wertlos.
+Die `.cred`-Dateien können ins Git-Repo — sie sind ohne dieses spezifische TPM wertlos.
 
 ### Workflow
 ```bash
-# 1. Secret als Plaintext vorbereiten (nur kurz, dann löschen)
-echo "mein-cloudflare-token" > /tmp/cf-token.txt
+# 1. Secret als Plaintext vorbereiten (nur kurz, dann shredden)
+echo "mein-secret-wert" > /tmp/secret.txt
 
 # 2. Mit TPM verschlüsseln
 systemd-creds encrypt --with-key=tpm2+host \
-  /tmp/cf-token.txt \
-  /var/lib/systemd/credential.d/mediNix-cf-token.cred
+  /tmp/secret.txt \
+  /var/lib/systemd/credential.d/mediNix-secret.cred
 
-# 3. Plaintext löschen
-shred -u /tmp/cf-token.txt
+# 3. Plaintext sicher löschen
+shred -u /tmp/secret.txt
 
-# 4. In configuration.nix referenzieren (nie den Inhalt!)
-medinix.dns.cloudflareTokenCredential =
-  "/var/lib/systemd/credential.d/mediNix-cf-token.cred";
+# 4. In der Konfiguration referenzieren (nie den Klartext!)
 ```
 
-### Secrets-Liste (alle verschlüsseln)
-| Datei | Inhalt |
-|-------|--------|
-| mediNix-cf-token.cred | Cloudflare API Token |
-| mediNix-wg-privkey.cred | WireGuard Private Key |
-| mediNix-sabnzbd-server.cred | Usenet-Provider Credentials |
-| mediNix-jellyfin-admin.cred | Jellyfin Admin-Passwort |
-| mediNix-sonarr-apikey.cred | Sonarr API Key |
-| mediNix-radarr-apikey.cred | Radarr API Key |
-| mediNix-prowlarr-apikey.cred | Prowlarr API Key |
-| mediNix-pocketid-secret.cred | Pocket-ID OIDC Secret |
-| mediNix-crowdsec-enroll.cred | CrowdSec Enrollment Key |
-
 ### INV-SECRET (Build-Zeit-Garantie)
-Kein Secret-Pfad darf im Nix-Store liegen (`/nix/store/...`). `599-cross-domain.nix`
-prüft das via `INV-SECRET` Invariante. Violation → Build-Abbruch.
-
-## Nach dem ersten Build
-
-- [ ] `nix flake check .#checks.x86_64-linux.nixos-check` — darf nicht fehlschlagen
-- [ ] `systemctl status jellyfin-5510 audiobookshelf-5520 navidrome-5530 feishin-5540`
-- [ ] Caddy erreichbar: `curl -I https://jellyfin.example.com`
-- [ ] Sonarr: `curl -I http://127.0.0.1:5320` (LAN only — von außen blockiert durch Caddy `internal`-Template)
-- [ ] ntfy (falls `observability.ntfy.enable`): `curl -I https://ntfy.example.com`
-- [ ] 574-provisioning abgewartet: `journalctl -u mediNix-provisioning` (registriert SABnzbd + Prowlarr in *arr)
-- [ ] Arr-Apps: Settings → Connect → Ntfy manuell eintragen (Server `http://127.0.0.1:5810`, Topic aus `observability.ntfy.topic`)
-
-## Bekannte Fallstricke
-
-- **CrowdSec:** Caddy-Plugin-Hash (`caddy-cs-bouncer`) muss vor erstem Build via `nix build` ermittelt und in `511-caddy.nix` (`services.caddy.package` bei `observability.crowdsec.enable`) eingetragen werden. Aktuell `lib.fakeHash` als Platzhalter — Build-Fehler zeigt den korrekten Hash. Nur nötig wenn `observability.crowdsec.enable = true`.
-
-  Hash ermitteln (einmalig auf mediahost):
-  ```bash
-  nix build --impure --expr \
-    '(import <nixpkgs> {}).caddy.withPlugins {
-      plugins = ["github.com/crowdsecurity/caddy-cs-bouncer@latest"];
-      hash = "";
-    }' 2>&1 | grep "got:"
-  ```
-  Den ausgegebenen Hash in `511-caddy.nix` (`hash = "..."`) eintragen.
-
-- **Jellyfin:** Admin-Passwort aus `cfg.secrets.jellyfinAdminPasswordFile` — Datei muss vor Start existieren (LoadCredentialEncrypted). Ohne Datei: Jellyfin startet, aber Web-UI blockiert beim First-Run.
-- **SABnzbd:** startet mit `-b 0` (kein daemon-fork) — `Type=simple` ist korrekt, nicht `forking`. `TimeoutStopSec=30` (Harvester #992: graceful-stop sonst kill-loop).
-- **Audiobookshelf:** Port=5520 via Env-Var `PORT` gesetzt, NICHT in der App-Config. App bindet sonst 8000.
-- **Navidrome:** `media`-group via `extraGroups = mkAfter [ "media" ]` — sonst leere Bibliothek OHNE Fehlermeldung (stiller Fail).
-- **Feishin:** statische SPA, kein Prozess. Caddy `file_server` + `try_files {path} /index.html` Pflicht für Deep-Links. Braucht Backend (Navidrome/Jellyfin).
-- **Hardening:** alle Dienste nutzen `lib/hardening-profiles.nix` (dotnet/python/nodejs/network/script). `PrivateDevices=false` NUR bei Jellyfin (VA-API /dev/dri). `MemoryDenyWriteExecute=false` bei .NET/Node (JIT). `PrivateNetwork=true` bei `script`-Profil — daher 574-provisioning nutzt `network` (braucht Loopback für API-Calls).
-- **Split-DNS:** stream-Dienste (Jellyfin/ABS/Navidrome) brauchen lokalen DNS-Override auf Server-LAN-IP (Hairpin-NAT vermeiden). Host-side via Router (Speedport Custom-DNS) oder Blocky/AdGuard. mediNix-core macht das nicht (ADR-5115, note).
-
-## Anti-Lockout (kritisch bei Remote-Deploy)
-
-- `594-no-password-auth.nix`: `PasswordAuthentication=false`, SSH-Keys only (kein `mediahost ALL=(ALL) NOPASSWD:ALL` — das war ein Bug, entfernt).
-- `595-backup-ssh.nix`: 2. SSH-Dienst Port 2222 (LAN reachable, keys only) für Notfälle.
-- `521-nftables.nix`: Port 22 + 2222 in `allowedTCPPorts`. Nie `IPAddressDeny=[any]` (blockiert Loopback).
-- Immer `nixos-rebuild boot` statt `switch` bei Unsicherheit — bei Boot-Fail rollt Grub zurück.
+Kein Secret-Pfad darf im Nix-Store liegen (`/nix/store/...`). `591-cross-domain.nix` prüft das via `INV-SECRET`-Invariante. Ein Verstoß bricht den Build sofort ab.
