@@ -46,11 +46,11 @@ in
       }
       {
         assertion = !(config.networking.wireguard.useNetworkNamespace or false);
-        message = "[mediNix/architecture] Wireguard-Network-Namespaces (netns) sind in mediNix verboten! Wir nutzen ausschließlich UID-basiertes nftables-Routing (ADR-0011).";
+        message = "[mediNix/architecture] WireGuard-Network-Namespaces sind verboten. Ausschließlich UID-nftables-Routing.";
       }
       {
         assertion = lib.all (name: name == "sabnzbd") (lib.attrNames (config.services.vpnKillSwitch.instances or { }));
-        message = "[mediNix/security] Unerwarteter Dienst im VPN-Killswitch gefunden! Ausschließlich SABnzbd (UID 5410) darf durch das VPN geroutet werden.";
+        message = "[mediNix/security] Unerwarteter Dienst im VPN-Killswitch! Nur SABnzbd (UID 5410) darf geroutet werden.";
       }
     ];
   };

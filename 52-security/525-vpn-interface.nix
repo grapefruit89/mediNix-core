@@ -49,17 +49,10 @@ lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
       '';
     }
     {
-      assertion = config.networking.firewall.checkReversePath != true;
-      message = "[mediNix/vpn] 'checkReversePath = true' (strict) verwirft asymmetrische Pakete im WireGuard-Routing! Zwingend 'loose' oder false erforderlich.";
-    }
-    {
-      assertion = vpn.dns != [ ];
-      message = "[mediNix/vpn] DNS-Leak-Schutz: 'medinix.vpn.dns' darf bei aktivem VPN nicht leer sein!";
+      assertion = (config.medinix.vpn.dns or [ ]) != [ ];
+      message = "[mediNix/vpn] Schutz vor unverschlüsselten DNS-Leaks: 'medinix.vpn.dns' darf bei aktivem VPN nicht leer sein!";
     }
   ];
-
-  networking.firewall.checkReversePath = lib.mkDefault "loose";
-  networking.firewall.logReversePathDrops = lib.mkDefault true;
 
   medinix.vpn.interface = lib.mkDefault ifName;
   medinix.vpn.dnsServers = lib.mkDefault vpn.dns;

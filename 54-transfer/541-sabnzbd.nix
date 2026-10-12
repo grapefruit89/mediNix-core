@@ -118,7 +118,7 @@ in
         }
         {
           assertion = !(config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false);
-          message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist strikt verboten! SABnzbd nutzt UID-basiertes Routing (skuid 5410) auf Host-Ebene, damit Sonarr und Radarr über 127.0.0.1:5410 ungehindert kommunizieren können.";
+          message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist verboten! SABnzbd nutzt UID-Routing (5410).";
         }
         {
           assertion = (!svc.usenet-confinement.enable) || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
