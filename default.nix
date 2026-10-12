@@ -257,10 +257,6 @@ in
         '';
       };
     };
-    lidarr = {
-      enable = lib.mkEnableOption "Lidarr Music Download Manager";
-      package = mkPackageOption "lidarr";
-    };
     exporters = {
       enable = lib.mkEnableOption "Prometheus exporters for Arr stack";
       lidarr.enable = lib.mkEnableOption "Enable metrics exporter for Lidarr";
