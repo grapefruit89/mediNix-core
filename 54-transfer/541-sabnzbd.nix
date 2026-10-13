@@ -33,7 +33,7 @@ let
     else if svc.vpn.interface != null && svc.vpn.interface != "" then
       svc.vpn.interface
     else
-      "wg0";
+      "";
 in
 {
   options.medinix.sabnzbd = {
@@ -124,6 +124,57 @@ in
             || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
           message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID 5410 nutzen.";
         }
+        {
+          assertion = (!svc.usenet-confinement.enable) || (vpnIf != "");
+          message = ''
+            [mediNix/541-sabnzbd] FEHLER: VPN-DEADSWITCH KONFIGURATIONSFEHLER!
+            SABnzbd ist aktiv mit usenet-confinement.enable = true, aber weder 'medinix.vpn.interface' noch 'services.vpnKillSwitch.vpnInterface' ist definiert.
+
+            ARCHITEKTUR-GRUND:
+            SABnzbd lädt geschützte Inhalte. Um IP-Leaks ins WAN bei Verbindungsausfall
+            zu 100 % auszuschließen, MUSS zwingend ein physisches VPN-Interface (z. B. "wg0")
+            für die cgroup-BPF-Isolation und den systemd-Deadswitch gebunden sein.
+
+            BEHEBUNG:
+            Definiere in deiner Host-Konfiguration:
+              medinix.vpn.interface = "wg0";
+          '';
+        }
+        {
+          assertion =
+            let
+              ifaces = config.systemd.services.sabnzbd.serviceConfig.RestrictNetworkInterfaces or [ ];
+            in
+            (!svc.usenet-confinement.enable)
+            || (lib.elem "lo" ifaces && lib.elem vpnIf ifaces && (lib.length ifaces == 2));
+          message = ''
+            [mediNix/541-sabnzbd] FEHLER: RESTRICT_NETWORK_INTERFACES INVARIANTE VERLETZT!
+            Die cgroup-Schnittstellenbeschränkung für SABnzbd wurde manipuliert oder ist unvollständig:
+            ${toString (config.systemd.services.sabnzbd.serviceConfig.RestrictNetworkInterfaces or [ ])}
+
+            ARCHITEKTUR-GRUND:
+            Die Liste darf bei aktivem Confinement STRIKT nur ["lo" "${vpnIf}"] enthalten.
+            Jedes zusätzliche Interface (wie eth0) öffnet ein potenzielles Leak-Fenster.
+
+            BEHEBUNG:
+            Entferne manuelle Überschreibungen von serviceConfig.RestrictNetworkInterfaces.
+          '';
+        }
+        {
+          assertion =
+            !(lib.elem "0.0.0.0/0" (config.systemd.services.sabnzbd.serviceConfig.IPAddressAllow or [ ]));
+          message = ''
+            [mediNix/541-sabnzbd] FEHLER: IPAddressAllow darf kein Wildcard-Routing enthalten!
+            Gefunden: "0.0.0.0/0" in serviceConfig.IPAddressAllow.
+
+            ARCHITEKTUR-GRUND:
+            Wildcard-Routing im IPAddressAllow-Filter hebelt die RestrictNetworkInterfaces-Isolation
+            aus und ermöglicht unkontrollierten Traffic.
+
+            BEHEBUNG:
+            Entferne "0.0.0.0/0" aus serviceConfig.IPAddressAllow.
+          '';
+        }
       ];
 
       services.sabnzbd = {
@@ -150,7 +201,16 @@ in
       };
 
       systemd.services.sabnzbd = {
-        after = [ "network.target" ];
+        bindsTo = lib.optional (
+          svc.usenet-confinement.enable && vpnIf != ""
+        ) "sys-subsystem-net-devices-${vpnIf}.device";
+        wants = [ "network-online.target" ];
+        after = [
+          "network-online.target"
+        ]
+        ++ lib.optional (
+          svc.usenet-confinement.enable && vpnIf != ""
+        ) "sys-subsystem-net-devices-${vpnIf}.device";
         wantedBy = [ "multi-user.target" ];
         onFailure = [ "alert-ntfy@%n.service" ];
         preStart = ''
@@ -194,6 +254,9 @@ in
               "lo"
               vpnIf
             ];
+            # Wildcard-Routing aus profiles.python entfernen; RestrictNetworkInterfaces & nftables steuern den Pfad
+            IPAddressDeny = lib.mkForce [ ];
+            IPAddressAllow = lib.mkForce [ ];
           })
           (lib.mkIf (svc.secrets.usenetEnvFile or null != null) {
             EnvironmentFile = [ svc.secrets.usenetEnvFile ];
