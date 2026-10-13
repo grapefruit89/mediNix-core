@@ -62,7 +62,7 @@ let
         in
         map (n: ./. + "/${dir}/${n}") (
           builtins.attrNames (
-            lib.filterAttrs (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null) files
+            lib.filterAttrs (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null && !(lib.hasPrefix "_" n)) files
           )
         );
     in

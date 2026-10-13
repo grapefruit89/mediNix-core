@@ -48,7 +48,7 @@ let
     else if cfg.domain != null then
       "http://${publicHost n}.${cfg.domain}"
     else
-      "http://${n}.local";
+      "http://${n}.lan";
 
   fragment =
     n: m:

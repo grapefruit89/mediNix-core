@@ -9,8 +9,8 @@
 # requires: ["lib/service-factory", "lib/registry"]
 # adr: ADR-511
 # ---
-# .local is a hostname, not a network. WAN clients can send Host: jellyfin.local
-# to :80. Every .local site therefore gets the same remote_ip abort as internal.
+# .lan is a local domain. WAN clients can send Host: jellyfin.lan
+# to :80. Every .lan site therefore gets the same remote_ip abort as internal.
 # localBypass only skips forward_auth *after* that CIDR check.
 {
   lib,
@@ -154,7 +154,7 @@ let
       isLocal ? false,
     }:
     let
-      applyAuth = ing.auth.mode == "forward-auth" && (!isLocal || !(localBypassOf m));
+      applyAuth = !isLocal && (ing.auth.mode == "forward-auth") && (m.accessGroup == "public") && !(m.allowUnauthenticated or false);
       skipPaths = unauthenticatedPathsOf m;
       skipMatcher = lib.optionalString (applyAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
@@ -168,7 +168,7 @@ let
                        X-Auth-Request-User X-Auth-Request-Email
         }
       '';
-      # .local always CIDR-gated. Domain internal too. Stream/public/idp on
+      # .lan always CIDR-gated. Domain internal too. Stream/public/idp on
       # the real hostname stay reachable from WAN when that is the policy.
       cidrGate = lib.optionalString (isLocal || m.accessGroup == "internal") lanAbort;
       customConfig = m.customConfig or "";
@@ -260,7 +260,7 @@ let
     lib.mapAttrsToList (
       n: m:
       (lib.optionals (cfg.domain != null) (lib.concatMap (mkDomainSites n m) (publicNames n)))
-      ++ [ (mkSite "http://${n}.local" (mkLocalBody n m)) ]
+      ++ [ (mkSite "http://${n}.lan" (mkLocalBody n m)) ]
     ) enabledServices
   );
 
@@ -288,7 +288,7 @@ let
     ++ (lib.optionals (cfg.domain != null && !tlsEnabled) [
       (mkSite "http://${cfg.domain}" landingHttpLanBody)
     ])
-    ++ [ (mkSite "http://home.local" landingHttpLanBody) ]
+    ++ [ (mkSite "http://dashboard.lan" landingHttpLanBody) ]
   );
 
   catchAllSites =

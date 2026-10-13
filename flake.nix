@@ -149,6 +149,7 @@
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
+        checks.smoke-test = import ./tests/medinix-smoke.nix { inherit pkgs; inputs = { inherit self; }; };
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
 
@@ -811,15 +812,19 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            nixfmt-rfc-style
             statix
             deadnix
+            nurl
+            nix-init
+            nh
+            nixfmt-rfc-style
             nix-tree
             jq
             mkdocs
             python3Packages.mkdocs-material
           ];
           shellHook = ''
+            export OPENCODE_PROJECT="mediNix-core"
             echo "Run 'cd docs && mkdocs serve' to view the knowledge base."
           '';
         };

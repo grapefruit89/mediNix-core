@@ -26,6 +26,17 @@ in
       }
     ];
 
+  options.environment.persistence = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.submodule {
+      options.directories = lib.mkOption {
+        type = lib.types.listOf lib.types.anything;
+        default = [ ];
+      };
+    });
+    default = { };
+    description = "Fallback stub for impermanence if not defined by host.";
+  };
+
   config = lib.mkMerge [
     { users.groups.media = lib.mkDefault { gid = 5000; }; }
     (lib.mkMerge (lib.mapAttrsToList (name: meta:
@@ -49,5 +60,19 @@ in
         };
       }
     ) activeServices))
+    (lib.mkIf ((config.medinix.persist.enable or false) || (config.environment.persistence ? "/persist")) {
+      environment.persistence."/persist".directories =
+        lib.mapAttrsToList (name: meta:
+          let
+            spec = df.derive name meta.num;
+          in
+          {
+            directory = spec.stateDir;
+            user = name;
+            group = spec.group;
+            mode = "0750";
+          }
+        ) activeServices;
+    })
   ];
 }

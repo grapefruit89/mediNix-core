@@ -52,7 +52,7 @@ in
         if cfg.host.domain != null then
           "${cfg.host.hostname}.${cfg.host.domain}"
         else
-          "${cfg.host.hostname}.local";
+          "${cfg.host.hostname}.lan";
       description = "Vollständig qualifizierter Domain-Name (FQDN) des Hosts.";
     };
 
@@ -64,24 +64,61 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      {
-        assertion =
-          cfg.host.domain == null
-          || (cfg.host.domain != "" && builtins.match "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$" cfg.host.domain != null);
-        message = "[mediNix/host] 'medinix.host.domain' darf nicht leer sein und muss einem validen Domain-Format entsprechen! Gegeben: '${toString cfg.host.domain}'";
-      }
-      {
-        assertion =
-          cfg.host.domain == null || !lib.hasSuffix ".local" cfg.host.domain;
-        message = "[mediNix/host] 'medinix.host.domain' darf nicht auf '.local' enden (RFC 6762 mDNS-Konflikt)! Gegeben: '${toString cfg.host.domain}'";
-      }
-      {
-        assertion =
-          cfg.host.adminEmail == null
-          || (cfg.host.adminEmail != "" && builtins.match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" cfg.host.adminEmail != null);
-        message = "[mediNix/host] 'medinix.host.adminEmail' muss eine valide E-Mail-Adresse sein! Gegeben: '${toString cfg.host.adminEmail}'";
-      }
-    ];
+    assertions =
+      let
+        dom = cfg.host.domain;
+        tld = if dom != null then lib.last (lib.splitString "." dom) else "";
+      in
+      [
+        {
+          assertion =
+            dom == null
+            || (dom != "" && builtins.match "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$" dom != null);
+          message = "[mediNix/host] 'medinix.host.domain' darf nicht leer sein und muss einem validen Domain-Format entsprechen! Gegeben: '${toString dom}'";
+        }
+        {
+          assertion =
+            cfg.host.adminEmail == null
+            || (cfg.host.adminEmail != "" && builtins.match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" cfg.host.adminEmail != null);
+          message = "[mediNix/host] 'medinix.host.adminEmail' muss eine valide E-Mail-Adresse sein! Gegeben: '${toString cfg.host.adminEmail}'";
+        }
+      ]
+      ++ lib.optionals (dom != null) [
+        {
+          assertion = tld != "local";
+          message = ''
+            [mediNix/RFC-6762] TLD '.local' ist verboten!
+            Grund: '.local' ist per RFC 6762 strikt für mDNS (Multicast DNS / Avahi / Apple Bonjour) reserviert.
+            Die Nutzung in Unicast-DNS führt zu Timeouts, Hängern und DNS-Auflösungsfehlern auf macOS und iOS.
+            Für das Heimnetz nutzt mediNix fest und unverschlüsselt '*.lan'.
+          '';
+        }
+        {
+          assertion = tld != "home";
+          message = ''
+            [mediNix/RFC-8375] TLD '.home' ist verboten!
+            Grund: '.home' wurde von ICANN/IETF wegen massiver Kollisionen eingefroren.
+            RFC 8375 definiert stattdessen '.home.arpa', was jedoch unhandlich ist.
+            Für das Heimnetz nutzt mediNix fest und unverschlüsselt '*.lan'.
+          '';
+        }
+        {
+          assertion = tld != "internal";
+          message = ''
+            [mediNix/architecture] TLD '.internal' wird für externe Domains nicht unterstützt!
+            Grund: mediNix reserviert das interne Routing fest für die 3-Buchstaben-TLD '.lan' (KISS-Prinzip).
+            Trage unter 'medinix.host.domain' deine echte öffentliche WAN-Domain (z. B. 'deinedomain.de') für Cloudflare/ACME ein.
+          '';
+        }
+        {
+          assertion = !lib.hasSuffix ".lan" dom;
+          message = ''
+            [mediNix/architecture] 'medinix.host.domain' darf nicht auf '.lan' enden!
+            Grund: '.lan' ist im mediNix-Chassis bereits als unveränderliche Invariante für alle internen Dienste
+            (z. B. seerr.lan, jellyfin.lan) fest verdrahtet.
+            Unter 'medinix.host.domain' gehört ausschließlich deine öffentliche Domain für WAN/HTTPS.
+          '';
+        }
+      ];
   };
 }
