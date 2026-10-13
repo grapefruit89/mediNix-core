@@ -313,6 +313,18 @@ in
             '';
           }
         ]
+
+        # 4. Metrik-Invariante: metrics.enable darf nicht mit metrics.type = "none" kombiniert werden
+        (lib.mapAttrsToList (name: m: {
+          assertion = (!m.metrics.enable) || (m.metrics.type != "none");
+          message = "[mediNix/manifest] Dienst '${name}': metrics.enable darf nicht mit metrics.type = 'none' kombiniert werden.";
+        }) cfg.manifest)
+
+        # 5. Identitäts-Invariante: Port und UID müssen strikt num * 10 entsprechen
+        (lib.mapAttrsToList (name: m: {
+          assertion = (m.port == m.num * 10) && (m.uid == m.num * 10);
+          message = "[mediNix/manifest] Dienst '${name}': Port und UID müssen strikt num * 10 entsprechen.";
+        }) cfg.manifest)
       ];
   };
 }

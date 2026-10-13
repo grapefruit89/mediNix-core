@@ -62,8 +62,8 @@ in
       {
         assertion =
           cfg.host.domain == null
-          || (cfg.host.domain != "" && builtins.match "^[a-z0-9.-]+$" cfg.host.domain != null);
-        message = "[mediNix/host] 'medinix.host.domain' darf nicht leer sein und muss dem Format '^[a-z0-9.-]+$' entsprechen! Gegeben: '${toString cfg.host.domain}'";
+          || (cfg.host.domain != "" && builtins.match "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$" cfg.host.domain != null);
+        message = "[mediNix/host] 'medinix.host.domain' darf nicht leer sein und muss einem validen Domain-Format entsprechen! Gegeben: '${toString cfg.host.domain}'";
       }
       {
         assertion =

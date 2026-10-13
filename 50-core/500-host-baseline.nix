@@ -25,33 +25,43 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.enable && cfg.hostHygiene.enable) {
-    services.journald.extraConfig = lib.mkDefault ''
-      SystemMaxUse=500M
-      SystemMaxFileSize=50M
-      MaxRetentionSec=2week
-    '';
+  config = lib.mkMerge [
+    {
+      assertions = [
+        {
+          assertion = !(
+            (config.system.autoUpgrade.enable or false)
+            && (config.system.autoUpgrade.allowReboot or false)
+          );
+          message = "[mediNix/hostHygiene] 'system.autoUpgrade.allowReboot = true' ist verboten! Unkontrollierte Reboots gefährden laufende Datenbank- und Transcode-Jobs.";
+        }
+        {
+          assertion = !(config.services.logrotate.enable or false);
+          message = "[mediNix/hostHygiene] 'services.logrotate.enable = true' erkannt! mediNix nutzt natives systemd-journald mit SystemMaxUse.";
+        }
+        {
+          assertion = !(config.networking.wireguard.useNetworkNamespace or false);
+          message = "[mediNix/architecture] WireGuard-Network-Namespaces sind verboten. Ausschließlich UID-nftables-Routing.";
+        }
+        {
+          assertion =
+            config.services.vpnKillSwitch.instances == { }
+            || (
+              (config.services.vpnKillSwitch.instances ? sabnzbd)
+              && (config.services.vpnKillSwitch.instances.sabnzbd.uid == 5410)
+              && (lib.attrNames config.services.vpnKillSwitch.instances == [ "sabnzbd" ])
+            );
+          message = "[mediNix/security] Killswitch-Verletzung: Ausschließlich SABnzbd mit UID 5410 darf registriert sein.";
+        }
+      ];
+    }
 
-    assertions = [
-      {
-        assertion = !(
-          (config.system.autoUpgrade.enable or false)
-          && (config.system.autoUpgrade.allowReboot or false)
-        );
-        message = "[mediNix/hostHygiene] 'system.autoUpgrade.allowReboot = true' ist verboten! Unkontrollierte Reboots gefährden laufende Datenbank- und Transcode-Jobs.";
-      }
-      {
-        assertion = !(config.services.logrotate.enable or false);
-        message = "[mediNix/hostHygiene] 'services.logrotate.enable = true' erkannt! mediNix nutzt natives systemd-journald mit SystemMaxUse.";
-      }
-      {
-        assertion = !(config.networking.wireguard.useNetworkNamespace or false);
-        message = "[mediNix/architecture] WireGuard-Network-Namespaces sind verboten. Ausschließlich UID-nftables-Routing.";
-      }
-      {
-        assertion = lib.all (name: name == "sabnzbd") (lib.attrNames (config.services.vpnKillSwitch.instances or { }));
-        message = "[mediNix/security] Unerwarteter Dienst im VPN-Killswitch! Nur SABnzbd (UID 5410) darf geroutet werden.";
-      }
-    ];
-  };
+    (lib.mkIf (cfg.enable && cfg.hostHygiene.enable) {
+      services.journald.extraConfig = lib.mkDefault ''
+        SystemMaxUse=500M
+        SystemMaxFileSize=50M
+        MaxRetentionSec=2week
+      '';
+    })
+  ];
 }
