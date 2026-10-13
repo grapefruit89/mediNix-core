@@ -119,6 +119,16 @@ in
             Unter 'medinix.host.domain' gehört ausschließlich deine öffentliche Domain für WAN/HTTPS.
           '';
         }
+        {
+          assertion =
+            (cfg.secrets.cloudflareEnvFile != null)
+            || ((cfg.ingress.tls.acmeCredential or null) != null)
+            || (cfg.ingress.tls.mode == "internal" || cfg.ingress.tls.mode == "custom" || cfg.ingress.tls.mode == "off");
+          message = ''
+            [mediNix/secrets] Wenn 'medinix.host.domain' gesetzt ist, muss 'medinix.secrets.cloudflareEnvFile'
+            (oder ingress.tls.acmeCredential) konfiguriert sein, es sei denn ingress.tls.mode steht auf internal/custom/off!
+          '';
+        }
       ];
   };
 }

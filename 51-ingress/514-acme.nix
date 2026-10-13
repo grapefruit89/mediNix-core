@@ -25,7 +25,11 @@ let
   ddns = cfg.dns.ddns;
   acmeHost = ing.tls.acmeHost;
 
-  credPath = ing.tls.acmeCredential or null;
+  credPath =
+    if (cfg.secrets.cloudflareEnvFile or null) != null then
+      cfg.secrets.cloudflareEnvFile
+    else
+      ing.tls.acmeCredential or null;
 
   credRuntime = "/run/credentials/acme-${acmeHost}.service/cf-token";
 
@@ -106,11 +110,14 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
   systemd.services."acme-${acmeHost}" = {
     serviceConfig = {
       EnvironmentFile = [
-        credRuntime
+        (if (cfg.secrets.cloudflareEnvFile or null) != null then
+          cfg.secrets.cloudflareEnvFile
+        else
+          credRuntime)
         cfTuningEnv
       ];
     }
-    // lib.optionalAttrs (credPath != null) {
+    // lib.optionalAttrs ((cfg.secrets.cloudflareEnvFile or null) == null && credPath != null) {
       LoadCredentialEncrypted = [ "cf-token:${credPath}" ];
     };
   };

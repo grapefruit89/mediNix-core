@@ -35,7 +35,7 @@ let
       null;
 
   jellyfinUrl =
-    if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
+    if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
   jellyfinMetadataDir = "${metadataDir}/metadata";
   trickplayHwAccel = if svc.hardware.accel != "none" then "true" else "false";
 
@@ -138,10 +138,13 @@ in
           '';
         }
         {
-          assertion = lib.hasInfix "/transcode" (
-            lib.concatStringsSep " " (config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ])
-          );
-          message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (/transcode) stattfinden!";
+          assertion = lib.any (entry: lib.hasPrefix "/transcode" entry)
+            (config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ]);
+          message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
+        }
+        {
+          assertion = (config.systemd.services.jellyfin.environment.JELLYFIN_TRANSCODE_DIR or "") == "/transcode";
+          message = "[mediNix/551-jellyfin] JELLYFIN_TRANSCODE_DIR muss zwingend auf '/transcode' zeigen!";
         }
       ];
 
@@ -213,7 +216,7 @@ in
     ];
     environment = {
       JELLYFIN_PublishedServerUrl =
-        if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.local";
+        if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
       JELLYFIN_TRANSCODE_DIR = "/transcode";
     }
     // lib.optionalAttrs (svc.hardware.accel != "none") {

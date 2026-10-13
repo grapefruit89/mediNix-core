@@ -24,6 +24,8 @@
   <CacheSize>800</CacheSize>
   <UICulture>@LOCALE_UI@</UICulture>
   <SaveMetadataHidden>false</SaveMetadataHidden>
+  <SaveArtworkIntoMovieFolders>false</SaveArtworkIntoMovieFolders>
+  <SaveArtworkIntoSeriesFolders>false</SaveArtworkIntoSeriesFolders>
   <EnableExternalContentInSuggestions>false</EnableExternalContentInSuggestions>
   <EnableSlowResponseWarning>true</EnableSlowResponseWarning>
   <SlowResponseThresholdMs>500</SlowResponseThresholdMs>

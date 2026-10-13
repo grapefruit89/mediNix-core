@@ -44,17 +44,16 @@ let
     "books"
     "music"
   ];
-  standardDirs = mediaTypes ++ [
-    "downloads"
-    "cache"
-    "incomplete"
-  ];
+  standardDirs = mediaTypes;
   backendsActive = (st.backends ? hot) && (st.backends ? cold);
   hot = st.backends.hot or "";
   cold = st.backends.cold or "";
 
   allDirs =
-    [ (toString st.metadataDir) ]
+    [
+      (toString st.metadataDir)
+      (toString st.downloadDir)
+    ]
     ++ map (dir: "${st.mediaRoot}/${dir}") standardDirs
     ++ lib.optionals backendsActive (
       map (t: "${hot}/${t}") mediaTypes ++ map (t: "${cold}/${t}") mediaTypes

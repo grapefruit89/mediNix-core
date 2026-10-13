@@ -870,6 +870,11 @@ in
         default = "/data";
         description = "Base directory for media storage downloads/library.";
       };
+      downloadDir = lib.mkOption {
+        type = lib.types.path;
+        default = "/var/cache/downloads";
+        description = "Schnelles SSD-Download-Verzeichnis (strikt getrennt von mediaRoot).";
+      };
       metadataDir = lib.mkOption {
         type = lib.types.path;
         default =
@@ -1118,6 +1123,16 @@ in
       seerrEnvFile = lib.mkOption {
         type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/seerr.env";
+      };
+      cloudflareEnvFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Pfad zur Cloudflare-EnvironmentFile (.env) mit CF_DNS_API_TOKEN fuer ACME/DNS-01.";
+      };
+      usenetEnvFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Pfad zur Usenet-EnvironmentFile (.env) mit Zugangsdaten fuer SABnzbd.";
       };
       autoGenerate = lib.mkOption {
         type = lib.types.bool;

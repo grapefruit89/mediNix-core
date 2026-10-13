@@ -141,7 +141,7 @@ in
           inherit port;
           host = "127.0.0.1";
           language = svc.locale.language;
-          download_dir = "${svc.storage.mediaRoot}/downloads";
+          download_dir = "${svc.storage.downloadDir}";
           temp_dir = "/run/sabnzbd-tmp";
           check_new_rel = 0;
         };
@@ -151,6 +151,21 @@ in
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
         onFailure = [ "alert-ntfy@%n.service" ];
+        preStart = ''
+          DOWNLOAD_PATH="${svc.storage.downloadDir}"
+          ${pkgs.coreutils}/bin/mkdir -p "$DOWNLOAD_PATH"
+          DEV=$(${pkgs.coreutils}/bin/df -P "$DOWNLOAD_PATH" | ${pkgs.gawk}/bin/awk 'NR>1 {print $1}')
+          DISK=$(${pkgs.util-linux}/bin/lsblk -no PKNAME "$DEV" 2>/dev/null || ${pkgs.coreutils}/bin/basename "$DEV")
+
+          if [ -f "/sys/block/$DISK/queue/rotational" ]; then
+            ROTATIONAL=$(${pkgs.coreutils}/bin/cat "/sys/block/$DISK/queue/rotational")
+            if [ "$ROTATIONAL" -eq "1" ]; then
+              echo "[mediNix/541-sabnzbd] FATAL: Download-Verzeichnis '$DOWNLOAD_PATH' liegt auf einer HDD ($DISK)!" >&2
+              echo "Usenet-Downloads und PAR2-Entpackvorgänge auf rotierenden Platten sind verboten (IOPS-Kollaps)." >&2
+              exit 1
+            fi
+          fi
+        '';
         serviceConfig = lib.mkMerge [
           profiles.python
           memoryPolicy.sabnzbd
@@ -167,7 +182,7 @@ in
             ];
             ReadWritePaths = [
               stateDir
-              "${svc.storage.mediaRoot}/downloads"
+              "${svc.storage.downloadDir}"
               "/run/sabnzbd-tmp"
             ];
           }
@@ -177,6 +192,9 @@ in
               "lo"
               vpnIf
             ];
+          })
+          (lib.mkIf (svc.secrets.usenetEnvFile or null != null) {
+            EnvironmentFile = [ svc.secrets.usenetEnvFile ];
           })
           {
             LoadCredentialEncrypted = lib.mkMerge [

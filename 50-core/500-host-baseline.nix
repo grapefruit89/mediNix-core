@@ -90,6 +90,10 @@ in
           ) (lib.attrValues (config.medinix.manifest or { }));
           message = "[mediNix/architecture] SQLite-Schutz-Invariante verletzt: StateDirectory darf niemals unter storage.mediaRoot liegen!";
         }
+        {
+          assertion = !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (toString config.medinix.storage.downloadDir);
+          message = "[mediNix/storage] Das Download-Verzeichnis darf kein Teil des HDD-Archivs (mediaRoot) sein.";
+        }
       ];
     }
 

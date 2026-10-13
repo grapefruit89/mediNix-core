@@ -14,6 +14,8 @@ pkgs.testers.runNixOSTest {
           "192.168.0.0/16"
         ];
         storage.mediaRoot = "/tmp/media";
+        secrets.cloudflareEnvFile = pkgs.writeText "cf.env" "CF_DNS_API_TOKEN=fake";
+        jellyfin.adminPasswordFile = pkgs.writeText "jf-admin" "pass123";
         seerr.enable = true;
         jellyfin.enable = true;
       };
