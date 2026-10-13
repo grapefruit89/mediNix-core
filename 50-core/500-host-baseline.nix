@@ -68,6 +68,27 @@ in
             );
           message = "[mediNix/security] Killswitch-Verletzung: Ausschließlich SABnzbd mit UID 5410 darf registriert sein.";
         }
+        {
+          assertion = !(config.virtualisation.docker.enable or false);
+          message = "[mediNix/architecture] Docker-Daemon ('virtualisation.docker.enable = true') ist verboten! mediNix nutzt native systemd-Services (optional rootless Podman via oci-containers).";
+        }
+        {
+          assertion = (config.containers or { }) == { };
+          message = "[mediNix/architecture] 'containers.<name>' (systemd-nspawn) ist verboten! Alle mediNix-Dienste laufen nativ unter systemd.";
+        }
+        {
+          assertion = lib.all (name:
+            let svc = config.systemd.services.${name} or { }; in
+            !(svc.serviceConfig.PrivateNetwork or false)
+          ) (lib.attrNames (config.medinix.manifest or { }));
+          message = "[mediNix/architecture] Zero-Container-Invariante verletzt: Kein mediNix-Dienst darf 'PrivateNetwork = true' (netns) nutzen!";
+        }
+        {
+          assertion = lib.all (m:
+            !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (toString m.stateDir)
+          ) (lib.attrValues (config.medinix.manifest or { }));
+          message = "[mediNix/architecture] SQLite-Schutz-Invariante verletzt: StateDirectory darf niemals unter storage.mediaRoot liegen!";
+        }
       ];
     }
 

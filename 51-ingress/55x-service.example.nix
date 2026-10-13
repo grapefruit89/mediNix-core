@@ -4,6 +4,14 @@
 # status: template
 # contract: schemaVersion = 1 (ADR-0010)
 # ---
+# Packaging-Hierarchie & Invarianten (ADR-0010):
+# 1. Prio 1 (Standard): Natives Nixpkgs-Paket direkt unter systemd.
+# 2. Prio 2 (Ausnahme): Falls OCI zwingend nötig ist, deklarativ via
+#    'virtualisation.oci-containers' mit Podman (daemonless),
+#    gebunden an 127.0.0.1:<port> und ins Manifest gemappt.
+#    Docker-Daemon und systemd-nspawn sind strikt verboten.
+# 3. State-Isolation: SQLite-Datenbanken verbleiben unter stateDir (/var/lib/...),
+#    niemals unter storage.mediaRoot!
 {
   config,
   lib,

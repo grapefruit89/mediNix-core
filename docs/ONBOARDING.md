@@ -88,3 +88,33 @@ shred -u /tmp/secret.txt
 
 ### INV-SECRET (Build-Zeit-Garantie)
 Kein Secret-Pfad darf im Nix-Store liegen (`/nix/store/...`). `591-cross-domain.nix` prüft das via `INV-SECRET`-Invariante. Ein Verstoß bricht den Build sofort ab.
+
+---
+
+## 5. Stateful Data & SQLite-Schutz (`/var/lib`)
+
+NixOS-Generationen rollen ausschließlich `/nix/store`, `/etc` und Pakete zurück, niemals mutable Daten in `/var/lib`.
+
+* **Lokaler Host-Speicher Pflicht:** Alle Datenbanken und Anwendungs-States (`/var/lib/${service}-${port}`) verbleiben strikt auf lokalem Host-Speicher (NVMe/SSD, ext4/Btrfs/ZFS). Das Auslagern von `/var/lib` auf NFS-, SMB- oder FUSE-Shares ist architektonisch untersagt (SQLite-Locking-Bugs).
+* **Snapshotfähiges Dateisystem empfohlen:** Für produktive Hosts wird Btrfs (mit Subvolumes) oder ZFS (mit `compress=zstd`) empfohlen, um State vor Schema-Upgrades atomar zu sichern.
+* **Keine Live-Rsync-Backups:** SQLite-Datenbanken dürfen im laufenden Betrieb niemals mit partiellem `rsync` kopiert werden, sondern über atomare Dateisystem-Snapshots (`btrbk`/`syncoid`) oder SQLite-Online-Dump-Hooks.
+
+---
+
+## 6. Service-Packaging-Hierarchie
+
+1. **Primärstandard (Prio 1):** Alle Kern- und Mediendienste (Jellyfin, *arr, SABnzbd, Caddy, Gatus, Pocket ID) laufen ausnahmslos als native Nixpkgs-Pakete direkt unter systemd.
+2. **Ausnahme-Standard (Prio 2):** Sollte ein Drittanbieter-Dienst zwingend als OCI-Container benötigt werden, erfolgt dies **niemals** über Docker, Docker Compose oder `systemd-nspawn`. Die Bereitstellung erfolgt deklarativ über `virtualisation.oci-containers` mit `backend = "podman"` (daemonless), gebunden an `127.0.0.1:<Port>` und deklariert in `config.medinix.manifest.<svc>`.
+3. **Docker & nspawn verboten:** Weder `virtualisation.docker.enable` noch `containers.<name>` sind in mediNix erlaubt.
+
+---
+
+## 7. GitOps-Architektur & Deployment-Entkopplung
+
+`mediNix-core` ist ein portables Modul ohne feste Deployment-Zwänge:
+* **Entkopplung:** Wie der Host deployt wird (Push via `nixos-rebuild --target-host` / `colmena` oder Pull via `comin`), entscheidet die Host-Konfiguration außerhalb dieses Repositories.
+* **Fail-Closed vor dem Push:** Vor jedem Commit/Push muss der Code syntaktisch und per Flake-Check validiert sein.
+* **CLI-Discovery:** Metadaten des gesamten Manifests können jederzeit per Flake-App abgefragt werden:
+  ```bash
+  nix run .#manifest-json | jq .
+  ```

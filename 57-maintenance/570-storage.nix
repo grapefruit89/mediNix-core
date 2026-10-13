@@ -66,39 +66,4 @@ lib.mkIf (cfg.enable && st.enable) {
 
   # Directory structure + permissions
   systemd.tmpfiles.rules = map (d: "d '${d}' 0775 root media -") allDirs;
-
-  # MergerFS pools (only if hot + cold both defined)
-  fileSystems = lib.mkIf (backendsActive && cfg.hostIntegration.storage == "managed") (
-    lib.genAttrs (map (t: "${st.mediaRoot}/${t}") mediaTypes) (
-      mountPoint: {
-        device =
-          let
-            t = baseNameOf mountPoint;
-          in
-          "${hot}/${t}:${cold}/${t}";
-        fsType = "fuse.mergerfs";
-        depends = [
-          hot
-          cold
-        ];
-        noCheck = true;
-        options = [
-          "defaults"
-          "allow_other"
-          "use_ino"
-          "noatime"
-          "func.getattr=newest"
-          "cache.files=partial"
-          "dropcacheonclose=true"
-          "category.create=epmfs"
-          "minfreespace=10G"
-        ];
-      }
-    )
-  );
-
-  # mergerfs package must be in PATH for FUSE mounts
-  environment.systemPackages = lib.mkIf (backendsActive && cfg.hostIntegration.storage == "managed") [
-    pkgs.mergerfs
-  ];
 }

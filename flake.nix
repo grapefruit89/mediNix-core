@@ -773,10 +773,21 @@
                   medinix.audiobookshelf.enable = true;
                   medinix.navidrome.enable = true;
                   medinix.seerr.enable = true;
+                  medinix.pocket-id.enable = true;
+                  medinix.feishin.enable = true;
+                  medinix.gatus.enable = true;
+                  medinix.ntfy.enable = true;
                 };
               }).config;
           in
           pkgs.writeText "medinix-manifest.json" (builtins.toJSON (c.medinix.manifest or { }));
+
+        apps.manifest-json = {
+          type = "app";
+          program = "${pkgs.writeShellScript "show-manifest-json" ''
+            cat ${packages.manifest-json}
+          ''}";
+        };
 
         # Knowledge Base Build
         packages.docs = pkgs.stdenv.mkDerivation {
