@@ -5,7 +5,7 @@
 # folder: 54-transfer
 # status: active
 # last_reviewed: 2026-09-07
-# requires: ["lib/hardening-profiles", "lib/registry", "lib/memory-policy"]
+# requires: ["lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-5260
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
@@ -20,11 +20,9 @@
 let
   cfg = config.medinix.sabnzbd;
   svc = config.medinix;
-  reg = (import ../lib/registry.nix { inherit lib; }).services.sabnzbd;
   meta = config.medinix.manifest.sabnzbd;
 
   inherit (meta) port uid stateDir;
-  gid = 5000;
   creds = import ../lib/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
@@ -72,7 +70,7 @@ in
     {
       medinix.manifest.sabnzbd = {
         enable = cfg.enable;
-        num = reg.num;
+        num = 541;
         accessGroup = "internal";
 
         ui = {
@@ -113,8 +111,8 @@ in
     (lib.mkIf cfg.enable {
       assertions = [
         {
-          assertion = meta.num == reg.num;
-          message = "[mediNix/541-sabnzbd] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+          assertion = config.services.sabnzbd.settings.misc.port == meta.port;
+          message = "[mediNix/541-sabnzbd] Port-Konflikt: SABnzbd MUSS auf ${toString meta.port} laufen.";
         }
         {
           assertion = !(config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false);
@@ -125,15 +123,6 @@ in
           message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID 5410 nutzen.";
         }
       ];
-
-      users.users.sabnzbd = {
-        inherit uid;
-        group = "media";
-        extraGroups = [ "media" ];
-        home = stateDir;
-        isSystemUser = true;
-      };
-      users.groups.media.gid = gid;
 
       services.sabnzbd = {
         enable = true;

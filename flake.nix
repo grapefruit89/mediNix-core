@@ -21,8 +21,8 @@
     in
     {
       # Das Hauptprodukt: importierbar als nixosModules.default
-      nixosModules.default = import ./default.nix;
-      nixosModules.mediNix = import ./default.nix; # Alias für Abwärtskompatibilität
+      nixosModules.default = { imports = [ ./default.nix { _module.args.self = self; } ]; };
+      nixosModules.mediNix = { imports = [ ./default.nix { _module.args.self = self; } ]; }; # Alias für Abwärtskompatibilität
 
       overlays.default = overlay;
     }
@@ -148,6 +148,7 @@
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
+        checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
 

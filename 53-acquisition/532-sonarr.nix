@@ -22,12 +22,9 @@
 let
   cfg = config.medinix.sonarr;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
-  reg = registry.sonarr;
   meta = config.medinix.manifest.sonarr;
 
   inherit (meta) port uid stateDir;
-  inherit (reg) gid;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 
@@ -73,7 +70,7 @@ in
     {
       medinix.manifest.sonarr = {
         enable = cfg.enable;
-        num = reg.num;
+        num = 532;
         accessGroup = "internal";
 
         ui = {
@@ -111,16 +108,6 @@ in
     # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
     (lib.mkIf cfg.enable (
       lib.mkMerge [
-        {
-          assertions = [
-            {
-              assertion = meta.num == reg.num;
-              message = "[mediNix/532-sonarr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
-            }
-          ];
-
-          users.groups.media.gid = gid;
-        }
         (mkService {
           name = "sonarr";
           inherit port;

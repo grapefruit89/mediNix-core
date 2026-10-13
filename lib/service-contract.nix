@@ -33,10 +33,16 @@ in
               };
 
               enable = lib.mkOption {
-              type = lib.types.bool;
-              default = true;
-              description = "Aktivierungsstatus des Dienstes im Gesamtsystem.";
-            };
+                type = lib.types.bool;
+                default = true;
+                description = "Aktivierungsstatus des Dienstes im Gesamtsystem.";
+              };
+
+              hasDaemon = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                description = "Gibt an, ob der Dienst einen eigenen systemd-Daemon besitzt (false für statische SPAs wie Feishin).";
+              };
 
             # --- PFLICHTFELDER (Kein Default: Fehlt die Angabe, bricht die Eval ab) ---
             num = lib.mkOption {

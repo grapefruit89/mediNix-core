@@ -11,10 +11,11 @@
   config,
   lib,
   ...
-}:
+}@args:
 
 let
   cfg = config.medinix;
+  self = args.self or null;
 in
 {
   options.medinix.hostHygiene = {
@@ -98,6 +99,20 @@ in
         SystemMaxFileSize=50M
         MaxRetentionSec=2week
       '';
+    })
+
+    (lib.mkIf cfg.enable {
+      system.nixos.label = lib.mkIf (self != null) (
+        lib.mkForce "${config.system.nixos.version}-${self.shortRev or "dirty"}"
+      );
+      system.configurationRevision = lib.mkIf (self != null) (self.rev or null);
+
+      nixpkgs.config.allowUnfreePredicate = lib.mkDefault (pkg:
+        builtins.elem (lib.getName pkg) [
+          "unrar"
+          "intel-media-driver"
+        ]
+      );
     })
   ];
 }

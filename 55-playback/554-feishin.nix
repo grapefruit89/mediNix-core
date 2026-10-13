@@ -22,6 +22,7 @@ in
     {
       medinix.manifest.feishin = {
         enable = cfg.enable;
+        hasDaemon = false;
         num = 554;
         accessGroup = "public";
         customConfig = ''

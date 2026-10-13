@@ -17,12 +17,9 @@
 let
   cfg = config.medinix.seerr;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
-  reg = registry.seerr;
   meta = config.medinix.manifest.seerr;
 
   inherit (meta) port uid stateDir;
-  inherit (reg) gid;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   seerrPkg =
@@ -54,7 +51,7 @@ in
     {
       medinix.manifest.seerr = {
         enable = cfg.enable;
-        num = reg.num;
+        num = 561;
         accessGroup = "public";
 
         ui = {
@@ -81,28 +78,12 @@ in
 
     # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
     (lib.mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = meta.num == reg.num;
-          message = "[mediNix/555-seerr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
-        }
-      ];
-
-      users.users.seerr = {
-        inherit uid;
-        group = "media";
-        extraGroups = [ "media" ];
-        home = stateDir;
-        isSystemUser = true;
-      };
-      users.groups.media.gid = gid;
-
       systemd.services.seerr = {
         after = [
-          "network.target"
+          "network-online.target"
           "jellyfin.service"
         ];
-        requires = [ "network.target" ];
+        wants = [ "network-online.target" ];
         wantedBy = [ "multi-user.target" ];
         onFailure = [ "alert-ntfy@%n.service" ];
         serviceConfig = lib.mkMerge [
@@ -110,17 +91,11 @@ in
           memoryPolicy.seerr
           {
             ExecStart = lib.getExe seerrPkg;
-            User = "seerr";
-            Group = "media";
-            UMask = "0002";
-            StateDirectory = "seerr-${toString port}";
+            WorkingDirectory = stateDir;
             ReadWritePaths = [ stateDir ];
           }
           (lib.mkIf (cfg.envFile != null) {
             EnvironmentFile = cfg.envFile;
-          })
-          (lib.mkIf (svc.secrets.seerrApiKeyFile or null != null) {
-            LoadCredentialEncrypted = [ "seerr-api-key:${svc.secrets.seerrApiKeyFile}" ];
           })
         ];
         environment = {
