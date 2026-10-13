@@ -48,15 +48,14 @@ let
   hot = st.backends.hot or "";
   cold = st.backends.cold or "";
 
-  allDirs =
-    [
-      (toString st.metadataDir)
-      (toString st.downloadDir)
-    ]
-    ++ map (dir: "${st.mediaRoot}/${dir}") standardDirs
-    ++ lib.optionals backendsActive (
-      map (t: "${hot}/${t}") mediaTypes ++ map (t: "${cold}/${t}") mediaTypes
-    );
+  allDirs = [
+    (toString st.metadataDir)
+    (toString st.downloadDir)
+  ]
+  ++ map (dir: "${st.mediaRoot}/${dir}") standardDirs
+  ++ lib.optionals backendsActive (
+    map (t: "${hot}/${t}") mediaTypes ++ map (t: "${cold}/${t}") mediaTypes
+  );
 in
 lib.mkIf (cfg.enable && st.enable) {
   # Ensure media group (GID 5000, SSOT from registry.nix)

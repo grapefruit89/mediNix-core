@@ -139,113 +139,116 @@ in
         }
         {
           assertion =
-            let tfs = config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ];
-            in lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
+            let
+              tfs = config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ];
+            in
+            lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
         }
         {
-          assertion = (config.systemd.services.jellyfin.environment.JELLYFIN_TRANSCODE_DIR or "") == "/transcode";
+          assertion =
+            (config.systemd.services.jellyfin.environment.JELLYFIN_TRANSCODE_DIR or "") == "/transcode";
           message = "[mediNix/551-jellyfin] JELLYFIN_TRANSCODE_DIR muss zwingend auf '/transcode' zeigen!";
         }
       ];
 
-  users.users.jellyfin = {
-    inherit uid;
-    group = "media";
-    extraGroups = [
-      "video"
-      "render"
-    ];
-    home = stateDir;
-    isSystemUser = true;
-  };
-  users.groups.media.gid = gid;
-
-  systemd.tmpfiles.rules = [
-    "d '${metadataDir}' 0775 jellyfin media -"
-    "d '${jellyfinMetadataDir}' 0775 jellyfin media -"
-  ];
-
-  systemd.services.jellyfin = {
-    after = [ "network-online.target" ];
-    requires = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    onFailure = [ "alert-ntfy@%n.service" ];
-    preStart = ''
-      ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/config'
-      if [ ! -f '${stateDir}/config/system.xml' ]; then
-        ${pkgs.coreutils}/bin/cp '${systemXmlSeed}' '${stateDir}/config/system.xml'
-        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/system.xml'
-      fi
-      if [ ! -f '${stateDir}/config/network.xml' ]; then
-        ${pkgs.coreutils}/bin/cp '${networkXmlSeed}' '${stateDir}/config/network.xml'
-        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/network.xml'
-      fi
-      if [ ! -f '${stateDir}/config/branding.xml' ]; then
-        ${pkgs.coreutils}/bin/cp '${brandingXmlSeed}' '${stateDir}/config/branding.xml'
-        ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/branding.xml'
-      fi
-    '';
-    serviceConfig = lib.mkMerge [
-      profiles.dotnet-gpu
-      memoryPolicy.jellyfin
-      {
-        ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
-        User = "jellyfin";
-        Group = "media";
-        UMask = "0002";
-        SupplementaryGroups = [
+      users.users.jellyfin = {
+        inherit uid;
+        group = "media";
+        extraGroups = [
           "video"
           "render"
         ];
-        DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
-        StateDirectory = "jellyfin-${toString port}";
-        CacheDirectory = "jellyfin-cache";
-        ReadWritePaths = [
-          stateDir
-          metadataDir
-          "/var/cache/jellyfin-cache"
-        ];
-        BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
-        InaccessiblePaths = [ "-${creds.storeDir}" ];
-        TemporaryFileSystem = "/transcode:size=4G";
-        RuntimeDirectory = "jellyfin-transcode";
-        LoadCredentialEncrypted = lib.mkIf (adminCred != null) [
-          "jellyfin-admin-pw:${adminCred}"
-        ];
-      }
-    ];
-    environment = {
-      JELLYFIN_PublishedServerUrl =
-        if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
-      JELLYFIN_TRANSCODE_DIR = "/transcode";
-    }
-    // lib.optionalAttrs (svc.hardware.accel != "none") {
-      LIBVA_DRIVER_NAME =
-        {
-          "auto" = "iHD";
-          "intel" = "iHD";
-          "vaapi" = "iHD";
-          "amd" = "radeonsi";
-          "nvidia" = null;
-        }
-        .${svc.hardware.accel} or null;
-      VDPAU_DRIVER = "va_gl";
-    }
-    // lib.optionalAttrs (adminCred != null) {
-      JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin.service/jellyfin-admin-pw";
-    };
-  };
+        home = stateDir;
+        isSystemUser = true;
+      };
+      users.groups.media.gid = gid;
 
-    hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
-      enable = true;
-      extraPackages = with pkgs; [
-        intel-media-driver
-        vpl-gpu-rt
-        intel-vaapi-driver
-        intel-compute-runtime
+      systemd.tmpfiles.rules = [
+        "d '${metadataDir}' 0775 jellyfin media -"
+        "d '${jellyfinMetadataDir}' 0775 jellyfin media -"
       ];
-    };
-  })
-];
+
+      systemd.services.jellyfin = {
+        after = [ "network-online.target" ];
+        requires = [ "network-online.target" ];
+        wantedBy = [ "multi-user.target" ];
+        onFailure = [ "alert-ntfy@%n.service" ];
+        preStart = ''
+          ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/config'
+          if [ ! -f '${stateDir}/config/system.xml' ]; then
+            ${pkgs.coreutils}/bin/cp '${systemXmlSeed}' '${stateDir}/config/system.xml'
+            ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/system.xml'
+          fi
+          if [ ! -f '${stateDir}/config/network.xml' ]; then
+            ${pkgs.coreutils}/bin/cp '${networkXmlSeed}' '${stateDir}/config/network.xml'
+            ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/network.xml'
+          fi
+          if [ ! -f '${stateDir}/config/branding.xml' ]; then
+            ${pkgs.coreutils}/bin/cp '${brandingXmlSeed}' '${stateDir}/config/branding.xml'
+            ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/branding.xml'
+          fi
+        '';
+        serviceConfig = lib.mkMerge [
+          profiles.dotnet-gpu
+          memoryPolicy.jellyfin
+          {
+            ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
+            User = "jellyfin";
+            Group = "media";
+            UMask = "0002";
+            SupplementaryGroups = [
+              "video"
+              "render"
+            ];
+            DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
+            StateDirectory = "jellyfin-${toString port}";
+            CacheDirectory = "jellyfin-cache";
+            ReadWritePaths = [
+              stateDir
+              metadataDir
+              "/var/cache/jellyfin-cache"
+            ];
+            BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
+            InaccessiblePaths = [ "-${creds.storeDir}" ];
+            TemporaryFileSystem = "/transcode:size=4G";
+            RuntimeDirectory = "jellyfin-transcode";
+            LoadCredentialEncrypted = lib.mkIf (adminCred != null) [
+              "jellyfin-admin-pw:${adminCred}"
+            ];
+          }
+        ];
+        environment = {
+          JELLYFIN_PublishedServerUrl =
+            if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
+          JELLYFIN_TRANSCODE_DIR = "/transcode";
+        }
+        // lib.optionalAttrs (svc.hardware.accel != "none") {
+          LIBVA_DRIVER_NAME =
+            {
+              "auto" = "iHD";
+              "intel" = "iHD";
+              "vaapi" = "iHD";
+              "amd" = "radeonsi";
+              "nvidia" = null;
+            }
+            .${svc.hardware.accel} or null;
+          VDPAU_DRIVER = "va_gl";
+        }
+        // lib.optionalAttrs (adminCred != null) {
+          JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin.service/jellyfin-admin-pw";
+        };
+      };
+
+      hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
+        enable = true;
+        extraPackages = with pkgs; [
+          intel-media-driver
+          vpl-gpu-rt
+          intel-vaapi-driver
+          intel-compute-runtime
+        ];
+      };
+    })
+  ];
 }

@@ -110,10 +110,12 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
   systemd.services."acme-${acmeHost}" = {
     serviceConfig = {
       EnvironmentFile = [
-        (if (cfg.secrets.cloudflareEnvFile or null) != null then
-          cfg.secrets.cloudflareEnvFile
-        else
-          credRuntime)
+        (
+          if (cfg.secrets.cloudflareEnvFile or null) != null then
+            cfg.secrets.cloudflareEnvFile
+          else
+            credRuntime
+        )
         cfTuningEnv
       ];
     }

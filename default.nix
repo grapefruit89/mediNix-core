@@ -62,7 +62,9 @@ let
         in
         map (n: ./. + "/${dir}/${n}") (
           builtins.attrNames (
-            lib.filterAttrs (n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null && !(lib.hasPrefix "_" n)) files
+            lib.filterAttrs (
+              n: t: t == "regular" && builtins.match "^[0-9]{3}-.*\\.nix$" n != null && !(lib.hasPrefix "_" n)
+            ) files
           )
         );
     in
@@ -1157,12 +1159,14 @@ in
   };
 
   options.environment.persistence = lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      options.directories = lib.mkOption {
-        type = lib.types.listOf lib.types.anything;
-        default = [ ];
-      };
-    });
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        options.directories = lib.mkOption {
+          type = lib.types.listOf lib.types.anything;
+          default = [ ];
+        };
+      }
+    );
     default = { };
     description = "Fallback stub for impermanence if not defined by host.";
   };

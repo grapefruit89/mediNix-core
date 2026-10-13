@@ -58,8 +58,6 @@ let
 in
 {
   config = {
-    systemd.services = lib.listToAttrs (
-      lib.mapAttrsToList mkExportarrService exportarrServices
-    );
+    systemd.services = lib.listToAttrs (lib.mapAttrsToList mkExportarrService exportarrServices);
   };
 }

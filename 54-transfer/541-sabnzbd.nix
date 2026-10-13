@@ -119,7 +119,9 @@ in
           message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist verboten! SABnzbd nutzt UID-Routing (5410).";
         }
         {
-          assertion = (!svc.usenet-confinement.enable) || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
+          assertion =
+            (!svc.usenet-confinement.enable)
+            || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
           message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID 5410 nutzen.";
         }
       ];

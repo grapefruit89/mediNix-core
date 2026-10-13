@@ -15,12 +15,18 @@ rec {
     slot = n - (project * 100) - (decade * 10);
   };
 
-  derive = name: n:
+  derive =
+    name: n:
     let
       parts = deconstruct n;
     in
     {
-      inherit (parts) id project decade slot;
+      inherit (parts)
+        id
+        project
+        decade
+        slot
+        ;
       port = n * 10;
       uid = n * 10;
       gid = parts.project * 1000;
@@ -28,7 +34,8 @@ rec {
       group = if parts.project == 5 then "media" else "proj-${toString parts.project}";
     };
 
-  validate = name: n:
+  validate =
+    name: n:
     let
       d = derive name n;
     in

@@ -30,10 +30,8 @@ in
     {
       assertions = [
         {
-          assertion = !(
-            (config.system.autoUpgrade.enable or false)
-            && (config.system.autoUpgrade.allowReboot or false)
-          );
+          assertion =
+            !((config.system.autoUpgrade.enable or false) && (config.system.autoUpgrade.allowReboot or false));
           message = "[mediNix/hostHygiene] 'system.autoUpgrade.allowReboot = true' ist verboten! Unkontrollierte Reboots gefährden laufende Datenbank- und Transcode-Jobs.";
         }
         {
@@ -45,8 +43,9 @@ in
           message = "[mediNix/architecture] WireGuard-Network-Namespaces sind verboten. Ausschließlich UID-nftables-Routing.";
         }
         {
-          assertion = lib.all (i: (i.interfaceNamespace or null) == null && (i.socketNamespace or null) == null)
-            (lib.attrValues (config.networking.wireguard.interfaces or { }));
+          assertion = lib.all (
+            i: (i.interfaceNamespace or null) == null && (i.socketNamespace or null) == null
+          ) (lib.attrValues (config.networking.wireguard.interfaces or { }));
           message = "[mediNix/architecture] WireGuard-Netns (interfaceNamespace/socketNamespace) ist verboten.";
         }
         {
@@ -78,20 +77,26 @@ in
           message = "[mediNix/architecture] 'containers.<name>' (systemd-nspawn) ist verboten! Alle mediNix-Dienste laufen nativ unter systemd.";
         }
         {
-          assertion = lib.all (name:
-            let svc = config.systemd.services.${name} or { }; in
+          assertion = lib.all (
+            name:
+            let
+              svc = config.systemd.services.${name} or { };
+            in
             !(svc.serviceConfig.PrivateNetwork or false)
           ) (lib.attrNames (config.medinix.manifest or { }));
           message = "[mediNix/architecture] Zero-Container-Invariante verletzt: Kein mediNix-Dienst darf 'PrivateNetwork = true' (netns) nutzen!";
         }
         {
-          assertion = lib.all (m:
-            !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (toString m.stateDir)
+          assertion = lib.all (
+            m: !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (toString m.stateDir)
           ) (lib.attrValues (config.medinix.manifest or { }));
           message = "[mediNix/architecture] SQLite-Schutz-Invariante verletzt: StateDirectory darf niemals unter storage.mediaRoot liegen!";
         }
         {
-          assertion = !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (toString config.medinix.storage.downloadDir);
+          assertion =
+            !lib.hasPrefix (toString config.medinix.storage.mediaRoot) (
+              toString config.medinix.storage.downloadDir
+            );
           message = "[mediNix/storage] Das Download-Verzeichnis darf kein Teil des HDD-Archivs (mediaRoot) sein.";
         }
       ];

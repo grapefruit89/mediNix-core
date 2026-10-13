@@ -21,8 +21,18 @@
     in
     {
       # Das Hauptprodukt: importierbar als nixosModules.default
-      nixosModules.default = { imports = [ ./default.nix { _module.args.self = self; } ]; };
-      nixosModules.mediNix = { imports = [ ./default.nix { _module.args.self = self; } ]; }; # Alias für Abwärtskompatibilität
+      nixosModules.default = {
+        imports = [
+          ./default.nix
+          { _module.args.self = self; }
+        ];
+      };
+      nixosModules.mediNix = {
+        imports = [
+          ./default.nix
+          { _module.args.self = self; }
+        ];
+      }; # Alias für Abwärtskompatibilität
 
       overlays.default = overlay;
     }
@@ -177,7 +187,10 @@
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
-        checks.smoke-test = import ./tests/medinix-smoke.nix { inherit pkgs; inputs = { inherit self; }; };
+        checks.smoke-test = import ./tests/medinix-smoke.nix {
+          inherit pkgs;
+          inputs = { inherit self; };
+        };
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
 
@@ -729,7 +742,9 @@
                 [ ];
 
             # 3. Keine Kachel-Kollisionen auf der Landingpage (m.ui.title eindeutig)
-            landingServices = lib.filterAttrs (_: m: (m.ui.showOnLanding or true) && m.accessGroup != "none") activeServices;
+            landingServices = lib.filterAttrs (
+              _: m: (m.ui.showOnLanding or true) && m.accessGroup != "none"
+            ) activeServices;
             titles = lib.mapAttrsToList (_: m: m.ui.title) landingServices;
             titleDuplicates =
               if (lib.length titles != lib.length (lib.unique titles)) then
@@ -738,9 +753,14 @@
                 [ ];
 
             # 4. Valide Healthcheck-Syntax (monitoring.healthPath beginnt mit /, falls monitoring.enable = true)
-            badHealth = lib.mapAttrsToList (n: m: "${n}: monitoring.healthPath '${m.monitoring.healthPath}' beginnt nicht mit '/'") (
-              lib.filterAttrs (_: m: m.monitoring.enable && !(lib.hasPrefix "/" m.monitoring.healthPath)) activeServices
-            );
+            badHealth =
+              lib.mapAttrsToList
+                (n: m: "${n}: monitoring.healthPath '${m.monitoring.healthPath}' beginnt nicht mit '/'")
+                (
+                  lib.filterAttrs (
+                    _: m: m.monitoring.enable && !(lib.hasPrefix "/" m.monitoring.healthPath)
+                  ) activeServices
+                );
 
             # 5. Valide accessGroup (Enum-Prüfung)
             allowedGroups = [

@@ -31,7 +31,9 @@ let
       config.services.caddy.enable;
 
   # Reiner Manifest-Konsument: Liest Dienste direkt aus config.medinix.manifest
-  enabledServices = lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (config.medinix.manifest or { });
+  enabledServices = lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (
+    config.medinix.manifest or { }
+  );
 
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
@@ -49,7 +51,9 @@ let
 
   # Declared-but-unresolvable vhosts in ingress.vhosts (RT-5/F7 loud instead of silently dead)
   unresolvedVhosts = lib.filter (n: !(enabledServices ? ${n})) (
-    lib.attrNames (lib.filterAttrs (_: vhost: (vhost.accessGroup or "internal") != "none") (cfg.ingress.vhosts or { }))
+    lib.attrNames (
+      lib.filterAttrs (_: vhost: (vhost.accessGroup or "internal") != "none") (cfg.ingress.vhosts or { })
+    )
   );
 
   inherit (ing) trustedCidrs;
@@ -129,7 +133,11 @@ let
     }:
     let
       isStream = m.accessGroup == "stream";
-      needsAuth = !isLocal && (ing.auth.mode == "forward-auth") && (m.accessGroup == "public") && !(m.allowUnauthenticated or false);
+      needsAuth =
+        !isLocal
+        && (ing.auth.mode == "forward-auth")
+        && (m.accessGroup == "public")
+        && !(m.allowUnauthenticated or false);
       skipPaths = unauthenticatedPathsOf m;
       skipMatcher = lib.optionalString (needsAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
@@ -173,34 +181,43 @@ let
     body = body + "\n" + accessLogBlock;
   };
 
-  publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? ${n}) cfg.dns.hostnames.${n});
+  publicNames =
+    n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? ${n}) cfg.dns.hostnames.${n});
 
   # 1. Lokale VHosts: JEDER aktive Dienst bekommt unverschlüsseltes http://${name}.lan
   lanSites = lib.mapAttrsToList (
-    name: meta:
-    mkSite "http://${name}.lan" (mkServiceBlock meta { isLocal = true; })
+    name: meta: mkSite "http://${name}.lan" (mkServiceBlock meta { isLocal = true; })
   ) enabledServices;
 
   # 2. Externe WAN-VHosts: NUR public, stream und idp (internal bleibt rein auf .lan!)
   wanServices = lib.filterAttrs (
-    _: m: lib.elem m.accessGroup [ "public" "stream" "idp" ]
+    _: m:
+    lib.elem m.accessGroup [
+      "public"
+      "stream"
+      "idp"
+    ]
   ) enabledServices;
 
   wanSites = lib.optionals (domain != null) (
     lib.concatLists (
       lib.mapAttrsToList (
         n: m:
-        lib.concatMap (hostName:
-          if tlsEnabled then [
-            (mkSite "http://${hostName}.${domain}" "redir https://{host}{uri} permanent")
-            (mkSite "${hostName}.${domain}" ''
-              ${tlsDirective}
-              ${securityHeaders}
-              ${mkServiceBlock m { isLocal = false; }}
-            '')
-          ] else [
-            (mkSite "http://${hostName}.${domain}" (mkServiceBlock m { isLocal = false; }))
-          ]
+        lib.concatMap (
+          hostName:
+          if tlsEnabled then
+            [
+              (mkSite "http://${hostName}.${domain}" "redir https://{host}{uri} permanent")
+              (mkSite "${hostName}.${domain}" ''
+                ${tlsDirective}
+                ${securityHeaders}
+                ${mkServiceBlock m { isLocal = false; }}
+              '')
+            ]
+          else
+            [
+              (mkSite "http://${hostName}.${domain}" (mkServiceBlock m { isLocal = false; }))
+            ]
         ) (publicNames n)
       ) wanServices
     )
@@ -328,7 +345,11 @@ lib.mkMerge [
       }
       {
         assertion =
-          lib.all (c: builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c != null) trustedCidrs
+          lib.all (
+            c:
+            builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c
+            != null
+          ) trustedCidrs
           && !(lib.any (lib.hasSuffix "/0") trustedCidrs);
         message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder /0 (Gefahr der WAN-Freischaltung).";
       }
@@ -373,7 +394,15 @@ lib.mkMerge [
 
     networking.firewall.allowedTCPPorts =
       lib.mkIf (!useGlobal && cfg.hostIntegration.firewall == "managed")
-        (if tlsEnabled then [ 80 443 ] else [ 80 ]);
+        (
+          if tlsEnabled then
+            [
+              80
+              443
+            ]
+          else
+            [ 80 ]
+        );
     networking.firewall.allowedUDPPorts = lib.mkIf (
       !useGlobal && cfg.hostIntegration.firewall == "managed" && tlsEnabled
     ) [ 443 ];

@@ -20,29 +20,29 @@ in
       Deklarativer Dienst-Steckbrief. Jeder Dienst in mediNix deklariert
       hier seine Identität, Routing-Klasse, UI-Daten und Monitoring-Ziele.
     '';
-      default = { };
-      type = lib.types.attrsOf (
-        lib.types.submodule (
-          { name, config, ... }:
-          {
-            options = {
-              schemaVersion = lib.mkOption {
-                type = lib.types.int;
-                default = 1;
-                description = "Version des mediNix-Manifest-Vertrags (ADR-0010).";
-              };
+    default = { };
+    type = lib.types.attrsOf (
+      lib.types.submodule (
+        { name, config, ... }:
+        {
+          options = {
+            schemaVersion = lib.mkOption {
+              type = lib.types.int;
+              default = 1;
+              description = "Version des mediNix-Manifest-Vertrags (ADR-0010).";
+            };
 
-              enable = lib.mkOption {
-                type = lib.types.bool;
-                default = true;
-                description = "Aktivierungsstatus des Dienstes im Gesamtsystem.";
-              };
+            enable = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Aktivierungsstatus des Dienstes im Gesamtsystem.";
+            };
 
-              hasDaemon = lib.mkOption {
-                type = lib.types.bool;
-                default = true;
-                description = "Gibt an, ob der Dienst einen eigenen systemd-Daemon besitzt (false für statische SPAs wie Feishin).";
-              };
+            hasDaemon = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Gibt an, ob der Dienst einen eigenen systemd-Daemon besitzt (false für statische SPAs wie Feishin).";
+            };
 
             # --- PFLICHTFELDER (Kein Default: Fehlt die Angabe, bricht die Eval ab) ---
             num = lib.mkOption {
@@ -318,7 +318,9 @@ in
         # 1. Monitoring Invariante: Wenn type == "http", muss ein healthPath angegeben sein
         (lib.mapAttrsToList (name: m: {
           assertion =
-            !(m.enable && m.monitoring.enable && m.monitoring.type == "http" && m.monitoring.healthPath == null);
+            !(
+              m.enable && m.monitoring.enable && m.monitoring.type == "http" && m.monitoring.healthPath == null
+            );
           message = ''
             [mediNix/manifest] Dienst '${name}' hat monitoring.type = "http", aber 'healthPath' ist null!
             -> Lösung: Setze medinix.manifest.${name}.monitoring.healthPath = "/..." (z. B. "/" oder "/health")

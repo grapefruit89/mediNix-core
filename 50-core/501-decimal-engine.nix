@@ -28,7 +28,8 @@ in
 
   users.groups.media = lib.mkDefault { gid = 5000; };
 
-  users.users = lib.mapAttrs (name: meta:
+  users.users = lib.mapAttrs (
+    name: meta:
     let
       spec = df.derive name meta.num;
     in
@@ -40,7 +41,8 @@ in
     }
   ) (lib.filterAttrs (_: meta: meta.enable && (meta.hasDaemon or true)) manifests);
 
-  systemd.services = lib.mapAttrs (name: meta:
+  systemd.services = lib.mapAttrs (
+    name: meta:
     let
       spec = df.derive name meta.num;
     in
@@ -56,17 +58,17 @@ in
   ) (lib.filterAttrs (_: meta: meta.enable && (meta.hasDaemon or true)) manifests);
 
   environment.persistence = lib.mkIf (config.medinix.persist.enable or false) {
-    "/persist".directories =
-      lib.mapAttrsToList (name: meta:
-        let
-          spec = df.derive name meta.num;
-        in
-        {
-          directory = spec.stateDir;
-          user = name;
-          inherit (spec) group;
-          mode = "0750";
-        }
-      ) activeServices;
+    "/persist".directories = lib.mapAttrsToList (
+      name: meta:
+      let
+        spec = df.derive name meta.num;
+      in
+      {
+        directory = spec.stateDir;
+        user = name;
+        inherit (spec) group;
+        mode = "0750";
+      }
+    ) activeServices;
   };
 }

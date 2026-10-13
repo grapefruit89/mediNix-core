@@ -9,7 +9,8 @@ in
   # Schneller Zugriff auf Module und Manifeste
   manifest = flake.nixosModules.default;
   # Helfer zum Lokalisieren von Options-Ursprüngen
-  where = optPath:
+  where =
+    optPath:
     let
       parts = pkgs.lib.splitString "." optPath;
       opt = pkgs.lib.getAttrFromPath parts (flake.nixosConfigurations.check or { }).options;

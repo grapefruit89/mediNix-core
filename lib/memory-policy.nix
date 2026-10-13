@@ -12,15 +12,21 @@
 # 2. Playback (Jellyfin, ABS): OOMScoreAdjust = +100 / +150. MemoryHigh = 4G. Kein hartes MemoryMax.
 # 3. Acquisition (Arrs): OOMScoreAdjust = +200. MemoryHigh = 1.5G. Kein hartes MemoryMax (.NET safety).
 # 4. Transfer (SABnzbd): OOMScoreAdjust = +300. Opferlamm bei RAM-Notstand (Entpack-Spitzen).
-{ lib, config ? { } }:
+{
+  lib,
+  config ? { },
+}:
 
 let
   hostRam = config.medinix.host.ramGb or 16;
   calculatedGb = (hostRam * 4) / 10;
   clampedGb =
-    if calculatedGb < 3 then 3
-    else if calculatedGb > 8 then 8
-    else calculatedGb;
+    if calculatedGb < 3 then
+      3
+    else if calculatedGb > 8 then
+      8
+    else
+      calculatedGb;
 
   mkLimits =
     {

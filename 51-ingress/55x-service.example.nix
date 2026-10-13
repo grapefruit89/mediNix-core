@@ -24,12 +24,12 @@ let
   # 1. PARAMETER DES DIENSTES (Hier ausfüllen)
   # ══════════════════════════════════════════════════════════════════════════
   serviceName = "myservice"; # Kleinbuchstaben, z. B. "audiobookshelf"
-  svcNum      = 559;         # Modul-ID aus lib/registry.nix (500–599)
-  accessGroup = "internal";  # "internal" | "stream" | "public" | "idp" | "none"
+  svcNum = 559; # Modul-ID aus lib/registry.nix (500–599)
+  accessGroup = "internal"; # "internal" | "stream" | "public" | "idp" | "none"
 
   # Ableitungen (Dezimalrahmen: Port = UID = Num * 10)
-  cfg      = config.medinix.${serviceName};
-  meta     = config.medinix.manifest.${serviceName};
+  cfg = config.medinix.${serviceName};
+  meta = config.medinix.manifest.${serviceName};
   inherit (meta) port uid stateDir;
 
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
@@ -78,9 +78,9 @@ in
 
     sources = {
       upstream = "https://example.com";
-      repo     = "https://github.com/example/repo";
-      nixos    = "https://search.nixos.org/options";
-      api      = "https://example.com/api-docs";
+      repo = "https://github.com/example/repo";
+      nixos = "https://search.nixos.org/options";
+      api = "https://example.com/api-docs";
     };
   };
 

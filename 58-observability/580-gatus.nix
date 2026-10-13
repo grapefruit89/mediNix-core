@@ -17,7 +17,13 @@ let
   svc = config.medinix;
   reg = (import ../lib/registry.nix { inherit lib; }).services.gatus;
 
-  inherit (reg) num port uid gid stateDir;
+  inherit (reg)
+    num
+    port
+    uid
+    gid
+    stateDir
+    ;
 
   # Aktive und überwachbare Dienste aus dem Manifest filtern
   activeServices = lib.filterAttrs (

@@ -73,13 +73,19 @@ in
         {
           assertion =
             dom == null
-            || (dom != "" && builtins.match "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$" dom != null);
+            || (
+              dom != ""
+              && builtins.match "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$" dom != null
+            );
           message = "[mediNix/host] 'medinix.host.domain' darf nicht leer sein und muss einem validen Domain-Format entsprechen! Gegeben: '${toString dom}'";
         }
         {
           assertion =
             cfg.host.adminEmail == null
-            || (cfg.host.adminEmail != "" && builtins.match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" cfg.host.adminEmail != null);
+            || (
+              cfg.host.adminEmail != ""
+              && builtins.match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" cfg.host.adminEmail != null
+            );
           message = "[mediNix/host] 'medinix.host.adminEmail' muss eine valide E-Mail-Adresse sein! Gegeben: '${toString cfg.host.adminEmail}'";
         }
       ]
@@ -123,7 +129,11 @@ in
           assertion =
             (cfg.secrets.cloudflareEnvFile != null)
             || ((cfg.ingress.tls.acmeCredential or null) != null)
-            || (cfg.ingress.tls.mode == "internal" || cfg.ingress.tls.mode == "custom" || cfg.ingress.tls.mode == "off");
+            || (
+              cfg.ingress.tls.mode == "internal"
+              || cfg.ingress.tls.mode == "custom"
+              || cfg.ingress.tls.mode == "off"
+            );
           message = ''
             [mediNix/secrets] Wenn 'medinix.host.domain' gesetzt ist, muss 'medinix.secrets.cloudflareEnvFile'
             (oder ingress.tls.acmeCredential) konfiguriert sein, es sei denn ingress.tls.mode steht auf internal/custom/off!

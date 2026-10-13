@@ -26,7 +26,8 @@ let
   inherit (reg) gid;
   inherit (reg) stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfyGroup = config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
+  ntfyGroup =
+    config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
 in
 lib.mkIf cfg.enable {
   assertions = [

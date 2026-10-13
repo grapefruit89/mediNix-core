@@ -21,7 +21,9 @@ let
   credPath = name: "/run/credentials/mediNix-provision.service/${name}";
 
   # Dynamische Rollen-Ermittlung aus medinix.manifest (SSoT / ADR-0010)
-  mediaManagers = lib.filterAttrs (_: m: m.enable && (m.arr.role or "none") == "media-manager") manifest;
+  mediaManagers = lib.filterAttrs (
+    _: m: m.enable && (m.arr.role or "none") == "media-manager"
+  ) manifest;
   indexers = lib.filterAttrs (_: m: m.enable && (m.arr.role or "none") == "indexer") manifest;
   downloaders = lib.filterAttrs (_: m: m.enable && (m.arr.role or "none") == "downloader") manifest;
 
@@ -147,16 +149,16 @@ lib.mkIf cfg.maintenance.provisioning.enable {
         StateDirectoryMode = "0750";
         ReadWritePaths = [ "/var/lib/mediNix-state" ];
         LoadCredentialEncrypted = lib.flatten [
-          (lib.optional ((manifest.jellyfin.enable or false) && (cfg.jellyfin.adminPasswordFile or null) != null) (
-            cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordFile
-          ))
+          (lib.optional (
+            (manifest.jellyfin.enable or false) && (cfg.jellyfin.adminPasswordFile or null) != null
+          ) (cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordFile))
           (lib.optional (
             (manifest.jellyfin.enable or false)
             && (cfg.jellyfin.adminPasswordFile or null) == null
             && (cfg.jellyfin.adminPasswordCredential or null) != null
           ) (cred "jellyfin-admin-pw" cfg.jellyfin.adminPasswordCredential))
-          (lib.mapAttrsToList (name: _:
-            cred "${name}-apikey" (cfg.secrets."${name}ApiKeyFile" or cfg.secrets.arrApiKeyFile)
+          (lib.mapAttrsToList (
+            name: _: cred "${name}-apikey" (cfg.secrets."${name}ApiKeyFile" or cfg.secrets.arrApiKeyFile)
           ) mediaManagers)
           (lib.optional hasIndexer (cred "prowlarr-apikey" cfg.secrets.prowlarrApiKeyFile))
           (lib.optional hasIndexer (cred "treasuremaps-apikey" cfg.secrets.treasureMapsApiKeyFile))
