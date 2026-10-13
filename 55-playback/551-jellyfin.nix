@@ -69,7 +69,7 @@ in
     };
 
     adminPasswordFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
+      type = lib.types.nullOr (lib.types.either lib.types.path lib.types.str);
       default = null;
       description = ''
         Pfad zur verschlüsselten Admin-Passwort-Datei (systemd-creds encrypt).
@@ -79,7 +79,7 @@ in
     };
 
     adminPasswordCredential = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
+      type = lib.types.nullOr (lib.types.either lib.types.path lib.types.str);
       default = null;
       description = ''
         Pfad zur .cred-Datei (systemd-creds TPM-verschlüsselt) für Jellyfin Admin-Passwort.
@@ -92,7 +92,7 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.jellyfin = {
-        enable = cfg.enable;
+        inherit (cfg) enable;
         num = 551;
         accessGroup = "stream";
 
@@ -104,7 +104,7 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/health";
           expectedStatus = 200;
@@ -138,8 +138,9 @@ in
           '';
         }
         {
-          assertion = lib.any (entry: lib.hasPrefix "/transcode" entry)
-            (config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ]);
+          assertion =
+            let tfs = config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ];
+            in lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
         }
         {

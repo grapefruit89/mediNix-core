@@ -32,7 +32,7 @@ let
   # Category and apiVersion match each media-manager's manifest contract.
   downloadClientTargets = lib.mapAttrsToList (name: m: {
     inherit name;
-    port = m.port;
+    inherit (m) port;
     apiVersion = m.arr.apiVersion or "v3";
     apiKeyFile = credPath "${name}-apikey";
     category = m.arr.category;
@@ -42,7 +42,7 @@ let
   prowlarrApps = lib.mapAttrsToList (name: m: {
     inherit name;
     host = "127.0.0.1";
-    port = m.port;
+    inherit (m) port;
     apiKeyFile = credPath "${name}-apikey";
   }) mediaManagers;
 

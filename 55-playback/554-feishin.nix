@@ -21,7 +21,7 @@ in
   config = lib.mkMerge [
     {
       medinix.manifest.feishin = {
-        enable = cfg.enable;
+        inherit (cfg) enable;
         hasDaemon = false;
         num = 554;
         accessGroup = "public";

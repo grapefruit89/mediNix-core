@@ -69,7 +69,7 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.sabnzbd = {
-        enable = cfg.enable;
+        inherit (cfg) enable;
         num = 541;
         accessGroup = "internal";
 
@@ -81,7 +81,7 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/api?mode=version";
           expectedStatus = 200;

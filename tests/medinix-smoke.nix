@@ -3,7 +3,7 @@
 pkgs.testers.runNixOSTest {
   name = "medinix-smoke-test";
   nodes.server =
-    { config, pkgs, ... }:
+    { pkgs, ... }:
     {
       imports = [ inputs.self.nixosModules.default ];
       medinix = {
@@ -15,7 +15,8 @@ pkgs.testers.runNixOSTest {
         ];
         storage.mediaRoot = "/tmp/media";
         secrets.cloudflareEnvFile = pkgs.writeText "cf.env" "CF_DNS_API_TOKEN=fake";
-        jellyfin.adminPasswordFile = pkgs.writeText "jf-admin" "pass123";
+        jellyfin.adminPasswordFile = pkgs.writeText "jf-admin.cred" "pass123";
+        manifest.seerr.allowUnauthenticated = true;
         seerr.enable = true;
         jellyfin.enable = true;
       };

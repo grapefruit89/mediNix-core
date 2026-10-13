@@ -84,8 +84,8 @@ lib.mkIf cfg.enable {
   };
 
   medinix.manifest.ntfy = {
-    enable = cfg.enable;
-    num = reg.num;
+    inherit (cfg) enable;
+    inherit (reg) num;
     accessGroup = "internal";
 
     ui = {

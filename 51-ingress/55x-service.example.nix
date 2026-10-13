@@ -52,7 +52,7 @@ in
   # 3. MANIFEST-PUBLISHER (Öffentliches Schwarzes Brett für Caddy & Gatus)
   # ══════════════════════════════════════════════════════════════════════════
   config.medinix.manifest.${serviceName} = {
-    enable = cfg.enable;
+    inherit (cfg) enable;
     num = svcNum;
     inherit accessGroup;
 
@@ -64,7 +64,7 @@ in
     };
 
     monitoring = {
-      enable = cfg.enable;
+      inherit (cfg) enable;
       type = "http"; # "http" | "tcp" | "none"
       healthPath = "/health"; # Muss mit / beginnen!
       expectedStatus = 200;

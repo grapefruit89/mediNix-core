@@ -27,11 +27,16 @@ let
     "public"
   ];
 
-  tiles = lib.filterAttrs (
-    n: m: (m.ui.showOnLanding or true) && lib.elem (m.accessGroup or "none") wanGroups && m.enable
+  wanTiles = lib.filterAttrs (
+    _n: m: (m.ui.showOnLanding or true) && lib.elem (m.accessGroup or "none") wanGroups && m.enable
   ) (config.medinix.manifest or { });
 
-  names = lib.sort builtins.lessThan (lib.attrNames tiles);
+  lanTiles = lib.filterAttrs (
+    _n: m: (m.ui.showOnLanding or true) && (m.accessGroup or "none") != "none" && m.enable
+  ) (config.medinix.manifest or { });
+
+  wanNames = lib.sort builtins.lessThan (lib.attrNames wanTiles);
+  lanNames = lib.sort builtins.lessThan (lib.attrNames lanTiles);
 
   publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
 
@@ -41,7 +46,7 @@ let
     || cfg.ingress.tls.mode == "internal";
 
   # H19: the link scheme follows the actual TLS state, not just `domain != null`.
-  hrefFor =
+  wanHrefFor =
     n:
     if cfg.domain != null && tlsEnabled then
       "https://${publicHost n}.${cfg.domain}"
@@ -49,6 +54,8 @@ let
       "http://${publicHost n}.${cfg.domain}"
     else
       "http://${n}.lan";
+
+  lanHrefFor = n: "http://${n}.lan";
 
   fragment =
     n: m:
@@ -58,23 +65,24 @@ let
     if raw != "" then raw else n;
 
   mkTile =
-    n:
+    hrefFn: tilesAttr: n:
     let
-      m = tiles.${n};
+      m = tilesAttr.${n};
       id = fragment n m;
       title = m.ui.title or n;
     in
     ''
-      <a class="srv" href="${hrefFor n}" aria-label="${title}">
+      <a class="srv" href="${hrefFn n}" aria-label="${n}" title="${title}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
           <use href="/icons.svg#${id}"></use>
         </svg>
       </a>
     '';
 
-  tilesHtml = lib.concatMapStrings mkTile names;
+  wanTilesHtml = lib.concatMapStrings (mkTile wanHrefFor wanTiles) wanNames;
+  lanTilesHtml = lib.concatMapStrings (mkTile lanHrefFor lanTiles) lanNames;
 
-  indexHtml = ''
+  mkIndexHtml = tilesHtml: ''
     <!DOCTYPE html>
     <html lang="de">
     <head>
@@ -99,6 +107,9 @@ let
     </html>
   '';
 
+  wanIndexHtml = mkIndexHtml wanTilesHtml;
+  lanIndexHtml = mkIndexHtml lanTilesHtml;
+
   # Repo copy lives at 50-core/icons.svg (logorepo dist/icons.svg).
   # Fetch pin until that file is in the tree; 518 still only copies it.
   iconsSvg =
@@ -113,7 +124,15 @@ let
   landingRoot = pkgs.runCommand "medinix-landing" { } ''
     mkdir -p $out
     cat > $out/index.html <<'HTML'
-    ${indexHtml}
+    ${wanIndexHtml}
+    HTML
+    cp ${iconsSvg} $out/icons.svg
+  '';
+
+  lanLandingRoot = pkgs.runCommand "medinix-lan-landing" { } ''
+    mkdir -p $out
+    cat > $out/index.html <<'HTML'
+    ${lanIndexHtml}
     HTML
     cp ${iconsSvg} $out/icons.svg
   '';
@@ -134,5 +153,6 @@ in
 
   config = lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.ingress.landing.enable) {
     medinix.ingress.landing.root = landingRoot;
+    medinix.ingress.landing.lanRoot = lanLandingRoot;
   };
 }

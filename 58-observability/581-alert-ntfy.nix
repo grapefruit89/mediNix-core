@@ -7,8 +7,6 @@
 # status: active
 # ---
 {
-  config,
-  lib,
   pkgs,
   ...
 }:

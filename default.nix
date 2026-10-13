@@ -630,6 +630,12 @@ in
           internal = true;
           description = "Nix store path with index.html; set by 518-landingpage.nix.";
         };
+        lanRoot = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          internal = true;
+          description = "Nix store path with internal index.html for dashboard.lan; set by 518-landingpage.nix.";
+        };
       };
     };
 
@@ -1148,6 +1154,17 @@ in
         default = [ ];
       };
     };
+  };
+
+  options.environment.persistence = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.submodule {
+      options.directories = lib.mkOption {
+        type = lib.types.listOf lib.types.anything;
+        default = [ ];
+      };
+    });
+    default = { };
+    description = "Fallback stub for impermanence if not defined by host.";
   };
 
   config = lib.mkIf cfg.enable {

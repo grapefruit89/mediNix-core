@@ -16,10 +16,9 @@
 
 let
   cfg = config.medinix.seerr;
-  svc = config.medinix;
   meta = config.medinix.manifest.seerr;
 
-  inherit (meta) port uid stateDir;
+  inherit (meta) port stateDir;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   seerrPkg =
@@ -50,7 +49,7 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.seerr = {
-        enable = cfg.enable;
+        inherit (cfg) enable;
         num = 561;
         accessGroup = "public";
 
@@ -62,7 +61,7 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/api/v1/status";
           expectedStatus = 200;

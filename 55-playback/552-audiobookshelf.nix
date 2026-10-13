@@ -79,8 +79,8 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.audiobookshelf = {
-        enable = cfg.enable;
-        num = reg.num;
+        inherit (cfg) enable;
+        inherit (reg) num;
         accessGroup = "stream";
 
         ui = {
@@ -91,7 +91,7 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/healthcheck";
           expectedStatus = 200;

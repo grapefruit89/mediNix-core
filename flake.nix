@@ -52,6 +52,7 @@
                 fsType = "tmpfs";
               };
               system.stateVersion = "24.11";
+              nixpkgs.config.allowUnfree = true;
             }
           ];
         };
@@ -126,7 +127,7 @@
                 inherit system;
                 modules = baseModules extra;
               }).config.assertions;
-            hit = lib.findFirst (a: lib.hasInfix msgNeedle a.message) null asrt;
+            hit = lib.findFirst (a: !a.assertion && lib.hasInfix msgNeedle a.message) null asrt;
           in
           if hit == null then
             throw "Negative test ${name}: assertion containing '${msgNeedle}' not found."
@@ -134,6 +135,33 @@
             throw "Negative test ${name}: assertion '${msgNeedle}' evaluated true (not enforced)."
           else
             pkgs.runCommand "negative-${name}-ok" { } "echo 'ok: ${name} fired for the right reason' > $out";
+
+        manifestJson =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.sonarr.enable = true;
+                  medinix.radarr.enable = true;
+                  medinix.readarr.enable = true;
+                  medinix.lidarr.enable = true;
+                  medinix.prowlarr.enable = true;
+                  medinix.sabnzbd.enable = true;
+                  medinix.jellyfin.enable = true;
+                  medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+                  medinix.audiobookshelf.enable = true;
+                  medinix.navidrome.enable = true;
+                  medinix.seerr.enable = true;
+                  medinix.pocketId.enable = true;
+                  medinix.feishin.enable = true;
+                  medinix.gatus.enable = true;
+                  medinix.observability.ntfy.enable = true;
+                };
+              }).config;
+          in
+          pkgs.writeText "medinix-manifest.json" (builtins.toJSON (c.medinix.manifest or { }));
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
@@ -665,7 +693,7 @@
         checks.decimal-framework = decimalFrameworkCheck;
 
         # ── Service-Compliance-Ratsche (ADR-0010) ──────────────────────────
-        serviceComplianceCheck =
+        checks.serviceComplianceCheck =
           let
             c =
               (lib.nixosSystem {
@@ -735,8 +763,6 @@
           else
             throw ("mediNix Service-Compliance-Check fehlgeschlagen:\n  " + lib.concatStringsSep "\n  " errors);
 
-        checks.serviceComplianceCheck = serviceComplianceCheck;
-
         # ── Linting (Priorität 2): kopiert aus devNIX mkCheck-Pattern ───────
         checks.nixfmt-check = mkCheck "nixfmt" (pkgs: [ pkgs.nixfmt-rfc-style ]) ''
           nixfmt --check $(find . -name '*.nix' -not -path './.git/*') \
@@ -757,37 +783,12 @@
         formatter = pkgs.nixfmt-rfc-style;
 
         # Manifest JSON Export
-        packages.manifest-json =
-          let
-            c =
-              (lib.nixosSystem {
-                inherit system;
-                modules = baseModules {
-                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-                  medinix.sonarr.enable = true;
-                  medinix.radarr.enable = true;
-                  medinix.readarr.enable = true;
-                  medinix.lidarr.enable = true;
-                  medinix.prowlarr.enable = true;
-                  medinix.sabnzbd.enable = true;
-                  medinix.jellyfin.enable = true;
-                  medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
-                  medinix.audiobookshelf.enable = true;
-                  medinix.navidrome.enable = true;
-                  medinix.seerr.enable = true;
-                  medinix.pocket-id.enable = true;
-                  medinix.feishin.enable = true;
-                  medinix.gatus.enable = true;
-                  medinix.ntfy.enable = true;
-                };
-              }).config;
-          in
-          pkgs.writeText "medinix-manifest.json" (builtins.toJSON (c.medinix.manifest or { }));
+        packages.manifest-json = manifestJson;
 
         apps.manifest-json = {
           type = "app";
           program = "${pkgs.writeShellScript "show-manifest-json" ''
-            cat ${packages.manifest-json}
+            cat ${manifestJson}
           ''}";
         };
 

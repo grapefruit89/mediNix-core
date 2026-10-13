@@ -30,8 +30,9 @@ let
 
   package = if cfg.package != null then cfg.package else pkgs.sonarr;
 
-  # F2: Forward-auth detection decoupled from ingress.vhosts
-  exposedPublic = meta.accessGroup == "public";
+  # F2: Forward-auth detection follows resolved exposure (ingress.vhosts or manifest)
+  exposedPublic =
+    (config.medinix.ingress.vhosts."sonarr".accessGroup or meta.accessGroup or "none") == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"
@@ -69,7 +70,7 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.sonarr = {
-        enable = cfg.enable;
+        inherit (cfg) enable;
         num = 532;
         accessGroup = "internal";
 
@@ -81,14 +82,14 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/api/v3/system/status";
           expectedStatus = 200;
         };
 
         metrics = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "exportarr";
         };
 

@@ -9,7 +9,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -64,8 +63,8 @@ in
     # ── 1. Eigener Manifest-Eintrag (Gatus überwacht sich selbst nicht rekursiv)
     {
       medinix.manifest.gatus = {
-        enable = cfg.enable;
-        num = num;
+        inherit (cfg) enable;
+        inherit num;
         accessGroup = "internal";
 
         ui = {

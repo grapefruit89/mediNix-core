@@ -33,8 +33,9 @@ let
 
   package = if cfg.package != null then cfg.package else pkgs.radarr;
 
-  # F2: Forward-auth detection decoupled from ingress.vhosts
-  exposedPublic = meta.accessGroup == "public";
+  # F2: Forward-auth detection follows resolved exposure (ingress.vhosts or manifest)
+  exposedPublic =
+    (config.medinix.ingress.vhosts."radarr".accessGroup or meta.accessGroup or "none") == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"
@@ -72,8 +73,8 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.radarr = {
-        enable = cfg.enable;
-        num = reg.num;
+        inherit (cfg) enable;
+        inherit (reg) num;
         accessGroup = "internal";
 
         ui = {
@@ -84,14 +85,14 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/api/v3/system/status";
           expectedStatus = 200;
         };
 
         metrics = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "exportarr";
         };
 

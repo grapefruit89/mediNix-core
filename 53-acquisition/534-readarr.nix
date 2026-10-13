@@ -52,8 +52,8 @@ in
     # ── 1. SERVICE-MANIFEST (Top-Level: Immer im Katalog, SSoT) ─────────────
     {
       medinix.manifest.readarr = {
-        enable = cfg.enable;
-        num = reg.num;
+        inherit (cfg) enable;
+        inherit (reg) num;
         accessGroup = "internal";
 
         ui = {
@@ -64,14 +64,14 @@ in
         };
 
         monitoring = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "http";
           healthPath = "/api/v1/system/status";
           expectedStatus = 200;
         };
 
         metrics = {
-          enable = cfg.enable;
+          inherit (cfg) enable;
           type = "exportarr";
         };
 

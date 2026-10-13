@@ -33,12 +33,20 @@
 let
   cfg = config.medinix;
   ddns = cfg.dns.ddns;
-  zone = if ddns.zone != null then ddns.zone else cfg.domain;
+  domain = if cfg.host.domain != null then cfg.host.domain else cfg.domain;
+  zone = if ddns.zone != null then ddns.zone else domain;
 
+  manifestWanServices = lib.filterAttrs (
+    _: m: m.enable && lib.elem (m.accessGroup or "none") [ "public" "stream" "idp" ]
+  ) (config.medinix.manifest or { });
   vhosts = cfg.ingress.vhosts or { };
   aliases = cfg.dns.hostnames or { };
 
-  ownedLabels = lib.unique (lib.attrNames vhosts ++ lib.attrValues aliases);
+  ownedLabels = lib.unique (
+    lib.attrNames manifestWanServices
+    ++ lib.attrNames vhosts
+    ++ lib.attrValues aliases
+  );
 
   reservedLabels = [
     "wan"
@@ -54,10 +62,10 @@ let
     || (zone != null && n == zone)
     || lib.hasPrefix "_acme-challenge" n;
 
-  # Canonical public FQDN is ALWAYS {label}.${cfg.domain}; the Cloudflare zone
+  # Canonical public FQDN is ALWAYS {label}.${domain}; the Cloudflare zone
   # is never used to build a service hostname (see INVARIANT above).
   pruneNames = lib.filter (n: !isProtectedLabel n) ownedLabels;
-  pruneFqdns = lib.optionals (cfg.domain != null) (map (n: "${n}.${cfg.domain}") pruneNames);
+  pruneFqdns = lib.optionals (domain != null) (map (n: "${n}.${domain}") pruneNames);
   pruneNamesStr = builtins.concatStringsSep " " pruneFqdns;
 
   credPath = ddns.cloudflareTokenCredential or null;

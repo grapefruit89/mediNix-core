@@ -53,7 +53,7 @@ in
           assertion =
             !(config.systemd.services ? sabnzbd)
             || (
-              !((config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false))
+              !(config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false)
               && ((config.systemd.services.sabnzbd.serviceConfig.NetworkNamespacePath or null) == null)
               && !((config.systemd.services.sabnzbd.unitConfig or { }) ? JoinsNamespaceOf)
             );
@@ -98,6 +98,7 @@ in
     }
 
     (lib.mkIf (cfg.enable && cfg.hostHygiene.enable) {
+      services.logrotate.enable = lib.mkDefault false;
       services.journald.extraConfig = lib.mkDefault ''
         SystemMaxUse=500M
         SystemMaxFileSize=50M
@@ -110,13 +111,6 @@ in
         lib.mkForce "${config.system.nixos.version}-${self.shortRev or "dirty"}"
       );
       system.configurationRevision = lib.mkIf (self != null) (self.rev or null);
-
-      nixpkgs.config.allowUnfreePredicate = lib.mkDefault (pkg:
-        builtins.elem (lib.getName pkg) [
-          "unrar"
-          "intel-media-driver"
-        ]
-      );
     })
   ];
 }

@@ -5,7 +5,7 @@
 # folder: lib
 # status: active
 # ---
-{ lib }:
+_:
 
 rec {
   deconstruct = n: rec {

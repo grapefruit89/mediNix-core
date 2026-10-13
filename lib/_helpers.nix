@@ -8,7 +8,7 @@ rec {
   recursiveMergeAttrs =
     lhs: rhs:
     lib.zipAttrsWith (
-      name: values:
+      _name: values:
       let
         first = builtins.head values;
       in
