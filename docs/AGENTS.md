@@ -20,6 +20,7 @@ Portables NixOS Media-Stack-Modul. Repo: `github:grapefruit89/mediNix-core`, Bra
 Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: mediahost (192.168.0.10, AUS bis Freigabe).
 
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
+- **REINE LOKALE AUSFÜHRUNG:** Es existieren keine externen Remote-Hosts. Jeglicher SSH- oder rsync-Zugriff auf externe Test-Hosts ist strikt untersagt. Alle Builds, AST-Checks und Flake-Prüfungen finden ausschließlich lokal statt.
 - **Dezimalrahmen:** Port = ServiceNum × 10 | UID = Port | GID = 5000
 - **Flache Struktur:** `XX-domain/NNN-service.nix` — nie tiefer verschachteln
 - **systemd-native:** kein Docker, kein netns. WireGuard OK als `NetworkNamespacePath`/UID-Routing
