@@ -16,13 +16,7 @@
 let
   cfg = config.medinix.gatus;
   svc = config.medinix;
-  reg = (import ../lib/registry.nix { inherit lib; }).services.gatus or {
-    num = 580;
-    port = 5800;
-    uid = 5800;
-    gid = 5000;
-    stateDir = "/var/lib/gatus-5800";
-  };
+  reg = (import ../lib/registry.nix { inherit lib; }).services.gatus;
 
   inherit (reg) num port uid gid stateDir;
 

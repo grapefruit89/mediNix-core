@@ -33,56 +33,8 @@ let
 
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
-  # RT-5 (ntfy lesson): the enable flag of a vhost key <n> must resolve via
-  # medinix.<n>.enable, medinix.<camelCase n>.enable (pocket-id → pocketId) or
-  # medinix.observability.<n>.enable (domain-58 organs). A vhost key without a
-  # resolvable enable flag is a BUILD ERROR (assertion below), never a
-  # silently dropped site (F7).
-  enabledOf =
-    n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
-
   # Reiner Manifest-Konsument: Liest Dienste direkt aus config.medinix.manifest
-  manifestServices = lib.mapAttrs (
-    n: m:
-    let
-      vhost = (cfg.ingress.vhosts or { }).${n} or { };
-    in
-    m // {
-      accessGroup = vhost.accessGroup or m.accessGroup;
-      customConfig = vhost.customConfig or (m.customConfig or "");
-      allowUnauthenticated = vhost.allowUnauthenticated or (m.allowUnauthenticated or false);
-      localBypass = if (vhost.localBypass or null) != null then vhost.localBypass else (m.localBypass or null);
-      unauthenticatedPaths = (m.unauthenticatedPaths or [ ]) ++ (vhost.unauthenticatedPaths or [ ]);
-    }
-  ) (lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (config.medinix.manifest or { }));
-
-  # Legacy-Kompatibilität für vhosts außerhalb des Manifests (z. B. pocket-id)
-  legacyVhosts = lib.filterAttrs (
-    n: vhost:
-    let
-      hasPort = (registry.${n}.port or null) != null;
-      hasStatic = (vhost.customConfig or "") != "";
-    in
-    !(manifestServices ? ${n}) && enabledOf n && vhost.accessGroup != "none" && (hasPort || hasStatic)
-  ) (cfg.ingress.vhosts or { });
-
-  legacyNormalized = lib.mapAttrs (
-    n: vhost: {
-      port = registry.${n}.port or null;
-      accessGroup = vhost.accessGroup;
-      customConfig = vhost.customConfig or "";
-      allowUnauthenticated = vhost.allowUnauthenticated or false;
-      localBypass = vhost.localBypass or null;
-      unauthenticatedPaths = vhost.unauthenticatedPaths or [ ];
-    }
-  ) legacyVhosts;
-
-  enabledServices = manifestServices // legacyNormalized;
-
-  # Declared-but-unresolvable vhosts (F7 made loud instead of silently dead).
-  unresolvedVhosts = lib.filter (n: !(manifestServices ? ${n}) && !enabledOf n) (
-    lib.attrNames (lib.filterAttrs (_: vhost: vhost.accessGroup != "none") (cfg.ingress.vhosts or { }))
-  );
+  enabledServices = lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (config.medinix.manifest or { });
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (
@@ -125,15 +77,13 @@ let
   # request_header (NOT header!): `header` only edits RESPONSE headers.
   # We must strip client-supplied identity headers from the REQUEST before
   # forward_auth copies the trusted ones in (Caddy docs: header = response).
-  stripAuthHeaders = ''
-    request_header {
-      -Remote-User
-      -Remote-Email
-      -Remote-Groups
-      -X-Auth-Request-User
-      -X-Auth-Request-Email
-    }
-  '';
+  stripAuthHeaders = lib.concatMapStrings (h: "request_header -${h}\n") [
+    "Remote-User"
+    "Remote-Email"
+    "Remote-Groups"
+    "X-Auth-Request-User"
+    "X-Auth-Request-Email"
+  ];
 
   # Only meaningful with a non-empty trust list; the assertion below makes an
   # empty trustedCidrs alongside enabled vhosts a build error.
@@ -225,29 +175,36 @@ let
     in
     {
       stream = ''
-        ${lib.optionalString isLocal lanAbort}
-        encode off
-        ${customConfig}
-        ${mkProxy n m streamTransport}
+        route {
+          ${lib.optionalString isLocal lanAbort}
+          ${customConfig}
+          ${mkProxy n m streamTransport}
+        }
       '';
       internal = ''
-        ${cidrGate}
         encode zstd gzip
-        ${customConfig}
-        ${mkProxy n m ""}
+        route {
+          ${cidrGate}
+          ${customConfig}
+          ${mkProxy n m ""}
+        }
       '';
       public = ''
-        ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
-        ${authBlock}
-        ${customConfig}
-        ${mkProxy n m ""}
+        route {
+          ${lib.optionalString isLocal lanAbort}
+          ${authBlock}
+          ${customConfig}
+          ${mkProxy n m ""}
+        }
       '';
       idp = ''
-        ${lib.optionalString isLocal lanAbort}
         encode zstd gzip
-        ${customConfig}
-        ${mkProxy n m ""}
+        route {
+          ${lib.optionalString isLocal lanAbort}
+          ${customConfig}
+          ${mkProxy n m ""}
+        }
       '';
     }
     .${m.accessGroup};
@@ -285,7 +242,7 @@ let
     inherit name;
     body = body + "\n" + accessLogBlock;
   };
-  publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? n) cfg.dns.hostnames.${n});
+  publicNames = n: lib.unique ([ n ] ++ lib.optional (cfg.dns.hostnames ? ${n}) cfg.dns.hostnames.${n});
 
   mkDomainSites =
     n: m: hostName:
@@ -424,19 +381,10 @@ lib.mkMerge [
         message = "[mediNix] Duplicate Caddy site hostnames: ${lib.concatStringsSep ", " duplicateSiteNames}";
       }
       {
-        # RT-5: a declared vhost whose service enable flag cannot be resolved
-        # is a config error, not a silent no-op (this silently killed ntfy's
-        # vhost and keeps F7's customConfig-only vhosts dead).
-        assertion = unresolvedVhosts == [ ];
-        message = ''
-          [mediNix] ingress.vhosts declares hostnames whose service enable
-          flag cannot be resolved: ${lib.concatStringsSep ", " unresolvedVhosts}.
-          A vhost key must match a service option: medinix.<name>.enable,
-          medinix.<camelCaseName>.enable (pocket-id → pocketId) or
-          medinix.observability.<name>.enable (ntfy). customConfig-only vhosts
-          need their service enabled as well (F7). accessGroup = "none" opts
-          a vhost out entirely.
-        '';
+        assertion =
+          lib.all (c: builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c != null) trustedCidrs
+          && !(lib.any (lib.hasSuffix "/0") trustedCidrs);
+        message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder /0 (Gefahr der WAN-Freischaltung).";
       }
       {
         assertion = cfg.ingress.auth.mode == "forward-auth" || publicWithoutAuth == { };

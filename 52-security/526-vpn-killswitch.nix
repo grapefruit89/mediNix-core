@@ -139,6 +139,7 @@ in
 " (name: ''
           chain mark_${name} {
             ip daddr 127.0.0.0/8 counter return
+            ip6 daddr ::1/128 counter return
             ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != [ ]) ''
               ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
             ''}

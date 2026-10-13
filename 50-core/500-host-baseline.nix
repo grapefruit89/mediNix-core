@@ -44,6 +44,21 @@ in
           message = "[mediNix/architecture] WireGuard-Network-Namespaces sind verboten. Ausschließlich UID-nftables-Routing.";
         }
         {
+          assertion = lib.all (i: (i.interfaceNamespace or null) == null && (i.socketNamespace or null) == null)
+            (lib.attrValues (config.networking.wireguard.interfaces or { }));
+          message = "[mediNix/architecture] WireGuard-Netns (interfaceNamespace/socketNamespace) ist verboten.";
+        }
+        {
+          assertion =
+            !(config.systemd.services ? sabnzbd)
+            || (
+              !((config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false))
+              && ((config.systemd.services.sabnzbd.serviceConfig.NetworkNamespacePath or null) == null)
+              && !((config.systemd.services.sabnzbd.unitConfig or { }) ? JoinsNamespaceOf)
+            );
+          message = "[mediNix/architecture] VPN-confined Unit (sabnzbd) nutzt verbotenes Network-Namespace-Isolierungs-Feature.";
+        }
+        {
           assertion =
             config.services.vpnKillSwitch.instances == { }
             || (

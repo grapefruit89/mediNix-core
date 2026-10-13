@@ -38,80 +38,67 @@
 let
   cfg = config.medinix;
   st = cfg.storage;
-
-  dataRoot = toString st.mediaRoot; # e.g. "/data"
   mediaTypes = [
     "movies"
     "series"
     "books"
     "music"
   ];
-  hasHot = st.backends ? hot;
-  hasCold = st.backends ? cold;
-  hasBackends = hasHot && hasCold;
+  standardDirs = mediaTypes ++ [
+    "downloads"
+    "cache"
+    "incomplete"
+  ];
+  backendsActive = (st.backends ? hot) && (st.backends ? cold);
   hot = st.backends.hot or "";
   cold = st.backends.cold or "";
 
-  # Logical paths (Services always point here — regardless of mode)
-  logicalDirs = map (t: "${dataRoot}/${t}") mediaTypes ++ [
-    "${dataRoot}/downloads"
-    "${dataRoot}/cache"
-    "${dataRoot}/incomplete"
-  ];
-
-  # tmpfiles: Base directory structure (including metadataDir)
-  baseTmpfiles = map (d: "d '${d}' 0775 root media -") (logicalDirs ++ [ (toString st.metadataDir) ]);
-
-  # tmpfiles: Backend subdirectories (SSD + HDD sides for MergerFS)
-  backendTmpfiles = lib.optionals hasBackends (
-    map (t: "d '${hot}/${t}' 0775 root media -") mediaTypes
-    ++ map (t: "d '${cold}/${t}' 0775 root media -") mediaTypes
-  );
-
-  # MergerFS mount for a media type
-  mergerfsMount = mediaType: {
-    name = "${dataRoot}/${mediaType}";
-    value = {
-      device = "${hot}/${mediaType}:${cold}/${mediaType}";
-      fsType = "fuse.mergerfs";
-      options = [
-        "defaults"
-        "allow_other"
-        "use_ino"
-        "noatime"
-        "func.getattr=newest"
-        # cache.files=partial: Mmap compatible (Jellyfin DB), still relatively fresh
-        "cache.files=partial"
-        "dropcacheonclose=true"
-        # epmfs = existing path most free space: favors creating files in an existing path on the same branch, helping keep related media together
-        "category.create=epmfs"
-        # Smaller chunk size → less fragmentation during tiering
-        "minfreespace=10G"
-      ];
-      # Backend mounts must be ready before MergerFS mount
-      depends = [
-        hot
-        cold
-      ];
-      noCheck = true;
-    };
-  };
+  allDirs =
+    [ (toString st.metadataDir) ]
+    ++ map (dir: "${st.mediaRoot}/${dir}") standardDirs
+    ++ lib.optionals backendsActive (
+      map (t: "${hot}/${t}") mediaTypes ++ map (t: "${cold}/${t}") mediaTypes
+    );
 in
 lib.mkIf (cfg.enable && st.enable) {
-
   # Ensure media group (GID 5000, SSOT from registry.nix)
   users.groups.media = lib.mkDefault { gid = 5000; };
 
   # Directory structure + permissions
-  systemd.tmpfiles.rules = baseTmpfiles ++ backendTmpfiles;
+  systemd.tmpfiles.rules = map (d: "d '${d}' 0775 root media -") allDirs;
 
   # MergerFS pools (only if hot + cold both defined)
-  fileSystems = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") (
-    lib.listToAttrs (map mergerfsMount mediaTypes)
+  fileSystems = lib.mkIf (backendsActive && cfg.hostIntegration.storage == "managed") (
+    lib.genAttrs (map (t: "${st.mediaRoot}/${t}") mediaTypes) (
+      mountPoint: {
+        device =
+          let
+            t = baseNameOf mountPoint;
+          in
+          "${hot}/${t}:${cold}/${t}";
+        fsType = "fuse.mergerfs";
+        depends = [
+          hot
+          cold
+        ];
+        noCheck = true;
+        options = [
+          "defaults"
+          "allow_other"
+          "use_ino"
+          "noatime"
+          "func.getattr=newest"
+          "cache.files=partial"
+          "dropcacheonclose=true"
+          "category.create=epmfs"
+          "minfreespace=10G"
+        ];
+      }
+    )
   );
 
   # mergerfs package must be in PATH for FUSE mounts
-  environment.systemPackages = lib.mkIf (hasBackends && cfg.hostIntegration.storage == "managed") [
+  environment.systemPackages = lib.mkIf (backendsActive && cfg.hostIntegration.storage == "managed") [
     pkgs.mergerfs
   ];
 }

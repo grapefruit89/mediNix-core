@@ -56,6 +56,30 @@ in
               description = "Routing-Klasse im Chameleon-Caddy (511).";
             };
 
+            customConfig = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "Optionale Caddyfile-Direktiven für diesen Dienst.";
+            };
+
+            allowUnauthenticated = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Erlaubt WAN-Zugriff ohne forward_auth für public-Dienste.";
+            };
+
+            localBypass = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = "Überschreibt globales auth.localBypass für diesen Dienst (null = erben).";
+            };
+
+            unauthenticatedPaths = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "Pfade, die von forward_auth ausgenommen werden (z. B. Webhooks/APIs).";
+            };
+
             # --- MONITORING (Gatus / Health-Checks) ---
             monitoring = {
               enable = lib.mkOption {
@@ -227,10 +251,11 @@ in
               };
             };
 
-            # --- ABGELEITETE SSoT-WERTE (Internal: Aus num mathematisch berechnet) ---
+            # --- ABGELEITETE SSoT-WERTE (Internal & Read-Only: Aus num mathematisch berechnet) ---
             port = lib.mkOption {
               type = lib.types.port;
               internal = true;
+              readOnly = true;
               default = config.num * 10;
               description = "Mathematisch abgeleiteter Dienst-Port (num * 10).";
             };
@@ -238,6 +263,7 @@ in
             uid = lib.mkOption {
               type = lib.types.int;
               internal = true;
+              readOnly = true;
               default = config.num * 10;
               description = "Mathematisch abgeleitete Dienst-UID (num * 10).";
             };
@@ -245,6 +271,7 @@ in
             stateDir = lib.mkOption {
               type = lib.types.path;
               internal = true;
+              readOnly = true;
               default = "/var/lib/${name}-${toString (config.num * 10)}";
               description = "Standard-StateDirectory des Dienstes.";
             };

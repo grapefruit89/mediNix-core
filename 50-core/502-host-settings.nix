@@ -55,6 +55,12 @@ in
           "${cfg.host.hostname}.local";
       description = "Vollständig qualifizierter Domain-Name (FQDN) des Hosts.";
     };
+
+    ramGb = lib.mkOption {
+      type = lib.types.int;
+      default = 16;
+      description = "Physischer Arbeitsspeicher des Hosts in GB.";
+    };
   };
 
   config = lib.mkIf cfg.enable {

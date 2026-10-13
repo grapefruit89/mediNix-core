@@ -17,7 +17,6 @@
 let
   cfg = config.medinix.jellyfin;
   svc = config.medinix;
-  reg = (import ../lib/registry.nix { inherit lib; }).services.jellyfin;
   meta = config.medinix.manifest.jellyfin;
 
   # Kanonisch aus dem Manifest abgeleitet:
@@ -26,7 +25,7 @@ let
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  memoryPolicy = import ../lib/memory-policy.nix { inherit lib config; };
   adminCred =
     if cfg.adminPasswordFile != null then
       cfg.adminPasswordFile
@@ -94,7 +93,7 @@ in
     {
       medinix.manifest.jellyfin = {
         enable = cfg.enable;
-        num = reg.num;
+        num = 551;
         accessGroup = "stream";
 
         ui = {
@@ -139,8 +138,10 @@ in
           '';
         }
         {
-          assertion = meta.num == reg.num;
-          message = "[mediNix/551-jellyfin] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+          assertion = lib.hasInfix "/transcode" (
+            lib.concatStringsSep " " (config.systemd.services.jellyfin.serviceConfig.TemporaryFileSystem or [ ])
+          );
+          message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (/transcode) stattfinden!";
         }
       ];
 

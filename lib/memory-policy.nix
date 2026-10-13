@@ -12,9 +12,16 @@
 # 2. Playback (Jellyfin, ABS): OOMScoreAdjust = +100 / +150. MemoryHigh = 4G. Kein hartes MemoryMax.
 # 3. Acquisition (Arrs): OOMScoreAdjust = +200. MemoryHigh = 1.5G. Kein hartes MemoryMax (.NET safety).
 # 4. Transfer (SABnzbd): OOMScoreAdjust = +300. Opferlamm bei RAM-Notstand (Entpack-Spitzen).
-{ lib }:
+{ lib, config ? { } }:
 
 let
+  hostRam = config.medinix.host.ramGb or 16;
+  calculatedGb = (hostRam * 4) / 10;
+  clampedGb =
+    if calculatedGb < 3 then 3
+    else if calculatedGb > 8 then 8
+    else calculatedGb;
+
   mkLimits =
     {
       oomScore ? null,
@@ -36,9 +43,14 @@ in
   pocket-id = mkLimits { oomScore = -900; };
 
   # Playback: Leicht positiv (+100 bis +150), sanftes Throttling
-  jellyfin = mkLimits {
-    oomScore = 100;
-    memoryHigh = "4G";
+  jellyfin = {
+    OOMScoreAdjust = 250;
+    MemoryMin = "1G";
+    MemoryLow = "2G";
+    MemoryHigh = "${toString (clampedGb * 850)}M";
+    MemoryMax = "${toString clampedGb}G";
+    ManagedOOMMemoryPressure = "kill";
+    ManagedOOMMemoryPressureLimit = "80%";
   };
   audiobookshelf = mkLimits {
     oomScore = 150;

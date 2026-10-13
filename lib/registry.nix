@@ -57,6 +57,8 @@ rec {
     feishin = mkNoPort "feishin" 554 "network" "none";
     seerr = mkService "seerr" 561 "nodejs" "public";
 
+    gatus = mkService "gatus" 580 "network" "internal";
+
     # caddyClass "internal" (RT-5/Doc-Konsistenz): 581 veröffentlicht den
     # ntfy-vHost als internal (Assertion verbietet public/stream) — die
     # Registry dokumentiert dasselbe, statt "none" zu behaupten.

@@ -27,45 +27,18 @@ let
     "public"
   ];
 
-  # H14: a tile must correspond to a vhost the ingress actually serves
-  # (enabled), never to a merely declared one.
-  # RT-5: keep in sync with 511's enabledOf — three lookup paths
-  # (direct, camelCase, observability.<name>).
-  enabledOf =
-    n: cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
-  tlsEnabled =
-    cfg.ingress.tls.acmeHost != null
-    || cfg.ingress.tls.mode == "custom"
-    || cfg.ingress.tls.mode == "internal";
-
-  manifestTiles = lib.filterAttrs (
+  tiles = lib.filterAttrs (
     n: m: (m.ui.showOnLanding or true) && lib.elem (m.accessGroup or "none") wanGroups && m.enable
   ) (config.medinix.manifest or { });
-
-  legacyTiles = lib.filterAttrs (
-    n: vhost:
-      !(manifestTiles ? ${n})
-      && (vhost.landing or true)
-      && lib.elem (vhost.accessGroup or "none") wanGroups
-      && enabledOf n
-  ) (cfg.ingress.vhosts or { });
-
-  legacyNormalized = lib.mapAttrs (
-    n: vhost: {
-      ui = {
-        title = n;
-        icon = if (vhost.iconId or "") != "" then vhost.iconId else n;
-        description = "";
-        group = "Media";
-      };
-    }
-  ) legacyTiles;
-
-  tiles = manifestTiles // legacyNormalized;
 
   names = lib.sort builtins.lessThan (lib.attrNames tiles);
 
   publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
+
+  tlsEnabled =
+    cfg.ingress.tls.acmeHost != null
+    || cfg.ingress.tls.mode == "custom"
+    || cfg.ingress.tls.mode == "internal";
 
   # H19: the link scheme follows the actual TLS state, not just `domain != null`.
   hrefFor =

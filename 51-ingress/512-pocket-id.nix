@@ -84,68 +84,96 @@ in
     '';
   };
 
-  config = lib.mkIf (cfg.enable && active) {
-    assertions = [
-      {
-        assertion =
-          !(
-            ing.auth.mode == "forward-auth"
-            && externalAuth
-            && cfg.pocketId.enable
-            && ing.auth.forwardAuthUpstream == "127.0.0.1:${toString svc.port}"
-          );
-        message = ''
-          [mediNix] Pocket-ID is enabled and authProxyPresent points forwardAuthUpstream
-          back at 127.0.0.1:${toString svc.port}. Pick one owner: local Pocket-ID
-          (leave forwardAuthUpstream empty) or an external proxy (different upstream).
-          Ref: ADR-5120 / 51-ingress contracts.authentication
-        '';
-      }
-      {
-        assertion = cfg.pocketId.exposure != "idp" || ing.enable;
-        message = ''
-          [mediNix] pocketId.exposure = "idp" publishes pocket-id.{domain} through 511,
-          but ingress is disabled. Either enable medinix.ingress or set
-          pocketId.exposure = "none" (loopback-only IdP).
-        '';
-      }
-    ];
-
-    services.pocket-id = {
-      enable = true;
-      settings = {
-        HOST = "127.0.0.1";
-        PORT = svc.port;
+  config = lib.mkMerge [
+    {
+      medinix.manifest.pocket-id = {
+        enable = active;
+        num = 512;
+        accessGroup = cfg.pocketId.exposure;
+        ui = {
+          title = "Pocket ID";
+          description = "OIDC Identity Provider";
+          icon = "pocket-id";
+          group = "Security";
+          showOnLanding = cfg.pocketId.exposure == "idp";
+        };
+        monitoring = {
+          enable = active;
+          type = "http";
+          healthPath = "/";
+          expectedStatus = 200;
+        };
+        ops = {
+          priority = "high";
+          ramBudget = "256M";
+          notes = "OIDC Identity Provider.";
+        };
+        sources = {
+          upstream = "https://pocketid.org/docs/";
+          repo = "https://github.com/pocket-id/pocket-id";
+          nixos = "https://search.nixos.org/options?query=services.pocket-id";
+        };
       };
-      user = "pocket-id";
-      group = "media"; # shared GID 5000 per ADR-0000
-    };
+    }
 
-    # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
-    systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
-      name = "pocket-id";
-      inherit (svc) stateDir;
-      profile = "network";
-      hardeningOnly = true;
-      extraConfig = {
-        RestrictNetworkInterfaces = [ "lo" ];
-        ReadWritePaths = [ svc.stateDir ];
+    (lib.mkIf (cfg.enable && active) {
+      assertions = [
+        {
+          assertion =
+            !(
+              ing.auth.mode == "forward-auth"
+              && externalAuth
+              && cfg.pocketId.enable
+              && ing.auth.forwardAuthUpstream == "127.0.0.1:${toString svc.port}"
+            );
+          message = ''
+            [mediNix] Pocket-ID is enabled and authProxyPresent points forwardAuthUpstream
+            back at 127.0.0.1:${toString svc.port}. Pick one owner: local Pocket-ID
+            (leave forwardAuthUpstream empty) or an external proxy (different upstream).
+            Ref: ADR-5120 / 51-ingress contracts.authentication
+          '';
+        }
+        {
+          assertion = cfg.pocketId.exposure != "idp" || ing.enable;
+          message = ''
+            [mediNix] pocketId.exposure = "idp" publishes pocket-id.{domain} through 511,
+            but ingress is disabled. Either enable medinix.ingress or set
+            pocketId.exposure = "none" (loopback-only IdP).
+          '';
+        }
+      ];
+
+      services.pocket-id = {
+        enable = true;
+        settings = {
+          HOST = "127.0.0.1";
+          PORT = svc.port;
+        };
+        user = "pocket-id";
+        group = "media"; # shared GID 5000 per ADR-0000
       };
-    };
 
-    users.users.pocket-id = {
-      inherit (svc) uid;
-      group = "media";
-      isSystemUser = true;
-      home = svc.stateDir;
-      createHome = true;
-    };
+      # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
+      systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+        name = "pocket-id";
+        inherit (svc) stateDir;
+        profile = "network";
+        hardeningOnly = true;
+        extraConfig = {
+          RestrictNetworkInterfaces = [ "lo" ];
+          ReadWritePaths = [ svc.stateDir ];
+        };
+      };
 
-    # Ingress contract only. 511 renders this; 512 does not touch Caddy.
-    medinix.ingress.vhosts."pocket-id" = lib.mkIf (cfg.pocketId.exposure != "none") {
-      accessGroup = lib.mkDefault cfg.pocketId.exposure;
-    };
-  };
+      users.users.pocket-id = {
+        inherit (svc) uid;
+        group = "media";
+        isSystemUser = true;
+        home = svc.stateDir;
+        createHome = true;
+      };
+    })
+  ];
 }
 
 # Gold-Standard (ADR-5120):
