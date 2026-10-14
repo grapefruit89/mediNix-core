@@ -1,6 +1,7 @@
 # Nix build artifacts
 /result
 result
+result*
 *.drv
 
 # Nix store references (should not be committed)
@@ -24,10 +25,13 @@ my-*.nix
 # Local agent/tooling config (machine-local paths, e.g. secret refs) — not project code
 opencode.json
 
-# Python venv / scripts (if accidentally placed here)
+# Python venv / scripts / databases
 __pycache__/
 *.pyc
 venv/
+*.sqlite
+*.sqlite3
+*.db
 second-brain.sqlite
 
 *.log

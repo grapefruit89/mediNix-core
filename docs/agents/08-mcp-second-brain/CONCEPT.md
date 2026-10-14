@@ -2,7 +2,7 @@
 # id: "PATTERN-08-mcp-second-brain"
 # title: "Concept: mediNix Second Brain (SQLite + MCP)"
 # domain: 56
-# folder: 56-agents/08-mcp-second-brain
+# folder: docs/agents/08-mcp-second-brain
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-25

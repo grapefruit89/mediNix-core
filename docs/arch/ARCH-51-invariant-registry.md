@@ -165,4 +165,4 @@ Otherwise an assertion that prevents one historical failure can forbid a
 legitimate configuration.
 
 Related: `ARCH-51-ingress-architecture-model`, `../ingress-security-matrix.md`
-(R1–R20 / F1–F9), `56-agents/01-discipline/medinix-change-pipeline/SKILL.md`.
+(R1–R20 / F1–F9), `docs/agents/01-discipline/medinix-change-pipeline/SKILL.md`.

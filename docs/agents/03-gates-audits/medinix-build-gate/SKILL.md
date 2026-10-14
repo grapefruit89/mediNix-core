@@ -29,7 +29,7 @@ Führe die Subtasks nacheinander aus und nutze Tools, um Ergebnisse zu verifizie
 
 **Subtask 2: Portability Assertion (Hard Guardrail)**
 - **Regel:** Harte IPs (wie `192.168.x.x`), Hostnamen oder LAN CIDRs sind streng verboten.
-- Führe das Assertion-Skript aus: `bash 56-agents/shared/scripts/assert_no_ips.sh <deine_datei.nix>`
+- Führe das Assertion-Skript aus: `bash docs/agents/shared/scripts/assert_no_ips.sh <deine_datei.nix>`
 - Wenn das Skript fehlschlägt (Exit Code 1), MUSST du die Datei reparieren und den Subtask wiederholen, bevor du zu Subtask 3 gehst.
 
 **Subtask 3: Decimal Audit Gate**

@@ -1,8 +1,8 @@
 # ---
-# id: "555-seerr"
+# id: "561-seerr"
 # title: "Seerr — Request Management"
-# domain: 55
-# last_reviewed: 2026-09-02
+# domain: 56
+# last_reviewed: 2026-10-14
 # sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]
 # adr: ADR-5610

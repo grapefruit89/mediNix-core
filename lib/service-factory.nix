@@ -142,12 +142,14 @@ else
     };
     # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup.
     # Parent state directory must ALWAYS be declared first to prevent implicit root:root ownership.
-    systemd.tmpfiles.rules = lib.optionals (stateDir != null) [
-      "d '${stateDir}' 0750 ${name} media -"
-    ] ++ lib.optionals useMediaCover [
-      "d '${stateDir}/MediaCover' 0775 ${name} media -"
-      "d '${mediaCoverSource}' 0775 ${name} media -"
-    ];
+    systemd.tmpfiles.rules =
+      lib.optionals (stateDir != null) [
+        "d '${stateDir}' 0750 ${name} media -"
+      ]
+      ++ lib.optionals useMediaCover [
+        "d '${stateDir}/MediaCover' 0775 ${name} media -"
+        "d '${mediaCoverSource}' 0775 ${name} media -"
+      ];
     medinix.knownStateDirs = [ stateDir ];
     medinix.factoryUnits."${name}" = { inherit uid stateDir; };
     users.users."${name}" = {

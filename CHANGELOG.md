@@ -3,6 +3,14 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-14 — Hygiene, ADR-0000 Dekaden-Bereinigung & Demarkation
+
+- **Domäne 56 (Request-Management):** Seerr von `55-playback/555-seerr.nix` an seinen kanonischen Platz `56-anfragen/561-seerr.nix` verlegt (Port/UID 5610, ADR-0000). Domain-README und AGENTS.md für `56-anfragen` angelegt.
+- **Agent-Skills verlagert:** `56-agents` aus dem Systemd-Domänenraum nach `docs/agents/` verlegt, um Systemd-Architektur sauber von Agenten-Prompts/Skills zu trennen. Alle internen Referenzen konsistent aktualisiert.
+- **Binär- & Build-Artefakte bereinigt:** `50-core/second-brain.sqlite`, `50-core/mcp_server.log`, `result`-Symlink und redundante `Micro Snowflake.svg`-Dateien bereinigt. `.gitignore` gehärtet (`*.sqlite`, `*.log`, `result*`).
+- **Unraid Settings Export gesichert:** Aus dem Repository working tree entfernt und sicher extern unter `/home/moritz/Backups/mediNix-unraid-settings-export-2026-10-14/` archiviert.
+- **Dokumentations-Demarkation:** Verwaiste externe Scrapes und leere Stubs aus `docs/patterns/` und `docs/guides/` nach `docs/archive/` konsolidiert; `docs/INDEX.md` neu generiert.
+
 ## 2026-10-14 — Agentic Workflow: Status-Registry, Roadmap & Upstream-Quellen
 
 - **.agent-state.json:** Maschinenlesbare Status- und Fehler-Registry mit Invarianten, Verweis auf `docs/adr/llm-index.json` und bekannter Fehlerhistorie.

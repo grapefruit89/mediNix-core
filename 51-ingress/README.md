@@ -63,7 +63,7 @@ In particular:
 * `518-landingpage.nix` must not maintain a preferred-service list or icon registry.
 * application-specific knowledge remains in the corresponding service module.
 
-For example, Seerr knowledge belongs in `555-seerr.nix`, not in 511 or 518.
+For example, Seerr knowledge belongs in `561-seerr.nix`, not in 511 or 518.
 
 A new service therefore follows this pattern:
 
@@ -562,7 +562,7 @@ Therefore this README does **not** claim that the complete ingress stack has bee
 Ingress changes follow the repository-wide change pipeline defined by:
 
 ```text
-56-agents/01-discipline/medinix-change-pipeline/SKILL.md
+docs/agents/01-discipline/medinix-change-pipeline/SKILL.md
 ```
 
 The relevant principle is:

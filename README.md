@@ -29,8 +29,8 @@ A service describes itself. Ingress organs only consume that description.
 | `51-ingress` | Reverse proxy, TLS, DNS, mDNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-cloudflare-dns, 514-acme, 515-mdns, 518-landingpage |
 | `52-security` | Core security, Credentials, VPN | 520-core-security, 521-creds, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr indexers | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
-| `54-transfer` | Usenet + mover | 541-sabnzbd, 543-mover |
-| `55-playback` | Playback & Requests | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin, 555-seerr |
+| `55-playback` | Playback & Streaming | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin |
+| `56-anfragen` | Request Management | 561-seerr |
 | `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 573-exportarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
 | `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog, 587-disk-health |
 | `59-guardrails` | Assertions | 591-cross-domain |

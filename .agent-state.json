@@ -66,6 +66,18 @@
         "tmpfiles parent directive ordering: parent stateDir explicitly declared before child directories across services"
       ],
       "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "refactor(hygiene): ADR-0000 decade demarcation (domain 56 Seerr), purge binary artifacts and relocate agent skills",
+      "details": [
+        "Domain 56 canonicalization: moved Seerr from 55-playback to 56-anfragen/561-seerr.nix (Port/UID 5610)",
+        "Demarcated agent skills: moved 56-agents to docs/agents/ preserving documentation integrity without polluting systemd domains",
+        "Purged binary/build artifacts: removed 50-core/second-brain.sqlite, 50-core/mcp_server.log, result symlink, redundant Micro Snowflake SVGs and __pycache__; hardened .gitignore (*.sqlite, *.log, result*)",
+        "Secured Unraid settings export: backed up externally to /home/moritz/Backups/mediNix-unraid-settings-export-2026-10-14/ and eliminated from repo",
+        "Document archive consolidation: quarantined orphaned pattern/guide dumps (Awesome HA, PMS wiki, empty stubs) to docs/archive/ and refreshed docs/INDEX.md"
+      ],
+      "verified": true
     }
   ]
 }

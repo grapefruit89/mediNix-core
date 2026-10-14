@@ -13,7 +13,6 @@
 | `552-audiobookshelf` | `552-audiobookshelf.nix` | active | 4/5 | - |
 | `553-navidrome` | `553-navidrome.nix` | active | 3/5 | - |
 | `554-feishin` | `554-feishin.nix` | active | 2/5 | - |
-| `555-seerr` | `555-seerr.nix` | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -31,8 +30,6 @@ graph TD
   553_navidrome["553-navidrome"] --> hardening_profiles["lib/hardening-profiles"]
   553_navidrome["553-navidrome"] --> registry["lib/registry"]
   554_feishin["554-feishin"]
-  555_seerr["555-seerr"] --> hardening_profiles["lib/hardening-profiles"]
-  555_seerr["555-seerr"] --> registry["lib/registry"]
 ```
 
 
