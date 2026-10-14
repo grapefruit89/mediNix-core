@@ -46,7 +46,7 @@ let
       group = name;
       inherit sharedGid; # H000 (e.g., 5000 for mediNix)
       stateDir = "/var/lib/${name}";
-      decadeRole = decadeDigit;
+      decadeIndex = decadeDigit;
       decadeName = canonicalDecades.${toString decadeDigit} or "unknown";
       inherit projectDigit leafDigit;
     };
@@ -107,11 +107,6 @@ let
   allowedCapabilities = [
     "CAP_NET_BIND_SERVICE"
     "CAP_NET_RAW"
-    "CAP_NET_BROADCAST"
-    "CAP_CHOWN"
-    "CAP_SETUID"
-    "CAP_SETGID"
-    "CAP_SETPCAP"
   ];
 
 in
@@ -146,8 +141,13 @@ in
           message = "[ADR-0000 I5] What: Service '${name}' declares an empty role string. Fix: Either omit the role field entirely, or declare a non-empty functional role (e.g. 'media-server').";
         }
         {
-          assertion = lib.all (cap: builtins.elem cap allowedCapabilities) (meta.capabilities or [ ]);
-          message = "[ADR-0000 Capabilities] What: Service '${name}' requests unauthorized or dangerous capabilities. Fix: Root capabilities (CAP_SYS_ADMIN, CAP_SYS_MODULE, CAP_DAC_OVERRIDE) are strictly forbidden. Permitted whitelist: ${lib.concatStringsSep ", " allowedCapabilities}.";
+          assertion =
+            let
+              capabilities = meta.capabilities or [ ];
+            in
+            builtins.isList capabilities
+            && lib.all (cap: builtins.isString cap && builtins.elem cap allowedCapabilities) capabilities;
+          message = "[ADR-0000 Capabilities] What: Service '${name}' requests an unauthorized, malformed, or dangerous capability. Fix: Declare only capabilities from the permitted whitelist: ${lib.concatStringsSep ", " allowedCapabilities}.";
         }
       ]) manifests)
       ++ [
@@ -186,7 +186,7 @@ in
       }
     ) daemonServices;
 
-    # 5. Systemd Hardening Defaults (UPG, UMask 0027, clean StateDirectory)
+    # 5. Systemd Hardening Defaults (UPG, UMask 0002, clean StateDirectory)
     systemd.services = lib.mapAttrs (
       name: meta:
       let
@@ -196,7 +196,7 @@ in
         serviceConfig = {
           User = lib.mkOptionDefault name;
           Group = lib.mkOptionDefault name;
-          UMask = lib.mkOptionDefault "0027";
+          UMask = lib.mkOptionDefault "0002";
           StateDirectory = lib.mkOptionDefault name;
           StateDirectoryMode = lib.mkOptionDefault "0750";
           WorkingDirectory = lib.mkOptionDefault spec.stateDir;

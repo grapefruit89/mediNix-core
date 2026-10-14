@@ -111,14 +111,16 @@ Unoccupied slots remain empty reserves; they are never repurposed for unrelated 
 |---|---|---|---|---|
 | **Port** | $\text{num} \times 10$ | `5320` | `Hxx0` | Internal HTTP loopback / upstream binding |
 | **UID** | $\text{num} \times 10$ | `5320` | `Hxx0` | Dedicated process execution user |
-| **Primary GID (UPG)** | $\text{num} \times 10$ | `5320` | `Hxx0` | User Private Group for `/var/lib/<name>` (`UMask 0027`) |
+| **Primary GID (UPG)** | $\text{num} \times 10$ | `5320` | `Hxx0` | User Private Group for `/var/lib/<name>` (`StateDirectoryMode 0750`) |
 | **Shared GID** | $\lfloor\text{num} / 100\rfloor \times 1000$ | `5000` | `H000` | Shared storage group (`SupplementaryGroups` only!) |
 | **State Directory** | `"/var/lib/${name}"` | `/var/lib/<service>` | — | Clean canonical state path without port suffixes |
-| **Decade Role** | $\lfloor\text{num} / 10\rfloor \bmod 10$ | `3` (Ingestion) | `0..9` | Programmatic role classification |
+| **Decade Index** | $\lfloor\text{num} / 10\rfloor \bmod 10$ | `3` (Ingestion) | `0..9` | Programmatic decade classification (`decadeIndex`) |
 
 ### UPG Security Contract
-- **Primary Group = UID = `num × 10`:** Every daemon runs under its own User Private Group (`users.groups.${name}.gid = spec.primaryGid`) with `UMask = "0027"` and `StateDirectory = name`. No service can read another service's `/var/lib/<name>` directory.
+- **Primary Group = UID = `num × 10`:** Every daemon runs under its own User Private Group (`users.groups.${name}.gid = spec.primaryGid`) with `StateDirectory = name` and `StateDirectoryMode = "0750"`. No service can read another service's private `/var/lib/<name>` directory.
+- **Default Service UMask = `0002`:** Systemd services default to `UMask = "0002"`, ensuring that collaborative media files created in shared group directories are group-writable (`rw-rw-r--`).
 - **Shared Group `H000` (`5000 media`) as Supplementary Group:** Assigned exclusively via `extraGroups = [ "media" ]` to services that require Tier C media access (`needsSharedGroup` / `needsMediaGroup`). Edge ingress (`511`) and identity (`512`) never receive GID `5000`.
+- **SetGID Requirement on Shared Media Storage (`chmod g+s`):** Shared storage directories (Tier C, e.g. `/data/media/*`) **must have the SetGID bit set** (`chmod 2775 /data/media/*`). This ensures that files created by daemons running with their own primary UPG automatically inherit the parent directory's group ownership (`media`), enabling frictionless multi-service read/write access (e.g. Sonarr, Radarr, SABnzbd, Jellyfin) under `UMask 0002` without violating UPG isolation in private state directories.
 
 ### Hard Engine Invariants (`lib/decimal-framework.nix`)
 1. **I1 (Three-Digit Range):** $100 \le \text{num} \le 999$.
@@ -130,7 +132,9 @@ Unoccupied slots remain empty reserves; they are never repurposed for unrelated 
 Declaring an optional `role` string in the service manifest (e.g. `role = "media-server"`) is recommended as best practice to document the functional intent beyond the numeric slot. The field is purely descriptive and has **no impact on Port, UID, or GID derivations**. If declared, it must not be an empty string (`assertion = role != ""`).
 
 ### Linux Capabilities (Operator / Host Boundary)
-Linux capabilities are an operational decision of the host system and are **never derived from numbers**. Allowed capabilities for non-root services are strictly bounded via a compile-time whitelist in `lib/decimal-framework.nix` (`allowedCapabilities = [ "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" "CAP_NET_BROADCAST" "CAP_CHOWN" "CAP_SETUID" "CAP_SETGID" "CAP_SETPCAP" ]`). Dangerous root capabilities (especially `CAP_SYS_ADMIN`, `CAP_SYS_RAWIO`, `CAP_SYS_MODULE`) are strictly forbidden and trigger immediate build failure.
+Linux capabilities are an operational decision of the host system and are **never derived from numbers**.
+- **Validation only, no automatic injection:** The engine validates declared capabilities against a strict compile-time whitelist (`allowedCapabilities = [ "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" ]`). **It does not inject them into systemd unit configs.** Each service module requiring ambient capabilities must explicitly configure them in its own `serviceConfig.AmbientCapabilities`.
+- **Root Capability Defense:** Dangerous root capabilities (`CAP_SYS_ADMIN`, `CAP_SYS_RAWIO`, `CAP_SYS_MODULE`, `CAP_SETPCAP`, `CAP_SETUID`, `CAP_SETGID`, `CAP_CHOWN`, `CAP_NET_BROADCAST`) are strictly forbidden and trigger immediate build failure.
 
 ---
 
@@ -148,20 +152,9 @@ For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S
 
 ---
 
-## 6. System Root Alignment
+## 6. System Root Alignment (Host Boundary)
 
-```
-00-core            _0  Foundation
-10-network         _1  Access
-20-security        _2  Security
-30-storage         _3  Ingestion / Data Pools
-40-documents       _4  Processing / DMS
-50-mediNix         _5  Core Media Appliance
-60-exposition      _6  External Gateways
-70-maintenance     _7  Lifecycle & Backups
-80-devNIX          _8  Observability & Agentic Tooling
-90-policy          _9  Guardrails
-```
+Partitioning of top-level system directories across multiple independent appliances is host-specific and governed by the host configuration repository (`nix-hermes`), not by this constitution. This document defines the universal decimal grammar for appliances, decades, and services.
 
 ---
 
@@ -194,6 +187,8 @@ For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S
 |---|---|
 | **"Free Middle" (`_3` to `_8` arbitrary)** | Caused cross-project drift (Storage/Backup/Monitoring landed in random decades); replaced by the universal 10-slot functional taxonomy. |
 | **Flat GID `5000` as primary group** | Violated Least Privilege in `/var/lib/<service>`; replaced by UPG (`primaryGid = uid = num * 10`) + `5000` as supplementary group. |
+| **Global `UMask 0027` on Shared Media** | Prevented peer services in supplementary group `media` from reading/writing new media files; resolved via default `UMask 0002` + `chmod g+s` on Tier C paths while retaining `StateDirectoryMode 0750` for private state isolation. |
+| **Permissive Capabilities Whitelist (`CAP_SETPCAP`, etc.)** | Unnecessary privilege escalation risk for appliance daemons; reduced to minimal `[ "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" ]`. |
 | **StateDirectory with port suffix (`name-port`)** | Broke NixOS upstream expectations and complicated path references; replaced by canonical `/var/lib/${name}`. |
 | **Level-3 folder graduation (4-digit folders)** | Collided with the 4-digit Port/UID space; module hierarchy is strictly a two-level tree. |
 | **Daemons in `_0` or `_9`** | `_0` is foundation/options and `_9` is compile-time assertions; neither may spawn runtime services. |
@@ -203,7 +198,7 @@ For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S
 ## 10. Consequences
 
 - **Predictable Cross-Project Navigation:** Every decade (`_0` to `_9`) has the exact same functional role across all repositories.
-- **Strict State Isolation:** UPG (`GID = UID = ID * 10`) with `UMask = 0027` seals `/var/lib/<name>` against peer processes while preserving shared Tier-C access via supplementary group `H000`.
+- **Strict State Isolation & Multi-Service Sharing:** UPG (`GID = UID = ID * 10`) with `StateDirectoryMode = 0750` seals `/var/lib/<name>` against peer processes, while `UMask = 0002` in combination with SetGID (`chmod g+s`) on Tier C ensures frictionless media exchange via supplementary group `H000`.
 - **Compile-Time Enforcement:** Invalid service numbers or forbidden daemon decades (`_0`, `_9`, `HD0`) fail immediately during Nix evaluation.
 
 ---

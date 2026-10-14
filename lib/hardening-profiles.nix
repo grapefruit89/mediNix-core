@@ -50,7 +50,7 @@ rec {
     ProtectSystem = "strict";
     ProtectHome = true;
     PrivateTmp = true;
-    UMask = lib.mkDefault "0027";
+    UMask = lib.mkDefault "0002";
     ProtectKernelTunables = true;
     ProtectKernelModules = true;
     ProtectKernelLogs = true;

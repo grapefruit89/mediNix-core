@@ -4,7 +4,7 @@
   "locked_invariants": [
     "Port = UID = Num * 10 (ADR-0000)",
     "Primary GID = UID = Num * 10 (UPG), Supplementary GID = 5000 (Tier C media group) (ADR-0000)",
-    "Universal 10-slot taxonomy (_0.._9) and UPG isolation (UID = PrimaryGID = Port = ID*10, UMask 0027, media 5000 strictly as extraGroups)",
+    "Universal 10-slot taxonomy (_0.._9) and UPG isolation (UID = PrimaryGID = Port = ID*10, StateDirectoryMode 0750, UMask 0002, media 5000 strictly as extraGroups)",
     "Zero containers, pure systemd-native",
     "Split-horizon ingress (.lan vs WAN)",
     "Strict local evaluation: ZERO remote SSH/rsync connections"
@@ -110,6 +110,18 @@
         "ADR-0000 Section 4: Documented optional descriptive role field (recommended, purely documentary) and established host-level boundary for Linux capabilities with compile-time whitelist enforcement",
         "ADR-0000 Section 11: Added 'Protocol over Product' semantic anchor ('Der Slot wird anhand der Rolle vergeben, nicht anhand der Software')",
         "lib/decimal-framework.nix & lib/service-contract.nix: Added optional role and capabilities options to service-contract, and additive compile-time assertions (non-empty role check and allowedCapabilities whitelist) in decimal-framework"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "fix(decimal): resolve UMask media-sharing conflict, reduce capability whitelist, correct role semantics",
+      "details": [
+        "UMask media-sharing resolution: Changed default UMask from 0027 to 0002 in lib/decimal-framework.nix and lib/hardening-profiles.nix, and documented SetGID (chmod g+s / 2775) requirement on Tier C paths",
+        "Capabilities whitelist hardening: Reduced allowedCapabilities in lib/decimal-framework.nix strictly to [ CAP_NET_BIND_SERVICE, CAP_NET_RAW ]",
+        "Capabilities engine boundary: Documented in ADR-0000 that the engine performs compile-time validation only without injecting into unit configs",
+        "decadeIndex semantic disambiguation: Renamed internal derive field decadeRole to decadeIndex to eliminate name collision with prohibited manifest option",
+        "System root demarcation: Replaced host-specific root alignment table in ADR-0000 Section 6 with explicit host boundary referencing nix-hermes"
       ],
       "verified": true
     }
