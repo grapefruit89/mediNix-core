@@ -104,6 +104,16 @@ let
     else
       defaultByDecade;
 
+  allowedCapabilities = [
+    "CAP_NET_BIND_SERVICE"
+    "CAP_NET_RAW"
+    "CAP_NET_BROADCAST"
+    "CAP_CHOWN"
+    "CAP_SETUID"
+    "CAP_SETGID"
+    "CAP_SETPCAP"
+  ];
+
 in
 {
   # Expose library functions directly if imported as a regular attrset/function
@@ -111,6 +121,7 @@ in
     derive
     validate
     canonicalDecades
+    allowedCapabilities
     mod
     ;
 
@@ -118,7 +129,7 @@ in
   options.decimalFramework = {
     lib = lib.mkOption {
       default = {
-        inherit derive validate canonicalDecades;
+        inherit derive validate canonicalDecades allowedCapabilities;
       };
       internal = true;
       readOnly = true;
@@ -126,9 +137,19 @@ in
   };
 
   config = {
-    # 3. Compile-Time Assertions (Uniqueness & Invariants)
+    # 3. Compile-Time Assertions (Uniqueness, Invariants, Role & Capabilities Whitelist)
     assertions =
       lib.concatLists (lib.mapAttrsToList (name: meta: validate name meta.num) daemonServices)
+      ++ lib.concatLists (lib.mapAttrsToList (name: meta: [
+        {
+          assertion = !(meta ? role) || meta.role == null || (builtins.isString meta.role && meta.role != "");
+          message = "[ADR-0000 I5] What: Service '${name}' declares an empty role string. Fix: Either omit the role field entirely, or declare a non-empty functional role (e.g. 'media-server').";
+        }
+        {
+          assertion = lib.all (cap: builtins.elem cap allowedCapabilities) (meta.capabilities or [ ]);
+          message = "[ADR-0000 Capabilities] What: Service '${name}' requests unauthorized or dangerous capabilities. Fix: Root capabilities (CAP_SYS_ADMIN, CAP_SYS_MODULE, CAP_DAC_OVERRIDE) are strictly forbidden. Permitted whitelist: ${lib.concatStringsSep ", " allowedCapabilities}.";
+        }
+      ]) manifests)
       ++ [
         {
           assertion = lib.length allActiveIds == lib.length (lib.unique allActiveIds);

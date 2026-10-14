@@ -101,6 +101,17 @@
         "Gatus migration: Moved Gatus from 580 to canonical slot 582 (582-gatus.nix, Port/UID 5820) to satisfy Invariant I2 (no daemons on HD0 block slots)"
       ],
       "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "docs(adr): decouple software names from ADR-0000 (Protocol over Product) and add capabilities whitelist",
+      "details": [
+        "ADR-0000 Section 3: Added 'Abstraction Level (Invariant)' establishing that slots describe purely functional roles, never software brand names; renamed column to 'Illustrative Examples (never prescriptive)' and purged product brand names",
+        "ADR-0000 Section 4: Documented optional descriptive role field (recommended, purely documentary) and established host-level boundary for Linux capabilities with compile-time whitelist enforcement",
+        "ADR-0000 Section 11: Added 'Protocol over Product' semantic anchor ('Der Slot wird anhand der Rolle vergeben, nicht anhand der Software')",
+        "lib/decimal-framework.nix & lib/service-contract.nix: Added optional role and capabilities options to service-contract, and additive compile-time assertions (non-empty role check and allowedCapabilities whitelist) in decimal-framework"
+      ],
+      "verified": true
     }
   ]
 }

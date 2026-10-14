@@ -59,7 +59,7 @@ The decimal structure maintains a sharp boundary between structure and runtime s
   - **`HD0` = block ID** (the foundation/options of the decade, never a program or daemon).
   - **`HD1`–`HD9` = services / tasks** (deployable systemd units or build-time policies).
 
-So `532` reads as: `5` (namespace: project mediNix) · `3` (decade: Ingestion / Acquisition) · `2` (leaf: second service, Sonarr).
+So `532` reads as: `5` (namespace: project mediNix) · `3` (decade: Ingestion / Acquisition) · `2` (leaf: second acquisition service).
 
 ---
 
@@ -70,7 +70,7 @@ Four boundary slots frame every project and system root identically:
 | Slot | Role | Question | Content & Daemon Invariant |
 |---|---|---|---|
 | **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `lib/decimal-framework.nix`, `registry` — **strictly structure & engine, NEVER daemons** |
-| **`_1`** | **Access** | How do you get in? | Reverse proxy (Caddy), DNS, ACME, IdP (Pocket-ID), mDNS, edge defenses |
+| **`_1`** | **Access** | How do you get in? | Reverse proxy, DNS, ACME, identity provider, mDNS, edge defenses |
 | **`_2`** | **Security** | How is it protected? | Host firewall (`nftables`), VPN killswitch, `systemd-creds` |
 | **`_9`** | **Guardrails** | What must everything comply with? | Compile-time assertions (`config.assertions`), global invariants — **NEVER daemons** |
 
@@ -80,20 +80,24 @@ Four boundary slots frame every project and system root identically:
 
 ## 3. Universal Functional 10-Slot Taxonomy (`_0` to `_9`)
 
-There is **no arbitrary "free middle"**. Across every project in the cosmos (`mediNix`, `devNIX`, `40-documents`), all ten decades (`_0` through `_9`) follow a strict, universal functional pipeline from input to observability and guardrails:
+There is **no arbitrary "free middle"**. Across every project in the cosmos (`mediNix`, `devNIX`, `40-documents`), all ten decades (`_0` through `_9`) follow a strict, universal functional pipeline from input to observability and guardrails.
 
-| Slot | Canonical Role | Universal Function | Example: `mediNix` (`5x`) | Example: `devNIX` (`8x`) | Daemons Allowed? |
-|---|---|---|---|---|---|
-| **`_0`** | **Foundation** | Structure, Engine, Registry, Docs | `50-core` (Baseline, Engine) | `80-core` (Agent Constitution) | **NO** (`decade != 0`) |
-| **`_1`** | **Access** | Ingress, Reverse-Proxy, DNS, IdP, mDNS | `51-ingress` (Caddy, Pocket-ID) | `81-ingress` (Gateway, Auth) | YES (`H11`–`H19`) |
-| **`_2`** | **Security** | Host-Firewall, nftables, VPN-Killswitch, Creds | `52-security` (Creds, Killswitch) | `82-security` (Sandboxes, Keys) | YES (`H21`–`H29`) |
-| **`_3`** | **Ingestion** | Input, Sources, Indexers, Scanners, Acquisition | `53-acquisition` (Sonarr, Radarr, Prowlarr) | `83-ingestion` (Repo Harvesters, RAG) | YES (`H31`–`H39`) |
-| **`_4`** | **Processing** | Transformation, Download Processing, Mover, Build | `54-transfer` (SABnzbd, Storage Mover) | `84-processing` (AST Parsers, Pipelines) | YES (`H41`–`H49`) |
-| **`_5`** | **Core UI / App** | **Primary Purpose of the Flake** | `55-playback` (Jellyfin, ABS, Navidrome) | `85-workspace` (OpenCode, Editor, UI) | YES (`H51`–`H59`) |
-| **`_6`** | **Exposition** | Request Catalogs, API Gateways, External Delivery | `56-anfragen` (Seerr `561`) | `86-exposition` (MCP Servers, Webhooks) | YES (`H61`–`H69`) |
-| **`_7`** | **Maintenance** | Backup (Restic), SQLite-WAL, GC, Storage-Tiering | `57-maintenance` (Restic, Provisioning, WAL) | `87-maintenance` (State GC, Index Sync) | YES (`H71`–`H79`) |
-| **`_8`** | **Observability** | Monitoring, Push-Alerts, Telemetry, Health | `58-observability` (Ntfy `581`, Gatus `582`) | `88-observability` (Telemetry, Token Logs) | YES (`H81`–`H89`) |
-| **`_9`** | **Guardrails** | Compile-Time Assertions, Global Invariants | `59-guardrails` (`591-cross-domain.nix`) | `89-guardrails` (Schema & AST Gates) | **NO** (`decade != 9`) |
+### Abstraction Level (Invariant)
+
+The decimal framework recognizes exclusively **functional roles, never software names**. The column *"Illustrative Examples (never prescriptive)"* lists concrete implementations solely for illustration — they are never a prerequisite for the assignment of a slot. When a service is assigned to `_1`, it is because it fulfills the role **Access** (e.g. reverse proxy, identity provider, DNS resolver, ACME client), not because it is named "Caddy" or "Pocket-ID". Any software that fulfills the architectural role is permissible — even if it is not mentioned in any table.
+
+| Slot | Canonical Role | Universal Function | Illustrative Examples (never prescriptive) | Daemons Allowed? |
+|---|---|---|---|---|
+| **`_0`** | **Foundation** | Structure, Engine, Registry, Docs | e.g. baseline architecture, options schema, agent constitution | **NO** (`decade != 0`) |
+| **`_1`** | **Access** | Ingress, Reverse-Proxy, DNS, IdP, mDNS | e.g. reverse proxy, identity provider, DNS resolver, ACME client | YES (`H11`–`H19`) |
+| **`_2`** | **Security** | Host-Firewall, nftables, VPN-Killswitch, Creds | e.g. host firewall, VPN confinement, sealed credential broker | YES (`H21`–`H29`) |
+| **`_3`** | **Ingestion** | Input, Sources, Indexers, Scanners, Acquisition | e.g. indexer, metadata scanner, acquisition downloader | YES (`H31`–`H39`) |
+| **`_4`** | **Processing** | Transformation, Download Processing, Mover, Build | e.g. download processor, storage mover, pipeline | YES (`H41`–`H49`) |
+| **`_5`** | **Core UI / App** | **Primary Purpose of the Flake** | e.g. media streaming engine, primary application workspace | YES (`H51`–`H59`) |
+| **`_6`** | **Exposition** | Request Catalogs, API Gateways, External Delivery | e.g. request catalog, API gateway, external delivery | YES (`H61`–`H69`) |
+| **`_7`** | **Maintenance** | Backup, SQLite-WAL, GC, Storage-Tiering | e.g. state backup, SQLite checkpointing, garbage collection | YES (`H71`–`H79`) |
+| **`_8`** | **Observability** | Monitoring, Push-Alerts, Telemetry, Health | e.g. status monitoring, push-alerting, telemetry | YES (`H81`–`H89`) |
+| **`_9`** | **Guardrails** | Compile-Time Assertions, Global Invariants | e.g. cross-domain compile-time assertions, schema & AST gates | **NO** (`decade != 9`) |
 
 Unoccupied slots remain empty reserves; they are never repurposed for unrelated functions.
 
@@ -103,24 +107,30 @@ Unoccupied slots remain empty reserves; they are never repurposed for unrelated 
 
 **The sole source of derivation is the three-digit service number** (`HDS`: project · decade · service, where $H \in [1..9]$, $D \in [1..8]$, $S \in [1..9]$).
 
-| Quantity | Formula | Example: `sonarr` (`532`) | Band | Purpose & Isolation Boundary |
+| Quantity | Formula | Example: `532` (Ingestion) | Band | Purpose & Isolation Boundary |
 |---|---|---|---|---|
 | **Port** | $\text{num} \times 10$ | `5320` | `Hxx0` | Internal HTTP loopback / upstream binding |
 | **UID** | $\text{num} \times 10$ | `5320` | `Hxx0` | Dedicated process execution user |
 | **Primary GID (UPG)** | $\text{num} \times 10$ | `5320` | `Hxx0` | User Private Group for `/var/lib/<name>` (`UMask 0027`) |
 | **Shared GID** | $\lfloor\text{num} / 100\rfloor \times 1000$ | `5000` | `H000` | Shared storage group (`SupplementaryGroups` only!) |
-| **State Directory** | `"/var/lib/${name}"` | `/var/lib/sonarr` | — | Clean canonical state path without port suffixes |
+| **State Directory** | `"/var/lib/${name}"` | `/var/lib/<service>` | — | Clean canonical state path without port suffixes |
 | **Decade Role** | $\lfloor\text{num} / 10\rfloor \bmod 10$ | `3` (Ingestion) | `0..9` | Programmatic role classification |
 
 ### UPG Security Contract
 - **Primary Group = UID = `num × 10`:** Every daemon runs under its own User Private Group (`users.groups.${name}.gid = spec.primaryGid`) with `UMask = "0027"` and `StateDirectory = name`. No service can read another service's `/var/lib/<name>` directory.
-- **Shared Group `H000` (`5000 media`) as Supplementary Group:** Assigned exclusively via `extraGroups = [ "media" ]` to services that require Tier C media access (`needsSharedGroup` / `needsMediaGroup`). Edge ingress (`511-caddy`) and identity (`512-pocket-id`) never receive GID `5000`.
+- **Shared Group `H000` (`5000 media`) as Supplementary Group:** Assigned exclusively via `extraGroups = [ "media" ]` to services that require Tier C media access (`needsSharedGroup` / `needsMediaGroup`). Edge ingress (`511`) and identity (`512`) never receive GID `5000`.
 
 ### Hard Engine Invariants (`lib/decimal-framework.nix`)
 1. **I1 (Three-Digit Range):** $100 \le \text{num} \le 999$.
 2. **I2 (No Decade Zero-Slot Daemons):** $\text{num} \bmod 10 \neq 0$ (`HD0` is reserved for block IDs).
 3. **I3 (No Foundation Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 0$ (`_0` never spawns daemons).
 4. **I4 (No Guardrail Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 9$ (`_9` is build-time evaluation only).
+
+### Role Declaration (Recommended, Never Prescriptive)
+Declaring an optional `role` string in the service manifest (e.g. `role = "media-server"`) is recommended as best practice to document the functional intent beyond the numeric slot. The field is purely descriptive and has **no impact on Port, UID, or GID derivations**. If declared, it must not be an empty string (`assertion = role != ""`).
+
+### Linux Capabilities (Operator / Host Boundary)
+Linux capabilities are an operational decision of the host system and are **never derived from numbers**. Allowed capabilities for non-root services are strictly bounded via a compile-time whitelist in `lib/decimal-framework.nix` (`allowedCapabilities = [ "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" "CAP_NET_BROADCAST" "CAP_CHOWN" "CAP_SETUID" "CAP_SETGID" "CAP_SETPCAP" ]`). Dangerous root capabilities (especially `CAP_SYS_ADMIN`, `CAP_SYS_RAWIO`, `CAP_SYS_MODULE`) are strictly forbidden and trigger immediate build failure.
 
 ---
 
@@ -159,14 +169,14 @@ For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S
 
 ```
 40-core            _0  Foundation (options, registry)
-41-ingress         _1  Access (Caddy, SSO)
+41-ingress         _1  Access (reverse proxy, SSO)
 42-security        _2  Security (nftables, creds)
 43-ingestion       _3  Mail & Scanner Consumers (431)
-44-processing      _4  OCR & Tika/Gotenberg Pipelines (441, 442)
-45-archive         _5  Paperless-ngx Core UI (451 -> Port/UID/GID 4510)
+44-processing      _4  OCR & Document Conversion Pipelines (441, 442)
+45-archive         _5  Document Archive Core UI (451 -> Port/UID/GID 4510)
 46-exposition      _6  Public Share Links / API Gateways (461)
-47-maintenance     _7  Restic A2 Backup & SQLite-WAL (476)
-48-observability   _8  Gatus & Ntfy Health Checks (481, 482)
+47-maintenance     _7  State Backup & SQLite-WAL Checkpointing (476)
+48-observability   _8  Health Checks & Push Alerts (481, 482)
 49-guardrails      _9  Cross-Domain Assertions (491)
 ```
 
@@ -205,9 +215,12 @@ For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S
 | Single number derives Port, UID, UPG-GID, Shared-GID (§4) | **SSOT** — Single Source of Truth |
 | Engine invariants I1–I4 in `lib/decimal-framework.nix` (§4) | **Design by Contract** (Meyer) |
 | Universal 10-slot taxonomy `_0`..`_9` (§3) | **MECE** — Mutually Exclusive, Collectively Exhaustive |
+| Slot assigned by functional role, not software product (§3) | **Protocol over Product** (Role Abstraction) |
 | UPG primary group vs. supplementary storage group (§4) | **Principle of Least Privilege (PoLP)** |
 | Recognizability across repos (§3, §10) | **ISO/IEC 25010** — Maintainability (*Analyzability* & *Modularity*) |
 | Rejected alternatives table (§9) | **MADR Exclusion Log** |
+
+> **Protocol over Product:** Der Slot wird anhand der Rolle vergeben, nicht anhand der Software.
 
 ---
 

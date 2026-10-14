@@ -86,6 +86,19 @@ in
               description = "Pfade, die von forward_auth ausgenommen werden (z. B. Webhooks/APIs).";
             };
 
+            # --- SEMANTISCHE ROLLE & CAPABILITIES (ADR-0000) ---
+            role = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Optionale funktionale Rolle des Dienstes (z. B. 'media-server', 'reverse-proxy'). Dokumentarisch.";
+            };
+
+            capabilities = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "Optionale Linux-Capabilities des Dienstes (validiert gegen restriktive Whitelist).";
+            };
+
             # --- MONITORING (Gatus / Health-Checks) ---
             monitoring = {
               enable = lib.mkOption {
