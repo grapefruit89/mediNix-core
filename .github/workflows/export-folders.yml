@@ -21,27 +21,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
+      - name: Install tree & zip
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq tree zip
 
-      - name: Install gitingest & zip
-        run: |
-          pip install --no-cache-dir gitingest
-          sudo apt-get update -qq && sudo apt-get install -y -qq zip
-
-      - name: Regenerate exports in /tmp/exports
-        env:
-          EXPORT_DIR: /tmp/exports
-        run: bash .github/scripts/export-folders.sh
+      - name: Regenerate Markdown exports in /tmp/exports
+        run: bash .github/scripts/export-folders.sh /tmp/exports
 
       - name: Upload digests artifact
         uses: actions/upload-artifact@v4
         with:
           name: medinix-digests
           path: |
-            /tmp/exports/*.txt
+            /tmp/exports/*.md
             /tmp/exports/all-exports.zip
           retention-days: 14
 
@@ -51,11 +42,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --orphan digests 2>/dev/null || git checkout digests
           git rm -rf . >/dev/null 2>&1 || true
-          cp /tmp/exports/*.txt .
-          git add *.txt
+          cp /tmp/exports/*.md .
+          git add *.md
           if git diff --cached --quiet; then
             echo "No digest changes detected."
           else
-            git commit -m "chore(digests): update folder digests for ${GITHUB_SHA::7}"
+            git commit -m "chore(digests): update folder Markdown digests for ${GITHUB_SHA::7}"
             git push -f origin digests
           fi

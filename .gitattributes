@@ -4,6 +4,19 @@
 *.md text eol=lf
 
 # Generated digests (suppress diffs and keep repository language stats accurate)
+exports/** linguist-generated=true
+exports/** -diff
 *.txt linguist-generated=true
 *.txt -diff
-
+_index.md linguist-generated=true
+_index.md -diff
+_root.md linguist-generated=true
+_root.md -diff
+_full.md linguist-generated=true
+_full.md -diff
+5*.md linguist-generated=true
+5*.md -diff
+lib.md linguist-generated=true
+lib.md -diff
+docs.md linguist-generated=true
+docs.md -diff
