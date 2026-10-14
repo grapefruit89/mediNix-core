@@ -54,6 +54,18 @@
       "date": "2026-10-14",
       "action": "hygiene: close 5 obsolete historical discussion issues (#2-#6) and close obsolete PR #1",
       "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "feat(hardening): apply battle-tested salvage gems (jellyfin db-guard, sabnzbd ram-temp, seerr wal, seccomp eperm, tmpfiles ordering)",
+      "details": [
+        "Jellyfin first-boot db-guard: exit 0 in preStart when data/jellyfin.db is absent to prevent ActivityLog migration loop",
+        "seccomp SIGSYS defense: SystemCallErrorNumber = EPERM across dotnet, nodejs, python profiles and service-factory",
+        "SABnzbd RAM-temp: RuntimeDirectory = sabnzbd-tmp, ReadWritePaths = [/run/sabnzbd-tmp ...], SABNZBD__MISC__TEMP_DIR env var to avoid 226/NAMESPACE",
+        "Seerr SQLite-WAL auto-repair: ExecStartPre hook runs PRAGMA journal_mode=WAL on startup to eliminate database locked errors",
+        "tmpfiles parent directive ordering: parent stateDir explicitly declared before child directories across services"
+      ],
+      "verified": true
     }
   ]
 }

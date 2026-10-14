@@ -249,9 +249,10 @@ in
               "-${creds.storeDir}"
             ];
             ReadWritePaths = [
+              "/run/sabnzbd-tmp"
               stateDir
               "${svc.storage.downloadDir}"
-              "/run/sabnzbd-tmp"
+              "${svc.storage.mediaRoot}"
             ];
           }
           # Defense-in-Depth: cgroup-BPF-Socketfilter im Linux-Kernel
@@ -278,7 +279,10 @@ in
             ];
           }
         ];
-        environment = lib.optionalAttrs (cfg.serverCredentialFile != null) {
+        environment = {
+          SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
+        }
+        // lib.optionalAttrs (cfg.serverCredentialFile != null) {
           SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";
         };
       };

@@ -72,6 +72,7 @@ if hardeningOnly then
         SyslogIdentifier = name;
         StandardOutput = "journal";
         StandardError = "journal";
+        SystemCallErrorNumber = "EPERM";
       }
       (profiles.${profile} or profiles.base)
       (memoryPolicy.${name} or memoryPolicy.default)
@@ -106,6 +107,7 @@ else
           SyslogIdentifier = name;
           StandardOutput = "journal";
           StandardError = "journal";
+          SystemCallErrorNumber = "EPERM";
         }
         # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
         (profiles.${profile} or profiles.base)
@@ -138,9 +140,11 @@ else
         extraConfig
       ];
     };
-    # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup
-    systemd.tmpfiles.rules = lib.optionals useMediaCover [
+    # BindPaths requires BOTH sides (source AND destination mountpoint) to exist before namespace setup.
+    # Parent state directory must ALWAYS be declared first to prevent implicit root:root ownership.
+    systemd.tmpfiles.rules = lib.optionals (stateDir != null) [
       "d '${stateDir}' 0750 ${name} media -"
+    ] ++ lib.optionals useMediaCover [
       "d '${stateDir}/MediaCover' 0775 ${name} media -"
       "d '${mediaCoverSource}' 0775 ${name} media -"
     ];

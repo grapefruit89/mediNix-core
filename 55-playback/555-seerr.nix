@@ -77,6 +77,10 @@ in
 
     # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
     (lib.mkIf cfg.enable {
+      systemd.tmpfiles.rules = [
+        "d '${stateDir}' 0750 root media -"
+      ];
+
       systemd.services.seerr = {
         after = [
           "network-online.target"
@@ -92,6 +96,15 @@ in
             ExecStart = lib.getExe seerrPkg;
             WorkingDirectory = stateDir;
             ReadWritePaths = [ stateDir ];
+            ExecStartPre = [
+              (pkgs.writeShellScript "seerr-wal-enable" ''
+                for db in "${stateDir}/db/db.sqlite3" "${stateDir}/db.sqlite3"; do
+                  if [ -f "$db" ]; then
+                    ${pkgs.sqlite}/bin/sqlite3 "$db" "PRAGMA journal_mode=WAL;" >/dev/null 2>&1 || true
+                  fi
+                done
+              '')
+            ];
           }
           (lib.mkIf (cfg.envFile != null) {
             EnvironmentFile = cfg.envFile;

@@ -30,6 +30,12 @@ Zentrale Sammelstelle für neue Feature-Ideen, laufende Entwicklungsaufgaben und
   - Prometheus Node-Exporter & Caddy-Metrics-Scraping im 58-observability-Modul.
 - [ ] **Automated Flake Lock Auto-Update:**
   - GitHub Actions Workflow für wöchentliche Dependabot/Flake-Input-Updates mit automatisiertem `nix flake check`.
+- [ ] **`rebuild-guard.nix` (Path-Unit Schutz bei Rebuilds):**
+  - Pausieren von systemd Path-Units (wie Transcode-Cleanup oder VPN-Verify) während eines aktiven `nixos-rebuild` (`ConditionPathExists = "!/run/nixos/rebuild-in-progress"`).
+- [ ] **`vpn-killswitch-test.sh` (Automatisierter Egress-Leak-Test):**
+  - Automatisierter Laufzeit- und Integrationstest für den nftables/cgroup-Killswitch: Verifikation von 0 Bytes Egress ins WAN bei deaktiviertem WireGuard-Interface.
+- [ ] **On-Demand Socket-Activation für Lidarr/Readarr (`on-demand-http.nix`):**
+  - Speichersparende Socket-Aktivierung via `systemd-socket-proxyd` mit Idle-Timeout (z. B. 15 Minuten) für selten genutzte Erfassungsdienste.
 
 ---
 

@@ -142,6 +142,10 @@ in
       };
       users.groups.media.gid = gid;
 
+      systemd.tmpfiles.rules = [
+        "d '${stateDir}' 0750 navidrome media -"
+      ];
+
       systemd.services.navidrome = {
         after = [ "network-online.target" ];
         requires = [ "network-online.target" ];

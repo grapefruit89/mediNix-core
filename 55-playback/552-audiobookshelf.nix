@@ -135,6 +135,11 @@ in
       };
       users.groups.media.gid = gid;
 
+      systemd.tmpfiles.rules = [
+        "d '${stateDir}' 0750 audiobookshelf media -"
+        "d '${metadataDir}' 0775 audiobookshelf media -"
+      ];
+
       systemd.services.audiobookshelf = {
         after = [ "network-online.target" ];
         requires = [ "network-online.target" ];

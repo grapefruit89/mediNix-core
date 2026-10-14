@@ -106,6 +106,7 @@ rec {
       MemoryDenyWriteExecute = false;
       PrivateDevices = true;
       UMask = lib.mkDefault "0002";
+      SystemCallErrorNumber = "EPERM";
     }
     // networkPolicy.internet;
 
@@ -116,6 +117,7 @@ rec {
     // {
       PrivateDevices = false;
       PrivateUsers = false;
+      SystemCallErrorNumber = "EPERM";
     }
     // networkPolicy.internet;
 
@@ -125,6 +127,7 @@ rec {
     // {
       MemoryDenyWriteExecute = true;
       PrivateDevices = true;
+      SystemCallErrorNumber = "EPERM";
     }
     // networkPolicy.internet;
 
@@ -133,8 +136,11 @@ rec {
     // {
       MemoryDenyWriteExecute = false;
       PrivateDevices = true;
+      SystemCallErrorNumber = "EPERM";
     }
     // networkPolicy.internet;
+
+  node = nodejs;
 
   network =
     base

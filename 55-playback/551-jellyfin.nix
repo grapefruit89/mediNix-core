@@ -165,6 +165,7 @@ in
       users.groups.media.gid = gid;
 
       systemd.tmpfiles.rules = [
+        "d '${stateDir}' 0750 jellyfin media -"
         "d '${metadataDir}' 0775 jellyfin media -"
         "d '${jellyfinMetadataDir}' 0775 jellyfin media -"
       ];
@@ -182,6 +183,12 @@ in
         wantedBy = [ "multi-user.target" ];
         onFailure = [ "alert-ntfy@%n.service" ];
         preStart = ''
+          # First-boot guard: Jellyfin must initialize its SQLite schema (ActivityLog etc.)
+          # unseeded. Pre-seeding system.xml triggers migration against a non-existent DB (L7/RUNBOOK §1).
+          if [ ! -f '${stateDir}/data/jellyfin.db' ]; then
+            exit 0
+          fi
+
           ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/config'
           if [ ! -f '${stateDir}/config/system.xml' ]; then
             ${pkgs.coreutils}/bin/cp '${systemXmlSeed}' '${stateDir}/config/system.xml'
