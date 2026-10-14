@@ -3,6 +3,11 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-14 — MIT-Lizenz & Open-Source-Dokumentation
+
+- **LICENSE:** Standard-MIT-Lizenzdatei für Moritz Baumeister (2026) im Repository-Root hinterlegt.
+- **README.md:** Lizenzabschnitt aktualisiert und als persönliches Homelab-Setup für jedermann frei nutzbar dokumentiert.
+
 ## 2026-10-02 — Red-Team-Runde 3: 51-ingress-Dissektion (RT-1 bis RT-9)
 
 Tiefe feindliche Analyse der Ingress-Domäne gegen das eigene Bedrohungsmodell

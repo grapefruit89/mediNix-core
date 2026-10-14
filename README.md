@@ -107,4 +107,7 @@ Host decisions after import: [`ADMIN-HANDOFF.md`](ADMIN-HANDOFF.md).
 
 ## License
 
-MIT, see `LICENSE` if present.
+Dieses Projekt steht unter der [MIT-Lizenz](LICENSE) (Copyright (c) 2026 Moritz Baumeister).
+
+Es handelt sich um ein persönliches Homelab- und Server-Architektur-Setup, das für jedermann frei nutzbar, modifizierbar und weiterverteilbar ist (als Referenz und Vorlage für eigene gehärtete NixOS-Systeme, ohne Anspruch auf kommerziellen Support oder Gewährleistung).
+
