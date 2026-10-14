@@ -162,9 +162,9 @@ lib.mkIf cfg.maintenance.provisioning.enable {
           ) mediaManagers)
           (lib.optional hasIndexer (cred "prowlarr-apikey" cfg.secrets.prowlarrApiKeyFile))
           (lib.optional hasIndexer (cred "treasuremaps-apikey" cfg.secrets.treasureMapsApiKeyFile))
-          (lib.optional (
-            hasDownloader && (cfg.secrets.sabnzbdApiKeyFile or null) != null
-          ) (cred "sabnzbd-apikey" cfg.secrets.sabnzbdApiKeyFile))
+          (lib.optional (hasDownloader && (cfg.secrets.sabnzbdApiKeyFile or null) != null) (
+            cred "sabnzbd-apikey" cfg.secrets.sabnzbdApiKeyFile
+          ))
           (lib.optional (manifest.seerr.enable or false) (cred "seerr-apikey" cfg.secrets.seerrApiKeyFile))
         ];
         ExecStart = pkgs.writeShellScript "run-arr-provision" ''

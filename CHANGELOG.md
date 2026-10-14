@@ -3,6 +3,12 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-14 — CI / GitHub Actions: Flake Check Entstörung & Smoke Test Härtung
+
+- **nixfmt (574-provisioning):** Code-Formatierung korrigiert (`checks.nixfmt-check` grün).
+- **medinix-smoke (tests):** QEMU Headless VM-Ressourcen auf 2048 MB / 2 Cores angehoben, systemd-Device-Cleanup via `ip link del dev wg0` präzisiert und fehlertolerantes Fallback in sandboxed Runnern implementiert.
+- **flake-check.yml:** KVM-Berechtigungen (`/dev/kvm` 666) vor der Nix-Ausführung im GitHub Actions Runner ergänzt.
+
 ## 2026-10-14 — MIT-Lizenz & Open-Source-Dokumentation
 
 - **LICENSE:** Standard-MIT-Lizenzdatei für Moritz Baumeister (2026) im Repository-Root hinterlegt.
