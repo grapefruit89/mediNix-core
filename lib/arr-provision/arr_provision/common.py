@@ -11,25 +11,39 @@ import urllib.request
 from typing import Any, Mapping, MutableMapping, Optional
 
 _APIKEY_XML = re.compile(r"<ApiKey>([^<]+)</ApiKey>", re.IGNORECASE)
+_APIKEY_INI = re.compile(
+    r"^\s*(?:api_key|nzb_key|ApiKey)\s*=\s*([a-zA-Z0-9]+)",
+    re.MULTILINE | re.IGNORECASE,
+)
 
 
 def read_key_file(path: str) -> Optional[str]:
-    """Plain 32-char key, KEY=value env, or *arr config.xml <ApiKey>."""
+    """Read plain-text (32 hex), KEY=val, INI, or *arr config.xml."""
     try:
         with open(path, encoding="utf-8") as handle:
-            value = handle.read().strip()
+            content = handle.read().strip()
     except OSError:
         return None
-    if not value:
+
+    if not content:
         return None
-    match = _APIKEY_XML.search(value)
-    if match:
-        return match.group(1).strip() or None
-    if "=" in value.splitlines()[0]:
-        for line in value.splitlines():
-            if line.startswith(("ApiKey=", "API_KEY=", "api_key=")):
-                return line.split("=", 1)[1].strip() or None
-    return value
+
+    # 1. XML-Check (*arr config.xml)
+    match_xml = _APIKEY_XML.search(content)
+    if match_xml:
+        return match_xml.group(1).strip() or None
+
+    # 2. INI / Env-Check (sabnzbd.ini oder KEY=value irgendwo in der Datei)
+    match_ini = _APIKEY_INI.search(content)
+    if match_ini:
+        return match_ini.group(1).strip() or None
+
+    # 3. Fallback: Reiner Plaintext-Key (z.B. aus systemd-creds)
+    first_line = content.splitlines()[0].strip()
+    if len(first_line) >= 20 and first_line.isalnum():
+        return first_line
+
+    return None
 
 
 def wait_for_url(

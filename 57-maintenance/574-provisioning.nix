@@ -162,7 +162,9 @@ lib.mkIf cfg.maintenance.provisioning.enable {
           ) mediaManagers)
           (lib.optional hasIndexer (cred "prowlarr-apikey" cfg.secrets.prowlarrApiKeyFile))
           (lib.optional hasIndexer (cred "treasuremaps-apikey" cfg.secrets.treasureMapsApiKeyFile))
-          (lib.optional hasDownloader (cred "sabnzbd-apikey" cfg.secrets.sabnzbdApiKeyFile))
+          (lib.optional (
+            hasDownloader && (cfg.secrets.sabnzbdApiKeyFile or null) != null
+          ) (cred "sabnzbd-apikey" cfg.secrets.sabnzbdApiKeyFile))
           (lib.optional (manifest.seerr.enable or false) (cred "seerr-apikey" cfg.secrets.seerrApiKeyFile))
         ];
         ExecStart = pkgs.writeShellScript "run-arr-provision" ''
@@ -198,8 +200,16 @@ lib.mkIf cfg.maintenance.provisioning.enable {
       SONARR_KEY_FILE = credPath "sonarr-apikey";
       RADARR_KEY_FILE = credPath "radarr-apikey";
       PROWLARR_KEY_FILE = credPath "prowlarr-apikey";
-      SABNZBD_KEY_FILE = credPath "sabnzbd-apikey";
-      SAB_KEY_FILE = credPath "sabnzbd-apikey";
+      SABNZBD_KEY_FILE =
+        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
+          credPath "sabnzbd-apikey"
+        else
+          "/var/lib/sabnzbd-5410/sabnzbd.ini";
+      SAB_KEY_FILE =
+        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
+          credPath "sabnzbd-apikey"
+        else
+          "/var/lib/sabnzbd-5410/sabnzbd.ini";
       TARGETS_JSON = builtins.toJSON downloadClientTargets;
       TARGET_LANG = cfg.locale.language;
       TARGET_LOCALE = cfg.locale.default;

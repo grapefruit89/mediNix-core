@@ -9,6 +9,8 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from arr_provision.common import read_key_file
+
 
 def sync_jellyfin_locale(lang: str, country: str, ui_culture: str) -> None:
     path = Path("/var/lib/jellyfin/config/system.xml")
@@ -55,21 +57,22 @@ def sync_sabnzbd_locale(lang: str, categories_ini: str, sab_key_file: str) -> No
         content = f"language = {lang}\n{content}"
         changed = True
 
-    key_path = Path(sab_key_file)
-    if key_path.exists():
-        sab_key = key_path.read_text(encoding="utf-8").strip()
-        for key_name in ("api_key", "nzb_key"):
-            pattern = rf"^{re.escape(key_name)}.*$"
-            replacement = f"{key_name} = {sab_key}"
-            if re.search(pattern, content, flags=re.MULTILINE):
-                updated = re.sub(pattern, replacement, content, count=1, flags=re.MULTILINE)
-                if updated != content:
-                    content = updated
+    key_path = Path(sab_key_file) if sab_key_file else None
+    if key_path and key_path.exists() and key_path.resolve() != sab_ini.resolve():
+        sab_key = read_key_file(sab_key_file)
+        if sab_key:
+            for key_name in ("api_key", "nzb_key"):
+                pattern = rf"^{re.escape(key_name)}.*$"
+                replacement = f"{key_name} = {sab_key}"
+                if re.search(pattern, content, flags=re.MULTILINE):
+                    updated = re.sub(pattern, replacement, content, count=1, flags=re.MULTILINE)
+                    if updated != content:
+                        content = updated
+                        changed = True
+                else:
+                    content = f"{key_name} = {sab_key}\n{content}"
                     changed = True
-            else:
-                content = f"{key_name} = {sab_key}\n{content}"
-                changed = True
-        print("SABnzbd: API keys updated")
+            print("SABnzbd: API keys updated")
 
     if "[categories]" not in content:
         content = content.rstrip() + "\n\n" + categories_ini + "\n"
