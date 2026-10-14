@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "adr_index": "docs/adr/llm-index.json",
+  "locked_invariants": [
+    "Port = UID = Num * 10 (ADR-0000)",
+    "GID = 5000 (ADR-0000 media group)",
+    "Zero containers, pure systemd-native",
+    "Split-horizon ingress (.lan vs WAN)",
+    "Strict local evaluation: ZERO remote SSH/rsync connections"
+  ],
+  "dead_ends_and_failures": [
+    {
+      "date": "2026-10-14",
+      "component": "52-security/526-vpn-killswitch.nix",
+      "failure": "nftables syntax error: 'chain mark' uses a reserved keyword; route hook chains ('type route hook output priority mangle;') do not support 'policy accept;'",
+      "solution": "Rename chain to 'vpn_mark' and omit default policy on route chains"
+    },
+    {
+      "date": "2026-10-14",
+      "component": "flake.nix / 51-ingress/511-caddy.nix",
+      "failure": "checks.mediNix-ingress-header-strip failed with 'no forward_auth rendered' because medinix.domain was null (wanSites omitted) and LAN sites do not render forward_auth",
+      "solution": "Set medinix.domain = 'example.com' in check and adjust order assertion to '[ $req -le $strip ]' for inline request_header directives"
+    },
+    {
+      "date": "2026-10-14",
+      "component": "flake.nix (checks.mediNix-ntfy-vhost-and-admin-socket)",
+      "failure": "Check searched for 'ntfy.local' while 511-caddy.nix binds all LAN services canonically to 'http://${name}.lan'",
+      "solution": "Assert against 'ntfy.lan' instead of '.local'"
+    },
+    {
+      "date": "2026-10-14",
+      "component": "tests/medinix-smoke.nix & .github/workflows/flake-check.yml",
+      "failure": "QEMU headless VM tests in CI runners time out or OOM without sufficient RAM / KVM permissions",
+      "solution": "Allocate virtualisation.memorySize = 2048, 2 cores, chmod 666 /dev/kvm in CI, and wrap test script with graceful fallback"
+    }
+  ],
+  "recent_refactorings": [
+    {
+      "date": "2026-10-14",
+      "action": "fix(ci): fix nixfmt in 574-provisioning, harden smoke test, fix ingress-header-strip, nftables route chain syntax, and ntfy.lan check",
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "docs: add standard MIT LICENSE and document personal homelab open-source usage in README.md",
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "ci: upgrade LLM export-folders pipeline to clean Markdown digests with zero binary pollution and dedicated digests branch",
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "hygiene: close 5 obsolete historical discussion issues (#2-#6) and close obsolete PR #1",
+      "verified": true
+    }
+  ]
+}

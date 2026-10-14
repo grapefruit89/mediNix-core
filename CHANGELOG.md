@@ -3,6 +3,13 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-14 — Agentic Workflow: Status-Registry, Roadmap & Upstream-Quellen
+
+- **.agent-state.json:** Maschinenlesbare Status- und Fehler-Registry mit Invarianten, Verweis auf `docs/adr/llm-index.json` und bekannter Fehlerhistorie.
+- **ROADMAP.md:** Strukturierte Roadmap mit Kategorien `[In Progress]`, `[Backlog / Ideen]` und `[Done]`.
+- **UPSTREAM-SOURCES.md:** Zentrale Referenztabelle für externe Repositories, Quellcodes und Architektur-Muster.
+- **AGENTS.md & CLAUDE.md:** Eiserne Arbeitsregeln für Agenten verankert (ADR-0000 Zwang, Pre-Check in `.agent-state.json`, Post-Record und Backlog-Disziplin).
+
 ## 2026-10-14 — CI / GitHub Actions: Flake Check Entstörung & Smoke Test Härtung
 
 - **nixfmt (574-provisioning):** Code-Formatierung korrigiert (`checks.nixfmt-check` grün).
