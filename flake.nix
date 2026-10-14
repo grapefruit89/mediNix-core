@@ -430,7 +430,7 @@
               ];
             }
             ''
-              grep -q 'ntfy.local' ${caddyfile} || {
+              grep -q 'ntfy.lan' ${caddyfile} || {
                 echo "FAIL: ntfy vhost (observability enable path) not rendered"; exit 1;
               }
               grep -q 'admin unix//run/caddy-media/admin.sock' ${caddyfile} || {

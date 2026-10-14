@@ -10,6 +10,7 @@ Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 - **flake-check.yml:** KVM-Berechtigungen (`/dev/kvm` 666) vor der Nix-Ausführung im GitHub Actions Runner ergänzt.
 - **checks.mediNix-ingress-header-strip (flake.nix):** `medinix.domain` ergänzt (rendert WAN-vHosts mit `forward_auth`) und Zeilenvergleichs-Assertion auf `<= strip` angepasst (Inline-Präfix).
 - **nftables (526-vpn-killswitch):** Reserviertes Schlüsselwort `chain mark` durch `chain vpn_mark` ersetzt und ungültige `policy accept;`-Direktive auf `type route`-Chains entfernt.
+- **checks.mediNix-ntfy-vhost-and-admin-socket (flake.nix):** Hostname-Prüfung von `ntfy.local` auf `ntfy.lan` korrigiert (Spiegelung der kanonischen `lanSites`-Generierung).
 
 ## 2026-10-14 — MIT-Lizenz & Open-Source-Dokumentation
 
