@@ -2,3 +2,8 @@
 *.nix text eol=lf
 *.sh text eol=lf
 *.md text eol=lf
+
+# Generated digests (suppress diffs and keep repository language stats accurate)
+*.txt linguist-generated=true
+*.txt -diff
+

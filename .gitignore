@@ -39,3 +39,6 @@ Unraid Settings export/
 .directory
 Textdatei.txt
 *.bak
+
+# LLM Ingestion folder digests (generated in CI, kept out of main)
+/exports/
