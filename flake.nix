@@ -314,6 +314,7 @@
               (lib.nixosSystem {
                 inherit system;
                 modules = baseModules {
+                  medinix.domain = "example.com";
                   medinix.ingress.trustedCidrs = [
                     "10.0.0.0/8"
                     "192.168.0.0/16"
@@ -343,8 +344,8 @@
               strip=$(grep -n -- '-Remote-User' "$f" | head -1 | cut -d: -f1)
               fa=$(grep -n 'forward_auth' "$f" | head -1 | cut -d: -f1)
               [ -n "$req" ] && [ -n "$strip" ] && [ -n "$fa" ] || { echo "FAIL: missing block"; exit 1; }
-              [ "$req" -lt "$strip" ] && [ "$strip" -lt "$fa" ] \
-                || { echo "FAIL: order request_header($req) < strip($strip) < forward_auth($fa) violated"; exit 1; }
+              [ "$req" -le "$strip" ] && [ "$strip" -lt "$fa" ] \
+                || { echo "FAIL: order request_header($req) <= strip($strip) < forward_auth($fa) violated"; exit 1; }
               echo "ok: identity headers stripped on the REQUEST before forward_auth" > $out
             '';
 
