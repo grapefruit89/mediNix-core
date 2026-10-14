@@ -128,8 +128,8 @@ in
     networking.nftables.tables.medinix_vpn_mark = {
       family = "inet";
       content = ''
-        chain mark {
-          type route hook output priority mangle; policy accept;
+        chain vpn_mark {
+          type route hook output priority mangle;
           ${lib.concatMapStringsSep "
 " (name: ''
             meta skuid ${toString activeInstances.${name}.uid} jump mark_${name}
