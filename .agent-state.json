@@ -3,7 +3,7 @@
   "adr_index": "docs/adr/llm-index.json",
   "locked_invariants": [
     "Port = UID = Num * 10 (ADR-0000)",
-    "GID = 5000 (ADR-0000 media group)",
+    "Primary GID = UID = Num * 10 (UPG), Supplementary GID = 5000 (Tier C media group) (ADR-0000)",
     "Zero containers, pure systemd-native",
     "Split-horizon ingress (.lan vs WAN)",
     "Strict local evaluation: ZERO remote SSH/rsync connections"
@@ -76,6 +76,17 @@
         "Purged binary/build artifacts: removed 50-core/second-brain.sqlite, 50-core/mcp_server.log, result symlink, redundant Micro Snowflake SVGs and __pycache__; hardened .gitignore (*.sqlite, *.log, result*)",
         "Secured Unraid settings export: backed up externally to /home/moritz/Backups/mediNix-unraid-settings-export-2026-10-14/ and eliminated from repo",
         "Document archive consolidation: quarantined orphaned pattern/guide dumps (Awesome HA, PMS wiki, empty stubs) to docs/archive/ and refreshed docs/INDEX.md"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "docs(adr): harden ADR-0000 (two-level tree, UPG permissions, precise port theorem, decouple appendix)",
+      "details": [
+        "Struck Level-3 graduation: formalized decimal framework as a strict two-level tree (2-digit container slots, 3-digit service leaves, 4-digit derived runtime quantities)",
+        "Anchored User Private Groups (UPG): primary GID = UID = ID * 10 for private StateDirectories (/var/lib), isolating services from lateral movement; shared GID 5000 assigned strictly via SupplementaryGroups",
+        "Precised port theorem: clarified that Port = ID * 10 governs internal HTTP loopback/upstream ports (127.0.0.1:Hxx0), while ingress ports (80/443) and RFC mDNS (5353) are physical host interfaces",
+        "Decoupled framework appendix: extracted sections A1-B5 into docs/arch/ARCH-0000-framework-appendix.md, corrected property-based testing domain (S_valid), pruned obsolete TODOs, and updated docs/INDEX.md"
       ],
       "verified": true
     }

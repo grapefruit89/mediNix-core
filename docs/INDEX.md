@@ -71,6 +71,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 
 ### Architecture Blueprints
 
+- [Decimal Framework — Framework Appendix (arc42, ISO 25010, STRIDE, Quality Gates)](arch/ARCH-0000-framework-appendix.md)
 - [ARCH 5000 3 stage boot pipeline](arch/ARCH-50-3-stage-boot-pipeline.md)
 - [ARCH 5000 architecture blueprint](arch/ARCH-50-architecture-blueprint.md)
 - [ARCH 5000 architecture principles](arch/ARCH-50-architecture-principles.md)
