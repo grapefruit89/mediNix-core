@@ -4,6 +4,7 @@
   "locked_invariants": [
     "Port = UID = Num * 10 (ADR-0000)",
     "Primary GID = UID = Num * 10 (UPG), Supplementary GID = 5000 (Tier C media group) (ADR-0000)",
+    "Universal 10-slot taxonomy (_0.._9) and UPG isolation (UID = PrimaryGID = Port = ID*10, UMask 0027, media 5000 strictly as extraGroups)",
     "Zero containers, pure systemd-native",
     "Split-horizon ingress (.lan vs WAN)",
     "Strict local evaluation: ZERO remote SSH/rsync connections"
@@ -87,6 +88,17 @@
         "Anchored User Private Groups (UPG): primary GID = UID = ID * 10 for private StateDirectories (/var/lib), isolating services from lateral movement; shared GID 5000 assigned strictly via SupplementaryGroups",
         "Precised port theorem: clarified that Port = ID * 10 governs internal HTTP loopback/upstream ports (127.0.0.1:Hxx0), while ingress ports (80/443) and RFC mDNS (5353) are physical host interfaces",
         "Decoupled framework appendix: extracted sections A1-B5 into docs/arch/ARCH-0000-framework-appendix.md, corrected property-based testing domain (S_valid), pruned obsolete TODOs, and updated docs/INDEX.md"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "feat(decimal): establish universal 10-slot taxonomy in ADR-0000, enforce UPG in engine, and migrate Gatus to 582",
+      "details": [
+        "ADR-0000: Formalized universal 10-slot functional taxonomy (_0 to _9), eliminating 'free middle' drift and establishing uniform semantics across mediNix and devNIX",
+        "lib/decimal-framework.nix: Consolidated SSOT derivation, hard invariants I1-I4, UPG users/groups injection, and systemd hardening defaults into All-in-One file",
+        "50-core/501-decimal-engine.nix: Lightweight module importer delegating to lib/decimal-framework.nix",
+        "Gatus migration: Moved Gatus from 580 to canonical slot 582 (582-gatus.nix, Port/UID 5820) to satisfy Invariant I2 (no daemons on HD0 block slots)"
       ],
       "verified": true
     }

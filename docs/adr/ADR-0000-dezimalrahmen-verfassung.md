@@ -4,11 +4,12 @@ title: "Decimal Framework — the Constitution of the Numbering Scheme"
 domain: 00
 status: active
 complexity: 2
-last_reviewed: 2026-09-23
+last_reviewed: 2026-10-14
 tags:
   - constitution
   - decimal-framework
   - numbering
+  - upg
 links:
   adr: ADR-5043
 ---
@@ -16,7 +17,7 @@ links:
 > # ⚠ CONSTITUTION — this document must not be lost
 > **It governs the numbering scheme of every project in this cosmos** — Nix-Grok,
 > mediNix, devNIX and everything to come. The **rules** are enforced at build time
-> by `decimalFrameworkCheck` in the flake; this document carries the rationale.
+> by `decimalFrameworkCheck` and `lib/decimal-framework.nix`; this document carries the rationale.
 > Text changes are corrections, not loss — every version remains retrievable in the
 > Git history and in `CHANGELOG.md`.
 >
@@ -31,27 +32,16 @@ root down to a single module folder. It is the only decision that applies
 grammar of *all*. Whoever knows it finds their way in any repo without having read
 it. **One language, everywhere.**
 
-> **Terminology note.** In this document "anchor" means the four **slot anchors**
-> (`_0/_1/_2/_9`). To be distinguished from these are **semantic anchors** —
-> established methodology terms (SSOT, Design by Contract, MECE …) that ADRs and
-> agents use to communicate precisely (Section 11).
-
 ---
 
-## 1. Fractal and isomorphic
-
-Recurring themes appear in **every** project — media, documents, network, agents.
-Each needs a foundation, an access point, security and rules. Exactly these themes
-get **fixed slots** that mean the same everywhere.
-
-The leading digit is the **namespace**, the last digit the **role**:
+## 1. Two-Level Tree & Meaningful Isomorphism
 
 The decimal framework organizes all system modules in a strict, fixed **two-level tree**:
 
 ```
 Level 1 (Container)   2-digit   00 · 10 · 20 · … · 90    Structure, domains & decades
-Level 2 (Leaf)        3-digit   511 · 512 · … · 599      Concrete service modules
-Derived (Runtime)     4-digit   5110 · 5120 · … · 5990   Port / UID / UPG-GID (NO folder level!)
+Level 2 (Leaf)        3-digit   511 · 512 · … · 589      Concrete service modules
+Derived (Runtime)     4-digit   5110 · 5120 · … · 5890   Port / UID / UPG-GID (NO folder level!)
 ```
 
 Four-digit numbers are **never** architectural levels, folder tiers, or sub-modules;
@@ -63,288 +53,165 @@ Level-3 folder graduation does not exist; the module layout remains strictly fla
 The decimal structure maintains a sharp boundary between structure and runtime services:
 
 - A **container slot** (2-digit, `D0` or `HD`) holds structural grouping (decades,
-  domains, directories). On container slots the **four anchors** apply (Section 2).
+  domains, directories). On container slots the **universal 10-slot taxonomy** applies (Section 2 & 3).
 - A **leaf slot** (3-digit, `HDS`) holds concrete service daemons and modules. On
   leaf slots there are only two roles:
   - **`HD0` = block ID** (the foundation/options of the decade, never a program or daemon).
-  - **`HD1`–`HD9` = services** (deployable systemd units).
+  - **`HD1`–`HD9` = services / tasks** (deployable systemd units or build-time policies).
 
-So `532` reads as: `5` (namespace: project mediNix) · `3` (container: acquisition
-decade) · `2` (leaf: second service, Sonarr). The anchors repeat on container slots,
-never on leaf slots. The scheme stays simple, deterministic, and flat without any
-deeply nested folder graduation.
+So `532` reads as: `5` (namespace: project mediNix) · `3` (decade: Ingestion / Acquisition) · `2` (leaf: second service, Sonarr).
 
 ---
 
-## 2. The four anchors — the same everywhere
+## 2. The Structural Boundary Slots (`_0`, `_1`, `_2`, `_9`)
 
-| Slot | Role | Question | Content |
+Four boundary slots frame every project and system root identically:
+
+| Slot | Role | Question | Content & Daemon Invariant |
 |---|---|---|---|
-| **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `docs/`, `registry` — **knowledge and structure, no services** |
-| **`_1`** | **Access** | How do you get in? | reverse proxy, mDNS, routing, auth entry |
-| **`_2`** | **Security** | How is it protected? | firewall, TLS, VPN confinement, auth mechanics |
-| **`_9`** | **Guardrails** | What must everything comply with? | assertions, prohibitions, global invariants |
+| **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `lib/decimal-framework.nix`, `registry` — **strictly structure & engine, NEVER daemons** |
+| **`_1`** | **Access** | How do you get in? | Reverse proxy (Caddy), DNS, ACME, IdP (Pocket-ID), mDNS, edge defenses |
+| **`_2`** | **Security** | How is it protected? | Host firewall (`nftables`), VPN killswitch, `systemd-creds` |
+| **`_9`** | **Guardrails** | What must everything comply with? | Compile-time assertions (`config.assertions`), global invariants — **NEVER daemons** |
 
-**`_1`/`_2` boundary (clarification):** `_1` governs **the whole access path** —
-the door *and* who gets through: proxy, IdP, DNS, ACME, mDNS **plus the edge
-defenses** (Geo-IP, CrowdSec, rate-limiting). `_2` protects **the system itself** —
-secrets, VPN, host firewall, kernel hardening. Mnemonic: *`_1` = the door + who
-gets through · `_2` = protect the house.* The "firewall" in `_2` is the **host**
-firewall; the edge defenses belong to `_1`, so the access chain stays readable in
-one place (KISS).
-
-Whoever sees `_2` knows security — in the system root (`20`), in mediNix (`520`),
-everywhere. A project **populates only the anchors it has**; an empty anchor is
-reserved, not an error.
-
-**Precision on `_0`:** Earlier versions said "knowledge, not code". That was
-imprecise — the aggregating `default.nix` with the option declarations *is* code.
-The sharp rule is: **`_0` holds knowledge and structure, never services.** No
-program, no daemon, no systemd unit arises from `_0`. Options API, registry, docs:
-yes. `services.*`: no.
+**`_1`/`_2` boundary:** `_1` governs **the entire ingress and access path** — proxy, IdP, DNS, ACME, mDNS, and edge defenses. `_2` protects **the host and egress boundary** — sealed credentials, VPN confinement, host firewall, kernel hardening.
 
 ---
 
-## 3. The free middle — `_3` to `_8`
+## 3. Universal Functional 10-Slot Taxonomy (`_0` to `_9`)
 
-Six slots belong to the domain itself, in logical order. Here there is **no**
-cross-project meaning: `_5` means "media" in the system root, "playback" in mediNix,
-something else elsewhere. This is the place for what makes a project unique.
-Unoccupied middle slots are reserve — they are not filled to avoid gaps; the gap
-*is* the information "there is room here".
+There is **no arbitrary "free middle"**. Across every project in the cosmos (`mediNix`, `devNIX`, `40-documents`), all ten decades (`_0` through `_9`) follow a strict, universal functional pipeline from input to observability and guardrails:
+
+| Slot | Canonical Role | Universal Function | Example: `mediNix` (`5x`) | Example: `devNIX` (`8x`) | Daemons Allowed? |
+|---|---|---|---|---|---|
+| **`_0`** | **Foundation** | Structure, Engine, Registry, Docs | `50-core` (Baseline, Engine) | `80-core` (Agent Constitution) | **NO** (`decade != 0`) |
+| **`_1`** | **Access** | Ingress, Reverse-Proxy, DNS, IdP, mDNS | `51-ingress` (Caddy, Pocket-ID) | `81-ingress` (Gateway, Auth) | YES (`H11`–`H19`) |
+| **`_2`** | **Security** | Host-Firewall, nftables, VPN-Killswitch, Creds | `52-security` (Creds, Killswitch) | `82-security` (Sandboxes, Keys) | YES (`H21`–`H29`) |
+| **`_3`** | **Ingestion** | Input, Sources, Indexers, Scanners, Acquisition | `53-acquisition` (Sonarr, Radarr, Prowlarr) | `83-ingestion` (Repo Harvesters, RAG) | YES (`H31`–`H39`) |
+| **`_4`** | **Processing** | Transformation, Download Processing, Mover, Build | `54-transfer` (SABnzbd, Storage Mover) | `84-processing` (AST Parsers, Pipelines) | YES (`H41`–`H49`) |
+| **`_5`** | **Core UI / App** | **Primary Purpose of the Flake** | `55-playback` (Jellyfin, ABS, Navidrome) | `85-workspace` (OpenCode, Editor, UI) | YES (`H51`–`H59`) |
+| **`_6`** | **Exposition** | Request Catalogs, API Gateways, External Delivery | `56-anfragen` (Seerr `561`) | `86-exposition` (MCP Servers, Webhooks) | YES (`H61`–`H69`) |
+| **`_7`** | **Maintenance** | Backup (Restic), SQLite-WAL, GC, Storage-Tiering | `57-maintenance` (Restic, Provisioning, WAL) | `87-maintenance` (State GC, Index Sync) | YES (`H71`–`H79`) |
+| **`_8`** | **Observability** | Monitoring, Push-Alerts, Telemetry, Health | `58-observability` (Ntfy `581`, Gatus `582`) | `88-observability` (Telemetry, Token Logs) | YES (`H81`–`H89`) |
+| **`_9`** | **Guardrails** | Compile-Time Assertions, Global Invariants | `59-guardrails` (`591-cross-domain.nix`) | `89-guardrails` (Schema & AST Gates) | **NO** (`decade != 9`) |
+
+Unoccupied slots remain empty reserves; they are never repurposed for unrelated functions.
 
 ---
 
-## 4. Derivations — what follows from the number
+## 4. Derivations & User Private Groups (UPG)
 
-The number is the only truth. Everything else is derived from it, and **all
-quantities carry the project digit in front** — you read a number and immediately
-know the project.
+**The sole source of derivation is the three-digit service number** (`HDS`: project · decade · service, where $H \in [1..9]$, $D \in [1..8]$, $S \in [1..9]$).
 
-**The sole source of derivation is the three-digit service number** (project ·
-decade · service). Two-digit container slots and arbitrary four-digit numbers derive
-**nothing** — they number structure, not services.
-
-| Quantity | Rule | `sonarr` (532) | Band | Purpose & Isolation Boundary |
+| Quantity | Formula | Example: `sonarr` (`532`) | Band | Purpose & Isolation Boundary |
 |---|---|---|---|---|
-| **Port** | number × 10 | `5320` | `Hxx0` | Internal HTTP loopback / upstream binding |
-| **UID** | number × 10 | `5320` | `Hxx0` | Dedicated process execution user |
-| **Primary GID (UPG)** | number × 10 | `5320` | `Hxx0` | User Private Group for private `/var/lib/<service>` |
-| **Supplementary GID (Shared)** | project × 1000 | `5000` | `H000` | Shared storage group for Tier C media paths (`/data/media`) |
+| **Port** | $\text{num} \times 10$ | `5320` | `Hxx0` | Internal HTTP loopback / upstream binding |
+| **UID** | $\text{num} \times 10$ | `5320` | `Hxx0` | Dedicated process execution user |
+| **Primary GID (UPG)** | $\text{num} \times 10$ | `5320` | `Hxx0` | User Private Group for `/var/lib/<name>` (`UMask 0027`) |
+| **Shared GID** | $\lfloor\text{num} / 100\rfloor \times 1000$ | `5000` | `H000` | Shared storage group (`SupplementaryGroups` only!) |
+| **State Directory** | `"/var/lib/${name}"` | `/var/lib/sonarr` | — | Clean canonical state path without port suffixes |
+| **Decade Role** | $\lfloor\text{num} / 10\rfloor \bmod 10$ | `3` (Ingestion) | `0..9` | Programmatic role classification |
 
-### User Private Groups (UPG) & State Directory Protection
+### UPG Security Contract
+- **Primary Group = UID = `num × 10`:** Every daemon runs under its own User Private Group (`users.groups.${name}.gid = spec.primaryGid`) with `UMask = "0027"` and `StateDirectory = name`. No service can read another service's `/var/lib/<name>` directory.
+- **Shared Group `H000` (`5000 media`) as Supplementary Group:** Assigned exclusively via `extraGroups = [ "media" ]` to services that require Tier C media access (`needsSharedGroup` / `needsMediaGroup`). Edge ingress (`511-caddy`) and identity (`512-pocket-id`) never receive GID `5000`.
 
-Earlier naive designs assigned the shared group `5000` (`media`) as the primary group
-to all daemons. That broke the Principle of Least Privilege: an exposed edge service
-(such as Caddy or Pocket-ID) could laterally read private SQLite databases or session
-tokens of other services in `/var/lib/<service>` whenever permissions were group-readable.
-
-The decimal framework resolves this by establishing **User Private Groups (UPG)**:
-- **Primary Group = UID = `number × 10`:** Every daemon runs with its own private primary
-  group (`GID = UID`). Systemd sets private `StateDirectory` paths (`/var/lib/<service>`)
-  to mode `0750 <uid>:<uid>` or `0700`. No peer daemon can inspect private state.
-- **Shared Group `H000` via `SupplementaryGroups`:** The shared media group (e.g., `5000`
-  for mediNix) is **never** a service's primary group. It is assigned strictly as a
-  supplementary group (`SupplementaryGroups = [ "media" ]`) to genuine media consumers
-  and acquisition services (`53x`, `54x`, `55x`) that operate on Tier C storage (`/data/media`).
-  Edge ingress, authentication, and core daemons never receive GID 5000.
-
-This eliminates both lateral state leaks and the historic Docker `PUID/PGID` permission
-failures (`Permission denied`).
-
-**Transformations per target space:**
-
-- **Port** (`× 10`): internal loopback HTTP port, landing in its project thousand-band,
-  never privileged (proof: Section 5.2).
-- **UID** (`× 10`): **UID, primary GID, and internal port are identical.** This provides
-  maximum isomorphism and debuggability (service number `532` → UID `5320`, UPG GID `5320`,
-  port `5320`). The band `H110`–`H990` lies safely between system IDs (<1000) and
-  systemd DynamicUsers (61184+).
-- **Supplementary GID** (`× 1000`): static shared media group (`5000`), above static NixOS
-  system GIDs (<1000).
-
-Isomorphism does **not** mean "all numbers equal", but: *everything derived from the one
-number, each quantity transformed appropriately, all with the same leading digit.*
-That is **meaningful isomorphism** (ADR-5042).
-
-### Invariants (enforced, not merely described)
-
-Two rules are **hard**. They stand here not as convention, but are checked at build
-time by `decimalFrameworkCheck` (`flake.nix`):
-
-- **I1 — services are always three-digit** (project · decade · service). Two-digit
-  numbers represent containers/structure and derive **nothing**. Without I1 the upper
-  bound proof in 5.2 would break, because larger numbers could produce ports exceeding
-  the safe boundary.
-- **I2 — the project digit is exclusively the first digit** (mediNix = `5`,
-  devNIX = `8`). The folder name `50-media` carries project digit `5` + block `0`;
-  for the shared GID only the project digit counts → `5000`, not `50000`.
+### Hard Engine Invariants (`lib/decimal-framework.nix`)
+1. **I1 (Three-Digit Range):** $100 \le \text{num} \le 999$.
+2. **I2 (No Decade Zero-Slot Daemons):** $\text{num} \bmod 10 \neq 0$ (`HD0` is reserved for block IDs).
+3. **I3 (No Foundation Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 0$ (`_0` never spawns daemons).
+4. **I4 (No Guardrail Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 9$ (`_9` is build-time evaluation only).
 
 ---
 
-## 5. The structural proofs — the framework protects itself
+## 5. The Structural Proofs
 
-Two guarantees follow not from caution, but from the rules themselves.
-
-### 5.1 Shared GID and Service UIDs/UPGs never collide
-
-The shared supplementary group GID is $H000$ (e.g. `5000`). Under UPG, a service
-has $\text{UID} = \text{GID}_{\text{UPG}} = \text{number} \times 10$. Can any service
-UID or primary GID ever collide with the shared group GID $H000$?
-
-**Structurally no.** An ID of $H000$ would require service number $H00$. Per Section 2,
-`HD0` is the project or decade block ID — **never a service program or daemon**.
-Furthermore, the foundation decade `H0` (`H00`–`H09`) holds knowledge and options,
-never services. The lowest valid service number is $H11$, which derives:
+### 5.1 Shared GID (`H000`) and Service UIDs/UPGs Never Collide
+The shared project group is $H000$. By Invariants I2 and I3, neither decade `0` ($\lfloor\text{num}/10\rfloor \bmod 10 = 0$) nor leaf `0` ($\text{num} \bmod 10 = 0$) can register a daemon. Thus the minimum valid service number in project $H$ is $H11$:
 $$\text{UID}_{\min} = \text{GID}_{\text{UPG},\min} = H110 > H000$$
-The shared group ID $H000$ remains **exclusive to the shared storage group — guaranteed
-by structure, not by discipline.**
+Collision between `H000` and any service UID/primary GID is mathematically impossible.
 
-### 5.2 Port Theorem — Internal Loopback Ports are Never Privileged
-
-The derivation theorem $\text{Port} = \text{number} \times 10$ applies strictly to
-**internal loopback and upstream HTTP ports** (`127.0.0.1:Hxx0`).
-
-Standard protocol-bound host ports (such as HTTP `80` and HTTPS `443` for the Caddy
-reverse proxy, or mDNS `5353` for discovery) are **physical host network interfaces**
-and protocol standards. They are governed by RFC standards and host firewalling, not
-by the internal service derivation formula.
-
-For all derived internal service ports:
-- **Lower bound:** The smallest service number of project $H$ is $H11$ (since decade 0
-  holds no services and slot 0 is never a service). The smallest derived port is therefore:
-  $$\text{Port}_{\min} = H110$$
-  For every valid project namespace $H \ge 1$:
-  $$H110 \ge 1110 > 1023$$
-  Derived ports are structurally unprivileged without requiring `CAP_NET_BIND_SERVICE`.
-  Namespace 0 (`H = 0`) is the foundation of the system root — documentation and structure,
-  hosting zero services and zero ports.
-- **Upper bound:** The largest valid service number is `999`, yielding $\text{Port}_{\max} = 9990$.
-  This guarantees that all derived ports reside well below the default Linux ephemeral port
-  range (`net.ipv4.ip_local_port_range = 32768 60999`), preventing runtime binding collisions.
-
-### 5.3 Unix sockets — rule reserved
-
-If ever needed: `/run/{project}/{number}.sock`. Currently no service supports
-HTTP over a Unix socket (checked on mediahost: the *arrs bind TCP only). The rule stands
-ready, but is not applied.
+### 5.2 Derived Internal Ports Are Never Privileged and Never Ephemeral
+For any valid service number $\text{num} \in S_{\text{valid}} = \{100H + 10D + S \mid H \in [1..9], D \in [1..8], S \in [1..9]\}$:
+- **Lower bound:** $\text{Port}_{\min} = 111 \times 10 = 1110 > 1023$ (never privileged).
+- **Upper bound:** $\text{Port}_{\max} = 989 \times 10 = 9890 < 32768$ (never collides with the Linux ephemeral port range `32768–60999`).
 
 ---
 
-## 6. The system root already follows the framework
-
-Nix-Grok built the pattern before it was named:
+## 6. System Root Alignment
 
 ```
-00-core          _0  foundation   ✓ anchor
-10-network       _1  access       ✓ anchor
-20-security      _2  security     ✓ anchor
-30-storage       ┐
-40-observability │
-50-media  → 50-mediNix   _3–_8  domains (free)
-60-apps          │
-70-home-automation
-80-agents → devNIX ┘
-90-policy        _9  guardrails   ✓ anchor
+00-core            _0  Foundation
+10-network         _1  Access
+20-security        _2  Security
+30-storage         _3  Ingestion / Data Pools
+40-documents       _4  Processing / DMS
+50-mediNix         _5  Core Media Appliance
+60-exposition      _6  External Gateways
+70-maintenance     _7  Lifecycle & Backups
+80-devNIX          _8  Observability & Agentic Tooling
+90-policy          _9  Guardrails
 ```
-
-Four anchors, six domains. The framework is not an invention, but the order that
-already existed — merely made explicit.
 
 ---
 
-## 7. Example: a document project (`_4`)
-
-For illustration, **not** as a build order:
+## 7. Example: Document Appliance (`40-documents`, `H = 4`, Shared GID `4000`)
 
 ```
-40-documents/  → (graduates into a repo, 4xx)     GID 4000
-  400  foundation   CLAUDE.md, registry, docs     what we work with
-  410  access       reverse proxy, SSO            how you get in
-  420  security     access control                how it is protected
-  430  capture      paperless-ngx                 what goes in
-  440  storage      nextcloud, opencloud          where it lives
-  490  guardrails   assertions                    what to comply with
+40-core            _0  Foundation (options, registry)
+41-ingress         _1  Access (Caddy, SSO)
+42-security        _2  Security (nftables, creds)
+43-ingestion       _3  Mail & Scanner Consumers (431)
+44-processing      _4  OCR & Tika/Gotenberg Pipelines (441, 442)
+45-archive         _5  Paperless-ngx Core UI (451 -> Port/UID/GID 4510)
+46-exposition      _6  Public Share Links / API Gateways (461)
+47-maintenance     _7  Restic A2 Backup & SQLite-WAL (476)
+48-observability   _8  Gatus & Ntfy Health Checks (481, 482)
+49-guardrails      _9  Cross-Domain Assertions (491)
 ```
-
-Whoever knows mediNix reads this without instruction.
 
 ---
 
-## 8. Why this constitution bears the 0000
+## 8. Why This Constitution Bears the `0000`
 
-The pure number is **`0000`** — the block ID of the root. Namespace `0` is the
-foundation at every level, and `N00` is never a program, always knowledge. The
-constitution thus occupies the slot that its own rules reserve for this kind of
-content, at the top of the tree.
-
-The migration from the former `8000` (a namespace error) as well as all previous
-versions are archived in `CHANGELOG.md` (section "Doku-Sanierung: ADR-0000").
+`0000` is the root block ID of namespace `0` (Foundation), occupying the exact slot its own grammar reserves for global structural law.
 
 ---
 
-## 9. Rejected
+## 9. Exclusion Log (Rejected Alternatives)
 
-| Proposal | Reason |
+| Rejected Proposal | Architectural Reason |
 |---|---|
-| **Three anchors** (security as a domain) | security recurs in every project → fixed slot like foundation/access |
-| **Security on `_1`** | `_1` is "access" everywhere; would break isomorphism |
-| **`_9` = security instead of guardrails** | `20-security` (mechanics) and `90-policy` (assertions) are two things; `_2` mechanics, `_9` constitution |
-| **UID = 1000 + number** (`1532`) | led with `1` instead of the project digit; would break "project digit in front" |
-| **Flat GID 5000 as primary group** | destroys private state directory isolation (UPG solves this: primary GID = UID = ID*10 for /var/lib, shared GID 5000 strictly via SupplementaryGroups for Tier C) |
-| **Level-3 folder graduation (4-digit folders)** | breaks flat module discovery and blows port/UID bands if derived; the framework is strictly a two-level tree |
-| **Nested folders** `510/511-x.nix` | breaks the flat auto-import and splits working factories |
-| **Filling `_0` with service code** | `_0` is knowledge and structure; services go in the middle |
-| **Anchors on the leaf slot** ("531 = access of acquisition") | leaf slots know only block ID and services (Section 1); anchors apply on container slots |
-| **Derivations from 2- or 4-digit numbers** | only the three-digit service number derives; two-digit numbers are containers and four-digit numbers are derived runtime values (Section 4) |
-| **Constitution as 8000** | devNIX's foundation slot; namespace collision — now 0000 (Section 8) |
+| **"Free Middle" (`_3` to `_8` arbitrary)** | Caused cross-project drift (Storage/Backup/Monitoring landed in random decades); replaced by the universal 10-slot functional taxonomy. |
+| **Flat GID `5000` as primary group** | Violated Least Privilege in `/var/lib/<service>`; replaced by UPG (`primaryGid = uid = num * 10`) + `5000` as supplementary group. |
+| **StateDirectory with port suffix (`name-port`)** | Broke NixOS upstream expectations and complicated path references; replaced by canonical `/var/lib/${name}`. |
+| **Level-3 folder graduation (4-digit folders)** | Collided with the 4-digit Port/UID space; module hierarchy is strictly a two-level tree. |
+| **Daemons in `_0` or `_9`** | `_0` is foundation/options and `_9` is compile-time assertions; neither may spawn runtime services. |
 
 ---
 
 ## 10. Consequences
 
-- **Recognition without looking up** — `_2` is security, `5xxx` is mediNix, everywhere.
-- **New projects start with a skeleton** — four anchors given, only fill the middle.
-- **Knowledge is transferable** — one grammar across all repos.
-- **Guarantees instead of discipline** — GID exclusivity and unprivileged ports
-  follow from the structure (Section 5), not from care.
-- **Price:** existing projects that adopt the framework must renumber
-  (mediNix: ADR-5043). Cheap during development, expensive later.
+- **Predictable Cross-Project Navigation:** Every decade (`_0` to `_9`) has the exact same functional role across all repositories.
+- **Strict State Isolation:** UPG (`GID = UID = ID * 10`) with `UMask = 0027` seals `/var/lib/<name>` against peer processes while preserving shared Tier-C access via supplementary group `H000`.
+- **Compile-Time Enforcement:** Invalid service numbers or forbidden daemon decades (`_0`, `_9`, `HD0`) fail immediately during Nix evaluation.
 
 ---
 
-## 11. Semantic Anchors — the established terms behind the framework
+## 11. Semantic Anchors
 
-This document is no special case: it implements known methodology. Whoever knows
-the names understands it without instruction — in a team as in a model. The anchor
-names condense the intent; they are vocabulary, not obligation (apply
-proportionally).
-
-| Principle in the document | Semantic Anchor |
+| Principle in the Document | Methodological Standard |
 |---|---|
-| "The number is the only truth" (Section 4) | **SSOT** — Single Source of Truth |
-| I1/I2, `decimalFrameworkCheck` (Section 4) | **Design by Contract** — invariants |
-| Four slot anchors + free middle, no gaps (Section 2/3) | **MECE** — mutually exclusive, collectively exhaustive |
-| Container slot vs. leaf slot (Section 1) | **Separation of Concerns** |
-| "One language, everywhere" (intro, Section 10) | **Ubiquitous Language** (DDD) |
-| "Recognition without looking up" (Section 10) | **ISO/IEC 25010** — understandability/maintainability |
-| "Rejected" table (Section 9) | **Pugh matrix** / decisional balance sheet |
-| This document itself | **ADR (Nygard)** / **MADR** |
+| Single number derives Port, UID, UPG-GID, Shared-GID (§4) | **SSOT** — Single Source of Truth |
+| Engine invariants I1–I4 in `lib/decimal-framework.nix` (§4) | **Design by Contract** (Meyer) |
+| Universal 10-slot taxonomy `_0`..`_9` (§3) | **MECE** — Mutually Exclusive, Collectively Exhaustive |
+| UPG primary group vs. supplementary storage group (§4) | **Principle of Least Privilege (PoLP)** |
+| Recognizability across repos (§3, §10) | **ISO/IEC 25010** — Maintainability (*Analyzability* & *Modularity*) |
+| Rejected alternatives table (§9) | **MADR Exclusion Log** |
 
 ---
 
 ## 12. Appendix & Architecture Decoupling
 
-The methodological and cross-cutting architectural specifications (Stages 2 & 3),
-formerly appended to this constitution, have been decoupled into a dedicated architectural
-specification:
-
+The methodological and cross-cutting architectural specifications (Stages 2 & 3) live in:
 - **[ARCH-0000 — Decimal Framework Appendix](file:///home/moritz/repos/mediNix-core/docs/arch/ARCH-0000-framework-appendix.md)**
-
-It defines the formal mappings and engineering processes governing the repo:
-- **A1. arc42 + C4:** Mapping of documentation chapters and C4 diagram abstractions.
-- **A2. ISO/IEC 25010 & Quality Attribute Scenarios (QAS):** Concrete measurable criteria.
-- **A3. STRIDE + LINDDUN:** Threat modeling and privacy boundary specifications.
-- **A4. Design by Contract & Fitness Functions:** Guardrails and property-based test definitions ($S_{\text{valid}}$).
-- **A5. Diátaxis:** Separation of documentation concerns (Tutorials, How-tos, Reference, Explanation).
-- **B1–B4. Process, Migration & Knowledge Anchors:** Evolutionary architecture patterns, SemVer, BLUF, and theory building.

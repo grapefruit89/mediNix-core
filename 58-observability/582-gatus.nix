@@ -1,9 +1,9 @@
 # ---
-# id: "580-gatus"
-# title: "Gatus — Health Dashboard (Manifest-Konsument)"
+# id: "582-gatus"
+# title: "Gatus — Health Dashboard (Manifest-Konsument, Service 582)"
 # domain: 58
 # folder: 58-observability
-# adr: ADR-580
+# adr: ADR-582
 # status: active
 # ---
 {
