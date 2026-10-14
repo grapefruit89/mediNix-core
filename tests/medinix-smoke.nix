@@ -9,7 +9,7 @@ in
 testPkgs.testers.runNixOSTest {
   name = "medinix-smoke-test";
   nodes.server =
-    { pkgs, lib, ... }:
+    { pkgs, ... }:
     {
       imports = [ inputs.self.nixosModules.default ];
       medinix = {
