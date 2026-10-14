@@ -201,6 +201,12 @@ in
       };
 
       systemd.services.sabnzbd = {
+        unitConfig = {
+          RequiresMountsFor = [
+            stateDir
+            svc.storage.downloadDir
+          ];
+        };
         bindsTo = lib.optional (
           svc.usenet-confinement.enable && vpnIf != ""
         ) "sys-subsystem-net-devices-${vpnIf}.device";

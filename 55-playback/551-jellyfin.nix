@@ -170,6 +170,13 @@ in
       ];
 
       systemd.services.jellyfin = {
+        unitConfig = {
+          RequiresMountsFor = [
+            stateDir
+            svc.storage.mediaRoot
+            metadataDir
+          ];
+        };
         after = [ "network-online.target" ];
         requires = [ "network-online.target" ];
         wantedBy = [ "multi-user.target" ];
