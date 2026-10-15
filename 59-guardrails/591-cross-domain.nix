@@ -14,6 +14,7 @@
 let
   cfg = config.medinix;
   svcReg = import ../lib/registry.nix { inherit lib; };
+  df = import ../lib/derive.nix;
   ks = config.services.vpnKillSwitch or { instances = { }; };
   confined = name: (builtins.hasAttr name ks.instances) && ks.instances.${name}.enable;
 
@@ -52,8 +53,10 @@ let
     (lib.mapAttrsToList (
       n: s:
       lib.optional (
-        s.num < 100 || s.num > 999 || !(lib.hasPrefix "5" (toString s.num))
-      ) "${n}: num ${toString s.num} (I1: 3-stellig, I2: Projektziffer 5)"
+        s.num < df.projectDigit * 100
+        || s.num >= (df.projectDigit + 1) * 100
+        || !(lib.hasPrefix (toString df.projectDigit) (toString s.num))
+      ) "${n}: num ${toString s.num} (I1: 3-stellig, I2: Projektziffer ${toString df.projectDigit})"
     ) allSvcs)
     (lib.mapAttrsToList (
       n: s:
@@ -67,15 +70,15 @@ let
     (lib.mapAttrsToList (
       n: s:
       lib.optional (
-        s.sharedGid != 5000
-      ) "${n}: sharedGid ${toString s.sharedGid} != 5000 (projektweit geteilt)"
+        s.sharedGid != df.sharedGid
+      ) "${n}: sharedGid ${toString s.sharedGid} != ${toString df.sharedGid} (projektweit geteilt)"
     ) allSvcs)
     (lib.optional (lib.length regUids != lib.length (lib.unique regUids)) "doppelte UID im Registry")
   ];
 
   # Factory output check (ADR-5050): every unit actually created by
-  # lib/service-factory.nix must yield User=<unit>, Group=media, StateDirectory,
-  # and a system user with the factory uid. Keyed by the REAL unit name, so the
+  # lib/service-factory.nix must yield User=<unit>, Group=<unit>, StateDirectory (nur
+  # bei stateDir != null), and a system user with the factory uid. Keyed by the REAL unit name, so the
   # standalone reverse proxy (caddy-media) is verified as itself instead of the
   # registry key it does not use.
   factoryUnits = config.medinix.factoryUnits or { };
@@ -84,7 +87,9 @@ let
     lib.mapAttrsToList (n: u: [
       (lib.optional ((svcCfgOf n).User or null != n) "${n}: unit User != ${n}")
       (lib.optional ((svcCfgOf n).Group or null != n) "${n}: unit Group != ${n} (UPG, ADR-0000 §4)")
-      (lib.optional (!((svcCfgOf n) ? StateDirectory)) "${n}: unit StateDirectory missing")
+      (lib.optional (
+        (u.stateDir or null) != null && !((svcCfgOf n) ? StateDirectory)
+      ) "${n}: unit StateDirectory missing")
       (lib.optional (
         (config.users.users.${n}.uid or null) != u.uid
       ) "${n}: user uid != factory ${toString u.uid}")

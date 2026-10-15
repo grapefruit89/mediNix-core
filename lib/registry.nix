@@ -7,14 +7,19 @@
 { lib, ... }:
 
 let
+  # EINE Ableitungs-Formel (lib/derive.nix) — nicht doppelt pflegen (DRY/SSOT).
+  df = import ./derive.nix;
+
   mkServiceWithUnit = name: number: profile: caddyClass: unitName: {
     inherit name;
     unitName = if unitName != null then unitName else name;
-    num = number;
-    port = number * 10;
-    uid = number * 10;
-    sharedGid = 5000; # H000 - geteilte Ablage (NUR supplementary, ADR-0000 §4)
-    stateDir = "/var/lib/${name}";
+    inherit (df.derive name number)
+      num
+      port
+      uid
+      sharedGid
+      stateDir
+      ;
     hardeningProfile = profile;
     inherit caddyClass;
   };
@@ -29,7 +34,7 @@ let
     port = null;
     # Unit ohne eigenen Listener: Account existiert (z. B. 513 -> 5130), aber keine Bindung
     uid = if unitName != null then number * 10 else null;
-    sharedGid = 5000;
+    sharedGid = (df.derive name number).sharedGid;
     stateDir = null;
     hardeningProfile = profile;
     inherit caddyClass;

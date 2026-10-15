@@ -17,43 +17,11 @@
 let
   mod = a: b: a - (a / b) * b;
 
-  # Universal 10-slot taxonomy mapping
-  canonicalDecades = {
-    "0" = "foundation";
-    "1" = "access";
-    "2" = "security";
-    "3" = "ingestion";
-    "4" = "processing";
-    "5" = "core-app";
-    "6" = "exposition";
-    "7" = "maintenance";
-    "8" = "observability";
-    "9" = "guardrails";
-  };
-
-  # 1. SSOT Derivation Function
-  derive =
-    name: num:
-    let
-      projectDigit = num / 100;
-      decadeDigit = mod (num / 10) 10;
-      leafDigit = mod num 10;
-      derivedId = num * 10;
-      sharedGid = projectDigit * 1000;
-    in
-    {
-      inherit name num;
-      id = num;
-      port = derivedId;
-      uid = derivedId;
-      primaryGid = derivedId; # User Private Group (UPG)
-      group = name;
-      inherit sharedGid; # H000 (e.g., 5000 for mediNix)
-      stateDir = "/var/lib/${name}";
-      decadeIndex = decadeDigit;
-      decadeName = canonicalDecades.${toString decadeDigit} or "unknown";
-      inherit projectDigit leafDigit;
-    };
+  # Eine Ableitungs-Quelle: lib/derive.nix (DRY/SSOT). Engine und Registry nutzen
+  # dieselbe Formel — nicht doppelt pflegen.
+  df = import ./derive.nix;
+  canonicalDecades = df.decadeNames;
+  derive = df.derive;
 
   # 2. Hard Invariants Validation (Design by Contract: I1 - I4)
   validate =
@@ -64,8 +32,12 @@ let
     in
     [
       {
-        assertion = builtins.isInt num && num >= 100 && num <= 999;
-        message = "[ADR-0000 I1] What: Service '${name}' has invalid ID '${toString num}'. Expected: 3-digit integer (100 <= num <= 999). Fix: Assign a valid 3-digit service ID.";
+        assertion = builtins.isInt num && num >= df.projectDigit * 100 && num < (df.projectDigit + 1) * 100;
+        message = "[ADR-0000 I1] What: Service '${name}' has invalid ID '${toString num}'. Expected: ${
+          toString (df.projectDigit * 100)
+        } <= num <= ${
+          toString (df.projectDigit * 100 + 99)
+        } (Projektziffer ${toString df.projectDigit}). Fix: Assign a valid service ID in the project decade.";
       }
       {
         assertion = leafDigit != 0;
