@@ -21,6 +21,13 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      # Closure zwischen Laeufen cachen — GitHub-Actions-Cache, KEIN Account und
+      # KEIN Token noetig (Alternative waere cachix-action, braucht ein Secret).
+      # Grund (gemessen 2026-10-15): die Voll-Stack-Ratsche deckt 43 Units, der
+      # Closure waechst, und ohne Cache laedt JEDER frische Runner alles neu von
+      # cache.nixos.org — das war die eigentliche Ursache der langen Laeufe.
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
+
       - run: nix flake check --print-build-logs
 
       # `nix flake check` baut nur CHECKS, nicht PACKAGES — deshalb konnte

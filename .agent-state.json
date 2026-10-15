@@ -570,7 +570,9 @@
         "revive_if": "Verbot bleibt hart, sobald usenet-confinement aktiv ist",
         "source": "Voll-Stack-Check",
         "date": "2026-10-15"
-      }
+      },
+      "KEIN `sleep` in Tool-Calls (Anti-Pattern, 2026-10-15): ein sleep blockiert den EIGENEN Flow komplett (der Nutzer sieht einen Haenger). Stattdessen: Call beenden, Stand berichten, in der Zwischenzeit etwas Nuetzliches tun, die CI SPAETER mit EINEM `gh run view` pruefen - nicht pollen, nicht warten.",
+      "Nicht pushen, um 'eine Zeile zu bestaetigen': erst lokal messen (Lint-Checks BAUEN, mediNix-unit-scripts bauen, docs-Paket), dann EINMAL pushen. Jeder rote CI-Zyklus kostet einen vollen Lauf (2 rote Zyklen am 2026-10-15 durch SC2050)."
     ],
     "open_decisions": [
       {
