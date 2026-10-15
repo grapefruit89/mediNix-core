@@ -43,7 +43,7 @@ jobs:
           git checkout --orphan digests 2>/dev/null || git checkout digests
           git rm -rf . >/dev/null 2>&1 || true
           cp /tmp/exports/*.md .
-          git add *.md
+          git add -- *.md
           if git diff --cached --quiet; then
             echo "No digest changes detected."
           else
