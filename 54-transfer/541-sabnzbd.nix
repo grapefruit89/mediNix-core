@@ -163,17 +163,21 @@ in
         }
         {
           assertion =
-            !(lib.elem "0.0.0.0/0" (config.systemd.services.sabnzbd.serviceConfig.IPAddressAllow or [ ]));
+            !(svc.usenet-confinement.enable && vpnIf != "")
+            || !(lib.elem "0.0.0.0/0" (config.systemd.services.sabnzbd.serviceConfig.IPAddressAllow or [ ]));
           message = ''
-            [mediNix/541-sabnzbd] FEHLER: IPAddressAllow darf kein Wildcard-Routing enthalten!
+            [mediNix/541-sabnzbd] FEHLER: IPAddressAllow darf bei aktivem Usenet-Confinement
+            kein Wildcard-Routing enthalten!
             Gefunden: "0.0.0.0/0" in serviceConfig.IPAddressAllow.
 
             ARCHITEKTUR-GRUND:
             Wildcard-Routing im IPAddressAllow-Filter hebelt die RestrictNetworkInterfaces-Isolation
-            aus und ermöglicht unkontrollierten Traffic.
+            aus und ermöglicht unkontrollierten Traffic. Ohne Confinement ist WAN-Egress
+            dagegen gewollt (Usenet) und networkPolicy.internet setzt das Wildcard bewusst.
 
             BEHEBUNG:
-            Entferne "0.0.0.0/0" aus serviceConfig.IPAddressAllow.
+            Entferne "0.0.0.0/0" aus serviceConfig.IPAddressAllow (oder schalte
+            medinix.usenet-confinement ab).
           '';
         }
       ];

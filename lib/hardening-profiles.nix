@@ -79,7 +79,9 @@ rec {
     CapabilityBoundingSet = [ "" ];
     AmbientCapabilities = [ "" ];
     Restart = "on-failure";
-    RestartSec = "5s";
+    # mkDefault: spezifische Module duerfen abweichen (z. B. 585-exporters: 10s),
+    # ohne dass zwei plain Definitionen kollidieren.
+    RestartSec = lib.mkDefault "5s";
     StartLimitBurst = 5;
     StartLimitIntervalSec = 60;
     SuccessExitStatus = [
