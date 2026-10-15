@@ -115,15 +115,6 @@ let
 
 in
 {
-  # Expose library functions directly if imported as a regular attrset/function
-  inherit
-    derive
-    validate
-    canonicalDecades
-    allowedCapabilities
-    mod
-    ;
-
   # Expose framework library methods for manual calls if needed
   options.decimalFramework = {
     lib = lib.mkOption {
