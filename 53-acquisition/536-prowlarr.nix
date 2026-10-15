@@ -156,6 +156,7 @@ in
                   instanceName = "Prowlarr";
                 };
                 log.level = "info";
+                log.consoleLevel = "debug";
                 update.mechanism = "BuiltIn";
               })
             ];

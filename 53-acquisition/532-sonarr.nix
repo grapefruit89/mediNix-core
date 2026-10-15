@@ -159,6 +159,7 @@ in
                   instanceName = "Sonarr";
                 };
                 log.level = "info";
+                log.consoleLevel = "debug";
                 update.mechanism = "BuiltIn";
               })
             ];

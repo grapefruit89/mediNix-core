@@ -152,6 +152,7 @@ in
                   instanceName = "Readarr";
                 };
                 log.level = "info";
+                log.consoleLevel = "debug";
                 update.mechanism = "BuiltIn";
               })
             ];

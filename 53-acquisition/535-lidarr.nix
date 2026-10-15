@@ -152,6 +152,7 @@ in
                   instanceName = "Lidarr";
                 };
                 log.level = "info";
+                log.consoleLevel = "debug";
                 update.mechanism = "BuiltIn";
               })
             ];

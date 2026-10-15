@@ -106,9 +106,13 @@ in
       services.logrotate.enable = lib.mkDefault false;
       environment.etc."systemd/journald.conf.d/10-mediNix.conf".text = ''
         [Journal]
+        Storage=persistent
         SystemMaxUse=500M
         SystemMaxFileSize=50M
+        SystemKeepFree=2G
         MaxRetentionSec=2week
+        RateLimitIntervalSec=0
+        RateLimitBurst=0
       '';
     })
 
