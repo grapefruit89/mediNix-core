@@ -692,7 +692,11 @@ in
         lib.types.submodule {
           options = {
             uid = lib.mkOption { type = lib.types.int; };
-            stateDir = lib.mkOption { type = lib.types.str; };
+            stateDir = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "StateDirectory des Units oder null fuer stateless Units (z. B. Exporters).";
+            };
           };
         }
       );
