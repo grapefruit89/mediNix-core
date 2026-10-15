@@ -104,6 +104,7 @@ in
         }
         (mkService {
           name = "lidarr";
+          ownsAccount = false; # users.users.lidarr besitzt die Engine (UPG)
           inherit port;
           inherit uid;
           execStart = "${package}/bin/Lidarr -nobrowser -data=${stateDir}";

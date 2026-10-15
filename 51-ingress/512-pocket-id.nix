@@ -156,6 +156,7 @@ in
       # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
       systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
         name = "pocket-id";
+        ownsAccount = false; # users.users.pocket-id besitzt die Engine (UPG)
         inherit (svc) stateDir;
         profile = "network";
         hardeningOnly = true;

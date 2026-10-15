@@ -56,6 +56,7 @@ in
   allowedPeers ? [ ], # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
   extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)
   hardeningOnly ? false, # return only serviceConfig for NixOS upstream modules
+  ownsAccount ? true, # false = die Engine besitzt users.users.<name> (Manifest-Dienst)
   offloadMediaCover ? false, # offload MediaCover to metadataDir via systemd BindPaths
   ...
 }:
@@ -116,12 +117,14 @@ else
         # 2) Service-spezifische Basis (User/Exec/State)
         {
           User = "${name}";
-          Group = "media";
           ExecStart = execStart;
           StateDirectory = lib.removePrefix "/var/lib/" stateDir;
-          StateDirectoryMode = "0750"; # owner rw, group media r, world nichts (NIXH-40-MED)
+          StateDirectoryMode = "0750"; # owner rw, group r, world nichts (NIXH-40-MED)
           RuntimeDirectory = name;
         }
+        # Group: fuer Manifest-Dienste setzt die Engine die UPG (Group = Dienstname);
+        # Factory-only-Units behalten die geteilte Gruppe media.
+        (lib.optionalAttrs ownsAccount { Group = "media"; })
         # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
         (
           let
@@ -152,6 +155,9 @@ else
       ];
     medinix.knownStateDirs = [ stateDir ];
     medinix.factoryUnits."${name}" = { inherit uid stateDir; };
+  }
+  // lib.optionalAttrs ownsAccount {
+    # Nur fuer Units OHNE Manifest-Eintrag: sonst besitzt die Engine den Account.
     users.users."${name}" = {
       inherit uid;
       group = "media";

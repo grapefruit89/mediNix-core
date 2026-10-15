@@ -111,6 +111,7 @@ in
       lib.mkMerge [
         (mkService {
           name = "sonarr";
+          ownsAccount = false; # users.users.sonarr besitzt die Engine (UPG)
           inherit port;
           inherit uid;
           execStart = "${package}/bin/Sonarr -nobrowser -data=${stateDir}";

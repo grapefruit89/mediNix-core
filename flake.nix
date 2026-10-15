@@ -213,6 +213,12 @@
               medinix.gatus.enable = true;
               medinix.seerr.enable = true;
               medinix.observability.ntfy.enable = true;
+              # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
+              # nicht die Inbetriebnahme (Muster wie tests/medinix-smoke.nix).
+              medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+              medinix.navidrome.setupCompleted = true;
+              medinix.audiobookshelf.setupCompleted = true;
+              medinix.manifest.seerr.allowUnauthenticated = true;
             };
           }).config.system.build.toplevel;
 

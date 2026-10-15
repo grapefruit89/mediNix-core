@@ -118,6 +118,7 @@ in
         }
         (mkService {
           name = "prowlarr";
+          ownsAccount = false; # users.users.prowlarr besitzt die Engine (UPG)
           inherit port;
           inherit uid;
           execStart = "${package}/bin/Prowlarr -nobrowser -data=${stateDir}";

@@ -124,6 +124,7 @@ in
         }
         (mkService {
           name = "radarr";
+          ownsAccount = false; # users.users.radarr besitzt die Engine (UPG)
           inherit port;
           inherit uid;
           execStart = "${package}/bin/Radarr -nobrowser -data=${stateDir}";

@@ -104,6 +104,7 @@ in
         }
         (mkService {
           name = "readarr";
+          ownsAccount = false; # users.users.readarr besitzt die Engine (UPG)
           inherit port;
           inherit uid;
           execStart = "${package}/bin/Readarr -nobrowser -data=${stateDir}";
