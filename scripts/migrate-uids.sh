@@ -6,7 +6,7 @@
 # in der Config feste UIDs (mediNix Dezimalrahmen), bleiben die
 # laufenden Benutzer auf ihren alten Zahlen — der Switch meldet nur
 # "not applying UID change of user 'X' (alt -> neu)". Die State-Dateien gehören
-# dann noch der alten UID -> beim Start "permission denied" (RUNBOOK §4b).
+# dann noch der alten UID -> beim Start "permission denied" (docs/RUNBOOK.md §4b).
 #
 # Dieses Skript gleicht die laufenden UIDs/GID EINMALIG an die Config an und
 # übereignet die Dateien (usermod/groupmod + chown).

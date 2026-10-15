@@ -1,0 +1,58 @@
+{
+  "jellyfin-no-cover": {
+    "symptom": "Jellyfin zeigt keine Cover",
+    "bereich": "55",
+    "chain": ["jellyfin", "caddy-media"],
+    "paths": ["/data/media", "/data/metadata", "/var/lib/jellyfin"],
+    "error_pattern": "ImageMagick|convert: not found|Permission denied|No such file",
+    "fix": "imagemagick ins PATH; Rechte 2775 root:media; Jellyfin-Metadata-Cache leeren"
+  },
+  "jellyfin-slow": {
+    "symptom": "Jellyfin ruckelt / laedt langsam",
+    "bereich": "55",
+    "chain": ["jellyfin", "caddy-media", "medinix-mdns-aliases"],
+    "paths": ["/data/media"],
+    "error_pattern": "transcode|VA-API|device|Timeout|SQLite|database is locked",
+    "fix": "/dev/dri sichtbar (PrivateDevices=false)? DB-WAL (571) ok? Disk-IO (587)?"
+  },
+  "no-lan-name": {
+    "symptom": "{dienst}.local nicht erreichbar",
+    "bereich": "51",
+    "chain": ["caddy-media", "medinix-mdns-aliases"],
+    "paths": [],
+    "error_pattern": "avahi|publish|userServices|5353",
+    "fix": "services.avahi.publish.userServices = true; avahi-daemon aktiv; UDP 5353 offen"
+  },
+  "service-down": {
+    "symptom": "Unbekannt - welcher Dienst ist down?",
+    "bereich": "00",
+    "chain": [],
+    "paths": [],
+    "error_pattern": "failed|ActiveState=inactive|start request repeated too quickly",
+    "fix": "medinix ids <bereich> + medinix logs <unit> 100"
+  },
+  "deploy-assert": {
+    "symptom": "nixos-rebuild bricht mit Assertion ab",
+    "bereich": "00",
+    "chain": [],
+    "paths": [],
+    "error_pattern": "assertion|error:",
+    "fix": "Assertion-Meldung nennt Invariante + Fix; NICHT forcieren (docs/RUNBOOK.md 1)"
+  },
+  "404-am-edge": {
+    "symptom": "Domain erreichbar, aber 404/502 am Caddy",
+    "bereich": "51",
+    "chain": ["caddy-media"],
+    "paths": ["/etc/caddy-media/Caddyfile"],
+    "error_pattern": "404|502|dial tcp|connection refused",
+    "fix": "medinix show <svc>: lauscht der Backend-Port auf 127.0.0.1:<port>? vhost/Manifest pruefen"
+  },
+  "secret-missing": {
+    "symptom": "Dienst startet nicht: Credential fehlt",
+    "bereich": "52",
+    "chain": [],
+    "paths": ["/run/credentials"],
+    "error_pattern": "LoadCredential|credential|No such file|CREDENTIALS_DIRECTORY",
+    "fix": "Blob vorhanden? systemd-creds entsiegeln; scripts/medinix-seal-secret.sh"
+  }
+}

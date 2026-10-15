@@ -180,7 +180,7 @@ in
         onFailure = [ "alert-ntfy@%n.service" ];
         preStart = ''
           # First-boot guard: Jellyfin must initialize its SQLite schema (ActivityLog etc.)
-          # unseeded. Pre-seeding system.xml triggers migration against a non-existent DB (L7/RUNBOOK §1).
+          # unseeded. Pre-seeding system.xml triggers migration against a non-existent DB (L7/docs/RUNBOOK.md §1).
           if [ ! -f '${stateDir}/data/jellyfin.db' ]; then
             exit 0
           fi
