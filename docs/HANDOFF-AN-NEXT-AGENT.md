@@ -9,8 +9,10 @@
 
 - **Repo:** `mediNix-core` — deklarative NixOS-Homelab-Konfiguration (Flake, ADR-0000 „Dezimalrahmen").
 - **Zweig:** `audit-2026-10-15` (gepusht). `main` ist unberührt.
-- **Stand:** `nix flake check --no-build` = **43 bestanden / 0 offen**; Lint-Checks **gebaut** grün; GitHub-CI grün
-  (`Flake Check` inkl. Paket-Build, `order-lint`, `Generate Docs Index`).
+- **Stand:** `nix flake check --no-build` = **47 bestanden / 0 offen**; Lint-Checks **gebaut** grün;
+  die **Voll-Stack-Ratsche deckt 18 Dienste**, dazu sieben Negativtests und der **Port-Verdrahtungs-Riegel**.
+  GitHub-CI grün (`Flake Check` inkl. Paket-Build, `order-lint`, `Generate Docs Index`).
+- **22 Commits** heute auf diesem Branch; Korridor/Roadmap/Ledger sind auf demselben Stand.
 - **Vor jeder Änderung lesen:** `.agent-state.json` → `corridor` (Whitelist, 21 Blacklist-Regeln, offene Entscheidungen).
 - **Einzige Roadmap:** `ROADMAP.md`. Altstände: `docs/audit/2026-10-15/`.
 - **Harte Regeln:** messen → verstehen → **Diff vorlegen** → Go abwarten. Kein Push, Merge oder Löschen ohne Go.
@@ -50,8 +52,11 @@ nix build .#checks.x86_64-linux.nixfmt-check .#checks.x86_64-linux.statix-check 
 # Stufe 1: Auswertung
 nix flake check --no-build      # erwartet: 43 ✅ / 0 ❌
 
-# Stufe 1b: PAKETE (sind NICHT Teil von flake check)
+# Stufe 1b: PAKETE (sind NICHT Teil von flake check) - die CI baut alle
 nix build .#packages.x86_64-linux.docs --no-link
+
+# Stufe 1c: die zwei Ratsche-Checks einzeln (sie feuern nur hier)
+nix build .#checks.x86_64-linux.mediNix-ports-verdrahtet --no-link
 
 # Stufe 2: Workflows
 /home/moritz/.local/bin/actionlint .github/workflows/*.yml
