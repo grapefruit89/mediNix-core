@@ -26,6 +26,7 @@ let
   creds = import ../lib/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  tempDir = "/run/sabnzbd-tmp";
 
   vpnIf =
     if (config.services.vpnKillSwitch.vpnInterface or "") != "" then
@@ -200,7 +201,7 @@ in
           host = "127.0.0.1";
           language = svc.locale.language;
           download_dir = "${svc.storage.downloadDir}";
-          temp_dir = "/run/sabnzbd-tmp";
+          temp_dir = tempDir;
           check_new_rel = 0;
         };
       };
@@ -245,7 +246,7 @@ in
           {
             User = "sabnzbd";
             UMask = "0002";
-            TemporaryFileSystem = "/run/sabnzbd-tmp:size=1G";
+            TemporaryFileSystem = "${tempDir}:size=1G";
             RuntimeDirectory = "sabnzbd-tmp";
             InaccessiblePaths = [
               "-/run/systemd/resolve"
@@ -253,7 +254,7 @@ in
               "-${creds.storeDir}"
             ];
             ReadWritePaths = [
-              "/run/sabnzbd-tmp"
+              tempDir
               stateDir
               "${svc.storage.downloadDir}"
               "${svc.storage.mediaRoot}"
@@ -284,7 +285,7 @@ in
           }
         ];
         environment = {
-          SABNZBD__MISC__TEMP_DIR = "/run/sabnzbd-tmp";
+          SABNZBD__MISC__TEMP_DIR = tempDir;
         }
         // lib.optionalAttrs (cfg.serverCredentialFile != null) {
           SABNZBD__SERVER_0__CREDENTIAL_FILE = "/run/credentials/sabnzbd.service/mediNix-sabnzbd-server";

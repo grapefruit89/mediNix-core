@@ -20,6 +20,7 @@ let
   cfg = config.medinix;
   ing = cfg.ingress;
   domain = cfg.host.domain;
+  df = import ../lib/derive.nix;
 
   ingressMode = ing.mode or "auto";
   useGlobal =
@@ -284,23 +285,18 @@ let
 
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
-    uid = 5110;
+    uid = (df.derive "caddy-media" 511).uid; # 5110 — aus der SSoT abgeleitet
     # 511 serviert die Medienablage (Tier C) -> media NUR als extraGroups,
     # Primaergruppe bleibt die UPG (ADR-0000 §4).
     mediaGroup = true;
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
     stateDir = "/var/lib/caddy-media";
     profile = "network";
+    # CPU/IO/Memory stehen in lib/memory-policy.nix (SSoT). Hier nur, was NICHT
+    # zur Memory-/Ressourcen-Policy gehoert.
     extraConfig = {
       Type = lib.mkDefault "exec";
       WatchdogSec = lib.mkDefault "60s";
-      CPUWeight = lib.mkDefault 400;
-      IOWeight = lib.mkDefault 200;
-      MemoryMin = lib.mkDefault "64M";
-      MemoryLow = lib.mkDefault "128M";
-      MemoryHigh = lib.mkDefault "512M";
-      MemoryMax = lib.mkDefault "768M";
-      ManagedOOMPreference = lib.mkDefault "avoid";
       RuntimeDirectoryMode = "0700";
       ExecReload = "${pkgs.caddy}/bin/caddy reload --config /etc/caddy-media/Caddyfile --adapter caddyfile --force";
     };

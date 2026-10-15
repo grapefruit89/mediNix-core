@@ -32,17 +32,23 @@ let
   mkLimits =
     {
       oomScore ? null,
+      memoryMin ? null,
+      memoryLow ? null,
       memoryHigh ? null,
       memoryMax ? null,
       cpuWeight ? null,
       ioWeight ? null,
+      managedOOMPreference ? null,
     }:
     lib.filterAttrs (_: v: v != null) {
-      OOMScoreAdjust = if oomScore != null then oomScore else null;
-      MemoryHigh = if memoryHigh != null then memoryHigh else null;
-      MemoryMax = if memoryMax != null then memoryMax else null;
-      CPUWeight = if cpuWeight != null then cpuWeight else null;
-      IOWeight = if ioWeight != null then ioWeight else null;
+      OOMScoreAdjust = oomScore;
+      MemoryMin = memoryMin;
+      MemoryLow = memoryLow;
+      MemoryHigh = memoryHigh;
+      MemoryMax = memoryMax;
+      CPUWeight = cpuWeight;
+      IOWeight = ioWeight;
+      ManagedOOMPreference = managedOOMPreference;
     };
 in
 {
@@ -58,6 +64,11 @@ in
     oomScore = -900;
     cpuWeight = 400;
     ioWeight = 200;
+    memoryMin = "64M";
+    memoryLow = "128M";
+    memoryHigh = "512M";
+    memoryMax = "768M";
+    managedOOMPreference = "avoid";
   };
   pocket-id = mkLimits {
     oomScore = -900;

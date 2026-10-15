@@ -302,6 +302,9 @@ in
                 # "0M" ist ein bewusster Sentinel fuer "kein eigener Prozess"
                 # (feishin ist eine statische SPA, die Caddy ausliefert) - nicht
                 # "braucht 0 MB".
+                #
+                # ANZEIGE-/Planungswert. Die DURCHSETZUNG (cgroup MemoryMin/Low/
+                # High/Max) macht lib/memory-policy.nix (SSoT) — nicht dieses Feld.
                 type = lib.types.strMatching "^([0-9]+(\\.[0-9]+)?[MG])?$" // {
                   description = ''
                     string matching the pattern ^([0-9]+(\.[0-9]+)?[MG])?$

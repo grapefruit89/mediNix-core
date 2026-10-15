@@ -33,6 +33,9 @@
 let
   cfg = config.medinix;
   ddns = cfg.dns.ddns;
+  df = import ../lib/derive.nix;
+  cfStateDir = "/var/lib/cloudflare-ddns";
+  cfUid = (df.derive "cloudflare-ddns" 513).uid; # 5130
   domain = if cfg.host.domain != null then cfg.host.domain else cfg.domain;
   zone = if ddns.zone != null then ddns.zone else domain;
 
@@ -106,9 +109,9 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
   systemd.services.cloudflare-ddns = lib.mkMerge [
     ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
       name = "cloudflare-ddns";
-      uid = 5130; # 513 x 10: UID = Primaer-GID (UPG, ADR-0000 §4)
+      uid = cfUid; # 513 x 10: UID = Primaer-GID (UPG, ADR-0000 §4)
       profile = "network";
-      stateDir = "/var/lib/cloudflare-ddns";
+      stateDir = cfStateDir;
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
@@ -144,7 +147,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
 
         ZONE="${zone}"
         PRUNE_NAMES="${pruneNamesStr}"
-        STATE_FILE="/var/lib/cloudflare-ddns/state.json"
+        STATE_FILE="${cfStateDir}/state.json"
         SCHEMA="anchor-v1"
 
         if [ -z "''${CREDENTIALS_DIRECTORY:-}" ] || [ ! -f "$CREDENTIALS_DIRECTORY/cf-ddns-token" ]; then
@@ -331,13 +334,13 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
   # (ADR-0000 §4: Primaergruppe = Name, GID = uid). media (5000) waere hier
   # ohnehin unrecht: das Skript braucht keinen Medienzugriff.
   users.groups.cloudflare-ddns = {
-    gid = 5130;
+    gid = cfUid;
   };
   users.users.cloudflare-ddns = {
-    uid = 5130;
+    uid = cfUid;
     group = "cloudflare-ddns";
     isSystemUser = true;
-    home = "/var/lib/cloudflare-ddns";
+    home = cfStateDir;
     createHome = true;
   };
 
@@ -345,7 +348,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
   # (User/Group = UPG, StateDirectory, uid/gid). Der Modul-Modus macht das
   # automatisch, der hardeningOnly-Modus nicht.
   medinix.factoryUnits."cloudflare-ddns" = {
-    uid = 5130;
-    stateDir = "/var/lib/cloudflare-ddns";
+    uid = cfUid;
+    stateDir = cfStateDir;
   };
 }
