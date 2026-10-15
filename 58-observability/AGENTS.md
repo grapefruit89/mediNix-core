@@ -9,7 +9,6 @@
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `581-alert-ntfy` | `581-alert-ntfy.nix` | active | -/5 | - |
 | `581-ntfy` | `581-ntfy.nix` | active | 3/5 | - |
 | `582-gatus` | `582-gatus.nix` | active | -/5 | - |
 | `583-runtime-guard` | `583-runtime-guard.nix` | active | 3/5 | - |
@@ -28,7 +27,6 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 ```mermaid
 graph TD
-  581_alert_ntfy["581-alert-ntfy"]
   581_ntfy["581-ntfy"] --> hardening_profiles["lib/hardening-profiles"]
   581_ntfy["581-ntfy"] --> registry["lib/registry"]
   582_gatus["582-gatus"]
