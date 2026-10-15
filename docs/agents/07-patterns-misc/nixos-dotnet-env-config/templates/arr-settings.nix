@@ -1,3 +1,10 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# BEISPIEL-SNAPSHOT — NICHT weiterentwickeln (Korridor AB-027).
+# Kanonische Quelle: /home/moritz/repos/mediNix-core/lib/arr-settings.nix
+# Dieses Template driftet zwangslaeufig (gemessen 2026-10-15: 38 vs 50 Zeilen).
+# Fuer echte Aenderungen immer lib/arr-settings.nix bearbeiten.
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ---
 # id: "arr-settings-template"
 # title: "arr-Settings als .NET-Env-Variablen (Template)"
