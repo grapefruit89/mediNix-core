@@ -14,7 +14,7 @@ let
     port = number * 10;
     uid = number * 10;
     gid = 5000;
-    stateDir = "/var/lib/${name}-${toString (number * 10)}";
+    stateDir = "/var/lib/${name}";
     hardeningProfile = profile;
     inherit caddyClass;
   };

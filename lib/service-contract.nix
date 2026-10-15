@@ -110,6 +110,24 @@ in
               '';
             };
 
+            needsSharedGroup = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = ''
+                Expliziter Override der Dekaden-Regel (hat Vorrang vor needsMediaGroup).
+                null = Dekaden-Regel (3/4/5/7 erhalten "media").
+              '';
+            };
+
+            needsMediaGroup = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = ''
+                Expliziter Override der Dekaden-Regel. null = Dekaden-Regel;
+                true = Dienst braucht die geteilte Gruppe "media" (GID 5000).
+              '';
+            };
+
             # --- MONITORING (Gatus / Health-Checks) ---
             monitoring = {
               enable = lib.mkOption {

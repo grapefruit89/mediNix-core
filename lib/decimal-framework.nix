@@ -101,9 +101,9 @@ let
         7
       ];
     in
-    if meta ? needsSharedGroup then
+    if meta.needsSharedGroup != null then
       meta.needsSharedGroup
-    else if meta ? needsMediaGroup then
+    else if meta.needsMediaGroup != null then
       meta.needsMediaGroup
     else
       defaultByDecade;

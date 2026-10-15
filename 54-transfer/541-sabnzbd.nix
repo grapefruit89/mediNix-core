@@ -72,6 +72,7 @@ in
         inherit (cfg) enable;
         num = 541;
         accessGroup = "internal";
+        extraGroups = [ "media" ];
 
         ui = {
           title = "SABnzbd";
@@ -180,12 +181,12 @@ in
       services.sabnzbd = {
         enable = true;
         user = "sabnzbd";
-        group = "media";
+        group = "sabnzbd";
         # H30: the registry stateDir is canonical. nixpkgs derives BOTH
         # StateDirectory and configFile (/var/lib/<stateDir>/sabnzbd.ini) from
         # this option — so mediNix must not additionally set
         # serviceConfig.StateDirectory (that was the conflict).
-        stateDir = "sabnzbd-${toString port}";
+        stateDir = "sabnzbd";
         openFirewall = false;
         configFile = null;
         allowConfigWrite = true;
@@ -239,7 +240,6 @@ in
           memoryPolicy.sabnzbd
           {
             User = "sabnzbd";
-            Group = "media";
             UMask = "0002";
             TemporaryFileSystem = "/run/sabnzbd-tmp:size=1G";
             RuntimeDirectory = "sabnzbd-tmp";
