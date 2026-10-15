@@ -86,8 +86,7 @@
 | `cli.nix` + `runbook.json` — Betrieb/Triage | [Site Reliability Engineering](anchors/site-reliability-engineering.md) |
 | `smoke-test.nix` — Eval-Smoke-Test | [Testing Pyramid](anchors/testing-pyramid.md) |
 | Kleine Module, schmale Schnittstelle, ein Zweck | [Deep Modules](anchors/deep-modules.md) + [Separation of Concerns](anchors/separation-of-concerns.md) |
-| 4 nie verdrahtete Module (markiert statt gelöscht) | [Chesterton's Fence](anchors/chestertons-fence.md) |
-| Redundante Helfer (`_helpers` vs. `mkMerge`) | [YAGNI](anchors/yagni.md) + [DRY](anchors/dry.md) |
+| 4 nie verdrahtete Module am 2026-10-16 gelöscht | [YAGNI](anchors/yagni.md) + [Chesterton's Fence](anchors/chestertons-fence.md) |
 
 ## Rollout
 - **Start:** 51-ingress + 52-security + lib/ (diese Datei).

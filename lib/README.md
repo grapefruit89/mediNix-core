@@ -24,19 +24,16 @@ Zentraler Ordner für **Nix-Hilfsfunktionen und Engines**.
 
 ## Nie verdrahtet (0 Importeure) — Entscheidung 2026-10-15: markiert, nicht geloescht
 
-Diese 4 sind **kein Müll**, sondern geschriebene, aber **nie angeschlossene**
-Utilities (in *keinem* Alt-Export referenziert). Teilweise ist ihre Aufgabe
-heute **woanders** gelöst:
+Diese 4 waren **nie angeschlossene** Utilities (0 Importeure, in *keinem*
+Alt-Export referenziert). Am 2026-10-16 **gelöscht** (git-Historie behält sie);
+ihre Aufgaben sind heute **woanders** gelöst:
 
-| Modul | Was es tut | Status heute |
+| Modul | Was es tat | Heute gelöst durch |
 |---|---|---|
-| `abc-tiering.nix` | Storage-Layout `tierA/B/C` | **überholt** von `cfg.storage.backends.hot/cold` (`default.nix:221,230`) + `registry.stateDir` → **`status: deprecated`** |
-| `mk-secure-curl.nix` | curl ohne Secret in `argv` (`--variable`) | **`status: deprecated`** — 513 hat den Fall am 2026-10-15 **nativ** geloest (`--variable token@datei` + `--expand-header`, curl >= 8.3; gepinnt 8.21.0). Das Modul war damit unnoetig |
-| `wait-for-api.nix` | Readiness-Gate-Skript | **kein Consumer**: `arr_keys_sync.py` hat `wait_for_url` → **`status: draft`** |
-| `_helpers.nix` | `recursiveMergeAttrs` (Listen konkatenieren) | redundant zu `lib.mkMerge` → **`status: deprecated`** |
-
-→ Ergebnis: **markiert statt geloescht** — der Header-`status` macht den Zustand
-maschinenlesbar (`nixmeta-check` prueft ihn); Loeschen bleibt spaeter moeglich.
+| `abc-tiering.nix` | Storage-Layout `tierA/B/C` | `cfg.storage.backends.hot/cold` + `registry.stateDir` |
+| `mk-secure-curl.nix` | curl ohne Secret in `argv` | nativ in `513` (`--variable` + `--expand-header`, curl ≥ 8.3) |
+| `wait-for-api.nix` | Readiness-Gate | `arr_keys_sync.py` → `wait_for_url` |
+| `_helpers.nix` | `recursiveMergeAttrs` | `lib.mkMerge` |
 
 ## Einheitlicher Einstieg (Vorschlag)
 Ein `lib/default.nix` als `medinixLib`-Bundle würde Mehrfach-Imports bündeln:
