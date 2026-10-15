@@ -1,3 +1,4 @@
+---
 name: Order Lint
 
 on:
@@ -12,3 +13,9 @@ jobs:
 
       - name: "Ordner-Spam-Lint (Regel: >= 3 Dateien, mit Ausnahmen)"
         run: bash docs/agents/shared/scripts/folder_lint.sh .
+
+      # docs/TODO.md ist eine ABLEITUNG (Korridor + ROADMAP.md + AUDIT-LEDGER.md),
+      # damit es keine zweite Planungsquelle gibt. Aendert sich eine Quelle, muss
+      # die Liste neu erzeugt werden - sonst driftet sie still.
+      - name: "TODO-Liste aktuell? (docs/TODO.md = Korridor + Roadmap + Ledger)"
+        run: python3 scripts/gen_todo.py --check
