@@ -43,7 +43,7 @@ rec {
         ${toString path}
       Seal it:
         echo -n SECRET | sudo systemd-creds encrypt --name=${name} - ${storeDir}/${name}.encrypted
-      or: 57-maintenance/medinix-seal-secret.sh ${name}
+      or: scripts/medinix-seal-secret.sh ${name}
       Then point the option at that .encrypted / .cred path.
       LoadCredentialEncrypted will not accept a plaintext file.
     '';

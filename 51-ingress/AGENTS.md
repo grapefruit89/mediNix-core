@@ -41,7 +41,6 @@ Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README
 | `514-acme` | `514-acme.nix` | active | 3/5 | - |
 | `515-mdns` | `515-mdns.nix` | active | 3/5 | - |
 | `518-landingpage` | `518-landingpage.nix` | active | 2/5 | - |
-| `55x-example` | `55x-service.example.nix` | template | -/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -63,7 +62,6 @@ graph TD
   514_acme["514-acme"]
   515_mdns["515-mdns"] --> registry["lib/registry"]
   518_landingpage["518-landingpage"] --> 511_caddy["511-caddy"]
-  55x_example["55x-example"]
 ```
 
 

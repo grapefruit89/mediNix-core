@@ -9,7 +9,7 @@
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `500-host-integration` | `500-host-integration.nix` | active | 3/5 | - |
+| `503-host-integration` | `503-host-integration.nix` | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -20,7 +20,7 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 ```mermaid
 graph TD
-  500_host_integration["500-host-integration"]
+  503_host_integration["503-host-integration"]
 ```
 
 

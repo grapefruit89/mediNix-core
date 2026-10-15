@@ -30,8 +30,8 @@ A service describes itself. Ingress organs only consume that description.
 | `52-security` | Core security, Credentials, VPN | 520-core-security, 521-creds, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr indexers | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
 | `55-playback` | Playback & Streaming | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin |
-| `56-anfragen` | Request Management | 561-seerr |
-| `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 573-exportarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
+| `56-exposition` | Request Management & API Gateway | 561-seerr |
+| `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
 | `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog, 587-disk-health |
 | `59-guardrails` | Assertions | 591-cross-domain |
 

@@ -1,6 +1,6 @@
 # ---
-# id: "500-host-integration"
-# title: "500-host-integration module"
+# id: "503-host-integration"
+# title: "503-host-integration module"
 # domain: 50
 # folder: 50-core
 # status: active

@@ -299,7 +299,7 @@ in
           description = ''
             Empfohlen: Pfad zu einem TPM-versiegelten Restic-Passwort-Credential,
             erzeugt via systemd-creds encrypt (z.B.
-            57-maintenance/medinix-seal-secret.sh restic-password '<pw>'
+            scripts/medinix-seal-secret.sh restic-password '<pw>'
             -> /var/lib/medinix/secrets/restic-password.encrypted). Wird via
             LoadCredentialEncrypted eingebunden, das Klartext-Passwort landet nie
             auf Platte. Wenn gesetzt, wird passwordFile ignoriert. Siehe ADR-576-backup-classification.

@@ -30,7 +30,7 @@ Falls ein Dienst nicht in nixpkgs verfügbar ist, wird zuerst geprüft:
 
 ## Placeholder-Module
 Für Dienste die theoretisch interessant sind aber Container brauchen würden:
-- Maintainerr: wenn nixpkgs-Paket verfügbar → 576-maintainerr.nix aktivieren
+- Maintainerr: wenn nixpkgs-Paket verfügbar → 573-maintainerr.nix aktivieren
 
 ## Bewusst NICHT enthalten (Usenet-Stack)
 - **Autobrr** (`services.autobrr` existiert in nixpkgs): Torrent-Tracker-Rule-Bot.
