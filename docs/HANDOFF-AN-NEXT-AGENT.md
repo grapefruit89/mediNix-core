@@ -107,13 +107,13 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 **Die vollständige, priorisierte Liste steht in `ROADMAP.md` (Abschnitt `Backlog`).** Kurzfassung:
 
 - **P0:** Verfassungs-Verstöße in Doku/Guardrails (OCI/Podman-Textstellen in `500-host-baseline.nix:73` und
-  `docs/examples/5xx-service.example.nix`, toter Pfad `config.decimalFramework.manifest`,
-  tautologische Assertion `port == num*10`, fehlende Dekaden-Rollen-Prüfung).
-- **P0:** Ankreuzbogen (Enums für `ui.group`/`ops.priority`/`ramBudget`, verfassungskonformes Template).
-- **P1:** Ratsche erweitern (pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd),
-  516 CrowdSec, `lib/gpu.nix`, `network-cidrs.nix`, `noExec` auch für 514 (erst nach Laufzeittest).
-- **P2:** Root-Dateien nach `docs/CONVENTIONS.md`, 4 unverdrahtete `lib`-Module entscheiden,
-  `refactor/decades-conformance` lokal+remote löschen (gemergt).
+- **Erledigt (2026-10-15):** P0-Verfassungs-Verstöße (`b9a146f`), Ankreuzbogen Schicht 2 (`24f5ee5`),
+  Root-Audit (`967585f`), Ratsche auf 18 Dienste (`9d4d0a4`), Port-Riegel (`e6f910d`),
+  `refactor/decades-conformance` gelöscht.
+- **P1:** 516 CrowdSec, `lib/gpu.nix`, `network-cidrs.nix`, `noExec` auch für 514
+  (erst nach Laufzeittest im QEMU).
+- **P2:** 4 unverdrahtete `lib`-Module entscheiden, `AGENT_SOURCES.md` mit `UPSTREAM-SOURCES.md`
+  zusammenlegen, jellyfin zusätzlich über den *gerenderten* XML-Inhalt prüfen.
 
 ---
 
