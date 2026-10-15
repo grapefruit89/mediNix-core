@@ -1,92 +1,20 @@
----
-id: "AGENTS"
-title: "AGENTS"
-domain: 50
-status: active
-complexity: 2
-last_reviewed: 2026-08-12
-tags:
-  - general
-links:
-  adr: ""
-  repo-harvest: ""
----
-# mediNix-core — AGENTS.md
+# docs/ — Agenten-Hinweis
 
-> Autonome AI-Agenten-Anleitung. Dieses Dokument überlebt jeden `/reset` (liegt im Repo).
+> **Die verbindliche Agenten-Anleitung liegt im Root:**
+> [`/home/moritz/repos/mediNix-core/AGENTS.md`](file:///home/moritz/repos/mediNix-core/AGENTS.md)
 
-## Projekt
-Portables NixOS Media-Stack-Modul. Repo: `github:grapefruit89/mediNix-core`, Branch `main`.
-Arbeitsverzeichnis lokal: `/opt/data/50-mediNix`. Host-Deploy: mediahost (192.168.0.10, AUS bis Freigabe).
+Diese Datei war bis 2026-10-15 eine eigenständige, **veraltete** Anleitung (sie nannte den Host
+`mediahost` mit `192.168.0.10` und das Arbeitsverzeichnis `/opt/data/50-mediNix`). Der damalige
+Inhalt liegt unverändert in
+[`docs/audit/2026-10-15/AGENTS-docs-veraltet.md`](audit/2026-10-15/AGENTS-docs-veraltet.md).
 
-## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
-- **REINE LOKALE AUSFÜHRUNG:** Es existieren keine externen Remote-Hosts. Jeglicher SSH- oder rsync-Zugriff auf externe Test-Hosts ist strikt untersagt. Alle Builds, AST-Checks und Flake-Prüfungen finden ausschließlich lokal statt.
-- **Dezimalrahmen:** Port = ServiceNum × 10 | UID = Port | GID = 5000
-- **Flache Struktur:** `XX-domain/NNN-service.nix` — nie tiefer verschachteln
-- **systemd-native:** kein Docker, kein netns. WireGuard OK als `NetworkNamespacePath`/UID-Routing
-- **Chameleon Caddy:** `config.services.caddy.enable` → inject | else → `caddy-media`
-- **Binding:** alle Dienste auf 127.0.0.1 (nur Ingress exponiert)
-- **Fail-closed:** Assertions = Build-Abbruch, nie nur Warnung
-- **Keine Inline-Secrets:** nur `LoadCredentialEncrypted` / `EnvironmentFile`
+Nützliche Einstiege:
 
-## Build-Status (Stand: 2863ff9)
-- ~80% fertig. Vor erstem Deploy auf mediahost: CrowdSec-Plugin-Hash via `nix build` in `511-caddy.nix`
-  ermitteln (aktuell `lib.fakeHash` Platzhalter), dann `nix flake check .#checks.x86_64-linux.nixos-check`.
-- Nix-Verifikation bisher UNTESTED (kein nix-Binary im Hermes-Container, mediahost AUS).
-
-## Deklaratives Modul-Muster (VORBILD)
-Jedes Service-Modul:
-```nix
-{ config, lib, pkgs, ... }:
-let
-  cfg = config.medinix.services.<name>;
-  svc = config.medinix;
-  port = <num> * 10;  uid = port;  gid = 5000;
-in {
-  config = lib.mkIf cfg.enable {
-    users.users.<name> = { uid = uid; group = "media"; extraGroups = [ "media" ]; home = stateDir; isSystemUser = true; };
-    users.groups.media.gid = gid;
-    services.<name> = { enable = true; /* native nixpkgs */ };
-    systemd.services.<name> = {
-      serviceConfig = lib.mkMerge [ (import ../lib/hardening-profiles.nix { inherit lib; }).python /* oder dotnet/nodejs/network */ {
-        User = "<name>"; Group = "media"; UMask = "0002"; StateDirectory = "<name>-${toString port}";
-      } ];
-    };
-  };
-}
-```
-
-## Guardrails (59X-Schema)
-- `590-registry.nix`: `invariants` (INV-01..07, INV-SECRET) + `errors` (VPN/TLS/AUTH/DNS/SEC/STORE)
-  + Helper `mkInvariant`/`mkError`/`mkErrorDoc`
-- `591-599`: domänenspezifische Assertions. `599-cross-domain.nix`: alle Invarianten (Systemgarantien).
-- `ops/59A1-emergency-user.nix` + `ops/59A2-backup-ssh.nix`: Hilfs-User (außerhalb 59X-Assertions-Schema).
-
-## Bekannte Fallstricke
-- `cfg.enable` = `config.medinix.enable` (NICHT `cfg.security.enable` — gibt's nicht!)
-- Service-Optionen: `cfg.jellyfin.enable` (nicht `cfg.services.jellyfin.enable`)
-- `525-usenet-confinement.nix`: KEIN `config.systemd.services.*` lesen (Infinite Recursion!) — nur `mkMerge`
-- `medinix`-CLI: `PROBLEMS`-Counter über `mktemp`-Datei (Subshell-safe)
-- Portabilität: KEINE hardcoded IPs/CIDRs/Machine-Namen in Modulen (K.O.-Kriterium)
-- Secrets: TPM2-verschlüsselt (`systemd-creds encrypt --with-key=tpm2+host`), Pfade nie im Nix-Store
-  (INV-SECRET prüft alle 12 Secret-Pfade → Build-Abbruch bei `/nix/store/`-Präfix)
-
-## CLI-Tool
-`packages/mediNix-cli/default.nix` → `medinix` (check/repair/status/vpn/secrets).
-Build-Zeit aus `lib/registry.nix` generiert (registryJson). Tier-Pfade + Domain als Parameter.
-
-## Tests
-`tests/smoke-test.nix` → `checks.mediNix-smoke` in `flake.nix` (Navidrome Unit + Port-Isomorphie).
-
-## Quell-Repos (Harvest, siehe docs/ADR-0001)
-- mediNix (Gold, deutsch) | devNIX (ADR-8000) | Nix-Grok (UID-Routing: modules/10-network/1096-vpn.nix)
-- nixarr (Vergleich: unser UID-Routing > deren netns) | nixflix (deklarative API-Provisioning)
-
-## Skills (Hermes)
-- `karpathy-coding-principles` (immer aktiv bei Implementierung)
-- `nixos-context7-gate` (NixOS-Optionen verifizieren — `libraryId` nicht `libraryName`)
-- `nixos-decimal-audit` (Nummern-Duplikate prüfen — erkennt KEINE Präfix-Kollision bei gleicher 3-stelliger Nummer!)
-
-## Agent Routing Rule
-> [!IMPORTANT]
-> **Für alle LLMs / Agenten:** Bei Design-, Architektur- oder Implementierungsfragen liest du IMMER zuerst `docs/INDEX.md`. Der Index leitet dich zu den kanonischen Konzeptseiten und ADRs weiter.
+| Zweck | Datei |
+|---|---|
+| Agenten-Verfassung, Arbeitsregeln | [`../AGENTS.md`](../AGENTS.md) |
+| Wissensbasis-Index | [`INDEX.md`](INDEX.md) |
+| Ordnungsregeln (Ordner, Root-Dateien) | [`CONVENTIONS.md`](CONVENTIONS.md) |
+| Befund-Gedächtnis (Quelle + Rollback je Zeile) | [`AUDIT-LEDGER.md`](AUDIT-LEDGER.md) |
+| Entscheidungs-Korridor (Whitelist/Blacklist) | [`../.agent-state.json`](../.agent-state.json) |
+| Roadmap (die einzige) | [`../ROADMAP.md`](../ROADMAP.md) |

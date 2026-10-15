@@ -1,63 +1,115 @@
 # mediNix-core — Roadmap & Backlog
 
-Zentrale Sammelstelle für neue Feature-Ideen, laufende Entwicklungsaufgaben und abgeschlossene Meilensteine.
+Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ansätze und abgeschlossene Meilensteine.
 
 > [!IMPORTANT]
-> **Eiserne Regel für Agenten:** Neue Feature-Ideen, Erweiterungsvorschläge oder architektonische Gedanken wandern **ausschließlich** als Ticket in den Abschnitt `[Backlog / Ideen]`. Niemals eigenmächtig oder unaufgefordert Änderungen am Produktivcode vornehmen!
+> **Eiserne Regel für Agenten:** Neue Ideen wandern **ausschließlich** in `## Backlog`. Nie unaufgefordert Produktivcode ändern. Vor jeder Änderung `.agent-state.json` prüfen — dort steht der Entscheidungs-Korridor (Whitelist/Blacklist, 21 Regeln).
+>
+> **Historie:** Dies ist die **einzige** Roadmap. Bis 2026-10-15 existierten vier konkurrierende (`docs/ROADMAP.md`, `docs/ROADMAP-DEZIMALRAHMEN-MIGRATION.md`, `docs/PHASE4-SPEC.md`); sie liegen unverändert als Momentaufnahmen in `docs/audit/2026-10-15/`.
 
 ---
 
-## [In Progress]
-*Aktuelle Arbeitspakete in aktiver Bearbeitung:*
+## In Progress
 
-- [x] **Agentic Workflow Härtung:**
-  - Etablierung der maschinenlesbaren Status-Registry ([`.agent-state.json`](file:///home/moritz/repos/mediNix-core/.agent-state.json)) inkl. Verweis auf [`docs/adr/llm-index.json`](file:///home/moritz/repos/mediNix-core/docs/adr/llm-index.json).
-  - Zentrale Upstream-Quellenverankerung ([`UPSTREAM-SOURCES.md`](file:///home/moritz/repos/mediNix-core/UPSTREAM-SOURCES.md)).
-  - Agenten-Arbeitsverfassung mit ADR-0000 Zwang in [`AGENTS.md`](file:///home/moritz/repos/mediNix-core/AGENTS.md) und [`CLAUDE.md`](file:///home/moritz/repos/mediNix-core/CLAUDE.md).
+- [ ] **(2026-10-15) Doku-Konsolidierung:** vier Roadmaps auf eine reduzieren (dieses Dokument), Ledger/Handoff korrigieren, Fehlversuche nach `docs/audit/2026-10-15/` archivieren. Vorschlag liegt vor, wartet auf Go.
 
 ---
 
-## [Backlog / Ideen]
-*Ideenspeicher für zukünftige Entwicklungszyklen (nicht ungefragt implementieren):*
+## Backlog
 
-- [ ] **Modul 516 (CrowdSec Bouncer):**
-  - Implementierung eines vollwertigen CrowdSec-Moduls als Ersatz für die Übergangslösung mit Fail2ban auf den Caddy-Access-Logs (RT-3).
-- [ ] **Pocket-ID Auto-Enrollment Helper (Abschnitt 12):**
-  - Automatisierte REST-API-Skripte zur Registrierung von OIDC-Clients (z. B. für Jellyfin/Audiobookshelf) direkt beim Initial-Boot.
-- [ ] **Multi-User Delegation & RBAC:**
-  - Standardisiertes User-Provisioning für Audiobookshelf und Navidrome via versiegelte systemd-Credentials (`medinix.*.adminPasswordCredential`).
-- [ ] **Observability & Health-Stack (ADR-58x):**
-  - Prometheus Node-Exporter & Caddy-Metrics-Scraping im 58-observability-Modul.
-- [ ] **Automated Flake Lock Auto-Update:**
-  - GitHub Actions Workflow für wöchentliche Dependabot/Flake-Input-Updates mit automatisiertem `nix flake check`.
-- [ ] **`rebuild-guard.nix` (Path-Unit Schutz bei Rebuilds):**
-  - Pausieren von systemd Path-Units (wie Transcode-Cleanup oder VPN-Verify) während eines aktiven `nixos-rebuild` (`ConditionPathExists = "!/run/nixos/rebuild-in-progress"`).
-- [ ] **`vpn-killswitch-test.sh` (Automatisierter Egress-Leak-Test):**
-  - Automatisierter Laufzeit- und Integrationstest für den nftables/cgroup-Killswitch: Verifikation von 0 Bytes Egress ins WAN bei deaktiviertem WireGuard-Interface.
-- [ ] **On-Demand Socket-Activation für Lidarr/Readarr (`on-demand-http.nix`):**
-  - Speichersparende Socket-Aktivierung via `systemd-socket-proxyd` mit Idle-Timeout (z. B. 15 Minuten) für selten genutzte Erfassungsdienste.
+*Priorisiert, P0 zuerst. Jeder Eintrag nennt die Quelle, damit die Vorgeschichte nachvollziehbar bleibt.*
+
+### P0 — Verfassungs-Verstöße in Guardrails und Vorlagen
+
+- [ ] **OCI/Podman widerspricht ADR-0000** an zwei Stellen: die Assertion-Meldung in `50-core/500-host-baseline.nix:73` nennt „optional rootless Podman via oci-containers" als zulässig, und `docs/examples/5xx-service.example.nix:9-10` führt OCI als „Prio 2". Korrekt ist: keine Container (ADR-0000, `docs/NO-CONTAINERS.md`). Quelle: Migrations-Roadmap §3.7.
+- [ ] **Toter Pfad** `config.decimalFramework.manifest` in `lib/decimal-framework.nix:85` — die Option existiert nicht, nur `config.medinix.manifest`. Quelle: §3.8.
+- [ ] **Tautologische Assertion:** die Prüfung „Port und UID müssen num*10 entsprechen" kann nie fehlschlagen, weil beide readOnly aus `num` abgeleitet werden. Ersetzen durch eine Prüfung, dass die abgeleiteten Werte auch wirklich benutzt werden (systemd-Unit/User). Quelle: §3.5.
+- [ ] `docs/AGENTS.md` ist veraltet (nennt mediahost `192.168.0.10` und `/opt/data/50-mediNix`) und widerspricht dem Root-`AGENTS.md`. Ersetzen durch einen Kurz-Zeiger, Inhalt archivieren.
+
+### P0 — Service-Ankreuzbogen (Formalisierung)
+
+- [ ] Auswahlfelder als `types.enum`: `ui.group`, `ops.priority`, `ramBudget` (heute freie Strings). Die erlaubten Werte **aus den bestehenden Manifest-Einträgen ableiten**, nicht raten. `accessGroup`, `monitoring.type`, `metrics.type`, `arr.role` sind bereits Enums.
+- [ ] `docs/examples/SERVICE-TEMPLATE.nix` verfassungskonform: kein `users.users`, kein `Group`, kein `stateDir`-Port-Suffix, keine OCI-Zeile — nur Manifest + optional `execStart`.
+- [ ] Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
+
+### P1 — Ratsche vervollständigen
+
+- [ ] **Dekaden-Rollen prüfen** (ADR-0000 §3): kein Check erzwingt die 10-Slot-Taxonomie `_0.._9`; `flake.nix` prüft nur „führende Ziffer == 5", `folder_lint.sh` nur „≥3 Dateien". Quelle: §3.10.
+- [ ] `checks.mediNix-stack-eval` erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd (heute 12 Dienste).
+- [ ] `checks.mediNix-ports-verdrahtet`: effektive nixpkgs-Optionswerte gegen Registry/Manifest prüfen (zweiter Riegel neben dem Zahlen-Check). Quelle: UPGRADE-MATRIX B1.
+- [ ] Negativtest „eine kaputte Konfiguration muss brechen" (die Assertions selbst testen). Quelle: B4.
+
+### P1 — Dienste und Betrieb
+
+- [ ] 516 CrowdSec Bouncer (ersetzt die Fail2ban-Übergangslösung auf Caddy-Logs). Der `lib.fakeHash` in 511 ist bereits entfernt; das Modul fehlt.
+- [ ] `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
+- [ ] `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
+- [ ] Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
+- [ ] Prometheus Node-Exporter + Caddy-Metrics (teilweise vorhanden: 585-exporters, 582-gatus).
+- [ ] Flake-Lock-Auto-Update (wöchentlicher Workflow mit `nix flake check`).
+
+### P2 — Observability/Logging-Ausbau
+
+- [ ] Vector + Loki + Grafana: Journal + Caddy-JSON-Logs, 7 Tage Retention, Storage auf Tier B, Grafana hinter Caddy am Unix-Socket.
+- [ ] HDD-freundliche Deferred-Deletion-Queue (`hdparm -C`-Check, Force nach `maxAgeDays = 7`).
+- [ ] Label-basiertes Automounting/MergerFS (teilweise: `570-storage.nix` kann MergerFS-Pools, das Einhängen macht der Host).
+
+### P2 — Aufräumen
+
+- [ ] Die 4 nie verdrahteten `lib`-Module entscheiden: `abc-tiering.nix` (von `storage.backends.hot/cold` überholt), `mk-secure-curl.nix`, `wait-for-api.nix`, `_helpers.nix`.
+- [ ] Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `UPSTREAM-SOURCES.md`, `audits/`); `AGENTS.md`, `CLAUDE.md`, `opencode.json` bewusst als Agenten-Konventionen im Root **dokumentieren** statt verschieben.
+- [ ] `docs/AGENT_SOURCES.md` und `UPSTREAM-SOURCES.md` zusammenlegen (zwei konkurrierende Quellenlisten).
+- [ ] `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
 
 ---
 
-## [Done]
-*Erfolgreich implementierte und verifizierte Meilensteine:*
+## Verworfen
 
-- [x] **CI "Flake Check" Reparatur & VM-Härtung (2026-10-14):**
-  - Nixfmt-Formatierung in `574-provisioning.nix`.
-  - QEMU-Smoke-Test Ressourcen angehoben (2048 MB / 2 Kerne) und WireGuard Device-Teardown via `ip link del dev wg0` korrigiert.
-  - Ingress-Header-Strip Check mit `medinix.domain` und Zeilenvergleichs-Assertion repariert.
-  - nftables Route-Chain Syntaxfehler (`chain vpn_mark`, kein `policy accept;`) behoben.
-  - VHost-Check in `checks.mediNix-ntfy-vhost-and-admin-socket` auf `.lan` aktualisiert.
-  - Remote CI-Lauf `38573556486` grün (Success, Exit-Code 0).
-- [x] **Open-Source Standardisierung (2026-10-14):**
-  - Standard-MIT-Lizenzdatei ([`LICENSE`](file:///home/moritz/repos/mediNix-core/LICENSE)) erstellt.
-  - Lizenz- und Homelab-Hinweise in [`README.md`](file:///home/moritz/repos/mediNix-core/README.md) dokumentiert.
-- [x] **LLM Markdown Digest Pipeline (2026-10-14):**
-  - Export-Skript `.github/scripts/export-folders.sh` auf Plaintext-ToC, Syntax-Highlighting und 4-fach Backtick-Fencing umgestellt.
-  - GitHub Actions Workflow `.github/workflows/export-folders.yml` auf nativen POSIX-Stack ohne Fremd-Python-Tools migriert und auf `digests`-Branch isoliert.
-- [x] **Issue-Tracker Bereinigung (2026-10-14):**
-  - Schließen von 5 historischen Chat-Dump-Issues (#2 bis #6) und Bereinigen des obsoleten Pull Requests #1 (`51-ingress-contracts`).
-- [x] **Red-Team Runde 3: 51-ingress Dissektion (2026-10-02):**
-  - RT-1 bis RT-9 Ingress-Sicherheitsmatrix implementiert (Unix Admin-Socket, First-Run-Race-Schutz, strukturierte JSON Access-Logs).
-- [x] **ADR-0000 Verfassung & Dezimalrahmen:**
-  - Mathematische Port- und UID-Gleichheit (`Port = UID = Num * 10`), GID 5000, 10-Domänen-Architektur und flache Modulstruktur.
+*Dauerhaft ausgeschlossen. Vollständige Begründung, Beweis und `revive_if` stehen im Korridor (`.agent-state.json` → `corridor.blacklist`).*
+
+| Was | Warum | Regel |
+|---|---|---|
+| sops / age / agenix / sops-nix | Nutzerentscheidung projektweit; Standard ist `systemd-creds` | AB-013 |
+| OCI/Container für Dienste | ADR-0000, `docs/NO-CONTAINERS.md` | AB-017 |
+| `DynamicUser = true` | zerstört die UID-Isomorphie (einzige Ausnahme: `alert-ntfy@`, identitätslos) | AB-007 |
+| netns-Confinement, eBPF-Killswitch | abgelöst durch nftables `meta skuid` + Route-Hook | AB-007 |
+| Zwei Service-Engines / doppeltes Eigentum | harter Eval-Abbruch; jetzt: genau ein Eigentümer pro Option | AB-002 |
+| Port-suffizierte `stateDir`s (`/var/lib/<name>-<port>`) | ADR-0000 §9 | AB-006 |
+| `mkForce` als Problemlöser | MANIFEST §2 | AB-008 |
+| Inline-Hardening statt `lib/hardening-profiles.nix` | ein Ort für die Härtungspolitik | AB-009 |
+| Upstream-Module mit `DynamicUser` übernehmen | stiller ADR-Bruch (Gatus-/ntfy-Fall) | AB-019 |
+| Einzel-Check ohne erzwungenen `toplevel` | verdeckt Voll-Stack-Fehler über Tage | AB-020 |
+| Audiobookshelf QuickSync/VA-API | reiner Audioserver — kein Codec-Nutzen, schwächt die Sandbox | docs/ROADMAP §4 (alt) |
+| Allround-Apps (Vaultwarden, Paperless, Home Assistant, Forgejo, Cockpit, AMP) | gehören auf den Host, nicht in einen Media-Flake | ebd. |
+| Host-Netzwerk-DNS (Blocky, AdGuardHome) | Host-/Router-Aufgabe | ebd. |
+| Zentrale Shared-DBs (PostgreSQL, Valkey) | mediNix bleibt autonom mit isolierten SQLite-Datenbanken | ebd. |
+| `lib.recursiveUpdate` für Sandbox-Attrs | überschreibt später `ExecStartPre` kommentarlos → `mkMerge` nutzen | UPGRADE-MATRIX N2 |
+
+---
+
+## Done
+
+### 2026-10-15 — UPG-Umstellung, Voll-Stack-Ratsche, Corridor
+
+- [x] **Eval-Blocker beseitigt** — `lib/decimal-framework.nix` gab zusätzliche Top-Level-Attribute zurück (als Modul unzulässig). `a03d0aa` — von 0 auswertbaren Checks auf 26.
+- [x] **Genau ein Eigentümer für `users.users.<dienst>`** — die Engine besitzt, die Factory nur für Units ohne Manifest-Eintrag (`ownsAccount`). `d999cf0`, `57b983b`.
+- [x] **Sabnzbd auf UPG**, Registry als dritte `stateDir`-Wahrheit angeglichen, tote `needsMediaGroup`-Zweige deklariert (statix-Fund). `a798cec`.
+- [x] **Voll-Stack-Ratsche** `checks.mediNix-stack-eval` (12 Dienste, erzwungener `toplevel`). `3381fc4`.
+- [x] **Vier Altlasten behoben:** SABnzbd-`IPAddressAllow` (Build-Abbruch ohne VPN-Confinement), `RestartSec`-Konflikt Profil/Exporter, Gatus und ntfy (`DynamicUser` verboten; Gatus band zusätzlich Port 8080 statt 5820). `3eb4bac`, `5bbaac8`.
+- [x] **Guardrail 591** auf UPG umgestellt: Unit-Gruppe ist der Dienstname **oder** `media`, und `media` muss für den Benutzer erreichbar sein. `57b983b`.
+- [x] **SetGID (2775)** auf allen geteilten Ablagen (Folge der UPG-Umstellung). `782211d`.
+- [x] **Entscheidungs-Korridor** in `.agent-state.json` (Schema 1.1): 10 Whitelist-Kategorien, 21 Blacklist-Regeln, 5 offene Entscheidungen, 6 getroffene. `df0352f`.
+- [x] **Werkzeugkette:** Nix nativ (Determinate 3.23.2), `mcp-nixos` 3.1.0, ShellCheck/Shfmt/Yamllint, actionlint; alle Workflows lint-clean. `7e09e60`.
+- [x] **Lehre festgehalten:** `nix flake check --no-build` verdeckt nixfmt-/statix-/deadnix-Funde — die Lint-Checks müssen **gebaut** werden. `b451f50`.
+
+### 2026-10-14 (Kurzfassung, Details im Changelog)
+
+- [x] CI-Reparatur & VM-Härtung, MIT-Lizenz, LLM-Digest-Pipeline, Issue-Bereinigung, Red-Team Runde 3, ADR-0000-Verfassung.
+
+---
+
+## Herkunft und Archiv
+
+- `docs/audit/2026-10-15/` — Momentaufnahmen der vier früheren Roadmaps, der Migrations- und der Bergungs-Matrix.
+- `docs/AUDIT-LEDGER.md` — Befund-Gedächtnis mit Quelle und Rollback je Zeile.
+- `.agent-state.json` — Korridor: Invarianten, Whitelist, Blacklist, offene Entscheidungen.

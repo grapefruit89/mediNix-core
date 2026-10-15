@@ -14,7 +14,7 @@
    - Dokumentiere jeden Fix, Refactor oder Invarianten-Schutz in [`.agent-state.json`](file:///home/moritz/repos/mediNix-core/.agent-state.json) unter `recent_refactorings`.
    - Trage genutzte GitHub-Repositories, Doku-Quellen oder Upstream-Muster in [`UPSTREAM-SOURCES.md`](file:///home/moritz/repos/mediNix-core/UPSTREAM-SOURCES.md) ein.
 3. **Ideen-Verwaltung (Zero Code-Drift):**
-   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](file:///home/moritz/repos/mediNix-core/ROADMAP.md) (Abschnitt `[Backlog / Ideen]`), niemals unaufgefordert oder spekulativ in den Code.
+   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](file:///home/moritz/repos/mediNix-core/ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
 4. **Verfassungs-Zwang (ADR-0000):**
    - Jede Code-Änderung muss die Kern-Invarianten einhalten und wird per `nix flake check` lokal verifiziert.
 

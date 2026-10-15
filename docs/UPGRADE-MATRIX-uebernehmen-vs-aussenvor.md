@@ -4,7 +4,7 @@
 > **Quellen:** die 14 Salvage-Audits unter `/storage/emulated/0/Obsidian/SalvageAudits/mediNix/`
 > (Untersuchung des Repos `grapefruit89/mediNix`, Stand 2026-07-30) plus der heutige
 > `mediNix-core`-Clone.
-> **Ergänzt** das Dokument `ROADMAP-DEZIMALRAHMEN-MIGRATION.md` (dort: der interne
+> **Ergänzt** das Dokument `docs/audit/2026-10-15/ROADMAP-DEZIMALRAHMEN-MIGRATION.md` (dort: der interne
 > Engine-Konflikt). Dieses Dokument beantwortet: *Was holen wir rüber, was lassen wir weg?*
 
 ---
@@ -153,6 +153,6 @@ Beweis, dass die Migration trägt.
 
 ## 4. Bezug
 
-- Doc 1: `ROADMAP-DEZIMALRAHMEN-MIGRATION.md` — *was im aktuellen mediNix-core selbst kaputt/doppelt ist.*
+- Doc 1: `docs/audit/2026-10-15/ROADMAP-DEZIMALRAHMEN-MIGRATION.md` — *was im aktuellen mediNix-core selbst kaputt/doppelt ist.*
 - Doc 2 (dieses): *was aus `mediNix` das Core maßgeblich besser macht (übernehmen) und was bewusst draußen bleibt.*
 - Quellen: `/storage/emulated/0/Obsidian/SalvageAudits/mediNix/*-SALVAGE-AUDIT.md` (14 Dateien).
