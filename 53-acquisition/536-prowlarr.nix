@@ -33,7 +33,7 @@ let
   meta = config.medinix.manifest.prowlarr;
 
   inherit (meta) port uid stateDir;
-  inherit (reg) gid;
+  inherit (reg) sharedGid;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
 
@@ -114,7 +114,7 @@ in
             }
           ];
 
-          users.groups.media.gid = gid;
+          users.groups.media.gid = sharedGid;
         }
         (mkService {
           name = "prowlarr";

@@ -21,7 +21,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 |---|---|---|---|---|---|---|---|
 | `caddy` | `–` | 511 | 5110 | 5110 | **5110** | `network` | `none` |
 | `pocket-id` | `–` | 512 | 5120 | 5120 | **5120** | `network` | `public` |
-| `cloudflare-dns` | `cloudflare-ddns` | 513 | – | – | **5130** | `script` | `none` |
+| `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `script` | `none` |
 | `sonarr` | `–` | 532 | 5320 | 5320 | **5320** | `dotnet` | `internal` |
 | `radarr` | `–` | 533 | 5330 | 5330 | **5330** | `dotnet` | `internal` |
 | `readarr` | `–` | 534 | 5340 | 5340 | **5340** | `dotnet` | `internal` |

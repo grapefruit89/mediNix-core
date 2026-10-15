@@ -23,7 +23,7 @@ let
     num
     port
     uid
-    gid
+    sharedGid
     stateDir
     ;
 
@@ -114,7 +114,7 @@ in
 
     # ── 2. Laufzeit-Konfiguration ──────────────────────────────────────────
     (lib.mkIf cfg.enable {
-      users.groups.media.gid = gid;
+      users.groups.media.gid = sharedGid;
 
       # Konfiguration deklarativ ablegen; Gatus liest sie ueber GATUS_CONFIG_PATH.
       environment.etc."gatus/config.yaml".source =

@@ -69,7 +69,9 @@ def parse_registry() -> list[dict[str, object]]:
                 "unit": unit,
                 "num": num,
                 "port": None if call in ("mkNoPort", "mkNoPortWithUnit") else num * 10,
-                "uid": None if call in ("mkNoPort", "mkNoPortWithUnit") else num * 10,
+                # mkNoPort = SPA/Template ohne Account (unitName null) -> keine UID;
+                # mkNoPortWithUnit hat eine eigene Unit (z. B. 513) -> Account mit uid = num*10.
+                "uid": None if call == "mkNoPort" else num * 10,
                 "upg": num * 10,
                 "profile": profile,
                 "caddy": caddy,

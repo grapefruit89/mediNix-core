@@ -13,7 +13,7 @@ let
     num = number;
     port = number * 10;
     uid = number * 10;
-    gid = 5000;
+    sharedGid = 5000; # H000 - geteilte Ablage (NUR supplementary, ADR-0000 §4)
     stateDir = "/var/lib/${name}";
     hardeningProfile = profile;
     inherit caddyClass;
@@ -27,8 +27,9 @@ let
     inherit unitName;
     num = number;
     port = null;
-    uid = null;
-    gid = 5000;
+    # Unit ohne eigenen Listener: Account existiert (z. B. 513 -> 5130), aber keine Bindung
+    uid = if unitName != null then number * 10 else null;
+    sharedGid = 5000;
     stateDir = null;
     hardeningProfile = profile;
     inherit caddyClass;

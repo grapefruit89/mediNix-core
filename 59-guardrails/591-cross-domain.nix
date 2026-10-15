@@ -65,7 +65,10 @@ let
       n: s: lib.optional (s.uid != s.port) "${n}: UID ${toString s.uid} != Port ${toString s.port}"
     ) portable)
     (lib.mapAttrsToList (
-      n: s: lib.optional (s.gid != 5000) "${n}: GID ${toString s.gid} != 5000 (projektweit geteilt)"
+      n: s:
+      lib.optional (
+        s.sharedGid != 5000
+      ) "${n}: sharedGid ${toString s.sharedGid} != 5000 (projektweit geteilt)"
     ) allSvcs)
     (lib.optional (lib.length regUids != lib.length (lib.unique regUids)) "doppelte UID im Registry")
   ];

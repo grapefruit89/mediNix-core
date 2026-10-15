@@ -21,7 +21,7 @@ let
   meta = config.medinix.manifest.navidrome;
 
   inherit (meta) port stateDir;
-  inherit (reg) gid;
+  inherit (reg) sharedGid;
   creds = import ../lib/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
@@ -134,7 +134,7 @@ in
       ];
 
       # users.users.navidrome besitzt die Engine (lib/decimal-framework.nix, UPG).
-      users.groups.media.gid = gid;
+      users.groups.media.gid = sharedGid;
 
       systemd.tmpfiles.rules = [
         "d '${stateDir}' 0750 navidrome media -"

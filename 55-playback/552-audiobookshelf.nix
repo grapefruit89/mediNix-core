@@ -21,7 +21,7 @@ let
   meta = config.medinix.manifest.audiobookshelf;
 
   inherit (meta) port stateDir;
-  inherit (reg) gid;
+  inherit (reg) sharedGid;
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
@@ -127,7 +127,7 @@ in
       ];
 
       # users.users.audiobookshelf besitzt die Engine (lib/decimal-framework.nix, UPG).
-      users.groups.media.gid = gid;
+      users.groups.media.gid = sharedGid;
 
       systemd.tmpfiles.rules = [
         "d '${stateDir}' 0750 audiobookshelf media -"
