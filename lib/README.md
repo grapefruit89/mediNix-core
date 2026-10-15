@@ -22,7 +22,7 @@ Zentraler Ordner für **Nix-Hilfsfunktionen und Engines**.
 | `smoke-test.nix` | `{ config, lib }` | **NixOS-Modul**: Eval-Smoke-Test | 1 |
 | `arr-provision/` | (Python-Paket) | `packages.arr-provision` | – |
 
-## Nie verdrahtet (0 Importeure) — Entscheidung offen
+## Nie verdrahtet (0 Importeure) — Entscheidung 2026-10-15: markiert, nicht geloescht
 
 Diese 4 sind **kein Müll**, sondern geschriebene, aber **nie angeschlossene**
 Utilities (in *keinem* Alt-Export referenziert). Teilweise ist ihre Aufgabe
@@ -30,12 +30,13 @@ heute **woanders** gelöst:
 
 | Modul | Was es tut | Status heute |
 |---|---|---|
-| `abc-tiering.nix` | Storage-Layout `tierA/B/C` (ADR-5043) | **überholt** von `cfg.storage.backends.hot/cold` (`default.nix:221,230`) + `registry.stateDir` |
-| `mk-secure-curl.nix` | curl ohne Secret in `argv` (`--variable`) | **nicht nötig**: Provisioning läuft über Python (`arr-provision`, Header in-process) |
-| `wait-for-api.nix` | Readiness-Gate-Skript | **nicht nötig**: `arr_keys_sync.py` hat `wait_for_url` |
-| `_helpers.nix` | `recursiveMergeAttrs` (Listen konkatenieren) | generisch, ungenutzt |
+| `abc-tiering.nix` | Storage-Layout `tierA/B/C` | **überholt** von `cfg.storage.backends.hot/cold` (`default.nix:221,230`) + `registry.stateDir` → **`status: deprecated`** |
+| `mk-secure-curl.nix` | curl ohne Secret in `argv` (`--variable`) | **nicht ueberholt:** 513 legt den Token als `-H "Authorization: Bearer $TOKEN"` in argv (`ProtectProc=invisible` mildert es auf root) → **`status: draft`**, Kandidat fuer 513 (Roadmap) |
+| `wait-for-api.nix` | Readiness-Gate-Skript | **kein Consumer**: `arr_keys_sync.py` hat `wait_for_url` → **`status: draft`** |
+| `_helpers.nix` | `recursiveMergeAttrs` (Listen konkatenieren) | redundant zu `lib.mkMerge` → **`status: deprecated`** |
 
-→ Pro Modul: **verdrahten** · **bewusst ablegen** · **löschen** (nicht stilllegen ohne Analyse).
+→ Ergebnis: **markiert statt geloescht** — der Header-`status` macht den Zustand
+maschinenlesbar (`nixmeta-check` prueft ihn); Loeschen bleibt spaeter moeglich.
 
 ## Einheitlicher Einstieg (Vorschlag)
 Ein `lib/default.nix` als `medinixLib`-Bundle würde Mehrfach-Imports bündeln:

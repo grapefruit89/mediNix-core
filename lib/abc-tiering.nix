@@ -3,11 +3,12 @@
 # title: "ABC Storage Tiering Convention (portabel, mediaRoot-based)"
 # domain: 50
 # folder: 50-media
-# status: active
+# status: deprecated
 # complexity: 3
 # last_reviewed: 2026-08-11
 # links:
-#   adr: ADR-5043
+#   adr: ADR-0000 (Verfassung - es gibt kein eigenes Storage-/Tiering-ADR;
+#                 kanonisch sind cfg.storage.backends.hot/cold + registry.stateDir)
 # provides: ["tierA", "tierB", "tierC"]
 # requires: ["lib/abc-tiering"]
 # ports: []
@@ -19,6 +20,10 @@
 # uds_socket: false
 # systemd_hardened: false
 # ---
+# NIE VERDRAHTET (Entscheidung 2026-10-15): tierA/B/C liefern exakt das, was
+# `cfg.storage.backends.hot/cold` (default.nix:221,230) und `registry.stateDir`
+# schon bereitstellen. NICHT importieren - siehe lib/README.md.
+# (Der frueher hier genannte "ADR-5043" ist Assertion-Qualitaet, nicht Tiering.)
 # lib/abc-tiering.nix — ABC Storage Tiering convention (portabel)
 # Tier paths derived from cfg.storage.mediaRoot (Regel 3: no hardcoded paths).
 # Import: (import ../lib/abc-tiering.nix { cfg = config.medinix; })

@@ -3,12 +3,14 @@
 # title: "Wartet auf die HTTP-Bereitschaft eines Dienstes"
 # domain: 50
 # folder: "lib"
-# status: active
+# status: draft
 # complexity: 1
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-0000
 # ---
+# NIE VERDRAHTET (Entscheidung 2026-10-15): kein Consumer - 574/577/578 pollen nicht,
+# und das Provisioning macht Readiness in Python (`wait_for_url`). Muster fuer spaeter.
 # lib/wait-for-api.nix
 #
 # Erzeugt ein Shell-Skript, das vor Provisioning-Schritten auf die

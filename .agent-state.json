@@ -586,16 +586,6 @@
         "status": "offen"
       },
       {
-        "id": "D-02",
-        "frage": "Die 4 nie verdrahteten lib-Module (abc-tiering, mk-secure-curl, wait-for-api, _helpers) behalten oder ablegen?",
-        "optionen": [
-          "behalten",
-          "teilweise",
-          "alle ablegen"
-        ],
-        "status": "offen"
-      },
-      {
         "id": "D-03",
         "frage": "Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd?",
         "optionen": [
@@ -653,6 +643,11 @@
         "date": "2026-10-15",
         "entscheidung": "sops/age projektweit verboten; Corridor statt separater WHITELIST/BLACKLIST-Dateien",
         "grund": "Nutzerentscheidung"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "4 nie verdrahtete lib-Module: MARKIERT statt geloescht (abc-tiering+_helpers -> deprecated; wait-for-api+mk-secure-curl -> draft). mk-secure-curl ist NICHT ueberholt - 513 hat den argv-Fall, den es loest (Roadmap-P2).",
+        "grund": "2026-10-15"
       }
     ]
   }

@@ -3,12 +3,15 @@
 # title: "Kleine Nix-Helfer fuer mediNix-Module"
 # domain: 50
 # folder: "lib"
-# status: active
+# status: deprecated
 # complexity: 1
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-0000
 # ---
+# NIE VERDRAHTET (Entscheidung 2026-10-15): `recursiveMergeAttrs` ist redundant zu
+# `lib.mkMerge` (Listen werden dort ebenfalls konkateniert; 28 Dateien nutzen es).
+# NICHT importieren - siehe lib/README.md.
 # lib/_helpers.nix
 # Private helper functions for mediNix-core (prefixed with _ to prevent module auto-import)
 { lib }:

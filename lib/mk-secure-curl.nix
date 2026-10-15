@@ -3,12 +3,16 @@
 # title: "Secure-curl-Aufruf mit Timeouts"
 # domain: 50
 # folder: "lib"
-# status: active
+# status: draft
 # complexity: 2
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-0000
 # ---
+# NIE VERDRAHTET (Entscheidung 2026-10-15) - aber mit echtem Anwendungsfall:
+# 513-cloudflare-dns.nix uebergibt den Token als `-H "Authorization: Bearer $TOKEN"`
+# und damit in argv. Dieses Modul nutzt curl `--variable secret@file` (>= 8.3).
+# Siehe ROADMAP (P2).
 # lib/mk-secure-curl.nix
 #
 # Generiert einen curl-Aufruf, der Secrets zur Laufzeit intern expandiert,
