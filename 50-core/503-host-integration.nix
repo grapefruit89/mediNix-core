@@ -37,6 +37,9 @@ in
     networking.nftables.enable = lib.mkIf (cfg.hostIntegration.nftables == "managed") true;
 
     # We also apply the recommended nftables tables IF managed. If external, host must apply them.
+    # Diese Tabellen sind BASIS-Regeln (Firewall-Grundzustand). Bans/Entscheidungen
+    # kommen ausschliesslich vom Edge-Bouncer (516 CrowdSec, createRulesets) —
+    # 503 kennt keine dynamischen Regeln.
     networking.nftables.tables = lib.mkIf (
       cfg.hostIntegration.nftables == "managed"
     ) cfg.recommended.nftables;

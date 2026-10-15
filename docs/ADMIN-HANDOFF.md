@@ -46,3 +46,15 @@ Folgende globale Einstellungen wurden aus dem Kern-Flake entfernt und müssen nu
 2. **`services.caddy.enable`**: Wird jetzt über `hostIntegration.reverseProxy = "managed"` gesteuert.
 3. **MergerFS Pools**: Wurden aus `570-storage.nix` hinter den `hostIntegration.storage = "managed"`-Schalter gelegt.
 4. Alle Module greifen ab sofort auf den Namespace `medinix.*` statt `grapefruitMedia.*` zu.
+
+## 3. Edge-Bouncer (CrowdSec 516)
+
+mediNix betreibt die CrowdSec-Engine (liest die Caddy-Access-Logs aus dem journald).
+Der **Firewall-Bouncer** setzt Bans in nftables um — das ist Host-Hoheit:
+
+- `medinix.hostIntegration.nftables = "managed"` → mediNix aktiviert den Bouncer
+  (`services.crowdsec-firewall-bouncer`, eigene nftables-Kette).
+- `"external"` oder `"off"` → der Host muss den Bouncer selbst betreiben; sonst
+  **läuft die Engine ohne Durchsetzung** (Logs werden analysiert, aber nichts
+  gebannt). Dann zusätzlich `medinix.crowdsec.bouncer = false;` setzen — die
+  Assertion in 516 erzwingt diese Entscheidung.

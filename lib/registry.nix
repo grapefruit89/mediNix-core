@@ -43,6 +43,7 @@ rec {
     caddy = mkService "caddy" 511 "network" "none";
     pocket-id = mkService "pocket-id" 512 "network" "public";
     cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
+    crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";
 
     sonarr = mkService "sonarr" 532 "dotnet" "internal";
     radarr = mkService "radarr" 533 "dotnet" "internal";

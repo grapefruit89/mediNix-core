@@ -248,6 +248,10 @@
           medinix.maintenance.backup.passwordCredentialPath = "/var/lib/credstore.encrypted/restic.cred";
           medinix.orphanCleanup.enable = true;
           medinix.observability.runtimeGuard = true;
+          # 516 CrowdSec: Engine liest caddy-media aus dem journald; der Bouncer
+          # schreibt nur, wenn der Host die Firewall verwaltet (Assertion in 516).
+          medinix.crowdsec.enable = true;
+          medinix.hostIntegration.nftables = "managed";
           medinix.dns.ddns = {
             enable = true;
             zone = "example.com";
@@ -344,6 +348,16 @@
         # users.users.<dienst> durch Service-Engine und lib/service-factory.nix).
 
         checks.mediNix-stack-eval = stackNixos.config.system.build.toplevel;
+
+        # 516: Bouncer ohne Host-Verwaltung MUSS abbrechen (fail-closed),
+        # nicht stillschweigend nichts tun.
+        checks.mediNix-negative-crowdsec-bouncer =
+          expectAssertion "crowdsec-bouncer-ohne-host" "[mediNix/516]"
+            {
+              medinix.crowdsec.enable = true;
+              medinix.crowdsec.bouncer = true;
+              medinix.hostIntegration.nftables = "external";
+            };
 
         # ── B1: Port-Verdrahtung (zweiter Riegel neben dem Zahlen-Check) ─────
         # Der Zahlen-Check prueft `port == num * 10`. Hier wird geprueft, dass
