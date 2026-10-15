@@ -22,3 +22,15 @@ jobs:
             experimental-features = nix-command flakes
 
       - run: nix flake check --print-build-logs
+
+      # `nix flake check` baut nur CHECKS, nicht PACKAGES — deshalb konnte
+      # packages.docs unbemerkt verrotten (Archiv 2026-10-15: docs_dir-Fehler).
+      # Die Paketliste wird aus dem Flake abgeleitet, damit sie nicht driftet.
+      - name: Build all flake packages
+        run: |
+          mapfile -t attrs < <(nix eval --raw .#packages.x86_64-linux --apply 'p: builtins.concatStringsSep "\n" (builtins.attrNames p)')
+          for attr in "${attrs[@]}"; do
+            echo "::group::build .#packages.x86_64-linux.${attr}"
+            nix build --print-build-logs ".#packages.x86_64-linux.${attr}"
+            echo "::endgroup::"
+          done
