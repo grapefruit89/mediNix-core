@@ -63,6 +63,12 @@
       "component": "nix flake eval + git+file",
       "failure": "Negativtest mit einer NEUEN Datei lief ins Leere: git+file-Flakes kopieren nur den getrackten Stand - untracked Dateien sind fuer den Check unsichtbar (builtins.readDir sieht sie nicht).",
       "solution": "Probe-Datei mit 'git add -N <datei>' intent-to-add stagen, dann messen, danach 'git rm --cached' + 'rm'. Damit sind Gates echt beweisbar (so wurden Dekaden-Check, Leaf-0-Regel, ui.group-Enum und ramBudget-Pattern als FEUERND bewiesen)."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "checks.mediNix-stack-eval (Voll-Stack-Ratsche)",
+      "failure": "Ein Dienst ausserhalb der Ratsche ist ungeprueft. Nach dem Erweitern um pocket-id, feishin, recyclarr, diskHealth, mdns, ddns fand die Ratsche SOFORT drei vorbestehende Konflikte, die per Auge und Einzel-Check unsichtbar waren: (1) pocket-id setzte media als PRIMAERgruppe + einen eigenen users.users-Block (UPG-Verstoss, L-023-Klasse), (2) PrivateUsers plain false im Profil gegen plain true upstream, (3) Restart plain on-failure gegen plain always.",
+      "solution": "Ratsche deckt jetzt 18 Dienste. Muster fuer die Loesung von Konflikten dieser Klasse: das Hardening-Profil liefert nur noch lib.mkDefault, eine spezifischere (auch staerkere) Definition gewinnt (wie schon bei RestartSec, L-025)."
     }
   ],
   "recent_refactorings": [
@@ -294,7 +300,8 @@
         "service-contract (L-5): Verdrahtungs-Invariante - die Unit muss unter dem abgeleiteten Benutzer laufen (UPG). Ersetzt die tautologische Pruefung 'port == num*10'",
         "service-contract (L-6): Slot 0 ist die Block-ID (ADR-0000 §2) und traegt NIEMALS einen Daemon",
         "service-contract (L-7): Ankreuzbogen - liest ui.group/ops.priority/ops.ramBudget fuer jeden Eintrag, damit die Enums/Formate ueberhaupt feuern (Typen sind lazy)",
-        "513-cloudflare-dns: NoExecPaths=[\"/\"] + ExecPaths=[\"/nix/store\"]; 514 (acme) bewusst NICHT, weil nixpkgs-acme in ExecStartPost 'systemctl try-reload-or-restart' ruft (erst nach Laufzeittest)"
+        "513-cloudflare-dns: NoExecPaths=[\"/\"] + ExecPaths=[\"/nix/store\"]; 514 (acme) bewusst NICHT, weil nixpkgs-acme in ExecStartPost 'systemctl try-reload-or-restart' ruft (erst nach Laufzeittest)",
+        "3 dauerhafte Negativtests in flake.nix: mediNix-negative-slot0-daemon, mediNix-negative-identity-wired (mkForce noetig!), mediNix-negative-ankreuzbogen (Paar-Vergleich: kaputt MUSS scheitern UND korrekt MUSS durchlaufen; braucht ingress.trustedCidrs, sonst beweist der Vergleich nichts)"
       ]
     },
     "blacklist": [

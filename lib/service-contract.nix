@@ -233,13 +233,22 @@ in
               };
 
               group = lib.mkOption {
-                type = lib.types.enum [
-                  "Media"
-                  "Acquisition"
-                  "Transfer"
-                  "Observability"
-                  "Security"
-                ];
+                # Die Fehlermeldung des Typs stammt aus `type.description`
+                # (lib/modules.nix) - deshalb steht der Fix-Pfad direkt in der
+                # Build-Fehlermeldung, nicht nur in der Doku.
+                type =
+                  lib.types.enum [
+                    "Media"
+                    "Acquisition"
+                    "Transfer"
+                    "Observability"
+                    "Security"
+                  ]
+                  // {
+                    description = ''
+                      one of "Media", "Acquisition", "Transfer", "Observability", "Security"
+                      (neue Kategorie? in lib/service-contract.nix unter ui.group ergaenzen)'';
+                  };
                 default = "Media";
                 description = ''
                   Kategorie auf der Landingpage und in Gatus (Ankreuzbogen:
@@ -259,11 +268,17 @@ in
             # --- OPERATIONAL METADATA (OPS) ---
             ops = {
               priority = lib.mkOption {
-                type = lib.types.enum [
-                  "low"
-                  "medium"
-                  "high"
-                ];
+                type =
+                  lib.types.enum [
+                    "low"
+                    "medium"
+                    "high"
+                  ]
+                  // {
+                    description = ''
+                      one of "low", "medium", "high" (neue Stufe? in
+                      lib/service-contract.nix unter ops.priority ergaenzen)'';
+                  };
                 default = "medium";
                 description = "Betriebsprioritaet (Ankreuzbogen: low | medium | high).";
               };
@@ -272,7 +287,16 @@ in
                 # Bewusst kein Enum: die Werte sind dienstspezifisch
                 # (1G, 1.5G, 512M, 256M, ...). Geprueft wird das FORMAT,
                 # leer bedeutet "unbekannt".
-                type = lib.types.strMatching "^([0-9]+(\\.[0-9]+)?[MG])?$";
+                #
+                # "0M" ist ein bewusster Sentinel fuer "kein eigener Prozess"
+                # (feishin ist eine statische SPA, die Caddy ausliefert) - nicht
+                # "braucht 0 MB".
+                type = lib.types.strMatching "^([0-9]+(\\.[0-9]+)?[MG])?$" // {
+                  description = ''
+                    string matching the pattern ^([0-9]+(\.[0-9]+)?[MG])?$
+                    (0M = kein eigener Prozess, leer = unbekannt; Format aus
+                    lib/service-contract.nix)'';
+                };
                 default = "";
                 description = "Erwartetes RAM-Budget, z. B. \"512M\", \"1.5G\" oder \"\" (unbekannt).";
               };

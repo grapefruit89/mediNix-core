@@ -238,12 +238,28 @@
               medinix.gatus.enable = true;
               medinix.seerr.enable = true;
               medinix.observability.ntfy.enable = true;
+              # 2026-10-15 ergaenzt: diese sechs Dienste fehlten in der Ratsche und
+              # waren damit eine Blindstelle (Eigentum, Optionen, Units ungeprueft).
+              medinix.pocketId.enable = true;
+              medinix.feishin.enable = true;
+              medinix.maintenance.recyclarr.enable = true;
+              medinix.diskHealth.enable = true;
+              medinix.discovery.mdns.enable = true;
+              medinix.dns.ddns = {
+                enable = true;
+                zone = "example.com";
+                cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
+              };
               # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
               # nicht die Inbetriebnahme (Muster wie tests/medinix-smoke.nix).
               medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
               medinix.navidrome.setupCompleted = true;
               medinix.audiobookshelf.setupCompleted = true;
               medinix.manifest.seerr.allowUnauthenticated = true;
+              # feishin wird als public vhost gerendert; der Stack-Check braucht
+              # dieselbe bewusste Freigabe wie seerr (Produktion setzt hier
+              # ingress.auth.mode = "forward-auth" oder einen echten Ack).
+              medinix.manifest.feishin.allowUnauthenticated = true;
             };
           }).config.system.build.toplevel;
 
@@ -513,6 +529,75 @@
           else
             pkgs.runCommand "negative-cidr-injection-ok" { }
               "echo 'Negative test passed: trustedCidrs type rejects injection payloads' > $out";
+
+        # ── Negativtests fuer die am 2026-10-15 neu gebauten Gates ───────────
+        # Bisher waren Dekaden-Check, Verdrahtungs-Invariante, Slot-0-Regel und
+        # Ankreuzbogen nur per Handprobe bewiesen. Ab jetzt prueft die CI sie
+        # dauerhaft (Lehre aus der Roadmap: "eine kaputte Konfiguration muss brechen").
+
+        # (1) ADR-0000 §2: Slot 0 ist die Block-ID eines Ordners - nie ein Daemon.
+        checks.mediNix-negative-slot0-daemon = expectAssertion "slot0-daemon" "Slot 0 ist reserviert" {
+          medinix.manifest.probe = {
+            enable = true;
+            num = 550;
+            accessGroup = "internal";
+            monitoring.enable = false;
+          };
+        };
+
+        # (2) Verdrahtungs-Invariante: die Engine setzt serviceConfig.User per
+        # mkOptionDefault; eine Modul-Definition gewinnt und MUSS auffallen.
+        checks.mediNix-negative-identity-wired =
+          expectAssertion "identity-wired" "laeuft nicht unter dem abgeleiteten Benutzer"
+            {
+              medinix.sonarr.enable = true;
+              systemd.services.sonarr.serviceConfig.User = lib.mkForce "root";
+            };
+
+        # (3) Ankreuzbogen: ui.group/ops.priority sind Enums, ops.ramBudget ist ein
+        # Format-Pattern. Das sind TYPfehler (kein Assertion-Pfad) - und NixOS-Typen
+        # sind lazy. Deshalb prueft dieser Test ein PAAR: kaputt muss scheitern UND
+        # korrigiert muss durchlaufen (sonst waere "gruen aus dem falschen Grund").
+        checks.mediNix-negative-ankreuzbogen =
+          let
+            probe = extra: {
+              # trustedCidrs ist Pflicht (eigener Negativtest): ohne ihn bricht
+              # jede Konfiguration - dann bewiese der Testpaar-Vergleich nichts.
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.manifest.probe = {
+                enable = true;
+                num = 559;
+                accessGroup = "internal";
+                monitoring.enable = false;
+              }
+              // extra;
+            };
+            evaluates =
+              extra:
+              (builtins.tryEval (
+                builtins.seq
+                  (lib.nixosSystem {
+                    inherit system;
+                    modules = baseModules (probe extra);
+                  }).config.system.build.toplevel.drvPath
+                  true
+              )).success;
+            groupBroken = evaluates { ui.group = "Bogus"; };
+            groupFixed = evaluates { ui.group = "Observability"; };
+            ramBroken = evaluates { ops.ramBudget = "viel"; };
+            ramFixed = evaluates { ops.ramBudget = "2.5G"; };
+          in
+          if groupBroken then
+            throw "Negative test ankreuzbogen: ui.group = \"Bogus\" wurde akzeptiert - das Enum feuert nicht."
+          else if !groupFixed then
+            throw "Negative test ankreuzbogen: ui.group = \"Observability\" scheitert - der Test beweist nichts."
+          else if ramBroken then
+            throw "Negative test ankreuzbogen: ops.ramBudget = \"viel\" wurde akzeptiert - das Format-Pattern feuert nicht."
+          else if !ramFixed then
+            throw "Negative test ankreuzbogen: ops.ramBudget = \"2.5G\" scheitert - der Test beweist nichts."
+          else
+            pkgs.runCommand "negative-ankreuzbogen-ok" { }
+              "echo 'ok: Enums und Format-Pattern lehnen falsche Werte ab und akzeptieren gueltige' > $out";
         # F2 regression: *arr's AUTH__METHOD must follow the RESOLVED vhost
         # exposure — External only behind forward_auth (public), never on
         # internal (where 511 renders no forward_auth).

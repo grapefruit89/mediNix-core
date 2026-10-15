@@ -150,7 +150,6 @@ in
           PORT = svc.port;
         };
         user = "pocket-id";
-        group = "media"; # shared GID 5000 per ADR-0000
       };
 
       # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
@@ -165,14 +164,6 @@ in
           ReadWritePaths = [ svc.stateDir ];
         };
       };
-
-      users.users.pocket-id = {
-        inherit (svc) uid;
-        group = "media";
-        isSystemUser = true;
-        home = svc.stateDir;
-        createHome = true;
-      };
     })
   ];
 }
@@ -182,4 +173,5 @@ in
 # - Port 5120 is loopback-only; no TLS/DNS/Caddyfile logic in this file
 # - enable is explicit; forward-auth no longer implies a local IdP
 # - vhost class idp = deadlock shield; exposure is a declared policy
-# - GID 5000 (media) shared across mediNix; UID 5120 is isomorphic (512 × 10)
+# - UPG: Primaergruppe = pocket-id (UID/GID 5120); media (GID 5000) nur als
+#   supplementary group. users.users.pocket-id besitzt die Engine.

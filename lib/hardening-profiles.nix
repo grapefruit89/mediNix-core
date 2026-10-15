@@ -78,7 +78,10 @@ rec {
     PrivateUsers = true;
     CapabilityBoundingSet = [ "" ];
     AmbientCapabilities = [ "" ];
-    Restart = "on-failure";
+    # mkDefault (wie RestartSec unten): spezifische Module/Upstream-Module duerfen
+    # abweichen (pocket-id: Restart = "always"), ohne dass zwei plain
+    # Definitionen kollidieren.
+    Restart = lib.mkDefault "on-failure";
     # mkDefault: spezifische Module duerfen abweichen (z. B. 585-exporters: 10s),
     # ohne dass zwei plain Definitionen kollidieren.
     RestartSec = lib.mkDefault "5s";
@@ -149,7 +152,11 @@ rec {
     // {
       MemoryDenyWriteExecute = true;
       PrivateDevices = true;
-      PrivateUsers = false;
+      # mkDefault: der Basisfall sind Dienste, die einen privilegierten Port
+      # (<1024) binden - die brauchen den Host-User-Namespace. Ein Modul oder
+      # Upstream-Modul, das eine STAERKERE Isolation will (pocket-id bindet 5120
+      # und setzt PrivateUsers = true), gewinnt bewusst.
+      PrivateUsers = lib.mkDefault false;
       AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
       CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
       # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
