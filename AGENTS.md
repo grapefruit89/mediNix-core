@@ -29,3 +29,54 @@
 - **Binding:** Alle Backend-Dienste binden ausschließlich an `127.0.0.1` (nur Ingress ist exponiert).
 - **Fail-closed:** Assertions bedeuten sofortigen Build-Abbruch (`throw`), niemals stille Warnungen oder Ignorieren.
 - **Keine Inline-Secrets:** Ausschließlich `LoadCredentialEncrypted` oder `EnvironmentFile`.
+
+---
+
+## Repo-Landkarte (damit niemand neu explorieren muss)
+
+**Struktur = Dezimalrahmen (ADR-0000):** `XX-domain/NNN-dienst.nix` — `XX` = Dekade, `NNN` = Dienstnummer; daraus folgen Port, UID und Primär-GID (`NNN × 10`, UPG).
+
+| Dekade | Rolle (ADR-0000 §3) | Inhalt |
+|---|---|---|
+| `50-core` | Foundation | Host-Baseline, Engine-Anbindung, Host-Integration |
+| `51-ingress` | Access | Caddy (511) · Pocket-ID (512) · Cloudflare-DDNS (513) · ACME (514) · mDNS (515) · Landingpage (518) · Ingress-Guardrails (519) |
+| `52-security` | Security | nftables-Baseline (520) · sealed Credentials (521) · WireGuard (525) · VPN-Killswitch (526) |
+| `53-acquisition` | Ingestion | Sonarr · Radarr · Readarr · Lidarr · Prowlarr |
+| `54-transfer` | Processing | SABnzbd (541) · Mover (543) |
+| `55-playback` | Core UI/App | Jellyfin (551) · Audiobookshelf (552) · Navidrome (553) · Feishin (554) |
+| `56-exposition` | Exposition | Seerr (561) |
+| `57-maintenance` | Maintenance | Storage/SetGID (570) · SQLite-WAL (571) · Recyclarr (572) · Provisioning (574) · Update-Notifier (575) · Backup/restic (576) · Drift (577) · Orphan-Cleanup (578) · Backup-SSH (579) |
+| `58-observability` | Observability | ntfy (581) · Gatus (582) · Runtime-Guard (583) · Boot-Watchdog (584) · Exporter (585) · Disk-Health/smartd (587) |
+| `59-guardrails` | Guardrails | Cross-Domain-Assertions (591) |
+
+| Ort | Was |
+|---|---|
+| `lib/` | **Engine** `decimal-framework.nix` (besitzt `users.users.<dienst>`, StateDirectory, UPG) · `service-factory.nix` / `service-contract.nix` (Unit-Gerüst + Manifest-Schema) · `hardening-profiles.nix` (**einzige** Hardening-Quelle) · `registry.nix` (SSoT) · `creds` · `memory-policy` · `arr-settings` |
+| `docs/adr/` | 33 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
+| `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
+| `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
+| `docs/{arch,patterns,guides,concepts,learn,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`) |
+| `.agent-state.json` | **Korridor**: Whitelist, 23 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
+| `ROADMAP.md` | die einzige Roadmap (Backlog priorisiert · Verworfen · Done mit Hashes) |
+| `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
+| `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
+| `scripts/` | `nixmeta_check.py` (Header-Check) · `medinix-seal-secret.*` · `migrate-uids.sh` |
+| `flake.nix` | Outputs + **49 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
+
+**Einstieg in 4 Schritten:** 1. `.agent-state.json` (Korridor) → 2. `ROADMAP.md` (was als Nächstes) → 3. `docs/AUDIT-LEDGER.md` (was schon gefunden wurde) → 4. `docs/CONVENTIONS.md` (Regeln).
+
+---
+
+## Shell-Amok-Schutz (Permissions)
+
+`opencode.json` im Root ist **absichtlich gitignoriert** (maschinenspezifische Modell-/Provider-Config), enthält aber seit 2026-10-15 ein `permission`-Regelset. Damit die Regeln reproduzierbar sind, hier die verbindliche Liste (`"*": "allow"` als Catch-all, danach auf **`ask`**):
+
+```text
+rm -rf /  ·  rm -rf ~ / $HOME / /home/*  ·  rm -rf .git*
+git push*  ·  git reset --hard*  ·  git clean -*  ·  git branch -D*  ·  git checkout -- *
+sudo *  ·  systemctl *  ·  nixos-rebuild *  ·  nix store gc*  ·  nix-collect-garbage*
+dd *  ·  mkfs*  ·  shutdown*  ·  reboot*  ·  chmod -R *  ·  chown -R *
+> /etc/*  ·  >> /etc/*
+```
+
+Zwei Regeln erzwingen Korridor-Beschlüsse technisch: **jeder Push** und **jedes `git checkout -- <datei>`** (verwirft Änderungen) verlangen eine Bestätigung. Muster-Regeln werden von der **letzten** passenden Regel entschieden (Catch-all zuerst); Schema: <https://opencode.ai/docs/permissions/>. Die Config wird **nicht** hot-reloaded — sie greift nach einem Neustart von opencode.
