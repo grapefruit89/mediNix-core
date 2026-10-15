@@ -80,25 +80,17 @@ let
   factoryViolations = lib.flatten (
     lib.mapAttrsToList (n: u: [
       (lib.optional ((svcCfgOf n).User or null != n) "${n}: unit User != ${n}")
-      (lib.optional (
-        !(lib.elem ((svcCfgOf n).Group or null) [
-          n
-          "media"
-        ])
-      ) "${n}: unit Group weder ${n} (UPG) noch media")
+      (lib.optional ((svcCfgOf n).Group or null != n) "${n}: unit Group != ${n} (UPG, ADR-0000 §4)")
       (lib.optional (!((svcCfgOf n) ? StateDirectory)) "${n}: unit StateDirectory missing")
       (lib.optional (
         (config.users.users.${n}.uid or null) != u.uid
       ) "${n}: user uid != factory ${toString u.uid}")
-      (lib.optional
-        (
-          !(
-            (config.users.users.${n}.group or null) == "media"
-            || lib.elem "media" (config.users.users.${n}.extraGroups or [ ])
-          )
-        )
-        "${n}: weder Primaergruppe media noch media in extraGroups (UPG ohne Zugang zur geteilten Gruppe)"
-      )
+      (lib.optional (
+        (config.users.users.${n}.group or null) != n
+      ) "${n}: Primaergruppe != ${n} - media ist NUR als extraGroups erlaubt (ADR-0000 §4)")
+      (lib.optional (
+        ((config.users.groups.${n} or { }).gid or null) != u.uid
+      ) "${n}: UPG-Gruppe ${n} fehlt oder gid != ${toString u.uid}")
     ]) factoryUnits
   );
 in

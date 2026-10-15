@@ -285,6 +285,9 @@ let
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
     uid = 5110;
+    # 511 serviert die Medienablage (Tier C) -> media NUR als extraGroups,
+    # Primaergruppe bleibt die UPG (ADR-0000 §4).
+    mediaGroup = true;
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
     stateDir = "/var/lib/caddy-media-5110";
     profile = "network";

@@ -3,6 +3,22 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-15 — Sicherheitsreparatur 513 + UPG-Konformitaet
+
+- **513 lief als root** (`hardeningOnly`-Modus ohne `User`/`Group`): Die Service-Fabrik
+  setzt fuer fabrik-eigene Accounts jetzt `User`/`Group`/`RuntimeDirectory`; 513 legt
+  seinen Account selbst an — mit UPG (`cloudflare-ddns`, uid/gid 5130) statt
+  Primaergruppe `media` (ADR-0000 §4) — und ist neu in `medinix.factoryUnits`.
+- **DDNS-Token nicht mehr in `argv`**: `curl --variable token@… ` +
+  `--expand-header "Authorization: Bearer {{token:trim}}"` aus einer 0600-Datei im
+  RuntimeDirectory (curl >= 8.3; gepinnt 8.21.0). `lib/mk-secure-curl.nix` → `deprecated`.
+- **`media` nur noch supplementary**: neuer Fabrik-Parameter `mediaGroup`; 511 (Caddy)
+  setzt ihn, 513 braucht kein Medienrecht. `users.groups.<n>.gid = uid`,
+  tmpfiles-Gruppe = Account-Gruppe.
+- **Guardrail 591 verschaerft**: `Group == Unit-Name`, Primaergruppe == Unit-Name,
+  `users.groups.<n>.gid == uid`. Der verschaerfte Guardrail fand sofort einen
+  vergessenen Rest (`Group = "media"`) — deshalb ist er im Ledger als L-038 belegt.
+
 ## 2026-10-14 — Hygiene, ADR-0000 Dekaden-Bereinigung & Demarkation
 
 - **Domäne 56 (Exposition / Request-Management):** Seerr an seinen kanonischen Platz `56-exposition/561-seerr.nix` verlegt (Port/UID 5610, ADR-0000). Domain-README und AGENTS.md für `56-exposition` angelegt.

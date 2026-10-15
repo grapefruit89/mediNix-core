@@ -3,16 +3,16 @@
 # title: "Secure-curl-Aufruf mit Timeouts"
 # domain: 50
 # folder: "lib"
-# status: draft
+# status: deprecated
 # complexity: 2
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-0000
 # ---
-# NIE VERDRAHTET (Entscheidung 2026-10-15) - aber mit echtem Anwendungsfall:
-# 513-cloudflare-dns.nix uebergibt den Token als `-H "Authorization: Bearer $TOKEN"`
-# und damit in argv. Dieses Modul nutzt curl `--variable secret@file` (>= 8.3).
-# Siehe ROADMAP (P2).
+# NIE VERDRAHTET (Entscheidung 2026-10-15): 513 hatte den argv-Fall und hat ihn
+# mit der NATIVEN curl-Variante geloest (--variable + --expand-header, 2 Zeilen).
+# Damit ist dieses Modul redundant - `--variable secret@file` ist ein curl-Feature,
+# keine lib-Aufgabe. NICHT importieren - siehe lib/README.md.
 # lib/mk-secure-curl.nix
 #
 # Generiert einen curl-Aufruf, der Secrets zur Laufzeit intern expandiert,

@@ -249,7 +249,8 @@
         "24f5ee5: Ankreuzbogen Schicht 2 (ui.group/ops.priority als Enum, ramBudget als Format-Pattern + erzwingende Assertion)",
         "Branch refactor/decades-conformance lokal+remote geloescht (gemergt)"
       ]
-    }
+    },
+    "2026-10-15: 513 lief als root (hardeningOnly-Modus ohne User/Group) -> Fabrik setzt User/Group/RuntimeDirectory fuer Fabrik-eigene Accounts, 513 legt UPG-Account (uid/gid 5130) an und ist jetzt in medinix.factoryUnits; Group = name statt media im Modul-Zweig; mediaGroup-Parameter; 513-Token via curl --variable aus argv geholt; mk-secure-curl deprecated; Guardrail 591 auf UPG verschaerft. Messung: Eval-Harness (assertions_feuernd = []), 5 Checks, flake check 49/0, nixmeta 67/67, docs-Paket."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
@@ -572,7 +573,9 @@
         "date": "2026-10-15"
       },
       "KEIN `sleep` in Tool-Calls (Anti-Pattern, 2026-10-15): ein sleep blockiert den EIGENEN Flow komplett (der Nutzer sieht einen Haenger). Stattdessen: Call beenden, Stand berichten, in der Zwischenzeit etwas Nuetzliches tun, die CI SPAETER mit EINEM `gh run view` pruefen - nicht pollen, nicht warten.",
-      "Nicht pushen, um 'eine Zeile zu bestaetigen': erst lokal messen (Lint-Checks BAUEN, mediNix-unit-scripts bauen, docs-Paket), dann EINMAL pushen. Jeder rote CI-Zyklus kostet einen vollen Lauf (2 rote Zyklen am 2026-10-15 durch SC2050)."
+      "Nicht pushen, um 'eine Zeile zu bestaetigen': erst lokal messen (Lint-Checks BAUEN, mediNix-unit-scripts bauen, docs-Paket), dann EINMAL pushen. Jeder rote CI-Zyklus kostet einen vollen Lauf (2 rote Zyklen am 2026-10-15 durch SC2050).",
+      "Im hardeningOnly-Modus der Service-Fabrik NICHTS ausser serviceConfig zurueckgeben: der Rueckgabewert ist dort eine UNIT-Definition (systemd.services.<n> = lib.mkMerge [ (factory { hardeningOnly = true; ... }) {...} ]), also landen users.*/medinix.* sonst INNERHALB der Unit (Fehler 2026-10-15: 'The option systemd.services.cloudflare-ddns.users does not exist'). Account/Modul-Config gehoert in den Modul-Modus (else-Zweig) oder in das aufrufende Modul.",
+      "readClass: keine Primaergruppe media. `media` (GID 5000) ist ausschliesslich supplementary (extraGroups); die Primaergruppe ist immer die UPG (Group = Unit-Name, GID = uid, ADR-0000 §4)."
     ],
     "open_decisions": [
       {
@@ -648,6 +651,16 @@
         "date": "2026-10-15",
         "entscheidung": "4 nie verdrahtete lib-Module: MARKIERT statt geloescht (abc-tiering+_helpers -> deprecated; wait-for-api+mk-secure-curl -> draft). mk-secure-curl ist NICHT ueberholt - 513 hat den argv-Fall, den es loest (Roadmap-P2).",
         "grund": "2026-10-15"
+      },
+      {
+        "date": null,
+        "entscheidung": "513 Token aus argv: Option C (nativ) statt lib/mk-secure-curl verdrahten.",
+        "grund": null
+      },
+      {
+        "date": null,
+        "entscheidung": "UPG-Fabrik-Ausnahme: Option C - Fabrik vergibt UPG immer, media nur als extraGroups und nur mit mediaGroup = true.",
+        "grund": null
       }
     ]
   }

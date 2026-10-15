@@ -57,6 +57,7 @@ in
   extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)
   hardeningOnly ? false, # return only serviceConfig for NixOS upstream modules
   ownsAccount ? true, # false = die Engine besitzt users.users.<name> (Manifest-Dienst)
+  mediaGroup ? false, # true = zusaetzlich extraGroups = [ "media" ] (geteilte Medienablage)
   offloadMediaCover ? false, # offload MediaCover to metadataDir via systemd BindPaths
   ...
 }:
@@ -65,6 +66,10 @@ let
   useMediaCover =
     offloadMediaCover && (config.medinix.storage.offloadMediaCover or true) && (stateDir != null);
   mediaCoverSource = "${metadataDir}/${name}-MediaCover";
+  # Gruppe des privaten State-Verzeichnisses: bei Fabrik-eigenem Account die UPG
+  # (Unit-Name). Vorher stand hier fest "media" (ADR-0000 §4: kein Peer darf ein
+  # fremdes /var/lib/<name> lesen).
+  stateDirGroup = if ownsAccount then name else "media";
 in
 if hardeningOnly then
   {
@@ -92,6 +97,15 @@ if hardeningOnly then
       (lib.optionalAttrs useMediaCover {
         ReadWritePaths = [ mediaCoverSource ];
         BindPaths = [ "${mediaCoverSource}:${stateDir}/MediaCover" ];
+      })
+      # 2) Service-spezifische Basis - NUR wenn die Fabrik den Account besitzt
+      #    (hardeningOnly + ownsAccount, z. B. 513). Upstream-Module (512/581/582)
+      #    setzen User/Group selbst und kommen mit ownsAccount = false.
+      #    Ohne das lief die Unit als ROOT (gemessen 2026-10-15: 513).
+      (lib.optionalAttrs ownsAccount {
+        User = name;
+        Group = name; # UPG (ADR-0000 §4): Primaergruppe = Unit-Name, GID = uid
+        RuntimeDirectory = name;
       })
       extraConfig
     ];
@@ -122,9 +136,10 @@ else
           StateDirectoryMode = "0750"; # owner rw, group r, world nichts (NIXH-40-MED)
           RuntimeDirectory = name;
         }
-        # Group: fuer Manifest-Dienste setzt die Engine die UPG (Group = Dienstname);
-        # Factory-only-Units behalten die geteilte Gruppe media.
-        (lib.optionalAttrs ownsAccount { Group = "media"; })
+        # Group: UPG (ADR-0000 §4) - Primaergruppe = Unit-Name, GID = uid.
+        # Fuer Manifest-Dienste setzt die Engine sie, fuer Fabrik-eigene Units
+        # (caddy-media) setzen wir sie hier.
+        (lib.optionalAttrs ownsAccount { Group = name; })
         # 3) Peer-Isolation: fremde State-Dirs unsichtbar machen (außer allowedPeers)
         (
           let
@@ -147,7 +162,7 @@ else
     # Parent state directory must ALWAYS be declared first to prevent implicit root:root ownership.
     systemd.tmpfiles.rules =
       lib.optionals (stateDir != null) [
-        "d '${stateDir}' 0750 ${name} media -"
+        "d '${stateDir}' 0750 ${name} ${stateDirGroup} -"
       ]
       ++ lib.optionals useMediaCover [
         "d '${stateDir}/MediaCover' 0775 ${name} media -"
@@ -158,9 +173,16 @@ else
   }
   // lib.optionalAttrs ownsAccount {
     # Nur fuer Units OHNE Manifest-Eintrag: sonst besitzt die Engine den Account.
+    # UPG wie bei der Engine (ADR-0000 §4): Primaergruppe = Unit-Name, GID = uid.
+    # Die geteilte Gruppe media (5000) ist ausschliesslich supplementary und wird
+    # nur mit mediaGroup = true vergeben.
+    users.groups."${name}" = {
+      gid = uid;
+    };
     users.users."${name}" = {
       inherit uid;
-      group = "media";
+      group = name;
+      extraGroups = lib.optional mediaGroup "media";
       isSystemUser = true;
       home = stateDir;
       createHome = true;

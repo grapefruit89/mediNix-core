@@ -31,7 +31,7 @@ heute **woanders** gelöst:
 | Modul | Was es tut | Status heute |
 |---|---|---|
 | `abc-tiering.nix` | Storage-Layout `tierA/B/C` | **überholt** von `cfg.storage.backends.hot/cold` (`default.nix:221,230`) + `registry.stateDir` → **`status: deprecated`** |
-| `mk-secure-curl.nix` | curl ohne Secret in `argv` (`--variable`) | **nicht ueberholt:** 513 legt den Token als `-H "Authorization: Bearer $TOKEN"` in argv (`ProtectProc=invisible` mildert es auf root) → **`status: draft`**, Kandidat fuer 513 (Roadmap) |
+| `mk-secure-curl.nix` | curl ohne Secret in `argv` (`--variable`) | **`status: deprecated`** — 513 hat den Fall am 2026-10-15 **nativ** geloest (`--variable token@datei` + `--expand-header`, curl >= 8.3; gepinnt 8.21.0). Das Modul war damit unnoetig |
 | `wait-for-api.nix` | Readiness-Gate-Skript | **kein Consumer**: `arr_keys_sync.py` hat `wait_for_url` → **`status: draft`** |
 | `_helpers.nix` | `recursiveMergeAttrs` (Listen konkatenieren) | redundant zu `lib.mkMerge` → **`status: deprecated`** |
 

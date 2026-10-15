@@ -106,11 +106,14 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
   systemd.services.cloudflare-ddns = lib.mkMerge [
     ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
       name = "cloudflare-ddns";
+      uid = 5130; # 513 x 10: UID = Primaer-GID (UPG, ADR-0000 §4)
       profile = "network";
       stateDir = "/var/lib/cloudflare-ddns";
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
+        # 0700: hier legt das Skript gleich die Token-Datei fuer curl --variable ab.
+        RuntimeDirectoryMode = "0700";
         # Kein Nachladen aus /tmp, Home oder einem Angreifer-Verzeichnis:
         # nur der Nix-Store ist ausfuehrbar. Idiom aus nixpkgs
         # (z. B. webdav-server-rs.nix:129-130, meme-bingo-web.nix:129-130).
@@ -158,6 +161,13 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           TOKEN=$(cat "$TOKEN_FILE")
         fi
 
+        # Der Token darf NIE in argv landen (ps, /proc/<pid>/cmdline): curl liest
+        # ihn per --variable aus einer 0600-Datei im RuntimeDirectory (tmpfs) und
+        # expandiert ihn erst im Prozess (--expand-header, curl >= 8.3).
+        (umask 077; printf '%s' "$TOKEN" > "$RUNTIME_DIRECTORY/cf-token")
+        AUTH=(--variable token@"$RUNTIME_DIRECTORY/cf-token" --expand-header "Authorization: Bearer {{token:trim}}")
+        unset TOKEN
+
         WAN_IP=$(curl -s4 --fail-with-body https://ifconfig.me || curl -s4 --fail-with-body https://api.ipify.org)
         if [ -z "$WAN_IP" ]; then
           echo "FATAL: Could not determine WAN IP." >&2
@@ -187,8 +197,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         echo "Detected WAN IP: $WAN_IP"
         echo "Detected LAN IP: $LAN_IP"
 
-        ZONE_ID=$(curl -s --fail-with-body -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE" \
-          -H "Authorization: Bearer $TOKEN" \
+        ZONE_ID=$(curl -s --fail-with-body "''${AUTH[@]}" -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE" \
           -H "Content-Type: application/json" | jq -e -r 'if .success then .result[0].id else empty end')
 
         if [ "$ZONE_ID" = "null" ] || [ -z "$ZONE_ID" ]; then
@@ -199,13 +208,11 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         cf() {
           local method="$1" url="$2" data="''${3:-}"
           if [ -n "$data" ]; then
-            curl -s --fail-with-body -X "$method" "$url" \
-              -H "Authorization: Bearer $TOKEN" \
+            curl -s --fail-with-body "''${AUTH[@]}" -X "$method" "$url" \
               -H "Content-Type: application/json" \
               --data "$data"
           else
-            curl -s --fail-with-body -X "$method" "$url" \
-              -H "Authorization: Bearer $TOKEN" \
+            curl -s --fail-with-body "''${AUTH[@]}" -X "$method" "$url" \
               -H "Content-Type: application/json"
           fi
         }
@@ -316,11 +323,29 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
     };
   };
 
+  # Dieses Modul baut seine Unit selbst und nutzt die Fabrik nur als
+  # Hardening-Injektion (hardeningOnly): dort ist der Rueckgabewert die
+  # UNIT-Definition, deshalb liefert die Fabrik in diesem Modus bewusst keine
+  # users.* (die landeten sonst innerhalb der Unit). User/Group/RuntimeDirectory
+  # setzt sie trotzdem (ownsAccount), den Account legt dieses Modul an - mit UPG
+  # (ADR-0000 §4: Primaergruppe = Name, GID = uid). media (5000) waere hier
+  # ohnehin unrecht: das Skript braucht keinen Medienzugriff.
+  users.groups.cloudflare-ddns = {
+    gid = 5130;
+  };
   users.users.cloudflare-ddns = {
     uid = 5130;
-    group = "media";
+    group = "cloudflare-ddns";
     isSystemUser = true;
     home = "/var/lib/cloudflare-ddns";
     createHome = true;
+  };
+
+  # In medinix.factoryUnits eintragen, damit Guardrail 591 diese Unit prueft
+  # (User/Group = UPG, StateDirectory, uid/gid). Der Modul-Modus macht das
+  # automatisch, der hardeningOnly-Modus nicht.
+  medinix.factoryUnits."cloudflare-ddns" = {
+    uid = 5130;
+    stateDir = "/var/lib/cloudflare-ddns";
   };
 }
