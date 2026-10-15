@@ -233,9 +233,20 @@ in
               };
 
               group = lib.mkOption {
-                type = lib.types.str;
+                type = lib.types.enum [
+                  "Media"
+                  "Acquisition"
+                  "Transfer"
+                  "Observability"
+                  "Security"
+                ];
                 default = "Media";
-                description = "Kategorie-Zuordnung auf der Landingpage.";
+                description = ''
+                  Kategorie auf der Landingpage und in Gatus (Ankreuzbogen:
+                  geschlossene Liste). Die Werte stammen aus den bestehenden
+                  Manifest-Eintraegen; eine neue Kategorie wird hier bewusst
+                  ergaenzt statt stillschweigend erfunden.
+                '';
               };
 
               showOnLanding = lib.mkOption {
@@ -248,15 +259,22 @@ in
             # --- OPERATIONAL METADATA (OPS) ---
             ops = {
               priority = lib.mkOption {
-                type = lib.types.str;
+                type = lib.types.enum [
+                  "low"
+                  "medium"
+                  "high"
+                ];
                 default = "medium";
-                description = "Betriebspriorität des Dienstes (z. B. high, medium, low).";
+                description = "Betriebsprioritaet (Ankreuzbogen: low | medium | high).";
               };
 
               ramBudget = lib.mkOption {
-                type = lib.types.str;
+                # Bewusst kein Enum: die Werte sind dienstspezifisch
+                # (1G, 1.5G, 512M, 256M, ...). Geprueft wird das FORMAT,
+                # leer bedeutet "unbekannt".
+                type = lib.types.strMatching "^([0-9]+(\\.[0-9]+)?[MG])?$";
                 default = "";
-                description = "Erwartetes RAM-Budget.";
+                description = "Erwartetes RAM-Budget, z. B. \"512M\", \"1.5G\" oder \"\" (unbekannt).";
               };
 
               notes = lib.mkOption {
@@ -422,6 +440,22 @@ in
           assertion = (m.num - (m.num / 10) * 10) != 0 || !(m.hasDaemon or true);
           message = "[mediNix/manifest] Dienst '${name}': Slot 0 ist reserviert (Block-ID, ADR-0000 §2) — hier ist kein Daemon zulaessig.";
         }) cfg.manifest)
+
+        # 7. Ankreuzbogen-Invariante: die Auswahlfelder werden hier bewusst
+        # GELESEN. NixOS-Typen sind lazy — ein types.enum auf einem Feld, das
+        # niemand auswertet, feuert nie (gemessen 2026-10-15: ui.group = "Bogus"
+        # lief durch, weil nur 582-gatus das Feld liest, und zwar nur fuer
+        # aktiv ueberwachte Dienste). Diese Assertion erzwingt die Auswertung
+        # fuer JEDEN Manifest-Eintrag, damit die Enums/Formate greifen.
+        {
+          assertion = lib.all (
+            m:
+            builtins.isString m.ui.group
+            && builtins.isString m.ops.priority
+            && builtins.isString m.ops.ramBudget
+          ) (lib.attrValues cfg.manifest);
+          message = "[mediNix/manifest] Ankreuzbogen verletzt: ui.group, ops.priority und ops.ramBudget muessen Zeichenketten aus der erlaubten Liste sein (siehe lib/service-contract.nix).";
+        }
       ];
   };
 }
