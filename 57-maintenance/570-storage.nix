@@ -61,6 +61,12 @@ lib.mkIf (cfg.enable && st.enable) {
   # Ensure media group (GID 5000, SSOT from registry.nix)
   users.groups.media = lib.mkDefault { gid = 5000; };
 
-  # Directory structure + permissions
-  systemd.tmpfiles.rules = map (d: "d '${d}' 0775 root media -") allDirs;
+  # Directory structure + permissions.
+  # 2 vor 775 = SetGID: neue Dateien UND neue Unterordner erben die Gruppe media.
+  # Notwendig seit der UPG-Umstellung (ADR-0000 §4): Primaergruppe der Dienste ist
+  # jetzt ihr eigener Name, 0775 allein hinterlaesst Dateien als <dienst>:<dienst> —
+  # Nachbardienste (Mitglied von media) koennten sie dann nicht mehr aendern.
+  # Lokal verifiziert (systemd 259): eine spaetere d-Regel korrigiert Modus und
+  # SetGID-Bit auch an bereits existierenden Verzeichnissen.
+  systemd.tmpfiles.rules = map (d: "d '${d}' 2775 root media -") allDirs;
 }
