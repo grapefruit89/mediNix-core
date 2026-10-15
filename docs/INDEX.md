@@ -81,6 +81,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Caddy chameleon ingress](adr/ADR-511-caddy.md)
 - [Pocket ID OIDC process](adr/ADR-512-pocket-id.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-513-cloudflare-dns.md)
+- [CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)](adr/ADR-516-crowdsec.md)
 - [ADR-518-landingpage-honeypot.md](adr/ADR-518-landingpage-honeypot.md)
 - [ADR 5210 nftables firewall baseline](adr/ADR-52-nftables-firewall-baseline.md)
 - [ADR 5200 privesc audit hardening](adr/ADR-52-privesc-audit-hardening.md)
