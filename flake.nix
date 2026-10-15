@@ -822,7 +822,7 @@
             pkgs.python3Packages.mkdocs-material
           ];
           buildPhase = ''
-            cd docs
+            cd docs || exit 1
             mkdocs build --site-dir ../site
             cd ..
           '';

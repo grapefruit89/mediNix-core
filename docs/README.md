@@ -121,7 +121,7 @@ Soft-Warnings: firewall aus, stream ohne TLS, .NET-EOL.
 ## Verzeichnis
 
 - `default.nix` — Options-API (`medinix.*`), auto-import aller Module via `readDir`+regex
-- `lib/` — registry (SSoT Ports/UID), service-factory (mkService), abc-tiering
+- `lib/` — Hilfsbibliotheken (registry, service-factory, hardening-profiles, …) → siehe `lib/README.md`
 - `docs/` — ADRs (Architecture Decision Records), INDEX.md
 - `flake.nix` — `nixosModules.default` Export + CI-check Target
 

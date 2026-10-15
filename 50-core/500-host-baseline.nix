@@ -104,7 +104,8 @@ in
 
     (lib.mkIf (cfg.enable && cfg.hostHygiene.enable) {
       services.logrotate.enable = lib.mkDefault false;
-      services.journald.extraConfig = lib.mkDefault ''
+      environment.etc."systemd/journald.conf.d/10-mediNix.conf".text = ''
+        [Journal]
         SystemMaxUse=500M
         SystemMaxFileSize=50M
         MaxRetentionSec=2week

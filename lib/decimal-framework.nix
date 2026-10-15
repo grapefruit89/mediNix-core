@@ -8,7 +8,11 @@
 # last_reviewed: 2026-10-14
 # adr: ADR-0000
 # ---
-{ config ? { }, lib, ... }:
+{
+  config ? { },
+  lib,
+  ...
+}:
 
 let
   mod = a: b: a - (a / b) * b;
@@ -124,7 +128,12 @@ in
   options.decimalFramework = {
     lib = lib.mkOption {
       default = {
-        inherit derive validate canonicalDecades allowedCapabilities;
+        inherit
+          derive
+          validate
+          canonicalDecades
+          allowedCapabilities
+          ;
       };
       internal = true;
       readOnly = true;
@@ -135,21 +144,23 @@ in
     # 3. Compile-Time Assertions (Uniqueness, Invariants, Role & Capabilities Whitelist)
     assertions =
       lib.concatLists (lib.mapAttrsToList (name: meta: validate name meta.num) daemonServices)
-      ++ lib.concatLists (lib.mapAttrsToList (name: meta: [
-        {
-          assertion = !(meta ? role) || meta.role == null || (builtins.isString meta.role && meta.role != "");
-          message = "[ADR-0000 I5] What: Service '${name}' declares an empty role string. Fix: Either omit the role field entirely, or declare a non-empty functional role (e.g. 'media-server').";
-        }
-        {
-          assertion =
-            let
-              capabilities = meta.capabilities or [ ];
-            in
-            builtins.isList capabilities
-            && lib.all (cap: builtins.isString cap && builtins.elem cap allowedCapabilities) capabilities;
-          message = "[ADR-0000 Capabilities] What: Service '${name}' requests an unauthorized, malformed, or dangerous capability. Fix: Declare only capabilities from the permitted whitelist: ${lib.concatStringsSep ", " allowedCapabilities}.";
-        }
-      ]) manifests)
+      ++ lib.concatLists (
+        lib.mapAttrsToList (name: meta: [
+          {
+            assertion = !(meta ? role) || meta.role == null || (builtins.isString meta.role && meta.role != "");
+            message = "[ADR-0000 I5] What: Service '${name}' declares an empty role string. Fix: Either omit the role field entirely, or declare a non-empty functional role (e.g. 'media-server').";
+          }
+          {
+            assertion =
+              let
+                capabilities = meta.capabilities or [ ];
+              in
+              builtins.isList capabilities
+              && lib.all (cap: builtins.isString cap && builtins.elem cap allowedCapabilities) capabilities;
+            message = "[ADR-0000 Capabilities] What: Service '${name}' requests an unauthorized, malformed, or dangerous capability. Fix: Declare only capabilities from the permitted whitelist: ${lib.concatStringsSep ", " allowedCapabilities}.";
+          }
+        ]) manifests
+      )
       ++ [
         {
           assertion = lib.length allActiveIds == lib.length (lib.unique allActiveIds);
@@ -158,19 +169,18 @@ in
       ];
 
     # 4. UPG & Shared Group Definitions
-    users.groups =
+    users.groups = {
+      media = lib.mkDefault { gid = 5000; };
+    }
+    // lib.mapAttrs (
+      _name: meta:
+      let
+        spec = derive _name meta.num;
+      in
       {
-        media = lib.mkDefault { gid = 5000; };
+        gid = spec.primaryGid;
       }
-      // lib.mapAttrs (
-        _name: meta:
-        let
-          spec = derive _name meta.num;
-        in
-        {
-          gid = spec.primaryGid;
-        }
-      ) daemonServices;
+    ) daemonServices;
 
     users.users = lib.mapAttrs (
       name: meta:

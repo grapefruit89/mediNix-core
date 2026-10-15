@@ -1,0 +1,14 @@
+name: Order Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  folder-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ordner-Spam-Lint (Regel: >= 3 Dateien, mit Ausnahmen)
+        run: bash docs/agents/shared/scripts/folder_lint.sh .

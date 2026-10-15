@@ -23,68 +23,77 @@
 set -uo pipefail
 
 declare -A UID_OF=(
-  [sonarr]=5320
-  [radarr]=5330
-  [readarr]=5340
-  [lidarr]=5350
-  [prowlarr]=5360
-  [sabnzbd]=5410
-  [jellyfin]=5510
-  [audiobookshelf]=5520
-  [navidrome]=5530
+	[sonarr]=5320
+	[radarr]=5330
+	[readarr]=5340
+	[lidarr]=5350
+	[prowlarr]=5360
+	[sabnzbd]=5410
+	[jellyfin]=5510
+	[audiobookshelf]=5520
+	[navidrome]=5530
 )
 GID_MEDIA=5000
-SVCS="${!UID_OF[*]}"
+SVCS=("${!UID_OF[@]}")
 
 check() {
-  local drift=0
-  printf "  %-16s %-8s %-8s %s\n" "Dienst" "Ist" "Soll" "Status"
-  for u in $(printf '%s\n' "${!UID_OF[@]}" | sort); do
-    cur=$(id -u "$u" 2>/dev/null || echo "-")
-    if [ "$cur" = "${UID_OF[$u]}" ]; then st="ok"; else st="ÄNDERN"; drift=1; fi
-    printf "  %-16s %-8s %-8s %s\n" "$u" "$cur" "${UID_OF[$u]}" "$st"
-  done
-  gc=$(getent group media | cut -d: -f3 2>/dev/null || echo "-")
-  if [ "$gc" = "$GID_MEDIA" ]; then echo "  media-gid $gc  ok"; else echo "  media-gid $gc -> $GID_MEDIA  ÄNDERN"; drift=1; fi
-  [ "$drift" = 0 ] && echo "  => alles auf Soll, keine Migration nötig." \
-                   || echo "  => Abweichung. 'apply' bringt es in Ordnung."
+	local drift=0
+	printf "  %-16s %-8s %-8s %s\n" "Dienst" "Ist" "Soll" "Status"
+	for u in $(printf '%s\n' "${!UID_OF[@]}" | sort); do
+		cur=$(id -u "$u" 2>/dev/null || echo "-")
+		if [ "$cur" = "${UID_OF[$u]}" ]; then st="ok"; else
+			st="ÄNDERN"
+			drift=1
+		fi
+		printf "  %-16s %-8s %-8s %s\n" "$u" "$cur" "${UID_OF[$u]}" "$st"
+	done
+	gc=$(getent group media | cut -d: -f3 2>/dev/null || echo "-")
+	if [ "$gc" = "$GID_MEDIA" ]; then echo "  media-gid $gc  ok"; else
+		echo "  media-gid $gc -> $GID_MEDIA  ÄNDERN"
+		drift=1
+	fi
+	[ "$drift" = 0 ] && echo "  => alles auf Soll, keine Migration nötig." ||
+		echo "  => Abweichung. 'apply' bringt es in Ordnung."
 }
 
 apply() {
-  echo "1/5 Dienste stoppen ..."
-  systemctl stop $SVCS 2>/dev/null || true
-  sleep 3
-  echo "2/5 Gruppe media -> $GID_MEDIA"
-  groupmod -g "$GID_MEDIA" media 2>/dev/null || groupadd -g "$GID_MEDIA" media
-  echo "3/5 Benutzer umnummerieren"
-  for u in "${!UID_OF[@]}"; do
-    id "$u" >/dev/null 2>&1 && usermod -u "${UID_OF[$u]}" "$u" && echo "     $u -> ${UID_OF[$u]}"
-  done
-  echo "4/5 State-Verzeichnisse übereignen (chown)"
-  for u in "${!UID_OF[@]}"; do
-    for d in "/var/lib/$u" "/var/lib/$u-${UID_OF[$u]}" "/var/cache/$u" "/var/cache/$u-${UID_OF[$u]}"; do
-      [ -d "$d" ] && chown -R "${UID_OF[$u]}":media "$d" && echo "     $d"
-    done
-  done
-  [ -d /data ] && chgrp -R media /data && echo "     /data -> Gruppe media"
-  echo "5/5 Dienste starten ..."
-  systemctl start $SVCS
-  sleep 5
-  echo ""
-  echo "Kontrolle:"
-  check
+	echo "1/5 Dienste stoppen ..."
+	systemctl stop "${SVCS[@]}" 2>/dev/null || true
+	sleep 3
+	echo "2/5 Gruppe media -> $GID_MEDIA"
+	groupmod -g "$GID_MEDIA" media 2>/dev/null || groupadd -g "$GID_MEDIA" media
+	echo "3/5 Benutzer umnummerieren"
+	for u in "${!UID_OF[@]}"; do
+		id "$u" >/dev/null 2>&1 && usermod -u "${UID_OF[$u]}" "$u" && echo "     $u -> ${UID_OF[$u]}"
+	done
+	echo "4/5 State-Verzeichnisse übereignen (chown)"
+	for u in "${!UID_OF[@]}"; do
+		for d in "/var/lib/$u" "/var/lib/$u-${UID_OF[$u]}" "/var/cache/$u" "/var/cache/$u-${UID_OF[$u]}"; do
+			[ -d "$d" ] && chown -R "${UID_OF[$u]}":media "$d" && echo "     $d"
+		done
+	done
+	[ -d /data ] && chgrp -R media /data && echo "     /data -> Gruppe media"
+	echo "5/5 Dienste starten ..."
+	systemctl start "${SVCS[@]}"
+	sleep 5
+	echo ""
+	echo "Kontrolle:"
+	check
 }
 
 case "${1:-}" in
-  check) check ;;
-  apply)
-    [ "$(id -u)" = 0 ] || { echo "apply braucht root — mit sudo aufrufen."; exit 1; }
-    apply
-    ;;
-  *)
-    echo "Aufruf: $0 check|apply"
-    echo "  check  Ist vs. Soll anzeigen (ändert nichts)"
-    echo "  apply  Migration ausführen (root)"
-    exit 1
-    ;;
+check) check ;;
+apply)
+	[ "$(id -u)" = 0 ] || {
+		echo "apply braucht root — mit sudo aufrufen."
+		exit 1
+	}
+	apply
+	;;
+*)
+	echo "Aufruf: $0 check|apply"
+	echo "  check  Ist vs. Soll anzeigen (ändert nichts)"
+	echo "  apply  Migration ausführen (root)"
+	exit 1
+	;;
 esac
