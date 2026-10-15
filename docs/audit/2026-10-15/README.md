@@ -22,3 +22,22 @@ erhalten, ist aber nicht mehr handlungsleitend. Die kanonische Roadmap ist `ROAD
    die Historie bleibt, der Irrtum verschwindet aus dem Weg.
 4. **Vor dem Verschieben prüfen, wer verlinkt** (mkdocs-Navigation, ADRs, Index-Dateien) — sonst
    bricht der `docs`-Build in der CI, so wie es die `order-lint.yml` am 2026-10-15 fast getan hätte.
+
+---
+
+## Fehlversuche und Sackgassen dieser Runde
+
+Nichts davon ist gelöscht — jede Sackgasse bleibt als Warnschild stehen.
+
+| Fehlversuch | Was passierte | Lehre |
+|---|---|---|
+| Top-Level-`inherit` in einem Modul (`lib/decimal-framework.nix:114-121`) | `nix flake check` war seit `5cf7038` rot — über **5 Commits** lang unbemerkt | Ein Modul darf nur `imports`/`options`/`config` auf oberster Ebene haben (`lib/modules.nix:670`) |
+| Account-Eigentum in der Factory aus `config.medinix.manifest` ableiten | **Endlosrekursion**, 12 statt 43 grüne Checks in einem Lauf | `config.*` nie aus einer Funktion lesen, die während der Config-Auswertung läuft → explizite Parameter |
+| `# shellcheck disable=SC2035: <Text>` | SC1125 „Invalid key=value pair" — die Direktive wirkte nicht | Direktive allein auf die Zeile, Erklärung in die Zeile darüber |
+| Annahme, `551:165` und `552:134` seien doppelte Eltern-Deklarationen | es sind **Unterverzeichnisse** (`${storage.metadataDir}/jellyfin`) | Variablendefinitionen nachlesen statt aus dem Grep-Kontext schließen |
+| `nix build '.#packages.x86_64-linux.*'` | nix expandiert keine Glob-Wildcards (Fehler: „expected a derivation … found a set") | Paketliste per `nix eval` ableiten und in einer Schleife bauen |
+| actionlint-Fund auf `cp` verortet | der SC2035-Treffer saß auf `git add *.md` (Zeile 48), nicht auf `cp` (Zeile 47) | Zeilennummern aus dem Werkzeug übernehmen, nicht selbst zählen |
+| Vertrauen in `nix flake check --no-build` | ein nixfmt-Fund (`582-gatus.nix`) ging lokal durch, die CI wurde rot | Lint-Checks müssen **gebaut** werden; Format-Sweep über alle `.nix` |
+| Vertrauen in `nix flake check` | `packages.docs` war seit einem mkdocs-Bump kaputt, die CI blieb grün | Was nicht gebaut wird, verrottet → Paket-Build-Step in der CI |
+| `services.gatus` / `services.ntfy-sh` delegieren | `DynamicUser = true` = stiller Verfassungsbruch; Gatus band Port 8080 statt 5820 | Upstream-Module vor der Delegation auf `DynamicUser`, `User`/`Group` und Port prüfen |
+| IP-Filter/TTL auf Cloudflare-Tokens (Sicherheitsvorschlag) | für DDNS eine Selbstblockade (die IP *soll* sich ändern), für ACME ein stiller Renewal-Ausfall | Maßnahmen gegen ihre eigene Zweckbestimmung prüfen, bevor man sie übernimmt |
