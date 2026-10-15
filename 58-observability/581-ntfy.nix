@@ -26,7 +26,7 @@ let
   inherit (reg) uid;
   inherit (reg) gid;
   inherit (reg) stateDir;
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
   ntfyGroup =
     config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
 
@@ -79,27 +79,19 @@ lib.mkMerge [
       }
     ];
 
-    services.ntfy-sh = {
-      enable = true;
-      settings = {
-        base-url = cfg.baseUrl;
-        listen-http = "127.0.0.1:${toString port}";
-        cache-file = "${stateDir}/cache.db";
-        attachment-cache-dir = "${stateDir}/attachments";
-        auth-default-access = "read-write";
-      };
+    # Konfiguration deklarativ rendern. Ersetzt services.ntfy-sh, dessen Unit
+    # DynamicUser = true setzt (verletzt locked_invariants: DynamicUser = false,
+    # UID = Port = 5810) und ProtectSystem = "full" erzwingt.
+    environment.etc."ntfy/server.yml".source = (pkgs.formats.yaml { }).generate "ntfy-server.yml" {
+      base-url = cfg.baseUrl;
+      listen-http = "127.0.0.1:${toString port}";
+      cache-file = "${stateDir}/cache.db";
+      attachment-cache-dir = "${stateDir}/attachments";
+      auth-default-access = "read-write";
     };
 
-    systemd.services.ntfy-sh = {
-      unitConfig.RequiresMountsFor = [ stateDir ];
-      serviceConfig = lib.mkMerge [
-        profiles.network
-        {
-          User = "ntfy";
-          Group = "media";
-        }
-      ];
-    };
+    # Der tmpfs-Mount haengt am State-Verzeichnis -> Unit erst danach starten.
+    systemd.services.ntfy.unitConfig.RequiresMountsFor = [ stateDir ];
 
     medinix.manifest.ntfy = {
       inherit (cfg) enable;
@@ -126,4 +118,15 @@ lib.mkMerge [
       };
     };
   })
+
+  # Unit nativ ueber die Factory: UPG (User = ntfy), media als Zusatzgruppe,
+  # Profil network. Unit-Name ist jetzt "ntfy" statt "ntfy-sh", damit Unit,
+  # Manifest-Schluessel und Systembenutzer identisch heissen.
+  (lib.mkIf cfg.enable (conn {
+    name = "ntfy";
+    ownsAccount = false;
+    inherit uid stateDir;
+    execStart = "${pkgs.ntfy-sh}/bin/ntfy serve -c /etc/ntfy/server.yml";
+    profile = "network";
+  }))
 ]

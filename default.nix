@@ -714,7 +714,7 @@ in
           default = "https://ntfy.sh";
           description = ''
             ntfy server URL. Default ntfy.sh (free, no self-host) oder
-            self-hosted (services.ntfy-sh auf Port 5810, caddyClass=public).
+            self-hosted (native ntfy-Unit auf Port 5810, caddyClass=public).
           '';
         };
         topic = lib.mkOption {

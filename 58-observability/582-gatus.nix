@@ -9,6 +9,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -20,6 +21,7 @@ let
   inherit (reg)
     num
     port
+    uid
     gid
     stateDir
     ;
@@ -58,6 +60,22 @@ let
   }) (lib.filterAttrs (_: m: m.monitoring.type == "tcp") activeServices);
 
   allEndpoints = httpEndpoints ++ tcpEndpoints;
+
+  # Gatus-Konfiguration. Bewusst NICHT ueber services.gatus: das Upstream-Modul
+  # setzt DynamicUser = true (verletzt die locked_invariants: DynamicUser = false,
+  # UID = Port = 5820) und bindet standardmaessig Port 8080 statt 5820.
+  gatusConfig = {
+    web.port = port;
+    metrics = true;
+    ui = {
+      title = "mediNix Status";
+      header = "mediNix Infrastructure Health";
+    };
+    endpoints = allEndpoints;
+  };
+
+  # Unit ueber die Factory: Hardening-Profil + StateDirectory an einer Stelle.
+  conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
 in
 {
   options.medinix.gatus = {
@@ -96,34 +114,27 @@ in
     # ── 2. Laufzeit-Konfiguration ──────────────────────────────────────────
     (lib.mkIf cfg.enable {
       users.groups.media.gid = gid;
-      systemd.tmpfiles.rules = [
-        "d '${stateDir}' 0755 gatus media -"
-      ];
 
-      # Natives NixOS Gatus-Service-Setup
-      services.gatus = {
-        enable = true;
-        settings = {
-          metrics = true;
-          ui = {
-            title = "mediNix Status";
-            header = "mediNix Infrastructure Health";
-          };
-          endpoints = allEndpoints;
-        };
-      };
-
-      systemd.services.gatus = {
-        serviceConfig = {
-          User = "gatus";
-          Group = "media";
-          StateDirectory = "gatus-${toString port}";
-          ProtectSystem = "strict";
-          ProtectHome = true;
-          PrivateTmp = true;
-          Environment = [ "PORT=${toString port}" ];
-        };
-      };
+      # Konfiguration deklarativ ablegen; Gatus liest sie ueber GATUS_CONFIG_PATH.
+      environment.etc."gatus/config.yaml".source =
+        (pkgs.formats.yaml { }).generate "gatus-config.yaml" gatusConfig;
     })
+
+    # Nativ statt services.gatus (siehe gatusConfig oben). ownsAccount = false:
+    # users.users.gatus, UPG-Group und StateDirectory besitzt die Engine.
+    # Die Factory liefert ein ganzes Config-Fragment (systemd.* + medinix.*),
+    # deshalb wird sie als eigener Block in mkMerge gemergt, nicht zugewiesen.
+    # Hinweis: ICMP-Pruefungen wuerden CAP_NET_RAW brauchen (AmbientCapabilities
+    # + CapabilityBoundingSet); die generierten Endpunkte sind HTTP/TCP.
+    (lib.mkIf cfg.enable (conn {
+      name = "gatus";
+      ownsAccount = false;
+      inherit uid stateDir;
+      execStart = "${pkgs.gatus}/bin/gatus";
+      profile = "base";
+      extraConfig = {
+        Environment = [ "GATUS_CONFIG_PATH=/etc/gatus/config.yaml" ];
+      };
+    }))
   ];
 }
