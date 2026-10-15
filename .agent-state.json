@@ -69,6 +69,12 @@
       "component": "checks.mediNix-stack-eval (Voll-Stack-Ratsche)",
       "failure": "Ein Dienst ausserhalb der Ratsche ist ungeprueft. Nach dem Erweitern um pocket-id, feishin, recyclarr, diskHealth, mdns, ddns fand die Ratsche SOFORT drei vorbestehende Konflikte, die per Auge und Einzel-Check unsichtbar waren: (1) pocket-id setzte media als PRIMAERgruppe + einen eigenen users.users-Block (UPG-Verstoss, L-023-Klasse), (2) PrivateUsers plain false im Profil gegen plain true upstream, (3) Restart plain on-failure gegen plain always.",
       "solution": "Ratsche deckt jetzt 18 Dienste. Muster fuer die Loesung von Konflikten dieser Klasse: das Hardening-Profil liefert nur noch lib.mkDefault, eine spezifischere (auch staerkere) Definition gewinnt (wie schon bei RestartSec, L-025)."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "Port-Survey fuer checks.mediNix-ports-verdrahtet",
+      "failure": "Die erste Messung sah wie ein Massenbug aus: 8 Dienste mit 'falschem' Port (sonarr manifest 5320, verdrahtet 8989 usw.). Ursache: das waren die nixpkgs-DEFAULTS von Modulen, die das Repo gar nicht nutzt - 53-acquisition/532-sonarr.nix baut eine eigene Unit, und der Port reist als SONARR__SERVER__PORT in der Unit-Umgebung (lib/arr-settings.nix).",
+      "solution": "Traeger nur aus (a) der Unit-Umgebung und (b) den Settings AKTIVER nixpkgs-Module (c.services.<n>.enable == true) ableiten. Sonst misst man Defaults statt Wirkung - und haette 8 Phantom-Bugs gemeldet."
     }
   ],
   "recent_refactorings": [
@@ -301,7 +307,8 @@
         "service-contract (L-6): Slot 0 ist die Block-ID (ADR-0000 §2) und traegt NIEMALS einen Daemon",
         "service-contract (L-7): Ankreuzbogen - liest ui.group/ops.priority/ops.ramBudget fuer jeden Eintrag, damit die Enums/Formate ueberhaupt feuern (Typen sind lazy)",
         "513-cloudflare-dns: NoExecPaths=[\"/\"] + ExecPaths=[\"/nix/store\"]; 514 (acme) bewusst NICHT, weil nixpkgs-acme in ExecStartPost 'systemctl try-reload-or-restart' ruft (erst nach Laufzeittest)",
-        "3 dauerhafte Negativtests in flake.nix: mediNix-negative-slot0-daemon, mediNix-negative-identity-wired (mkForce noetig!), mediNix-negative-ankreuzbogen (Paar-Vergleich: kaputt MUSS scheitern UND korrekt MUSS durchlaufen; braucht ingress.trustedCidrs, sonst beweist der Vergleich nichts)"
+        "3 dauerhafte Negativtests in flake.nix: mediNix-negative-slot0-daemon, mediNix-negative-identity-wired (mkForce noetig!), mediNix-negative-ankreuzbogen (Paar-Vergleich: kaputt MUSS scheitern UND korrekt MUSS durchlaufen; braucht ingress.trustedCidrs, sonst beweist der Vergleich nichts)",
+        "checks.mediNix-ports-verdrahtet: Manifest-Port muss beim Daemon ankommen (Unit-Umgebung | aktive nixpkgs-Settings | gerenderte YAML via environment.etc | Seed-Template). stackConfig/stackNixos teilen sich Ratsche und Port-Check"
       ]
     },
     "blacklist": [

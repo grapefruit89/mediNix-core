@@ -197,6 +197,52 @@
               }).config;
           in
           pkgs.writeText "medinix-manifest.json" (builtins.toJSON (c.medinix.manifest or { }));
+
+        # Gemeinsame Voll-Stack-Belegung: die Ratsche UND der
+        # Port-Verdrahtungs-Check nutzen DIESELBE Belegung - zwei Listen
+        # wuerden unweigerlich auseinanderdriften.
+        stackConfig = {
+          medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+          medinix.sonarr.enable = true;
+          medinix.radarr.enable = true;
+          medinix.readarr.enable = true;
+          medinix.lidarr.enable = true;
+          medinix.prowlarr.enable = true;
+          medinix.sabnzbd.enable = true;
+          medinix.jellyfin.enable = true;
+          medinix.audiobookshelf.enable = true;
+          medinix.navidrome.enable = true;
+          medinix.gatus.enable = true;
+          medinix.seerr.enable = true;
+          medinix.observability.ntfy.enable = true;
+          # 2026-10-15 ergaenzt: diese sechs Dienste fehlten in der Ratsche und
+          # waren damit eine Blindstelle (Eigentum, Optionen, Units ungeprueft).
+          medinix.pocketId.enable = true;
+          medinix.feishin.enable = true;
+          medinix.maintenance.recyclarr.enable = true;
+          medinix.diskHealth.enable = true;
+          medinix.discovery.mdns.enable = true;
+          medinix.dns.ddns = {
+            enable = true;
+            zone = "example.com";
+            cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
+          };
+          # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
+          # nicht die Inbetriebnahme (Muster wie tests/medinix-smoke.nix).
+          medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+          medinix.navidrome.setupCompleted = true;
+          medinix.audiobookshelf.setupCompleted = true;
+          medinix.manifest.seerr.allowUnauthenticated = true;
+          # feishin wird als public vhost gerendert; der Stack-Check braucht
+          # dieselbe bewusste Freigabe wie seerr (Produktion setzt hier
+          # ingress.auth.mode = "forward-auth" oder einen echten Ack).
+          medinix.manifest.feishin.allowUnauthenticated = true;
+        };
+
+        stackNixos = lib.nixosSystem {
+          inherit system;
+          modules = baseModules stackConfig;
+        };
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
@@ -221,47 +267,101 @@
         # den toplevel. Deckt Faelle auf, die Einzel-Checks verpassen, weil sie
         # users.users.* nie forcieren (z. B. paralleles Eigentum an
         # users.users.<dienst> durch Service-Engine und lib/service-factory.nix).
-        checks.mediNix-stack-eval =
-          (lib.nixosSystem {
-            inherit system;
-            modules = baseModules {
-              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-              medinix.sonarr.enable = true;
-              medinix.radarr.enable = true;
-              medinix.readarr.enable = true;
-              medinix.lidarr.enable = true;
-              medinix.prowlarr.enable = true;
-              medinix.sabnzbd.enable = true;
-              medinix.jellyfin.enable = true;
-              medinix.audiobookshelf.enable = true;
-              medinix.navidrome.enable = true;
-              medinix.gatus.enable = true;
-              medinix.seerr.enable = true;
-              medinix.observability.ntfy.enable = true;
-              # 2026-10-15 ergaenzt: diese sechs Dienste fehlten in der Ratsche und
-              # waren damit eine Blindstelle (Eigentum, Optionen, Units ungeprueft).
-              medinix.pocketId.enable = true;
-              medinix.feishin.enable = true;
-              medinix.maintenance.recyclarr.enable = true;
-              medinix.diskHealth.enable = true;
-              medinix.discovery.mdns.enable = true;
-              medinix.dns.ddns = {
-                enable = true;
-                zone = "example.com";
-                cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
-              };
-              # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
-              # nicht die Inbetriebnahme (Muster wie tests/medinix-smoke.nix).
-              medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
-              medinix.navidrome.setupCompleted = true;
-              medinix.audiobookshelf.setupCompleted = true;
-              medinix.manifest.seerr.allowUnauthenticated = true;
-              # feishin wird als public vhost gerendert; der Stack-Check braucht
-              # dieselbe bewusste Freigabe wie seerr (Produktion setzt hier
-              # ingress.auth.mode = "forward-auth" oder einen echten Ack).
-              medinix.manifest.feishin.allowUnauthenticated = true;
+
+        checks.mediNix-stack-eval = stackNixos.config.system.build.toplevel;
+
+        # ── B1: Port-Verdrahtung (zweiter Riegel neben dem Zahlen-Check) ─────
+        # Der Zahlen-Check prueft `port == num * 10`. Hier wird geprueft, dass
+        # der Port beim Daemon WIRKLICH ankommt — sonst proxyt Caddy auf einen
+        # Port, auf dem niemand lauscht (genau die Fehlerklasse, die ein
+        # Manifest-Port erzeugen kann). Muster aus 541-sabnzbd.nix:115 (dort
+        # schon als Einzel-Assertion).
+        #
+        # Die Traeger werden aus der Konfiguration ABGELEITET, nicht gepflegt:
+        #   1. Unit-Umgebung (gemessen: SONARR__SERVER__PORT, PORT, ND_PORT, ...)
+        #   2. nixpkgs-Module, die wirklich AKTIV sind (services.pocket-id,
+        #      services.sabnzbd) — nicht die Defaults ungenutzter Module
+        #      (sonst meldet z. B. services.sonarr den nixpkgs-Default 8989,
+        #      obwohl 53-acquisition/532-sonarr.nix eine eigene Unit baut).
+        # Dienste ohne eval-sichtbaren Traeger (Datei-basiert: gatus, ntfy,
+        # jellyfin; ohne Daemon: feishin) werden im Ergebnis AUSGEWIESEN, damit
+        # die Luecke sichtbar ist statt still.
+        checks.mediNix-ports-verdrahtet =
+          let
+            c = stackNixos.config;
+            portKey = k: builtins.match ".*PORT.*" k != null;
+            carrierOf =
+              n:
+              let
+                envPorts = lib.attrValues (
+                  lib.filterAttrs (k: _: portKey k) (c.systemd.services.${n}.environment or { })
+                );
+                settingsPorts = lib.optional (c.services.${n}.enable or false) (
+                  c.services.${n}.settings.PORT or c.services.${n}.settings.Port or c.services.${n}.settings.port
+                    or c.services.${n}.settings.misc.port or null
+                );
+              in
+              builtins.filter (x: x != null) (envPorts ++ settingsPorts);
+            names = builtins.attrNames c.medinix.manifest;
+            portOf = name: c.medinix.manifest.${name}.port;
+            wiredOf = carrierOf;
+            mismatch = builtins.filter (
+              name: builtins.any (v: lib.toInt (toString v) != portOf name) (wiredOf name)
+            ) names;
+            # Datei-basierte Traeger: gatus/ntfy legen ihren Port in einer
+            # gerenderten YAML ab (environment.etc). Der Store-Pfad ist im Build
+            # greifbar, also wird der Port dort wirklich gesucht.
+            filePorts = lib.filterAttrs (_: v: v != null) {
+              gatus = c.environment.etc."gatus/config.yaml".source or null;
+              ntfy = c.environment.etc."ntfy/server.yml".source or null;
             };
-          }).config.system.build.toplevel;
+            uncovered = builtins.filter (name: wiredOf name == [ ] && !(filePorts ? ${name})) names;
+            covered = builtins.filter (name: wiredOf name != [ ]) names;
+          in
+          if mismatch != [ ] then
+            throw (
+              "Port-Verdrahtung verletzt (Manifest-Port != effektiver Port):\n  "
+              + lib.concatMapStringsSep "\n  " (
+                name:
+                "${name}: Manifest ${toString (portOf name)}, verdrahtet ${
+                  lib.concatMapStringsSep "," toString (wiredOf name)
+                }"
+              ) mismatch
+            )
+          else
+            pkgs.runCommand "ports-verdrahtet-ok" { } ''
+              cat > $out <<EOT
+              ok: ${toString (builtins.length covered)} Dienste mit eval-sichtbarem Port-Traeger geprueft:
+              ${lib.concatMapStringsSep "\n" (name: "  ${name}: ${toString (portOf name)}") covered}
+
+              NICHT per Eval pruefbar (Port steckt in einer gerenderten Datei oder der Dienst hat keinen Daemon):
+              ${lib.concatMapStringsSep "\n" (name: "  ${name}: ${toString (portOf name)}") uncovered}
+              EOT
+
+              # Datei-basierte Traeger: der Port muss in der gerenderten YAML stehen.
+              ${lib.concatMapStringsSep "\n" (name: ''
+                grep -q "${toString c.medinix.manifest.${name}.port}" ${filePorts.${name}} || {
+                  echo "FAIL: ${name}: Port ${
+                    toString c.medinix.manifest.${name}.port
+                  } fehlt in ${filePorts.${name}}";
+                  exit 1;
+                }
+                echo "ok(datei): ${name}: Port ${
+                  toString c.medinix.manifest.${name}.port
+                } in der gerenderten Config"
+              '') (builtins.attrNames filePorts)}
+
+              # jellyfin: der Port steckt im Seed-Template (@JELLYFIN_PORT@).
+              grep -q '@JELLYFIN_PORT@' ${self}/55-playback/data/jellyfin-network.xml || {
+                echo "FAIL: jellyfin: Platzhalter @JELLYFIN_PORT@ fehlt im Seed-Template";
+                exit 1;
+              }
+              grep -q 'JELLYFIN_PORT' ${self}/55-playback/551-jellyfin.nix || {
+                echo "FAIL: jellyfin: 551-jellyfin.nix substituiert @JELLYFIN_PORT@ nicht mehr";
+                exit 1;
+              }
+              echo "ok(quelle): jellyfin: Seed-Platzhalter und Substitution vorhanden"
+            '';
 
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
 
