@@ -37,6 +37,17 @@ Läuft zusätzlich in CI (`.github/workflows/order-lint.yml`) — Verstöße bre
   Doku-Build-Konfiguration `mkdocs.yml` (sie muss neben `docs/` liegen, weil
   mkdocs ≥ 1.6 `docs_dir` == Konfig-Verzeichnis verbietet) + wenige Meta-Docs
   wie `README.md`, `CHANGELOG.md`, `LICENSE`).
+- **Root-Ausnahmen (bewusst dort, mit Begründung):**
+
+  | Datei | Warum im Root |
+  |---|---|
+  | `AGENTS.md` | Agenten-Verfassung — jeder Agent liest sie im Projekt-Root |
+  | `CLAUDE.md` | Zeiger auf `AGENTS.md` (Claude-Code-Konvention) |
+  | `ROADMAP.md` | wird von `AGENTS.md`/`CLAUDE.md` per absolutem Pfad referenziert |
+  | `opencode.json` | Projekt-Konfiguration des Werkzeugs (muss im Projekt-Root liegen) |
+  | `mkdocs.yml` | Doku-Build-Konfiguration (siehe oben) |
+
+  Alles andere gehört nach `docs/`; Altstände nach `docs/audit/<jahr-monat>/`.
 - **Keine Build-Artefakte im Repo** (`__pycache__/`, `*.pyc` sind in `.gitignore`).
 
 ## 3. Wenn eine Ausnahme doch zu klein wirkt

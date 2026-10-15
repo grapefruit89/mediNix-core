@@ -57,8 +57,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 ### P2 — Aufräumen
 
 - [ ] Die 4 nie verdrahteten `lib`-Module entscheiden: `abc-tiering.nix` (von `storage.backends.hot/cold` überholt), `mk-secure-curl.nix`, `wait-for-api.nix`, `_helpers.nix`.
-- [ ] Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `UPSTREAM-SOURCES.md`, `audits/`); `AGENTS.md`, `CLAUDE.md`, `opencode.json` bewusst als Agenten-Konventionen im Root **dokumentieren** statt verschieben.
-- [ ] `docs/AGENT_SOURCES.md` und `UPSTREAM-SOURCES.md` zusammenlegen (zwei konkurrierende Quellenlisten).
+- [ ] `docs/AGENT_SOURCES.md` und `docs/UPSTREAM-SOURCES.md` zusammenlegen (zwei konkurrierende Quellenlisten).
 - [ ] `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
 
 ---
@@ -99,6 +98,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - [x] **Guardrail 591** auf UPG umgestellt: Unit-Gruppe ist der Dienstname **oder** `media`, und `media` muss für den Benutzer erreichbar sein. `57b983b`.
 - [x] **SetGID (2775)** auf allen geteilten Ablagen (Folge der UPG-Umstellung). `782211d`.
 - [x] **Entscheidungs-Korridor** in `.agent-state.json` (Schema 1.1): 10 Whitelist-Kategorien, 21 Blacklist-Regeln, 5 offene Entscheidungen, 6 getroffene. `df0352f`.
+- [x] **Root-Audit nach `docs/CONVENTIONS.md` (2026-10-15):** `ADMIN-HANDOFF.md`, `UPSTREAM-SOURCES.md` und `audits/` (3 Dateien) nach `docs/` bzw. `docs/audit/2026-09/` verschoben (`git mv`); `CLAUDE.md` war byte-identisch zu `AGENTS.md` → jetzt ein Zeiger; die UPG-Invariante in `AGENTS.md` korrigiert (`media` nur `extraGroups`); Root-Ausnahmen in den CONVENTIONS dokumentiert. `b451f50`-Nachfolger.
 - [x] **Werkzeugkette:** Nix nativ (Determinate 3.23.2), `mcp-nixos` 3.1.0, ShellCheck/Shfmt/Yamllint, actionlint; alle Workflows lint-clean. `7e09e60`.
 - [x] **Lehre festgehalten:** `nix flake check --no-build` verdeckt nixfmt-/statix-/deadnix-Funde — die Lint-Checks müssen **gebaut** werden. `b451f50`.
 
