@@ -35,8 +35,8 @@ Therefore, edge-facing controls belong in `51-ingress`, including:
 
 * access-group policy
 * authentication boundaries
-* access logging (filtered, since RT-3) as the substrate for forensics and a future edge bouncer
-* edge bouncer (CrowdSec slot 516) — planned, NOT implemented; until then a fail2ban jail on the Caddy access logs is the sanctioned interim (519, RT-3)
+* access logging (filtered, since RT-3) as the substrate for forensics and the edge bouncer
+* edge bouncer — CrowdSec (slot **516**, implemented): the engine reads the Caddy access logs from the journal, the firewall-bouncer enforces bans (fail2ban is legacy, 519/RT-3)
 * edge request filtering
 Host-level protection belongs in `52-security`, including:
 
@@ -432,9 +432,8 @@ httpd
 iptables
 ```
 
-fail2ban is deliberately NOT on this list (RT-3): CrowdSec (slot 516) is
-planned but unimplemented — blocking the available interim bouncer while
-pointing at a module that does not exist would leave the edge with nothing.
+fail2ban is deliberately NOT on this list (RT-3): CrowdSec (slot 516) is the
+single edge bouncer (519). A second ban engine would duplicate state.
 The purpose is not to claim that mediNix can control every possible host configuration.
 
 Instead, the guardrails make the intended ownership model explicit and provide a controlled escape hatch through:
@@ -455,17 +454,17 @@ medinix.ingress.guardrails
 | **513** | `513-cloudflare-dns.nix`     | Cloudflare DNS/DDNS anchor                  |
 | **514** | `514-acme.nix`               | Wildcard DNS-01 certificate management      |
 | **515** | `515-mdns.nix`               | Sole Avahi/mDNS owner                       |
+| **516** | `516-crowdsec.nix`           | Edge-IPS: CrowdSec engine + firewall-bouncer |
 | **518** | `518-landingpage.nix`        | Generic landing-page data and rendering     |
 | **519** | `519-ingress-guardrails.nix` | Ingress ownership/architecture guardrails   |
 
 Planned slots:
 
 ```text
-516  CrowdSec
 517  edge firewall / nftables integration
 ```
 
-These remain planned until implemented and verified.
+516 (CrowdSec) is implemented; 517 remains planned until implemented and verified.
 
 ---
 

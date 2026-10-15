@@ -59,7 +59,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - [ ] `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
 - [ ] `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
 - [ ] Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
-- [ ] Prometheus Node-Exporter + Caddy-Metrics (teilweise vorhanden: 585-exporters, 582-gatus).
+- [ ] Prometheus Node-Exporter + Caddy-Metrics **und ein Scraper** (B6): `532–536` setzen `metrics.type = "exportarr"`, `585` erzeugt die Exporter, aber es fehlt der **Konsument** (Prometheus / VictoriaMetrics / vmagent). Bis dahin entweder Store ergänzen oder Exporter abschalten (YAGNI). (Teilweise vorhanden: `585-exporters`, `582-gatus`.)
 - [ ] Flake-Lock-Auto-Update (wöchentlicher Workflow mit `nix flake check`).
 
 ### P2 — Observability/Logging-Ausbau

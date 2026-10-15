@@ -32,12 +32,12 @@ DNS (513) · TLS/ACME (514) · mDNS (515) · landing (518)
 **Numbering rule:** the number is the service's **identity** (port/UID = num × 10),
 **not** its position in a chain. The numbers stay stable. Current slots: `511`
 caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · `518`
-landingpage · `519` guardrails. **`516` and `517` are free** (planned: CrowdSec /
-edge-firewall) and **not implemented**.
+landingpage · `519` guardrails · **`516` crowdsec (implemented)**. **`517` is free**
+(planned: edge-firewall).
 
 Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables; Caddy +
-firewall stay on; fail2ban allowed as the interim edge bouncer until CrowdSec 516
-exists — RT-3). Escape hatch: `medinix.ingress.guardrails`.
+firewall stay on; fail2ban is now Legacy — RT-3 aufgelöst, CrowdSec 516 ist der
+Edge-Bouncer). Escape hatch: `medinix.ingress.guardrails`.
 ## Checklist
 
 1. Add the service to `lib/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).
