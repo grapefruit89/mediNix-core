@@ -262,6 +262,12 @@
         "Auto-Import XX-domain/NNN-*.nix via default.nix (keine Handimport-Liste)",
         "Caddy-Chamaeleon: services.caddy.enable ? inject : dedizierte caddy-media-Unit"
       ],
+      "systemd_zuerst": [
+        "Aufgabe -> ZUERST systemd/Kernel-Aequivalent pruefen (journald, systemd.timer, tmpfiles, systemd-creds/-coredump/-timesyncd/-resolved, Socket-Activation, cgroup v2, nftables, systemd-oomd, WatchdogSec)",
+        "brauchbares systemd-Aequivalent GEWINNT gegen ein Extra-Programm",
+        "Programm nur ohne Aequivalent - dann leicht + Go + aus nixpkgs",
+        "Beispiele: Logs=journald (nicht VictoriaLogs/VictoriaMetrics) | Ban=nftables+CrowdSec | Ressourcen-Metriken=cgroup v2 | KEIN Aequivalent: App-Metriken (exportarr), S.M.A.R.T. (smartd)"
+      ],
       "haertung": [
         "lib/hardening-profiles.nix ist die EINZIGE Hardening-Quelle",
         "lib/memory-policy.nix fuer Memory/OOM",
@@ -785,6 +791,11 @@
         "grund": null,
         "datum": "2026-10-15",
         "begruendung": "519 RT-3 hatte fail2ban bewusst geduldet, weil 516 fehlte - der Rand war ohne Bann-Mechanismus. journald statt zweiter Logquelle (511 loggt JSON nach stdout); Profile sind Pflicht (sonst reagiert CrowdSec nicht); nftables bleibt Host-Hoheit (Publish-Don't-Apply)."
+      },
+      {
+        "datum": "2026-10-15",
+        "entscheidung": "systemd-first (kernel-nah): jede Aufgabe zuerst auf ein systemd-/Kernel-Aequivalent pruefen; ein brauchbares Aequivalent gewinnt gegen ein Extra-Programm.",
+        "begruendung": "Nutzer-Vorgabe 2026-10-15. Beispiele: Logs=journald statt VictoriaLogs | Ban=nftables+CrowdSec | Ressourcen-Metriken=cgroup v2. Kein Aequivalent -> Programm noetig: App-Metriken (exportarr), S.M.A.R.T. (smartd)."
       }
     ]
   }

@@ -17,6 +17,13 @@
    - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](file:///home/moritz/repos/mediNix-core/ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
 4. **Verfassungs-Zwang (ADR-0000):**
    - Jede Code-Änderung muss die Kern-Invarianten einhalten und wird per `nix flake check` lokal verifiziert.
+5. **systemd-first (kernel-nah):**
+   - Jede Aufgabe, die man mit einem **Programm/Extra-Daemon** lösen würde, wird **zuerst** auf ein **systemd-/Kernel-Äquivalent** geprüft: `journald`, `systemd.timer`, `systemd-tmpfiles`, `systemd-creds`, `systemd-coredump`, `systemd-timesyncd`, `systemd-resolved`, Socket-Activation, cgroup v2 (`MemoryMax`/`CPUWeight`), `nftables`, `systemd-oomd`, `WatchdogSec`.
+   - Ist das systemd-Äquivalent **brauchbar**, wird **dieses** genommen — **kein** zusätzliches Programm.
+   - Nur wenn **kein** brauchbares Äquivalent existiert (z. B. App-Metriken, S.M.A.R.T.), kommt ein Programm dazu — dann **leicht + Go + aus nixpkgs**.
+6. **Etablierte Begriffe (Semantic Anchors):**
+   - Methoden/Konzepte mit **etabliertem Namen** benennen statt Eigenschöpfung → siehe `docs/TERMINOLOGY.md` (unser Konstrukt → Katalog-Anker + Link).
+   - Nur Namen aus dem Katalog zitieren; bei Zweifel dort nachsehen, nicht aus dem Gedächtnis.
 
 ---
 
@@ -25,6 +32,7 @@
 - **Dezimalrahmen (UPG):** `Port = UID = Primär-GID = ServiceNum × 10`. Die geteilte Gruppe `media` (GID 5000) ist **ausschließlich** als `extraGroups`/supplementary zulässig, niemals als Primärgruppe. Geteilte Ablagen: `2775 root:media` (SetGID), damit neue Dateien die Gruppe `media` erben.
 - **Flache Struktur:** `XX-domain/NNN-service.nix` — nie tiefer verschachteln.
 - **systemd-native:** Kein Docker, keine Container-Engines, kein Network Namespace (`netns`). VPN-Confinement erfolgt rein über `meta skuid` und Route-Hook Policy Routing.
+- **systemd-first (kernel-nah):** Jede Aufgabe wird **zuerst** auf ein systemd-/Kernel-Äquivalent geprüft; ein **brauchbares** Äquivalent gewinnt gegen ein Extra-Programm (Arbeitsregel 5). Ein Programm nur, wo **kein** Äquivalent existiert — dann leicht (Go), aus nixpkgs.
 - **Chameleon Caddy:** `config.services.caddy.enable` → inject in globalen Caddy | sonst → dedizierter `caddy-media` Unit-Besitzer.
 - **Binding:** Alle Backend-Dienste binden ausschließlich an `127.0.0.1` (nur Ingress ist exponiert).
 - **Fail-closed:** Assertions bedeuten sofortigen Build-Abbruch (`throw`), niemals stille Warnungen oder Ignorieren.
@@ -60,6 +68,8 @@
 | `ROADMAP.md` | die einzige Roadmap (Backlog priorisiert · Verworfen · Done mit Hashes) |
 | `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
+| `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
+| `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
 | `scripts/` | `nixmeta_check.py` (Header-Check) · `medinix-seal-secret.*` · `migrate-uids.sh` |
 | `flake.nix` | Outputs + **49 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
 

@@ -1,0 +1,42 @@
+<!-- Vendored from https://llm-coding.github.io/Semantic-Anchors/anchor/yagni (English original, anchors/yagni.txt)
+     Fetched: 2026-10-16 . License: Apache-2.0 (see LICENSE-APACHE-2.0.txt) . (c) LLM-Coding
+     Modification: none to the text below; only this wrapper header was added. -->
+
+# YAGNI (You Aren't Gonna Need It)
+
+***Full Name***: You Aren't Gonna Need It
+
+[discrete]
+## **Core Concepts**:
+
+***Don't build for hypothetical futures***: Only implement functionality when it is actually needed, not when you foresee it might be needed
+
+***Speculative generality***: Anti-pattern of building abstractions for imagined future requirements that may never materialize
+
+***Incremental design***: Let design emerge through actual needs; evolve architecture as requirements become concrete
+
+***Cost of carry***: Unused code adds maintenance burden, increases complexity, and creates cognitive load for the entire team
+
+***Delete dead code***: Aggressively remove code that no longer serves a current purpose
+
+***Extreme Programming origin***: Core XP practice alongside TDD, refactoring, and continuous integration
+
+***Reversibility***: Prefer simple, changeable decisions over premature commitments to complex solutions
+
+***Key Proponents***: Ron Jeffries (coined the phrase), Kent Beck ("Extreme Programming Explained", 1999)
+
+[discrete]
+## **When to Use**:
+
+* Fighting over-engineering and premature abstraction
+* Agile projects with iterative delivery and evolving requirements
+* Refactoring legacy systems burdened with unused features
+* When tempted to add "just in case" functionality or configurability
+
+[discrete]
+## **Related Anchors**:
+
+* DRY - Eliminates duplication of existing knowledge (complementary but distinct)
+* SPOT - Single Point of Truth, related simplicity principle
+* TDD, Chicago School - YAGNI is a core principle of classicist TDD
+* KISS Principle - Keep systems as simple as possible (complementary simplicity principle)

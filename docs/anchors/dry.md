@@ -1,0 +1,53 @@
+<!-- Vendored from https://llm-coding.github.io/Semantic-Anchors/anchor/dry (English original, anchors/dry.txt)
+     Fetched: 2026-10-16 . License: Apache-2.0 (see LICENSE-APACHE-2.0.txt) . (c) LLM-Coding
+     Modification: none to the text below; only this wrapper header was added. -->
+
+# DRY (Don't Repeat Yourself)
+
+***Full Name***: Don't Repeat Yourself
+
+***Also known as***: DRY Principle; antonym: WET ("Write Everything Twice" / "We Enjoy Typing")
+
+[discrete]
+## **Core Concepts**:
+
+***The principle***: "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system." One fact — a business rule, a constant, a schema — lives in exactly one place
+
+***Knowledge, not code***: DRY targets duplicated **knowledge/intent**, not coincidental textual similarity. Two code fragments that look alike but change for different reasons are not a DRY violation; collapsing them couples unrelated concerns
+
+***Single source of truth***: Derive rather than restate — generate docs/config/clients from one authoritative definition so a change propagates instead of being copied
+
+***Rule of Three***: Extract a shared abstraction after the **third** occurrence, not the first (Martin Fowler). Premature de-duplication guesses at an abstraction before the pattern is clear
+
+***The wrong-abstraction caution***: "Duplication is far cheaper than the wrong abstraction" (Sandi Metz). A bad shared abstraction couples callers and is harder to unwind than the duplication it removed — prefer duplication until the right seam is obvious
+
+***Key Proponents***: Andy Hunt & Dave Thomas, **The Pragmatic Programmer** (1999)
+
+[discrete]
+## **When to Use**:
+
+* Consolidating a business rule, constant, or schema that appears in several places
+* Designing a single source of truth (config, types, API contracts) that other artifacts derive from
+* Reviewing code for knowledge duplication that causes change to require edits in many spots
+
+[discrete]
+## **When NOT to Use**:
+
+* Before the Rule of Three — resist abstracting on the first or second occurrence
+* When two similar fragments change for different reasons — coupling them via a shared abstraction is worse than the duplication
+* As dogma over readability: a little duplication can beat a leaky, over-general abstraction
+
+[discrete]
+## **Related Anchors**:
+
+* Single Source of Truth — the data-layer cousin of DRY's knowledge rule
+* Single Level of Abstraction Principle — keeps extracted abstractions coherent
+* KISS Principle — the simplicity counterweight to over-abstraction
+* YAGNI — don't build the abstraction until you actually need it
+
+[discrete]
+## **Criticism**:
+
+* Sandi Metz, https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction["The Wrong Abstraction"] (2016) — overzealous DRY produces abstractions that later requirements don't fit: "duplication is far cheaper than the wrong abstraction"; her advice is to re-introduce the duplication until the right abstraction reveals itself
+* The authors themselves concede the principle is widely misread: in the 20th Anniversary Edition (2019), Thomas & Hunt write they "did a poor job of explaining" DRY — it targets duplication of **knowledge and intent**; code deduplication is "a tiny and fairly trivial part" (https://media.pragprog.com/titles/tpp20/dry.pdf[official chapter extract])
+* The corollary both critiques share: two pieces of code that look alike but encode different business knowledge are not a DRY violation — merging them creates coupling, not clarity

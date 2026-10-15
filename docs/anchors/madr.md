@@ -1,0 +1,53 @@
+<!-- Vendored from https://llm-coding.github.io/Semantic-Anchors/anchor/madr (English original, anchors/madr.txt)
+     Fetched: 2026-10-16 . License: Apache-2.0 (see LICENSE-APACHE-2.0.txt) . (c) LLM-Coding
+     Modification: none to the text below; only this wrapper header was added. -->
+
+# MADR
+
+***Full Name***: Markdown Architectural Decision Records
+
+[discrete]
+## **Core Concepts**:
+
+***Structured template***: Well-defined format with specific sections
+
+***Standard fields***
+* Title (short noun phrase)
+* Status (proposed, accepted, rejected, deprecated, superseded)
+* Context and Problem Statement
+* Decision Drivers (forces influencing the decision)
+* Considered Options (alternatives evaluated)
+* Decision Outcome (chosen option with justification)
+* Pros and Cons of the Options (trade-off analysis)
+* Links (related decisions, references)
+
+***Markdown format***: Uses standard Markdown for wide compatibility
+
+***Clear structure***: More detailed than basic ADRs, includes explicit alternatives
+
+***Trade-off documentation***: Explicitly captures pros/cons of each option
+
+***Version control***: Stored with code, immutable like other ADRs
+
+***Lightweight yet comprehensive***: Balances completeness with maintainability
+
+***Key Proponents***: Oliver Kopp, Olaf Zimmermann (and MADR community)
+
+***Reference***: https://adr.github.io/madr/
+
+[discrete]
+## **When to Use**:
+
+* When you need more structure than basic ADRs
+* Projects requiring explicit documentation of alternatives
+* Teams that need to justify decisions with detailed trade-offs
+* Organizations using Markdown-based documentation workflows
+* When LLM assistance is needed to generate consistent decision records
+* Complementing arc42 Section 9 (Architecture Decisions)
+
+[discrete]
+## **Current Status**:
+
+* The current release is https://adr.github.io/madr/[MADR 4.0.0] (September 2024). The name changed twice along the way: MADR 3.x (2022) renamed "Markdown **Architectural** Decision Records" to "Markdown **Any** Decision Records"; 4.0 renamed it back, while keeping the template usable for any decision
+* An LLM's training-data prior most plausibly reproduces the 2.x-era format (2018–2022, the longest-lived and most widely copied variant): inline `* Status:` / `* Deciders:` / `* Date:` bullets and split "Positive/Negative Consequences" sections — rather than the current YAML front matter with `decision-makers`, the merged "Consequences" section, and the "Confirmation" element introduced in 3.x/4.x
+* When the exact format matters, point the model at the https://github.com/adr/madr/tree/4.0.0/template[current template] or paste it into the prompt — the anchor name reliably evokes the concept, but not the current field set

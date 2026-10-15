@@ -205,15 +205,22 @@ Partitioning of top-level system directories across multiple independent applian
 
 ## 11. Semantic Anchors
 
-| Principle in the Document | Methodological Standard |
+| Principle in the document | Established standard (Semantic Anchor) |
 |---|---|
-| Single number derives Port, UID, UPG-GID, Shared-GID (§4) | **SSOT** — Single Source of Truth |
-| Engine invariants I1–I4 in `lib/decimal-framework.nix` (§4) | **Design by Contract** (Meyer) |
-| Universal 10-slot taxonomy `_0`..`_9` (§3) | **MECE** — Mutually Exclusive, Collectively Exhaustive |
-| Slot assigned by functional role, not software product (§3) | **Protocol over Product** (Role Abstraction) |
-| UPG primary group vs. supplementary storage group (§4) | **Principle of Least Privilege (PoLP)** |
-| Recognizability across repos (§3, §10) | **ISO/IEC 25010** — Maintainability (*Analyzability* & *Modularity*) |
-| Rejected alternatives table (§9) | **MADR Exclusion Log** |
+| One `num` derives Port, UID, UPG-GID, shared GID (§4) | [**SSOT** — Single Source of Truth](../anchors/ssot-principle.md) |
+| Derive instead of repeat (Port/UID/GID/stateDir) | [**DRY** — Don't Repeat Yourself](../anchors/dry.md) |
+| Engine invariants I1–I4 in `lib/decimal-framework.nix` (§4) | [**Design by Contract** (Meyer)](../anchors/design-by-contract.md) |
+| A wrong combination must be unrepresentable | [**Poka-Yoke**](../anchors/poka-yoke.md) — vgl. die Lehre von der *tautologischen* Assertion (§4) |
+| Universal 10-slot taxonomy `_0`..`_9` (§3) | [**MECE**](../anchors/mece.md) — Mutually Exclusive, Collectively Exhaustive |
+| Slot assigned by functional role, not software product (§3) | **Protocol over Product** (role abstraction) — kein Katalog-Anker |
+| UPG primary group vs. supplementary storage group (§4) | [**Principle of Least Privilege**](../anchors/least-privilege.md) |
+| Recognizability across repos (§3, §10) | [**ISO/IEC 25010** — Maintainability](../anchors/iso-25010.md) |
+| `registry.nix` as a narrow, stable interface | [**Deep Modules**](../anchors/deep-modules.md) |
+| Rejected alternatives table (§9) | [**MADR** — exclusion log](../anchors/madr.md) |
+
+> **Protocol over Product:** Der Slot wird anhand der Rolle vergeben, nicht anhand der Software.
+> **Anker = komprimiertes Vorwissen:** Die verlinkten Definitionen liegen (englisch, Apache-2.0)
+> unter [`docs/anchors/`](../anchors/README.md) — ein Begriff statt 1000 Worte Umschreibung.
 
 > **Protocol over Product:** Der Slot wird anhand der Rolle vergeben, nicht anhand der Software.
 

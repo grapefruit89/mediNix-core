@@ -1,0 +1,52 @@
+<!-- Vendored from https://llm-coding.github.io/Semantic-Anchors/anchor/site-reliability-engineering (English original, anchors/site-reliability-engineering.txt)
+     Fetched: 2026-10-16 . License: Apache-2.0 (see LICENSE-APACHE-2.0.txt) . (c) LLM-Coding
+     Modification: none to the text below; only this wrapper header was added. -->
+
+# Site Reliability Engineering
+
+***Full Name***: Site Reliability Engineering (SRE)
+
+***Also known as***: "Operations as a software problem", Google SRE
+
+[discrete]
+## Core Concepts:
+
+***Operations as a software problem***: Apply software engineering to operations work instead of manual administration.
+
+***SLI / SLO / SLA***: Service Level Indicators measure behavior; Objectives set internal targets; Agreements are external commitments.
+
+***Error budget***: 100% reliability is the wrong target; the allowed unreliability (1 − SLO) is a budget spent on feature velocity and risk.
+
+***Embrace risk***: Reliability is balanced against the cost and speed of change, not maximized blindly.
+
+***Eliminate toil***: Reduce repetitive, manual, automatable operational work; cap operational load (~50%) to protect engineering time.
+
+***Blameless postmortems***: Learn from incidents by analyzing systems and processes rather than assigning blame.
+
+***Monitoring & observability***: Measure the four golden signals — latency, traffic, errors, saturation.
+
+***Release & capacity engineering***: Automate launches, rollouts, and capacity planning to make change safe and repeatable.
+
+***Key Proponents***: Ben Treynor Sloss (coined the term at Google); Betsy Beyer, Chris Jones, Jennifer Petoff, Niall Richard Murphy ("Site Reliability Engineering", O'Reilly 2016, and "The Site Reliability Workbook")
+
+[discrete]
+## When to Use:
+
+* Operating production services where reliability must be measured and managed
+* Defining SLOs and error budgets to balance reliability against feature velocity
+* Establishing on-call, incident response, and blameless postmortem practices
+* Reducing operational toil through automation
+* Distinguishing reliability ownership from generic DevOps culture
+
+[discrete]
+## Related Anchors:
+
+* Five Whys
+* Statistical Process Control
+* Shewhart Control Chart
+
+[discrete]
+## **Current Status**:
+
+* The prior serves the canon well: the 2016 SRE Book and 2018 Workbook (SLOs, error budgets, toil, postmortems) remain authoritative, and Google publishes all three books — including "Building Secure and Reliable Systems" (2020) — free at https://sre.google/books/[sre.google/books]
+* What moved since the books is the organisational frame: SRE practice increasingly converges with platform engineering, with reliability capabilities embedded into internal platforms rather than delivered solely by standalone SRE teams — reflected in https://cloud.google.com/blog/products/application-modernization/a-guide-to-platform-engineering[Google's own platform-engineering guidance]

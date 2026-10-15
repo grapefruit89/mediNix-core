@@ -1,0 +1,46 @@
+<!-- Vendored from https://llm-coding.github.io/Semantic-Anchors/anchor/diataxis-framework (English original, anchors/diataxis-framework.txt)
+     Fetched: 2026-10-16 . License: Apache-2.0 (see LICENSE-APACHE-2.0.txt) . (c) LLM-Coding
+     Modification: none to the text below; only this wrapper header was added. -->
+
+# Diátaxis Framework
+
+***Full Name***: Diátaxis Documentation Framework according to Daniele Procida
+
+[discrete]
+## **Core Concepts**:
+
+***Four documentation types***
+
+- ***Tutorials***: Learning-oriented, lessons for beginners
+- ***How-to guides***: Task-oriented, directions for specific goals
+- ***Reference***: Information-oriented, technical descriptions
+- ***Explanation***: Understanding-oriented, conceptual discussions
+
+***Two dimensions***
+* Practical vs. Theoretical
+* Acquisition (learning) vs. Application (working)
+
+***Separation of concerns***: Each type serves a distinct purpose
+
+***User needs***: Different users need different documentation at different times
+
+***Quality criteria***: Each type has specific quality indicators
+
+***Systematic approach***: Framework for organizing any documentation
+
+***Key Proponent***: Daniele Procida
+
+[discrete]
+## **When to Use**:
+
+* Organizing technical documentation
+* Improving existing documentation
+* Planning documentation structure
+* Evaluating documentation quality
+* Complementing Docs-as-Code approaches
+
+[discrete]
+## **Current Status**:
+
+* The four-quadrant core (tutorials, how-to guides, reference, explanation) is stable; https://diataxis.fr/[diataxis.fr] is a living, unversioned site — the colophon says the work "continues to be elaborated and explored"
+* The site has grown around the core: a theory section (the map, foundations, quality) and newer practical guidance such as https://diataxis.fr/complex-hierarchies/["Diátaxis in complex hierarchies"] — a prior anchored on the older Divio four-quadrant article (2014–2021) misses these refinements and the points where Procida has since revised his earlier presentation
