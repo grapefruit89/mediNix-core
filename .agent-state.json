@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "adr_index": "docs/adr/llm-index.json",
   "locked_invariants": [
     "Port = UID = Num * 10 (ADR-0000)",
@@ -33,6 +33,18 @@
       "component": "tests/medinix-smoke.nix & .github/workflows/flake-check.yml",
       "failure": "QEMU headless VM tests in CI runners time out or OOM without sufficient RAM / KVM permissions",
       "solution": "Allocate virtualisation.memorySize = 2048, 2 cores, chmod 666 /dev/kvm in CI, and wrap test script with graceful fallback"
+    },
+    {
+      "date": "2026-10-15",
+      "component": "lib/service-factory.nix",
+      "failure": "Erster Versuch, das Account-Eigentum aus config.medinix.manifest abzuleiten, erzeugte eine Endlosrekursion (config-Zugriff waehrend der Config-Auswertung); Ergebnis 12 gruene / 31 rote Checks",
+      "solution": "Expliziter Parameter ownsAccount (default true), gesetzt vom Aufrufer - nie config.* aus so einer Funktion lesen"
+    },
+    {
+      "date": "2026-10-15",
+      "component": ".github/workflows/order-lint.yml",
+      "failure": "Unquotiertes ': ' im Step-Namen -> ungueltiges YAML -> GitHub startete den Workflow nie (Run mit 0 Jobs, Run-Name = Dateipfad, kein Log)",
+      "solution": "Step-Namen quoten; actionlint 1.7.12 findet das in Sekunden. Erkennungsmerkmal: Run-Name = Workflow-Pfad und 0 Jobs = Startup-Fehler, nicht Testfehler"
     }
   ],
   "recent_refactorings": [
@@ -137,6 +149,425 @@
         "Consolidation of slot 581: Integrated systemd.services.\"alert-ntfy@\" template directly into 58-observability/581-ntfy.nix and removed redundant 581-alert-ntfy.nix"
       ],
       "verified": true
+    },
+    {
+      "date": "2026-10-15",
+      "action": "fix(decimal): Eval-Blocker entfernt und Engine als Eigentuemer von users.users etabliert",
+      "details": [
+        "a03d0aa: Top-Level-inherit aus lib/decimal-framework.nix entfernt (unsupported attribute) -> 0 auf 26 gruene Checks",
+        "d999cf0: Engine besitzt users.users fuer 5 Moduldienste; Contract-stateDir auf /var/lib/<name>; neues Manifest-Feld extraGroups",
+        "a798cec: Sabnzbd auf UPG, Registry-stateDir angeglichen, needsMediaGroup/needsSharedGroup deklariert (statix)"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-15",
+      "action": "test(flake): Voll-Stack-Ratsche + Beseitigung von 5 vorbestehenden Defekten",
+      "details": [
+        "3381fc4: checks.mediNix-stack-eval (12 Dienste, erzwungener toplevel)",
+        "57b983b: Factory gibt den Account ab (ownsAccount), Guardrail 591 auf UPG umgestellt",
+        "3eb4bac: SABnzbd-IPAddressAllow-Bedingung, RestartSec-Konflikt, Doku",
+        "5bbaac8: Gatus und ntfy nativ (DynamicUser verboten; Gatus band Port 8080)"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-15",
+      "action": "fix(storage)+fix(ci): SetGID auf geteilten Ablagen, Workflows lint-clean",
+      "details": [
+        "782211d: 570-storage.nix 0775 -> 2775 (UPG-Folge)",
+        "7e09e60: order-lint.yml YAML-Fix, git add -- *.md, Trailing-Whitespace",
+        "Werkzeuge: nix (Determinate 3.23.2), mcp-nixos 3.1.0, shellcheck, shfmt, yamllint, actionlint"
+      ],
+      "verified": true
     }
-  ]
+  ],
+  "corridor": {
+    "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
+    "whitelist": {
+      "architektur": [
+        "systemd-native Units (kein Docker/OCI, kein Podman fuer Dienste)",
+        "Caddy als einziger WAN-Listener",
+        "Backends nur 127.0.0.1 oder UNIX-Socket",
+        "Auto-Import XX-domain/NNN-*.nix via default.nix (keine Handimport-Liste)",
+        "Caddy-Chamaeleon: services.caddy.enable ? inject : dedizierte caddy-media-Unit"
+      ],
+      "haertung": [
+        "lib/hardening-profiles.nix ist die EINZIGE Hardening-Quelle",
+        "lib/memory-policy.nix fuer Memory/OOM",
+        "SystemCallErrorNumber = EPERM",
+        "SystemCallArchitectures = native",
+        "ProtectSystem = strict, NoNewPrivileges, PrivateTmp"
+      ],
+      "secrets": [
+        "LoadCredentialEncrypted (systemd-creds, TPM)",
+        "EnvironmentFile",
+        "scripts/medinix-seal-secret.sh (projektinterner Sealer)"
+      ],
+      "capabilities_erlaubt": [
+        "CAP_NET_BIND_SERVICE",
+        "CAP_NET_RAW"
+      ],
+      "identitaet": [
+        "Port = UID = PrimaryGID = Num*10 (UPG)",
+        "media (GID 5000) NUR als extraGroups/supplementary, nie als Primaergruppe",
+        "stateDir = /var/lib/<name> ohne Port-Suffix (ADR-0000 §9)",
+        "UMask 0002 + StateDirectoryMode 0750",
+        "geteilte Ablagen: 2775 root:media (SetGID), damit neue Dateien Gruppe media erben",
+        "genau EIN Eigentuemer pro Option (users.users.<name>, systemd.services.<name>)"
+      ],
+      "formatter": {
+        "nix": "nixfmt 1.5.0 (nixfmt-rs, /home/moritz/.local/bin/nixfmt)",
+        "shell": "shfmt",
+        "verboten": [
+          "alejandra"
+        ]
+      },
+      "pruef_leiter": {
+        "stufe0": "nixfmt -c, shellcheck, shfmt, actionlint, yamllint (Sekunden)",
+        "stufe1": "nix flake check --no-build (~30 s: Typen, Enums, Assertions, Manifest-Regeln)",
+        "stufe2": "nix build --dry-run .#checks...toplevel (Closure baubar)",
+        "stufe3": "nix build .#checks.x86_64-linux.smoke-test (QEMU-Laufzeit, braucht KVM)",
+        "stufe4": "GitHub-CI (echte Builds) + Deploy durch den Menschen",
+        "regel": "Aussagen nur mit Messung. Stufe 0/1 sind lokal beweisbar; 'laeuft es wirklich' nur Stufe 3."
+      },
+      "optionen_quelle": {
+        "unsere_revision": "raw.githubusercontent.com/NixOS/nixpkgs/<flake.lock-rev>/...",
+        "aktuell": "MCP nixos (nix action=search|info, type=options|packages) bzw. search.nixos.org/backend",
+        "regel": "Live-Quelle gewinnt gegen Gedaechtnis und gegen Context7."
+      },
+      "werkzeuge_vorhanden": [
+        "nix (Determinate 3.23.2, /nix/var/nix/profiles/default/bin)",
+        "nixfmt 1.5.0",
+        "mcp-nixos 3.1.0 (via uv tool install --python 3.12)",
+        "shellcheck 0.11.0",
+        "shfmt 3.7.0",
+        "yamllint 1.38.0",
+        "actionlint 1.7.12",
+        "python3, git, gh, jq, podman (rootless, ungenutzt)"
+      ],
+      "bewusst_nicht": [
+        "sops",
+        "age",
+        "agenix",
+        "sops-nix",
+        "agentbox",
+        "codemap update"
+      ]
+    },
+    "blacklist": [
+      {
+        "id": "AB-001",
+        "topic": "Modul mit Zusatz-Top-Level-Attributen",
+        "was": "Ein per imports geladenes Modul gibt neben options/config weitere Attribute zurueck (z. B. inherit derive validate ...)",
+        "warum": "lib/modules.nix:670 wirft 'has an unsupported attribute' -> harter Eval-Abbruch, blockierte CI seit 5cf7038",
+        "evidence": "CI-Runs 5cf7038..722e6e8 wortgleich; lib/decimal-framework.nix:114-121",
+        "status": "rejected",
+        "revive_if": "nie - Helfer ueber options.<x> oder _module.args",
+        "source": "audit-2026-10-15",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-002",
+        "topic": "Zwei Eigentuemer fuer users.users.<name>",
+        "was": "Service-Engine und lib/service-factory.nix definieren denselben Benutzer mit verschiedenen Werten",
+        "warum": "conflicting definition values -> Eval-Abbruch (navidrome, lidarr)",
+        "evidence": "gemessen 2026-10-15: users.users.lidarr.group 'media' (Factory) vs 'lidarr' (Engine)",
+        "status": "fixed",
+        "revive_if": "nie - genau ein Eigentuemer; die Factory hat ownsAccount (default true, false fuer Manifest-Dienste)",
+        "source": "Weg B",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-003",
+        "topic": "Alejandra als Nix-Formatter",
+        "was": "anderer Stil als die Repo-Norm",
+        "warum": "nixfmt ist gesetzt; Format-Mischung erzeugt Rauschen im Diff",
+        "evidence": "Handy-Session",
+        "status": "rejected",
+        "revive_if": "nie",
+        "source": "audit-2026-10-15",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-004",
+        "topic": "Unquotiertes ': ' in YAML-Step-Namen",
+        "was": "- name: Ordner-Lint (Regel: >= 3 Dateien)",
+        "warum": "YAML-Parsefehler -> GitHub startet den Workflow nie (0 Jobs, Run-Name = Dateipfad, kein Log)",
+        "evidence": "actionlint 1.7.12 lokalisierte order-lint.yml:13; PyYAML reproduzierte es",
+        "status": "fixed",
+        "revive_if": "nie - Step-Namen mit Sonderzeichen immer quoten",
+        "source": "audit-2026-10-15",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-005",
+        "topic": "services.journald.extraConfig neu verwenden",
+        "was": "Option in Modulen setzen",
+        "warum": "in nixpkgs > ec2d622de0 entfernt (mkRemovedOptionModule)",
+        "evidence": "Upstream-Quelle an beiden Revisionen gelesen + search.nixos.org-Index",
+        "status": "rejected",
+        "revive_if": "nur bei nixpkgs <= ec2d622de0; sonst environment.etc Drop-in",
+        "source": "L-001",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-006",
+        "topic": "Port-suffizierte stateDirs (/var/lib/<name>-<port>)",
+        "was": "zweite stateDir-Konvention neben /var/lib/<name>",
+        "warum": "ADR-0000 §9 verworfen; kollidiert mit Engine-home und dem H30-Guardrail",
+        "evidence": "lib/registry.nix:17 vs lib/decimal-framework.nix:48; check mediNix-registry-statedir-consistent",
+        "status": "fixed",
+        "revive_if": "nie",
+        "source": "Weg B",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-007",
+        "topic": "DynamicUser = true, netns-Confinement, eBPF-Killswitch, WatchdogSec",
+        "was": "verbotene Techniken laut ADR-0000/skill",
+        "warum": "zerstoert UID-Isomorphie bzw. GID-5000-Modell oder erzeugt Crash-Loops",
+        "evidence": "locked_invariants; skill medinix-nixos §5",
+        "status": "rejected",
+        "revive_if": "AUSNAHME dokumentiert: alert-ntfy@ (identitaetsloser Oneshot-Helfer, kein UID/Port; DynamicUser = false ohne User= wuerde als root laufen) - Entscheidung 2026-10-15",
+        "source": "ADR-0000",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-008",
+        "topic": "mkForce als Problemloeser",
+        "was": "Prioritaet hart ueberschreiben",
+        "warum": "MANIFEST §2: wenn mkForce noetig ist, ist die Architektur falsch",
+        "evidence": "ROADMAP-Migration §3.6",
+        "status": "rejected",
+        "revive_if": "nur mit dokumentierter Begruendung als Einzelausnahme",
+        "source": "MANIFEST",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-009",
+        "topic": "Inline-Hardening statt lib/hardening-profiles.nix",
+        "was": "serviceConfig-Felder direkt im Dienstmodul hart setzen",
+        "warum": "zweiter Ort fuer Härtungspolitik -> driftet",
+        "evidence": "UPGRADE-MATRIX N6",
+        "status": "rejected",
+        "revive_if": "nie",
+        "source": "UPGRADE-MATRIX",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-010",
+        "topic": "lib/abc-tiering.nix verdrahten",
+        "was": "Tiering-Logik aus Alt-Bestand",
+        "warum": "ueberholt von cfg.storage.backends.hot/cold",
+        "evidence": "Audit L-019",
+        "status": "parked",
+        "revive_if": "wenn backends.hot/cold abgeschafft wird",
+        "source": "Audit-Ledger",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-011",
+        "topic": "lib/mk-secure-curl.nix + lib/wait-for-api.nix verdrahten",
+        "was": "Shell-Provisioning-Helfer",
+        "warum": "Provisioning ist heute Python (arr-provision), Header in-process -> kein argv-Leak",
+        "evidence": "Audit L-020",
+        "status": "parked",
+        "revive_if": "wenn Shell-Provisioning zurueckkommt",
+        "source": "Audit-Ledger",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-012",
+        "topic": "lib/_helpers.nix",
+        "was": "recursiveMergeAttrs, nie benutzt",
+        "warum": "kein Aufrufer in keinem Export",
+        "evidence": "Audit L-021",
+        "status": "parked",
+        "revive_if": "bei konkretem Bedarf",
+        "source": "Audit-Ledger",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-013",
+        "topic": "sops / age / agenix / sops-nix",
+        "was": "Fremd-Secret-Manager",
+        "warum": "NUTZERENTSCHEIDUNG 2026-10-15: projektweit verboten, niemals. Projektstandard ist systemd-creds/LoadCredentialEncrypted",
+        "evidence": "scripts/medinix-seal-secret.sh:2 'No sops.'; lib/creds.nix:12 'No sops-nix, no agenix.'",
+        "status": "rejected",
+        "revive_if": "nie",
+        "source": "Nutzer",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-014",
+        "topic": "podman/nix-portable als Nix-Traeger",
+        "was": "Nix ueber Container/Binary statt nativ",
+        "warum": "Nix ist nativ installiert (Determinate 3.23.2); Container waere nur Overhead",
+        "evidence": "2026-10-15 installiert",
+        "status": "parked",
+        "revive_if": "nur wenn Nix deinstalliert wird",
+        "source": "Nutzer",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-015",
+        "topic": "Dritte Roadmap-Datei im docs/-Root",
+        "was": "weitere Planungsdatei neben ROADMAP.md",
+        "warum": "drei bis vier konkurrierende Roadmaps erzeugen Widersprueche (L-006-Muster)",
+        "evidence": "ROADMAP.md, docs/ROADMAP.md, docs/ROADMAP-DEZIMALRAHMEN-MIGRATION.md, docs/PHASE4-SPEC.md",
+        "status": "open",
+        "revive_if": "nie - eine Roadmap, Historie nach docs/audit/<datum>/",
+        "source": "Session",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-016",
+        "topic": "config.* aus einer Funktion lesen, die waehrend der Config-Auswertung laeuft",
+        "was": "z. B. Eigentum in lib/service-factory.nix aus config.medinix.manifest ableiten",
+        "warum": "Endlosrekursion - 12 statt 43 gruene Checks in einem Lauf",
+        "evidence": "gemessen 2026-10-15 (module system recursion)",
+        "status": "rejected",
+        "revive_if": "nie - Werte explizit als Parameter uebergeben",
+        "source": "Session",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-017",
+        "topic": "OCI/Container fuer Dienste",
+        "was": "Docker/Podman-Container als Diensttraeger",
+        "warum": "ADR-0000: Zero-Container; docs/NO-CONTAINERS.md",
+        "evidence": "NO-CONTAINERS",
+        "status": "rejected",
+        "revive_if": "nie",
+        "source": "ADR-0000",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-018",
+        "topic": "meta ? option fuer nicht deklarierte Optionen",
+        "was": "requiresMediaGroup prueft meta ? needsSharedGroup / needsMediaGroup",
+        "warum": "die Optionen waren nie deklariert -> beide Zweige toter Code, Dekaden-Regel greift immer; statix hat es aufgedeckt",
+        "evidence": "statix-Fund decimal-framework.nix:104/106",
+        "status": "fixed",
+        "revive_if": "nie - erst deklarieren (nullOr bool, default null), dann auf != null pruefen",
+        "source": "statix",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-019",
+        "topic": "Upstream-NixOS-Modul mit DynamicUser uebernehmen",
+        "was": "services.gatus / services.ntfy-sh delegieren die Unit samt DynamicUser = true",
+        "warum": "stiller ADR-Bruch: dynamische UID statt Port*10; zusaetzlich Port 8080 statt 5820 (PORT-Env wirkungslos) und ProtectSystem/User-Konflikte",
+        "evidence": "gemessen 2026-10-15; statischer Scan aller delegierten Module: nur gatus + ntfy-sh betroffen",
+        "status": "fixed",
+        "revive_if": "nie fuer Dienste mit Dezimal-Identitaet - Unit nativ bauen",
+        "source": "Voll-Stack-Check",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-020",
+        "topic": "Einzel-Check ohne erzwungenen toplevel als Beweis",
+        "was": "checks.serviceComplianceCheck liest nur c.medinix.manifest, nixosConfigurations.check aktiviert keine Einzeldienste",
+        "warum": "deshalb blieben 5 harte Defekte (u. a. DynamicUser, IPAddressAllow, RestartSec) ueber Tage unsichtbar",
+        "evidence": "43 Checks gruen, waehrend der *arr-Stack nicht einmal evaluierbar war",
+        "status": "fixed",
+        "revive_if": "nie - jeder neue Dienst gehoert in checks.mediNix-stack-eval",
+        "source": "Session",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-021",
+        "topic": "0.0.0.0/0 in IPAddressAllow bei aktivem Usenet-Confinement",
+        "was": "Wildcard-Egress im Confinement-Fall",
+        "warum": "hebelt RestrictNetworkInterfaces aus; die alte Assertion verbot es aber bedingungslos und brach damit SABnzbd ohne VPN",
+        "evidence": "541-sabnzbd.nix:166 vs networkPolicy.internet (hardening-profiles.nix:35)",
+        "status": "fixed",
+        "revive_if": "Verbot bleibt hart, sobald usenet-confinement aktiv ist",
+        "source": "Voll-Stack-Check",
+        "date": "2026-10-15"
+      }
+    ],
+    "open_decisions": [
+      {
+        "id": "D-01",
+        "frage": "Root-Dateien nach docs/CONVENTIONS.md konsolidieren (ADMIN-HANDOFF.md, AGENTS.md, CLAUDE.md, opencode.json, ROADMAP.md, UPSTREAM-SOURCES.md)?",
+        "optionen": [
+          "Kategorie B verschieben",
+          "nur dokumentieren",
+          "unangetastet"
+        ],
+        "status": "offen"
+      },
+      {
+        "id": "D-02",
+        "frage": "Die 4 nie verdrahteten lib-Module (abc-tiering, mk-secure-curl, wait-for-api, _helpers) behalten oder ablegen?",
+        "optionen": [
+          "behalten",
+          "teilweise",
+          "alle ablegen"
+        ],
+        "status": "offen"
+      },
+      {
+        "id": "D-03",
+        "frage": "Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd?",
+        "optionen": [
+          "erweitern",
+          "so lassen"
+        ],
+        "status": "offen"
+      },
+      {
+        "id": "D-04",
+        "frage": "Ankreuzbogen Schicht 3 (Generator medinix-meta.py new-service) bauen?",
+        "optionen": [
+          "ja",
+          "spaeter"
+        ],
+        "status": "offen"
+      },
+      {
+        "id": "D-05",
+        "frage": "Stufe 3 (QEMU-Smoke-Test) lokal freischalten?",
+        "optionen": [
+          "einmal laufen lassen",
+          "nur CI"
+        ],
+        "status": "offen"
+      }
+    ],
+    "decisions_taken": [
+      {
+        "date": "2026-10-15",
+        "entscheidung": "Eigentum: Engine besitzt users.users.<name>; Factory nur fuer Units ohne Manifest-Eintrag (caddy-media, cloudflare-ddns)",
+        "grund": "Reine Eigentuemerschaft noetig; gemessen: conflicting definition values"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "UPG beibehalten (Primaergruppe = Dienstname); media nur supplementary",
+        "grund": "ADR-0000 §4 + locked_invariants"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "Sabnzbd auf UPG (Weg U), nicht Upstream-Eigentum",
+        "grund": "ein Modell statt zwei"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "Gatus und ntfy nativ bauen statt Upstream-Module",
+        "grund": "DynamicUser verboten; Upstream band zusaetzlich die falschen Ports"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "SetGID auf geteilten Ablagen; alert-ntfy@ behaelt DynamicUser (dokumentierte Ausnahme)",
+        "grund": "UPG-Folge bzw. identitaetsloser Helfer"
+      },
+      {
+        "date": "2026-10-15",
+        "entscheidung": "sops/age projektweit verboten; Corridor statt separater WHITELIST/BLACKLIST-Dateien",
+        "grund": "Nutzerentscheidung"
+      }
+    ]
+  }
 }
