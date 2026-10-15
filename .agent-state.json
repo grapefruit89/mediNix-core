@@ -572,10 +572,50 @@
         "source": "Voll-Stack-Check",
         "date": "2026-10-15"
       },
-      "KEIN `sleep` in Tool-Calls (Anti-Pattern, 2026-10-15): ein sleep blockiert den EIGENEN Flow komplett (der Nutzer sieht einen Haenger). Stattdessen: Call beenden, Stand berichten, in der Zwischenzeit etwas Nuetzliches tun, die CI SPAETER mit EINEM `gh run view` pruefen - nicht pollen, nicht warten.",
-      "Nicht pushen, um 'eine Zeile zu bestaetigen': erst lokal messen (Lint-Checks BAUEN, mediNix-unit-scripts bauen, docs-Paket), dann EINMAL pushen. Jeder rote CI-Zyklus kostet einen vollen Lauf (2 rote Zyklen am 2026-10-15 durch SC2050).",
-      "Im hardeningOnly-Modus der Service-Fabrik NICHTS ausser serviceConfig zurueckgeben: der Rueckgabewert ist dort eine UNIT-Definition (systemd.services.<n> = lib.mkMerge [ (factory { hardeningOnly = true; ... }) {...} ]), also landen users.*/medinix.* sonst INNERHALB der Unit (Fehler 2026-10-15: 'The option systemd.services.cloudflare-ddns.users does not exist'). Account/Modul-Config gehoert in den Modul-Modus (else-Zweig) oder in das aufrufende Modul.",
-      "readClass: keine Primaergruppe media. `media` (GID 5000) ist ausschliesslich supplementary (extraGroups); die Primaergruppe ist immer die UPG (Group = Unit-Name, GID = uid, ADR-0000 §4)."
+      {
+        "id": "AB-022",
+        "topic": "`sleep` in Tool-Calls",
+        "was": "Im Tool-Call warten (sleep N), statt den Call zu beenden.",
+        "warum": "Blockiert den eigenen Flow: der Nutzer sieht einen Haenger, waehrend nichts passiert.",
+        "evidence": "Korridor-Regel 2026-10-15 nach einem sleep 420 im CI-Warten.",
+        "status": "aktiv",
+        "revive_if": "Nie - stattdessen Call beenden, Stand berichten, weiterarbeiten und die CI spaeter mit EINEM `gh run view` pruefen.",
+        "source": "Korridor (Nutzervorgabe)",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-023",
+        "topic": "Push, um 'eine Zeile zu bestaetigen'",
+        "was": "Pushen, bevor lokal gemessen wurde (Lint-Checks BAUEN, mediNix-unit-scripts bauen, docs-Paket).",
+        "warum": "Jeder rote CI-Zyklus kostet einen vollen Lauf; am 2026-10-15 zwei rote Zyklen durch SC2050.",
+        "evidence": "L-036; CI 98db8e3/8209f6d failure, 35dc16c success.",
+        "status": "aktiv",
+        "revive_if": "Nie - erst die volle Leiter lokal, dann EIN Push.",
+        "source": "Korridor (Nutzervorgabe)",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-024",
+        "topic": "Modul-Config aus dem `hardeningOnly`-Modus der Service-Fabrik",
+        "was": "Im hardeningOnly-Zweig users.*/medinix.* zurueckgeben.",
+        "warum": "Der Rueckgabewert ist dort eine UNIT-Definition (systemd.services.<n> = lib.mkMerge [ (factory { hardeningOnly = true; }) {...} ]) - users.* landet dann INNERHALB der Unit.",
+        "evidence": "Eval-Fehler 2026-10-15: 'The option `systemd.services.cloudflare-ddns.users' does not exist'.",
+        "status": "aktiv",
+        "revive_if": "Wenn der hardeningOnly-Modus nicht mehr fuer Unit-Injektion genutzt wird.",
+        "source": "L-038",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-025",
+        "topic": "`media` (GID 5000) als Primaergruppe",
+        "was": "Einem Dienst die geteilte Gruppe media als Primaergruppe geben (Group = \"media\").",
+        "warum": "ADR-0000 §5 nennt das ausdruecklich ein verworfenes Anti-Pattern: Least Privilege in /var/lib/<dienst>; media ist nur supplementary (extraGroups) zulaessig.",
+        "evidence": "ADR-0000 §4/§5 (Z. 114-123, 189); Guardrail 591 verschaerft (Group == Unit-Name); Fund L-038.",
+        "status": "aktiv",
+        "revive_if": "Nie - Ausnahme waere nur per ADR-Aenderung moeglich.",
+        "source": "ADR-0000 §4/§5",
+        "date": "2026-10-15"
+      }
     ],
     "open_decisions": [
       {
