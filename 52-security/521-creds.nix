@@ -79,7 +79,7 @@ lib.mkIf cfg.enable {
         assertion = !(cfg.secrets.autoGenerate or false);
         message = ''
           [mediNix] secrets.autoGenerate writes plaintext keys. Off.
-          Use 57-maintenance/medinix-seal-secret.sh and LoadCredentialEncrypted.
+          Use scripts/medinix-seal-secret.sh and LoadCredentialEncrypted.
         '';
       }
       {

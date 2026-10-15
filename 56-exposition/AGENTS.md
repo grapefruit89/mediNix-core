@@ -1,6 +1,6 @@
-# LLM Wiki: `56-anfragen`
+# LLM Wiki: `56-exposition`
 
-> **Zweck:** Request-Management & Medien-Entdeckung (Seerr / 561) nach ADR-0000.
+> **Zweck:** Exposition, Request-Management & Medien-Entdeckung (Seerr / 561) nach ADR-0000.
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->

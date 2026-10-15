@@ -72,7 +72,7 @@
       "date": "2026-10-14",
       "action": "refactor(hygiene): ADR-0000 decade demarcation (domain 56 Seerr), purge binary artifacts and relocate agent skills",
       "details": [
-        "Domain 56 canonicalization: moved Seerr from 55-playback to 56-anfragen/561-seerr.nix (Port/UID 5610)",
+        "Domain 56 canonicalization: moved Seerr from 55-playback to 56-exposition/561-seerr.nix (Port/UID 5610)",
         "Demarcated agent skills: moved 56-agents to docs/agents/ preserving documentation integrity without polluting systemd domains",
         "Purged binary/build artifacts: removed 50-core/second-brain.sqlite, 50-core/mcp_server.log, result symlink, redundant Micro Snowflake SVGs and __pycache__; hardened .gitignore (*.sqlite, *.log, result*)",
         "Secured Unraid settings export: backed up externally to /home/moritz/Backups/mediNix-unraid-settings-export-2026-10-14/ and eliminated from repo",
@@ -122,6 +122,19 @@
         "Capabilities engine boundary: Documented in ADR-0000 that the engine performs compile-time validation only without injecting into unit configs",
         "decadeIndex semantic disambiguation: Renamed internal derive field decadeRole to decadeIndex to eliminate name collision with prohibited manifest option",
         "System root demarcation: Replaced host-specific root alignment table in ADR-0000 Section 6 with explicit host boundary referencing nix-hermes"
+      ],
+      "verified": true
+    },
+    {
+      "date": "2026-10-14",
+      "action": "refactor(decades): ADR-0000 repository folder and file numbering conformance",
+      "details": [
+        "Slot 500 disambiguation: Renamed 50-core/500-host-integration.nix to 50-core/503-host-integration.nix, keeping 500-host-baseline.nix as the canonical foundation block ID",
+        "Example relocation: Moved decade 51 service template to docs/examples/5xx-service.example.nix and updated references",
+        "Folder canonicalization: Renamed decade 56 folder to 56-exposition/ per ADR-0000 Section 3 taxonomy and updated all repository references",
+        "Slot 576 collision resolution: Renamed maintainerr placeholder to 57-maintenance/573-maintainerr.placeholder.md, freeing slot 576 exclusively for backup",
+        "Scripts relocation: Moved medinix-seal-secret.sh and medinix-seal-secret.ps1 to scripts/ at repo root and updated all references across modules",
+        "Consolidation of slot 581: Integrated systemd.services.\"alert-ntfy@\" template directly into 58-observability/581-ntfy.nix and removed redundant 581-alert-ntfy.nix"
       ],
       "verified": true
     }

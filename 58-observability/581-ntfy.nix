@@ -13,6 +13,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -28,83 +29,108 @@ let
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   ntfyGroup =
     config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
+
+  alertScript = pkgs.writeShellScript "send-ntfy-crash-alert" ''
+    UNIT_NAME="''${1:-unknown}"
+    ${pkgs.curl}/bin/curl -sf \
+      -H "Title: [mediNix] Unit Failure: $UNIT_NAME" \
+      -H "Priority: high" \
+      -H "Tags: warning,skull" \
+      -d "Dienst $UNIT_NAME ist auf Host unerwartet abgestürzt!" \
+      "http://127.0.0.1:${toString port}/alerts" || true
+  '';
 in
-lib.mkIf cfg.enable {
-  assertions = [
-    {
-      assertion =
-        !lib.elem ntfyGroup [
-          "public"
-          "stream"
-          "idp"
-        ];
-      message = ''
-        [mediNix] ntfy is an internal backend. accessGroup must stay internal or none.
-        auth-default-access is read-write. WAN exposure would be unauthenticated.
-      '';
-    }
-  ];
-
-  users.users.ntfy = {
-    inherit uid;
-    group = "media";
-    extraGroups = [ "media" ];
-    home = stateDir;
-    isSystemUser = true;
-  };
-
-  systemd.mounts = [
-    {
-      what = "tmpfs";
-      where = stateDir;
-      type = "tmpfs";
-      options = "size=256M,mode=0750,uid=${toString uid},gid=${toString gid}";
-    }
-  ];
-
-  services.ntfy-sh = {
-    enable = true;
-    settings = {
-      base-url = cfg.baseUrl;
-      listen-http = "127.0.0.1:${toString port}";
-      cache-file = "${stateDir}/cache.db";
-      attachment-cache-dir = "${stateDir}/attachments";
-      auth-default-access = "read-write";
+lib.mkMerge [
+  # Systemd OnFailure crash notifier template (alert-ntfy@)
+  {
+    systemd.services."alert-ntfy@" = {
+      description = "mediNix Failure Notifier für %i";
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${alertScript} %i";
+        DynamicUser = true;
+        PrivateTmp = true;
+      };
     };
-  };
+  }
 
-  systemd.services.ntfy-sh = {
-    unitConfig.RequiresMountsFor = [ stateDir ];
-    serviceConfig = lib.mkMerge [
-      profiles.network
+  (lib.mkIf cfg.enable {
+    assertions = [
       {
-        User = "ntfy";
-        Group = "media";
+        assertion =
+          !lib.elem ntfyGroup [
+            "public"
+            "stream"
+            "idp"
+          ];
+        message = ''
+          [mediNix] ntfy is an internal backend. accessGroup must stay internal or none.
+          auth-default-access is read-write. WAN exposure would be unauthenticated.
+        '';
       }
     ];
-  };
 
-  medinix.manifest.ntfy = {
-    inherit (cfg) enable;
-    inherit (reg) num;
-    accessGroup = "internal";
-
-    ui = {
-      title = "ntfy";
-      description = "Internal notification backend";
-      icon = "ntfy";
-      group = "Observability";
+    users.users.ntfy = {
+      inherit uid;
+      group = "media";
+      extraGroups = [ "media" ];
+      home = stateDir;
+      isSystemUser = true;
     };
 
-    monitoring = {
-      enable = false;
-      type = "none";
+    systemd.mounts = [
+      {
+        what = "tmpfs";
+        where = stateDir;
+        type = "tmpfs";
+        options = "size=256M,mode=0750,uid=${toString uid},gid=${toString gid}";
+      }
+    ];
+
+    services.ntfy-sh = {
+      enable = true;
+      settings = {
+        base-url = cfg.baseUrl;
+        listen-http = "127.0.0.1:${toString port}";
+        cache-file = "${stateDir}/cache.db";
+        attachment-cache-dir = "${stateDir}/attachments";
+        auth-default-access = "read-write";
+      };
     };
 
-    ops = {
-      priority = "high";
-      ramBudget = "256M";
-      notes = "Alerting Backend für systemd und Gatus.";
+    systemd.services.ntfy-sh = {
+      unitConfig.RequiresMountsFor = [ stateDir ];
+      serviceConfig = lib.mkMerge [
+        profiles.network
+        {
+          User = "ntfy";
+          Group = "media";
+        }
+      ];
     };
-  };
-}
+
+    medinix.manifest.ntfy = {
+      inherit (cfg) enable;
+      inherit (reg) num;
+      accessGroup = "internal";
+
+      ui = {
+        title = "ntfy";
+        description = "Internal notification backend";
+        icon = "ntfy";
+        group = "Observability";
+      };
+
+      monitoring = {
+        enable = false;
+        type = "none";
+      };
+
+      ops = {
+        priority = "high";
+        ramBudget = "256M";
+        notes = "Alerting Backend für systemd und Gatus.";
+      };
+    };
+  })
+]

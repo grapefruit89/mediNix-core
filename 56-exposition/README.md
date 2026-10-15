@@ -1,12 +1,12 @@
 ---
-id: 56-anfragen
-title: Request Management Domain
+id: 56-exposition
+title: Exposition Domain (Requests & API Gateways)
 description: Central request portal for media discovery and acquisition bridging.
-aliases: [Requests, Seerr, Anfragen]
-tags: [architecture, medinix, requests, seerr]
+aliases: [Requests, Seerr, Exposition, Anfragen]
+tags: [architecture, medinix, requests, seerr, exposition]
 ---
 
-# 56-anfragen: Request Management Domain
+# 56-exposition: Exposition & Request Management Domain
 
 The **Request Management Domain** (Domain 56) provides the user-facing request and discovery portal for the media stack. It serves as the interactive bridge between users, the streaming services (Domain 55 Playback), and the automated acquisition pipeline (Domain 53 Acquisition).
 

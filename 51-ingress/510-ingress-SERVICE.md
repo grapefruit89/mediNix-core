@@ -4,7 +4,7 @@ How-to for domain **51-ingress**. File id `510` is the service-attachment layer 
 
 511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `lib/registry.nix` entry.
 
-Template: [`55x-service.example.nix`](55x-service.example.nix)
+Template: [`5xx-service.example.nix`](../docs/examples/5xx-service.example.nix)
 
 ## The access path (who gets in)
 

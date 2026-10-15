@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-561-seerr: Seerr — Request Management (56-anfragen, Dienst 561)
+# ADR-561-seerr: Seerr — Request Management (56-exposition, Dienst 561)
 
 ## Status: active
 ## Date: 2026-08-11
@@ -20,12 +20,12 @@ links:
 ## Related: ADR-5320 (Sonarr), ADR-5510 (Jellyfin)
 
 ## Decimalrahmen (ADR-0000 §4)
-- Dienstnummer: **561** (56-anfragen, _1 Mitte — Request-Management Domain)
+- Dienstnummer: **561** (56-exposition, _1 Exposition / Request-Management Domain)
 - Port: **5610** | UID: **5610** | GID: **5000**
 
 ## Context
 Seerr handles user requests for media, integrates with Sonarr/Radarr and
-notifies Jellyfin. Domain `56-anfragen` is the free-middle slot for request flow.
+notifies Jellyfin. Domain `56-exposition` is the canonical slot for requests and API gateways.
 
 ## Decision
 - Seerr native NixOS service, UID 5610, GID 5000
