@@ -61,7 +61,11 @@ let
             }
 
             # 1. Check actual mediNix VPN security object if enabled.
-            if [ "${if hasVpnFilter then "1" else "0"}" = "1" ]; then
+            # Nix-seitig verzweigt, NICHT mit einem konstanten [ "0" = "1" ]:
+            # writeShellApplication laesst shellcheck laufen, und ein konstanter
+            # Vergleich ist SC2050 -> der Unit-Build bricht ab (in der CI
+            # 2026-10-15 passiert, als die Ratsche diese Unit erstmals baute).
+            ${lib.optionalString hasVpnFilter ''
               if ! nft list table inet medinix_vpn_filter >/dev/null 2>&1; then
                 alert "CRITICAL: medinix_vpn_filter nftables table missing"
                 exit 1
@@ -70,7 +74,7 @@ let
                 alert "CRITICAL: VPN killswitch chain missing"
                 exit 1
               fi
-            fi
+            ''}
 
             # 2. Socket inspection must fail closed.
             if ! LISTENERS="$(ss -H -ltnp)"; then

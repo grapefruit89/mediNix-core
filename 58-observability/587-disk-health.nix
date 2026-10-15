@@ -33,13 +33,13 @@ let
 
     echo "$ALERT_TEXT" >&2
 
-    if [ "${if cfg.notifyNtfy then "1" else "0"}" = "1" ]; then
+    ${lib.optionalString cfg.notifyNtfy ''
       ${pkgs.curl}/bin/curl -s -d "$ALERT_TEXT" \
         -H "Title: SMART Disk Warning" \
         -H "Priority: urgent" \
         -H "Tags: warning,harddrive" \
         "http://127.0.0.1:${toString ntfyPort}/alerts" || true
-    fi
+    ''}
   '';
 
   standbyOpt = if cfg.spindownPreservation then "-n standby,q" else "";

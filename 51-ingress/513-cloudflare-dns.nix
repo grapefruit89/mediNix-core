@@ -278,12 +278,14 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         # recon gold for attackers, zero external benefit (split-DNS is
         # host-side, ADR-5115). Opt-in via dns.ddns.publishLanRecord; when
         # off, actively remove leftovers from earlier runs (self-healing).
-        if [ "${toString ddns.publishLanRecord}" = "1" ]; then
+        ${lib.optionalString ddns.publishLanRecord ''
           update_record "lan.$ZONE" "A" "$LAN_IP"
-        else
-          echo "  lan record: publishLanRecord=false — pruning public RFC1918 leftovers"
-          prune_label "lan.$ZONE"
-        fi
+        ''}${
+          lib.optionalString (!ddns.publishLanRecord) ''
+            echo "  lan record: publishLanRecord=false — pruning public RFC1918 leftovers"
+            prune_label "lan.$ZONE"
+          ''
+        }
         # RT-8: a wildcard covers exactly ONE label below the zone. With
         # domain != zone (e.g. home.example.com under example.com) the service
         # FQDNs {label}.{domain} are NOT covered by *.{zone} — split-DNS stays
