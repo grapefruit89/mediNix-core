@@ -36,7 +36,7 @@ let
   cfg = config.medinix.maintenance.updateNotifier;
   # ntfy topic from observability.ntfy (if ntfy is running)
   ntfyTopic = config.medinix.observability.ntfy.topic or "mediNix-updates";
-  ntfyPort = 5810;
+  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
 in
 lib.mkIf cfg.enable {
   # Daily check: is a new mediNix-core version available?

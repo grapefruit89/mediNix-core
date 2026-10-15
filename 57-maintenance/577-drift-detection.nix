@@ -30,7 +30,9 @@
 let
   cfg = config.medinix;
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfy = "http://127.0.0.1:5810/mediNix-drift";
+  df = import ../lib/derive.nix;
+  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-drift";
 
   script = pkgs.writeShellApplication {
     name = "mediNix-drift-detection";
@@ -48,8 +50,8 @@ let
       find /var/lib -maxdepth 1 -name "*-5[0-9][0-9][0-9]" -type d 2>/dev/null | \
       while read -r dir; do
         gid=$(stat -c %g "$dir")
-        if [ "$gid" != "5000" ]; then
-          curl -s -d "DRIFT: $dir has GID $gid instead of 5000 (media)" "$NTFY" || true
+        if [ "$gid" != "${toString df.sharedGid}" ]; then
+          curl -s -d "DRIFT: $dir has GID $gid instead of ${toString df.sharedGid} (media)" "$NTFY" || true
         fi
       done
 

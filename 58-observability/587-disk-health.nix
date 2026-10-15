@@ -21,7 +21,7 @@
 let
   cfg = config.medinix.diskHealth;
   svc = config.medinix;
-  ntfyPort = config.medinix.ntfy.port or 5810;
+  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
 
   # Alert script executed by smartd on failure (-M exec ...)
   smartdAlertScript = pkgs.writeShellScript "smartd-ntfy-alert" ''
