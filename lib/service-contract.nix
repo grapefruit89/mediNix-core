@@ -400,10 +400,27 @@ in
           message = "[mediNix/manifest] Dienst '${name}': metrics.enable darf nicht mit metrics.type = 'none' kombiniert werden.";
         }) cfg.manifest)
 
-        # 5. Identitäts-Invariante: Port und UID müssen strikt num * 10 entsprechen
+        # 5. Verdrahtungs-Invariante: die abgeleitete Identitaet muss auch BENUTZT
+        # werden. Die fruehere Pruefung ("port == num * 10") war tautologisch —
+        # port und uid werden readOnly aus num abgeleitet und koennen nie
+        # abweichen. Geprueft wird jetzt, dass die Unit wirklich unter dem
+        # abgeleiteten Benutzer laeuft (UPG).
         (lib.mapAttrsToList (name: m: {
-          assertion = (m.port == m.num * 10) && (m.uid == m.num * 10);
-          message = "[mediNix/manifest] Dienst '${name}': Port und UID müssen strikt num * 10 entsprechen.";
+          assertion =
+            (m.port == m.num * 10)
+            && (m.uid == m.num * 10)
+            && (
+              (config.systemd.services.${name} or { }) == { }
+              || (config.systemd.services.${name}.serviceConfig.User or name) == name
+            );
+          message = "[mediNix/manifest] Dienst '${name}': die Unit laeuft nicht unter dem abgeleiteten Benutzer '${name}' (UPG, ADR-0000 §4).";
+        }) cfg.manifest)
+
+        # 6. Leaf-Slot-Invariante (ADR-0000 §2): Slot 0 ist die Block-ID eines
+        # Ordners (Struktur/Engine) und traegt niemals einen Daemon.
+        (lib.mapAttrsToList (name: m: {
+          assertion = (m.num - (m.num / 10) * 10) != 0 || !(m.hasDaemon or true);
+          message = "[mediNix/manifest] Dienst '${name}': Slot 0 ist reserviert (Block-ID, ADR-0000 §2) — hier ist kein Daemon zulaessig.";
         }) cfg.manifest)
       ];
   };

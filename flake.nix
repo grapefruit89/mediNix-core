@@ -89,8 +89,33 @@
                 if problems == "" then null else "${name}: ${problems}"
               ) folders
             );
+            # Ordner-Rollen-Isomorphie (ADR-0000 §2/§3): die Dekade der Dateinummer
+            # muss zur Dekade des Ordners passen (53-acquisition -> 53x). Die
+            # Rollen-NAMEN im ADR sind bewusst nicht mit den Ordnernamen identisch
+            # (Dekade 3 = "Ingestion" vs. Ordner "53-acquisition"), deshalb wird nur
+            # die ZAHL geprueft. Slot 0 (Block-ID, kein Daemon) prueft der Contract.
+            decadeOf = n: (n / 10) - (n / 100) * 10;
+            fileViolations = lib.flatten (
+              map (
+                name:
+                let
+                  nn = number name;
+                  decade = nn - (nn / 10) * 10;
+                  files = builtins.attrNames (builtins.readDir (./. + "/${name}"));
+                  ids = map (f: lib.toInt (builtins.head (builtins.match "^([0-9]{3})-.*" f))) (
+                    builtins.filter (f: builtins.match "^[0-9]{3}-.*\\.nix$" f != null) files
+                  );
+                  wrong = builtins.filter (n: decadeOf n != decade) ids;
+                in
+                map (
+                  n:
+                  "${name}/${toString n}-*.nix: Datei-Dekade ${toString (decadeOf n)} != Ordner-Dekade ${toString decade}"
+                ) wrong
+              ) folders
+            );
             errors =
               violations
+              ++ fileViolations
               ++ lib.optional (
                 lib.length numbers != lib.length (lib.unique numbers)
               ) "doppelte Nummern in den Modulordnern";

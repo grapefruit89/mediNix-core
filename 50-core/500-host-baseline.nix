@@ -70,7 +70,7 @@ in
         }
         {
           assertion = !(config.virtualisation.docker.enable or false);
-          message = "[mediNix/architecture] Docker-Daemon ('virtualisation.docker.enable = true') ist verboten! mediNix nutzt native systemd-Services (optional rootless Podman via oci-containers).";
+          message = "[mediNix/architecture] Docker-Daemon ('virtualisation.docker.enable = true') ist verboten! mediNix nutzt native systemd-Services und KEINE Container-Engine (ADR-0000, docs/NO-CONTAINERS.md).";
         }
         {
           assertion = (config.containers or { }) == { };

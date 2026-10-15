@@ -82,7 +82,7 @@ let
     ];
 
   # Manifest abstraction (supports decimalFramework or mediNix manifests)
-  manifests = config.decimalFramework.manifest or config.medinix.manifest or { };
+  manifests = config.medinix.manifest or { };
   activeServices = lib.filterAttrs (_name: meta: meta.enable or false) manifests;
   daemonServices = lib.filterAttrs (
     _name: meta: (meta.enable or false) && (meta.hasDaemon or true)
