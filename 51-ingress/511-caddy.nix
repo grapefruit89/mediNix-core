@@ -289,7 +289,7 @@ let
     # Primaergruppe bleibt die UPG (ADR-0000 §4).
     mediaGroup = true;
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
-    stateDir = "/var/lib/caddy-media-5110";
+    stateDir = "/var/lib/caddy-media";
     profile = "network";
     extraConfig = {
       Type = lib.mkDefault "exec";

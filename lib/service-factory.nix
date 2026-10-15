@@ -51,7 +51,7 @@ in
   name, # service name (kebab-case)
   uid ? null, # UID from registry
   execStart ? null, # the start command as string
-  stateDir ? null, # e.g. "/var/lib/jellyfin-5510"
+  stateDir ? null, # z. B. "/var/lib/jellyfin" (ADR-0000 §9: ohne Port-Suffix)
   profile ? "base", # hardening profile name (from registry.hardeningProfile)
   allowedPeers ? [ ], # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
   extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)

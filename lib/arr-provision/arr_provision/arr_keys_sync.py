@@ -51,7 +51,7 @@ def _sync_arr_service(host: str, name: str, port: int, key_file: str) -> None:
 
 
 def _sync_sabnzbd_key(key_file: str) -> None:
-    sab_ini = Path(os.environ.get("SAB_INI_FILE", "/var/lib/sabnzbd-5410/sabnzbd.ini"))
+    sab_ini = Path(os.environ["SAB_INI_FILE"])
     if not sab_ini.exists():
         print("SABnzbd: sabnzbd.ini not present — skipped", file=sys.stderr)
         return

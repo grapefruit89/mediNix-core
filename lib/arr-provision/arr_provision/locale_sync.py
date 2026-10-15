@@ -13,7 +13,7 @@ from arr_provision.common import read_key_file
 
 
 def sync_jellyfin_locale(lang: str, country: str, ui_culture: str) -> None:
-    path = Path("/var/lib/jellyfin/config/system.xml")
+    path = Path(os.environ["JELLYFIN_CONFIG"])
     if not path.exists():
         print(f"Jellyfin system.xml not found: {path} — skipped", file=sys.stderr)
         return
@@ -40,7 +40,7 @@ def sync_jellyfin_locale(lang: str, country: str, ui_culture: str) -> None:
 
 
 def sync_sabnzbd_locale(lang: str, categories_ini: str, sab_key_file: str) -> None:
-    sab_ini = Path(os.environ.get("SAB_INI_FILE", "/var/lib/sabnzbd-5410/sabnzbd.ini"))
+    sab_ini = Path(os.environ["SAB_INI_FILE"])
     if not sab_ini.exists():
         print("sabnzbd.ini not present — skipped (SABnzbd not initialized)", file=sys.stderr)
         return

@@ -114,7 +114,7 @@ def _tune_vpn_sandbox(api_v1: str, headers: dict) -> None:
         else:
             print(f"Prowlarr host config PUT failed (HTTP {put_status})", file=sys.stderr)
 
-    db_path = os.environ.get("PROWLARR_DB", "/var/lib/prowlarr/prowlarr.db")
+    db_path = os.environ["PROWLARR_DB"]
     try:
         con = sqlite3.connect(db_path)
         for type_name in _VPN_DISABLED_TASKS:
@@ -184,7 +184,7 @@ def _register_backup_indexer(app: dict, backup: dict) -> None:
 
 def sync_prowlarr() -> int:
     host = os.environ.get("PROWLARR_HOST", "127.0.0.1")
-    port = int(os.environ.get("PROWLARR_PORT", "5360"))
+    port = int(os.environ["PROWLARR_PORT"])
     key_file = os.environ["PROWLARR_KEY_FILE"]
     sync_level = os.environ.get("SYNC_LEVEL", "fullSync")
     indexers = json.loads(os.environ.get("INDEXERS_JSON", "[]"))

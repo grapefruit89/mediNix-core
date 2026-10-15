@@ -14,7 +14,7 @@
 # forum_links: []
 # upstream_github: "https://github.com/pocket-id/pocket-id"
 # nixpkgs_attr: "services.pocket-id"
-# state_dir: "/var/lib/pocket-id-5120"
+# state_dir: "/var/lib/pocket-id"
 # uds_socket: false
 # systemd_hardened: true
 # adr: ADR-5120

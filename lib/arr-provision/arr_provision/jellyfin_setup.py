@@ -345,7 +345,7 @@ def setup_jellyfin() -> int:
     if base_url is None:
         return 0
     username = os.environ.get("JELLYFIN_ADMIN_USER", "admin")
-    password_file = os.environ.get("JELLYFIN_ADMIN_PASSWORD_FILE", "/var/lib/secrets/jellyfin_admin_password")
+    password_file = os.environ["JELLYFIN_ADMIN_PASSWORD_FILE"]
 
     if not wait_for_url(f"{base_url}/System/Info/Public"):
         print("Jellyfin not reachable — skipped", file=sys.stderr)

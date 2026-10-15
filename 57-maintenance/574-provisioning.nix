@@ -197,6 +197,11 @@ lib.mkIf cfg.maintenance.provisioning.enable {
       RADARR_PORT = toString (manifest.radarr.port or registry.radarr.port);
       PROWLARR_PORT = toString (manifest.prowlarr.port or registry.prowlarr.port);
       SAB_PORT = toString (manifest.sabnzbd.port or registry.sabnzbd.port);
+      # SSoT: SABnzbd-Konfigpfad aus der Registry ableiten (statt hartkodieren).
+      # Der Python liest ihn via $SAB_INI_FILE.
+      SAB_INI_FILE = "${registry.sabnzbd.stateDir}/sabnzbd.ini";
+      PROWLARR_DB = "${registry.prowlarr.stateDir}/prowlarr.db";
+      JELLYFIN_CONFIG = "${registry.jellyfin.stateDir}/config/system.xml";
       SONARR_KEY_FILE = credPath "sonarr-apikey";
       RADARR_KEY_FILE = credPath "radarr-apikey";
       PROWLARR_KEY_FILE = credPath "prowlarr-apikey";
@@ -204,12 +209,12 @@ lib.mkIf cfg.maintenance.provisioning.enable {
         if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
           credPath "sabnzbd-apikey"
         else
-          "/var/lib/sabnzbd-5410/sabnzbd.ini";
+          "${registry.sabnzbd.stateDir}/sabnzbd.ini";
       SAB_KEY_FILE =
         if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
           credPath "sabnzbd-apikey"
         else
-          "/var/lib/sabnzbd-5410/sabnzbd.ini";
+          "${registry.sabnzbd.stateDir}/sabnzbd.ini";
       TARGETS_JSON = builtins.toJSON downloadClientTargets;
       TARGET_LANG = cfg.locale.language;
       TARGET_LOCALE = cfg.locale.default;
