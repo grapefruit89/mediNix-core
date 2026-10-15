@@ -293,6 +293,44 @@
               python3 scripts/nixmeta_check.py
             '';
 
+        # ── Unit-Skripte wirklich BAUEN (nicht nur auswerten) ────────────────
+        # `writeShellApplication` laesst shellcheck laufen — aber nur beim BAUEN.
+        # `nix flake check --no-build` ist blind dafuer: am 2026-10-15 war lokal
+        # 47/0 gruen und die CI rot (SC2050 in 583-runtime-guard, s. L-036).
+        # Dieser Check referenziert die Skript-Werte der Units; ihr String-KONTEXT
+        # zieht die writeShellApplication-Derivationen als Build-Eingaben mit.
+        # Etwas Sekunden statt eines kompletten Systembaus — und deckt genau die
+        # Klasse ab, die sonst erst die CI findet.
+        checks.mediNix-unit-scripts =
+          let
+            c = stackNixos.config;
+            valuesOf =
+              n:
+              builtins.filter builtins.isString [
+                (c.systemd.services.${n}.serviceConfig.ExecStart or null)
+                (c.systemd.services.${n}.script or null)
+                (c.systemd.services.${n}.preStart or null)
+                (c.systemd.services.${n}.postStart or null)
+                (c.systemd.services.${n}.preStop or null)
+                (c.systemd.services.${n}.postStop or null)
+                (c.systemd.services.${n}.reload or null)
+              ];
+            values = builtins.concatMap valuesOf (builtins.attrNames c.systemd.services);
+            storePaths = builtins.filter (v: lib.hasPrefix "/nix/store/" v) values;
+          in
+          if storePaths == [ ] then
+            throw "mediNix-unit-scripts: keine Skript-Derivationen gefunden - der Check waere wirkungslos."
+          else
+            pkgs.runCommand "unit-scripts-ok" { } ''
+              # Jede Zeile macht ein referenziertes Skript zur Build-Eingabe und
+              # baut es damit (shellcheck!). Nur Store-Pfade: reine Kommandos wie
+              # `chgrp ... /etc/resolv.conf` haben keinen Kontext.
+              ${lib.concatMapStringsSep "\n" (
+                v: "printf '%s\\n' ${lib.escapeShellArg (toString v)} > /dev/null"
+              ) storePaths}
+              printf 'ok: %s Skript-Werte gebaut (Units der Voll-Stack-Belegung)\n' "${toString (builtins.length storePaths)}" > $out
+            '';
+
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
         checks.smoke-test = import ./tests/medinix-smoke.nix {
