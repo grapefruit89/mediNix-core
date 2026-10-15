@@ -1,7 +1,7 @@
 site_name: mediNix-core Knowledge Base
 site_description: Aviation-Grade Self-Hosting Architecture Documentation
-docs_dir: .
-site_dir: ../site
+docs_dir: docs
+site_dir: site
 
 theme:
   name: material

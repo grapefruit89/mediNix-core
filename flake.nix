@@ -852,9 +852,7 @@
             pkgs.python3Packages.mkdocs-material
           ];
           buildPhase = ''
-            cd docs || exit 1
-            mkdocs build --site-dir ../site
-            cd ..
+            mkdocs build --site-dir site
           '';
           installPhase = ''
             mkdir -p $out
@@ -877,7 +875,7 @@
           ];
           shellHook = ''
             export OPENCODE_PROJECT="mediNix-core"
-            echo "Run 'cd docs && mkdocs serve' to view the knowledge base."
+            echo "Run 'mkdocs serve' to view the knowledge base."
           '';
         };
       }

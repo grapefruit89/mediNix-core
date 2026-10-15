@@ -33,7 +33,9 @@ Läuft zusätzlich in CI (`.github/workflows/order-lint.yml`) — Verstöße bre
   Neu erzeugen: `python 50-core/medinix-meta.py generate-docs`
   Prüfen:        `python 50-core/medinix-meta.py check-docs`
 - **Dokumentation nach `docs/`**, nicht ins Root (Root = nur Nix-Pflicht
-  (`flake.nix`, `default.nix`, `flake.lock`, `repl.nix`, `statix.toml`) + wenige Meta-Docs
+  (`flake.nix`, `default.nix`, `flake.lock`, `repl.nix`, `statix.toml`), die
+  Doku-Build-Konfiguration `mkdocs.yml` (sie muss neben `docs/` liegen, weil
+  mkdocs ≥ 1.6 `docs_dir` == Konfig-Verzeichnis verbietet) + wenige Meta-Docs
   wie `README.md`, `CHANGELOG.md`, `LICENSE`).
 - **Keine Build-Artefakte im Repo** (`__pycache__/`, `*.pyc` sind in `.gitignore`).
 
