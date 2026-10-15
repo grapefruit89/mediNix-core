@@ -192,6 +192,30 @@
           inputs = { inherit self; };
         };
 
+        # ── Voll-Stack-Ratsche: aktiviert jeden Dienst gleichzeitig und erzwingt
+        # den toplevel. Deckt Faelle auf, die Einzel-Checks verpassen, weil sie
+        # users.users.* nie forcieren (z. B. paralleles Eigentum an
+        # users.users.<dienst> durch Service-Engine und lib/service-factory.nix).
+        checks.mediNix-stack-eval =
+          (lib.nixosSystem {
+            inherit system;
+            modules = baseModules {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.sonarr.enable = true;
+              medinix.radarr.enable = true;
+              medinix.readarr.enable = true;
+              medinix.lidarr.enable = true;
+              medinix.prowlarr.enable = true;
+              medinix.sabnzbd.enable = true;
+              medinix.jellyfin.enable = true;
+              medinix.audiobookshelf.enable = true;
+              medinix.navidrome.enable = true;
+              medinix.gatus.enable = true;
+              medinix.seerr.enable = true;
+              medinix.observability.ntfy.enable = true;
+            };
+          }).config.system.build.toplevel;
+
         # Smoke-Test: Navidrome Unit + Port-Isomorphie (Aufgabe 12 vervollständigt)
 
         # Negative Test: usenet-confinement without VPN interface must fail
