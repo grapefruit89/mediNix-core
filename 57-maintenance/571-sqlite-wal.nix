@@ -39,10 +39,7 @@ let
   serviceEntries = lib.mapAttrsToList (_n: s: {
     unit = "${s.unitName}.service";
     dir = s.stateDir;
-    # Verhaltensgleich zur bisherigen Fassung (Registry-Feld 'gid' = 5000 =
-    # sharedGid). Eine eigene private DB gehoerte streng nach ADR-0000 §4 der
-    # UPG ("uid:uid") - Entscheidung liegt beim Nutzer (Roadmap).
-    owner = "${toString s.uid}:${toString s.sharedGid}";
+    owner = "${toString s.uid}:${toString s.uid}"; # UPG (ADR-0000 §4): private DB gehoert uid:uid
   }) activeServices;
 
   serviceEntriesLines = lib.concatMapStringsSep "\n" (

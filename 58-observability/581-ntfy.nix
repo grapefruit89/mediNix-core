@@ -24,7 +24,6 @@ let
   reg = registry.ntfy;
   inherit (reg) port;
   inherit (reg) uid;
-  inherit (reg) sharedGid;
   inherit (reg) stateDir;
   conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
   ntfyGroup =
@@ -75,7 +74,7 @@ lib.mkMerge [
         what = "tmpfs";
         where = stateDir;
         type = "tmpfs";
-        options = "size=256M,mode=0750,uid=${toString uid},gid=${toString sharedGid}";
+        options = "size=256M,mode=0750,uid=${toString uid},gid=${toString uid}";
       }
     ];
 
