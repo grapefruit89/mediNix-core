@@ -16,6 +16,8 @@
 let
   cfg = config.medinix;
   self = args.self or null;
+  # SSoT: UID nicht hartkodieren, sondern aus der Registry ableiten.
+  sab = (import ../lib/registry.nix { inherit lib; }).services.sabnzbd;
 in
 {
   options.medinix.hostHygiene = {
@@ -63,10 +65,10 @@ in
             config.services.vpnKillSwitch.instances == { }
             || (
               (config.services.vpnKillSwitch.instances ? sabnzbd)
-              && (config.services.vpnKillSwitch.instances.sabnzbd.uid == 5410)
+              && (config.services.vpnKillSwitch.instances.sabnzbd.uid == sab.uid)
               && (lib.attrNames config.services.vpnKillSwitch.instances == [ "sabnzbd" ])
             );
-          message = "[mediNix/security] Killswitch-Verletzung: Ausschließlich SABnzbd mit UID 5410 darf registriert sein.";
+          message = "[mediNix/security] Killswitch-Verletzung: Ausschließlich SABnzbd mit UID ${toString sab.uid} darf registriert sein.";
         }
         {
           assertion = !(config.virtualisation.docker.enable or false);
