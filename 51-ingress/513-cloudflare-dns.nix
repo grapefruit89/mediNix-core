@@ -111,6 +111,12 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       hardeningOnly = true;
       extraConfig = {
         Type = "oneshot";
+        # Kein Nachladen aus /tmp, Home oder einem Angreifer-Verzeichnis:
+        # nur der Nix-Store ist ausfuehrbar. Idiom aus nixpkgs
+        # (z. B. webdav-server-rs.nix:129-130, meme-bingo-web.nix:129-130).
+        # Das Script nutzt ausschliesslich Store-Pfade (curl, jq, ip, gawk, gnugrep).
+        NoExecPaths = [ "/" ];
+        ExecPaths = [ "/nix/store" ];
       }
       // lib.optionalAttrs (credPath != null) {
         LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
