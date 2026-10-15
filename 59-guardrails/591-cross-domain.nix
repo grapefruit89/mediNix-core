@@ -81,6 +81,18 @@ let
   # bei stateDir != null), and a system user with the factory uid. Keyed by the REAL unit name, so the
   # standalone reverse proxy (caddy-media) is verified as itself instead of the
   # registry key it does not use.
+  # Frameband [projectDigit*1000 .. +999] ist fuer mediNix reserviert (ADR-0000).
+  # Kein Fremd-Konto darf hinein (sonst UID/GID-Kollision mit der Ableitung).
+  frameBandLo = df.projectDigit * 1000;
+  frameBandHi = frameBandLo + 999;
+  frameNames =
+    lib.attrNames (config.medinix.manifest or { })
+    ++ lib.attrNames (config.medinix.factoryUnits or { });
+  foreignBandUsers = lib.filterAttrs (
+    n: u:
+    (u.uid or null) != null && u.uid >= frameBandLo && u.uid <= frameBandHi && !(lib.elem n frameNames)
+  ) (config.users.users or { });
+
   factoryUnits = config.medinix.factoryUnits or { };
   svcCfgOf = n: config.systemd.services.${n}.serviceConfig or { };
   factoryViolations = lib.flatten (
@@ -178,6 +190,15 @@ lib.mkIf cfg.enable {
       message = ''
         [mediNix] Service-Factory (ADR-5050) verletzt:
         ${lib.concatStringsSep "\n        " factoryViolations}
+      '';
+    }
+    {
+      assertion = foreignBandUsers == { };
+      message = ''
+        [mediNix] Fremd-Konto im reservierten Frameband ${toString frameBandLo}-${toString frameBandHi}:
+        ${lib.concatStringsSep ", " (lib.attrNames foreignBandUsers)}
+        mediNix reserviert dieses Band (ADR-0000, Ableitung num*10). Eigenes Konto bitte
+        ausserhalb anlegen (z. B. 1xxx).
       '';
     }
   ];

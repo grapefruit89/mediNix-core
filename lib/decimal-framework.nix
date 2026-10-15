@@ -131,6 +131,11 @@ in
         }
       ];
 
+    # Konten sind rein deklarativ: kein ad-hoc `useradd` (kein Fremd-Konto im 5xxx-Band).
+    # Login ist fuer Dienst-Konten bereits gesperrt: `isSystemUser = true` -> die
+    # Default-Shell ist `pkgs.shadow` (nologin), und es gibt kein Passwort.
+    users.mutableUsers = lib.mkDefault false;
+
     # 4. UPG & Shared Group Definitions
     users.groups = {
       media = lib.mkDefault { gid = 5000; };
