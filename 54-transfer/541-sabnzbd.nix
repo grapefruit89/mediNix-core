@@ -117,13 +117,13 @@ in
         }
         {
           assertion = !(config.systemd.services.sabnzbd.serviceConfig.PrivateNetwork or false);
-          message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist verboten! SABnzbd nutzt UID-Routing (5410).";
+          message = "[mediNix/541-sabnzbd] 'PrivateNetwork = true' (netns) ist verboten! SABnzbd nutzt UID-Routing (${toString meta.uid}).";
         }
         {
           assertion =
             (!svc.usenet-confinement.enable)
-            || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == 5410);
-          message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID 5410 nutzen.";
+            || ((config.services.vpnKillSwitch.instances.sabnzbd.uid or null) == meta.uid);
+          message = "[mediNix/541-sabnzbd] UID-Mismatch: SABnzbd muss für den Killswitch zwingend UID ${toString meta.uid} nutzen.";
         }
         {
           assertion = (!svc.usenet-confinement.enable) || (vpnIf != "");
