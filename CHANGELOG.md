@@ -3,6 +3,22 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-15 (2) — Repo-Aufräumen, TODO als Ableitung
+
+- **Fremdbestand/Duplikate archiviert** (`docs/audit/2026-10-15/repo-cleanup/`):
+  `docs/GEMINI.md` (fremdes Manifest), `.agents/rules/global-rules.md`, flacher
+  Skill-Doppelgänger `docs/SKILL-implement-discipline.md`, Code-Dump
+  `docs/59-guardrails-export.md`, `docs/ARCHIVE-sops-nix-deprecated.md` → `docs/archive/`,
+  Artefakt `50-core/mcp_server.log` entfernt.
+- **Eine Quelle pro Information:** `docs/CHANGELOG.md` und `docs/README.md` sind Zeiger
+  (Wurzel-CHANGELOG bzw. `docs/INDEX.md`); `docs/AGENT_SOURCES.md` ist in
+  `docs/UPSTREAM-SOURCES.md` (Abschnitt 2) aufgegangen.
+- **Service Map korrigiert** (Primär-GID = UPG = 10 × Nummer, `media` nur `extraGroups`);
+  vorher stand dort das von ADR-0000 §5 verworfene flache GID 5000.
+- **`docs/TODO.md` ist generiert** aus Korridor + Roadmap + Ledger (`scripts/gen_todo.py`,
+  `--check` erkennt Veralterung) — Whitelist + Blacklist (`AB-026`…`AB-030`) in
+  `docs/CONVENTIONS.md` §4/§5 verankert.
+
 ## 2026-10-15 — Sicherheitsreparatur 513 + UPG-Konformitaet
 
 - **513 lief als root** (`hardeningOnly`-Modus ohne `User`/`Group`): Die Service-Fabrik

@@ -13,7 +13,7 @@
   die **Voll-Stack-Ratsche deckt 43 fachliche Units** (18 Dienste + acme-*, cloudflare-ddns, mediNix-*), dazu sieben Negativtests und der **Port-Verdrahtungs-Riegel**.
   GitHub-CI grün (`Flake Check` inkl. Paket-Build, `order-lint`, `Generate Docs Index`).
 - **22 Commits** heute auf diesem Branch; Korridor/Roadmap/Ledger sind auf demselben Stand.
-- **Vor jeder Änderung lesen:** `.agent-state.json` → `corridor` (Whitelist, 21 Blacklist-Regeln, offene Entscheidungen).
+- **Vor jeder Änderung lesen:** `.agent-state.json` → `corridor` (Whitelist, **30** Blacklist-Regeln als `AB-001`…`AB-030`, offene Entscheidungen).
 - **Einzige Roadmap:** `ROADMAP.md`. Altstände: `docs/audit/2026-10-15/`.
 - **Harte Regeln:** messen → verstehen → **Diff vorlegen** → Go abwarten. Kein Push, Merge oder Löschen ohne Go.
 - **Die Zielmaschine (q958) ist nie gelaufen** — keine Daten, keine Migration, Änderungen kosten nichts.
@@ -131,3 +131,27 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 | Agenten-Verfassung | `AGENTS.md` (Root) |
 
 *Bei Unsicherheit gilt: messen, verstehen, fragen — nicht raten.*
+
+---
+
+## 9. Nachtrag 2026-10-15 (später Abend) — 513/UPG + Repo-Aufräumen
+
+- **513 lief als root** (L-038): der `hardeningOnly`-Modus der Service-Fabrik setzt kein
+  `User`/`Group`; 513 legt seinen Account jetzt selbst an — **mit UPG** (uid = gid = 5130,
+  Primärgruppe `cloudflare-ddns`) statt Primärgruppe `media`, und steht in
+  `medinix.factoryUnits`, damit Guardrail 591 die Unit prüft. Guardrail 591 verlangt seit
+  heute `Group == Unit-Name`, Primärgruppe == Unit-Name und `users.groups.<n>.gid == uid`
+  (er hat beim Verschärfen sofort einen vergessenen Rest gefunden).
+- **DDNS-Token nicht mehr in `argv`** (L-039): `curl --variable token@$RUNTIME_DIRECTORY/cf-token`
+  + `--expand-header` (curl 8.21.0); `lib/mk-secure-curl.nix` ist damit `deprecated`.
+- **Repo aufgeräumt** (L-040/L-041): Fremdregelwerke (`.agents/`, `docs/GEMINI.md`),
+  flache Zweitfassungen (`docs/SKILL-*.md`, `docs/CHANGELOG.md`), Code-Dump
+  (`59-guardrails-export.md`) archiviert → `docs/audit/2026-10-15/repo-cleanup/<original-pfad>/`;
+  Zweitfassungen sind jetzt **Zeiger**; `docs/AGENT_SOURCES.md` ist in
+  `docs/UPSTREAM-SOURCES.md` aufgegangen; die veraltete Service-Map (GID 5000 = flat) steht
+  korrigiert (UPG) in `docs/INDEX.md`.
+- **Neu:** `docs/TODO.md` ist **generiert** (`scripts/gen_todo.py`, `--check` prüft) — keine
+  zweite Planungsquelle; Whitelist + Blacklist stehen in `docs/CONVENTIONS.md` §4/§5.
+- **Merksatz (Korridor AB-024):** der `hardeningOnly`-Modus der Fabrik liefert eine
+  **Unit**-Definition — `users.*`/`medinix.*` darin erzeugen
+  „The option `systemd.services.<n>.users' does not exist".

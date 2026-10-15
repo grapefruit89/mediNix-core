@@ -615,6 +615,61 @@
         "revive_if": "Nie - Ausnahme waere nur per ADR-Aenderung moeglich.",
         "source": "ADR-0000 §4/§5",
         "date": "2026-10-15"
+      },
+      {
+        "id": "AB-026",
+        "topic": "Zweites Regelwerk im Repo",
+        "was": "Fremdmanifeste oder zweite Agenten-Regelsaetze (z. B. docs/GEMINI.md, .agents/rules/global-rules.md).",
+        "warum": "Zwei Regelquellen widersprechen sich (Pfad-Reinheit/Python-Verbote vs. dieses Repo) und der Agent weiss nicht, welche gilt.",
+        "evidence": "Archiviert 2026-10-15: docs/audit/2026-10-15/repo-cleanup/{docs/GEMINI.md,.agents/rules/global-rules.md}; 0 Referenzen.",
+        "status": "aktiv",
+        "revive_if": "Nie - Agenten-Regeln stehen ausschliesslich in /AGENTS.md; CLAUDE.md und docs/AGENTS.md sind Zeiger.",
+        "source": "CONVENTIONS §5",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-027",
+        "topic": "Flache Zweitfassung neben der kanonischen Datei",
+        "was": "z. B. docs/SKILL-implement-discipline.md neben docs/agents/01-discipline/medinix-implement-discipline/SKILL.md oder docs/CHANGELOG.md neben CHANGELOG.md.",
+        "warum": "Zwei Fassungen derselben Information driften zwangslaeufig (gemessen: 126 vs 153 Zeilen, 62 vs 462 Zeilen).",
+        "evidence": "2026-10-15 zu Zeigern umgebaut + archiviert.",
+        "status": "aktiv",
+        "revive_if": "Nie - Zweitfassung wird Zeiger (Verweis + Archivpfad) oder wandert ins Archiv.",
+        "source": "CONVENTIONS §4 Zeiger-Regel",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-028",
+        "topic": "Code-Dump in Markdown",
+        "was": "Nix-/Shell-Code in eine .md kopieren, statt ihn zu verlinken (Muster: docs/59-guardrails-export.md, 575 Zeilen).",
+        "warum": "Der Dump kann nicht mit dem Code mitlaufen; er ist nach dem ersten Refactor falsch.",
+        "evidence": "Archiviert 2026-10-15; Zeile 1 war '# Guardrails Export' mit '5043-assertion-quality.nix'.",
+        "status": "aktiv",
+        "revive_if": "Nie - Doku verlinkt den Code (Pfad + Symbol), statt ihn zu kopieren.",
+        "source": "CONVENTIONS §5",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-029",
+        "topic": "Archiv ausserhalb der Archivpfade",
+        "was": "'ARCHIVE-*'- oder '*-export'-Dateien flach in docs/ oder im Wurzelbaum liegen lassen.",
+        "warum": "Zwei Archivorte = unklarer Stand; die Whitelist kennt genau zwei (docs/audit/<jahr-monat>/, docs/archive/).",
+        "evidence": "2026-10-15: docs/ARCHIVE-sops-nix-deprecated.md -> docs/archive/, docs/59-guardrails-export.md -> docs/audit/2026-10-15/repo-cleanup/.",
+        "status": "aktiv",
+        "revive_if": "Nie - ein Archivort pro Zweck (datierter Vorgang vs. thematische Alt-Doku).",
+        "source": "CONVENTIONS §4/§5",
+        "date": "2026-10-15"
+      },
+      {
+        "id": "AB-030",
+        "topic": "Artefakte im Baum liegen lassen",
+        "was": "*.log, __pycache__/, *.pyc, .directory im Repo-Baum dulden, weil sie in .gitignore stehen.",
+        "warum": "gitignored heisst nicht aufgeraeumt: sie taeuschen Ordnung, verfaelschen Dateizaehlungen und wandern in Backups.",
+        "evidence": "2026-10-15: 50-core/mcp_server.log von der Platte entfernt (gitignoriert, kein Repo-Change).",
+        "status": "aktiv",
+        "revive_if": "Nie - Artefakte entfernen, Muster bleibt in .gitignore.",
+        "source": "CONVENTIONS §5",
+        "date": "2026-10-15"
       }
     ],
     "open_decisions": [

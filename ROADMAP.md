@@ -11,7 +11,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ## In Progress
 
-- [ ] **(2026-10-15) Doku-Konsolidierung:** vier Roadmaps auf eine reduzieren (dieses Dokument), Ledger/Handoff korrigieren, Fehlversuche nach `docs/audit/2026-10-15/` archivieren. Vorschlag liegt vor, wartet auf Go.
+- [x] **(2026-10-15) Doku-Konsolidierung:** erledigt — eine Roadmap (dieses Dokument), Ledger/Handoff korrigiert, Fehlversuche archiviert, Repo-Aufraeumen (L-040/L-041) durchgefuehrt.
 
 ---
 
@@ -43,6 +43,8 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - [x] **Unit-Skripte als Check bauen** (L-037): `checks.mediNix-unit-scripts` baut die Skript-Derivationen der Voll-Stack-Belegung (50 Werte, Sekunden) und fängt SC2050 & Co. lokal und in der CI. Ursprungsbefund L-036
 - ~~**Unit-Skripte als Check bauen**~~ erledigt (siehe oben), offene Variante: `writeShellApplication` laesst shellcheck laufen, aber nur beim *Bauen* — `--no-build` ist blind dafuer. Ein Check `mediNix-unit-scripts`, der die `.drv`-Pfade aus dem String-Kontext der Unit-Skripte baut (77 Derivationen, Sekunden statt Minuten), schliesst diese Klasse lokal UND in der CI
 - [x] **513: Token aus `argv` geholt** (L-039) — nativ per `curl --variable token@$RUNTIME_DIRECTORY/cf-token --expand-header` (0600-Datei, `unset TOKEN`); `lib/mk-secure-curl.nix` damit `deprecated`
+- [ ] **Service-Map generieren statt pflegen:** `docs/INDEX.md` (Abschnitt „Service Map") und die Ordner-`AGENTS.md`-Tabellen aus `lib/registry.nix` ableiten (Muster: `scripts/gen_todo.py --check` / `medinix-meta.py generate-docs`), inkl. CI-Check.
+- [ ] **`docs/TODO.md`-Aktualitaet in CI prüfen:** `python3 scripts/gen_todo.py --check` in `order-lint.yml` oder `check-docs` aufnehmen.
 - [ ] **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
 - [x] Negativtest „eine kaputte Konfiguration muss brechen" (`9d4d0a4`: drei dauerhafte Checks — `negative-slot0-daemon`, `negative-identity-wired`, `negative-ankreuzbogen` (Paar-Vergleich). Der Dekaden-Check lässt sich nicht als nixosSystem prüfen (er liest Ordner); er wurde per gestagter Probe bewiesen — teilweise erledigt: die vier neuen Gates wurden 2026-10-15 per gestagter Probe-Datei als feuernd **bewiesen**; ein *dauerhafter* Check dafür fehlt noch (die Assertions selbst testen). Quelle: B4.
 
@@ -63,8 +65,8 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ### P2 — Aufräumen
 
-- [ ] Die 4 nie verdrahteten `lib`-Module entscheiden: `abc-tiering.nix` (von `storage.backends.hot/cold` überholt), `mk-secure-curl.nix`, `wait-for-api.nix`, `_helpers.nix`.
-- [ ] `docs/AGENT_SOURCES.md` und `docs/UPSTREAM-SOURCES.md` zusammenlegen (zwei konkurrierende Quellenlisten).
+- [x] Die 4 nie verdrahteten `lib`-Module entschieden (971203c): markiert statt geloescht (`abc-tiering`/`_helpers` → `deprecated`, `wait-for-api`/`mk-secure-curl` → `draft`, `mk-secure-curl` inzwischen `deprecated`). Ursprungs-Notiz:  `abc-tiering.nix` (von `storage.backends.hot/cold` überholt), `mk-secure-curl.nix`, `wait-for-api.nix`, `_helpers.nix`.
+- [x] `docs/AGENT_SOURCES.md` und `docs/UPSTREAM-SOURCES.md` zusammengelegt (L-041): eine Liste, Abschnitt 2 in `docs/UPSTREAM-SOURCES.md`; die alte Datei ist Zeiger.
 - [ ] `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
 
 ---

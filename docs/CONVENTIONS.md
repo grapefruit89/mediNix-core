@@ -55,3 +55,35 @@ Läuft zusätzlich in CI (`.github/workflows/order-lint.yml`) — Verstöße bre
 Nicht flachlegen — **füllen** oder bewusst als Ausnahme dokumentieren. Ordner,
 die nur wegen fehlenden Inhalts „spam" sind, gehören gefüllt (z. B. `scripts/`
 ist für mehrere Werkzeuge gedacht) oder entfernt.
+
+## 4. Whitelist (kanonische Struktur)
+
+| Pfad | Zweck | Pflicht |
+|---|---|---|
+| `5X-domain/NNN-dienst.nix` + generierte `AGENTS.md`/`README.md` | Module nach ADR-0000 | ja |
+| `lib/` (Engine, Factory, Contract, Profiles, Registry, memory-policy, creds) | geteilte Logik | ja |
+| `lib/arr-provision/` **+ `…/tests/`** | Provisioning-Paket; `default.nix` startet `unittest discover -s …/tests` → Ordner ist technisch gebunden | ja |
+| `docs/adr/` `arch/` `patterns/` `guides/` `learn/` `concepts/` `examples/` | Wissensbasis | ja |
+| `docs/agents/<kategorie>/<skill>/` (`SKILL.md` + `references/`/`templates/`/`scripts/`) | Agenten-Skills | ja |
+| `docs/audit/<jahr-monat>/` (+ `repo-cleanup/<original-pfad>/`) | **einziges** Archiv für Ausgemustertes | ja |
+| `docs/archive/` | thematische Alt-Doku (z. B. `ARCHIVE-sops-nix-deprecated.md`) | ja |
+| `docs/TODO.md` | **generiert** aus Korridor + Roadmap + Ledger (`scripts/gen_todo.py`) | ja (generiert) |
+| `scripts/` `tests/` `.github/workflows/` | Werkzeug, Smoke-Test, CI | ja |
+| `docs/*.md` flach | nur Leit-/Zeigerdokumente (INDEX, CONVENTIONS, AUDIT-LEDGER, HANDOFF-AN-NEXT-AGENT, ADMIN-HANDOFF, UPSTREAM-SOURCES, TODOs derzeit) | ja |
+| Wurzel: `flake.nix` `default.nix` `flake.lock` `repl.nix` `statix.toml` `mkdocs.yml` `.gitignore` `LICENSE` `AGENTS.md` `CLAUDE.md` `ROADMAP.md` `README.md` `CHANGELOG.md` | Projekt-Interface | ja |
+| `opencode.json` | maschinenspezifisch, bewusst gitignoriert | Ausnahme |
+
+**Zeiger-Regel:** Eine Information existiert **einmal**. Zweitfassungen werden zum Zeiger
+(5-Zeilen-Datei mit Verweis + Archivpfad), niemals stillschweigend gelöscht.
+
+## 5. Nicht ins Repo (Blacklist)
+
+- Fremdregelwerke/Fremdmanifeste (`.agents/`, `docs/GEMINI.md`) — Agenten-Regeln stehen **nur** in `/AGENTS.md`.
+- Flache Zweitfassungen (`docs/SKILL-*.md` neben `docs/agents/<skill>/`, `docs/CHANGELOG.md` als Kopie).
+- Code-Dumps in Markdown (z. B. `59-guardrails-export.md`) — Code lebt in `.nix`.
+- Archive außerhalb `docs/audit/<jahr-monat>/` oder `docs/archive/`.
+- Artefakte (`*.log`, `__pycache__/`, `*.pyc`, `.directory`) — gitignoriert heißt nicht aufgeräumt.
+- Handgepflegte Planungslisten (zweite Roadmap) — alles wird aus den Quellen **abgeleitet**.
+
+Maschinenlesbar stehen die Regeln als `AB-0xx` im Korridor
+(`.agent-state.json` → `corridor.blacklist`).

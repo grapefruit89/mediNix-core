@@ -10,6 +10,40 @@ Bist du ein KI-Agent und sollst ein Modul bauen oder ändern? **Lies die entspre
 - **Netzwerk & VPN (z.B. SABnzbd)**: Lies [VPN & Killswitch](concepts/vpn-killswitch.md)
 - **Passwörter & API-Keys**: Lies [Secrets Management](concepts/secrets-systemd.md)
 
+## 🗺 Service Map
+
+Abgeleitet aus `lib/registry.nix` (**SSoT**: `num`, `port`, `uid`, `gid`, `caddyClass`).
+Änderungen an der Registry gehören hier nachgezogen — ein Generator dafür steht im
+Backlog der [`ROADMAP.md`](../ROADMAP.md).
+
+| Dienst | Num | Port | UID | **Primär-GID (UPG)** | `media` zusätzlich | caddyClass | Bind |
+|--------|-----|------|-----|----------------------|--------------------|------------|------|
+| Caddy (511, Unit `caddy-media`) | 511 | 5110 | 5110 | **5110** | ja (`extraGroups`) | stream | 127.0.0.1 |
+| Pocket-ID | 512 | 5120 | 5120 | **5120** | nein | public | 127.0.0.1 |
+| Cloudflare-DNS | 513 | – | 5130 | **5130** | nein | none | – |
+| Sonarr | 532 | 5320 | 5320 | **5320** | ja | internal | 127.0.0.1 |
+| Radarr | 533 | 5330 | 5330 | **5330** | ja | internal | 127.0.0.1 |
+| Readarr | 534 | 5340 | 5340 | **5340** | ja | internal | 127.0.0.1 |
+| Lidarr | 535 | 5350 | 5350 | **5350** | ja | internal | 127.0.0.1 |
+| Prowlarr | 536 | 5360 | 5360 | **5360** | ja | internal | 127.0.0.1 |
+| SABnzbd | 541 | 5410 | 5410 | **5410** | ja | internal | 127.0.0.1 |
+| Jellyfin | 551 | 5510 | 5510 | **5510** | ja | stream | 127.0.0.1 |
+| Audiobookshelf | 552 | 5520 | 5520 | **5520** | ja | stream | 127.0.0.1 |
+| Navidrome | 553 | 5530 | 5530 | **5530** | ja | stream | 127.0.0.1 |
+| Feishin | 554 | 5540 | 5540 | **5540** | ja | stream | 127.0.0.1 |
+| Seerr | 561 | 5610 | 5610 | **5610** | nein | public | 127.0.0.1 |
+| ntfy | 581 | 5810 | 5810 | **5810** | ja | public | 127.0.0.1 |
+| Gatus | 582 | 5820 | 5820 | **5820** | ja | none | 127.0.0.1 |
+
+**Nicht gelistet** (kein eigener Port bzw. keine Caddy-Klasse): ACME (514), mDNS (515),
+Landingpage (518), Ingress-/Cross-Domain-Guardrails (519/591), Security 520–526,
+Maintenance 57x (Storage, SQLite-WAL, Recyclarr, Provisioning, Update-Notifier, Backup,
+Drift, Orphan-Cleanup, Backup-SSH), Observability 583–587 — Identitäten stehen in
+`lib/registry.nix`.
+
+> **UPG (ADR-0000 §4):** Primär-GID = 10 × Dienstnummer. Die geteilte Gruppe `media`
+> (GID 5000) ist **ausschließlich** supplementary (`extraGroups`) — nie Primärgruppe.
+
 ## 📚 Kategorien
 
 Alle detaillierten Dokumente sind thematisch sortiert:

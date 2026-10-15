@@ -36,13 +36,13 @@ chapter structure, while **C4** provides deterministic levels of diagram abstrac
 
 | arc42 Chapter | mediNix Document | Content & Purpose |
 |---|---|---|
-| **1. Introduction & Goals** | `docs/README.md`, `50-core/MANIFEST.md`, `docs/arch/ARCH-50-architecture-principles.md` | Requirements, quality goals, stakeholder overview |
+| **1. Introduction & Goals** | `docs/INDEX.md`, `50-core/MANIFEST.md`, `docs/arch/ARCH-50-architecture-principles.md` | Requirements, quality goals, stakeholder overview |
 | **2. Constraints** | `AGENTS.md`, `docs/NO-CONTAINERS.md` | Non-negotiable technical, organizational, and operational constraints |
 | **3. Context & Scope** | `docs/arch/ARCH-50-architecture-blueprint.md`, `ARCH-50-service-manifest.md` | Business and technical context, external interfaces, boundaries |
 | **4. Solution Strategy** | `docs/arch/ARCH-50-master-index.md`, `ARCH-50-architecture-principles.md` | Key technical decisions, decomposition strategy |
 | **5. Building Block View** | `docs/arch/ARCH-50-base-configuration.md`, domains `51`–`59` | Hierarchical component decomposition (Level 1: 50-media, Level 2: 51x-59x) |
 | **6. Runtime View** | `docs/arch/ARCH-50-3-stage-boot-pipeline.md` | Boot sequence, systemd dependency graphs, lifecycle interactions |
-| **7. Deployment View** | Service map in `docs/README.md`, `ARCH-50-master-sources.md` | Infrastructure mapping, physical ports, file paths |
+| **7. Deployment View** | Service map in `docs/INDEX.md`, `ARCH-50-master-sources.md` | Infrastructure mapping, physical ports, file paths |
 | **8. Crosscutting Concepts** | `docs/concepts/*`, `ARCH-50-nixhome-layer.md` | Security, user isolation (UPG), persistence, logging |
 | **9. Architecture Decisions** | `docs/adr/` (ADR-0000 … ADR-577) | Log of architectural decision records (MADR format) |
 | **10. Quality Requirements** | `docs/arch/ARCH-58-sre-quality.md`, `docs/guides/GUIDE-58-seven-quality-gates.md` | Quality tree, scenarios, concrete verification metrics |
