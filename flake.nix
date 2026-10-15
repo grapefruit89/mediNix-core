@@ -222,6 +222,21 @@
           medinix.maintenance.recyclarr.enable = true;
           medinix.diskHealth.enable = true;
           medinix.discovery.mdns.enable = true;
+          # 2026-10-15 (Teil 2): diese Units existierten im Stack GAR NICHT und waren
+          # damit ungeprueft (gemessen: mediNix-*, acme-*, cloudflare-ddns fehlten in
+          # der Unit-Liste). 513 baut nur im Modus "standalone" eine Unit; 514 nur mit
+          # acmeHost; die Maintenance-Units nur mit ihrem jeweiligen Flag.
+          medinix.dns.mode = "standalone";
+          medinix.ingress.tls.acmeHost = "example.com";
+          medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+          medinix.maintenance.sqliteOptimize.enable = true;
+          medinix.maintenance.provisioning.enable = true;
+          medinix.maintenance.updateNotifier.enable = true;
+          medinix.maintenance.backup.enable = true;
+          medinix.maintenance.backup.repository = "/var/backup/mediNix";
+          medinix.maintenance.backup.passwordCredentialPath = "/var/lib/credstore.encrypted/restic.cred";
+          medinix.orphanCleanup.enable = true;
+          medinix.observability.runtimeGuard = true;
           medinix.dns.ddns = {
             enable = true;
             zone = "example.com";

@@ -290,7 +290,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         # host-side (ADR-5115); see the dns.ddns.zone option description.
         update_record "*.$ZONE" "CNAME" "wan.$ZONE"
         update_record "$ZONE" "CNAME" "wan.$ZONE"
-        # PRUNE_NAMES holds canonical FQDNs ({label}.${cfg.domain}), built in
+        # PRUNE_NAMES holds canonical FQDNs ({label}.''${cfg.domain}), built in
         # Nix — the zone must not be appended here.
         for n in $PRUNE_NAMES; do
           [ -z "$n" ] && continue
