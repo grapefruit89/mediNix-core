@@ -12,7 +12,7 @@
 | `520-core-security` | `520-core-security.nix` | active | 3/5 | - |
 | `521-creds` | `521-creds.nix` | active | -/5 | - |
 | `525-vpn-interface` | `525-vpn-interface.nix` | active | 4/5 | - |
-| `526-vpn-killswitch` | `526-vpn-killswitch.nix` | active | 5/5 | - |
+| `526-vpn-killswitch` | `526-vpn-killswitch.nix` | active | 4/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 

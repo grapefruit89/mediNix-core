@@ -1,7 +1,7 @@
 # ---
 # id: "513-cloudflare-dns"
 # title: "Anchor DDNS — wan + lan A, wildcard/apex CNAME to wan (organ of 511)"
-# domain: 50
+# domain: 51
 # folder: 51-ingress
 # status: active
 # last_reviewed: 2026-10-02

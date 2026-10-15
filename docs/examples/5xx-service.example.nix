@@ -1,7 +1,11 @@
 # ---
 # id: "5xx-service-template"
 # title: "Agent Blueprint — Kopiere diese Vorlage fuer jeden neuen Dienst"
-# status: template
+# domain: 55
+# folder: "docs/examples"
+# status: active
+# complexity: 1
+# last_reviewed: 2026-10-15
 # contract: schemaVersion = 1 (ADR-0010)
 # ---
 # Diese Vorlage ist ABSICHTLICH minimal. Sie enthaelt nur, was ein Dienst

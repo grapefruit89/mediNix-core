@@ -1,11 +1,14 @@
 # ---
-# meta:
-#   role: package
-#   purpose: arr-provision — Python CLIs for declarative *arr / Seerr API sync
-#   tags:
-#     - media
-#     - arr
-#     - provisioning
+# id: "arr-provision"
+# title: "arr-provision — Python-CLIs fuer deklarative *arr/Seerr-API-Sync"
+# domain: 50
+# folder: "lib/arr-provision"
+# status: active
+# complexity: 3
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0010
+# tags: ["media", "arr", "provisioning"]
 # ---
 {
   lib,

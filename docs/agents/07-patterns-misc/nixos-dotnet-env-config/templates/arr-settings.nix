@@ -1,3 +1,14 @@
+# ---
+# id: "arr-settings-template"
+# title: "arr-Settings als .NET-Env-Variablen (Template)"
+# domain: 50
+# folder: "docs/agents/07-patterns-misc/nixos-dotnet-env-config/templates"
+# status: active
+# complexity: 2
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # lib/arr-settings.nix — .NET AppSettings → Environment Variables
 # Drop into lib/ and import from each Arr module:
 #   arrSettings = import ../lib/arr-settings.nix { inherit lib; };

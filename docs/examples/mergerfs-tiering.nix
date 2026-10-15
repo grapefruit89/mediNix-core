@@ -1,3 +1,14 @@
+# ---
+# id: "mergerfs-tiering"
+# title: "mergerfs-ABC-Tiering (Beispiel)"
+# domain: 57
+# folder: "docs/examples"
+# status: active
+# complexity: 2
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # docs/examples/mergerfs-tiering.nix — mediNix-core with MergerFS ABC-Tiering
 #
 # Use case: Host-side MergerFS union mount for stable library paths.

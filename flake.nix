@@ -1,3 +1,14 @@
+# ---
+# id: "flake"
+# title: "mediNix-core Flake — Outputs, Checks, DevShell"
+# domain: 50
+# folder: "."
+# status: active
+# complexity: 5
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 {
   description = "mediNix-core — Portable NixOS Media Stack Module";
 
@@ -271,6 +282,17 @@
         # ── Ratsche: evaluiert das gesamte Modul mit allen Optionen ─────────
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.
+        # ── nixmeta-Check: der YAML-Header JEDER .nix-Datei (ADR-00-nixmeta-v3) ──
+        # Ratsche mit dokumentiertem Scope: erzwungen werden Header, YAML-Gueltigkeit
+        # und die Kernfelder id/title/domain/last_reviewed plus die objektiv
+        # ableitbaren Regeln. folder/status/complexity/links.adr werden geprueft,
+        # sofern vorhanden (siehe scripts/nixmeta_check.py).
+        checks.nixmeta-check =
+          mkCheck "nixmeta" (pkgs: [ (pkgs.python3.withPackages (ps: [ ps.pyyaml ])) ])
+            ''
+              python3 scripts/nixmeta_check.py
+            '';
+
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
         checks.smoke-test = import ./tests/medinix-smoke.nix {

@@ -1,3 +1,14 @@
+# ---
+# id: "medinix-smoke"
+# title: "QEMU-Smoke-Test — Unit-Start und Port-Isomorphie"
+# domain: 50
+# folder: "tests"
+# status: active
+# complexity: 3
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 { pkgs, inputs }:
 
 let

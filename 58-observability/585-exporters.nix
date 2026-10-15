@@ -4,6 +4,7 @@
 # domain: 58
 # folder: 58-observability
 # status: active
+# last_reviewed: 2026-10-15
 # ---
 # Reiner Manifest-Konsument: Kennt keinen Dienst namentlich.
 # Iteriert über config.medinix.manifest und generiert für alle

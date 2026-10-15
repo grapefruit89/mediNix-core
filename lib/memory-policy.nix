@@ -4,6 +4,7 @@
 # domain: 50
 # folder: lib
 # status: active
+# last_reviewed: 2026-10-15
 # complexity: 2
 # ---
 # Defines the OOM-kill sacrifice hierarchy and cgroup v2 memory throttling.

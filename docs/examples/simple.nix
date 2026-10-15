@@ -1,3 +1,14 @@
+# ---
+# id: "simple"
+# title: "Minimale mediNix-Host-Konfiguration (Beispiel)"
+# domain: 50
+# folder: "docs/examples"
+# status: active
+# complexity: 1
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # docs/examples/simple.nix — Minimal mediNix-core host config
 #
 # Use case: LAN-only media server, no VPN, no external access.

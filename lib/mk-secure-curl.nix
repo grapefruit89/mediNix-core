@@ -1,3 +1,14 @@
+# ---
+# id: "mk-secure-curl"
+# title: "Secure-curl-Aufruf mit Timeouts"
+# domain: 50
+# folder: "lib"
+# status: active
+# complexity: 2
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # lib/mk-secure-curl.nix
 #
 # Generiert einen curl-Aufruf, der Secrets zur Laufzeit intern expandiert,

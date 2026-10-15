@@ -4,6 +4,7 @@
 # domain: 58
 # folder: 58-observability
 # status: active
+# last_reviewed: 2026-10-15
 # complexity: 2
 # adr: ADR-5870
 # ---

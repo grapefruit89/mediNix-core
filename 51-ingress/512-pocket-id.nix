@@ -1,7 +1,7 @@
 # ---
 # id: "512-pocket-id"
 # title: "Pocket ID — self-hosted OIDC IdP (native systemd)"
-# domain: 50
+# domain: 51
 # folder: 51-ingress
 # status: active
 # complexity: 4

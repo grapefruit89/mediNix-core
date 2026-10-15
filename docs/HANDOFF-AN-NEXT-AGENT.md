@@ -9,7 +9,7 @@
 
 - **Repo:** `mediNix-core` — deklarative NixOS-Homelab-Konfiguration (Flake, ADR-0000 „Dezimalrahmen").
 - **Zweig:** `audit-2026-10-15` (gepusht). `main` ist unberührt.
-- **Stand:** `nix flake check --no-build` = **47 bestanden / 0 offen**; Lint-Checks **gebaut** grün;
+- **Stand:** `nix flake check --no-build` = **48 bestanden / 0 offen**; Lint-Checks **gebaut** grün;
   die **Voll-Stack-Ratsche deckt 43 fachliche Units** (18 Dienste + acme-*, cloudflare-ddns, mediNix-*), dazu sieben Negativtests und der **Port-Verdrahtungs-Riegel**.
   GitHub-CI grün (`Flake Check` inkl. Paket-Build, `order-lint`, `Generate Docs Index`).
 - **22 Commits** heute auf diesem Branch; Korridor/Roadmap/Ledger sind auf demselben Stand.
@@ -47,7 +47,7 @@ find . -name "*.nix" -not -path "./.git/*" | while read -r f; do \
 
 # Stufe 0b: Lint-Gates wirklich BAUEN (--no-build führt sie nicht aus!)
 nix build .#checks.x86_64-linux.nixfmt-check .#checks.x86_64-linux.statix-check \
-          .#checks.x86_64-linux.deadnix-check --no-link
+          .#checks.x86_64-linux.deadnix-check .#checks.x86_64-linux.nixmeta-check --no-link
 
 # Stufe 1: Auswertung
 nix flake check --no-build      # erwartet: 43 ✅ / 0 ❌

@@ -1,3 +1,14 @@
+# ---
+# id: "526-vpn-killswitch"
+# title: "VPN-Killswitch (skuid-Policy-Routing)"
+# domain: 52
+# folder: "52-security"
+# status: active
+# complexity: 4
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-526
+# ---
 # context7:
 #   - query: "networking.wg-quick.interfaces wireguard"
 #     library: /websites/nixos_manual_nixos_unstable

@@ -1,3 +1,14 @@
+# ---
+# id: "service-contract"
+# title: "Manifest-Schema und Compliance-Assertions"
+# domain: 50
+# folder: "lib"
+# status: active
+# complexity: 4
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0010
+# ---
 # lib/service-contract.nix
 #
 # mediNix-core: Zentraler Metadaten-Vertrag (Manifest)

@@ -81,6 +81,18 @@
       "component": "Unit-Inventar der Voll-Stack-Ratsche",
       "failure": "Mein erster Inventar-Filter schloss Namen mit dem Substring 'nix-' aus (fuer systemd-Units gedacht) - damit habe ich die eigenen mediNix-*-Units selbst ausgeblendet und eine falsche Luecke gemeldet. Der Fehler fiel auf, weil die vermeintlich fehlenden Units im Quelltext klar existieren.",
       "solution": "Units direkt messen statt ueber Namensfilter: `config.systemd.services ? \\\"<name>\\\"` fuer konkrete Units + Praefix-Suche fuer Familien (acme-*, mediNix-*). Ergebnis: 513/514 und die Maintenance-Units fehlten WIRKLICH, aber aus anderen Gruenden (dns.mode=standalone, acmeHost, Enable-Flags)."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "medinix-meta.py generate-docs <-> nixmeta-Header",
+      "failure": "Nach dem Ergaenzen/Aendern von nixmeta-Headern schlaegt 'python3 50-core/medinix-meta.py check-docs' fehl ('Stale AGENTS.md in 52-security'). Der Generator baut die Ordner-AGENTS.md AUS den Headern - ein Header-Fix an einem Modul macht die generierte Datei stale. Faellt nur auf, weil man check-docs laufen laesst.",
+      "solution": "Nach JEDER Header-Aenderung 'python3 50-core/medinix-meta.py generate-docs' ausfuehren und die geaenderten AGENTS.md mitcommitten. Beleg: 526-vpn-killswitch.nix bekam einen Header -> 52-security/AGENTS.md wurde neu erzeugt."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "git checkout <datei> nach einem Negativtest",
+      "failure": "Nach dem Negativtest ('domain: 99') habe ich die Datei mit 'git add' GESTAGET und dann 'git checkout <datei>' aufgerufen - das holt die Datei aus dem INDEX, also die kaputte Version. Der Testwert blieb drin und der Check war danach rot, ohne dass ich es merkte.",
+      "solution": "Zum Zuruecknehmen eines Tests entweder 'git checkout HEAD -- <datei>' (HEAD-Version) oder 'git restore --source=HEAD --staged --worktree <datei>' nutzen - oder den Wert einfach zurueckschreiben. Danach IMMER den Check erneut messen."
     }
   ],
   "recent_refactorings": [
@@ -315,7 +327,8 @@
         "513-cloudflare-dns: NoExecPaths=[\"/\"] + ExecPaths=[\"/nix/store\"]; 514 (acme) bewusst NICHT, weil nixpkgs-acme in ExecStartPost 'systemctl try-reload-or-restart' ruft (erst nach Laufzeittest)",
         "3 dauerhafte Negativtests in flake.nix: mediNix-negative-slot0-daemon, mediNix-negative-identity-wired (mkForce noetig!), mediNix-negative-ankreuzbogen (Paar-Vergleich: kaputt MUSS scheitern UND korrekt MUSS durchlaufen; braucht ingress.trustedCidrs, sonst beweist der Vergleich nichts)",
         "checks.mediNix-ports-verdrahtet: Manifest-Port muss beim Daemon ankommen (Unit-Umgebung | aktive nixpkgs-Settings | gerenderte YAML via environment.etc | Seed-Template). stackConfig/stackNixos teilen sich Ratsche und Port-Check",
-        "Voll-Stack-Ratsche deckt jetzt die GANZE Oberflaeche: 43 fachliche Units (acme-*, acme-order-renew-*, acme-setup, cloudflare-ddns, mediNix-backup-check/provision/runtime-guard/sqlite-passive/sqlite-truncate/update-notifier, medinix-orphan-cleanup, medinix-mdns-aliases, restic-backups-mediNix). Voraussetzung in der Belegung: dns.mode=standalone, acmeHost+acmeCredential, backup.repository+passwordCredentialPath"
+        "Voll-Stack-Ratsche deckt jetzt die GANZE Oberflaeche: 43 fachliche Units (acme-*, acme-order-renew-*, acme-setup, cloudflare-ddns, mediNix-backup-check/provision/runtime-guard/sqlite-passive/sqlite-truncate/update-notifier, medinix-orphan-cleanup, medinix-mdns-aliases, restic-backups-mediNix). Voraussetzung in der Belegung: dns.mode=standalone, acmeHost+acmeCredential, backup.repository+passwordCredentialPath",
+        "checks.nixmeta-check: Header + YAML-Gueltigkeit + id/title/domain/last_reviewed jeder .nix-Datei (ADR-00-nixmeta-v3); domain == Ordnerpraefix in NN-*-Ordnern. Script: scripts/nixmeta_check.py (PyYAML). Nach Header-Aenderungen generate-docs laufen lassen!"
       ]
     },
     "blacklist": [

@@ -1,3 +1,14 @@
+# ---
+# id: "_helpers"
+# title: "Kleine Nix-Helfer fuer mediNix-Module"
+# domain: 50
+# folder: "lib"
+# status: active
+# complexity: 1
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # lib/_helpers.nix
 # Private helper functions for mediNix-core (prefixed with _ to prevent module auto-import)
 { lib }:

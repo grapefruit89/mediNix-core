@@ -1,3 +1,14 @@
+# ---
+# id: "vpn-confinement"
+# title: "Usenet-VPN-Confinement (Beispiel)"
+# domain: 52
+# folder: "docs/examples"
+# status: active
+# complexity: 2
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # docs/examples/vpn-confinement.nix — mediNix-core with VPN + Usenet Sandbox
 #
 # Use case: Internet-facing media server. SABnzbd + Prowlarr are sandboxed

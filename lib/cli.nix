@@ -1,3 +1,14 @@
+# ---
+# id: "cli"
+# title: "mediNix Health-CLI (aus der Registry generiert)"
+# domain: 50
+# folder: "lib"
+# status: active
+# complexity: 2
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # mediNix Health CLI — registry unitName is the systemd unit.
 {
   pkgs,

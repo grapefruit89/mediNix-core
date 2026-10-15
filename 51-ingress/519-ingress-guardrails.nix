@@ -4,6 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
+# last_reviewed: 2026-10-15
 # complexity: 2
 # provides: ["ingress-guardrails"]
 # requires: ["511-caddy"]

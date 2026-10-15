@@ -1,3 +1,14 @@
+# ---
+# id: "wait-for-api"
+# title: "Wartet auf die HTTP-Bereitschaft eines Dienstes"
+# domain: 50
+# folder: "lib"
+# status: active
+# complexity: 1
+# last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
+# ---
 # lib/wait-for-api.nix
 #
 # Erzeugt ein Shell-Skript, das vor Provisioning-Schritten auf die
