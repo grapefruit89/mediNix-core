@@ -181,7 +181,7 @@ in
       {
         inherit (spec) uid;
         group = name; # UPG (GID = UID = num * 10)
-        extraGroups = lib.mkIf (requiresMediaGroup meta) [ "media" ];
+        extraGroups = lib.optional (requiresMediaGroup meta) "media" ++ (meta.extraGroups or [ ]);
         home = spec.stateDir;
         isSystemUser = true;
       }

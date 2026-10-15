@@ -99,6 +99,17 @@ in
               description = "Optionale Linux-Capabilities des Dienstes (validiert gegen restriktive Whitelist).";
             };
 
+            extraGroups = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = ''
+                Zusaetzliche Gruppen des Systembenutzers, z. B. [ "video" "render" ].
+                Die Service-Engine (lib/decimal-framework.nix) besitzt users.users.<name>
+                und ergaenzt "media" (GID 5000) nach der Dekaden-Regel; hier steht nur,
+                was darueber hinaus noetig ist.
+              '';
+            };
+
             # --- MONITORING (Gatus / Health-Checks) ---
             monitoring = {
               enable = lib.mkOption {
@@ -291,7 +302,10 @@ in
               type = lib.types.path;
               internal = true;
               readOnly = true;
-              default = "/var/lib/${name}-${toString (config.num * 10)}";
+              # ADR-0000 §9: kein Port-Suffix. Die Engine (lib/decimal-framework.nix)
+              # leitet denselben Pfad ab; beide muessen identisch sein, sonst
+              # kollidiert users.users.<name>.home.
+              default = "/var/lib/${name}";
               description = "Standard-StateDirectory des Dienstes.";
             };
           };

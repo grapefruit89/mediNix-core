@@ -20,7 +20,7 @@ let
   reg = registry.audiobookshelf;
   meta = config.medinix.manifest.audiobookshelf;
 
-  inherit (meta) port uid stateDir;
+  inherit (meta) port stateDir;
   inherit (reg) gid;
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
@@ -126,13 +126,7 @@ in
         }
       ];
 
-      users.users.audiobookshelf = {
-        inherit uid;
-        group = "media";
-        extraGroups = [ "media" ];
-        home = stateDir;
-        isSystemUser = true;
-      };
+      # users.users.audiobookshelf besitzt die Engine (lib/decimal-framework.nix, UPG).
       users.groups.media.gid = gid;
 
       systemd.tmpfiles.rules = [

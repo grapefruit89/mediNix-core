@@ -20,7 +20,6 @@ let
   inherit (reg)
     num
     port
-    uid
     gid
     stateDir
     ;
@@ -72,6 +71,7 @@ in
         inherit (cfg) enable;
         inherit num;
         accessGroup = "internal";
+        extraGroups = [ "media" ];
 
         ui = {
           title = "Gatus";
@@ -96,13 +96,6 @@ in
     # ── 2. Laufzeit-Konfiguration ──────────────────────────────────────────
     (lib.mkIf cfg.enable {
       users.groups.media.gid = gid;
-      users.users.gatus = {
-        inherit uid;
-        group = "media";
-        home = stateDir;
-        isSystemUser = true;
-      };
-
       systemd.tmpfiles.rules = [
         "d '${stateDir}' 0755 gatus media -"
       ];

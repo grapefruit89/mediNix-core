@@ -20,7 +20,7 @@ let
   reg = registry.navidrome;
   meta = config.medinix.manifest.navidrome;
 
-  inherit (meta) port uid stateDir;
+  inherit (meta) port stateDir;
   inherit (reg) gid;
   creds = import ../lib/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
@@ -133,13 +133,7 @@ in
         }
       ];
 
-      users.users.navidrome = {
-        inherit uid;
-        group = "media";
-        extraGroups = lib.mkAfter [ "media" ];
-        home = stateDir;
-        isSystemUser = true;
-      };
+      # users.users.navidrome besitzt die Engine (lib/decimal-framework.nix, UPG).
       users.groups.media.gid = gid;
 
       systemd.tmpfiles.rules = [

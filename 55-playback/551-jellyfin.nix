@@ -20,7 +20,7 @@ let
   meta = config.medinix.manifest.jellyfin;
 
   # Kanonisch aus dem Manifest abgeleitet:
-  inherit (meta) port uid stateDir;
+  inherit (meta) port stateDir;
   gid = 5000;
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
@@ -95,6 +95,10 @@ in
         inherit (cfg) enable;
         num = 551;
         accessGroup = "stream";
+        extraGroups = [
+          "video"
+          "render"
+        ];
 
         ui = {
           title = "Jellyfin";
@@ -152,16 +156,8 @@ in
         }
       ];
 
-      users.users.jellyfin = {
-        inherit uid;
-        group = "media";
-        extraGroups = [
-          "video"
-          "render"
-        ];
-        home = stateDir;
-        isSystemUser = true;
-      };
+      # users.users.jellyfin besitzt die Engine (lib/decimal-framework.nix, UPG).
+      # video/render stehen im Manifest (extraGroups).
       users.groups.media.gid = gid;
 
       systemd.tmpfiles.rules = [

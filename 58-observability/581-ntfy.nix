@@ -70,14 +70,6 @@ lib.mkMerge [
       }
     ];
 
-    users.users.ntfy = {
-      inherit uid;
-      group = "media";
-      extraGroups = [ "media" ];
-      home = stateDir;
-      isSystemUser = true;
-    };
-
     systemd.mounts = [
       {
         what = "tmpfs";
@@ -113,6 +105,7 @@ lib.mkMerge [
       inherit (cfg) enable;
       inherit (reg) num;
       accessGroup = "internal";
+      extraGroups = [ "media" ];
 
       ui = {
         title = "ntfy";
