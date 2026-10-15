@@ -35,9 +35,9 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 ### P1 — Ratsche vervollständigen
 
 - [x] **Dekaden-Rollen prüfen** (ADR-0000 §3) (behoben `b9a146f` für die prüfbare Hälfte: `flake.nix` erzwingt Datei-Dekade == Ordner-Dekade, der Contract die Slot-0-Regel; beide als feuernd bewiesen. Die *Bedeutung* der Rollen `_0.._9` bleibt Dokumentation): kein Check erzwingt die 10-Slot-Taxonomie `_0.._9`; `flake.nix` prüft nur „führende Ziffer == 5", `folder_lint.sh` nur „≥3 Dateien". Quelle: §3.10.
-- [ ] `checks.mediNix-stack-eval` erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd (heute 12 Dienste).
+- [x] `checks.mediNix-stack-eval` erweitern (`9d4d0a4`: 18 Dienste — pocket-id, feishin, recyclarr, diskHealth, mdns, ddns ergänzt; **avahi/smartd laufen als Teil von `discovery.mdns` bzw. `diskHealth` mit**). Die Erweiterung fand sofort drei vorbestehende Konflikte (Ledger L-029…L-031)
 - [ ] `checks.mediNix-ports-verdrahtet`: effektive nixpkgs-Optionswerte gegen Registry/Manifest prüfen (zweiter Riegel neben dem Zahlen-Check). Quelle: UPGRADE-MATRIX B1.
-- [ ] Negativtest „eine kaputte Konfiguration muss brechen" — teilweise erledigt: die vier neuen Gates wurden 2026-10-15 per gestagter Probe-Datei als feuernd **bewiesen**; ein *dauerhafter* Check dafür fehlt noch (die Assertions selbst testen). Quelle: B4.
+- [x] Negativtest „eine kaputte Konfiguration muss brechen" (`9d4d0a4`: drei dauerhafte Checks — `negative-slot0-daemon`, `negative-identity-wired`, `negative-ankreuzbogen` (Paar-Vergleich). Der Dekaden-Check lässt sich nicht als nixosSystem prüfen (er liest Ordner); er wurde per gestagter Probe bewiesen — teilweise erledigt: die vier neuen Gates wurden 2026-10-15 per gestagter Probe-Datei als feuernd **bewiesen**; ein *dauerhafter* Check dafür fehlt noch (die Assertions selbst testen). Quelle: B4.
 
 ### P1 — Dienste und Betrieb
 
