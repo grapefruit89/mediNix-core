@@ -45,6 +45,12 @@
       "component": ".github/workflows/order-lint.yml",
       "failure": "Unquotiertes ': ' im Step-Namen -> ungueltiges YAML -> GitHub startete den Workflow nie (Run mit 0 Jobs, Run-Name = Dateipfad, kein Log)",
       "solution": "Step-Namen quoten; actionlint 1.7.12 findet das in Sekunden. Erkennungsmerkmal: Run-Name = Workflow-Pfad und 0 Jobs = Startup-Fehler, nicht Testfehler"
+    },
+    {
+      "date": "2026-10-15",
+      "component": "58-observability/582-gatus.nix + lokale Pruef-Leiter",
+      "failure": "CI 'Flake Check' rot bei 5bbaac8, obwohl lokal 43/0 gruen: nixfmt-check meldete '582-gatus.nix: not formatted'. Ursache: nach der letzten Umstrukturierung nur 581/registry/default formatiert, 582 vergessen - und 'nix flake check --no-build' fuehrt nixfmt-check nicht aus.",
+      "solution": "Stufe 0 als Sweep ueber ALLE .nix; vor jedem Push die drei Lint-Checks per nix build ausfuehren. Regel: --no-build beweist nur die Auswertung, nicht die Lint-Gates."
     }
   ],
   "recent_refactorings": [
@@ -221,10 +227,11 @@
         "shell": "shfmt",
         "verboten": [
           "alejandra"
-        ]
+        ],
+        "autoritaet": "nixpkgs' nixfmt via 'nix build .#checks.x86_64-linux.nixfmt-check' - die LOKALE Binary kann abweichen (hier 1.5.0 vs nixpkgs 1.4.0)"
       },
       "pruef_leiter": {
-        "stufe0": "nixfmt -c, shellcheck, shfmt, actionlint, yamllint (Sekunden)",
+        "stufe0": "nixfmt -c ueber ALLE .nix sweepen (nicht nur die geaenderten) + shellcheck/shfmt/actionlint/yamllint. nixfmt-check/statix-check/deadnix-check sind BUILD-Checks: 'nix flake check --no-build' zeigt sie als gruen, fuehrt sie aber NICHT aus - vor dem Push 'nix build .#checks.x86_64-linux.{nixfmt,statix,deadnix}-check' laufen lassen (Sekunden).",
         "stufe1": "nix flake check --no-build (~30 s: Typen, Enums, Assertions, Manifest-Regeln)",
         "stufe2": "nix build --dry-run .#checks...toplevel (Closure baubar)",
         "stufe3": "nix build .#checks.x86_64-linux.smoke-test (QEMU-Laufzeit, braucht KVM)",

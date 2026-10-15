@@ -117,7 +117,8 @@ in
 
       # Konfiguration deklarativ ablegen; Gatus liest sie ueber GATUS_CONFIG_PATH.
       environment.etc."gatus/config.yaml".source =
-        (pkgs.formats.yaml { }).generate "gatus-config.yaml" gatusConfig;
+        (pkgs.formats.yaml { }).generate "gatus-config.yaml"
+          gatusConfig;
     })
 
     # Nativ statt services.gatus (siehe gatusConfig oben). ownsAccount = false:
