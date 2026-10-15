@@ -155,3 +155,19 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 - **Merksatz (Korridor AB-024):** der `hardeningOnly`-Modus der Fabrik liefert eine
   **Unit**-Definition — `users.*`/`medinix.*` darin erzeugen
   „The option `systemd.services.<n>.users' does not exist".
+
+## 10. Nachtrag — 516 CrowdSec (L-044)
+
+- **Der Edge hat jetzt einen Bouncer:** `51-ingress/516-crowdsec.nix` — Engine nativ
+  (`services.crowdsec`), Acquisition aus dem **journald** (`_SYSTEMD_UNIT=caddy-media.service`,
+  `labels.type = caddy`), Hub-Collection `crowdsecurity/caddy`, Minimal-Profil (Ban 4h —
+  **ohne Profil reagiert CrowdSec nicht**). Account: UPG **5160** + `extraGroups = systemd-journal`
+  (Engine besitzt ihn, ADR-0000 §4).
+- **Bouncer = Host-Hoheit:** nur aktiv bei `medinix.hostIntegration.nftables = "managed"`;
+  sonst bricht eine Assertion ab (Negativtest `checks.mediNix-negative-crowdsec-bouncer`).
+  Host-Pflicht steht in `docs/ADMIN-HANDOFF.md` §3.
+- **RT-3 aufgelöst:** `fail2ban` ist jetzt Legacy (519) — ein Edge-Bouncer pro Rand.
+- **Lehre (wieder):** eine neue `.nix`-Datei ist für `nix build`/`nix flake check` **unsichtbar,
+  bis sie getrackt ist** → `git add -N <datei>` (bzw. `git add -A`) **vor** der Messung.
+  Sonst meldet die Eval z. B. „The option `medinix.crowdsec' does not exist".
+- **Weiter:** `589 Log-Sink` (P2) — Bestandsaufnahme + Entwurf liegen vor (Roadmap).

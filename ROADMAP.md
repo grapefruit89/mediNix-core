@@ -54,7 +54,8 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ### P1 — Dienste und Betrieb
 
-- [ ] 516 CrowdSec Bouncer (ersetzt die Fail2ban-Übergangslösung auf Caddy-Logs). Der `lib.fakeHash` in 511 ist bereits entfernt; das Modul fehlt.
+- [x] **516 CrowdSec** (L-044): Engine nativ (`services.crowdsec`, Hub `crowdsecurity/caddy`, journald-Acquisition, Minimal-Profil Ban, Account UPG 5160 + `systemd-journal`), Firewall-Bouncer nur bei `hostIntegration.nftables == "managed"` (fail-closed-Assertion + Negativtest), ADR-516-crowdsec, RT-3 aufgelöst (fail2ban Legacy).
+- [ ] **589 Log-Sink** (P2): journald-Export nach `/var/log/mediNix/<unit>.jsonl` für Agenten/externe Tools; Unit-Liste aus Registry/Manifest ableiten, cursor-basiert (`--after-cursor`), Rotation + eigener Account (5890, `systemd-journal`). Bestandsaufnahme + Entwurf liegen vor.
 - [ ] `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
 - [ ] `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
 - [ ] Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.

@@ -725,3 +725,7 @@ Ask:
 > **“Which domain contract changes, who owns that contract, and what evidence proves that the new behavior is correct?”**
 
 That keeps the ingress layer small, composable, auditable, and compatible with the wider mediNix change pipeline.
+
+- **516 CrowdSec** — Edge-IPS: Engine (journald-Acquisition der Caddy-Logs) +
+  optionaler Firewall-Bouncer (nur bei `hostIntegration.nftables = "managed"`).
+  Ersetzt fail2ban als einzigen Bann-Mechanismus am Rand.

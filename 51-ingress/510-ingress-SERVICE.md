@@ -115,3 +115,12 @@ medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";
 ## Anti-pattern
 
 Do not write `services.caddy.virtualHosts` by hand. Register a vhost; 511 renders it.
+
+## Edge-Bouncer (516)
+
+`516` ist kein Caddy-Service: kein Port, kein vHost (`caddyClass = "none"`). Die
+Engine liest die Access-Logs von `caddy-media` aus dem Journal und erzeugt
+Ban-Entscheidungen; der Firewall-Bouncer setzt sie in nftables um — nur wenn
+`medinix.hostIntegration.nftables = "managed"` (ADR-516-crowdsec,
+`docs/ADMIN-HANDOFF.md`). `fail2ban` ist damit Legacy (519, RT-3 aufgelöst):
+genau **ein** Edge-Bouncer.

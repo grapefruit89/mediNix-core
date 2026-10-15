@@ -767,6 +767,13 @@
         "date": null,
         "entscheidung": "UPG-Fabrik-Ausnahme: Option C - Fabrik vergibt UPG immer, media nur als extraGroups und nur mit mediaGroup = true.",
         "grund": null
+      },
+      {
+        "date": null,
+        "entscheidung": "516 CrowdSec = einziger Edge-Bouncer (Engine + Firewall-Bouncer, journald-Acquisition, Minimal-Profil Ban); Bouncer nur bei hostIntegration.nftables == managed (fail-closed).",
+        "grund": null,
+        "datum": "2026-10-15",
+        "begruendung": "519 RT-3 hatte fail2ban bewusst geduldet, weil 516 fehlte - der Rand war ohne Bann-Mechanismus. journald statt zweiter Logquelle (511 loggt JSON nach stdout); Profile sind Pflicht (sonst reagiert CrowdSec nicht); nftables bleibt Host-Hoheit (Publish-Don't-Apply)."
       }
     ]
   }

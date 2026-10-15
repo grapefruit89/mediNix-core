@@ -41,6 +41,7 @@ Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README
 | `513-cloudflare-dns` | `513-cloudflare-dns.nix` | active | -/5 | - |
 | `514-acme` | `514-acme.nix` | active | -/5 | - |
 | `515-mdns` | `515-mdns.nix` | active | 3/5 | - |
+| `516-crowdsec` | `516-crowdsec.nix` | active | 3/5 | - |
 | `518-landingpage` | `518-landingpage.nix` | active | 2/5 | - |
 | `519-ingress-guardrails` | `519-ingress-guardrails.nix` | active | 2/5 | - |
 
@@ -48,6 +49,7 @@ Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- `51-ingress/511-caddy`
 - `511-caddy`
 - `lib/registry`
 - `lib/service-factory`
@@ -62,6 +64,9 @@ graph TD
   513_cloudflare_dns["513-cloudflare-dns"] --> service_factory["lib/service-factory"]
   514_acme["514-acme"]
   515_mdns["515-mdns"] --> registry["lib/registry"]
+  516_crowdsec["516-crowdsec"] --> service_factory["lib/service-factory"]
+  516_crowdsec["516-crowdsec"] --> registry["lib/registry"]
+  516_crowdsec["516-crowdsec"] --> 511_caddy["51-ingress/511-caddy"]
   518_landingpage["518-landingpage"] --> 511_caddy["511-caddy"]
   519_ingress_guardrails["519-ingress-guardrails"] --> 511_caddy["511-caddy"]
 ```
