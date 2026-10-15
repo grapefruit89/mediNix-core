@@ -51,6 +51,18 @@
       "component": "58-observability/582-gatus.nix + lokale Pruef-Leiter",
       "failure": "CI 'Flake Check' rot bei 5bbaac8, obwohl lokal 43/0 gruen: nixfmt-check meldete '582-gatus.nix: not formatted'. Ursache: nach der letzten Umstrukturierung nur 581/registry/default formatiert, 582 vergessen - und 'nix flake check --no-build' fuehrt nixfmt-check nicht aus.",
       "solution": "Stufe 0 als Sweep ueber ALLE .nix; vor jedem Push die drei Lint-Checks per nix build ausfuehren. Regel: --no-build beweist nur die Auswertung, nicht die Lint-Gates."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "lib/service-contract.nix (Manifest-Typen)",
+      "failure": "types.enum auf ui.group feuerte NICHT: mit ui.group = \"Bogus\" lief die Auswertung durch. Ursache: NixOS-Optionstypen sind LAZY - sie werden erst geprueft, wenn der Wert GELESEN wird. ui.group wird nur von 582-gatus gelesen (und nur fuer aktiv ueberwachte Dienste), ops.priority/ramBudget von NIEMANDEM. Ein Enum auf einem ungenutzten Feld ist reine Dokumentation.",
+      "solution": "Assertion im Contract, die die drei Auswahlfelder fuer JEDEN Manifest-Eintrag bewusst auswertet (lib.all ... builtins.isString). Danach feuert der Typfehler mit den erlaubten Werten in der Meldung. Lehre: jede neue Typ-/Enum-Pruefung negativ testen (Probe-Modul), sonst ist sie Zierde."
+    },
+    {
+      "date": "2026-10-15",
+      "component": "nix flake eval + git+file",
+      "failure": "Negativtest mit einer NEUEN Datei lief ins Leere: git+file-Flakes kopieren nur den getrackten Stand - untracked Dateien sind fuer den Check unsichtbar (builtins.readDir sieht sie nicht).",
+      "solution": "Probe-Datei mit 'git add -N <datei>' intent-to-add stagen, dann messen, danach 'git rm --cached' + 'rm'. Damit sind Gates echt beweisbar (so wurden Dekaden-Check, Leaf-0-Regel, ui.group-Enum und ramBudget-Pattern als FEUERND bewiesen)."
     }
   ],
   "recent_refactorings": [
@@ -186,6 +198,21 @@
         "Werkzeuge: nix (Determinate 3.23.2), mcp-nixos 3.1.0, shellcheck, shfmt, yamllint, actionlint"
       ],
       "verified": true
+    },
+    {
+      "date": "2026-10-15",
+      "action": "fix(constitution)+feat(manifest): vier P0-Verstoesse behoben, Ankreuzbogen Schicht 2 geschaerft",
+      "details": [
+        "eccf872: vier Roadmaps -> eine (ROADMAP.md), Altstaende nach docs/audit/2026-10-15/",
+        "c8dde97: packages.docs repariert (mkdocs >= 1.6 verbietet docs_dir == Konfig-Verzeichnis)",
+        "3d6de08: CI-Step 'Build all flake packages' (Liste per nix eval abgeleitet)",
+        "d8ae63d: NoExecPaths/ExecPaths fuer 513",
+        "85457de/bcf6f27: Ledger (L-022..L-028), Handoff neu, Fehlversuche archiviert",
+        "967585f: Root-Audit (ADMIN-HANDOFF/UPSTREAM-SOURCES/audits -> docs/), CLAUDE.md-Dublette -> Zeiger, UPG-Invariante korrigiert",
+        "b9a146f: OCI-Textstellen, toter config.decimalFramework-Pfad, tautologische Assertion, Dekaden-Check (feuernd bewiesen)",
+        "24f5ee5: Ankreuzbogen Schicht 2 (ui.group/ops.priority als Enum, ramBudget als Format-Pattern + erzwingende Assertion)",
+        "Branch refactor/decades-conformance lokal+remote geloescht (gemergt)"
+      ]
     }
   ],
   "corridor": {
@@ -236,7 +263,8 @@
         "stufe2": "nix build --dry-run .#checks...toplevel (Closure baubar)",
         "stufe3": "nix build .#checks.x86_64-linux.smoke-test (QEMU-Laufzeit, braucht KVM)",
         "stufe4": "GitHub-CI (echte Builds) + Deploy durch den Menschen",
-        "regel": "Aussagen nur mit Messung. Stufe 0/1 sind lokal beweisbar; 'laeuft es wirklich' nur Stufe 3."
+        "regel": "Aussagen nur mit Messung. Stufe 0/1 sind lokal beweisbar; 'laeuft es wirklich' nur Stufe 3.",
+        "stufe1b": "nix build .#packages.x86_64-linux.docs (Pakete sind NICHT Teil von 'nix flake check' - deshalb war packages.docs unbemerkt kaputt). CI baut sie seit 3d6de08 ueber einen abgeleiteten Schleifen-Step."
       },
       "optionen_quelle": {
         "unsere_revision": "raw.githubusercontent.com/NixOS/nixpkgs/<flake.lock-rev>/...",
@@ -260,6 +288,13 @@
         "sops-nix",
         "agentbox",
         "codemap update"
+      ],
+      "neue_gates": [
+        "flake.nix decimalFrameworkCheck: Datei-Dekade == Ordner-Dekade (53-acquisition -> 53x); nur ZAHLEN, weil die ADR-Rollennamen bewusst von den Ordnernamen abweichen (Dekade 3 = 'Ingestion' vs. '53-acquisition')",
+        "service-contract (L-5): Verdrahtungs-Invariante - die Unit muss unter dem abgeleiteten Benutzer laufen (UPG). Ersetzt die tautologische Pruefung 'port == num*10'",
+        "service-contract (L-6): Slot 0 ist die Block-ID (ADR-0000 §2) und traegt NIEMALS einen Daemon",
+        "service-contract (L-7): Ankreuzbogen - liest ui.group/ops.priority/ops.ramBudget fuer jeden Eintrag, damit die Enums/Formate ueberhaupt feuern (Typen sind lazy)",
+        "513-cloudflare-dns: NoExecPaths=[\"/\"] + ExecPaths=[\"/nix/store\"]; 514 (acme) bewusst NICHT, weil nixpkgs-acme in ExecStartPost 'systemctl try-reload-or-restart' ruft (erst nach Laufzeittest)"
       ]
     },
     "blacklist": [

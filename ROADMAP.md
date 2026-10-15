@@ -21,23 +21,23 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ### P0 — Verfassungs-Verstöße in Guardrails und Vorlagen
 
-- [ ] **OCI/Podman widerspricht ADR-0000** an zwei Stellen: die Assertion-Meldung in `50-core/500-host-baseline.nix:73` nennt „optional rootless Podman via oci-containers" als zulässig, und `docs/examples/5xx-service.example.nix:9-10` führt OCI als „Prio 2". Korrekt ist: keine Container (ADR-0000, `docs/NO-CONTAINERS.md`). Quelle: Migrations-Roadmap §3.7.
-- [ ] **Toter Pfad** `config.decimalFramework.manifest` in `lib/decimal-framework.nix:85` — die Option existiert nicht, nur `config.medinix.manifest`. Quelle: §3.8.
-- [ ] **Tautologische Assertion:** die Prüfung „Port und UID müssen num*10 entsprechen" kann nie fehlschlagen, weil beide readOnly aus `num` abgeleitet werden. Ersetzen durch eine Prüfung, dass die abgeleiteten Werte auch wirklich benutzt werden (systemd-Unit/User). Quelle: §3.5.
-- [ ] `docs/AGENTS.md` ist veraltet (nennt mediahost `192.168.0.10` und `/opt/data/50-mediNix`) und widerspricht dem Root-`AGENTS.md`. Ersetzen durch einen Kurz-Zeiger, Inhalt archivieren.
+- [x] **OCI/Podman widerspricht ADR-0000** an zwei Stellen (behoben `b9a146f`; die Vorlage wurde dabei komplett verfassungskonform neu geschrieben): die Assertion-Meldung in `50-core/500-host-baseline.nix:73` nennt „optional rootless Podman via oci-containers" als zulässig, und `docs/examples/5xx-service.example.nix:9-10` führt OCI als „Prio 2". Korrekt ist: keine Container (ADR-0000, `docs/NO-CONTAINERS.md`). Quelle: Migrations-Roadmap §3.7.
+- [x] **Toter Pfad** `config.decimalFramework.manifest` (behoben `b9a146f`) in `lib/decimal-framework.nix:85` — die Option existiert nicht, nur `config.medinix.manifest`. Quelle: §3.8.
+- [x] **Tautologische Assertion:** (behoben `b9a146f`; geprüft wird jetzt die Verdrahtung: die Unit muss unter dem abgeleiteten Benutzer laufen) die Prüfung „Port und UID müssen num*10 entsprechen" kann nie fehlschlagen, weil beide readOnly aus `num` abgeleitet werden. Ersetzen durch eine Prüfung, dass die abgeleiteten Werte auch wirklich benutzt werden (systemd-Unit/User). Quelle: §3.5.
+- [x] `docs/AGENTS.md` ist veraltet (behoben `eccf872`; Zeiger auf das Root-`AGENTS.md`) (nennt mediahost `192.168.0.10` und `/opt/data/50-mediNix`) und widerspricht dem Root-`AGENTS.md`. Ersetzen durch einen Kurz-Zeiger, Inhalt archivieren.
 
 ### P0 — Service-Ankreuzbogen (Formalisierung)
 
-- [ ] Auswahlfelder als `types.enum`: `ui.group`, `ops.priority`, `ramBudget` (heute freie Strings). Die erlaubten Werte **aus den bestehenden Manifest-Einträgen ableiten**, nicht raten. `accessGroup`, `monitoring.type`, `metrics.type`, `arr.role` sind bereits Enums.
-- [ ] `docs/examples/SERVICE-TEMPLATE.nix` verfassungskonform: kein `users.users`, kein `Group`, kein `stateDir`-Port-Suffix, keine OCI-Zeile — nur Manifest + optional `execStart`.
+- [x] Auswahlfelder als `types.enum` (behoben `24f5ee5`; `ui.group` und `ops.priority` sind Enums, `ramBudget` ist ein Format-Pattern — die Werte stammen aus den 14 bestehenden Einträgen). **Dabei gelernt:** NixOS-Typen sind **lazy** — ein Enum auf einem Feld, das niemand liest, feuert nie. Deshalb liest eine neue Assertion die drei Felder für jeden Eintrag: `ui.group`, `ops.priority`, `ramBudget` (heute freie Strings). Die erlaubten Werte **aus den bestehenden Manifest-Einträgen ableiten**, nicht raten. `accessGroup`, `monitoring.type`, `metrics.type`, `arr.role` sind bereits Enums.
+- [x] `docs/examples/SERVICE-TEMPLATE.nix` verfassungskonform (behoben `b9a146f`; Eigentümer-Tabelle + korrektes `mkMerge`-Muster inklusive): kein `users.users`, kein `Group`, kein `stateDir`-Port-Suffix, keine OCI-Zeile — nur Manifest + optional `execStart`.
 - [ ] Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 
 ### P1 — Ratsche vervollständigen
 
-- [ ] **Dekaden-Rollen prüfen** (ADR-0000 §3): kein Check erzwingt die 10-Slot-Taxonomie `_0.._9`; `flake.nix` prüft nur „führende Ziffer == 5", `folder_lint.sh` nur „≥3 Dateien". Quelle: §3.10.
+- [x] **Dekaden-Rollen prüfen** (ADR-0000 §3) (behoben `b9a146f` für die prüfbare Hälfte: `flake.nix` erzwingt Datei-Dekade == Ordner-Dekade, der Contract die Slot-0-Regel; beide als feuernd bewiesen. Die *Bedeutung* der Rollen `_0.._9` bleibt Dokumentation): kein Check erzwingt die 10-Slot-Taxonomie `_0.._9`; `flake.nix` prüft nur „führende Ziffer == 5", `folder_lint.sh` nur „≥3 Dateien". Quelle: §3.10.
 - [ ] `checks.mediNix-stack-eval` erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd (heute 12 Dienste).
 - [ ] `checks.mediNix-ports-verdrahtet`: effektive nixpkgs-Optionswerte gegen Registry/Manifest prüfen (zweiter Riegel neben dem Zahlen-Check). Quelle: UPGRADE-MATRIX B1.
-- [ ] Negativtest „eine kaputte Konfiguration muss brechen" (die Assertions selbst testen). Quelle: B4.
+- [ ] Negativtest „eine kaputte Konfiguration muss brechen" — teilweise erledigt: die vier neuen Gates wurden 2026-10-15 per gestagter Probe-Datei als feuernd **bewiesen**; ein *dauerhafter* Check dafür fehlt noch (die Assertions selbst testen). Quelle: B4.
 
 ### P1 — Dienste und Betrieb
 
