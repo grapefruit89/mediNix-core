@@ -681,6 +681,17 @@
         "revive_if": "Nie - Generator schreiben, mit --check in order-lint/haengen (Marker-Zone im Zielfile).",
         "source": "CONVENTIONS §4 Zeiger-Regel",
         "date": "2026-10-15"
+      },
+      {
+        "id": "AB-032",
+        "topic": "Neue .nix-Datei ohne Staging messen",
+        "was": "Eine neu angelegte .nix-Datei mit 'nix build' / 'nix flake check' pruefen, ohne sie vorher zu stagen.",
+        "warum": "Der Git-Flake sieht die Datei dann nicht - die Eval meldet ein Symptom, das nach Modulfehler aussieht ('The option medinix.crowdsec does not exist'), waehrend die Ursache nur der fehlende Index-Eintrag ist (Zeitverlust + falsche Fehlersuche).",
+        "evidence": "2026-10-15, 516-Runde: nach 'git add -A' waren es 50 statt 46 gruene Checks; auto-import via default.nix:56-79 ist bereits korrekt.",
+        "status": "aktiv",
+        "revive_if": "Nie - vor jeder Messung mit neuen Dateien: git add -N <datei> (oder git add -A).",
+        "source": "HANDOFF §10",
+        "date": "2026-10-15"
       }
     ],
     "open_decisions": [
