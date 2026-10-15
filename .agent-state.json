@@ -670,6 +670,17 @@
         "revive_if": "Nie - Artefakte entfernen, Muster bleibt in .gitignore.",
         "source": "CONVENTIONS §5",
         "date": "2026-10-15"
+      },
+      {
+        "id": "AB-031",
+        "topic": "Handgepflegte Tabelle statt Ableitung",
+        "was": "Listen/Tabellen von Hand pflegen, die aus einer Quelle ableitbar sind (Service-Map aus lib/registry.nix, TODO aus Korridor/Roadmap/Ledger, Ordner-AGENTS.md aus den nixmeta-Headern).",
+        "warum": "Handkopien driften: die Service Map zeigte noch die flat GID 5000 (ADR-0000 §5 verwirft das) und 15 von 16 Diensten.",
+        "evidence": "L-040 (TODO), L-042 (Service Map); Muster docs/generate_index.py mit Marker-Zone, medinix-meta.py generate-docs.",
+        "status": "aktiv",
+        "revive_if": "Nie - Generator schreiben, mit --check in order-lint/haengen (Marker-Zone im Zielfile).",
+        "source": "CONVENTIONS §4 Zeiger-Regel",
+        "date": "2026-10-15"
       }
     ],
     "open_decisions": [

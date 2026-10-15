@@ -14,12 +14,11 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 30_
+_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 31_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
-- [ ] Backlog: **Service-Map generieren statt pflegen:** `docs/INDEX.md` (Abschnitt „Service Map") und die Ordner-`AGENTS.md`-Tabellen aus `lib/registry.nix` ableiten (Muster: `scripts/gen_todo.py --check` / `medinix-meta.py generate-docs`), inkl. CI-Check.
-- [ ] Backlog: **`docs/TODO.md`-Aktualitaet in CI prüfen:** `python3 scripts/gen_todo.py --check` in `order-lint.yml` oder `check-docs` aufnehmen.
+- [ ] Backlog: **Registry-Felder richtigstellen (offene Frage):** `lib/registry.nix` setzt `gid = 5000` (flat GID) und bei `mkNoPortWithUnit` `uid = null`, obwohl 513 real `uid = 5130` läuft; Guardrail `591:68` verlangt sogar `s.gid == 5000`. Widerspruch zu ADR-0000 §4/§5 (UPG) — Entscheidung nötig, ob die Felder auf `number * 10` umgestellt werden.
 - [ ] Backlog: **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
 - [ ] Backlog: 516 CrowdSec Bouncer (ersetzt die Fail2ban-Übergangslösung auf Caddy-Logs). Der `lib.fakeHash` in 511 ist bereits entfernt; das Modul fehlt.
 - [ ] Backlog: `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.

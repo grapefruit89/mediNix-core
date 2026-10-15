@@ -19,3 +19,9 @@ jobs:
       # die Liste neu erzeugt werden - sonst driftet sie still.
       - name: "TODO-Liste aktuell? (docs/TODO.md = Korridor + Roadmap + Ledger)"
         run: python3 scripts/gen_todo.py --check
+
+      # Die Service Map in docs/INDEX.md ist aus lib/registry.nix (SSoT) abgeleitet.
+      # Historie: die handgepflegte Fassung zeigte noch die flat GID 5000 als
+      # Primaergruppe (ADR-0000 §5 verwirft das) und listete 15 von 16 Diensten.
+      - name: "Service Map aktuell? (docs/INDEX.md = lib/registry.nix)"
+        run: python3 scripts/gen_service_map.py --check
