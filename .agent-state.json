@@ -753,6 +753,17 @@
         "revive_if": "Nie. Lesend greppen ok; schreibend IMMER scripts/agent-state-edit.py (load->dump).",
         "source": "Session 2026-10-16 (Selbst-Reflexion)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-038",
+        "topic": "Zwei-Versuche-Stop (Methodenwechsel statt Detail-Variante)",
+        "was": "Nach zwei Fehlversuchen einen dritten Versuch mit derselben Methode starten (nur Details variieren).",
+        "warum": "Nach 2 Fehlversuchen ist die Methode falsch, nicht die Details. Der 3. Versuch kostet Tokens und verschiebt den Fehler nur.",
+        "evidence": "2026-10-16: 3 Anlaeufe .agent-state.json-Insert (fehlendes Komma -> f-String-SyntaxError -> manueller Concat) - alle dieselbe Methode. AGENTS.md §Fehlerregeln fordert diesen Stopp bereits als Prosa.",
+        "status": "aktiv",
+        "revive_if": "Nie. Nach 2 Fehlversuchen: Wurzel suchen, Methode wechseln oder fragen.",
+        "source": "Selbst-Reflexion 2026-10-16 (Quelle: AGENTS.md §Verifikations-Disziplin)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

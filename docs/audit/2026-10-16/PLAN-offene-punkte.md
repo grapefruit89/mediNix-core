@@ -8,7 +8,7 @@
 ## C — CONVENTIONS §Audit + Korridor-Regeln
 - **Stand:** `CONVENTIONS.md` §§1–5 (Ordner/Ordnung/Whitelist/Blacklist), **kein §Audit**. Korridor: 36 Blacklist-Regeln (`AB-001…036`), aber **ohne** die harten Nix-Reflexe. Scanner `scripts/nixos_idiom_audit.py` existiert, wird aber nirgends referenziert.
 - **Lücke:** Die Methode (drei Schichten, „Signal ≠ Fund") ist nirgends verbindlich; die harten Reflexe (`--impure` im Code, `nix-env -i`/`nix-channel`, Schreiben nach `/nix/store/`, `/usr/`-Pfade) sind **keine** Regel → sie können wieder einschleichen.
-- **Ziel:** §Audit festschreiben + 4 Reflexe als **`AB-037…AB-040`**.
+- **Ziel:** §Audit (NixOS-Audit) festschreiben + 4 **NixOS**-Reflexe als **`AB-039…AB-042`** (`AB-037`/`AB-038` sind an die **Arbeitsweise** vergeben — siehe `CONVENTIONS §6`).
 - **Schritte:** §Audit schreiben · `corridor.blacklist` +4 · `gen_todo.py` · Checks.
 - **Dateien:** `docs/CONVENTIONS.md`, `.agent-state.json`, `docs/TODO.md`.
 - **Erfolg:** §Audit vorhanden; Blacklist **40**; `gen_todo --check` grün. · **S · niedrig**
@@ -74,4 +74,4 @@
 1. **C → A → B** (Audit festzurren) · 2. **N** · **H** · 3. **F** · **I**/**G** · **D-06** schließen.
 
 ## Schon erledigt (nicht mehr offen)
-`systemd-first` · Semantic-Anchors-Lexikon (28 Anker) · Runbook-SSoT · RAM-SSoT · 4 lib-Module archiviert · Port/UID/GID-SSoT + reserviertes 5xxx-Band · Nix-Idiom-Scanner (Schicht 1) · Friedhof `AB-033…036` · B6 (in der Roadmap).
+`systemd-first` · Semantic-Anchors-Lexikon (28 Anker) · Runbook-SSoT · RAM-SSoT · 4 lib-Module archiviert · Port/UID/GID-SSoT + reserviertes 5xxx-Band · Nix-Idiom-Scanner (Schicht 1) · Friedhof `AB-033…036` · B6 (in der Roadmap) · `CONVENTIONS §6` Methodenwahl + `AB-037`/`AB-038` (Teil von C).

@@ -89,3 +89,37 @@ ist für mehrere Werkzeuge gedacht) oder entfernt.
 
 Maschinenlesbar stehen die Regeln als `AB-0xx` im Korridor
 (`.agent-state.json` → `corridor.blacklist`).
+
+## 6. Arbeitsweise — Denken vor Tippen (Methodenwahl & Reflexe)
+
+> **Prosa-Quelle:** `AGENTS.md` §Verifikations-Disziplin (Phasen 1–4). Hier die
+> **kurze, prüfbare** Fassung. **Korridor-Index:** `AB-037` (Parser), `AB-038`
+> (Zwei-Versuche-Stop). Kein zweiter Ort — nur gespiegelt.
+
+**Vor dem ersten Tastendruck — 3 Fragen schriftlich:**
+1. Was ist das für eine Sache? (Datei · Daten · Struktur · Zustand)
+2. Welches Werkzeug ist für **diese Klasse** das richtige?
+3. Woran merke ich, dass die Methode falsch ist?
+→ Unbeantwortbar? **Mehr lesen, nicht mehr tippen.**
+
+**Erst die Klasse, dann das Werkzeug:**
+
+| Klasse | Reflex (falsch) | richtig |
+|---|---|---|
+| JSON/YAML/TOML ändern | `sed` · `index()` · Concat · f-String | `json.load→dump` · `ruamel.yaml` · `tomlkit` |
+| mehrzeilige Logik | Inline-Heredoc | Datei unter `scripts/` |
+| Logik in Nix | Regex/Text in `.nix` | Nix-Expression |
+| Zustand ändern | Ad-hoc-Kommando | deklarative `.nix`-Datei |
+| Version prüfen | `git log` lesen | `git log --format=…` + Parser |
+
+**Zwei-Versuche-Stop (`AB-038`):** Versuch 1 scheitert → Ursache prüfen (kein
+Variante-B-Reflex). Versuch 2 scheitert → die **Methode** ist falsch, nicht die
+Details → Wurzel klären oder fragen. **Kein dritter Versuch derselben Methode.**
+
+**Beweis-Last:** Nicht „hoffentlich", sondern „funktioniert, **weil X**" — X
+**vor** der Mutation zeigen (Roundtrip · `diff` · `--dry-run`). Kein X → mehr
+Info, nicht mehr tippen.
+
+**Anti-Muster (Vorzeichen — eines erkannt = STOPP):** Text-Mutation auf
+Struktur · Inline-Skript · derselbe Fix erneut · „nur noch eine Kleinigkeit" ·
+Erklärung länger als die Aktion · Grund suchen, es *doch* so zu machen.
