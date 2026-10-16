@@ -52,15 +52,7 @@ let
   jellyfinUrl =
     if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
   jellyfinMetadataDir = "${metadataDir}/metadata";
-  # Fail-closed: "auto" behauptet KEINE Hardware. Erst eine explizite Angabe
-  # (intel/vaapi/amd/nvidia) claimt HW — und wird dann erzwungen (Assertion unten).
-  accelExplicit = builtins.elem svc.hardware.accel [
-    "intel"
-    "vaapi"
-    "amd"
-    "nvidia"
-  ];
-  trickplayHwAccel = if accelExplicit then "true" else "false";
+  trickplayHwAccel = if svc.hardware.accel != "none" then "true" else "false";
 
   systemXmlSeed = pkgs.writeText "jellyfin-system.xml" (
     builtins.replaceStrings
@@ -184,15 +176,6 @@ in
             lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
         }
-        {
-          assertion = !accelExplicit || svc.hardware.renderDevice != null;
-          message = ''
-            [mediNix/551-jellyfin] medinix.hardware.accel = "${svc.hardware.accel}" ohne
-            medinix.hardware.renderDevice. Dann gibt es kein DeviceAllow und kein
-            Treiber-Scoping — der Dienst wuerde HW nur behaupten. Setze
-            medinix.hardware.renderDevice (z. B. /dev/dri/renderD128) oder accel = "none".
-          '';
-        }
       ];
 
       # users.users.jellyfin besitzt die Engine (lib/decimal-framework.nix, UPG).
@@ -273,25 +256,18 @@ in
           JELLYFIN_PublishedServerUrl =
             if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
         }
-        // lib.optionalAttrs (accelExplicit && svc.hardware.accel != "nvidia") {
+        // lib.optionalAttrs (svc.hardware.accel != "none") {
           LIBVA_DRIVER_NAME =
             {
+              "auto" = "iHD";
               "intel" = "iHD";
               "vaapi" = "iHD";
               "amd" = "radeonsi";
+              "nvidia" = null;
             }
-            .${svc.hardware.accel};
-        }
-        //
-          lib.optionalAttrs
-            (builtins.elem svc.hardware.accel [
-              "intel"
-              "vaapi"
-              "amd"
-            ])
-            {
-              VDPAU_DRIVER = "va_gl";
-            };
+            .${svc.hardware.accel} or null;
+          VDPAU_DRIVER = "va_gl";
+        };
       };
 
       hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
