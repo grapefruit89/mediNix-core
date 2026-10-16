@@ -20,3 +20,8 @@ lib.md linguist-generated=true
 lib.md -diff
 docs.md linguist-generated=true
 docs.md -diff
+
+# Ausnahme (2026-10-16): versionierte Listen/Allowlists in scripts/ sind TEXT und muessen
+# im Review diffbar sein. Die Sammelregel `*.txt -diff` galt fuer generierte Digests,
+# versteckte aber genau die Allowlists, deren Aenderungen geprueft werden muessen.
+scripts/*.txt text eol=lf diff -linguist-generated

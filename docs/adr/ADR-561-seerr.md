@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-561:seerr: Seerr — Request Management (56-exposition, Dienst 561)
+# ADR-561: Seerr — Request Management (56-exposition, Dienst 561)
 
 ## Status: active
 ## Date: 2026-08-11

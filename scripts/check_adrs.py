@@ -116,9 +116,20 @@ def main() -> int:
 
         head = HEADING.search(text)
         if head and head.group(1).startswith("ADR-"):
-            head_id = head.group(1).split(":")[0].split(" ")[0].strip()
-            if NUMERIC_ID.match(adr_id) and head_id != adr_id:
+            head_text = head.group(1).strip()
+            head_id = head_text.split(":")[0].strip()
+            slug_num = re.match(r"^ADR-(\d{3,4})-", str(adr_id))
+            if not re.match(r"^ADR-[A-Za-z0-9-]+: \S", head_text):
+                errors.append(
+                    f"{rel}: Ueberschrift muss '# ADR-<id>: <Titel>' sein "
+                    f"(gefunden: '# {head_text[:48]}')"
+                )
+            elif NUMERIC_ID.match(adr_id) and head_id != adr_id:
                 errors.append(f"{rel}: Ueberschrift '{head_id}' != id '{adr_id}'")
+            elif re.match(r"^\d{3,4}$", str(adr_id)) and head_id != f"ADR-{adr_id}":
+                errors.append(f"{rel}: Ueberschrift '{head_id}' != id 'ADR-{adr_id}'")
+            elif slug_num and head_id != f"ADR-{slug_num.group(1)}":
+                hints.append(f"{rel}: Ueberschrift '{head_id}' != Slug-id-Ziel 'ADR-{slug_num.group(1)}'")
             if head_id.startswith("ADR-") and NUMERIC_ID.match(head_id):
                 numeric_ids.add(head_id)
 

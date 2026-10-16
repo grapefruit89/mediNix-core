@@ -15,7 +15,7 @@ links:
   adr: ADR-526-vpn-killswitch
 ---
 
-# ADR-0011 — UID-basiertes nftables-Routing vs. Network Namespaces (netns)
+# ADR-0011: UID-basiertes nftables-Routing vs. Network Namespaces (netns)
 
 ## Status
 **Accepted**

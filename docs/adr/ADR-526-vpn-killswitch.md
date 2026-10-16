@@ -10,7 +10,7 @@ tags:
   - vpn
   - network
 ---
-# ADR-526:vpn-killswitch: VPN Kill-Switch Architecture (Policy Routing)
+# ADR-526: VPN Kill-Switch Architecture (Policy Routing)
 
 This document captures the architectural evolution and "lessons learned" during the development of the VPN kill-switch, particularly following the major Red-Team audit in August 2026.
 

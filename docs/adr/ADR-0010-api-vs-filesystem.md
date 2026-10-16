@@ -15,7 +15,7 @@ links:
   adr: ADR-0000
 ---
 
-# ADR-0010 — Demarkationslinie: Boot-Seeds (Dateisystem) vs. Fachlogik (REST-API)
+# ADR-0010: Demarkationslinie: Boot-Seeds (Dateisystem) vs. Fachlogik (REST-API)
 
 ## Status
 **Accepted**

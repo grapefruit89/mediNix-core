@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-571-sqlite-wal: SQLite WAL Tuning for *arr Stack (Tier B SSD) (57-maintenance)
+# ADR-571: SQLite WAL Tuning for *arr Stack (Tier B SSD) (57-maintenance)
 
 ## Status: active
 ## Date: 2026-08-11

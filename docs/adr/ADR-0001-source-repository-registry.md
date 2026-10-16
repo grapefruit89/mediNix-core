@@ -11,7 +11,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-0001-source-repository-registry: Source Repository Registry (grapefruit89 GitHub Account)
+# ADR-0001: Source Repository Registry (grapefruit89 GitHub Account)
 
 ## Status: active
 ## Date: 2026-08-11

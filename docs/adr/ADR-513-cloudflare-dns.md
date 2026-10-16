@@ -14,7 +14,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-513:cloudflare-dns: Cloudflare DNS for example.com — No Proxy, Direct A-Records (51-ingress)
+# ADR-513: Cloudflare DNS for example.com — No Proxy, Direct A-Records (51-ingress)
 
 ## Status: active
 ## Date: 2026-08-11

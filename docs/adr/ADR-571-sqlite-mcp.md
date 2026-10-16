@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-571-sqlite-mcp: SQLite MCP Server — FTS5 + Vector Capabilities (57-maintenance)
+# ADR-571: SQLite MCP Server — FTS5 + Vector Capabilities (57-maintenance)
 
 ## Status: active
 ## Date: 2026-08-11

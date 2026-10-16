@@ -1,4 +1,8 @@
 # Registry-Dienste MIT Port, die bewusst keinen medinix.manifest.<name>-Eintrag haben.
 # Format: <dienst> | <Begruendung>.  Geprueft von scripts/check_manifest_edge.py.
 # Hinweis: cloudflare-dns braucht keinen Eintrag - es ist mkNoPortWithUnit (kein Listener).
-caddy | 51-ingress/511-caddy.nix ist ein reiner Manifest-KONSUMENT (Chameleon-Caddy: haengt sich an den Host-Caddy oder besitzt caddy-media); kein eigener Dienst-Eintrag. Zu bestaetigen.
+caddy | BESTAETIGT 2026-10-16: 511 ist reiner Manifest-KONSUMENT (Chameleon-Caddy: haengt sich an den
+        Host-Caddy oder besitzt die Fabrik-Unit caddy-media). Ein Manifest-Key `caddy` wuerde laut
+        Engine eine Unit + ein Konto `caddy` ableiten (daemonServices, hasDaemon default true) -
+        real heisst die Unit `caddy-media` bzw. existiert gar nicht (Host-Caddy). Der Key waere
+        also eine FALSCHE zweite Identitaet, nicht nur ueberfluessig.

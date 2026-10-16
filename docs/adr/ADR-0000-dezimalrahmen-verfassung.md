@@ -24,7 +24,7 @@ links:
 > **Anchored in:** `AGENTS.md` (mediNix), `CLAUDE.md` + `README` (devNIX),
 > skill `/devnix-agent:struktur`.
 
-# ADR-0000 — The Decimal Framework
+# ADR-0000: The Decimal Framework
 
 A numbering scheme that means **the same thing at every level** — from the system
 root down to a single module folder. It is the only decision that applies

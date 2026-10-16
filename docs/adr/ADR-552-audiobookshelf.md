@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-552:audiobookshelf: Audiobookshelf — Port Conflicts & Decimal Framework (55-playback)
+# ADR-552: Audiobookshelf — Port Conflicts & Decimal Framework (55-playback)
 
 ## Status: active
 ## Date: 2026-08-11

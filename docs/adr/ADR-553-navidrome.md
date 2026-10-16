@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-553:navidrome: Navidrome — Music Streaming (55-playback, Dienst 553)
+# ADR-553: Navidrome — Music Streaming (55-playback, Dienst 553)
 
 ## Status: active
 ## Date: 2026-08-11

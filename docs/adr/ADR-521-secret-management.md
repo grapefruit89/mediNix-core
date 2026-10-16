@@ -12,7 +12,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-521:secret-management: mediNix Secret Management — sops-nix → systemd-credentials Migration (50-core)
+# ADR-521: mediNix Secret Management — sops-nix → systemd-credentials Migration (50-core)
 
 ## Status: active
 ## Date: 2026-08-11

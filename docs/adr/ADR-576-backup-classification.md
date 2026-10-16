@@ -14,7 +14,7 @@ links:
   repo-harvest: ""
 supersedes: ["5720"]
 ---
-# ADR-576-backup-classification: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
+# ADR-576: Backup — Datenklassifizierung (allgemein) und angewandte Strategie (mediNix)
 
 ## Status: active
 ## Date: 2026-08-28

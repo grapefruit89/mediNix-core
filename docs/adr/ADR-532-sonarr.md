@@ -13,7 +13,7 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-532:sonarr: Sonarr — Series Management (53-acquisition, Dienst 532)
+# ADR-532: Sonarr — Series Management (53-acquisition, Dienst 532)
 
 ## Status: active
 ## Date: 2026-08-11
