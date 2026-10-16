@@ -5,7 +5,7 @@ domain: 50
 folder: 50-core
 status: active
 complexity: 1
-last_reviewed: 2026-08-25
+last_reviewed: 2026-10-16
 links: ""
 ---
 
@@ -16,6 +16,12 @@ This file serves as absolute law for all AI agents and human contributors. The t
 ## Core Philosophy: The Native Whitelist
 
 We adhere to a strict **Whitelist Philosophy**: If a problem can be solved by native `systemd` features, `nftables`, or native `nixpkgs` modules, we **must** use those. We do not introduce abstraction layers, third-party Daemons, or legacy tools.
+
+Maschinell geprueft: `scripts/check_banned_technologies.py` (order-lint, Label
+"Verbotene Technologien?"). Geprueft werden **nur aktivierende Muster** - eine verbietende
+Assertion (`!(config.services.logrotate.enable or false)`) oder ein Guard-Name (`nginx = { … }`)
+ist erlaubt. Bedingte Regeln dieser Datei (Postgres/MySQL "als Default", Auto-Updater,
+unbeschraenktes `sudo`) bleiben manuelle Pruefung.
 
 ## 1. Banned Technologies (Legacy & Bloat)
 

@@ -858,6 +858,61 @@
         "revive_if": "Nie - Deklaration ist ein Einzeiler im Front-Matter.",
         "source": "Session 2026-10-16 (Kette Skills -> MCP)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-047",
+        "topic": "Manifest §1 - The Boundary: Tri-State-Host-Integration, Publish-Don't-Apply",
+        "was": "Der Kern nimmt an, er besitzt den Bare-Metal-Host: host-weite Singletons unbedingt selbst setzen (z. B. `networking.nftables.enable = true`) statt sie zu empfehlen.",
+        "warum": "Ein Flake, der Host-Zustand ueberschreibt, ist auf fremden Hosts nicht mehr integrierbar; der Host-Admin verliert die Entscheidung.",
+        "evidence": "ADR-0003 §1; `medinix.recommended.*` + `hostIntegration` (managed|external|off) + ADMIN-HANDOFF.md; 591/500 pruefen Teile davon.",
+        "status": "aktiv",
+        "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
+        "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-048",
+        "topic": "Manifest §2 - Priority Discipline: additive Config, `mkForce` verboten",
+        "was": "`lib.mkForce` als Problemloeser einsetzen, statt additiv zu mergen oder den Tri-State-Grenzfall zu nutzen.",
+        "warum": "Forcing bricht Komponierbarkeit: Host- und Upstream-Konfigurationen lassen sich nicht mehr mergen, der Fehler wandert still nach oben.",
+        "evidence": "ADR-0003 §2. Nicht maschinell geprueft (Urteilsvermoegen noetig) - Review-Regel.",
+        "status": "aktiv",
+        "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
+        "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-049",
+        "topic": "Manifest §3 - Fail-Closed und dezentrale Guardrails",
+        "was": "Fail-Open bauen: bei fehlendem Secret/Config still auf einen unsicheren Default zurueckfallen; oder zentrale Assertion-Registries (INV-01) statt Aussage am Fundort.",
+        "warum": "Ein offenes Tor ist schlimmer als ein nicht gebautes System; zentrale Registry-Nummern sind fuer Mensch und Agent nicht lesbar.",
+        "evidence": "ADR-0003 §3; Assertions-Kultur mit `[AI/Admin Context]`; Ratschen `check_adrs`/`check_corridor` decken Teile ab.",
+        "status": "aktiv",
+        "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
+        "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-050",
+        "topic": "Manifest §4 - Nix-Native und Zero-Container",
+        "was": "Container-Runtimes oder Fremd-Daemons fuer Dienste einsetzen (Docker/Podman/LXC/OCI) statt nativer systemd-Services + Sandboxing.",
+        "warum": "Container sind im Homelab Overhead und brechen Deklarativitaet (ADR-5000, BANNED_TECHNOLOGIES.md).",
+        "evidence": "ADR-0003 §4; MASCHINELL: `check_grundfunktionen.py` (Container-Engine, unreine Quellen) + `check_banned_technologies.py`.",
+        "status": "aktiv",
+        "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
+        "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-051",
+        "topic": "Manifest §5 - Dendritic Modularity & SSoT (Drop & Forget)",
+        "was": "Ports/UIDs/GIDs hartkodieren oder Host-Zustand ausserhalb des Moduls liegen lassen; eine geloeschte Datei muss Rueckstaende hinterlassen.",
+        "warum": "Nur die Registry (`lib/registry.nix`) ist Wahrheit (Port = UID = Nummer x 10); Reste nach dem Entfernen eines Moduls sind Leaks.",
+        "evidence": "ADR-0003 §5; 591 `dfracViolations` + `check_corridor.py` (hartkodierte uid), `medinix.knownStateDirs`.",
+        "status": "aktiv",
+        "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
+        "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

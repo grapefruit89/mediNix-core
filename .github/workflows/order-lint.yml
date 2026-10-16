@@ -39,6 +39,11 @@ jobs:
       - name: "Korridor-Muster ok? (scripts/check_corridor.py)"
         run: python3 scripts/check_corridor.py
 
+      # Verbotene Technologien (Denylist): nur AKTIVIERENDE Muster; verbietende
+      # Assertions und Kommentare/Meldungen sind erlaubt.
+      - name: "Verbotene Technologien? (BANNED_TECHNOLOGIES.md)"
+        run: python3 scripts/check_banned_technologies.py
+
       # Schicht 0a: Klassische-Distro-Reflexe (P0) - Exit 1 bei Fund.
       - name: "NixOS-Idiome ok? (scripts/nixos_idiom_audit.py --p0-only)"
         run: python3 scripts/nixos_idiom_audit.py --p0-only

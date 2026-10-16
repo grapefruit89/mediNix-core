@@ -1,4 +1,14 @@
-# mediNix-core: Architecture Manifesto (v2.0)
+---
+id: "ADR-0003"
+title: "Architektur-Manifest (bindend): die fuenf Prinzipien"
+status: active
+complexity: 2
+last_reviewed: 2026-10-16
+links:
+  adr: ADR-0000 (Verfassung), ADR-0002 (Grundfunktionen)
+---
+
+# ADR-0003: Architektur-Manifest (bindend)
 
 This document defines the core principles and strict boundaries of `mediNix-core`. Every future module and every agent output must be evaluated against this manifesto. It dictates not only what we build, but what we strictly avoid.
 
@@ -30,3 +40,18 @@ Security mechanisms must crash the system rather than leaving it exposed.
 * **DO:** Keep every service self-contained (`NNN-service.nix`). If a file is deleted, the service and its firewall/proxy configurations must vanish completely without leaving dead configuration.
 * **DO:** Derive all Ports, UIDs, GIDs, and profiles from `lib/registry.nix` (Isomorphism: `Port = UID = Service-Number * 10`).
 * **DON'T:** Never hardcode UIDs, GIDs, or ports in the domain modules. The registry is the absolute and only truth.
+
+## Verankerung (Korridor)
+
+Die fuenf Prinzipien sind als Korridor-Regeln hinterlegt - jede nennt hier ihre Nummer:
+
+| § | Prinzip | Korridor | Durchsetzung |
+|---|---|---|---|
+| 1 | The Boundary (Tri-State Host-Integration, Publish-Don't-Apply) | **AB-047** | 591/500 (Host-Integration, `medinix.recommended.*`) - teilweise maschinell |
+| 2 | Priority Discipline & Additive Configuration (`mkForce` verboten) | **AB-048** | manuell (Urteilsvermoegen; `mkForce` ist selten legitim) |
+| 3 | Fail-Closed Security & Decentralized Guardrails | **AB-049** | Assertions-Kultur + Ratschen (`check_adrs`, `check_corridor`) - teilweise maschinell |
+| 4 | Nix-Native & Zero-Container | **AB-050** | **maschinell**: `check_grundfunktionen.py` + `check_banned_technologies.py` |
+| 5 | Dendritic Modularity & SSoT (Drop & Forget) | **AB-051** | 591 (Dezimalrahmen, `dfracViolations`) + `check_corridor.py` (hartkodierte uid) - teilweise maschinell |
+
+Verbotene Technologien (die konkrete Denylist) stehen in `50-core/BANNED_TECHNOLOGIES.md`
+und werden von `scripts/check_banned_technologies.py` geprueft (order-lint).

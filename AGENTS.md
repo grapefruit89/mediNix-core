@@ -34,6 +34,15 @@
 - **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
 - Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
 
+## Verbotene Technologien (Denylist) + Architektur-Manifest
+
+- **Denylist:** `50-core/BANNED_TECHNOLOGIES.md` - geprueft von
+  `scripts/check_banned_technologies.py` in `order-lint` (nur **aktivierende** Muster; verbietende
+  Assertions, Guard-Namen und Meldungen sind erlaubt).
+- **Manifest:** `docs/adr/ADR-0003-architektur-manifest.md` - die fuenf bindenden Prinzipien
+  (Tri-State-Boundary · additive Config ohne `mkForce` · fail-closed · nix-native/Zero-Container ·
+  dendritic/SSoT) als Korridor-Regeln **AB-047…AB-051**.
+
 ## Die Kette (Knoten/Kanten) - jede Kante hat einen Check
 
 Code · ADRs · Docs · Skills · MCP · Korridor sind ueber sieben Kanten verbunden; die Kettentabelle

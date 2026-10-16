@@ -34,6 +34,12 @@
       "status": "active"
     },
     {
+      "id": "0003",
+      "file": "ADR-0003-architektur-manifest.md",
+      "topic": "architecture manifesto (5 binding principles)",
+      "status": "active"
+    },
+    {
       "id": "0010",
       "file": "ADR-0010-api-vs-filesystem.md",
       "topic": "0010-api-vs-filesystem",
