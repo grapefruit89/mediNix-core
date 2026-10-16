@@ -34,6 +34,17 @@
 - **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
 - Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
 
+## Semantic Anchors (NixOS-Vokabular)
+
+`docs/NIXOS-ANCHORS.md` - 25 Anker in drei Gruppen (was NixOS IST · was es NICHT IST ·
+Anti-Patterns), je mit Details, Kernkonzepten, Wann-nutzen, Missverstaendnissen, Kritik,
+Status, Quelle+Jahr und **Durchsetzung** (welcher Check/welche Korridor-Regel). Geprueft
+von `scripts/check_nixos_anchors.py` (Katalog-Lint) in `order-lint`. Der Anker steuert das
+Denken, die **Messung** liefert die Wahrheit; unsere Konstrukte sind auf den vendorten
+Katalog (`docs/anchors/`) gemappt in `docs/TERMINOLOGY.md`.
+Skill-Hinweis: `nixos-mental-model` (Denkrahmen) und `nixos-service-discovery` (Aufnahme)
+nutzen die Anker als Pruefkriterien.
+
 ## Verbotene Technologien (Denylist) + Architektur-Manifest
 
 - **Denylist:** `50-core/BANNED_TECHNOLOGIES.md` - geprueft von

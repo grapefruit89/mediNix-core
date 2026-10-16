@@ -50,3 +50,9 @@ Nach dem zweiten Fehlschlag: **Methode wechseln** und dem Menschen berichten.
 bisect-first bei Eval-Blockern, Fixpunkt-Kreuz, Assertions laufen waehrend der Config-Auswertung
 (abgeleitetes Ergebnis -> `checks.*`), Engine-Defaults vs. nixpkgs-Assertions, "ein Check-Ausgang
 ist kein Ursachenbeleg", gueltige Mess-Metrik + Build-Gates, die `--no-build` verdeckt.
+
+## Anker (Vokabular)
+
+`docs/NIXOS-ANCHORS.md` ist das NixOS-Vokabular mit Belegen (was NixOS IST / NICHT IST /
+Anti-Patterns, je mit Quelle + Durchsetzung). Beim Denken den **Anker** nennen (z. B.
+"Content-Addressable Store", "Dependency Isolation", "DAG"), beim Zweifeln im Katalog nachsehen.

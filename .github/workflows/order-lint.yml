@@ -39,6 +39,11 @@ jobs:
       - name: "Korridor-Muster ok? (scripts/check_corridor.py)"
         run: python3 scripts/check_corridor.py
 
+      # NixOS-Vokabular (Semantic Anchors): Katalog-Lint - alle acht Felder je
+      # Anker, Quelle mit Jahr, Durchsetzung zeigt auf existierenden Check/AB-Regel.
+      - name: "NixOS-Anchors vollstaendig? (docs/NIXOS-ANCHORS.md)"
+        run: python3 scripts/check_nixos_anchors.py
+
       # Verbotene Technologien (Denylist): nur AKTIVIERENDE Muster; verbietende
       # Assertions und Kommentare/Meldungen sind erlaubt.
       - name: "Verbotene Technologien? (BANNED_TECHNOLOGIES.md)"

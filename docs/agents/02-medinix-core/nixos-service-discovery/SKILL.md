@@ -61,3 +61,9 @@ Ziel: nicht raten, keine Quelle erfinden und keine Werte abschreiben, die das Re
 - `DynamicUser = true` (AB-007) und handgeschriebene Units entgegen der Fabrik.
 - Pruefung des **abgeleiteten** Ergebnisses als **Assertion** (gehoert in einen `check`).
 - Neue Upstream-Quelle ohne Eintrag in `docs/UPSTREAM-SOURCES.md`.
+
+## Anker als Pruefkriterien (Phase 2/5)
+
+Beim Aufnehmen eines Dienstes die Anker aus `docs/NIXOS-ANCHORS.md` durchgehen - mindestens:
+Least Privilege (Nr. 23), No Silent State (22), Fail-Closed (21), Defense in Depth (24),
+Separation of Concerns (25). Jeder Anker nennt seine Durchsetzung (Check oder Korridor-Regel).

@@ -913,6 +913,17 @@
         "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
         "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-052",
+        "topic": "Least Privilege: jede Einheit nur mit den noetigen Rechten",
+        "was": "Einem Dienst mehr Rechte geben als noetig: geteilte Primaergruppe (`media`) statt eigener UPG, Capabilities ohne Grund, pauschales `sudo ALL`, gemeinsame Unix-Identitaet fuer mehrere Dienste.",
+        "warum": "Ueberbreite Rechte machen jeden Einzelfehler zum Systemfehler; die geteilte Gruppe als Primaergruppe hebelt die UPG-Ableitung aus (ADR-0000 §4/§5).",
+        "evidence": "docs/NIXOS-ANCHORS.md Nr. 23 (Saltzer/Schroeder 1975); Nachbarn AB-025/AB-035; geprueft von scripts/check_corridor.py (media-Primaergruppe, hartkodierte uid).",
+        "status": "aktiv",
+        "revive_if": "Nie - Abweichungen nur als begruendete Ausnahme in scripts/corridor-allowlist.txt.",
+        "source": "Session 2026-10-16 (Anchors #23)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

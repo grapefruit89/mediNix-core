@@ -129,6 +129,30 @@ def code_only(text: str) -> str:
     return COMMENT.sub("", text)
 
 
+# Zweiter Pass fuer Muster, bei denen der Inhalt eines STRINGS der Verstoss ist
+# (imperative Aktivierung). Hier werden Strings absichtlich NICHT ausgeblendet,
+# sonst waere z. B. `system.activationScripts.x = "iptables -A ..."` unsichtbar.
+RAW_BANS = [
+    (
+        "imperative Aktivierung (ADR-0002 §1, ADR-0003 §1)",
+        re.compile(
+            r'''system\.activationScripts\.[A-Za-z0-9_-]+\s*=\s*(?:''|")[\s\S]{0,300}?\b(?:iptables|ip6tables|nft|chmod|chown|useradd|userdel|systemctl|rm\s+-|mv\s+/|curl\s+http|wget\s+http|nix-channel|nix-env\s+-i)\b'''
+        ),
+        "systemd.tmpfiles / Units + Optionen statt Aktivierungs-Skripte",
+    ),
+    (
+        "imperativer Paket-/Kanal-Zustand",
+        re.compile(r"\bnix-channel\s+--(?:add|update)\b|\bnix-env\s+-i\b"),
+        "flake.nix + nixpkgs-Pin",
+    ),
+]
+
+
+def raw_code(text: str) -> str:
+    """Nur Zeilenkommentare entfernen - Strings bleiben (ihr Inhalt ist der Verstoss)."""
+    return COMMENT.sub("", text)
+
+
 def main() -> int:
     hits: list[str] = []
     checked = 0
@@ -139,11 +163,13 @@ def main() -> int:
             continue
         checked += 1
         code = code_only(path.read_text(encoding="utf-8", errors="replace"))
-        for name, pattern, alternative in BANS:
-            for match in pattern.finditer(code):
-                line = code[: match.start()].count("\n") + 1
+        raw = raw_code(path.read_text(encoding="utf-8", errors="replace"))
+        for name, pattern, alternative in BANS + RAW_BANS:
+            source = raw if (name, pattern, alternative) in RAW_BANS else code
+            for match in pattern.finditer(source):
+                line = source[: match.start()].count("\n") + 1
                 hits.append(
-                    f"{path.relative_to(ROOT)}:{line}: {name} -> '{match.group(0).strip()}'"
+                    f"{path.relative_to(ROOT)}:{line}: {name} -> '{match.group(0).strip()[:60]}'"
                     f" | Nativ statt dessen: {alternative}"
                 )
 
