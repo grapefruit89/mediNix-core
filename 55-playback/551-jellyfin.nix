@@ -34,8 +34,9 @@ let
   meta = config.medinix.manifest.jellyfin;
 
   # Kanonisch aus dem Manifest abgeleitet:
-  inherit (meta) port stateDir;
+  inherit (meta) port stateDir uid;
   gid = (import ../lib/derive.nix).sharedGid;
+  package = if cfg.package != null then cfg.package else pkgs.jellyfin;
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
@@ -217,7 +218,7 @@ in
           profiles.dotnet-gpu
           memoryPolicy.jellyfin
           {
-            ExecStart = "${pkgs.jellyfin}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${pkgs.jellyfin-web}/share/jellyfin-web";
+            ExecStart = "${package}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${package}/share/jellyfin-web";
             User = "jellyfin";
             Group = "media";
             UMask = "0002";
@@ -234,7 +235,7 @@ in
             ];
             BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
             InaccessiblePaths = [ "-${creds.storeDir}" ];
-            TemporaryFileSystem = "/transcode:size=4G";
+            TemporaryFileSystem = "/transcode:size=4G,mode=0750,uid=${toString uid},gid=${toString gid}";
             RuntimeDirectory = "jellyfin-transcode";
             LoadCredentialEncrypted = lib.mkIf (adminCred != null) [
               "jellyfin-admin-pw:${adminCred}"
@@ -257,9 +258,6 @@ in
             }
             .${svc.hardware.accel} or null;
           VDPAU_DRIVER = "va_gl";
-        }
-        // lib.optionalAttrs (adminCred != null) {
-          JELLYFIN_ADMIN_PASSWORD__FILE = "/run/credentials/jellyfin.service/jellyfin-admin-pw";
         };
       };
 
