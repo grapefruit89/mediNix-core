@@ -18,7 +18,7 @@
 #
 # RT-3 (2026-10-15 aufgeloest): 516 CrowdSec existiert jetzt (Engine liest die
 # Caddy-Access-Logs aus dem journald, Bouncer setzt Bans in nftables). Damit ist
-# fail2ban Legacy: EIN Edge-Bouncer pro Rand (ADR-516-crowdsec).
+# fail2ban Legacy: EIN Edge-Bouncer pro Rand (ADR-516).
 #
 # These are build-time ASSERTIONS, not a bash gate. Each one carries its reason
 # AND how to silence it — nobody should ever be stuck:

@@ -1,5 +1,5 @@
 ---
-id: "ADR-526-vpn-killswitch"
+id: "ADR-526"
 title: "VPN Kill-Switch Architecture (Policy Routing)"
 domain: 52
 status: active
@@ -10,7 +10,7 @@ tags:
   - vpn
   - network
 ---
-# ADR-526-vpn-killswitch: VPN Kill-Switch Architecture (Policy Routing)
+# ADR-526:vpn-killswitch: VPN Kill-Switch Architecture (Policy Routing)
 
 This document captures the architectural evolution and "lessons learned" during the development of the VPN kill-switch, particularly following the major Red-Team audit in August 2026.
 

@@ -825,6 +825,28 @@
         "revive_if": "Nie - Ausnahmen nur ueber ein eigenes ADR.",
         "source": "Session 2026-10-16 (Baustelle 5)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-044",
+        "topic": "Kante ohne Check braucht einen Ausnahme-Eintrag",
+        "was": "Eine Kante der Kette (Code/ADR/Docs/Skills/MCP/Korridor) ohne maschinelle Pruefung lassen und sich auf Prosa verlassen.",
+        "warum": "Am 2026-10-16 waren Code->ADR (31 nicht aufloesende Verweise) und Skills->MCP (nur 3 von 36 Skills nannten ihren Server) voellig ungeprueft; Redis-Fehler waeren still geblieben.",
+        "evidence": "Messung 2026-10-16: check_adrs/check_manifest_edge/check_corridor neu gebaut; Ausnahmen in scripts/{adr-refs,manifest-edge,corridor}-allowlist.txt mit Begruendung.",
+        "status": "aktiv",
+        "revive_if": "Nie - jede neue Kante bekommt einen Check oder eine Allowlist-Zeile mit Grund.",
+        "source": "Session 2026-10-16 (Kette)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-045",
+        "topic": "Group=\"media\" als Primaergruppe / DynamicUser nur mit Korridor-Ausnahme",
+        "was": "`Group = \"media\"` in serviceConfig oder `DynamicUser = true` ohne dokumentierte Ausnahme setzen (ADR-0000 §5, AB-007/locked_invariants).",
+        "warum": "6 Units (543/551/552/553/574/575) setzen media als Primaergruppe, 1 Unit (581 alert-ntfy@) DynamicUser - beides gegen die Invariante, aber mit realem Zweck (Schreibzugriff auf die geteilte Ablage bzw. stateless oneshot).",
+        "evidence": "scripts/check_corridor.py: 0 Fehler, 7 Ausnahmen (scripts/corridor-allowlist.txt); Negativtest belegt, dass unallowlistete Treffer rot werden.",
+        "status": "aktiv",
+        "revive_if": "Fix (UPG + SetGID-Erbe) -> Ausnahme entfernen; DynamicUser -> Konto aus der Engine.",
+        "source": "Session 2026-10-16 (Kette)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

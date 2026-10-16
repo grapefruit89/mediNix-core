@@ -153,3 +153,5 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - `docs/audit/2026-10-15/` — Momentaufnahmen der vier früheren Roadmaps, der Migrations- und der Bergungs-Matrix.
 - `docs/AUDIT-LEDGER.md` — Befund-Gedächtnis mit Quelle und Rollback je Zeile.
 - `.agent-state.json` — Korridor: Invarianten, Whitelist, Blacklist, offene Entscheidungen.
+
+- [ ] **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554 (Feishin), 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.

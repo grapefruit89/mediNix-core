@@ -6,7 +6,7 @@
 # status: active
 # last_reviewed: 2026-09-07
 # requires: ["lib/hardening-profiles", "lib/memory-policy"]
-# adr: ADR-5260
+# adr: ADR-526
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
 # Secrets are LoadCredentialEncrypted, never files under mediaRoot.

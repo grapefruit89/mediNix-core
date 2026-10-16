@@ -101,13 +101,13 @@
       "status": "active"
     },
     {
-      "id": "513-cloudflare-dns",
+      "id": "513",
       "file": "ADR-513-cloudflare-dns.md",
       "topic": "513-cloudflare-dns",
       "status": "legacy-domain-name"
     },
     {
-      "id": "516-crowdsec",
+      "id": "516",
       "file": "ADR-516-crowdsec.md",
       "topic": "516-crowdsec",
       "status": "legacy-domain-name"
@@ -132,7 +132,7 @@
       "status": "active"
     },
     {
-      "id": "521-secret-management",
+      "id": "521",
       "file": "ADR-521-secret-management.md",
       "topic": "521-secret-management",
       "status": "legacy-domain-name"
@@ -151,7 +151,7 @@
       "module": "52-security/526-vpn-killswitch.nix"
     },
     {
-      "id": "532-sonarr",
+      "id": "532",
       "file": "ADR-532-sonarr.md",
       "topic": "532-sonarr",
       "status": "legacy-domain-name"
@@ -164,19 +164,19 @@
       "module": "55-playback/551-jellyfin.nix"
     },
     {
-      "id": "552-audiobookshelf",
+      "id": "552",
       "file": "ADR-552-audiobookshelf.md",
       "topic": "552-audiobookshelf",
       "status": "legacy-domain-name"
     },
     {
-      "id": "553-navidrome",
+      "id": "553",
       "file": "ADR-553-navidrome.md",
       "topic": "553-navidrome",
       "status": "legacy-domain-name"
     },
     {
-      "id": "561-seerr",
+      "id": "561",
       "file": "ADR-561-seerr.md",
       "topic": "561-seerr",
       "status": "legacy-domain-name"

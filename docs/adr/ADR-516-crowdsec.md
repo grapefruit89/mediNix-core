@@ -1,5 +1,5 @@
 ---
-id: "ADR-516-crowdsec"
+id: "ADR-516"
 title: "CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)"
 domain: 51
 status: active

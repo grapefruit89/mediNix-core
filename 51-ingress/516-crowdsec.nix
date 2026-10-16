@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-10-15
 # links:
-#   adr: ADR-516-crowdsec
+#   adr: ADR-516
 # provides: ["crowdsec", "edge-bouncer"]
 # requires: ["lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
 # ports: []
@@ -19,10 +19,10 @@
 # uds_socket: false
 # systemd_hardened: true
 # links:
-#   adr: ADR-516-crowdsec
+#   adr: ADR-516
 # ---
 # 51-ingress/516-crowdsec.nix — CrowdSec Edge-IPS
-# ADR-516-crowdsec: genau EIN Edge-Bouncer (ADR-0000 §3, _1 = Access).
+# ADR-516: genau EIN Edge-Bouncer (ADR-0000 §3, _1 = Access).
 #
 # Was hier passiert:
 #   Engine  (nativ: services.crowdsec) liest die Caddy-Access-Logs aus dem
@@ -177,7 +177,7 @@ in
   ];
 }
 
-# Gold-Standard (ADR-516-crowdsec):
+# Gold-Standard (ADR-516):
 # - Genau EIN Edge-Bouncer; fail2ban ist damit Legacy (519 RT-3 greift)
 # - Engine liest journald (511 loggt JSON nach stdout) — keine zweite Logquelle
 # - Profile sind Pflicht: ohne sie reagiert CrowdSec nicht

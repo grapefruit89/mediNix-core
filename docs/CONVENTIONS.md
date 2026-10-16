@@ -150,3 +150,22 @@ versioniert). Der Linker raeumt ausgeschlossene Symlinks selbst weg.
 Offene Nacharbeit: 18 der 29 Projekt-Skills haben eine Trigger-Beschreibung unter 80 Zeichen
 (der Check listet sie als Hinweis) - die Beschreibung ist der einzige Trigger, den die Session
 ohne Laden sieht.
+
+## Die Kette: sechs Knoten, sieben Kanten
+
+Jede Kante hat entweder einen **Check** oder einen **begruendeten Ausnahme-Eintrag** - beides ist
+versioniert, Prosa allein genuegt nicht.
+
+| Kante | Was geprueft wird | Check |
+|---|---|---|
+| Code -> Manifest | Registry-Dienst mit Port braucht `medinix.manifest.<name>`; kein Manifest-Key ohne Registry-Dienst | `scripts/check_manifest_edge.py` (order-lint), Ausnahmen: `scripts/manifest-edge-allowlist.txt` |
+| Code -> ADR | jeder `adr:`-Verweis im Modul-Header zeigt auf eine existierende ADR-ID; ein Verweis auf den DATEINAMEN ist immer ein Fehler | `scripts/check_adrs.py` (order-lint), Altfaelle: `scripts/adr-refs-allowlist.txt` |
+| ADR -> Index | Datei steht in `docs/adr/llm-index.json`; id/Dateiname/Ueberschrift passen | `scripts/check_adrs.py` |
+| Docs -> Generatoren | `docs/TODO.md`, `docs/INDEX.md`, Ordner-`AGENTS.md` sind aktuell | `scripts/gen_todo.py --check`, `scripts/gen_service_map.py --check`, `50-core/medinix-meta.py check-docs`, `docs/generate_index.py` + `git diff --exit-code` |
+| Skills -> Sichtbarkeit | jeder Projekt-Skill hat einen Symlink (bzw. steht bewusst auf der Ausschlussliste) | `scripts/link-skills.sh --dry-run` (lokal), `scripts/check_skills.py` (Form, CI) |
+| Korridor -> Checks | Muster der AB-Regeln (DynamicUser, media als Primaergruppe, stateDir-Suffix, hartkodierte uid) sind maschinell geprueft | `scripts/check_corridor.py` (order-lint), Ausnahmen: `scripts/corridor-allowlist.txt` |
+| NixOS-Idiome | Klassische-Distro-Reflexe der Schicht 0a (unreine Quellen, Store-Schreibzugriff) | `scripts/nixos_idiom_audit.py --p0-only` (order-lint) |
+
+Regel bei jedem Fund: entweder **fixen** oder eine **Ausnahme mit Begruendung** in die jeweilige
+Allowlist/den Korridor eintragen. Allowlist-Eintraege ohne Wirkung melden die Checks selbst
+(„stale") - die Listen duerfen nur schrumpfen.

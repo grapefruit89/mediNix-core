@@ -7,9 +7,9 @@
 # last_reviewed: 2026-10-02
 # provides: ["ddns", "cloudflare"]
 # requires: ["lib/service-factory"]
-# adr: ADR-5130
+# adr: ADR-513
 # links:
-#   adr: ADR-513-cloudflare-dns
+#   adr: ADR-513
 # ---
 # DDNS uses its OWN Cloudflare token (never the ACME token). No tokenFile.
 #   dns.ddns.cloudflareTokenCredential
@@ -88,7 +88,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       message = ''
         [mediNix] DDNS is on but no dedicated Cloudflare credential was set.
         Set dns.ddns.cloudflareTokenCredential (its OWN token, NOT the ACME one).
-        dns.ddns.tokenFile is not accepted. Ref: ADR-5130.
+        dns.ddns.tokenFile is not accepted. Ref: ADR-513.
       '';
     }
     {
@@ -103,7 +103,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       assertion = zone != null;
       message = ''
         [mediNix] DDNS is enabled but neither dns.ddns.zone nor medinix.domain is set.
-        Ref: ADR-5130
+        Ref: ADR-513
       '';
     }
   ];

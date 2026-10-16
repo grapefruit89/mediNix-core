@@ -1,0 +1,11 @@
+# ADR-Verweise aus Modul-Headern, die (noch) nicht aufloesen - Kette Code -> ADR.
+# Format: <ADR-id> | <Begruendung>.  Der Check scripts/check_adrs.py meldet sie als
+# Hinweis; ein NICHT hier eingetragener toter Verweis macht die CI rot.
+# Ziel: Liste leeren - entweder ADR anlegen oder Verweis auf die gueltige ID ziehen.
+ADR-514 | 51-ingress/514-acme.nix - es gibt kein ADR fuer ACME (ADR-514 fehlt); entscheiden: ADR anlegen oder auf ADR-0000/514-Beschluss verweisen
+ADR-5270 | 51-ingress/525-vpn-interface.nix - Alt-Konvention 4-stellig (5270); kein ADR mit dieser Nummer - VPN-Interface hat kein eigenes ADR
+ADR-5430 | 54-transfer/543-mover.nix - Alt-Konvention (5430); fuer 543 existiert kein ADR
+ADR-554 | 55-playback/554-feishin.nix - fuer Feishin existiert kein ADR
+ADR-5710 | 57-maintenance/570-storage.nix - Alt-Konvention (5710); 570 hat kein eigenes ADR
+ADR-582 | 58-observability/582-gatus.nix - fuer 582 existiert kein ADR (ADR-582 waere neu)
+ADR-5870 | 58-observability/587-disk-health.nix - Alt-Konvention (5870); 587 hat kein eigenes ADR

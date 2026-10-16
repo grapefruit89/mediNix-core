@@ -28,6 +28,21 @@ jobs:
       - name: "Grundfunktionen ok? (ADR-0002: keine Container-Engine, keine unreinen Quellen)"
         run: python3 scripts/check_grundfunktionen.py
 
+      # Kette: Registry -> Manifest -> Modul (jeder Dienst mit Port braucht einen
+      # medinix.manifest-Eintrag; Ausnahmen in scripts/manifest-edge-allowlist.txt).
+      - name: "Kante Registry -> Manifest ok? (scripts/check_manifest_edge.py)"
+        run: python3 scripts/check_manifest_edge.py
+
+      # Kette: Korridor -> Checks. Muster mit dokumentierten Ausnahmen
+      # (scripts/corridor-allowlist.txt): DynamicUser, Group=media, stateDir-Suffix,
+      # hartkodierte uid.
+      - name: "Korridor-Muster ok? (scripts/check_corridor.py)"
+        run: python3 scripts/check_corridor.py
+
+      # Schicht 0a: Klassische-Distro-Reflexe (P0) - Exit 1 bei Fund.
+      - name: "NixOS-Idiome ok? (scripts/nixos_idiom_audit.py --p0-only)"
+        run: python3 scripts/nixos_idiom_audit.py --p0-only
+
       # docs/TODO.md ist eine ABLEITUNG (Korridor + ROADMAP.md + AUDIT-LEDGER.md),
       # damit es keine zweite Planungsquelle gibt. Aendert sich eine Quelle, muss
       # die Liste neu erzeugt werden - sonst driftet sie still.

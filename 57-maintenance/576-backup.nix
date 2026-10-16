@@ -9,7 +9,7 @@
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # adr: ADR-576
 # links:
-#   adr: ADR-576-backup
+#   adr: ADR-576
 # ---
 {
   config,

@@ -10,7 +10,7 @@
 # links:
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
-# adr: ADR-5320, ADR-5050
+# adr: ADR-532, ADR-5050
 # ---
 {
   config,

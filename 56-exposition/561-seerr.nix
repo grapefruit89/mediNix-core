@@ -5,9 +5,9 @@
 # last_reviewed: 2026-10-14
 # sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]
-# adr: ADR-5610
+# adr: ADR-561
 # links:
-#   adr: ADR-561-seerr
+#   adr: ADR-561
 # ---
 {
   config,

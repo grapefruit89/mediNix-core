@@ -7,7 +7,7 @@
 # complexity: 1
 # last_reviewed: 2026-10-12
 # links:
-#   adr: ADR-5020-knowledge-extraction-pipeline
+#   adr: ADR-5020
 # ---
 {
   config,

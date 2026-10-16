@@ -9,7 +9,7 @@
 # requires: ["lib/service-factory"]
 # adr: ADR-511
 # links:
-#   adr: ADR-511-caddy
+#   adr: ADR-511
 # ---
 {
   lib,

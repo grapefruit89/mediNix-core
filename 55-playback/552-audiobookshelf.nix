@@ -4,9 +4,9 @@
 # domain: 55
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
-# adr: ADR-5520
+# adr: ADR-552
 # links:
-#   adr: ADR-552-audiobookshelf
+#   adr: ADR-552
 # ---
 {
   config,

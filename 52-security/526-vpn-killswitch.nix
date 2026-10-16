@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-526
 # links:
-#   adr: ADR-526-vpn-killswitch
+#   adr: ADR-526
 # ---
 # context7:
 #   - query: "networking.wg-quick.interfaces wireguard"
@@ -33,7 +33,7 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5260
+# adr: ADR-526
 # ---
 {
   config,

@@ -67,7 +67,7 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
       message = ''
         [mediNix] ACME and DDNS must use SEPARATE Cloudflare credentials.
         ingress.tls.acmeCredential == dns.ddns.cloudflareTokenCredential.
-        Two tokens limit the blast radius. Ref: ADR-514 / ADR-5130.
+        Two tokens limit the blast radius. Ref: ADR-514 / ADR-513.
       '';
     }
     {

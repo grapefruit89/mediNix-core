@@ -4,9 +4,9 @@
 # domain: 55
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
-# adr: ADR-5530
+# adr: ADR-553
 # links:
-#   adr: ADR-553-navidrome
+#   adr: ADR-553
 # ---
 {
   config,

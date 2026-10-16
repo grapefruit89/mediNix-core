@@ -34,6 +34,16 @@
 - **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
 - Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
 
+## Die Kette (Knoten/Kanten) - jede Kante hat einen Check
+
+Code · ADRs · Docs · Skills · MCP · Korridor sind ueber sieben Kanten verbunden; die Kettentabelle
+mit den zugehoerigen Checks steht in `docs/CONVENTIONS.md` („Die Kette: sechs Knoten, sieben
+Kanten"). Kurzfassung: Code->Manifest (`check_manifest_edge.py`), Code/ADR->Index
+(`check_adrs.py`), Docs->Generatoren (`gen_todo`/`gen_service_map`/`check-docs`/`generate_index`),
+Skills (Sichtbarkeit lokal per `link-skills.sh`, Form per `check_skills.py`), Korridor->Checks
+(`check_corridor.py`), NixOS-Idiome (`nixos_idiom_audit.py --p0-only`) - alle in `order-lint`
+bzw. `flake check`. Fund ohne Check ist eine offene Kante: **fixen oder Ausnahme eintragen**.
+
 ## Grundfunktionen sind bindend (ADR-0002)
 
 Deklarativ, deterministisch/reproduzierbar, faul+eval-zeit-sicher, fail-closed,

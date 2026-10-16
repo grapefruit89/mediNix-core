@@ -17,12 +17,12 @@
 # state_dir: "/var/lib/pocket-id"
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5120
+# adr: ADR-512
 # links:
-#   adr: ADR-512-pocket-id
+#   adr: ADR-512
 # ---
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP
-# ADR-5120: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).
+# ADR-512: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).
 #
 # Contract with 511 (ADR-5110 / master plan 2026-09-01):
 #   512 delivers: process + 127.0.0.1:port + optional ingress.vhosts entry.
@@ -132,7 +132,7 @@ in
             [mediNix] Pocket-ID is enabled and authProxyPresent points forwardAuthUpstream
             back at 127.0.0.1:${toString svc.port}. Pick one owner: local Pocket-ID
             (leave forwardAuthUpstream empty) or an external proxy (different upstream).
-            Ref: ADR-5120 / 51-ingress contracts.authentication
+            Ref: ADR-512 / 51-ingress contracts.authentication
           '';
         }
         {
@@ -170,7 +170,7 @@ in
   ];
 }
 
-# Gold-Standard (ADR-5120):
+# Gold-Standard (ADR-512):
 # - Pocket ID is the OIDC IdP; 511 decides if/when forward_auth points here
 # - Port 5120 is loopback-only; no TLS/DNS/Caddyfile logic in this file
 # - enable is explicit; forward-auth no longer implies a local IdP

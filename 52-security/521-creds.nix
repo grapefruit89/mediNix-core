@@ -9,7 +9,7 @@
 # requires: ["lib/creds"]
 # adr: ADR-5000
 # links:
-#   adr: ADR-521-secret-management
+#   adr: ADR-521
 # ---
 { config, lib, ... }:
 
