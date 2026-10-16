@@ -285,7 +285,7 @@ let
 
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
-    uid = (df.derive "caddy-media" 511).uid; # 5110 — aus der SSoT abgeleitet
+    inherit (df.derive "caddy-media" 511) uid; # 5110 — aus der SSoT abgeleitet
     # 511 serviert die Medienablage (Tier C) -> media NUR als extraGroups,
     # Primaergruppe bleibt die UPG (ADR-0000 §4).
     mediaGroup = true;

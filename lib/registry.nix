@@ -34,7 +34,7 @@ let
     port = null;
     # Unit ohne eigenen Listener: Account existiert (z. B. 513 -> 5130), aber keine Bindung
     uid = if unitName != null then number * 10 else null;
-    sharedGid = (df.derive name number).sharedGid;
+    inherit (df.derive name number) sharedGid;
     stateDir = null;
     hardeningProfile = profile;
     inherit caddyClass;

@@ -14,7 +14,6 @@
 # triage <symptom> arbeitet die Kette aus lib/runbook.json ab (SSoT; docs/RUNBOOK.md §5 generiert).
 {
   pkgs,
-  lib,
   registryJson,
   mediaRoot ? "/data/media",
   metadataDir ? "/data/metadata",

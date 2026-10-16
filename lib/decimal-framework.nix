@@ -21,7 +21,7 @@ let
   # dieselbe Formel — nicht doppelt pflegen.
   df = import ./derive.nix;
   canonicalDecades = df.decadeNames;
-  derive = df.derive;
+  inherit (df) derive;
 
   # 2. Hard Invariants Validation (Design by Contract: I1 - I4)
   validate =
