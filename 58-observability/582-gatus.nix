@@ -6,6 +6,8 @@
 # adr: ADR-582
 # status: active
 # last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-582
 # ---
 {
   config,

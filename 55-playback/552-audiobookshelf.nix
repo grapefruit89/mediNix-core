@@ -2,6 +2,8 @@
 # id: "552-audiobookshelf"
 # title: "Audiobookshelf"
 # domain: 55
+# folder: 55-playback
+# status: active
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
 # adr: ADR-552

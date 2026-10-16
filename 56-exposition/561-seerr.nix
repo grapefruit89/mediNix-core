@@ -2,6 +2,8 @@
 # id: "561-seerr"
 # title: "Seerr — Request Management"
 # domain: 56
+# folder: 56-exposition
+# status: active
 # last_reviewed: 2026-10-14
 # sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]

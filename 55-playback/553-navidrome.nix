@@ -2,6 +2,8 @@
 # id: "553-navidrome"
 # title: "Navidrome — Music Server"
 # domain: 55
+# folder: 55-playback
+# status: active
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
 # adr: ADR-553

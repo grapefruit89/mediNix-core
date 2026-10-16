@@ -2,7 +2,11 @@
 # id: "554-feishin"
 # title: "Feishin — static SPA"
 # domain: 55
+# folder: 55-playback
+# status: active
 # last_reviewed: 2026-10-13
+# links:
+#   adr: ADR-554
 # sprite: 50-core/icons.svg#feishin
 # adr: ADR-554
 # ---

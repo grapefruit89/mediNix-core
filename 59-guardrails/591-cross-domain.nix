@@ -5,6 +5,8 @@
 # folder: 59-guardrails
 # status: active
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-5043
 # provides: ["guardrails"]
 # requires: ["lib/registry", "526-vpn-killswitch", "511-caddy"]
 # adr: ADR-5043

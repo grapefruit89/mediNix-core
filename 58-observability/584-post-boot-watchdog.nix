@@ -7,6 +7,7 @@
 # complexity: 2
 # last_reviewed: 2026-08-12
 # links:
+#   adr: ADR-0000, ADR-5043
 # provides: []
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # ports: []

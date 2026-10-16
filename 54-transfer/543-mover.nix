@@ -7,6 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-13
 # links:
+#   adr: ADR-543, ADR-5000
 # provides: []
 # requires: ["lib/hardening-profiles"]
 # ports: []

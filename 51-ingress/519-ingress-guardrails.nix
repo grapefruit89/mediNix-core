@@ -5,6 +5,8 @@
 # folder: 51-ingress
 # status: active
 # last_reviewed: 2026-10-15
+# links:
+#   adr: ADR-0000
 # complexity: 2
 # provides: ["ingress-guardrails"]
 # requires: ["511-caddy"]

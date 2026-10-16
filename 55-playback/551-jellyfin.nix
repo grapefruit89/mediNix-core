@@ -2,6 +2,8 @@
 # id: "551-jellyfin"
 # title: "Jellyfin — Media Playback"
 # domain: 55
+# folder: 55-playback
+# status: active
 # last_reviewed: 2026-09-02
 # sprite: 50-core/icons.svg#jellyfin
 # adr: ADR-551

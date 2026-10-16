@@ -5,6 +5,8 @@
 # folder: 54-transfer
 # status: active
 # last_reviewed: 2026-09-07
+# links:
+#   adr: ADR-526
 # requires: ["lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-526
 # ---

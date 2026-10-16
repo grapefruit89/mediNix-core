@@ -8,6 +8,7 @@
 # last_reviewed: 2026-08-11
 # logo: none — not in grapefruit89/logorepo yet
 # links:
+#   adr: ADR-532, ADR-5050
 # provides: []
 # requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-532, ADR-5050

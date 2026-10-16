@@ -5,6 +5,8 @@
 # folder: 51-ingress
 # status: active
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-514
 # provides: ["acme", "tls"]
 # adr: ADR-514
 # ---

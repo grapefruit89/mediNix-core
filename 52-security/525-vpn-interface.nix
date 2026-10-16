@@ -7,6 +7,7 @@
 # complexity: 4
 # last_reviewed: 2026-08-18
 # links:
+#   adr: ADR-526
 # provides: []
 # requires: []
 # ports: []

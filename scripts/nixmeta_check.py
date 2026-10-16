@@ -14,8 +14,10 @@ in `NN-*`-Ordnern; Wertebereiche von status und complexity, sofern vorhanden).
 
 RATSCHE 2 (2026-10-16, ADR-00-nixmeta-v3 + Baustelle 7): fuer Dienst-Module
 (`NNN-*.nix`) sind ZUSAETZLICH Pflicht: `folder` (== Ordnername), `status`,
-`complexity`, `links.adr` sowie mindestens eine Upstream-Angabe
-(`upstream_github` | `upstream_docs` | `nixpkgs_attr`). Nicht-konforme Altfaelle
+`complexity`, `links.adr`.
+  Upstream-Angaben (`upstream_github` | `upstream_docs` | `nixpkgs_attr`) sind laut
+  ADR-00 **Extended Fields** ("For complex modules") und daher NICHT Pflicht - der
+  Check meldet sie nur als Hinweis-Zeile.
 stehen in `scripts/nixmeta-baseline.txt` — die Liste darf nur schrumpfen: ist ein
 Eintrag konform geworden, meldet der Check das als Hinweis. Neu erzeugen mit
 `python3 scripts/nixmeta_check.py --write-baseline`.
@@ -82,9 +84,10 @@ def check(path):
     """Liefert (harte Verstoesse, Ratsche-Luecken) fuer diese Datei."""
     bad = []
     missing = []
+    optional = []
     block, err = header_of(path)
     if err:
-        return [err]
+        return [err], [], []
     try:
         data = yaml.safe_load("\n".join(block))
     except yaml.YAMLError as exc:
@@ -134,8 +137,10 @@ def check(path):
         links = data.get("links")
         if not isinstance(links, dict) or not str(links.get("adr", "")).strip():
             missing.append("Pflichtfeld `links.adr:` fehlt")
+        # ADR-00: upstream_* sind Extended Fields ("For complex modules"), nicht
+        # Pflicht. Sie werden als Hinweis gemeldet, nicht als Verstoss.
         if not any(data.get(k) for k in UPSTREAM_KEYS):
-            missing.append("Upstream-Angabe fehlt (`" + "` | `".join(UPSTREAM_KEYS) + "`)")
+            optional.append("ohne Upstream-Spur (optional laut ADR-00)")
 
     domain = data.get("domain")
     if domain is not None:
@@ -148,13 +153,13 @@ def check(path):
             bad.append(
                 f"`domain: {domain}` != Ordnerpraefix {int(prefix.group(1))} ({parent}/)"
             )
-    return bad, missing
+    return bad, missing, optional
 
 
 def backlog_of(files):
     out = []
     for path in files:
-        bad, missing = check(path)
+        bad, missing, _ = check(path)
         if not bad and missing:
             out.append((path, missing))
     return out
@@ -174,8 +179,11 @@ def main():
     files = nix_files()
     base = baseline()
     violations, backlog, stale = [], [], []
+    ohne_upstream = []
     for path in files:
-        bad, missing = check(path)
+        bad, missing, opt = check(path)
+        if opt:
+            ohne_upstream.append(path)
         if bad:
             violations.append((path, bad))
         elif missing and path in base:
@@ -194,6 +202,11 @@ def main():
         print("\nRegeln: docs/adr/ADR-00-nixmeta-v3-header.md")
         sys.exit(1)
     print(f"nixmeta: {len(files)} .nix-Dateien konform")
+    if ohne_upstream:
+        print(
+            f"Hinweis: {len(ohne_upstream)} Dienst-Modul(e) ohne Upstream-Spur - "
+            f"optional laut ADR-00 ('Extended Fields'), kein Verstoss."
+        )
     if backlog:
         print(f"Ratsche-Backlog ({len(backlog)} Datei(en), Liste {BASELINE_FILE}):")
         for path, msgs in backlog:

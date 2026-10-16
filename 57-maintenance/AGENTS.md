@@ -12,7 +12,7 @@
 | `570-storage` | `570-storage.nix` | active | 4/5 | - |
 | `571-sqlite-wal` | `571-sqlite-wal.nix` | active | 3/5 | - |
 | `572-recyclarr` | `572-recyclarr.nix` | active | 3/5 | - |
-| `574-provisioning` | `574-provisioning.nix` | unknown | -/5 | - |
+| `574-provisioning` | `574-provisioning.nix` | active | -/5 | - |
 | `575-update-notifier` | `575-update-notifier.nix` | active | 3/5 | - |
 | `576-backup` | `576-backup.nix` | active | -/5 | - |
 | `577-drift-detection` | `577-drift-detection.nix` | active | 3/5 | - |

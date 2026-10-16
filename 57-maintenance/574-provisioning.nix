@@ -2,6 +2,8 @@
 # id: "574-provisioning"
 # title: "Arr API provisioning oneshot"
 # domain: 57
+# folder: 57-maintenance
+# status: active
 # last_reviewed: 2026-09-02
 # ---
 {

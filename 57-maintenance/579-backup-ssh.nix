@@ -5,6 +5,8 @@
 # folder: 57-maintenance
 # status: active
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-576
 # requires: ["lib/registry"]
 # adr: ADR-576
 # ---

@@ -6,6 +6,8 @@
 # status: active
 # complexity: 1
 # last_reviewed: 2026-10-16
+# links:
+#   adr: ADR-0000
 # adr: ADR-0000
 # ---
 # Warum diese Datei existiert (gemessen 2026-10-16): `default.nix` importiert
