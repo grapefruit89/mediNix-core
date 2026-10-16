@@ -15,7 +15,7 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 52_
+_Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 53_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **P0 (offen, produktiv) — L-047:** `users.mutableUsers = mkDefault false` (Engine, `e803ba8`) braucht eine **echte** Credential-Quelle fuer root oder einen wheel-User (Heute: nur `testHostAccess`-Stub in Praefkonfigurationen). Sonst ist jedes Host-Build von der nixpkgs-Assertion blockiert.
@@ -48,7 +48,7 @@ _Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 52_
 - [ ] L-012 (BUG) `shellcheck` **SC2164** (`cd docs` ohne Guard im `buildPhase`) — Status: \
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **17**, `status:` bei **6** (`551–554`,`561`,`574`) → Index zeigt `unknown`/`-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
-- [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: OPEN
+- [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: **DONE** — behoben durch L-046/047/048: `585` deklariert nur noch die Absicht (`medinix.exporters`), die Engine leitet die Konten ab (ADR-040); Frameband-Pruefung als `checks.mediNix-frameband-fremdkonten` statt Assertion (AB-042); Login via `medinix.security.loginKeys` (L-047). `nix flake check` rot→gruen, CI `Flake Check` gruen (`8ab5936`)
 
 ## 4. Pflicht bei jeder Änderung
 

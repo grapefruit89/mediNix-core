@@ -51,7 +51,7 @@ Die Ablage ist streng nach Zugriffsfrequenz und Latenz getrennt:
                                        │
 ┌──────────────────────────────────────┴──────────────────────────────────────┐
 │ Tier 1: NVMe System-SSD (State / DB / Secrets)                              │
-│ Path: /var/lib/jellyfin-5510/ (mediNix stateDir) & /secrets/                │
+│ Path: /var/lib/jellyfin/ (mediNix stateDir) & /secrets/                │
 │ Data: SQLite-Datenbanken (jellyfin.db, introskipper.db), Logs, Configs,     │
 │       POSIX-geschützte API-Tokens (chmod 600).                              │
 │ Access: Exklusiver Read/Write, extrem schnelle Lese-/Schreibzugriffe.       │

@@ -49,7 +49,7 @@ in
   config = lib.mkMerge [
 
     (lib.mkIf cfg.enable {
-      users.groups.media.gid = 5000;
+      users.groups.media.gid = (import ../lib/derive.nix).sharedGid;
       users.users.media = {
         isSystemUser = true;
         group = "media";

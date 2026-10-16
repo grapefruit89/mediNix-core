@@ -33,7 +33,7 @@ Fuenf Eigenschaften sind Regeln, keine Empfehlungen:
 
 ## Durchsetzung
 - **Pruef-Leiter** (`docs/CONVENTIONS.md`): `nix flake check` mit Builds, Ratschen, Doku-Gates.
-- **Checks statt Prosa:** `scripts/check_grundfunktionen.py` (in `order-lint`) erzwingt das
+- **Checks statt Prosa:** `scripts/check_banned_technologies.py` (in `order-lint`) erzwingt das
   mechanisch pruefbare Stueck: keine aktivierte Container-Engine, keine unreinen Eval-Quellen.
 - **Korridor:** AB-042 (Assertions lesen nur Quellen) und AB-043 (diese fuenf Funktionen) in
   `.agent-state.json`.

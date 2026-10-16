@@ -49,7 +49,7 @@ Ziel: nicht raten, keine Quelle erfinden und keine Werte abschreiben, die das Re
    `nixfmt` · `nix build .#checks.x86_64-linux.{nixfmt,statix,deadnix,nixmeta,unit-scripts}-check` ·
    `nix flake check --no-build --option eval-cache false` (**0 ❌**) ·
    `nix flake check --print-build-logs` (mit Builds) ·
-   `scripts/{check_adrs,check_skills,check_grundfunktionen}.py` · `folder_lint.sh` ·
+   `scripts/{check_adrs,check_skills,check_banned_technologies}.py` · `folder_lint.sh` ·
    `gen_todo.py --check` · `gen_service_map.py --check` · `50-core/medinix-meta.py check-docs`.
 6. **Korridor:** `.agent-state.json` pruefen (vorher!) und Neues eintragen; ROADMAP statt Prosa.
 

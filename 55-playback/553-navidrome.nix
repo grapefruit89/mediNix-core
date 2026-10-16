@@ -173,7 +173,6 @@ in
               User = "navidrome";
               Group = "media";
               UMask = "0002";
-              StateDirectory = "navidrome-${toString port}";
               ReadWritePaths = [ stateDir ];
               BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
               InaccessiblePaths = [ "-${creds.storeDir}" ];

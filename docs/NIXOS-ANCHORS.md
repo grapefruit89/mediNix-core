@@ -41,7 +41,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Fehlermeldungen sind schwer zu lesen, weil Ausdruecke verschachtelt sind.
 - **Status:** Kern (Nix-Sprache), etabliert.
 - **Quelle:** Dolstra 2004 ("Nix: A Safe and Policy-Free System for Software Deployment"); Dolstra 2006.
-- **Durchsetzung:** AB-043 · `scripts/check_grundfunktionen.py` (unreine Eval-Quellen) · `scripts/nixos_idiom_audit.py --p0-only`
+- **Durchsetzung:** AB-043 · `scripts/check_banned_technologies.py` (unreine Eval-Quellen) · `scripts/nixos_idiom_audit.py --p0-only`
 
 ### 3. Deterministic Builds
 - **Details:** Gleicher Input -> gleicher Output; keine Uhrzeit, kein Zufall, kein Netz ohne Pin.
@@ -51,7 +51,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Upstream-Quellen (Webinhalte, Git-Branches) brechen die Zusage, wenn nicht gepinnt.
 - **Status:** Kern (Flake-Lock), etabliert.
 - **Quelle:** Dolstra 2006 (Kap. 3-5); nix.dev (Reproducibility).
-- **Durchsetzung:** AB-043 · `scripts/check_grundfunktionen.py` (unreine Quellen) · `flake.lock`-Pin
+- **Durchsetzung:** AB-043 · `scripts/check_banned_technologies.py` (unreine Quellen) · `flake.lock`-Pin
 
 ### 4. Reproducible Systems
 - **Details:** Ein System ist aus dem Lockfile nachbaubar - auf anderer Hardware oder Jahre spaeter.
@@ -215,7 +215,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Manche Software liefert nur Images - dann ist es eine begruendete Ausnahme, kein Reflex.
 - **Status:** verbindlich (Denylist).
 - **Quelle:** ADR-5000; `50-core/BANNED_TECHNOLOGIES.md`.
-- **Durchsetzung:** AB-017 · AB-050 · `scripts/check_banned_technologies.py` · `scripts/check_grundfunktionen.py`
+- **Durchsetzung:** AB-017 · AB-050 · `scripts/check_banned_technologies.py`
 
 ### 20. No mkForce
 - **Details:** `lib.mkForce` ueberschreibt fremde Definitionen - Komponierbarkeit kaputt.
@@ -235,7 +235,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** zu viele Assertions werden unlesbar; deshalb dezentral und mit Begruendung im Text.
 - **Status:** verbindlich (Manifest §3, ADR-0002 §4).
 - **Quelle:** ADR-5043 (Assertion-Qualitaet); ADR-0003 §3.
-- **Durchsetzung:** AB-049 · `scripts/check_adrs.py` · `scripts/check_grundfunktionen.py`
+- **Durchsetzung:** AB-049 · `scripts/check_adrs.py` · `scripts/check_banned_technologies.py`
 
 ### 22. No Silent State
 - **Details:** Kein Zustand, den niemand kennt - jede Ablage ist registriert.
@@ -255,7 +255,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Least Privilege erzeugt mehr Konten/Regeln und damit Pflegeaufwand - der Preis fuer Nachvollziehbarkeit.
 - **Status:** verbindlich (ADR-0000 §4/§5, ADR-0003 §1).
 - **Quelle:** Saltzer/Schroeder 1975 (Least Privilege, "The Protection of Information in Computer Systems").
-- **Durchsetzung:** AB-025 · **AB-052** · `scripts/check_corridor.py` · `scripts/check_grundfunktionen.py`
+- **Durchsetzung:** AB-025 · **AB-052** · `scripts/check_corridor.py` · `scripts/check_banned_technologies.py`
 
 ### 24. Defense in Depth
 - **Details:** Mehrere unabhaengige Schichten statt einer "perfekten".

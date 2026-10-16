@@ -71,7 +71,7 @@ bzw. `flake check`. Fund ohne Check ist eine offene Kante: **fixen oder Ausnahme
 Deklarativ, deterministisch/reproduzierbar, faul+eval-zeit-sicher, fail-closed,
 systemd-native ohne Container - als **Regel**, nicht als Empfehlung
 (`docs/adr/ADR-0002-nixos-grundfunktionen.md`). Mechanisch geprueft in `order-lint`
-(`scripts/check_grundfunktionen.py`): keine aktivierte Container-Engine, keine unreinen
+(`scripts/check_banned_technologies.py`): keine aktivierte Container-Engine, keine unreinen
 Eval-Quellen. Korridor: AB-042 (Assertions lesen nur Quellen), AB-043 (diese fuenf Funktionen).
 ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_adrs.py`.
 
@@ -137,7 +137,7 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
 | `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
-| `scripts/` | `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_grundfunktionen.py` · `gen_todo.py`/`gen_service_map.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
+| `scripts/` | `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_service_map.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
 | `flake.nix` | Outputs + **41 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
 
 **Einstieg in 4 Schritten:** 1. `.agent-state.json` (Korridor) → 2. `ROADMAP.md` (was als Nächstes) → 3. `docs/AUDIT-LEDGER.md` (was schon gefunden wurde) → 4. `docs/CONVENTIONS.md` (Regeln).

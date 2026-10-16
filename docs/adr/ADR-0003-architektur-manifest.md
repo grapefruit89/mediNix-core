@@ -50,7 +50,7 @@ Die fuenf Prinzipien sind als Korridor-Regeln hinterlegt - jede nennt hier ihre 
 | 1 | The Boundary (Tri-State Host-Integration, Publish-Don't-Apply) | **AB-047** | 591/500 (Host-Integration, `medinix.recommended.*`) - teilweise maschinell |
 | 2 | Priority Discipline & Additive Configuration (`mkForce` verboten) | **AB-048** | manuell (Urteilsvermoegen; `mkForce` ist selten legitim) |
 | 3 | Fail-Closed Security & Decentralized Guardrails | **AB-049** | Assertions-Kultur + Ratschen (`check_adrs`, `check_corridor`) - teilweise maschinell |
-| 4 | Nix-Native & Zero-Container | **AB-050** | **maschinell**: `check_grundfunktionen.py` + `check_banned_technologies.py` |
+| 4 | Nix-Native & Zero-Container | **AB-050** | **maschinell**: `check_banned_technologies.py` (Container-Engine + unreine Quellen) |
 | 5 | Dendritic Modularity & SSoT (Drop & Forget) | **AB-051** | 591 (Dezimalrahmen, `dfracViolations`) + `check_corridor.py` (hartkodierte uid) - teilweise maschinell |
 
 Verbotene Technologien (die konkrete Denylist) stehen in `50-core/BANNED_TECHNOLOGIES.md`

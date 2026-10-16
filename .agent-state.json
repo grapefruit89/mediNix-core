@@ -255,7 +255,7 @@
     "2026-10-16: Test-Configs privilegiert (testHostAccess, synthetischer Root-Key), weil die Engine users.mutableUsers=mkDefault false erzwingt und die nixpkgs-Assertion sonst 4 Checks bricht (L-047). Produktive Credential-Quelle fuer root/wheel bleibt offen.",
     "2026-10-16: Band-Pruefung aus 591 in den Check checks.mediNix-frameband-fremdkonten verschoben (AB-042: Assertions lesen nur Quellen) - die Assertion hatte engine-abgeleitete Konten (Test-Probe) als fremd gewertet (L-048).",
     "2026-10-16: Projekt-Skills verankert: scripts/link-skills.sh (Symlinks docs/agents -> ~/.config/opencode/skills, idempotent, Ausschlussliste scripts/skills-exclude.txt) + scripts/check_skills.py in order-lint; 20 sichtbar, 9 fremde Workflows ausgeschlossen; Context7-Pflicht in medinix-build-gate durch die Live-Quelle-Rangfolge ersetzt.",
-    "2026-10-16: ADR-Formregel + scripts/check_adrs.py (order-lint); 6 Altdateien auf ihre Inhalts-ID umbenannt, 25 ADRs im llm-index registriert; ADR-0002-nixos-grundfunktionen (bindend) + scripts/check_grundfunktionen.py.",
+    "2026-10-16: ADR-Formregel + scripts/check_adrs.py (order-lint); 6 Altdateien auf ihre Inhalts-ID umbenannt, 25 ADRs im llm-index registriert; ADR-0002-nixos-grundfunktionen (bindend) + scripts/check_banned_technologies.py.",
     "2026-10-16: nixmeta-Ratsche 2: folder/status/complexity/links.adr + mindestens eine Upstream-Angabe sind fuer Dienst-Module Pflicht; 18 Header mechanisch nachgezogen, Rest in scripts/nixmeta-baseline.txt (42 Dateien, darf nur schrumpfen)."
   ],
   "corridor": {
@@ -820,7 +820,7 @@
         "topic": "NixOS-Grundfunktionen sind bindend (ADR-0002)",
         "was": "Die fuenf Grundfunktionen (deklarativ, deterministisch, faul/eval-sicher, fail-closed, systemd-native/keine Container) als Prosa behandeln - 'kann man so machen'.",
         "warum": "Prosa ohne Durchsetzung wird nicht eingehalten; v.a. Container-Engines und imperative Muster kommen sonst als 'kurzer Weg' zurueck.",
-        "evidence": "2026-10-16: ADR-0002 angelegt + scripts/check_grundfunktionen.py (in order-lint) + AB-042; ADR-5000 (native services) war schon aktiv, aber nicht verdrahtet.",
+        "evidence": "2026-10-16: ADR-0002 angelegt + scripts/check_banned_technologies.py (in order-lint) + AB-042; ADR-5000 (native services) war schon aktiv, aber nicht verdrahtet.",
         "status": "aktiv",
         "revive_if": "Nie - Ausnahmen nur ueber ein eigenes ADR.",
         "source": "Session 2026-10-16 (Baustelle 5)",
@@ -897,7 +897,7 @@
         "topic": "Manifest §4 - Nix-Native und Zero-Container",
         "was": "Container-Runtimes oder Fremd-Daemons fuer Dienste einsetzen (Docker/Podman/LXC/OCI) statt nativer systemd-Services + Sandboxing.",
         "warum": "Container sind im Homelab Overhead und brechen Deklarativitaet (ADR-5000, BANNED_TECHNOLOGIES.md).",
-        "evidence": "ADR-0003 §4; MASCHINELL: `check_grundfunktionen.py` (Container-Engine, unreine Quellen) + `check_banned_technologies.py`.",
+        "evidence": "ADR-0003 §4; MASCHINELL: `check_banned_technologies.py` (Container-Engine + unreine Quellen).",
         "status": "aktiv",
         "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",
         "source": "50-core/MANIFEST.md -> ADR-0003 (2026-10-16)",
@@ -923,6 +923,17 @@
         "status": "aktiv",
         "revive_if": "Nie - Abweichungen nur als begruendete Ausnahme in scripts/corridor-allowlist.txt.",
         "source": "Session 2026-10-16 (Anchors #23)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-053",
+        "topic": "Dienst-Modul ohne Upstream-Quelle (sources.upstream + sources.repo)",
+        "was": "Ein Dienst-Modul (Manifest-Traeger) ohne sources.upstream + sources.repo lassen, obwohl Code/Logik/Architektur aus Upstream stammt - und sich auf die Prosa in docs/UPSTREAM-SOURCES.md verlassen.",
+        "warum": "Ohne Quelle baut der Agent aus Vermutung statt aus dem Repo (Halluzination/Doku-Drift); eine Regel ohne Check ist nach AB-044 keine Regel. Die eiserne Regel wird erst durch scripts/check_sources.py widerspruchsfrei.",
+        "evidence": "2026-10-16: nur 5 von 15 Manifest-Traegern trugen einen sources-Block; kein Check verlangte sources (grep sources scripts/*.py leer).",
+        "status": "aktiv",
+        "revive_if": "Nie - neue Dienst-Module brauchen beide Felder; Altabweichungen stehen in scripts/sources-baseline.txt (Ratsche, nur schrumpfend).",
+        "source": "Chat 2026-10-16 (Upstream-Regel hart verdrahtet)",
         "date": "2026-10-16"
       }
     ],

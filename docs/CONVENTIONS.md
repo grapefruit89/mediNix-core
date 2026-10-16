@@ -49,6 +49,10 @@ Läuft zusätzlich in CI (`.github/workflows/order-lint.yml`) — Verstöße bre
 
   Alles andere gehört nach `docs/`; Altstände nach `docs/audit/<jahr-monat>/`.
 - **Keine Build-Artefakte im Repo** (`__pycache__/`, `*.pyc` sind in `.gitignore`).
+- **Jedes Dienst-Modul nennt seine Upstream-Quellen** (`sources.upstream` +
+  `sources.repo`, `docs/UPSTREAM-SOURCES.md`) — erzwungen von
+  `scripts/check_sources.py`; noch offene Faelle stehen in
+  `scripts/sources-baseline.txt` (Ratsche, nur schrumpfend, AB-053).
 
 ## 3. Wenn eine Ausnahme doch zu klein wirkt
 

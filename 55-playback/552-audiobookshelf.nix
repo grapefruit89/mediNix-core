@@ -151,7 +151,6 @@ in
             User = "audiobookshelf";
             Group = "media";
             UMask = "0002";
-            StateDirectory = "audiobookshelf-${toString port}";
             ReadWritePaths = [
               stateDir
               metadataDir

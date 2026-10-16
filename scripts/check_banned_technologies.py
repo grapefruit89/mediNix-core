@@ -9,6 +9,7 @@ tatsaechlich einschaltet, nicht jede Erwaehnung:
 * Pakete: `pkgs.<verboten>`
 * Befehle in Kommandoposition (`.sh`, Skript-Bloecke): `iptables -A …`, `crontab …`
 * Import/Paket der Vector-DBs: `import chromadb`, `pkgs.faiss`
+* unreine Eval-Quellen (ADR-0002 §2): `builtins.currentSystem`, `builtins.getEnv`, `<nixpkgs>`
 
 Bewusst NICHT geprueft werden:
 * **verbietende** Konstrukte (`!(config.services.logrotate.enable or false)`,
@@ -34,8 +35,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SUFFIXES = (".nix", ".sh", ".py", ".yml", ".yaml", ".bash", ".service")
 TEXT_ASSIGN = re.compile(r"\b(?:message|description|help|warning|example)\s*=\s*''.*?''", re.S)
-# Python-Docstrings: sie zitieren die verbotenen Muster (z. B. in
-# check_grundfunktionen.py) und sind keine Aktivierung.
+# Python-Docstrings: sie zitieren die verbotenen Muster (z. B. in check_*.py)
+# und sind keine Aktivierung.
 PY_DOC = re.compile(r'"""(?:.|\n)*?"""|\'\'\'(?:.|\n)*?\'\'\'')
 QUOTED = re.compile(r'"(?:[^"\\]|\\.)*"')
 COMMENT = re.compile(r"(?m)^\s*#.*$")
@@ -153,6 +154,24 @@ def raw_code(text: str) -> str:
     return COMMENT.sub("", text)
 
 
+# Dritte Kategorie: unreine Eval-Quellen (ADR-0002 §2), nur *.nix. Eigene Blinding:
+# ganze ''-Bloecke + gequotete Strings weg (eine verbietende Assertion darf das
+# Muster zitieren) - uebernommen aus dem frueheren check_grundfunktionen.py.
+IMPURE = [
+    (
+        "unreine Eval-Quelle (ADR-0002 §2: deterministisch)",
+        re.compile(r"builtins\.currentSystem|builtins\.getEnv\b|=\s*<nixpkgs>"),
+    ),
+]
+STRING_BLOCK = re.compile(r"''.*?''", re.S)
+
+
+def nix_code_only(text: str) -> str:
+    """String-Literale (auch mehrzeilig) entfernen, Zeilenzahl erhalten."""
+    text = STRING_BLOCK.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    return QUOTED.sub('""', text)
+
+
 def main() -> int:
     hits: list[str] = []
     checked = 0
@@ -172,6 +191,14 @@ def main() -> int:
                     f"{path.relative_to(ROOT)}:{line}: {name} -> '{match.group(0).strip()[:60]}'"
                     f" | Nativ statt dessen: {alternative}"
                 )
+        if path.suffix == ".nix":
+            nix = nix_code_only(path.read_text(encoding="utf-8", errors="replace"))
+            for name, pattern in IMPURE:
+                for match in pattern.finditer(nix):
+                    line = nix[: match.start()].count("\n") + 1
+                    hits.append(
+                        f"{path.relative_to(ROOT)}:{line}: {name} -> '{match.group(0).strip()[:60]}'"
+                    )
 
     for hit in hits:
         print(f"FEHLER: {hit}")
@@ -180,7 +207,7 @@ def main() -> int:
               f"({checked} Code-Dateien geprueft).")
         return 1
     print(f"OK: keine aktivierte verbotene Technologie in {checked} Code-Dateien "
-          "(50-core/BANNED_TECHNOLOGIES.md §1).")
+          "(50-core/BANNED_TECHNOLOGIES.md §1) und keine unreinen Eval-Quellen in *.nix (ADR-0002 §2).")
     return 0
 
 

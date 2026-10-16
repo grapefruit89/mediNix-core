@@ -59,8 +59,8 @@ let
   );
 in
 lib.mkIf (cfg.enable && st.enable) {
-  # Ensure media group (GID 5000, SSOT from registry.nix)
-  users.groups.media = lib.mkDefault { gid = 5000; };
+  # Ensure media group (sharedGid, SSoT: lib/derive.nix)
+  users.groups.media = lib.mkDefault { gid = (import ../lib/derive.nix).sharedGid; };
 
   # Directory structure + permissions.
   # 2 vor 775 = SetGID: neue Dateien UND neue Unterordner erben die Gruppe media.

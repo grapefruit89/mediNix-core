@@ -1,0 +1,12 @@
+# sources-Ratsche: Dienst-Module ohne `sources.upstream` + `sources.repo`.
+# Liste darf nur schrumpfen - konform gewordene Eintraege entfernen.
+53-acquisition/532-sonarr.nix
+53-acquisition/533-radarr.nix
+53-acquisition/534-readarr.nix
+53-acquisition/535-lidarr.nix
+53-acquisition/536-prowlarr.nix
+55-playback/552-audiobookshelf.nix
+55-playback/553-navidrome.nix
+56-exposition/561-seerr.nix
+58-observability/581-ntfy.nix
+58-observability/582-gatus.nix

@@ -4,11 +4,21 @@
 # domain: 55
 # folder: 55-playback
 # status: active
+# complexity: 3
 # last_reviewed: 2026-09-02
 # sprite: 50-core/icons.svg#jellyfin
-# adr: ADR-551
 # links:
 #   adr: ADR-551
+# provides: ["jellyfin"]
+# requires: ["lib/registry", "lib/service-factory", "lib/hardening-profiles", "lib/memory-policy", "lib/creds"]
+# ports: [5510]
+# upstream_docs: ["https://jellyfin.org/docs/"]
+# upstream_github: "https://github.com/jellyfin/jellyfin"
+# nixpkgs_attr: "services.jellyfin"
+# state_dir: "/var/lib/jellyfin"
+# uds_socket: false
+# systemd_hardened: true
+# adr: ADR-551
 # ---
 # WAN stream + app login. 518 tiles this because accessGroup = stream.
 {
@@ -25,7 +35,7 @@ let
 
   # Kanonisch aus dem Manifest abgeleitet:
   inherit (meta) port stateDir;
-  gid = 5000;
+  gid = (import ../lib/derive.nix).sharedGid;
   creds = import ../lib/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
@@ -216,7 +226,6 @@ in
               "render"
             ];
             DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
-            StateDirectory = "jellyfin-${toString port}";
             CacheDirectory = "jellyfin-cache";
             ReadWritePaths = [
               stateDir

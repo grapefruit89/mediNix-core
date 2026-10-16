@@ -12,6 +12,10 @@ Aufruf:
   python3 scripts/nixos_idiom_audit.py --p0-only   # nur P0 (CI-Modus, Exit 1 bei Fund)
 
 Eingelagertes (docs/audit/, docs/archive/) wird bewusst NICHT gescannt.
+
+Harte Regeln (unreine Eval-Quellen, verbotene Technologien) prueft
+`check_banned_technologies.py` fail-closed; hier stehen nur die Signale OHNE
+Hard-Check (Signal != Fund).
 """
 from __future__ import annotations
 
@@ -40,10 +44,7 @@ SKIP_PATH_PREFIXES = (
 SIGNALS: list[tuple[str, str, str, tuple[str, ...]]] = [
     # Deterministisch / Rein (harte Fehler ohne --impure)
     ("deterministisch", "P0", r"\bbuiltins\.currentTime\b", (".nix",)),
-    ("deterministisch", "P0", r"\bbuiltins\.getEnv\b", (".nix",)),
-    ("deterministisch", "P0", r"\bimport\s*<\s*nixpkgs", (".nix",)),
     ("deterministisch", "P0", r"\bfetchTarball\s+(?!.*\bhash)", (".nix",)),
-    ("rein-funktional", "P0", r"\bbuiltins\.currentSystem\b", (".nix",)),
     ("rein-funktional", "P0", r"--impure\b", (".sh", ".yml", ".yaml")),
     # Immutabel / Store
     ("immutabel", "P0", r"(chmod|chown|rm|mv|>)\s+/nix/store/", (".nix", ".sh")),
@@ -53,7 +54,7 @@ SIGNALS: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("deklarativ", "P1", r"system\.activationScripts.*>\s*/etc/", (".nix",)),
     ("deklarativ", "P2", r"(ExecStartPre|postStart|preStart|preStop)\s*=.*\b(sed\s+-i|cp\s|mv\s|rm\s)", (".nix",)),
     # Reproduzierbar / Rollback
-    ("reproduzierbar", "P1", r"\bnix-channel\b|\bnix-env\s+-i", (".md", ".sh", ".yml")),
+    # nix-channel / nix-env -i: hart geprueft von check_banned_technologies.py (RAW_BANS).
     ("reproduzierbar", "P2", r"\b(manually|by hand|run this once|TODO: automate)\b", (".md", ".sh")),
     ("rollback", "P2", r"\btimeshift\b|\betckeeper\b", (".md", ".nix", ".sh")),
     # Explizite Abhaengigkeiten (Laufzeit-Netzwerk = legitim, aber dokumentieren)

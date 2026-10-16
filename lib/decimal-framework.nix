@@ -141,7 +141,8 @@ in
 
     # 4. UPG & Shared Group Definitions
     users.groups = {
-      media = lib.mkDefault { gid = 5000; };
+      # SSoT: sharedGid aus lib/derive.nix (projectDigit * 1000), kein Literal.
+      media = lib.mkDefault { gid = df.sharedGid; };
     }
     // lib.mapAttrs (
       _name: meta:

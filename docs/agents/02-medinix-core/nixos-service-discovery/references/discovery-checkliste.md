@@ -49,7 +49,7 @@ nix build .#checks.x86_64-linux.nixfmt-check .#checks.x86_64-linux.statix-check 
 nix flake check --no-build --option eval-cache false   # 0 ❌ ist das Kriterium, nicht "viele ✅"
 nix flake check --print-build-logs                     # wie die CI (mit Builds)
 python3 scripts/check_adrs.py ; python3 scripts/check_skills.py
-python3 scripts/check_grundfunktionen.py ; bash docs/agents/shared/scripts/folder_lint.sh .
+python3 scripts/check_banned_technologies.py ; bash docs/agents/shared/scripts/folder_lint.sh .
 python3 scripts/gen_todo.py --check ; python3 scripts/gen_service_map.py --check
 python3 50-core/medinix-meta.py check-docs
 ```

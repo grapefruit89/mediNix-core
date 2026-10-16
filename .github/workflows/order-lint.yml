@@ -28,14 +28,19 @@ jobs:
       - name: "ADR-Formregel ok? (docs/adr/ADR-*.md + llm-index.json)"
         run: python3 scripts/check_adrs.py
 
-      # NixOS-Grundfunktionen (ADR-0002): nur mechanisch pruefbares Stueck.
-      - name: "Grundfunktionen ok? (ADR-0002: keine Container-Engine, keine unreinen Quellen)"
-        run: python3 scripts/check_grundfunktionen.py
+      # NixOS-Grundfunktionen (ADR-0002) + verbotene Technologien laufen zusammen in
+      # check_banned_technologies.py (unten) - kein eigener Schritt mehr.
 
       # Kette: Registry -> Manifest -> Modul (jeder Dienst mit Port braucht einen
       # medinix.manifest-Eintrag; Ausnahmen in scripts/manifest-edge-allowlist.txt).
       - name: "Kante Registry -> Manifest ok? (scripts/check_manifest_edge.py)"
         run: python3 scripts/check_manifest_edge.py
+
+      # Eiserne Regel docs/UPSTREAM-SOURCES.md: jedes Dienst-Modul (Manifest-
+      # Traeger) nennt sources.upstream + sources.repo. Altabweichungen: Ratsche
+      # scripts/sources-baseline.txt (nur schrumpfend) - AB-053.
+      - name: "Upstream-Quellen genannt? (scripts/check_sources.py)"
+        run: python3 scripts/check_sources.py
 
       # Kette: Korridor -> Checks. Muster mit dokumentierten Ausnahmen
       # (scripts/corridor-allowlist.txt): DynamicUser, Group=media, stateDir-Suffix,
