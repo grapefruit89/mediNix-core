@@ -1,5 +1,5 @@
 ---
-id: "ADR-52-nftables-firewall-baseline"
+id: "ADR-5210"
 title: "ADR 5210 nftables firewall baseline"
 domain: 52
 status: active

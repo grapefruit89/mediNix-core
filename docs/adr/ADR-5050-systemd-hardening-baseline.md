@@ -1,5 +1,5 @@
 ---
-id: "ADR-52-systemd-hardening-baseline"
+id: "ADR-5050"
 title: "ADR 5050 systemd hardening baseline"
 domain: 52
 status: active

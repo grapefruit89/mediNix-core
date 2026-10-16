@@ -797,6 +797,28 @@
         "revive_if": "Nie - bei Eval-Blockern: git worktree + `git bisect run` mit EINEM `<check>.drvPath` als Probe, dann Code lesen.",
         "source": "Session 2026-10-16 (L-046)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-042",
+        "topic": "Assertions lesen nur Quellen, Checks das Abgeleitete",
+        "was": "Eine Pruefung des abgeleiteten Ergebnisses (`users.users`, `systemd.services`) als **Assertion** schreiben.",
+        "warum": "Assertions laufen WAEHREND der Config-Auswertung. Als Assertion blockierte die Band-Pruefung jede Konfiguration mit synthetischem Manifest-Dienst (L-048), und das Fixpunkt-Kreuz in 585 (L-046) entstand genau aus dieser Vermischung.",
+        "evidence": "2026-10-16: L-046 (Rekursion), L-048 (Band-Pruefung) -> Fix: `checks.mediNix-frameband-fremdkonten` in flake.nix; Negativtest belegt Wirkung.",
+        "status": "aktiv",
+        "revive_if": "Nie - abgeleitetes Ergebnis gehoert in ein `check` (flake.nix), Assertions lesen Registry/Absichts-Optionen.",
+        "source": "ADR-040 + Session 2026-10-16",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-043",
+        "topic": "NixOS-Grundfunktionen sind bindend (ADR-0002)",
+        "was": "Die fuenf Grundfunktionen (deklarativ, deterministisch, faul/eval-sicher, fail-closed, systemd-native/keine Container) als Prosa behandeln - 'kann man so machen'.",
+        "warum": "Prosa ohne Durchsetzung wird nicht eingehalten; v.a. Container-Engines und imperative Muster kommen sonst als 'kurzer Weg' zurueck.",
+        "evidence": "2026-10-16: ADR-0002 angelegt + scripts/check_grundfunktionen.py (in order-lint) + AB-042; ADR-5000 (native services) war schon aktiv, aber nicht verdrahtet.",
+        "status": "aktiv",
+        "revive_if": "Nie - Ausnahmen nur ueber ein eigenes ADR.",
+        "source": "Session 2026-10-16 (Baustelle 5)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

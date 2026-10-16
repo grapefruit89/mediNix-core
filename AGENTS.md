@@ -34,6 +34,15 @@
 - **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
 - Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
 
+## Grundfunktionen sind bindend (ADR-0002)
+
+Deklarativ, deterministisch/reproduzierbar, faul+eval-zeit-sicher, fail-closed,
+systemd-native ohne Container - als **Regel**, nicht als Empfehlung
+(`docs/adr/ADR-0002-nixos-grundfunktionen.md`). Mechanisch geprueft in `order-lint`
+(`scripts/check_grundfunktionen.py`): keine aktivierte Container-Engine, keine unreinen
+Eval-Quellen. Korridor: AB-042 (Assertions lesen nur Quellen), AB-043 (diese fuenf Funktionen).
+ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_adrs.py`.
+
 ## Projekt-Skills: Ablage, Sichtbarkeit, Durchsetzung (2026-10-16)
 
 - **Ablage:** Projekt-Skills leben **im Repo** unter `docs/agents/<kategorie>/<skill>/SKILL.md`

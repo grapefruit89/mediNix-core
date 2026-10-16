@@ -20,6 +20,14 @@ jobs:
       - name: "Projekt-Skills formal ok? (docs/agents/**/SKILL.md)"
         run: python3 scripts/check_skills.py
 
+      # ADR-Formregel (id, Dateiname, Ueberschrift, Index-Registrierung).
+      - name: "ADR-Formregel ok? (docs/adr/ADR-*.md + llm-index.json)"
+        run: python3 scripts/check_adrs.py
+
+      # NixOS-Grundfunktionen (ADR-0002): nur mechanisch pruefbares Stueck.
+      - name: "Grundfunktionen ok? (ADR-0002: keine Container-Engine, keine unreinen Quellen)"
+        run: python3 scripts/check_grundfunktionen.py
+
       # docs/TODO.md ist eine ABLEITUNG (Korridor + ROADMAP.md + AUDIT-LEDGER.md),
       # damit es keine zweite Planungsquelle gibt. Aendert sich eine Quelle, muss
       # die Liste neu erzeugt werden - sonst driftet sie still.

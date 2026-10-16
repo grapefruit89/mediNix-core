@@ -1,4 +1,10 @@
-# ADR-518-landingpage-honeypot: Minimal Static Landingpage (LAN-only)
+---
+id: "ADR-518"
+title: "Landingpage Honeypot"
+status: active
+---
+
+# ADR-518: Minimal Static Landingpage (LAN-only)
 
 ## Context
 A central entry point (apex domain / `home.local`) is needed for the family to

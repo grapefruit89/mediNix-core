@@ -1,5 +1,5 @@
 ---
-id: "ADR-50-flake-module-patterns"
+id: "ADR-5030"
 title: "ADR 5030 flake module patterns"
 domain: 50
 status: active

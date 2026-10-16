@@ -1,7 +1,7 @@
 {
   "purpose": "Machine index for docs/adr. Read this before opening every markdown file.",
   "lang": "en",
-  "updated": "2026-09-23",
+  "updated": "2026-10-16",
   "naming": "ADR-<service-or-topic>.md. Domain-only names (ADR-51-*) are legacy and should collapse into the service id (511, 512, …).",
   "start_here": [
     "ADR-0000-dezimalrahmen-verfassung.md",
@@ -9,14 +9,214 @@
     "ADR-551-jellyfin-media-playback.md"
   ],
   "canonical": [
-    {"id": "0000", "file": "ADR-0000-dezimalrahmen-verfassung.md", "topic": "decimal constitution", "status": "active"},
-    {"id": "00-nixmeta", "file": "ADR-00-nixmeta-v3-header.md", "topic": "module header schema", "status": "active"},
-    {"id": "00-sources", "file": "ADR-0001-source-repository-registry.md", "topic": "upstream source registry", "status": "active"},
-    {"id": "5043", "file": "ADR-5043-assertion-quality.md", "topic": "assertion voice", "status": "active"},
-    {"id": "511", "file": "ADR-511-caddy.md", "topic": "caddy engine", "status": "active", "module": "51-ingress/511-caddy.nix"},
-    {"id": "518", "file": "ADR-518-landingpage-honeypot.md", "topic": "landing page", "status": "stale-title", "module": "51-ingress/518-landingpage.nix"},
-    {"id": "526", "file": "ADR-526-vpn-killswitch.md", "topic": "killswitch", "status": "active", "module": "52-security/526-vpn-killswitch.nix"},
-    {"id": "551", "file": "ADR-551-jellyfin-media-playback.md", "topic": "jellyfin", "status": "active", "module": "55-playback/551-jellyfin.nix"}
+    {
+      "id": "00-nixmeta",
+      "file": "ADR-00-nixmeta-v3-header.md",
+      "topic": "module header schema",
+      "status": "active"
+    },
+    {
+      "id": "0000",
+      "file": "ADR-0000-dezimalrahmen-verfassung.md",
+      "topic": "decimal constitution",
+      "status": "active"
+    },
+    {
+      "id": "00-sources",
+      "file": "ADR-0001-source-repository-registry.md",
+      "topic": "upstream source registry",
+      "status": "active"
+    },
+    {
+      "id": "0002",
+      "file": "ADR-0002-nixos-grundfunktionen.md",
+      "topic": "nixos foundation rules (binding)",
+      "status": "active"
+    },
+    {
+      "id": "0010",
+      "file": "ADR-0010-api-vs-filesystem.md",
+      "topic": "0010-api-vs-filesystem",
+      "status": "active"
+    },
+    {
+      "id": "0011",
+      "file": "ADR-0011-uid-routing-vs-netns.md",
+      "topic": "0011-uid-routing-vs-netns",
+      "status": "active"
+    },
+    {
+      "id": "040",
+      "file": "ADR-040-gerichtete-abhaengigkeiten.md",
+      "topic": "040-gerichtete-abhaengigkeiten",
+      "status": "active"
+    },
+    {
+      "id": "5000",
+      "file": "ADR-5000-native-services-over-docker.md",
+      "topic": "5000-native-services-over-docker",
+      "status": "active"
+    },
+    {
+      "id": "5020",
+      "file": "ADR-5020-knowledge-extraction-pipeline.md",
+      "topic": "5020-knowledge-extraction-pipeline",
+      "status": "active"
+    },
+    {
+      "id": "5030",
+      "file": "ADR-5030-flake-module-patterns.md",
+      "topic": "5030-flake-module-patterns",
+      "status": "active"
+    },
+    {
+      "id": "5043",
+      "file": "ADR-5043-assertion-quality.md",
+      "topic": "assertion voice",
+      "status": "active"
+    },
+    {
+      "id": "5050",
+      "file": "ADR-5050-systemd-hardening-baseline.md",
+      "topic": "5050-systemd-hardening-baseline",
+      "status": "active"
+    },
+    {
+      "id": "51-split-dns-note",
+      "file": "ADR-51-split-dns-note.md",
+      "topic": "51-split-dns-note",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "511",
+      "file": "ADR-511-caddy.md",
+      "topic": "caddy engine",
+      "status": "active",
+      "module": "51-ingress/511-caddy.nix"
+    },
+    {
+      "id": "512",
+      "file": "ADR-512-pocket-id.md",
+      "topic": "512-pocket-id",
+      "status": "active"
+    },
+    {
+      "id": "513-cloudflare-dns",
+      "file": "ADR-513-cloudflare-dns.md",
+      "topic": "513-cloudflare-dns",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "516-crowdsec",
+      "file": "ADR-516-crowdsec.md",
+      "topic": "516-crowdsec",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "518",
+      "file": "ADR-518-landingpage-honeypot.md",
+      "topic": "landing page",
+      "status": "stale-title",
+      "module": "51-ingress/518-landingpage.nix"
+    },
+    {
+      "id": "52-ssh-port-policy",
+      "file": "ADR-52-ssh-port-policy.md",
+      "topic": "52-ssh-port-policy",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "5200",
+      "file": "ADR-5200-privesc-audit-hardening.md",
+      "topic": "5200-privesc-audit-hardening",
+      "status": "active"
+    },
+    {
+      "id": "521-secret-management",
+      "file": "ADR-521-secret-management.md",
+      "topic": "521-secret-management",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "5210",
+      "file": "ADR-5210-nftables-firewall-baseline.md",
+      "topic": "5210-nftables-firewall-baseline",
+      "status": "active"
+    },
+    {
+      "id": "526",
+      "file": "ADR-526-vpn-killswitch.md",
+      "topic": "killswitch",
+      "status": "active",
+      "module": "52-security/526-vpn-killswitch.nix"
+    },
+    {
+      "id": "532-sonarr",
+      "file": "ADR-532-sonarr.md",
+      "topic": "532-sonarr",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "551",
+      "file": "ADR-551-jellyfin-media-playback.md",
+      "topic": "jellyfin",
+      "status": "active",
+      "module": "55-playback/551-jellyfin.nix"
+    },
+    {
+      "id": "552-audiobookshelf",
+      "file": "ADR-552-audiobookshelf.md",
+      "topic": "552-audiobookshelf",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "553-navidrome",
+      "file": "ADR-553-navidrome.md",
+      "topic": "553-navidrome",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "561-seerr",
+      "file": "ADR-561-seerr.md",
+      "topic": "561-seerr",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "571-sqlite-mcp",
+      "file": "ADR-571-sqlite-mcp.md",
+      "topic": "571-sqlite-mcp",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "571-sqlite-vs-postgres",
+      "file": "ADR-571-sqlite-vs-postgres.md",
+      "topic": "571-sqlite-vs-postgres",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "571-sqlite-wal",
+      "file": "ADR-571-sqlite-wal.md",
+      "topic": "571-sqlite-wal",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "576-backup-classification",
+      "file": "ADR-576-backup-classification.md",
+      "topic": "576-backup-classification",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "576-backup-strategy",
+      "file": "ADR-576-backup-strategy.md",
+      "topic": "576-backup-strategy",
+      "status": "legacy-domain-name"
+    },
+    {
+      "id": "576",
+      "file": "ADR-576-backup.md",
+      "topic": "576-backup",
+      "status": "active"
+    }
   ],
   "duplicates": [
     {
@@ -26,7 +226,9 @@
     },
     {
       "keep": "ADR-5043-assertion-quality.md",
-      "drop": ["ADR-58-assertion-quality.md"],
+      "drop": [
+        "ADR-58-assertion-quality.md"
+      ],
       "why": "Same fail-closed assertion standard copied into domain 58."
     },
     {
@@ -45,19 +247,36 @@
     },
     {
       "keep": "ADR-576-backup-classification.md",
-      "drop": ["ADR-576-backup-strategy.md"],
+      "drop": [
+        "ADR-576-backup-strategy.md"
+      ],
       "why": "Strategy is a stub; classification is the real ADR. Confirm before delete."
     },
     {
       "keep": "ADR-571-sqlite-vs-postgres.md",
-      "related": ["ADR-571-sqlite-wal.md", "ADR-571-sqlite-mcp.md"],
+      "related": [
+        "ADR-571-sqlite-wal.md",
+        "ADR-571-sqlite-mcp.md"
+      ],
       "why": "WAL is operational; MCP is draft. Do not merge WAL into vs-postgres."
     }
   ],
   "reviews": [
-    {"file": "ADR-50-nixgrok-architecture-review.md", "action": "archive or delete; not a decision"},
-    {"file": "ADR-50-knowledge-extraction-pipeline.md", "action": "process note, not runtime"},
-    {"file": "ADR-50-flake-module-patterns.md", "action": "thin; fold into README flake section"},
-    {"file": "ADR-50-native-services-over-docker.md", "action": "one paragraph already in constitution"}
+    {
+      "file": "ADR-50-nixgrok-architecture-review.md",
+      "action": "archive or delete; not a decision"
+    },
+    {
+      "file": "ADR-50-knowledge-extraction-pipeline.md",
+      "action": "process note, not runtime"
+    },
+    {
+      "file": "ADR-50-flake-module-patterns.md",
+      "action": "thin; fold into README flake section"
+    },
+    {
+      "file": "ADR-50-native-services-over-docker.md",
+      "action": "one paragraph already in constitution"
+    }
   ]
 }

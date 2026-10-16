@@ -1,5 +1,5 @@
 ---
-id: "ADR-52-privesc-audit-hardening"
+id: "ADR-5200"
 title: "ADR 5200 privesc audit hardening"
 domain: 52
 status: active

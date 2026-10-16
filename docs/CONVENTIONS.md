@@ -124,6 +124,16 @@ Info, nicht mehr tippen.
 Struktur · Inline-Skript · derselbe Fix erneut · „nur noch eine Kleinigkeit" ·
 Erklärung länger als die Aktion · Grund suchen, es *doch* so zu machen.
 
+## ADRs: Formregel (verbindlich)
+
+ID-Schema (SSoT: `docs/adr/llm-index.json` -> `naming`): Dienst-ADR `ADR-<dienstnummer>`
+(511, 551, 576) · Meta/Thema `ADR-<domain><slot>` 4-stellig (0000, 0010, 5043, 5050) ·
+Fundament reserviert `ADR-00xx`. Datei `ADR-<id-ohne-praefix>-<slug>.md`; Front-Matter `id:`
+traegt die ID; Ueberschrift `# ADR-<id>: <Titel>`; jede Datei steht im `llm-index.json`.
+Geprueft von `python3 scripts/check_adrs.py` (order-lint): Fehler bei fehlender/doppelter id,
+Dateiname != id, fehlender Index-Registrierung; Legacy-Domain-Namen (`ADR-52-*`) und
+Slug-ids werden als Kurationsliste ausgegeben.
+
 ## Projekt-Skills: Sichtbarkeit per Symlink
 
 Projekt-Skills liegen im Repo (`docs/agents/<kategorie>/<skill>/`). Der Agent findet sie ueber

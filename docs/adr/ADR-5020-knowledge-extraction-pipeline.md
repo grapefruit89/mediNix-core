@@ -1,5 +1,5 @@
 ---
-id: "ADR-50-knowledge-extraction-pipeline"
+id: "ADR-5020"
 title: "ADR 5020 knowledge extraction pipeline"
 domain: 50
 status: active
