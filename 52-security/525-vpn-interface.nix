@@ -17,7 +17,7 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5270
+# adr: ADR-526
 # ---
 {
   config,
@@ -43,7 +43,7 @@ lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
         Reason: mediNix creates the WireGuard interface and needs a TPM-sealed Private Key credential.
         Without it, networking.wireguard.interfaces.${ifName}.privateKeyFile points to a non-existent path,
         causing cryptic systemd failures instead of clear guardrail messages.
-        Ref: ADR-5270 (Flake-managed WireGuard Interface)
+        Ref: ADR-526 (Flake-managed WireGuard Interface)
         Fix: Set medinix.vpn.privateKeyCredentialPath to the path of the TPM-sealed .cred file
         (systemd-creds encrypt --with-key=tpm2+host), or set medinix.vpn.useExistingInterface = true.
       '';

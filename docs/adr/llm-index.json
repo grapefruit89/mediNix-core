@@ -107,6 +107,12 @@
       "status": "legacy-domain-name"
     },
     {
+      "id": "514",
+      "file": "ADR-514-acme-lego-dns01.md",
+      "topic": "acme/lego dns-01 token separation",
+      "status": "active"
+    },
+    {
       "id": "516",
       "file": "ADR-516-crowdsec.md",
       "topic": "516-crowdsec",
@@ -157,6 +163,12 @@
       "status": "legacy-domain-name"
     },
     {
+      "id": "543",
+      "file": "ADR-543-cold-archive-tiering.md",
+      "topic": "on-demand mover instead of cron",
+      "status": "active"
+    },
+    {
       "id": "551",
       "file": "ADR-551-jellyfin-media-playback.md",
       "topic": "jellyfin",
@@ -176,10 +188,22 @@
       "status": "legacy-domain-name"
     },
     {
+      "id": "554",
+      "file": "ADR-554-feishin-static-spa.md",
+      "topic": "static spa, no daemon",
+      "status": "active"
+    },
+    {
       "id": "561",
       "file": "ADR-561-seerr.md",
       "topic": "561-seerr",
       "status": "legacy-domain-name"
+    },
+    {
+      "id": "570",
+      "file": "ADR-570-storage-tiering-mergerfs.md",
+      "topic": "storage tiering + mergerfs",
+      "status": "active"
     },
     {
       "id": "571-sqlite-mcp",
@@ -209,6 +233,18 @@
       "id": "576",
       "file": "ADR-576-backup.md",
       "topic": "576-backup",
+      "status": "active"
+    },
+    {
+      "id": "582",
+      "file": "ADR-582-gatus-health-dashboard.md",
+      "topic": "health dashboard as manifest consumer",
+      "status": "active"
+    },
+    {
+      "id": "587",
+      "file": "ADR-587-disk-health-smartd.md",
+      "topic": "smart monitoring with standby preservation",
       "status": "active"
     }
   ],

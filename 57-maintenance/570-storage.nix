@@ -17,7 +17,7 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5710
+# adr: ADR-570
 # ---
 # Creates the logical directory structure (systemd.tmpfiles) and optionally
 # MergerFS pools (if storage.backends is set).
@@ -26,7 +26,7 @@
 #   Simple (backends = {}): Flat structure under storage.mediaRoot. No MergerFS.
 #   Tiered (backends != {}): MergerFS mounts per media type (hot + cold backends).
 #
-# ADR-5710: Host mounts physical disks (fileSystems."/mnt/ssd" etc.),
+# ADR-570: Host mounts physical disks (fileSystems."/mnt/ssd" etc.),
 #           flake creates the logical structure + pools.
 {
   config,

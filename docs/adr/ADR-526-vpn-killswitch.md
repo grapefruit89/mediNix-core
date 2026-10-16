@@ -68,3 +68,11 @@ Prowlarr (the Indexer) must **never** be routed through the VPN, as Usenet/Torre
 526 is the enforcement layer. Counters and 583 nft/ss checks exist to *measure* the chain before anyone edits marks or allow-lists.
 
 Do not widen RFC1918/ULA/loopback allows into WAN. Do not treat 583 as a substitute for 526.
+
+## Interface (mitdokumentiert 2026-10-16)
+
+Das WireGuard-Interface selbst ist flake-verwaltet (Modul `52-security/525-vpn-interface.nix`,
+Unit `wireguard-<ifName>`): der oeffentliche Schluessel kommt ueber die Option `publicKey`, das
+Interface laeuft ohne eigene Konten, die Schluessel liegen im Credential-Store (ADR-521). Dieses
+ADR ist damit der **eine** Ort fuer die VPN-Architektur - Modul 525 verweist hierher, statt ein
+eigenes (fast identisches) ADR zu fuehren.
