@@ -15,12 +15,11 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 38_
+_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 39_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
 - [ ] Backlog: **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
-- [ ] Backlog: **589 Log-Sink** (P2): journald-Export nach `/var/log/mediNix/<unit>.jsonl` für Agenten/externe Tools; Unit-Liste aus Registry/Manifest ableiten, cursor-basiert (`--after-cursor`), Rotation + eigener Account (5890, `systemd-journal`). Bestandsaufnahme + Entwurf liegen vor.
 - [ ] Backlog: `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
 - [ ] Backlog: `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
 - [ ] Backlog: Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
@@ -45,6 +44,7 @@ _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 38_
 - [ ] L-012 (BUG) `shellcheck` **SC2164** (`cd docs` ohne Guard im `buildPhase`) — Status: \
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **17**, `status:` bei **6** (`551–554`,`561`,`574`) → Index zeigt `unknown`/`-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
+- [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: OPEN
 
 ## 4. Pflicht bei jeder Änderung
 

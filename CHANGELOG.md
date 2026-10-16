@@ -3,6 +3,17 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-16 (3) — Handy-Block übernommen, 589 verworfen, Branch rot (L-045)
+
+- **Übernahme:** 19 Commits (`3fc4d54`), fast-forward, kein Verlust. Neu: AB-033..AB-038,
+  `scripts/agent-state-edit.py`, `lib/derive.nix`, UID-Entkopplung, `docs/anchors/`,
+  `docs/RUNBOOK.md` + `medinix logs`, `nixos_idiom_audit.py`, Roadmap-Plan 79–83.
+- **589 Log-Sink verworfen** (AB-039, YAGNI): journald bleibt einzige Log-Quelle;
+  Agent-Zugriff über `medinix logs`/RUNBOOK, zentrale Auswertung über Roadmap 67.
+- **Offen und rot:** `nix flake check` 13/50 — Zirkel `config.medinix.manifest` ↔
+  `config.users.users` (`585-exporters.nix` × Guardrail aus `e803ba8`), CI failure auf
+  `3fc4d54`/`e46359a`. Fix-Vorschlag liegt im Ledger (L-045), Ausführung nur nach Go.
+
 ## 2026-10-16 (2) — Friedhof: verworfene Ideen + Kleber-Bündelung geplant
 
 - **§Verworfen erweitert** (Roadmap) + Korridor-Blacklist **AB-033…AB-036**:

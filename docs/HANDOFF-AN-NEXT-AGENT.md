@@ -171,3 +171,20 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   bis sie getrackt ist** → `git add -N <datei>` (bzw. `git add -A`) **vor** der Messung.
   Sonst meldet die Eval z. B. „The option `medinix.crowdsec' does not exist".
 - **Weiter:** `589 Log-Sink` (P2) — Bestandsaufnahme + Entwurf liegen vor (Roadmap).
+
+## 11. Uebernahme des Handy-Blocks (2026-10-16) — und der Branch ist ROT
+
+- **Stand:** `3fc4d54` (19 Commits seit `822a0d2`), lokal per fast-forward uebernommen,
+  **kein Verlust** (`822a0d2` ist Vorfahr).
+- **Neu und gut:** AB-033..AB-038 (Friedhof + Zwei-Versuche-Stop), `scripts/agent-state-edit.py`
+  (AB-037), `lib/derive.nix`, UID-Hartkodierungen entfernt, `docs/anchors/` (32 Dateien,
+  Apache-2.0, in CONVENTIONS §4 als Fremdmaterial), `docs/RUNBOOK.md` + `medinix logs`,
+  `scripts/nixos_idiom_audit.py` (0 P0-Signale), Roadmap-Plan 79-83.
+- **ROT (hoechste Prioritaet):** `nix flake check` = **13/50**, CI `Flake Check` failure
+  (`3fc4d54`, `e46359a`). Belegter Zirkel: `config.medinix.manifest` <-> `config.users.users`.
+  Beteiligt: `585-exporters.nix` (liest manifest, schreibt users + factoryUnits) und der
+  Guardrail aus `e803ba8` (prueft `config.users.users`, liest manifest). **Kein Fix ohne Go.**
+- **589 Log-Sink ist verworfen** (AB-039/YAGNI): `medinix logs` + RUNBOOK deckt den
+  Agent-Zugriff, Roadmap 67 (Vector+Loki) die Auswertung.
+- **Merksatz:** zwei einzeln gruene Aenderungen koennen zusammen eine Eval-Rekursion bilden -
+  nach jedem Merge die **volle Leiter** fahren, nicht nur den eigenen Check.

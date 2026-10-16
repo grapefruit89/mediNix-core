@@ -764,6 +764,17 @@
         "revive_if": "Nie. Nach 2 Fehlversuchen: Wurzel suchen, Methode wechseln oder fragen.",
         "source": "Selbst-Reflexion 2026-10-16 (Quelle: AGENTS.md §Verifikations-Disziplin)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-039",
+        "topic": "Dritter Weg fuer dieselbe Information (Datei-Log-Export)",
+        "was": "Einen zusaetzlichen Log-Export-Baum (/var/log/mediNix/<unit>.jsonl) bauen, obwohl journald die Quelle ist und eine CLI-Abfrage existiert.",
+        "warum": "Drei Wege fuer dasselbe Ziel (journald + medinix logs / RUNBOOK, Roadmap 67 Vector+Loki, Datei-Baum) = doppelte Speicherung, zwei Retentionen und garantierte Drift. YAGNI.",
+        "evidence": "2026-10-16: 589-Auftrag verworfen (Nutzerentscheidung); Deckung: docs/RUNBOOK.md §2 + medinix logs (4a6d51e), zentrale Auswertung Roadmap Z. 67.",
+        "status": "aktiv",
+        "revive_if": "Wenn ein Werkzeug Logs braucht, das weder journald noch die CLI nutzen kann - dann NUR Edge-Units exportieren (cursor-basiert, tmpfiles-Alter, kein logrotate).",
+        "source": "Roadmap 'Verworfen'",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [
@@ -873,6 +884,13 @@
         "datum": "2026-10-15",
         "entscheidung": "systemd-first (kernel-nah): jede Aufgabe zuerst auf ein systemd-/Kernel-Aequivalent pruefen; ein brauchbares Aequivalent gewinnt gegen ein Extra-Programm.",
         "begruendung": "Nutzer-Vorgabe 2026-10-15. Beispiele: Logs=journald statt VictoriaLogs | Ban=nftables+CrowdSec | Ressourcen-Metriken=cgroup v2. Kein Aequivalent -> Programm noetig: App-Metriken (exportarr), S.M.A.R.T. (smartd)."
+      },
+      {
+        "date": null,
+        "entscheidung": "589 Log-Sink verworfen (YAGNI) - journald bleibt die einzige Log-Quelle, Agent-Zugriff ueber 'medinix logs' + RUNBOOK.",
+        "grund": null,
+        "datum": "2026-10-16",
+        "begruendung": "Drei Kandidaten fuer dasselbe Ziel (journald/CLI, Loki-Roadmap 67, Datei-Baum) - doppelte Speicherung und Drift. Siehe AB-039."
       }
     ]
   }

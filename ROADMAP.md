@@ -55,7 +55,6 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 ### P1 — Dienste und Betrieb
 
 - [x] **516 CrowdSec** (L-044): Engine nativ (`services.crowdsec`, Hub `crowdsecurity/caddy`, journald-Acquisition, Minimal-Profil Ban, Account UPG 5160 + `systemd-journal`), Firewall-Bouncer nur bei `hostIntegration.nftables == "managed"` (fail-closed-Assertion + Negativtest), ADR-516-crowdsec, RT-3 aufgelöst (fail2ban Legacy).
-- [ ] **589 Log-Sink** (P2): journald-Export nach `/var/log/mediNix/<unit>.jsonl` für Agenten/externe Tools; Unit-Liste aus Registry/Manifest ableiten, cursor-basiert (`--after-cursor`), Rotation + eigener Account (5890, `systemd-journal`). Bestandsaufnahme + Entwurf liegen vor.
 - [ ] `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
 - [ ] `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
 - [ ] Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
@@ -95,6 +94,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 | Was | Warum | Regel |
 |---|---|---|
 | sops / age / agenix / sops-nix | Nutzerentscheidung projektweit; Standard ist `systemd-creds` | AB-013 |
+| 589 Log-Sink (journald → Datei-Baum `/var/log/mediNix/*.jsonl`) | **YAGNI:** der Agent-Zugriff ist durch `medinix logs` + `docs/RUNBOOK.md §2` gedeckt, die zentrale Auswertung durch Roadmap 67 (Vector+Loki) — ein dritter Weg für dasselbe Ziel | AB-039 |
 | OCI/Container für Dienste | ADR-0000, `docs/NO-CONTAINERS.md` | AB-017 |
 | `DynamicUser = true` | zerstört die UID-Isomorphie (einzige Ausnahme: `alert-ntfy@`, identitätslos) | AB-007 |
 | netns-Confinement, eBPF-Killswitch | abgelöst durch nftables `meta skuid` + Route-Hook | AB-007 |
