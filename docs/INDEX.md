@@ -62,6 +62,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 
 ### Concepts
 
+- [NixOS-Eigenschaften — Denkrahmen (korrigiert, mit Belegen aus diesem Repo)](concepts/nixos-eigenschaften.md)
 - [Secrets Management](concepts/secrets-systemd.md)
 - [Storage & Mover](concepts/storage-mover.md)
 - [VPN & Killswitch](concepts/vpn-killswitch.md)
