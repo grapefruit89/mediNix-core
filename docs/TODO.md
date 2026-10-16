@@ -15,7 +15,7 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 36_
+_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 37_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
@@ -30,6 +30,7 @@ _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 36_
 - [ ] Backlog: HDD-freundliche Deferred-Deletion-Queue (`hdparm -C`-Check, Force nach `maxAgeDays = 7`).
 - [ ] Backlog: Label-basiertes Automounting/MergerFS (teilweise: `570-storage.nix` kann MergerFS-Pools, das Einhängen macht der Host).
 - [ ] Backlog: `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
+- [ ] Backlog: **Plan (Momentaufnahme):** `docs/audit/2026-10-16/PLAN-offene-punkte.md` — ausgearbeiteter **Stand/Lücke/Ziel** je offenem Punkt (F/A/C/B/H/I/G/N + D-06). Quellen bleiben: `ROADMAP.md` + `.agent-state.json` → `docs/TODO.md`.
 - [ ] Backlog: **`scripts/systemd-facts.sh`** (F): host-seitiges JSON-Bundle („was systemd hier kann") aus `systemctl list-units --output=json`, `list-unit-files --output=json`, `show -p …`, `systemd-analyze security --json=short`, `busctl introspect … --json=short`; **redigiert + Token-gekappt**; Runbook-Eintrag. (Läuft nur auf der Nix-Maschine.)
 - [ ] Backlog: **`docs/AUDIT-NIXOS-IDIOMS.md`** (A): Methodik (drei Schichten, „**Signal ≠ Fund**"), Signal-Tabelle P0/P1/P2, datierter Lauf von `scripts/nixos_idiom_audit.py`, plus der **harte Beweis** = Schicht 3 (`nix flake check` **ohne** `--impure`, host/CI).
 - [ ] Backlog: **CONVENTIONS §Audit** (C): drei Schichten + Prüf-Leiter **Stufe 0a** (`nixos_idiom_audit.py --p0-only`) und **Stufe 1a** (`nix flake check` ohne `--impure`); Korridor-Blacklist `AB-0xx` für die harten Reflexe (`--impure` im Code, `nix-env -i`/`nix-channel`, Schreibzugriff `/nix/store/`, `/usr/`-Pfade).

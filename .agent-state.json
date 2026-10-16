@@ -742,6 +742,17 @@
         "revive_if": "Nie - Ausgemustertes immer nach docs/audit/<jahr-monat>/ (Ausnahme: echte Artefakte/Secrets).",
         "source": "CONVENTIONS §5 / L-045",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-037",
+        "topic": "Strukturierte Daten per Text-Manipulation editieren",
+        "was": "JSON/YAML/TOML per index()/replace()/String-Concat/f-String-Heredoc aendern statt per Parser.",
+        "warum": "Kommas, Escaping und Format werden dann von Hand verwaltet - Syntaxfehler sind unvermeidlich; 'Korrekturen' verschieben nur die Fehlerstelle.",
+        "evidence": "2026-10-16: 3 Anlaeufe fuer den .agent-state.json-Insert (fehlendes Komma -> f-String-SyntaxError -> manuelle Concat). Roundtrip json.load->dump ist byte-identisch (857 Z.) - es gab keinen Grund fuer Handarbeit.",
+        "status": "aktiv",
+        "revive_if": "Nie. Lesend greppen ok; schreibend IMMER scripts/agent-state-edit.py (load->dump).",
+        "source": "Session 2026-10-16 (Selbst-Reflexion)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [
