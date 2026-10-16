@@ -85,9 +85,13 @@ let
   # Kein Fremd-Konto darf hinein (sonst UID/GID-Kollision mit der Ableitung).
   frameBandLo = df.projectDigit * 1000;
   frameBandHi = frameBandLo + 999;
-  frameNames =
-    lib.attrNames (config.medinix.manifest or { })
-    ++ lib.attrNames (config.medinix.factoryUnits or { });
+  # ADR-040: Guardrails lesen NUR Quellen, nie das Abgeleitete. Die legitimen
+  # Konten kommen daher aus der statischen SSoT (lib/registry.nix) und aus der
+  # ABSICHT (medinix.factoryUnits) - vorher stand hier config.medinix.manifest,
+  # und damit schloss sich ein Zyklus:
+  #   manifest -> 585 (liest manifest, schreibt factoryUnits/users.users)
+  #            -> 591 (liest factoryUnits + manifest) -> manifest  = Rekursion.
+  frameNames = lib.attrNames svcReg.services ++ lib.attrNames (config.medinix.factoryUnits or { });
   foreignBandUsers = lib.filterAttrs (
     n: u:
     (u.uid or null) != null && u.uid >= frameBandLo && u.uid <= frameBandHi && !(lib.elem n frameNames)

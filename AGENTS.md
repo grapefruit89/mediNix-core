@@ -27,6 +27,13 @@
 
 ---
 
+## NixOS-Denkrahmen (zwei Skills)
+
+- **Beim Schreiben:** Skill `nixos-mental-model` — welche Eigenschaft ist relevant (faul / zyklische Ableitung / hermetisch / zweistufig), welcher Klassische-Distro-Reflex zieht?
+- **Beim Prüfen:** Skill `nixos-idiom-audit` — Schicht 1 Signal → Schicht 2 Kontext → Schicht 3 `nix flake check` **ohne** `--impure`.
+- **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
+- Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
+
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
 
 - **Dezimalrahmen (UPG):** `Port = UID = Primär-GID = ServiceNum × 10`. Die geteilte Gruppe `media` (GID 5000) ist **ausschließlich** als `extraGroups`/supplementary zulässig, niemals als Primärgruppe. Geteilte Ablagen: `2775 root:media` (SetGID), damit neue Dateien die Gruppe `media` erben.

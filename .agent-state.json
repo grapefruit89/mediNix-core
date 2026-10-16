@@ -775,6 +775,17 @@
         "revive_if": "Wenn ein Werkzeug Logs braucht, das weder journald noch die CLI nutzen kann - dann NUR Edge-Units exportieren (cursor-basiert, tmpfiles-Alter, kein logrotate).",
         "source": "Roadmap 'Verworfen'",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-040",
+        "topic": "Ableitungsketten rueckwaerts lesen (Eval-Rekursion)",
+        "was": "Ein Modul liest eine QUELLE (z. B. config.medinix.manifest) und schreibt daraus ABLEITUNGEN (users.users, factoryUnits), waehrend ein Guardrail diese Ableitungen prueft und dabei dieselbe Quelle liest.",
+        "warum": "Der Datenzyklus ist nicht aufloesbar - 'error: infinite recursion encountered'. Lazy-Verschiebung hilft NICHT (echter Zyklus, kein Auswertungsproblem). Zwei einzeln gruene Aenderungen koennen so den Branch rot machen.",
+        "evidence": "2026-10-16: 585-exporters.nix (liest manifest, schreibt users.users+factoryUnits) x 591:94 (liest users.users/factoryUnits UND manifest). nix flake check 13/50, CI failure 3fc4d54/e46359a. Belegter Trace: flake.nix:1136 -> 210 -> modules.nix (_module.freeformType) -> 585:33/78.",
+        "status": "aktiv",
+        "revive_if": "Nie - ADR-040: Kanten nur Quelle -> Ableitung; Guardrails lesen Quellen (statische SSoT oder Absichts-Optionen), nie die Ableitung, die sie pruefen.",
+        "source": "ADR-040",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [
@@ -891,6 +902,13 @@
         "grund": null,
         "datum": "2026-10-16",
         "begruendung": "Drei Kandidaten fuer dasselbe Ziel (journald/CLI, Loki-Roadmap 67, Datei-Baum) - doppelte Speicherung und Drift. Siehe AB-039."
+      },
+      {
+        "date": null,
+        "entscheidung": "ADR-040: gerichtete Abhaengigkeiten (Quelle -> Ableitung). 591 liest statt config.medinix.manifest die statische SSoT (svcReg.services) + die Absicht (medinix.factoryUnits).",
+        "grund": null,
+        "datum": "2026-10-16",
+        "begruendung": "Bricht den belegten Zyklus manifest<->users.users/factoryUnits; Endform (Identitaeten einmal in der Engine ableiten) als Roadmap-Punkt."
       }
     ]
   }
