@@ -169,7 +169,7 @@ in
         }
       ) daemonServices
       // lib.mapAttrs (n: e: {
-        uid = e.uid;
+        inherit (e) uid;
         group = n;
         isSystemUser = true;
       }) exporterIntent;

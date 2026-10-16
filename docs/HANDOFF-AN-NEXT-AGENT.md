@@ -256,3 +256,20 @@ Funde entschieden sind.
 **Naechste Schritte:** (1) Entscheidung zu den zwei Build-Gate-Funden (trivial: `statix fix .`
 bzw. `deadnix --edit .` in genau diesen Stellen), (2) T3 bauen, (3) **ein** Push, (4) danach
 Discovery-Skill `nixos-service-discovery` + CI-Schicht 0a.
+
+## 15. T3 umgesetzt (2026-10-16, Session 4)
+
+`58-observability/585-exporters.nix` deklariert nur noch die **Absicht**:
+`medinix.exporters."exportarr-<dienst>" = { uid = 8000 + num; }` (Option neu in `default.nix`) und
+`medinix.factoryUnits."<unit>" = { uid; stateDir = null; }` (591 prueft die Unit weiterhin).
+Die Engine (`lib/decimal-framework.nix`, `exporterIntent`) leitet daraus `users.groups`/`users.users`
+ab - **585 schreibt kein `users.*` mehr** (kein Fixpunkt-Kreuz, L-046).
+
+**Nachweis (eval):** `exportarr-sonarr` uid = gid = **8532** (= 8000 + 532), `User/Group =
+exportarr-sonarr`, stateless; `sonarr` selbst behaelt sein UPG. Keine Assertion schlaegt an.
+
+**Regel-Fehler aus dieser Runde (Lehre):** ein Guard `if cmd | tail -3; then ...` prueft den
+Exit-Status von `tail`, nicht von `cmd` - so ging ein Push mit rotem statix-check raus
+(`877e638`, sofort korrigiert). Kuenftig: `OUT=$(cmd 2>&1); RC=$?` und `RC` pruefen.
+
+Offen: produktiver Credential-Zugang fuer root/wheel (L-047), NIXMETA-Vollstand, Discovery-Skill.
