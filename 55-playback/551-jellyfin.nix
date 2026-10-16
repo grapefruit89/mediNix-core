@@ -68,6 +68,18 @@ let
   );
 
   brandingXmlSeed = ./data/jellyfin-branding.xml;
+
+  # Echter Transcode-Mechanismus: Jellyfin liest den Pfad aus config/encoding.xml
+  # (TranscodingTempPath) — nicht aus einer Env-Variable.
+  encodingXmlSeed = pkgs.writeText "jellyfin-encoding.xml" (
+    builtins.replaceStrings
+      [ "@TRANSCODE_DIR@" "@VAAPI_DEVICE@" ]
+      [
+        "/transcode"
+        (if svc.hardware.renderDevice != null then svc.hardware.renderDevice else "")
+      ]
+      (builtins.readFile ./data/jellyfin-encoding.xml)
+  );
 in
 {
   options.medinix.jellyfin = {
@@ -164,11 +176,6 @@ in
             lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
         }
-        {
-          assertion =
-            (config.systemd.services.jellyfin.environment.JELLYFIN_TRANSCODE_DIR or "") == "/transcode";
-          message = "[mediNix/551-jellyfin] JELLYFIN_TRANSCODE_DIR muss zwingend auf '/transcode' zeigen!";
-        }
       ];
 
       # users.users.jellyfin besitzt die Engine (lib/decimal-framework.nix, UPG).
@@ -213,6 +220,10 @@ in
             ${pkgs.coreutils}/bin/cp '${brandingXmlSeed}' '${stateDir}/config/branding.xml'
             ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/branding.xml'
           fi
+          if [ ! -f '${stateDir}/config/encoding.xml' ]; then
+            ${pkgs.coreutils}/bin/cp '${encodingXmlSeed}' '${stateDir}/config/encoding.xml'
+            ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/encoding.xml'
+          fi
         '';
         serviceConfig = lib.mkMerge [
           profiles.dotnet-gpu
@@ -236,7 +247,6 @@ in
             BindReadOnlyPaths = [ "${svc.storage.mediaRoot}:${svc.storage.mediaRoot}" ];
             InaccessiblePaths = [ "-${creds.storeDir}" ];
             TemporaryFileSystem = "/transcode:size=4G,mode=0750,uid=${toString uid},gid=${toString gid}";
-            RuntimeDirectory = "jellyfin-transcode";
             LoadCredentialEncrypted = lib.mkIf (adminCred != null) [
               "jellyfin-admin-pw:${adminCred}"
             ];
@@ -245,7 +255,6 @@ in
         environment = {
           JELLYFIN_PublishedServerUrl =
             if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
-          JELLYFIN_TRANSCODE_DIR = "/transcode";
         }
         // lib.optionalAttrs (svc.hardware.accel != "none") {
           LIBVA_DRIVER_NAME =

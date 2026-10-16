@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <EncodingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <EncodingThreadCount>-1</EncodingThreadCount>
-  <!-- Transkodierungspfad: /run/ ist tmpfs — Segmente liegen im RAM, nie auf Disk -->
-  <TranscodingTempPath>/run/jellyfin-transcode</TranscodingTempPath>
+  <!-- Transkodierungspfad: /transcode ist ein tmpfs (TemporaryFileSystem) — Segmente liegen im RAM, nie auf Disk -->
+  <TranscodingTempPath>@TRANSCODE_DIR@</TranscodingTempPath>
   <EnableThrottling>true</EnableThrottling>
   <ThrottleDelaySeconds>180</ThrottleDelaySeconds>
   <!-- Intel UHD 630 (i3-9100 / Coffee Lake Gen 9) — VAAPI via iHD-Treiber -->
