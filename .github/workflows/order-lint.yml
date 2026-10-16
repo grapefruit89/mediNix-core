@@ -14,6 +14,12 @@ jobs:
       - name: "Ordner-Spam-Lint (Regel: >= 3 Dateien, mit Ausnahmen)"
         run: bash docs/agents/shared/scripts/folder_lint.sh .
 
+      # Projekt-Skills: Front-Matter mit name (== Ordnername, eindeutig) und
+      # description. Der lokale Symlink (~/.config/opencode/skills) ist
+      # maschinenlokal -> nicht CI-pruefbar, dafuer scripts/link-skills.sh.
+      - name: "Projekt-Skills formal ok? (docs/agents/**/SKILL.md)"
+        run: python3 scripts/check_skills.py
+
       # docs/TODO.md ist eine ABLEITUNG (Korridor + ROADMAP.md + AUDIT-LEDGER.md),
       # damit es keine zweite Planungsquelle gibt. Aendert sich eine Quelle, muss
       # die Liste neu erzeugt werden - sonst driftet sie still.

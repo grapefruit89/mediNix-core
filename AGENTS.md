@@ -34,6 +34,21 @@
 - **Regel daneben:** `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md` (Kanten nur Quelle → Ableitung; Guardrails lesen nie das Abgeleitete, das sie prüfen).
 - Kompakt-Nachschlagewerk: `docs/concepts/nixos-eigenschaften.md`.
 
+## Projekt-Skills: Ablage, Sichtbarkeit, Durchsetzung (2026-10-16)
+
+- **Ablage:** Projekt-Skills leben **im Repo** unter `docs/agents/<kategorie>/<skill>/SKILL.md`
+  (versioniert). `~/.config/opencode/skills/` ist **kein** Ablageort, sondern nur der
+  Discovery-Pfad des Agenten.
+- **Sichtbarkeit:** `bash scripts/link-skills.sh` legt/aktualisiert die Symlinks
+  `~/.config/opencode/skills/<name>` -> `docs/agents/.../<name>` (idempotent, `--dry-run` dabei).
+  Symlinks sind maschinenlokal und daher nicht versionierbar: nach jedem frischen Clone einmal
+  ausfuehren, sonst sieht die Session die Projekt-Skills nicht.
+- **Formregel:** Front-Matter mit `name` (== Ordnername, eindeutig) und `description`. Die
+  `description` ist das Einzige, was die Session ohne Laden sieht - sie muss den **Ausloeser**
+  nennen, nicht das Thema.
+- **Durchsetzung:** `python3 scripts/check_skills.py` laeuft in `order-lint` (fail-closed bei
+  Formfehlern; zu kurze Beschreibungen werden als Hinweis gelistet).
+
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
 
 - **Dezimalrahmen (UPG):** `Port = UID = Primär-GID = ServiceNum × 10`. Die geteilte Gruppe `media` (GID 5000) ist **ausschließlich** als `extraGroups`/supplementary zulässig, niemals als Primärgruppe. Geteilte Ablagen: `2775 root:media` (SetGID), damit neue Dateien die Gruppe `media` erben.

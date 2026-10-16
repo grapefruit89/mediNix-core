@@ -123,3 +123,16 @@ Info, nicht mehr tippen.
 **Anti-Muster (Vorzeichen — eines erkannt = STOPP):** Text-Mutation auf
 Struktur · Inline-Skript · derselbe Fix erneut · „nur noch eine Kleinigkeit" ·
 Erklärung länger als die Aktion · Grund suchen, es *doch* so zu machen.
+
+## Projekt-Skills: Sichtbarkeit per Symlink
+
+Projekt-Skills liegen im Repo (`docs/agents/<kategorie>/<skill>/`). Der Agent findet sie ueber
+`~/.config/opencode/skills/<name>` - dort liegen **Symlinks** auf die Repo-Ordner
+(`bash scripts/link-skills.sh`, idempotent; `--dry-run` zeigt nur an). Die Symlinks sind
+maschinenlokal und werden deshalb nicht versioniert; nach einem frischen Clone einmal ausfuehren.
+Die formale Seite (`name` == Ordnername, eindeutig; `description` vorhanden) prueft
+`python3 scripts/check_skills.py` in `order-lint`.
+
+Offene Nacharbeit: 18 der 29 Projekt-Skills haben eine Trigger-Beschreibung unter 80 Zeichen
+(der Check listet sie als Hinweis) - die Beschreibung ist der einzige Trigger, den die Session
+ohne Laden sieht.
