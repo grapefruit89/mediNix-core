@@ -198,7 +198,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   **first bad = `2254f8c`** („Exporters mit eigenem UPG-Account"). `585` schreibt
   `users.users`/`groups` **und** liest im selben Modul `manifest` = Fixpunkt-Kreuz.
 - **REST (genau einer):** `mediNix-negative-ankreuzbogen` — „ui.group = Observability
-  scheitert - der Test beweist nichts": der Test erwartet die **neue** 585-Form.
+  scheitert - der Test beweist nichts": Ursache war **nicht** 585, sondern L-047 (mutableUsers) — korrigiert in §13.
 - **Naechster Schritt = T3** (5 Stellen, exakt in `ROADMAP.md`): Exporter-Identitaet als
   **Absicht** `medinix.exporters` deklarieren, die **Engine** leitet die Konten ab.
   Dann 50/51 messen (cache-frei: `--option eval-cache false`) und **einmal** pushen.
@@ -206,3 +206,27 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   `AB-040` (Kanten nur Quelle -> Ableitung), `AB-038` (Zwei-Versuche-Stop).
 - **Noch offen (nach T3):** Discovery-Skill `nixos-service-discovery` + `references/`,
   `AGENTS.md`-Zeilen, CI-Schicht 0a (`nixos_idiom_audit.py --p0-only` in `order-lint`).
+
+## 13. KORREKTUR zu §12 (2026-10-16, Messung rev-pinned + cache-frei)
+
+§12 war in einem Punkt falsch: **der Ankreuzbogen-Test war nie 585-abhaengig.** Gemessen:
+`checks."mediNix-negative-ankreuzbogen"` war bei `17d752a` (mit der ALTEN 585-Form) **gruen**.
+Es waren **5 Checks rot**, nicht einer, und die Ursachen liegen **nach** `2254f8c`:
+
+| Nr | Befund | Status |
+|---|---|---|
+| L-046 | `585` schreibt `users.users` + liest `manifest` = Fixpunkt-Kreuz (`2254f8c`); Rueckbau -> Rekursion weg | IN PROGRESS (T3 = Endform, **nicht** der Blocker) |
+| L-047 | `users.mutableUsers = mkDefault false` (`e803ba8`) ohne privilegiertes Konto -> nixpkgs-Assertion in 4 Checks | **DONE** fuer die Pruefkonfigurationen (`testHostAccess`-Stub); produktive Credential-Quelle offen |
+| L-048 | `591`'s Band-Pruefung (`frameNames`, seit `d6da997` nur Quellen) haelt **engine-abgeleitete** Konten fuer fremd -> `mediNix-negative-ankreuzbogen` rot | **OPEN** (Entscheidung noetig) |
+
+**Messstand jetzt** (cache-frei, `nix flake check --no-build --option eval-cache false`):
+**49 ✅ / 1 ❌** (`mediNix-negative-ankreuzbogen`), **kein** `infinite recursion`, **kein** Root-Assertion-Fehler mehr.
+
+**Metrik-Korrektur:** Push-Kriterium ist **nicht** ">= 50 ✅" — `nix flake check` zaehlt auch
+`apps`/`devShells`/`formatter`/`modules`/`overlays`/`packages` mit; der Flake hat **40 Checks**
+(+10 andere Outputs = max. 50 Zeilen). Richtiges Kriterium: **jeder Check ohne ❌**.
+
+**Naechster Schritt (eine Entscheidung):** wie L-048 aufgeloest wird — entweder die
+Band-Pruefung erkennt engine-abgeleitete Konten als legitim (Quelle statt Ableitung lesen,
+ADR-040), oder der Ankreuzbogen-Test erzwingt den Toplevel nicht mehr. Danach: T3 bauen
+(Feature-Wiederherstellung, Plan in `ROADMAP.md`), dann **ein** Push, dann Discovery-Skill + CI-Schicht 0a.

@@ -75,6 +75,7 @@
               system.stateVersion = "24.11";
               nixpkgs.config.allowUnfree = true;
             }
+            testHostAccess
           ];
         };
 
@@ -144,6 +145,18 @@
             touch $out
           '';
 
+        # Testhost-Zugang: mediNIX erzwingt in der Engine `users.mutableUsers
+        # = false` (e803ba8). Ohne privilegiertes Konto greift die
+        # nixpkgs-Assertion "Neither the root account nor any wheel user has a
+        # password or SSH authorized key". Pruefkonfigurationen haben keine
+        # echte Credential-Quelle -> test-only Root-Key (synthetisch, niemals
+        # ein echtes System; Befund L-047).
+        testHostAccess = {
+          users.users.root.openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB0medinixPruefKeyNichtEchtGenutzt check@mediNix"
+          ];
+        };
+
         baseModules = extra: [
           self.nixosModules.default
           {
@@ -158,6 +171,7 @@
             # only need to evaluate, not to be redistributed.
             nixpkgs.config.allowUnfree = true;
           }
+          testHostAccess
           extra
         ];
 
@@ -1029,6 +1043,7 @@
                 };
                 system.stateVersion = "24.11";
               }
+              testHostAccess
             ];
           }).config.system.build.toplevel;
 

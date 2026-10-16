@@ -791,7 +791,7 @@
         "id": "AB-041",
         "topic": "Bei Eval-Blockern erst bisecten, dann Hypothesen",
         "was": "Bei `infinite recursion`/`conflicting definition values` mit Hypothesen patchen (welches Modul ist schuld?) statt den Bruch binaer einzukreisen.",
-        "warum": "Vier Hypothesen (591 -> 585 -> Manifest-Leser -> 591 als Erzwingungspunkt) und die Engine-Hypothese waren ALLE falsch - Stunden ohne Ergebnis. `git bisect run` fand den Bruch commit-genau in 5 Messungen. Ausschlusstests taugen nur, wenn der Testfall den echten Stack-Weg nutzt (nicht ein selbst gesetztes Manifest-Feld).",
+        "warum": "Vier Hypothesen (591 -> 585 -> Manifest-Leser -> 591 als Erzwingungspunkt) und die Engine-Hypothese waren ALLE falsch - Stunden ohne Ergebnis. `git bisect run` fand den Bruch commit-genau in 5 Messungen. Ausschlusstests taugen nur, wenn der Testfall den echten Stack-Weg nutzt (nicht ein selbst gesetztes Manifest-Feld). Ergaenzung 2026-10-16: eine Check-Diagnose darf nicht als Ursachenbeleg gelten - der rote Ankreuzbogen-Test sah nach '585-Form' aus, war aber Folge von L-047/L-048 (der Test war bei 17d752a mit der ALTEN Form gruen).",
         "evidence": "2026-10-16: `git bisect run` im Worktree (822a0d2 gut .. 3fc4d54 bad) -> first bad = 2254f8c; Probe: `nix eval .#checks.x86_64-linux.mediNix-stack-eval.drvPath`.",
         "status": "aktiv",
         "revive_if": "Nie - bei Eval-Blockern: git worktree + `git bisect run` mit EINEM `<check>.drvPath` als Probe, dann Code lesen.",
@@ -927,6 +927,13 @@
         "grund": null,
         "datum": "2026-10-16",
         "begruendung": "Fixpunkt-Kreuz (users.users <-> manifest im selben Modul). Kein Push bis 50/51; der Ankreuzbogen-Negativtest erwartet die neue Form und wird durch T3 wieder gueltig."
+      },
+      {
+        "date": null,
+        "entscheidung": "Pruefkonfigurationen bekommen einen test-only Root-Key (testHostAccess) statt mutableUsers abzuschwaechen; Band-Pruefung L-048 bleibt offen zur Entscheidung.",
+        "grund": null,
+        "datum": "2026-10-16",
+        "begruendung": "e803ba8 setzt mutableUsers=false global; die nixpkgs-Assertion fordert ein privilegiertes Konto. Test-only Stub haelt die Absicht 'rein deklarativ' aufrecht, ohne echten Zugang zu erfinden."
       }
     ]
   }
