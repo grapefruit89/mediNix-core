@@ -131,6 +131,35 @@ Info, nicht mehr tippen.
 Struktur · Inline-Skript · derselbe Fix erneut · „nur noch eine Kleinigkeit" ·
 Erklärung länger als die Aktion · Grund suchen, es *doch* so zu machen.
 
+**Generatoren-Pflicht:** Wer ADRs, Dienste oder Dateien hinzufügt/entfernt, lässt
+die Generatoren im **selben** Commit laufen — sonst wird die CI rot (`docs-index`
+prüft `docs/INDEX.md`, `order-lint` prüft `docs/TODO.md`):
+
+```bash
+python3 docs/generate_index.py && python3 scripts/gen_todo.py \
+  && python3 50-core/medinix-meta.py generate-docs && git diff --exit-code
+```
+
+**CI-Beweis statt CI-Behauptung:** „grün" nur, wenn **alle** Workflows des
+Head-SHA gezählt wurden — nie aus einem einzelnen Lauf verallgemeinern:
+
+```bash
+gh run list --limit 12 --json name,conclusion,headSha
+```
+
+**Dead-Config (deklariert ≠ wirkt):** Jede Option/jedes Feld braucht einen
+**Leser**. Vor jedem „das ist doch konfigurierbar" greppen:
+
+```bash
+grep -rn "<name>" --include=*.nix . | grep -v "\.git/"   # Definitionen vs. Leser
+```
+
+**Absicht vor Konsistenz:** Ein Review-/Subagent-Befund ist Rohmaterial, kein
+Auftrag. Vor der Umsetzung drei Fragen: (1) richtiger Baum/Commit? (2) Befund
+messbar bestätigt? (3) **bleibt die Absicht erhalten** — läuft das Feature
+danach noch? Ein Fix, der ein laufendes Feature abschaltet (Default umlegen,
+ein Paket-Flag überschreiben), ist kein Fix.
+
 ## ADRs: Formregel (verbindlich)
 
 ID-Schema (SSoT: `docs/adr/llm-index.json` -> `naming`): Dienst-ADR `ADR-<dienstnummer>`
