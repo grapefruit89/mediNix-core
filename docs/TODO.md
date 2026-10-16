@@ -1,6 +1,6 @@
 # TODO — mediNix-core
 
-> **Generiert** aus Korridor + Roadmap + Ledger am 2026-10-16.
+> **Generiert** aus Korridor + Roadmap + Ledger am 2026-10-17.
 > Nicht von Hand pflegen — Inhalte gehören in die Quellen:
 > `.agent-state.json` (Entscheidungen), `ROADMAP.md` (Planung), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.

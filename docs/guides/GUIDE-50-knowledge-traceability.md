@@ -1,29 +1,38 @@
 ---
 id: "GUIDE-50-knowledge-traceability"
-title: "GUIDE 5000 knowledge traceability"
+title: "GUIDE 50 — Knowledge Traceability: Quellen, ADRs, Ledger"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 📚 Knowledge Traceability: Der Sourcing-Standard
+# 📚 Knowledge Traceability: jede Aussage hat eine Quelle
 
-In mynixos ist Wissen ohne Quelle ein Bug. Wir folgen dem strikten SRE Tor 7 Protokoll.
+Drei Spuren, alle maschinell prüfbar:
 
-## 🏛️ Der YAML-Header Standard
-Jedes Dokument (`.md`) MUSS mit einem YAML-Header beginnen, der mindestens folgende Felder enthält:
-- `title`: Klarer Name des Nuggets.
-- `category`: Einordnung in die Layer-Architektur.
-- `sources`: Eine Liste von URLs (GitHub, NixOS Docs, Discourse).
-
-## 🔍 Das Audit-Protokoll
-Vor jedem Push zur Knowledge-Base führen wir das Audit-Script aus:
-`bash /home/Knowledge-Pipeline/scripts/audit-traceability.sh`
+1. **Upstream-Quellen je Modul** — `sources.upstream` + `sources.repo`, erzwungen
+   von `scripts/check_sources.py`; Übersicht in `docs/UPSTREAM-SOURCES.md`,
+   offene Fälle in `scripts/sources-baseline.txt` (Ratsche, nur schrumpfend).
+2. **ADR-Verweise im Modul-Header** — jeder `adr:`-Verweis zeigt auf eine
+   existierende ADR-ID (`scripts/check_adrs.py`; ein Verweis auf den *Dateinamen*
+   ist immer ein Fehler). Altfälle: `scripts/adr-refs-allowlist.txt`.
+3. **Audit-Ledger** — `docs/AUDIT-LEDGER.md` hält je Befund Quelle **und** Rollback;
+   Aussagen sind als **REAL / DESIGN / GONE** markiert (so auch in den
+   Concept-Seiten `docs/concepts/*`).
 
 ## 🛡️ Anti-Halluzinations-Schutz
-Informationen, die nicht direkt aus einer Quelle belegt werden können, werden im **Reasoning Layer** als spekulativ markiert. Nur belegte Fakten landen im **Technical Layer**.
+Ein Wert ohne Quelle und ohne Zeitbezug ist kein Beleg, sondern eine Behauptung —
+siehe Root-`AGENTS.md` (Verifikations-Disziplin, Phasen 1–4).
+
+## 🧩 YAML-Header
+Jedes Wissensdokument beginnt mit einem YAML-Header. Für Modul-/Struktur-Dokumente
+prüft `scripts/nixmeta_check.py` die Kernfelder `id`, `title`, `domain`,
+`last_reviewed` (Format `YYYY-MM-DD`).
+
+Quellen: `docs/CONVENTIONS.md` §Die Kette, `docs/UPSTREAM-SOURCES.md`,
+`docs/AUDIT-LEDGER.md`.

@@ -1,31 +1,40 @@
 ---
 id: "GUIDE-50-stick-ready-deployment"
-title: "GUIDE 5000 stick ready deployment"
+title: "GUIDE 50 — Deployment: nixos-rebuild & flake checks"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🚀 Stick-Ready: Das Zero-Touch Deployment
+# 🚀 Deployment: reproduzierbar aus dem Flake
 
-Das Ziel von mynixos ist: **Stick rein, System fertig.** Keine manuellen Einstellungen, keine Caddy-Frickelei.
+Ziel: Das System spiegelt exakt den Code. Es gibt **eine** Quelle — den Flake.
 
-## 🛠️ Die Trinität des Deployments
-1.  **Disko:** Erstellt die Partitionen (ZFS/ext4) automatisch aus der Nix-Konfig.
-2.  **Srvos:** Wendet sofort alle Server-Härtungen und Optimierungen an.
-3.  **Nixos-Anywhere:** Schiebt das fertige System via SSH auf den Tower.
+## 🧩 Workflow
+1. Änderung im Repo (Modul unter `NN-domain/`, keine losen Root-Skripte).
+2. `nix flake check` — alle Assertions und Checks grün.
+3. `nixos-rebuild switch --flake .#<host>` auf dem Zielhost.
 
-## 🛡️ Native-First Prinzip
-Wir bevorzugen native NixOS-Dienste (wie `services.caddy.enable = true;`) gegenüber Docker. 
-- **Grund:** Volle deklarative Kontrolle bis in die kleinste Config-Zeile.
-- **Effizienz:** Weniger Overhead, direkter Systemd-Zugriff.
+Host-Setup once (Root-`README.md`, Quickstart):
 
-## 🧩 Der Workflow
-1.  Änderung in `/home/mynixos/` vornehmen.
-2.  `nixos-rebuild switch --flake .#tower` (oder via nixos-anywhere).
-3.  Fertig. Das System spiegelt exakt den Code wider.
+```nix
+medinix.enable = true;
+medinix.domain = "example.tld";
+medinix.ingress.enable = true;
+medinix.ingress.tls.acmeHost = "example.tld";
+medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";
+```
+
+## 📌 Was dieses Repo nicht nutzt (verifiziert in `flake.nix`)
+Die Inputs sind nur `nixpkgs` und `flake-utils`. Es gibt **kein** disko, **kein**
+nixos-anywhere und **kein** srvos. Disko-Partitionierung ist Host-Sache, nicht Teil
+des Modulsets.
+
+Host-Entscheidungen nach dem Import: `docs/ADMIN-HANDOFF.md`.
+
+Quellen: Root-`README.md` (Quickstart), `flake.nix`, `docs/CONVENTIONS.md`.

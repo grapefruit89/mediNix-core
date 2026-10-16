@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-52-media-hardening"
-title: "GUIDE 5200 media hardening"
+title: "GUIDE 52 — Media-Stack: VPN-Confinement & QuickSync"
 domain: 52
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - hardening
   - media
@@ -13,19 +13,29 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# 🎬 Media-Stack: Aviation-Grade Entertainment
+# 🎬 Media-Stack: VPN-Confinement & QuickSync
 
-In mynixos wird der Medien-Stack (Layer 40) nicht einfach nur "ausgeführt", sondern gehärtet und optimiert.
+## 🛡️ VPN-Confinement (kein netns)
+SABnzbd (`54-transfer/541-sabnzbd.nix`, UID 5410) ist doppelt gebunden:
 
-## 🛡️ VPN-Confinement (The Nixarr Pattern)
-Kritische Dienste (SABnzbd, Prowlarr) werden physisch auf einen VPN-Namespace beschränkt.
-- **Ziel:** Kein Paket verlässt den Tower am VPN vorbei (Killswitch nativ in Nix).
-- **Vorteil:** Keine "Lecks" der IP-Adresse.
+- **nftables Policy-Routing** über `52-security/526-vpn-killswitch.nix`:
+  `meta skuid`-Markierung → Routing-Tabelle → hard drop; fehlt die VPN-Route,
+  greift `unreachable`.
+- **Kernel-Level** `RestrictNetworkInterfaces = [ "lo" vpnIf ]` (cgroup-eBPF).
+
+Kein Network-Namespace — die frühere netns/„Maroka-chan"-Lösung ist ersetzt.
+Downloads laufen über ein **tmpfs** (`/run/sabnzbd-tmp`), damit Reparieren/Entpacken
+die SSD schont.
 
 ## ⚡ Hardware-Transcoding (Intel QuickSync)
-Dein Fujitsu Mediahost nutzt die Intel UHD 630 GPU.
-- **Treiber:** Wir nutzen konsequent den `intel-media-driver` (iHD).
-- **Konfiguration:** `nixpkgs.config.packageOverrides = pkgs: { vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; }; };` (oder neuer Standard).
+Jellyfin (`55-playback/551-jellyfin.nix`) nutzt das Härtungsprofil `dotnet-gpu`:
+gezielte `DeviceAllow`-Freigabe für `/dev/dri`, ohne `PrivateDevices=false`
+systemweit aufzuweichen. Das Transcode-Verzeichnis liegt auf einem
+`TemporaryFileSystem` (tmpfs).
 
-## 🧩 Modul-Integration
-Jeder ARR-Dienst wird als Dendrit in `modules/40-media/` angelegt und injiziert seine eigenen Caddy-Ressourcen.
+## 📂 Daten-Sicherheit
+Medien werden **read-only** gemountet (`BindReadOnlyPaths`) — die Player können die
+Bibliothek lesen, aber nie ändern oder löschen.
+
+Quellen: `54-transfer/README.md`, `55-playback/README.md`, Root-`README.md`,
+`docs/concepts/vpn-killswitch.md`.

@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-58-seven-quality-gates"
-title: "GUIDE 5000 seven quality gates"
+title: "GUIDE 58 — Die Checks der Kette (order-lint & generierte Docs)"
 domain: 58
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - observability
   - quality
@@ -12,30 +12,27 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ⚙️ Die 7 Qualitäts-Tore (Aviation-Grade Purity Protocol)
+# ⚙️ Die Checks der Kette
 
-Jedes Modul und jede Konfiguration in mynixos muss diese Tore durchlaufen, um den Status "Veredelt" zu erhalten.
+Qualität ist maschinell: jeder Knoten der Kette hat einen **Check**
+(`docs/CONVENTIONS.md` §Die Kette), ausgeführt in `order-lint` / `flake-check`.
 
-## 🚪 Tor 1: Community-Goldstandard
-Abgleich mit `nixpkgs/pkgs` und `nixos/modules`. Nutzen wir die besten bekannten Patterns?
-*Referenz: [best-of-nix.md](./best-of-nix.md)*
+| Kante | Check |
+|---|---|
+| Code → Manifest | `scripts/check_manifest_edge.py` |
+| Code → ADR | `scripts/check_adrs.py` (Verweis auf Dateinamen = Fehler) |
+| ADR → Index | `scripts/check_adrs.py` + `docs/adr/llm-index.json` |
+| Docs → Generatoren | `gen_todo.py --check`, `gen_service_map.py --check`, `medinix-meta.py check-docs`, `docs/generate_index.py` |
+| Skills → Sichtbarkeit | `scripts/link-skills.sh --dry-run` / `check_skills.py` |
+| Skills → MCP | `scripts/check_skills.py` (`mcp: [...]` + `scripts/mcp-servers.txt`) |
+| Korridor → Checks | `scripts/check_corridor.py` |
+| NixOS-Idiome | `scripts/nixos_idiom_audit.py --p0-only` |
 
-## 🚪 Tor 2: API-Accuracy
-Prüfung via `context7` auf Deprecations und Best-Practices. Keine veralteten Optionen.
+Dazu: `folder_lint.sh` (Ordnung), `check_sources.py`,
+`check_banned_technologies.py`, `check_nixos_anchors.py` und `flake-check.yml`.
 
-## 🚪 Tor 3: SSoT-Compliance
-Strikte Bindung an lokale `configs.nix` (Hardware-IDs) und `ports.nix`. Keine Hardcoded-Werte.
+## 🛡️ Regel bei jedem Fund
+**Fixen** — oder eine begründete Ausnahme in die jeweilige Allowlist eintragen.
+Allowlists dürfen nur schrumpfen (Ratsche).
 
-## 🚪 Tor 4: SRE-Hardening
-Maximaler Schutz der systemd-Units. Isolation und minimalste Berechtigungen.
-*Referenz: [sops-nix.md](./sops-nix.md)*
-
-## 🚪 Tor 5: Dendritische Integrität
-"One Service, One File". Keine Zirkelbezüge. Saubere `flake-parts` Kompatibilität.
-*Referenz: [dendritic-blueprint.md](./dendritic-blueprint.md)*
-
-## 🚪 Tor 6: Hygiene & Purity
-Ausschluss von totem Code und redundanten Imports.
-
-## 🚪 Tor 7: Traceability
-Jedes Modul muss seine Quellen im Header referenzieren.
+Quellen: `docs/CONVENTIONS.md` §Die Kette, `.github/workflows/order-lint.yml`.

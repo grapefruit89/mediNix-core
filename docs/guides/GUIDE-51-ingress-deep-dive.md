@@ -1,36 +1,47 @@
 ---
 id: "GUIDE-51-ingress-deep-dive"
-title: "GUIDE 5100 ingress deep dive"
+title: "GUIDE 51 — Ingress Deep-Dive: Caddy + Pocket ID + forward_auth"
 domain: 51
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - ingress
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🛡️ Ingress Deep-Dive: Caddy trifft PocketID
+# 🛡️ Ingress Deep-Dive: der Zugangspfad
 
-Um deine Dienste (Jellyfin, Home Assistant, etc.) abzusichern, nutzen wir Caddy als "Türsteher", der die Identität via PocketID prüft.
+Der Pfad ist kein starres Pipeline-Objekt, sondern hängt vom `accessGroup` ab:
 
-## 🚀 Das Forward-Auth Prinzip
-Anstatt in jedem Dienst eine eigene Authentifizierung zu konfigurieren, übernimmt Caddy diese Aufgabe:
-1.  **Anfrage:** Ein User ruft `jellyfin.dein-tower.ts` auf.
-2.  **Check:** Caddy fragt via `forward_auth` beim PocketID-Dienst nach: "Darf dieser User das?"
-3.  **Auth:** Wenn nicht eingeloggt, leitet PocketID zum Passkey-Login weiter.
-4.  **Access:** Nach erfolgreichem Login leitet Caddy die Anfrage an den Jellyfin-Container weiter.
-
-## 🧩 Modul-Konfiguration
-In `modules/services/caddy.nix` nutzen wir die `forward_auth` Direktive:
-```caddy
-forward_auth identity:8080 {
-    uri /outpost.goauthentik.io/auth/caddy
-    copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
-}
 ```
-*(Hinweis: PocketID nutzt einen ähnlichen Endpoint für OIDC/Auth Checks).*
+WAN → Caddy (511) → optional forward_auth (512 / externes Auth-Gateway) → Dienst
+```
 
-## 🛠️ Custom Builds mit XCaddy
-Sollten wir fortgeschrittene Plugins (wie `caddy-security`) benötigen, nutzen wir ein spezialisiertes Nix-Derivat, das Caddy via `xcaddy` baut.
+> **Pocket ID ist ein OIDC-IdP, nicht der forward_auth-Endpoint.** `forward_auth`
+> braucht ein Upstream wie `oauth2-proxy` / `tinyauth` / `caddy-security`
+> (`authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`).
+
+## 🧩 accessGroup (Zugriffs-Vertrag)
+| Gruppe | HTTPS `{name}.{domain}` | Auth | `.lan` |
+|---|---|---|---|
+| `stream` | ja | nie (App-Login) | HTTP + CIDR-Abort |
+| `internal` | ja | Abort außerhalb `trustedCidrs` | Abort |
+| `public` | ja | `forward_auth` (wenn an) | CIDR-Abort |
+| `idp` | ja | WAN-Login (nur Pocket ID) | CIDR-Abort |
+| `none` | kein vHost | — | kein vHost |
+
+## 🛡️ Wichtig
+- `.lan` ist **keine** Trust-Boundary — nur CIDR-gegated (`lanAbort`).
+- Ein `public`-vHost ohne Auth bricht den **Build**, außer
+  `auth.mode = "forward-auth"` oder `allowUnauthenticated = true`.
+- Auth-Header werden gestrippt (`request_header` **vor** `forward_auth`), damit ein
+  LAN-Client keinen `Remote-User`-Header spoofen kann.
+
+## ⚠️ Anti-Pattern
+`services.caddy.virtualHosts` von Hand schreiben — registriere einen vHost, 511
+rendert ihn.
+
+Quellen: `51-ingress/510-ingress-SERVICE.md`, `docs/ingress-security-matrix.md`
+(R3, F5, Laufzeit-Matrix), `51-ingress/511-caddy.nix`.

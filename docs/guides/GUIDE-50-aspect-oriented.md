@@ -1,28 +1,40 @@
 ---
 id: "GUIDE-50-aspect-oriented"
-title: "GUIDE 5000 aspect oriented"
+title: "GUIDE 50 — Aspect-Oriented: Auto-Import & Querschnitts-Aspekte"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🌳 Aspect-Oriented Dendritic Nix: Die Evolution
+# 🌳 Aspect-Oriented Dendritic Nix
 
-Wenn das Dendritische Pattern das Fundament ist, dann sind Aspekte die Leitungen im Haus.
+Zwei Ideen halten das Repo flach: **Auto-Import** und **Aspekte**.
 
-## 🚀 Der Auto-Import Standard (`import-tree`)
-Anstatt jedes Modul manuell zu importieren, nutzen wir Victor Borjas `import-tree`.
-- **Regel:** Jede neue Datei im Ordner `modules/` wird automatisch Teil des Systems.
-- **Vorteil:** Null Reibung beim Hinzufügen von Diensten.
+## 🚀 Auto-Import statt Import-Liste
+`default.nix` liest jedes `XX-domain/NNN-*.nix` selbst ein
+(`builtins.readDir` + `lib.pipe`, **keine** hartkodierte Import-Liste):
 
-## 🧩 Was sind Aspekte?
-Ein Aspekt ist eine Funktion, die sich durch das gesamte System zieht (Cross-Cutting Concern).
-- **Beispiel:** Der Aspekt "SRE-Monitoring" fügt jedem Dienst automatisch einen Prometheus-Exporter hinzu, ohne den Code des Dienstes zu ändern.
+- Eine neue Datei im Muster `NNN-<slug>.nix` wird automatisch Teil des Systems.
+- Dateien mit `_`-Präfix werden übersprungen (Entwürfe).
+- Es gibt **kein** `import-tree`-Input — der Mechanismus ist nativ in `default.nix`.
 
-## 🛡️ Maintainability
-Durch die Trennung von Aspekten bleibt die Logik eines Dienstes (z.B. Caddy) sauber von der Infrastruktur-Logik (z.B. Backup-Strategie).
+Quelle: `default.nix` (Auto-Import-Block), `docs/CONVENTIONS.md` §1.
+
+## 🧩 Was ist ein Aspekt?
+Ein Aspekt ist ein Querschnittsthema, das **neben** den Diensten lebt statt in jedem Dienst:
+
+- `59-guardrails/591-cross-domain.nix` — domänenübergreifende Assertions.
+- `58-observability/585-exporters.nix` — Prometheus-Exporter aus dem Manifest.
+- `lib/*` — Engine, Registry, Contract, Hardening-Profile.
+
+Faustregel: Der Dienst erklärt **sich selbst** (Manifest + `medinix.ingress.vhosts`),
+der Aspekt konsumiert diese Beschreibung. Kein Dienstcode wird für ein
+Querschnittsthema angefasst.
+
+Quellen: `docs/TERMINOLOGY.md` (Anker Separation of Concerns / Defense in Depth),
+`51-ingress/510-ingress-SERVICE.md`.

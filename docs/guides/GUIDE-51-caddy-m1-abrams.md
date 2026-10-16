@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-51-caddy-m1-abrams"
-title: "GUIDE 5110 caddy m1 abrams"
+title: "GUIDE 51 — Caddy (511): der Edge-Standard"
 domain: 51
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - caddy
   - ingress
@@ -12,19 +12,25 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# 🛡️ Caddy M1 Abrams: Der Ingress-Standard
+# 🛡️ Caddy (511): der Edge-Standard
 
-Caddy ist das Gesicht deines Systems nach außen. Wir nutzen die "M1 Abrams" Edition für maximale Sicherheit.
+Caddy ist die **eine** WAN-Tür. Backends binden ausschließlich
+`127.0.0.1:<port>`. Modul: `51-ingress/511-caddy.nix`.
 
-## 🚀 Key Features
-- **ACME DNS-01:** Zertifikate via Cloudflare DNS Challenge (Keine offenen Ports 80/443 für ACME nötig).
-- **mTLS Ready:** Vorbereitet für interne Client-Zertifikat-Validierung.
-- **Sops Integration:** Das Cloudflare Token wird sicher via SRE Tor 4 bereitgestellt.
+## 🔑 Eigenschaften
+- **TLS via ACME:** `51-ingress/514-acme.nix` holt ein Wildcard-Zertifikat über
+  NixOS-ACME/Lego (Cloudflare DNS-01). Caddy selbst spricht nie mit Let's Encrypt
+  (`auto_https off`) und liest `/var/lib/acme/{acmeHost}/fullchain.pem` + `key.pem`.
+- **Admin-API:** nur über einen Unix-Socket im RuntimeDirectory
+  (`/run/caddy-media/admin.sock`) — **nicht** auf `127.0.0.1:2019` (RT-1).
+- **Zugriff:** über den `accessGroup`-Vertrag (`stream/public/internal/idp/none`)
+  statt handgeschriebener vHosts.
+- **Härtung:** aus `lib/hardening-profiles.nix` (`ProtectSystem=strict`,
+  `PrivateTmp`, `NoNewPrivileges`, `SystemCallFilter`).
+- **Secrets:** DDNS-/ACME-Token sind **versiegelte** systemd-Credentials
+  (getrennte Token, nie in `argv`).
 
-## 🧩 Modul-Integration
-Der Caddy-Dendrit liegt in `modules/services/caddy.nix`.
+Edge-Bouncer ist **CrowdSec** (`516`), ein Log-Sink (journald); `fail2ban` ist Legacy.
 
-## 🛡️ Hardening
-- **ProtectSystem=strict**
-- **PrivateTmp=true**
-- **NoNewPrivileges=true**
+Quellen: Root-`README.md` (TLS), `51-ingress/README.md`,
+`docs/ingress-security-matrix.md` (RT-1), `51-ingress/510-ingress-SERVICE.md`.

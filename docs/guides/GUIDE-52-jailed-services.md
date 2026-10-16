@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-52-jailed-services"
-title: "GUIDE 5200 jailed services"
+title: "GUIDE 52 — Systemd-Hardening statt bubblewrap-Jail"
 domain: 52
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - sandbox
   - security
@@ -12,18 +12,31 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ⛓️ Jailed Services: Sandboxing in mynixos
+# ⛓️ Sandboxing: systemd-Hardening statt bubblewrap-Jail
 
-Ein Aviation-Grade System geht davon aus, dass jeder Dienst potenziell kompromittiert werden kann. Wir nutzen Sandboxing, um den Schaden zu begrenzen.
+Kein `jail.nix`, kein `bubblewrap`. Isolation kommt aus **einer** Quelle:
+`lib/hardening-profiles.nix` (SSoT).
 
-## 🚀 Das Prinzip der geringsten Rechte
-Jeder Dienst (Dendrit), der nicht zwingend vollen Systemzugriff benötigt, wird in einem **Jail** ausgeführt.
+## 🛡️ base-Profil (für jeden Dienst)
+`NoNewPrivileges`, `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`,
+`ProtectKernel*`, `ProtectProc=invisible`, `ProcSubset=pid`, `RestrictNamespaces`,
+`RestrictRealtime`, `RestrictSUIDSGID`, `LockPersonality`,
+`SystemCallFilter=@system-service`, `SystemCallArchitectures=native`.
 
-## 🛠️ Technik: `jail.nix` & `bubblewrap`
-Wir nutzen die deklarative Kraft von Nix, um Isolations-Container zu bauen:
-- **Mount-Isolation:** Nur benötigte Pfade werden in den Container gemountet.
-- **Network-Isolation:** Dienste ohne Internetbedarf werden physisch vom Netzwerk getrennt.
-- **Identity-Isolation:** Der Dienst sieht niemals den `age-key.txt` des Hosts.
+## 🔌 Netz-Policy getrennt von Bind-Policy
+- `networkPolicy.loopback` — nur `127.0.0.1`/`::1`
+  (z. B. `RestrictNetworkInterfaces = [ "lo" ]`).
+- `networkPolicy.internet` — verbinden erlaubt, binden nur lokalhost; `526` ist der
+  WAN-Choke.
+- `networkPolicy.proxy` — `SocketBindAllow = [ "any" ]` für Reverse-Proxies.
 
-## 🧩 Anwendung in mynixos
-Wir integrieren `jailed-agents.lib` als Input in unsere `flake.nix`, um Funktionen wie `makeJailedAgent` für unsere eigenen Dienste (z.B. Medien-Parser) zu nutzen.
+Sprach-/Rollen-Profile (`dotnet`, `dotnet-gpu`, `nodejs`, `python`, `network`,
+`script`, …) erweitern `base` gezielt — Härtung wird **nie** ad hoc im Modul
+dupliziert.
+
+## 📂 Dateisystem
+Lesende Mediendienste binden die Bibliothek über `BindReadOnlyPaths` **read-only**;
+jeder Dienst schreibt nur in sein eigenes `stateDir` und ggf. den Media-Root.
+
+Quellen: `lib/hardening-profiles.nix`, `docs/NO-CONTAINERS.md`,
+`53-acquisition/README.md`, `docs/TERMINOLOGY.md`.

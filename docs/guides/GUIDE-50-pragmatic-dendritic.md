@@ -1,32 +1,38 @@
 ---
 id: "GUIDE-50-pragmatic-dendritic"
-title: "GUIDE 5000 pragmatic dendritic"
+title: "GUIDE 50 — Pragmatische Dendritik: eine Datei pro Dienst"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🌳 Die Pragmatische Dendritische Synthese
+# 🌳 Pragmatische Dendritik: eine Datei pro Dienst
 
-Wir kombinieren die Übersichtlichkeit einer **Layer-Struktur** mit der Autonomie des **Dendritic Patterns**.
+Ordner dienen der Orientierung, Dateien der Vollständigkeit.
 
-## 🏛️ Das Organisations-Prinzip
-Ordner (Layer) dienen der **Orientierung**, Dateien (Dendriten) dienen der **Vollständigkeit**.
+## 🧩 Self-Contained-Regel
+Ein Dienstmodul erklärt **alles** selbst:
 
-## 🧩 Die "Self-Contained" Regel
-Jedes Modul (z.B. `40-media/jellyfin.nix`) ist dafür verantwortlich, alle seine Belange selbst zu deklarieren:
-1.  **Core-Dienst:** `services.jellyfin.enable = true;`
-2.  **Hardware:** GPU-Passthrough / iHD-Driver.
-3.  **Ingress:** Deklaration des eigenen Caddy-VirtualHosts.
-4.  **Security:** Eigene Sops-Secrets.
+1. **Core:** `medinix.<name>.enable = true;`
+2. **Runtime-Identität:** Eintrag in `lib/registry.nix` (Port = UID = num × 10).
+3. **Ingress:** `medinix.ingress.vhosts."<name>".accessGroup = "...";`
+4. **Secrets:** eigener `LoadCredentialEncrypted`-Pfad (versiegelt).
+
+Kein Dienst trägt seine Belange in eine zentrale Datei ein. 511/513/515/518 kennen
+**keine** Programmnamen — sie konsumieren das Manifest.
 
 ## 🛡️ Vorteil: Null Streuung
-Wenn wir Jellyfin entfernen wollen, löschen wir **eine Datei**. Es bleiben keine "Leichen" in einer zentralen `caddy.nix` oder `firewall.nix` zurück.
+Dienst entfernen = Modul **+** Registry-Eintrag entfernen. Keine Leichen in einer
+zentralen Caddy- oder Firewall-Datei.
 
-## ⚙️ Technische Umsetzung
-Wir nutzen `flake-parts` und `import-tree`, um alle Dateien in allen Layer-Ordnern automatisch einzulesen. NixOS mergt die Konfigurationen (z.B. alle `virtualHosts`) während der Evaluation zusammen.
+## ⚠️ Anti-Pattern
+`services.caddy.virtualHosts` von Hand schreiben — registriere einen vHost, 511
+rendert ihn.
+
+Quellen: `51-ingress/510-ingress-SERVICE.md`, Root-`README.md`,
+`docs/TERMINOLOGY.md`.

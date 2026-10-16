@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-58-sre-alerting"
-title: "GUIDE 5800 sre alerting"
+title: "GUIDE 58 — SRE-Alerting: ntfy statt Matrix"
 domain: 58
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - alerting
   - observability
@@ -13,18 +13,28 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# 💬 SRE Alerting: Der Matrix-Standard
+# 💬 SRE-Alerting: ntfy statt Matrix
 
-Ein Aviation-Grade System meldet sich selbstständig, wenn etwas schiefläuft. Wir nutzen Matrix als zentralen Kommunikationskanal.
+Kein Matrix, kein `matrix-hook`. Der interne Benachrichtigungs-Backend ist **ntfy**
+(`58-observability/581-ntfy.nix`).
 
-## 🚀 Das Webhook-Prinzip
-Wir nutzen `matrix-hook`, um einfache HTTP-POST Anfragen in Matrix-Nachrichten umzuwandeln.
-- **Vorteil:** Jedes Script (Bash, Python, Nix) kann Alarme senden.
+## 🛡️ ntfy (581)
+- Loopback-Bind auf dem Registry-Port, tmpfs-State, `network`-Profil,
+  `accessGroup = internal`.
+- Auth passiert an **Caddy** (Abort + `trustedCidrs`), nicht in ntfy;
+  `auth-default-access = read-write`. Assertion verbietet `public`/`stream`/`idp`.
+- „Caddy ist die Wand": ein deklarierter, aber nicht auflösbarer vHost ist ein
+  **Build-Fehler** (RT-5).
 
-## 🛠️ Einsatzszenarien (Layer 80)
-1.  **Backup-Status:** Bestätigung über erfolgreiche Backups oder Fehlermeldungen.
-2.  **SRE-Audits:** Monatliche Berichte über die Systemreinheit (SRE Tor 6).
-3.  **Sicherheit:** Benachrichtigung bei SSH-Logins oder Sops-Zugriffen.
+## 🕐 Uhren & Wächter, die melden
+- `583-runtime-guard.nix` — **stündlich**: nftables-VPN-Objekte, `ss` auf
+  Wildcard-`0.0.0.0`/`::` an Registry-Ports, VPN-Interface.
+- `584-post-boot-watchdog.nix` — **einmalig** nach Boot: Registry-Units mit
+  `ActiveState=failed`.
+- `587-disk-health.nix` — SMART + Spindown-Erhalt.
 
-## 🧩 Implementierung
-Der `matrix-hook` Dienst wird in `modules/80-monitoring/notifications.nix` definiert und via Sops-Secrets (Token) abgesichert.
+## 📌 Leitsatz
+**Detection, not enforcement** — die Sicherheitsgrenze ist Caddy + 526 +
+systemd-Profile, nicht das Monitoring.
+
+Quellen: `58-observability/README.md`, Root-`README.md` (Service Map).

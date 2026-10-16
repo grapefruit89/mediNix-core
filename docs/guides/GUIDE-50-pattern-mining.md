@@ -1,29 +1,36 @@
 ---
 id: "GUIDE-50-pattern-mining"
-title: "GUIDE 5000 pattern mining"
+title: "GUIDE 50 — Pattern Mining: aus Upstream lernen"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# 🎨 Pattern Mining: Von den Meistern lernen
+# 🎨 Pattern Mining: aus Upstream lernen
 
-In mynixos kopieren wir keine Software, wir kopieren **Intelligenz**. Pattern Mining ist die Kunst, architektonische Lösungen aus fremden Projekten zu extrahieren.
+Wir kopieren keine Software, wir extrahieren **Struktur**. Der Fundus liegt in
+`docs/patterns/` (z. B. `PATTERN-51-caddy.md`, `PATTERN-51-xcaddy.md`,
+`PATTERN-58-sre-nixoscope.md`).
 
-## 🚀 Die SRE-Mining Methode
-1.  **Identifikation:** Finde ein Repository, das ein komplexes Problem elegant gelöst hat (z.B. `disko` für Storage).
-2.  **Dekonstruktion:** Ignoriere die Funktionalität. Schau dir die `options`, `lib` und die Modul-Struktur an.
-3.  **Abstraktion:** Überführe das Struktur-Prinzip in ein eigenes mynixos-Modul.
+## 🚀 Methode
+1. **Identifikation** — Upstream-Repo mit eleganter Lösung.
+2. **Dekonstruktion** — `options`, `lib` und Modul-Struktur ansehen, **nicht** die
+   Funktion.
+3. **Abstraktion** — das Struktur-Prinzip in ein eigenes Modul überführen.
 
-## 🏛️ Referenz-Meisterwerke
-- **Home-Manager:** Vorbild für rekursive Modul-Strukturen und User-Zuweisungen.
-- **Disko:** Vorbild für datengesteuerte Hardware-Abstraktion.
-- **Poetry2Nix:** Vorbild für das Mapping von Abhängigkeiten.
+## 🏛️ Spur der Herkunft
+Jedes übernommene Muster hinterlässt eine belegbare Spur:
+- Das Modul nennt seine Quellen (`sources.upstream` / `sources.repo`), geprüft von
+  `scripts/check_sources.py`.
+- Der Registry-Eintrag verweist über ADR-0001 auf das Quell-Repo
+  (`docs/adr/ADR-0001-source-repository-registry.md`).
 
-## 🛡️ Aviation-Grade Anwendung
-Wir nutzen diese Muster, um unsere eigenen Dienste (Layer 60) so stabil und deklarativ wie möglich zu gestalten.
+Anker: **Mikado Method** / **Strangler Fig** (Refactor im Bestand statt Neubau) —
+`docs/TERMINOLOGY.md`.
+
+Quellen: `docs/patterns/`, `docs/UPSTREAM-SOURCES.md`, ADR-0001.

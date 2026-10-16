@@ -1,10 +1,10 @@
 ---
 id: "GUIDE-52-identity-passkeys"
-title: "GUIDE 5200 identity passkeys"
+title: "GUIDE 52 — Identity: Pocket ID (Passkeys & OIDC)"
 domain: 52
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - passkeys
   - security
@@ -12,18 +12,25 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# 🔐 Sovereign Identity: Der Passkey Standard
+# 🔐 Identity: Pocket ID (Passkeys & OIDC)
 
-In mynixos folgen wir dem Zero-Trust Prinzip. Identität wird nicht durch unsichere Passwörter, sondern durch kryptografische Passkeys (WebAuthn) nachgewiesen.
+Passwordless-Zugang über Passkeys (WebAuthn); zentraler IdP ist **Pocket ID**.
+Modul: `51-ingress/512-pocket-id.nix` (nicht `modules/services/identity.nix`,
+**nicht** Arion-basiert).
 
-## 🚀 Warum PocketID?
-- **Passwordless:** Keine Datenbank mit Passwörtern, die gestohlen werden kann.
-- **OIDC Provider:** Standardisierte Anbindung für alle Dienste (Caddy mTLS, Web-Apps).
-- **Self-Hosted:** Du behältst die volle Kontrolle über deine Identitätsdaten.
+## 🚀 Eigenschaften
+- **OIDC-Provider** — ausschließlich IdP, kein eingebauter Auth-Proxy.
+- **Exposure:** `medinix.pocketId.exposure = "idp"` → WAN-Login erreichbar, **kein**
+  `forward_auth` (Access-Matrix-Zeile `idp`).
+- **forward_auth** braucht ein separates Auth-Gateway (`authProxyPresent` +
+  `ingress.auth.forwardAuthUpstream`). Pocket ID selbst ist **kein** gültiger
+  `forwardAuthUpstream` (F5).
+- **Ownership:** genau **ein** Besitzer pro `users.users.<n>` (Engine, nicht Modul).
+- **TLS:** über `514-acme` + Caddy — **kein** Cloudflare-Tunnel.
 
-## 🧩 Architektur-Integration (Layer 40)
-PocketID wird als zentraler Dienst in `modules/services/identity.nix` definiert (Arion-basiert).
+## 🧩 Anbindung reviewen
+`512` bindet an die Engine: Identity ist ein Dienst im Dezimalrahmen (`512`,
+UID/Port 5120), kein Sonderpfad.
 
-## 🛡️ SRE-Hardening
-- Der Zugriff auf das PocketID-Backend wird zusätzlich durch den **Cloudflare Tunnel** (mTLS) gesichert.
-- Secrets für OIDC-Clients werden via `sops-nix` verwaltet.
+Quellen: `51-ingress/512-pocket-id.nix`, `51-ingress/510-ingress-SERVICE.md`,
+`docs/ingress-security-matrix.md` (F5), `52-security/README.md`.
