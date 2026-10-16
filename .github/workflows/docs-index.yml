@@ -1,5 +1,13 @@
 ---
-name: Generate Docs Index
+name: Docs Index (check-only)
+
+# Frueher hat dieser Workflow INDEX.md erzeugt UND committet. Das war ein
+# Wettlauf: jeder Push konnte von einem Auto-Commit ueberholt werden
+# ("fetch first"-Absagen trotz gruener Leiter, 2026-10-16 dreimal passiert).
+# Jetzt fail-closed wie der Rest der Leiter: der Index wird erzeugt und der
+# Diff geprueft - ist er veraltet, wird der Lauf rot statt zu committen.
+# Die Service Map prueft zusaetzlich order-lint (scripts/gen_service_map.py
+# --check); beide Generatoren schreiben nachweislich denselben Inhalt.
 
 on:
   push:
@@ -7,11 +15,8 @@ on:
       - 'docs/**/*.md'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  generate-index:
+  check-index:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,13 +26,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Generate Index
-        run: python docs/generate_index.py
-
-      - name: Commit changes
+      - name: "INDEX.md aktuell? (kein Auto-Commit)"
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/INDEX.md
-          git commit -m "docs: auto-generate index" || echo "No changes to commit"
-          git push
+          python3 docs/generate_index.py
+          git diff --exit-code -- docs/INDEX.md
