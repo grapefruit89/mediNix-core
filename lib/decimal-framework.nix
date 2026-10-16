@@ -55,6 +55,9 @@ let
 
   # Manifest abstraction (supports decimalFramework or mediNix manifests)
   manifests = config.medinix.manifest or { };
+  # ADR-040/L-046: Exporter-Identitaeten sind eine ABSICHT (585 deklariert sie
+  # als medinix.exporters); die Konten leitet ausschliesslich die Engine ab.
+  exporterIntent = config.medinix.exporters or { };
   activeServices = lib.filterAttrs (_name: meta: meta.enable or false) manifests;
   daemonServices = lib.filterAttrs (
     _name: meta: (meta.enable or false) && (meta.hasDaemon or true)
@@ -148,21 +151,28 @@ in
       {
         gid = spec.primaryGid;
       }
-    ) daemonServices;
+    ) daemonServices
+    // lib.mapAttrs (_n: e: { gid = e.uid; }) exporterIntent;
 
-    users.users = lib.mapAttrs (
-      name: meta:
-      let
-        spec = derive name meta.num;
-      in
-      {
-        inherit (spec) uid;
-        group = name; # UPG (GID = UID = num * 10)
-        extraGroups = lib.optional (requiresMediaGroup meta) "media" ++ (meta.extraGroups or [ ]);
-        home = spec.stateDir;
+    users.users =
+      lib.mapAttrs (
+        name: meta:
+        let
+          spec = derive name meta.num;
+        in
+        {
+          inherit (spec) uid;
+          group = name; # UPG (GID = UID = num * 10)
+          extraGroups = lib.optional (requiresMediaGroup meta) "media" ++ (meta.extraGroups or [ ]);
+          home = spec.stateDir;
+          isSystemUser = true;
+        }
+      ) daemonServices
+      // lib.mapAttrs (n: e: {
+        uid = e.uid;
+        group = n;
         isSystemUser = true;
-      }
-    ) daemonServices;
+      }) exporterIntent;
 
     # 5. Systemd Hardening Defaults (UPG, UMask 0002, clean StateDirectory)
     systemd.services = lib.mapAttrs (

@@ -687,6 +687,21 @@ in
       description = "Auto-generated list of all state directories for orphan detection";
     };
 
+    # ABSICHT (ADR-040/L-046): Exporter-Units mit eigener Identitaet
+    # (uid = gid). Die Engine leitet daraus die Konten ab; Module wie 585
+    # schreiben damit keine users.* mehr, waehrend sie das Manifest lesen
+    # (Fixpunkt-Kreuz war die Ursache der Eval-Rekursion).
+    exporters = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options.uid = lib.mkOption { type = lib.types.int; };
+        }
+      );
+      default = { };
+      internal = true;
+      description = "Absicht: Exporter-Units mit eigener Identitaet (uid = gid); die Engine legt die Konten an.";
+    };
+
     factoryUnits = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
