@@ -264,7 +264,7 @@ The current security model is intentionally fail-closed:
 
 * `trustedCidrs` defaults to an empty list.
 * active ingress requires explicit trusted CIDRs.
-* `localBypass` defaults to disabled.
+* `.lan` vhosts are CIDR-gated only (`lanAbort`), no `forward_auth`; WAN exposure of `public` requires `forward_auth`.
 * unauthenticated paths are explicitly named.
 * public unauthenticated access requires explicit intent.
 * forward-auth requires an explicit upstream.

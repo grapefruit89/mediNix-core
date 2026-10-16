@@ -440,15 +440,6 @@ in
                   public vhost carrying unauthenticatedPaths needs it too.
                 '';
               };
-              localBypass = lib.mkOption {
-                type = lib.types.nullOr lib.types.bool;
-                default = null;
-                description = ''
-                  Per-vhost override for ingress.auth.localBypass (null = inherit).
-                  When true, http://{service}.local skips forward_auth (still
-                  CIDR-gated). Set only where the app login is authoritative.
-                '';
-              };
               unauthenticatedPaths = lib.mkOption {
                 # Caddy path matchers must start with `/` and a whitespace would
                 # split into MULTIPLE matchers (silently widening the bypass).
@@ -603,17 +594,6 @@ in
             unauthenticatedPaths. Prefer the per-vhost option. Any path listed
             here is reachable WITHOUT forward_auth. Entries must start with `/`,
             use `*` for prefixes, and carry no whitespace/quotes/braces.
-          '';
-        };
-        localBypass = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = ''
-            Default for vhosts.localBypass. false means http://{service}.local
-            is still CIDR-gated AND authenticated (when auth.mode =
-            "forward-auth"). .local is a hostname, not a trust boundary: a
-            compromised LAN host can send Host: {service}.local. Enable the
-            bypass explicitly per vhost where the app login is authoritative.
           '';
         };
       };

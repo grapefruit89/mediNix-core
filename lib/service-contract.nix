@@ -85,12 +85,6 @@ in
               description = "Erlaubt WAN-Zugriff ohne forward_auth für public-Dienste.";
             };
 
-            localBypass = lib.mkOption {
-              type = lib.types.nullOr lib.types.bool;
-              default = null;
-              description = "Überschreibt globales auth.localBypass für diesen Dienst (null = erben).";
-            };
-
             unauthenticatedPaths = lib.mkOption {
               type = lib.types.listOf lib.types.str;
               default = [ ];

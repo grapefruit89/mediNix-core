@@ -20,7 +20,7 @@ possible, but they must be *declared*, never inherited from a default.
 | --- | --- | --- |
 | R1  | DESIGN  | `stream` accessGroup template has no `forward_auth` (511); app auth is authoritative. WAN exposure is an explicit choice. |
 | R2  | REAL → fixed | public vhost without auth → build error unless `auth.mode = "forward-auth"` or `allowUnauthenticated = true` (511 assertion). |
-| R3  | REAL → fixed | `ingress.auth.localBypass` default `false`; per-vhost `localBypass` explicit (511 `applyAuth`). |
+| R3  | CORRECTED | `localBypass` (global + per-vhost + manifest) war **nie verdrahtet** — ein toter Schalter, der LAN-Auth versprach, die es nicht gab. Entfernt. `.lan` ist **nur** CIDR-gegated (`lanAbort`); WAN-`public` erzwingt `forward_auth` (511). |
 | R4  | REAL → fixed | `trustedCidrs` default `[]`; any enabled vhost with empty list → build error (511). |
 | R5  | ACCEPTED | `customConfig` is the documented owner escape hatch; the security policy owner stays 511. |
 | R6  | REAL → fixed | `skipPaths` renamed to `unauthenticatedPaths`; public vhost with bypass paths → build error (511). |

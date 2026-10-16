@@ -184,10 +184,10 @@ Pocket-ID is the OIDC Identity Provider. A vhost may explicitly say
 `idp` is a semantic class whose identity is not yet hard-bound to a specific
 vhost → **H22 open**.
 
-## 10. `.local` is discovery, not a security boundary
+## 10. `.lan` is discovery, not a security boundary
 
-`{service}.local` is a local naming/discovery path. The security boundary comes
-from `trustedCidrs`, `auth`, `localBypass`, `accessGroup`, firewall/VPN. `.local`
+`{service}.lan` is a local naming/discovery path. The security boundary comes
+from `trustedCidrs`, `auth`, `accessGroup`, firewall/VPN. `.lan`
 must never be the sole access control.
 
 ## 11. Consumer graph

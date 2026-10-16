@@ -33,21 +33,26 @@ let
     else
       config.services.caddy.enable;
 
-  # Reiner Manifest-Konsument: Liest Dienste direkt aus config.medinix.manifest
-  enabledServices = lib.filterAttrs (_: m: m.enable && m.accessGroup != "none") (
+  # EIN Produzent für die Exposure: der Vhost-Override gewinnt (das ist die
+  # dokumentierte Bedien-Oberfläche, 51-ingress/AGENTS.md), sonst das Manifest.
+  # 511 und die Konsumenten (z. B. 532) loesen damit identisch auf — keine stille
+  # Divergenz mehr (F2: LAN-Client spooft Host-Header und kommt ohne Login rein).
+  accessGroupOf = n: m: cfg.ingress.vhosts.${n}.accessGroup or m.accessGroup;
+
+  enabledServices = lib.filterAttrs (n: m: m.enable && accessGroupOf n m != "none") (
     config.medinix.manifest or { }
   );
 
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (
-    _: m: m.accessGroup == "public" && !(m.allowUnauthenticated or false)
+    n: m: accessGroupOf n m == "public" && !(m.allowUnauthenticated or false)
   ) enabledServices;
 
   # Enabled public vhosts that carry an auth-bypass path list.
   publicBypassPaths = lib.filterAttrs (
-    _: m:
-    m.accessGroup == "public"
+    n: m:
+    accessGroupOf n m == "public"
     && (m.unauthenticatedPaths or [ ]) != [ ]
     && !(m.allowUnauthenticated or false)
   ) enabledServices;
@@ -130,16 +135,19 @@ let
 
   # Einheitlicher Handler-Generator für alle Service-Typen
   mkServiceBlock =
-    m:
+    name: m:
     {
       isLocal ? false,
     }:
     let
-      isStream = m.accessGroup == "stream";
+      isStream = accessGroupOf name m == "stream";
+      # .lan ist kein Trust-Boundary, wird aber nur per CIDR (lanAbort) gegated.
+      # forward_auth gilt fuer WAN-public — kein localBypass-Schalter mehr
+      # (er war nie verdrahtet, siehe docs/ingress-security-matrix.md R3).
       needsAuth =
         !isLocal
         && (ing.auth.mode == "forward-auth")
-        && (m.accessGroup == "public")
+        && (accessGroupOf name m == "public")
         && !(m.allowUnauthenticated or false);
       skipPaths = unauthenticatedPathsOf m;
       skipMatcher = lib.optionalString (needsAuth && skipPaths != [ ]) ''
@@ -189,13 +197,13 @@ let
 
   # 1. Lokale VHosts: JEDER aktive Dienst bekommt unverschlüsseltes http://${name}.lan
   lanSites = lib.mapAttrsToList (
-    name: meta: mkSite "http://${name}.lan" (mkServiceBlock meta { isLocal = true; })
+    name: meta: mkSite "http://${name}.lan" (mkServiceBlock name meta { isLocal = true; })
   ) enabledServices;
 
   # 2. Externe WAN-VHosts: NUR public, stream und idp (internal bleibt rein auf .lan!)
   wanServices = lib.filterAttrs (
-    _: m:
-    lib.elem m.accessGroup [
+    n: m:
+    lib.elem (accessGroupOf n m) [
       "public"
       "stream"
       "idp"
@@ -214,12 +222,12 @@ let
               (mkSite "${hostName}.${domain}" ''
                 ${tlsDirective}
                 ${securityHeaders}
-                ${mkServiceBlock m { isLocal = false; }}
+                ${mkServiceBlock n m { isLocal = false; }}
               '')
             ]
           else
             [
-              (mkSite "http://${hostName}.${domain}" (mkServiceBlock m { isLocal = false; }))
+              (mkSite "http://${hostName}.${domain}" (mkServiceBlock n m { isLocal = false; }))
             ]
         ) (publicNames n)
       ) wanServices
