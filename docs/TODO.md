@@ -45,10 +45,8 @@ _Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 53_
 
 ## 3. Ledger — Befunde ohne Abschluss
 
-- [ ] L-012 (BUG) `shellcheck` **SC2164** (`cd docs` ohne Guard im `buildPhase`) — Status: \
-- [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **17**, `status:` bei **6** (`551–554`,`561`,`574`) → Index zeigt `unknown`/`-/5` — Status: OPEN
+- [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **15** von 44 (`status:` inzwischen überall gesetzt) → Index zeigt `-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
-- [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: **DONE** — behoben durch L-046/047/048: `585` deklariert nur noch die Absicht (`medinix.exporters`), die Engine leitet die Konten ab (ADR-040); Frameband-Pruefung als `checks.mediNix-frameband-fremdkonten` statt Assertion (AB-042); Login via `medinix.security.loginKeys` (L-047). `nix flake check` rot→gruen, CI `Flake Check` gruen (`8ab5936`)
 
 ## 4. Pflicht bei jeder Änderung
 

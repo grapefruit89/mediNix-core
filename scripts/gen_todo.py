@@ -48,15 +48,22 @@ def corridor_items() -> tuple[list[str], int]:
     return [d.get("frage", str(d)) for d in c["open_decisions"]], len(c["blacklist"])
 
 
+def _cells(line: str) -> list[str]:
+    """Tabellenzeile in Zellen zerlegen; escapte Pipes (`\\|`) bleiben Inhalt."""
+    return [c.strip().replace("\x00", "|") for c in line.replace("\\|", "\x00").strip().strip("|").split("|")]
+
+
 def ledger_open() -> list[str]:
-    """Befunde, deren Status-Spalte nicht DONE/REVERTED ist."""
+    """Befunde, deren Status-Spalte nicht DONE/REVERTED/WONTFIX ist."""
     out = []
     for line in (ROOT / "docs" / "AUDIT-LEDGER.md").read_text(encoding="utf-8").splitlines():
-        m = re.match(r"\| (L-\d+) \|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|", line)
-        if not m:
+        if not re.match(r"\| L-\d+ \|", line):
             continue
-        lid, area, where, finding, evidence, fix, status = (g.strip() for g in m.groups()[:7])
-        if status.upper() in {"DONE", "REVERTED", "WONTFIX"}:
+        cells = _cells(line)
+        if len(cells) < 7:
+            continue
+        lid, area, where, finding, evidence, fix, status = cells[:7]
+        if status.replace("*", "").strip().upper().startswith(("DONE", "REVERTED", "WONTFIX")):
             continue
         out.append(f"{lid} ({area}) {finding[:150]} — Status: {status or 'offen'}")
     return out
