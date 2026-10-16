@@ -101,7 +101,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5700 sqlite vs postgres](adr/ADR-571-sqlite-vs-postgres.md)
 - [ADR 5700 sqlite wal tuning](adr/ADR-571-sqlite-wal.md)
 - [ADR 5721 backup data classification and applied strategy](adr/ADR-576-backup-classification.md)
-- [ADR 5720 backup strategy](adr/ADR-576-backup-strategy.md)
 - [Restic A2-only backup](adr/ADR-576-backup.md)
 - [Architecture decisions](adr/README.md)
 
