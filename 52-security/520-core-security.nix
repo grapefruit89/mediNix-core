@@ -105,6 +105,13 @@ in
       ];
     })
 
+    # Login-Credential (L-047): Root-SSH-Keys kommen vom Host. Ohne sie - und ohne
+    # users.mutableUsers = true - bricht die nixpkgs-Assertion den Build ab
+    # (fail-closed, kein Lockout). listOf merged additiv, kein mkForce.
+    (lib.mkIf (cfg.enable && cfg.security.loginKeys != [ ]) {
+      users.users.root.openssh.authorizedKeys.keys = cfg.security.loginKeys;
+    })
+
     (lib.mkIf (cfg.enable && em.enable) {
       users.users.media-admin = {
         isNormalUser = true;

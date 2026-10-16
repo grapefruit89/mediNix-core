@@ -145,14 +145,13 @@
             touch $out
           '';
 
-        # Testhost-Zugang: mediNIX erzwingt in der Engine `users.mutableUsers
-        # = false` (e803ba8). Ohne privilegiertes Konto greift die
-        # nixpkgs-Assertion "Neither the root account nor any wheel user has a
-        # password or SSH authorized key". Pruefkonfigurationen haben keine
-        # echte Credential-Quelle -> test-only Root-Key (synthetisch, niemals
-        # ein echtes System; Befund L-047).
+        # Test-Credential fuer die Pruefkonfigurationen. Nutzt bewusst den
+        # SUPPORTED Weg `medinix.security.loginKeys` (L-047) statt direkt
+        # users.users.root zu schreiben: die Option ist im eigenen Flake damit
+        # "dogfooded", und der Sonderfall faellt weg. Der Key ist synthetisch
+        # und wird nie auf einem echten System verwendet.
         testHostAccess = {
-          users.users.root.openssh.authorizedKeys.keys = [
+          medinix.security.loginKeys = [
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB0medinixPruefKeyNichtEchtGenutzt check@mediNix"
           ];
         };

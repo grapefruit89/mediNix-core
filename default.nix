@@ -648,6 +648,20 @@ in
         default = true;
         description = "Enable mediNix security guardrails (assertions, no-password-auth).";
       };
+      loginKeys = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "ssh-ed25519 AAAA... admin@host" ];
+        description = ''
+          SSH-Public-Keys fuer den Root-Login. Die Engine erzwingt
+          `users.mutableUsers = lib.mkDefault false`; ohne ein privilegiertes
+          Konto (root ODER wheel) mit Passwort/Key bricht die nixpkgs-Assertion
+          den Build ab - fail-closed, kein Lockout. Der Host liefert die Keys
+          (Publish-Don't-Apply, ADR-0003 §1), siehe docs/ADMIN-HANDOFF.md.
+          Hosts, die Benutzer lokal pflegen, koennen stattdessen
+          `users.mutableUsers = true;` setzen (ueberschreibt den mkDefault).
+        '';
+      };
       emergencyUser = {
         enable = lib.mkEnableOption "media-admin emergency user (restricted sudo)";
         sshKeys = lib.mkOption {

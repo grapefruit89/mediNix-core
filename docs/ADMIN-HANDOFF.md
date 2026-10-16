@@ -35,6 +35,13 @@ Füge diesen Block zu deiner Host-Konfiguration hinzu, um mediNix perfekt mit de
   # 4. Host liefert Fakten (Credentials & Co)
   # Der TPM-gesiegelte Cloudflare-Token (NICHT im Flake gespeichert!)
   # medinix.ingress.tls.acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+    #
+    # LOGIN-ZUGANG (Pflicht - sonst bricht der BUILD ab; fail-closed, kein Lockout):
+    # Die Engine setzt `users.mutableUsers = lib.mkDefault false`. Die nixpkgs-Assertion
+    # verlangt root ODER einen wheel-User mit Passwort/Key. Der Host liefert den Key:
+    # medinix.security.loginKeys = [ "ssh-ed25519 AAAAC3... admin@host" ];
+    # Alternativ, wenn der Host Benutzer lokal/imperativ pflegt:
+    # users.mutableUsers = true;   # ueberschreibt den mkDefault der Engine
 }
 ```
 

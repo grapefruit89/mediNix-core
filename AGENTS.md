@@ -92,6 +92,7 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 - **Binding:** Alle Backend-Dienste binden ausschließlich an `127.0.0.1` (nur Ingress ist exponiert).
 - **Fail-closed:** Assertions bedeuten sofortigen Build-Abbruch (`throw`), niemals stille Warnungen oder Ignorieren.
 - **Keine Inline-Secrets:** Ausschließlich `LoadCredentialEncrypted` oder `EnvironmentFile`.
+- **Login-Zugang (L-047):** Die Engine setzt `users.mutableUsers = lib.mkDefault false`. Der **Host liefert** das privilegierte Konto: `medinix.security.loginKeys = [ "ssh-ed25519 …" ]` — oder er setzt `users.mutableUsers = true;`. Ohne beides bricht die nixpkgs-Assertion den **Build** ab (fail-closed, **kein** Lockout). Siehe `docs/ADMIN-HANDOFF.md` §Credentials.
 
 ---
 
