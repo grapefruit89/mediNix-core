@@ -5,6 +5,8 @@
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
 # adr: ADR-5520
+# links:
+#   adr: ADR-552-audiobookshelf
 # ---
 {
   config,

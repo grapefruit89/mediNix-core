@@ -12,9 +12,13 @@ Header, die YAML-Gueltigkeit und die KERNfelder id/title/domain/last_reviewed
 plus die objektiv ableitbaren Regeln (id == Dateiname; domain == Ordnerpraefix
 in `NN-*`-Ordnern; Wertebereiche von status und complexity, sofern vorhanden).
 
-NICHT erzwungen (steht als Roadmap-Punkt): dass folder/status/complexity/links.adr
-*ueberall* stehen. Deren Werte brauchen Urteilsvermoegen je Modul (complexity 1-5,
-primaerer ADR) — sie werden hier nur geprueft, wenn sie da sind.
+RATSCHE 2 (2026-10-16, ADR-00-nixmeta-v3 + Baustelle 7): fuer Dienst-Module
+(`NNN-*.nix`) sind ZUSAETZLICH Pflicht: `folder` (== Ordnername), `status`,
+`complexity`, `links.adr` sowie mindestens eine Upstream-Angabe
+(`upstream_github` | `upstream_docs` | `nixpkgs_attr`). Nicht-konforme Altfaelle
+stehen in `scripts/nixmeta-baseline.txt` — die Liste darf nur schrumpfen: ist ein
+Eintrag konform geworden, meldet der Check das als Hinweis. Neu erzeugen mit
+`python3 scripts/nixmeta_check.py --write-baseline`.
 """
 import os
 import re
@@ -23,6 +27,8 @@ import sys
 import yaml
 
 CORE = ("id", "title", "domain", "last_reviewed")
+BASELINE_FILE = "scripts/nixmeta-baseline.txt"
+UPSTREAM_KEYS = ("upstream_github", "upstream_docs", "nixpkgs_attr")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 STATUS = {"active", "deprecated", "draft"}
 FENCE = "# ---"
@@ -56,6 +62,15 @@ def header_of(path):
     return None, f"Header nicht geschlossen: die zweite `{FENCE}`-Zeile fehlt"
 
 
+def baseline():
+    """Zeilen aus scripts/nixmeta-baseline.txt (ohne Kommentare)."""
+    path = os.path.join(os.getcwd(), BASELINE_FILE)
+    if not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as fh:
+        return {line.split("#")[0].strip() for line in fh if line.split("#")[0].strip()}
+
+
 def as_int(value):
     try:
         return int(value)
@@ -64,8 +79,9 @@ def as_int(value):
 
 
 def check(path):
-    """Liefert eine Liste von Verstoessen fuer diese Datei."""
+    """Liefert (harte Verstoesse, Ratsche-Luecken) fuer diese Datei."""
     bad = []
+    missing = []
     block, err = header_of(path)
     if err:
         return [err]
@@ -104,6 +120,23 @@ def check(path):
         if complexity is None or not 1 <= complexity <= 5:
             bad.append(f"`complexity: {data['complexity']}` nicht im Bereich 1..5")
 
+    if re.match(r"^\d{3}-", stem):
+        folder = data.get("folder")
+        dirname = os.path.basename(os.path.dirname(path))
+        if folder in (None, ""):
+            missing.append("Pflichtfeld `folder:` fehlt")
+        elif str(folder) != dirname:
+            missing.append(f"`folder: {folder}` != Ordnername `{dirname}`")
+        if data.get("status") in (None, ""):
+            missing.append("Pflichtfeld `status:` fehlt")
+        if data.get("complexity") in (None, ""):
+            missing.append("Pflichtfeld `complexity:` fehlt")
+        links = data.get("links")
+        if not isinstance(links, dict) or not str(links.get("adr", "")).strip():
+            missing.append("Pflichtfeld `links.adr:` fehlt")
+        if not any(data.get(k) for k in UPSTREAM_KEYS):
+            missing.append("Upstream-Angabe fehlt (`" + "` | `".join(UPSTREAM_KEYS) + "`)")
+
     domain = data.get("domain")
     if domain is not None:
         parent = os.path.dirname(path)
@@ -115,13 +148,42 @@ def check(path):
             bad.append(
                 f"`domain: {domain}` != Ordnerpraefix {int(prefix.group(1))} ({parent}/)"
             )
-    return bad
+    return bad, missing
+
+
+def backlog_of(files):
+    out = []
+    for path in files:
+        bad, missing = check(path)
+        if not bad and missing:
+            out.append((path, missing))
+    return out
 
 
 def main():
+    if "--write-baseline" in sys.argv:
+        base = baseline()
+        open(BASELINE_FILE, "w", encoding="utf-8").write(
+            "# nixmeta-Ratsche (Baustelle 7): Dienst-Module mit noch fehlenden Pflichtfeldern.\n"
+            "# Liste darf nur schrumpfen - konform gewordene Eintraege entfernen.\n"
+            + "".join(f"{p}\n" for p, _ in backlog_of(nix_files()))
+        )
+        print(f"{BASELINE_FILE} geschrieben ({len(base)} alte -> {len(backlog_of(nix_files()))} aktuelle Eintraege)")
+        return
+
     files = nix_files()
-    violations = [(p, check(p)) for p in files]
-    violations = [(p, v) for p, v in violations if v]
+    base = baseline()
+    violations, backlog, stale = [], [], []
+    for path in files:
+        bad, missing = check(path)
+        if bad:
+            violations.append((path, bad))
+        elif missing and path in base:
+            backlog.append((path, missing))
+        elif missing:
+            violations.append((path, missing))
+        elif path in base:
+            stale.append(path)
     if violations:
         total = sum(len(v) for _, v in violations)
         print(f"nixmeta: {total} Verstoss/Verstoesse in {len(violations)}/{len(files)} Dateien\n")
@@ -132,6 +194,15 @@ def main():
         print("\nRegeln: docs/adr/ADR-00-nixmeta-v3-header.md")
         sys.exit(1)
     print(f"nixmeta: {len(files)} .nix-Dateien konform")
+    if backlog:
+        print(f"Ratsche-Backlog ({len(backlog)} Datei(en), Liste {BASELINE_FILE}):")
+        for path, msgs in backlog:
+            print(f"  {path}: {'; '.join(msgs)}")
+    if stale:
+        print(
+            f"HINWEIS: {len(stale)} Baseline-Eintrag/Eintraege inzwischen konform -> aus "
+            f"{BASELINE_FILE} entfernen: {', '.join(stale)}"
+        )
 
 
 main()

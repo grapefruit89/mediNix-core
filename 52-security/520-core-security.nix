@@ -18,6 +18,8 @@
 # uds_socket: false
 # systemd_hardened: true
 # adr: ADR-0000
+# links:
+#   adr: ADR-5200-privesc-audit-hardening
 # ---
 # 520 is the host-baseline organ for domain 52.
 # Not a kitchen sink: VPN stays in 525 + 526 (different failure domain).

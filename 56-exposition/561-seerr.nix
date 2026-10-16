@@ -6,6 +6,8 @@
 # sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]
 # adr: ADR-5610
+# links:
+#   adr: ADR-561-seerr
 # ---
 {
   config,

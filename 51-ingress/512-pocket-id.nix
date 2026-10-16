@@ -18,6 +18,8 @@
 # uds_socket: false
 # systemd_hardened: true
 # adr: ADR-5120
+# links:
+#   adr: ADR-512-pocket-id
 # ---
 # 51-ingress/512-pocket-id.nix — Pocket ID OIDC IdP
 # ADR-5120: Pocket ID = OIDC Provider (512, Port 5120, UID 5120).

@@ -206,12 +206,6 @@
       "status": "legacy-domain-name"
     },
     {
-      "id": "576-backup-strategy",
-      "file": "ADR-576-backup-strategy.md",
-      "topic": "576-backup-strategy",
-      "status": "legacy-domain-name"
-    },
-    {
       "id": "576",
       "file": "ADR-576-backup.md",
       "topic": "576-backup",
@@ -250,7 +244,10 @@
       "drop": [
         "ADR-576-backup-strategy.md"
       ],
-      "why": "Strategy is a stub; classification is the real ADR. Confirm before delete."
+      "why": "Strategy is a stub; classification is the real ADR. Confirm before delete.",
+      "dropped": [
+        "ADR-576-backup-strategy.md (archiviert nach docs/archive/, 2026-10-16)"
+      ]
     },
     {
       "keep": "ADR-571-sqlite-vs-postgres.md",

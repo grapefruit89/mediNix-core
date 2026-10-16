@@ -5,6 +5,8 @@
 # last_reviewed: 2026-09-02
 # sprite: 50-core/icons.svg#jellyfin
 # adr: ADR-551
+# links:
+#   adr: ADR-551-jellyfin-media-playback
 # ---
 # WAN stream + app login. 518 tiles this because accessGroup = stream.
 {

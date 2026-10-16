@@ -98,14 +98,14 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 | `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
 | `docs/{arch,patterns,guides,concepts,learn,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`) |
-| `.agent-state.json` | **Korridor**: Whitelist, 23 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
+| `.agent-state.json` | **Korridor**: Whitelist, 43 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
 | `ROADMAP.md` | die einzige Roadmap (Backlog priorisiert · Verworfen · Done mit Hashes) |
 | `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
 | `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
-| `scripts/` | `nixmeta_check.py` (Header-Check) · `medinix-seal-secret.*` · `migrate-uids.sh` |
-| `flake.nix` | Outputs + **49 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
+| `scripts/` | `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_grundfunktionen.py` · `gen_todo.py`/`gen_service_map.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
+| `flake.nix` | Outputs + **41 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
 
 **Einstieg in 4 Schritten:** 1. `.agent-state.json` (Korridor) → 2. `ROADMAP.md` (was als Nächstes) → 3. `docs/AUDIT-LEDGER.md` (was schon gefunden wurde) → 4. `docs/CONVENTIONS.md` (Regeln).
 

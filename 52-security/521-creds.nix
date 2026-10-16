@@ -8,6 +8,8 @@
 # provides: ["creds"]
 # requires: ["lib/creds"]
 # adr: ADR-5000
+# links:
+#   adr: ADR-521-secret-management
 # ---
 { config, lib, ... }:
 

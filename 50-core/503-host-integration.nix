@@ -17,6 +17,8 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
+# links:
+#   adr: ADR-5030-flake-module-patterns
 # ---
 { lib, config, ... }:
 

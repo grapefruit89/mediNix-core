@@ -6,6 +6,8 @@
 # status: active
 # complexity: 1
 # last_reviewed: 2026-10-12
+# links:
+#   adr: ADR-5000-native-services-over-docker
 # ---
 {
   config,

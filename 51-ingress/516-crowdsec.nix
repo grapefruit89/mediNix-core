@@ -18,6 +18,8 @@
 # state_dir: "/var/lib/crowdsec"
 # uds_socket: false
 # systemd_hardened: true
+# links:
+#   adr: ADR-516-crowdsec
 # ---
 # 51-ingress/516-crowdsec.nix — CrowdSec Edge-IPS
 # ADR-516-crowdsec: genau EIN Edge-Bouncer (ADR-0000 §3, _1 = Access).

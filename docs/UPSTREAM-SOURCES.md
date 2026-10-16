@@ -7,6 +7,13 @@ Zentrales Verzeichnis aller Upstream-Repositories, Bibliotheken, Standards und D
 
 ---
 
+## Durchsetzung & Verifikation (2026-10-16)
+
+| Funktion / Modul | Upstream-Repository / Quelle | Zweck / Genutzter Ansatz |
+|---|---|---|
+| **Eval-Reihenfolge / Assertions** | [nixpkgs `nixos/modules/config/users-groups.nix`](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/config/users-groups.nix) | Beleg fuer L-047: die Assertion „Neither the root account or any wheel user has a password…" greift genau bei `!mutableUsers && !allowNoPasswordLogin`. Grundlage fuer `testHostAccess` in den Pruefkonfigurationen. |
+| **ADR-Formregel / Index** | [NixOS/nixpkgs `lib/modules.nix`](https://github.com/NixOS/nixpkgs/blob/master/lib/modules.nix) + repo-eigen `docs/adr/llm-index.json` | Fixpunkt-Semantik (`_module.freeformType`) als Beleg fuer das Fixpunkt-Kreuz in 585; ADR-Namensschema aus dem eigenen Index (`naming`). |
+
 ## Quellennachweise & Inspirationen
 
 | Funktion / Modul | Upstream-Repository / Quelle | Zweck / Genutzter Ansatz |

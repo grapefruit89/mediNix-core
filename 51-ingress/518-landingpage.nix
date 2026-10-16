@@ -9,6 +9,8 @@
 # provides: ["landing-html"]
 # requires: ["511-caddy"]
 # adr: ADR-518-landingpage-honeypot
+# links:
+#   adr: ADR-518-landingpage-honeypot
 # ---
 # Renderer only. No program names. A vhost with accessGroup stream|public
 # becomes a tile. landing=false opts out. Sprite file: 50-core/icons.svg

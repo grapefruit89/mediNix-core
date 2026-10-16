@@ -8,6 +8,8 @@
 # provides: ["ddns", "cloudflare"]
 # requires: ["lib/service-factory"]
 # adr: ADR-5130
+# links:
+#   adr: ADR-513-cloudflare-dns
 # ---
 # DDNS uses its OWN Cloudflare token (never the ACME token). No tokenFile.
 #   dns.ddns.cloudflareTokenCredential

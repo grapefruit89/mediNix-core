@@ -8,6 +8,8 @@
 # provides: ["caddy", "ingress"]
 # requires: ["lib/service-factory"]
 # adr: ADR-511
+# links:
+#   adr: ADR-511-caddy
 # ---
 {
   lib,

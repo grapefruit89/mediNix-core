@@ -5,6 +5,8 @@
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
 # adr: ADR-5530
+# links:
+#   adr: ADR-553-navidrome
 # ---
 {
   config,

@@ -8,6 +8,8 @@
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-526
+# links:
+#   adr: ADR-526-vpn-killswitch
 # ---
 # context7:
 #   - query: "networking.wg-quick.interfaces wireguard"
