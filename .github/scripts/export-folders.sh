@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Determinismus: die `tree`-Ausgabe ist locale-abhaengig (Sortierung von
+# Gross-/Kleinschreibung und Sonderzeichen). Ohne C-Locale unterscheiden sich die
+# erzeugten Digests je nach Umgebung, obwohl der Quell-Tree identisch ist
+# (nachgemessen 2026-10-16). Daher hier festgenagelt.
+export LC_ALL=C
+
 REPO_ROOT="${GITHUB_WORKSPACE:-$(pwd)}"
 EXPORT_DIR="${1:-$REPO_ROOT/exports}"
 

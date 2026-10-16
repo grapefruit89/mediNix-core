@@ -1,13 +1,19 @@
 ---
 name: Export repository folders for LLM ingestion
 
+# Liefert die Folder-Digests als CI-ARTEFAKT (upload-artifact). Bis 2026-10-16
+# hat dieser Workflow sie zusaetzlich als Orphan-Branch `digests` gepusht
+# (git push -f) - reiner Auto-Commit eines Artefakts, das byte-identisch aus dem
+# main-Tree regenerierbar ist (nachgemessen: 15/15 cmp-identisch). Der Branch ist
+# entfernt, der Auto-Commit damit auch; `contents: write` wurde nicht gebraucht.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: exports-${{ github.ref }}
@@ -25,7 +31,12 @@ jobs:
       - name: Install tree & zip
         run: sudo apt-get update -qq && sudo apt-get install -y -qq tree zip
 
+      # Determinismus: die `tree`-Ausgabe ist locale-abhaengig (Sortierung). Ohne
+      # C-Locale unterscheiden sich die Digests je nach Umgebung - siehe auch
+      # `export LC_ALL=C` in .github/scripts/export-folders.sh.
       - name: Regenerate Markdown exports in /tmp/exports
+        env:
+          LC_ALL: C
         run: bash .github/scripts/export-folders.sh /tmp/exports
 
       - name: Upload digests artifact
@@ -36,18 +47,3 @@ jobs:
             /tmp/exports/*.md
             /tmp/exports/all-exports.zip
           retention-days: 14
-
-      - name: Push digests to orphan branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan digests 2>/dev/null || git checkout digests
-          git rm -rf . >/dev/null 2>&1 || true
-          cp /tmp/exports/*.md .
-          git add -- *.md
-          if git diff --cached --quiet; then
-            echo "No digest changes detected."
-          else
-            git commit -m "chore(digests): update folder Markdown digests for ${GITHUB_SHA::7}"
-            git push -f origin digests
-          fi
