@@ -15,7 +15,7 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 32_
+_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 36_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert

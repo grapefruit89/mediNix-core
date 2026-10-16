@@ -3,6 +3,14 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-16 (2) — Friedhof: verworfene Ideen + Kleber-Bündelung geplant
+
+- **§Verworfen erweitert** (Roadmap) + Korridor-Blacklist **AB-033…AB-036**:
+  Go-Port des eigenen Klebers · systemd-Trigger → eigener Watcher · geteilte
+  Identität/`nobody` · Löschen-statt-Archivieren — je mit Grund + `revive_if`.
+- **Offene Punkte ausgearbeitet** in `ROADMAP.md` (P2 „Audit & Host-Schnittstelle",
+  F/A/C/B/H/I/G/N) + Korridor-Entscheidung **D-06** (515); `docs/TODO.md` daraus generiert.
+
 ## 2026-10-16 — Toter Code: 4 nie verdrahtete `lib`-Module archiviert
 
 - **Nicht gelöscht, eingelagert** (`docs/audit/2026-10-16/repo-cleanup/lib/`):

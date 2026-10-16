@@ -698,6 +698,50 @@
         "revive_if": "Nie - vor jeder Messung mit neuen Dateien: git add -N <datei> (oder git add -A).",
         "source": "HANDOFF §10",
         "date": "2026-10-15"
+      },
+      {
+        "id": "AB-033",
+        "topic": "Go-Port des eigenen Klebers (Python -> Go)",
+        "was": "Eigenen Haus-Kleber (arr-provision) oder Build-Werkzeuge (scripts/*.py) nach Go portieren, nur um EINE Sprache zu haben.",
+        "warum": "Rewrite kostet ~4-6 Personentage + Integrations-/Testrisiko (API-/Verhaltens-Drift) fuer praktisch null Funktionsgewinn. NixOS liefert Python ohnehin als Store-Pfad; der Kleber laeuft als EIN oneshot-Unit. Go lohnt nur fuer zugekaufte Dienste (Caddy/CrowdSec/Gatus) oder einen echten Dauer-Daemon.",
+        "evidence": "Inventur 2026-10-16: arr-provision ~1650 Z./10 Module (6 APIs + Jellyfin + SAB + sqlite).",
+        "status": "aktiv",
+        "revive_if": "Wenn aus dem Kleber ein dauerhafter Agent/Daemon wird ODER ein Dienst >~5000 Z. Glue braucht.",
+        "source": "Session 2026-10-16 (Go-Bewertung)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-034",
+        "topic": "systemd-Primitive durch eigenen Watcher ersetzen",
+        "was": "Eine systemd-Trigger-Primitive (.path/.timer) durch einen selbst-wachenden Dauerlaeufer im Skript (z.B. ip monitor) ersetzen, nur um systemctl zu vermeiden.",
+        "warum": "Tauscht deklarative systemd-Primitive gegen mehr Skript-Logik (PID-Handling, Event-Parsing) - also WENIGER systemd-nativ. Der systemctl-Aufruf im Wrapper ist ein anerkannter Idiom.",
+        "evidence": "515-Analyse 2026-10-16: .path ist bereits nativ; self-watch = lateral + Regressionsrisiko, hier nicht nix-testbar.",
+        "status": "aktiv",
+        "revive_if": "Nur mit echtem Laufzeittest (QEMU) UND wenn der Ereignis-Trigger nachweislich unzureichend ist.",
+        "source": "Session 2026-10-16 (515)",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-035",
+        "topic": "Geteilte Unix-Identitaet / alles als nobody",
+        "was": "Mehrere Dienste unter derselben Unix-Identitaet (nobody o. ein geteilter User) laufen lassen.",
+        "warum": "Hebt die Isolation auf: jeder Dienst kann Dateien/Prozesse des anderen lesen/aendern. Eindeutige Identitaet pro Dienst (UPG) ist die Grundlage von Storage-Eigentum + Least Privilege.",
+        "evidence": "ADR-0000 §4 (UPG); Konto-/Band-Analyse 2026-10-16.",
+        "status": "aktiv",
+        "revive_if": "Nie.",
+        "source": "ADR-0000 §4",
+        "date": "2026-10-16"
+      },
+      {
+        "id": "AB-036",
+        "topic": "Ausgemustertes loeschen statt archivieren",
+        "was": "Nicht mehr genutzten Code per rm entfernen, statt ihn unter docs/audit/<jahr-monat>/ zu archivieren.",
+        "warum": "Geloeschter Code = verlorenes Wissen: historische Entscheidungen/Fehlversuche werden dann neu gebaut. Archiv = operativ sauber UND Wissen bleibt.",
+        "evidence": "2026-10-16: 4 lib-Module versehentlich rm'd, danach korrekt archiviert.",
+        "status": "aktiv",
+        "revive_if": "Nie - Ausgemustertes immer nach docs/audit/<jahr-monat>/ (Ausnahme: echte Artefakte/Secrets).",
+        "source": "CONVENTIONS §5 / L-045",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [

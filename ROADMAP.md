@@ -108,6 +108,10 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 | Host-Netzwerk-DNS (Blocky, AdGuardHome) | Host-/Router-Aufgabe | ebd. |
 | Zentrale Shared-DBs (PostgreSQL, Valkey) | mediNix bleibt autonom mit isolierten SQLite-Datenbanken | ebd. |
 | `lib.recursiveUpdate` für Sandbox-Attrs | überschreibt später `ExecStartPre` kommentarlos → `mkMerge` nutzen | UPGRADE-MATRIX N2 |
+| **Go-Port des eigenen Klebers** (arr-provision/Build-Tools: Python → Go) | Rewrite ~4–6 T + Testrisiko für ~0 Funktionsgewinn; NixOS liefert Python im Store, Kleber läuft als `oneshot` — Go nur für zugekaufte Dienste/Daemons | AB-033 |
+| **systemd-Trigger durch eigenen Watcher ersetzen** (515 `self-watch` statt `.path`) | tauscht eine deklarative systemd-Primitive gegen Skript-Logik → *weniger* systemd-nativ; `systemctl`-Wrapper ist Idiom | AB-034 |
+| **Geteilte Unix-Identität / alles als `nobody`** | hebt die Isolation auf; eindeutige Identität pro Dienst (UPG) ist Basis von Storage-Eigentum + Least Privilege | AB-035 |
+| **Ausgemustertes löschen statt archivieren** | gelöschter Code = verlorenes Wissen; Ausgemustertes → `docs/audit/<jahr-monat>/` | AB-036 |
 
 ---
 
