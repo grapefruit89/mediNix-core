@@ -230,3 +230,29 @@ Es waren **5 Checks rot**, nicht einer, und die Ursachen liegen **nach** `2254f8
 Band-Pruefung erkennt engine-abgeleitete Konten als legitim (Quelle statt Ableitung lesen,
 ADR-040), oder der Ankreuzbogen-Test erzwingt den Toplevel nicht mehr. Danach: T3 bauen
 (Feature-Wiederherstellung, Plan in `ROADMAP.md`), dann **ein** Push, dann Discovery-Skill + CI-Schicht 0a.
+
+## 14. Stand 2026-10-16 (Session 3) — Eval-Ebene gruen, Build-Gates offen
+
+**Gemessen (cache-frei, `nix flake check --no-build --option eval-cache false`): 51 ✅ / 0 ❌.**
+Kein `infinite recursion`, keine Root-Assertion. Behoben:
+- L-046: `585`-Rueckbau (Rekursion weg). Die **Endform T3** (Exporter-Identitaet als Absicht
+  `medinix.exporters`, von der Engine abgeleitet) ist noch offen = **Feature-Wiederherstellung**,
+  nicht mehr Blocker. Plan in `/home/moritz/repos/mediNix-core/ROADMAP.md`.
+- L-047: `testHostAccess`-Stub (synthetischer Root-Key) in `baseModules`,
+  `nixosConfigurations.check`, `mediNix-smoke`. **Offen (produktiv):** echte Credential-Quelle
+  fuer root/wheel - die Engine erzwingt `users.mutableUsers = mkDefault false`.
+- L-048: Band-Pruefung aus `591` in den neuen Check `checks.mediNix-frameband-fremdkonten`
+  verschoben (AB-040: Assertions lesen nur Quellen). Negativtest belegt die Wirkung.
+
+**Wichtig - die CI ist trotzdem noch rot** (`flake-check.yml` laeuft `nix flake check`
+**ohne** `--no-build`, baut also alles). Zwei vorbestehende Build-Gate-Funde in **fremden**
+Dateien (identisch mit `origin/audit-2026-10-15`, aus `4a6d51e` bzw. `9597cc4`):
+- `statix-check`: `/home/moritz/repos/mediNix-core/lib/registry.nix:37`
+  "Assignment instead of inherit from" (`sharedGid = (df.derive …).sharedGid`).
+- `deadnix-check`: `/home/moritz/repos/mediNix-core/lib/cli.nix:17` unbenutztes Lambda-Muster `lib`.
+`nixfmt-check`, `nixmeta-check`, `mediNix-unit-scripts` sind gruen. **Kein Push**, bis diese zwei
+Funde entschieden sind.
+
+**Naechste Schritte:** (1) Entscheidung zu den zwei Build-Gate-Funden (trivial: `statix fix .`
+bzw. `deadnix --edit .` in genau diesen Stellen), (2) T3 bauen, (3) **ein** Push, (4) danach
+Discovery-Skill `nixos-service-discovery` + CI-Schicht 0a.

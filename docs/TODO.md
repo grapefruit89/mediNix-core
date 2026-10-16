@@ -18,7 +18,6 @@
 _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 41_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
-- [ ] Backlog: **P0 — L-048: Band-Pruefung vs. engine-abgeleitete Konten (Blocker fuer `mediNix-negative-ankreuzbogen`):** `59-guardrails/591-cross-domain.nix` -> `frameNames` erkennt nur `lib/registry.nix` + `medinix.factoryUnits`. Die Engine leitet Konten aber aus `medinix.manifest` ab -> synthetische Testdienste (`probe`, uid 5590) gelten als "Fremd-Konto im Frameband". Entweder Band-Pruefung liest die Konten-Quelle (nicht die Ableitung, ADR-040) oder der Test erzwingt den Toplevel nicht mehr.
 - [ ] Backlog: **P0 (offen, produktiv) — L-047:** `users.mutableUsers = mkDefault false` (Engine, `e803ba8`) braucht eine **echte** Credential-Quelle fuer root oder einen wheel-User (Heute: nur `testHostAccess`-Stub in Praefkonfigurationen). Sonst ist jedes Host-Build von der nixpkgs-Assertion blockiert.
 - [ ] Backlog: **T3 — Exporter-Identitaet zentral ableiten (L-046, P1):** `585` gibt kuenftig KEINE `users.*` zurueck (Fixpunkt-Kreuz), sondern nur die ABSICHT. 5 Stellen:
 - [ ] Backlog: **Identitaeten einmal ableiten (ADR-040, Endform):** Exportarr-/Fabrik-Konten heute in `58-observability/585-exporters.nix` (liest `manifest`, schreibt `users.users`+`factoryUnits`) in die Engine verlagern (`lib/derive.nix` + Manifest-Absicht) — dann baut `585` nur noch `systemd.services` und alle Kanten sind gerichtet.
@@ -50,7 +49,6 @@ _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 41_
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
 - [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: OPEN
 - [ ] L-046 (BUG) **infinite recursion** (13 sichtbare Checks, seit `d6da997`), Ursache commit-genau per `git bisect run`: `2254f8c` "Exporters mit eigenem UPG-Account" — Status: IN PROGRESS
-- [ ] L-048 (BUG) **1 Check rot**: `mediNix-negative-ankreuzbogen` faellt, weil `evaluates { ui.group = "Observability"; }` den Toplevel der Probe-Config evaluiert und  — Status: OPEN
 
 ## 4. Pflicht bei jeder Änderung
 

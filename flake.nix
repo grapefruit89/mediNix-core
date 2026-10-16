@@ -1050,6 +1050,43 @@
         # ── Dezimalrahmen-Enforcer (Priorität 1, neben der Ratsche) ─────────
         checks.decimal-framework = decimalFrameworkCheck;
 
+        # ── Frameband-Guardrail (ADR-0000 §4, L-048) ────────────────────────
+        # "Kein Fremd-Konto im reservierten Band projectDigit*1000..+999".
+        # AB-040: geprueft wird das ABGELEITETE Ergebnis (users.users) -> das
+        # gehoert in einen check, nicht in eine Assertion (Assertions laufen
+        # waehrend der Config-Auswertung und lesen nur Quellen). Als Assertion
+        # scheiterte jede Konfiguration mit synthetischem Manifest-Dienst.
+        # Legitim sind Konten aus der statischen SSoT (lib/registry.nix), der
+        # Fabrik-/Exporter-Absicht (medinix.factoryUnits/exporters) und den
+        # Manifest-Deklarationen (medinix.manifest) - die Engine leitet sie ab.
+        checks.mediNix-frameband-fremdkonten =
+          let
+            bandDf = import ./lib/derive.nix;
+            bandLo = bandDf.projectDigit * 1000;
+            bandHi = bandLo + 999;
+            ssot = import ./lib/registry.nix { inherit lib; };
+            foreignOf =
+              c:
+              let
+                legit =
+                  lib.attrNames ssot.services
+                  ++ lib.attrNames (c.medinix.factoryUnits or { })
+                  ++ lib.attrNames (c.medinix.exporters or { })
+                  ++ lib.attrNames (c.medinix.manifest or { });
+              in
+              lib.attrNames (
+                lib.filterAttrs (
+                  n: u: (u.uid or null) != null && u.uid >= bandLo && u.uid <= bandHi && !(lib.elem n legit)
+                ) (c.users.users or { })
+              );
+            foreign = lib.unique (foreignOf nixosConfigurations.check.config ++ foreignOf stackNixos.config);
+          in
+          if foreign != [ ] then
+            throw "ADR-0000 §4: Fremd-Konto im reservierten Frameband ${toString bandLo}-${toString bandHi}: ${lib.concatStringsSep ", " foreign} (eigenes Konto ausserhalb anlegen, z. B. 1xxx)"
+          else
+            pkgs.runCommand "frameband-fremdkonten-ok" { }
+              "echo 'ok: kein Fremd-Konto im Band ${toString bandLo}-${toString bandHi}' > $out";
+
         # ── Service-Compliance-Ratsche (ADR-0010) ──────────────────────────
         checks.serviceComplianceCheck =
           let

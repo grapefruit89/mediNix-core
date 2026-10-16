@@ -43,3 +43,10 @@ Nach dem zweiten Fehlschlag: **Methode wechseln** und dem Menschen berichten.
 - `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md`
 - `docs/adr/ADR-0000-dezimalrahmen-verfassung.md`
 - `.agent-state.json` → `corridor.blacklist`
+
+## Belegsammlung: Eval-Blocker, Assertions vs. Checks
+
+`references/eval-blocker-assertions-und-checks.md` - sechs Kurzregeln mit Belegen:
+bisect-first bei Eval-Blockern, Fixpunkt-Kreuz, Assertions laufen waehrend der Config-Auswertung
+(abgeleitetes Ergebnis -> `checks.*`), Engine-Defaults vs. nixpkgs-Assertions, "ein Check-Ausgang
+ist kein Ursachenbeleg", gueltige Mess-Metrik + Build-Gates, die `--no-build` verdeckt.

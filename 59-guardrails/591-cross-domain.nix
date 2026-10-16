@@ -82,20 +82,11 @@ let
   # standalone reverse proxy (caddy-media) is verified as itself instead of the
   # registry key it does not use.
   # Frameband [projectDigit*1000 .. +999] ist fuer mediNix reserviert (ADR-0000).
-  # Kein Fremd-Konto darf hinein (sonst UID/GID-Kollision mit der Ableitung).
-  frameBandLo = df.projectDigit * 1000;
-  frameBandHi = frameBandLo + 999;
-  # ADR-040: Guardrails lesen NUR Quellen, nie das Abgeleitete. Die legitimen
-  # Konten kommen daher aus der statischen SSoT (lib/registry.nix) und aus der
-  # ABSICHT (medinix.factoryUnits) - vorher stand hier config.medinix.manifest,
-  # und damit schloss sich ein Zyklus:
-  #   manifest -> 585 (liest manifest, schreibt factoryUnits/users.users)
-  #            -> 591 (liest factoryUnits + manifest) -> manifest  = Rekursion.
-  frameNames = lib.attrNames svcReg.services ++ lib.attrNames (config.medinix.factoryUnits or { });
-  foreignBandUsers = lib.filterAttrs (
-    n: u:
-    (u.uid or null) != null && u.uid >= frameBandLo && u.uid <= frameBandHi && !(lib.elem n frameNames)
-  ) (config.users.users or { });
+  # "Kein Fremd-Konto im Band" prueft das ABGELEITETE Ergebnis (users.users) und
+  # ist deshalb ein CHECK in flake.nix (checks.mediNix-frameband-fremdkonten),
+  # keine Assertion: Assertions laufen waehrend der Config-Auswertung und lesen
+  # nur Quellen (AB-040). Als Assertion erstickte diese Pruefung jede
+  # Pruefkonfiguration mit synthetischem Manifest-Dienst (L-048).
 
   factoryUnits = config.medinix.factoryUnits or { };
   svcCfgOf = n: config.systemd.services.${n}.serviceConfig or { };
@@ -194,15 +185,6 @@ lib.mkIf cfg.enable {
       message = ''
         [mediNix] Service-Factory (ADR-5050) verletzt:
         ${lib.concatStringsSep "\n        " factoryViolations}
-      '';
-    }
-    {
-      assertion = foreignBandUsers == { };
-      message = ''
-        [mediNix] Fremd-Konto im reservierten Frameband ${toString frameBandLo}-${toString frameBandHi}:
-        ${lib.concatStringsSep ", " (lib.attrNames foreignBandUsers)}
-        mediNix reserviert dieses Band (ADR-0000, Ableitung num*10). Eigenes Konto bitte
-        ausserhalb anlegen (z. B. 1xxx).
       '';
     }
   ];
