@@ -15,9 +15,11 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 40_
+_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 41_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
+- [ ] Backlog: **T3 — Exporter-Identitaet zentral ableiten (L-046, P1):** `585` gibt kuenftig KEINE `users.*` zurueck (Fixpunkt-Kreuz), sondern nur die ABSICHT. 5 Stellen:
+- [ ] Backlog: **Identitaeten einmal ableiten (ADR-040, Endform):** Exportarr-/Fabrik-Konten heute in `58-observability/585-exporters.nix` (liest `manifest`, schreibt `users.users`+`factoryUnits`) in die Engine verlagern (`lib/derive.nix` + Manifest-Absicht) — dann baut `585` nur noch `systemd.services` und alle Kanten sind gerichtet.
 - [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
 - [ ] Backlog: **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
 - [ ] Backlog: `lib/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `lib/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
@@ -45,6 +47,7 @@ _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 40_
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **17**, `status:` bei **6** (`551–554`,`561`,`574`) → Index zeigt `unknown`/`-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
 - [ ] L-045 (ARCH) **Uebernahme + Review:** kein Verlust (822a0d2 ist Vorfahr), aber der Branch ist **eval-rot**: `nix flake check` = 13/50, CI `Flake Check` = failure ( — Status: OPEN
+- [ ] L-046 (BUG) **infinite recursion** (13/50, seit `d6da997`): Ursache per `git bisect run` **commit-genau** - `2254f8c` "Exporters mit eigenem UPG-Account". `585` * — Status: IN PROGRESS
 
 ## 4. Pflicht bei jeder Änderung
 

@@ -786,6 +786,17 @@
         "revive_if": "Nie - ADR-040: Kanten nur Quelle -> Ableitung; Guardrails lesen Quellen (statische SSoT oder Absichts-Optionen), nie die Ableitung, die sie pruefen.",
         "source": "ADR-040",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-041",
+        "topic": "Bei Eval-Blockern erst bisecten, dann Hypothesen",
+        "was": "Bei `infinite recursion`/`conflicting definition values` mit Hypothesen patchen (welches Modul ist schuld?) statt den Bruch binaer einzukreisen.",
+        "warum": "Vier Hypothesen (591 -> 585 -> Manifest-Leser -> 591 als Erzwingungspunkt) und die Engine-Hypothese waren ALLE falsch - Stunden ohne Ergebnis. `git bisect run` fand den Bruch commit-genau in 5 Messungen. Ausschlusstests taugen nur, wenn der Testfall den echten Stack-Weg nutzt (nicht ein selbst gesetztes Manifest-Feld).",
+        "evidence": "2026-10-16: `git bisect run` im Worktree (822a0d2 gut .. 3fc4d54 bad) -> first bad = 2254f8c; Probe: `nix eval .#checks.x86_64-linux.mediNix-stack-eval.drvPath`.",
+        "status": "aktiv",
+        "revive_if": "Nie - bei Eval-Blockern: git worktree + `git bisect run` mit EINEM `<check>.drvPath` als Probe, dann Code lesen.",
+        "source": "Session 2026-10-16 (L-046)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [
@@ -909,6 +920,13 @@
         "grund": null,
         "datum": "2026-10-16",
         "begruendung": "Bricht den belegten Zyklus manifest<->users.users/factoryUnits; Endform (Identitaeten einmal in der Engine ableiten) als Roadmap-Punkt."
+      },
+      {
+        "date": null,
+        "entscheidung": "585-Exporter-Konten zurueckgenommen (bewiesener Fix, 45 gruen); Endform T3: Identitaet als Absicht `medinix.exporters` deklarieren und die Konten von der Engine ableiten lassen.",
+        "grund": null,
+        "datum": "2026-10-16",
+        "begruendung": "Fixpunkt-Kreuz (users.users <-> manifest im selben Modul). Kein Push bis 50/51; der Ankreuzbogen-Negativtest erwartet die neue Form und wird durch T3 wieder gueltig."
       }
     ]
   }

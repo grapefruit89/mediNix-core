@@ -188,3 +188,21 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   Agent-Zugriff, Roadmap 67 (Vector+Loki) die Auswertung.
 - **Merksatz:** zwei einzeln gruene Aenderungen koennen zusammen eine Eval-Rekursion bilden -
   nach jedem Merge die **volle Leiter** fahren, nicht nur den eigenen Check.
+
+## 12. Nachtrag 2026-10-16 (Session 2) — roter Branch, Bisect-Beweis, T3-Plan
+
+- **Lage:** Branch **lokal** bei `d6da997` (rot, 13/50) + ein **lokaler Commit** mit dem
+  bewiesenen Fix: `fix(585): Exporter-Konten zurueckgenommen` -> **45/50 gruen**, kein
+  `infinite recursion` mehr. **Kein Push** (1 Negativtest noch rot).
+- **Beweis:** `git bisect run` im Worktree (`822a0d2` gut .. `3fc4d54` bad) ->
+  **first bad = `2254f8c`** („Exporters mit eigenem UPG-Account"). `585` schreibt
+  `users.users`/`groups` **und** liest im selben Modul `manifest` = Fixpunkt-Kreuz.
+- **REST (genau einer):** `mediNix-negative-ankreuzbogen` — „ui.group = Observability
+  scheitert - der Test beweist nichts": der Test erwartet die **neue** 585-Form.
+- **Naechster Schritt = T3** (5 Stellen, exakt in `ROADMAP.md`): Exporter-Identitaet als
+  **Absicht** `medinix.exporters` deklarieren, die **Engine** leitet die Konten ab.
+  Dann 50/51 messen (cache-frei: `--option eval-cache false`) und **einmal** pushen.
+- **Lehren im Korridor:** `AB-041` (bei Eval-Blockern **erst bisecten**),
+  `AB-040` (Kanten nur Quelle -> Ableitung), `AB-038` (Zwei-Versuche-Stop).
+- **Noch offen (nach T3):** Discovery-Skill `nixos-service-discovery` + `references/`,
+  `AGENTS.md`-Zeilen, CI-Schicht 0a (`nixos_idiom_audit.py --p0-only` in `order-lint`).
