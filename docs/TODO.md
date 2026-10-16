@@ -15,7 +15,7 @@
 
 ## 2. Roadmap — offene Punkte
 
-_Abschnitte: Backlog · Blacklist-Regeln im Korridor: 43_
+_Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 45_
 
 - [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 - [ ] Backlog: **P0 (offen, produktiv) — L-047:** `users.mutableUsers = mkDefault false` (Engine, `e803ba8`) braucht eine **echte** Credential-Quelle fuer root oder einen wheel-User (Heute: nur `testHostAccess`-Stub in Praefkonfigurationen). Sonst ist jedes Host-Build von der nixpkgs-Assertion blockiert.
@@ -40,6 +40,7 @@ _Abschnitte: Backlog · Blacklist-Regeln im Korridor: 43_
 - [ ] Backlog: **arr-provision bündeln** (I): 8 Einzel-CLIs (`arr-sync-*`) → **ein** `arr-provision <subcommand>` (weniger Entry-Points, ein `--help`).
 - [ ] Backlog: **`medinix gather <symptom>`** (G): die 7 geordneten Abschnitte (WAS · WER · IST · LOGS · PFADE · DIFF · FIX) aus Registry + systemd, redigiert + Token-gekappt.
 - [ ] Backlog: **Doc-Nit** (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixpkgs.nixos-mcp` auf `mediahost@192.168.0.10`) → auf den lokalen `nixos`-MCP umstellen.
+- [ ] Herkunft und Archiv: **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554 (Feishin), 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
 
 ## 3. Ledger — Befunde ohne Abschluss
 
