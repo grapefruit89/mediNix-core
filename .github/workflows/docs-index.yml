@@ -10,7 +10,11 @@ name: Docs Index (check-only)
 # --check); beide Generatoren schreiben nachweislich denselben Inhalt.
 
 on:
+  # Nur Branch-Pushes: mit blankem `push:` feuert der Lauf auch bei Archiv-Tags
+  # und prueft dann den alten Commit (Falsch-Rot 2026-10-16). `branches`
+  # schliesst Tag-Refs aus (GitHub-Doku: nur definierte Ref-Typen loesen aus).
   push:
+    branches: ['**']
     paths:
       - 'docs/**/*.md'
   workflow_dispatch:

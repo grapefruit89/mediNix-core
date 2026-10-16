@@ -2,7 +2,10 @@
 name: Flake Check
 
 on:
+  # Nur Branch-Pushes (keine Tag-Refs): sonst prueft ein `git push` eines
+  # Archiv-Tags den ALTEN Commit - Falsch-Rot ohne Aussage ueber main.
   push:
+    branches: ['**']
   pull_request:
 
 jobs:

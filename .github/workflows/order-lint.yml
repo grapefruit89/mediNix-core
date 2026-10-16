@@ -2,7 +2,11 @@
 name: Order Lint
 
 on:
+  # Nur Branch-Pushes: ein blankes `push:` feuert auch bei Archiv-Tags und
+  # prueft dann den ALTEN Commit (Falsch-Rot 2026-10-16). `branches` schliesst
+  # Tag-Refs aus (GitHub-Doku: nur definierte Ref-Typen loesen aus).
   push:
+    branches: ['**']
   pull_request:
 
 jobs:
