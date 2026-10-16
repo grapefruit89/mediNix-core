@@ -3,6 +3,16 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-16 — Toter Code: 4 nie verdrahtete `lib`-Module archiviert
+
+- **Nicht gelöscht, eingelagert** (`docs/audit/2026-10-16/repo-cleanup/lib/`):
+  `abc-tiering.nix`, `wait-for-api.nix`, `mk-secure-curl.nix`, `_helpers.nix` —
+  0 Importeure; Zwecke heute andernorts gelöst (storage.backends / `wait_for_url` /
+  `513`-nativ / `mkMerge`). Regel: **gelöschter Code = verlorenes Wissen** → Archiv, nicht `rm`.
+- **Scanner angepasst:** `scripts/nixmeta_check.py` + `50-core/medinix-meta.py`
+  überspringen `docs/audit/` + `docs/archive/` (Eingelagertes wird **nicht** gegated).
+- **Begründung + Ersatz je Modul:** `docs/AUDIT-LEDGER.md` **L-045**, Archiv-`README.md`.
+
 ## 2026-10-15 (2) — Repo-Aufräumen, TODO als Ableitung
 
 - **Fremdbestand/Duplikate archiviert** (`docs/audit/2026-10-15/repo-cleanup/`):

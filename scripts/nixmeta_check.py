@@ -32,6 +32,10 @@ def nix_files():
     out = []
     for dirpath, dirnames, filenames in os.walk(os.getcwd()):
         dirnames[:] = [d for d in dirnames if d != ".git"]
+        rel = os.path.relpath(dirpath, os.getcwd())
+        # Eingelagertes (Ausgemustertes) wird NICHT gegated: docs/audit/, docs/archive/.
+        if rel.startswith("docs/audit") or rel.startswith("docs/archive"):
+            continue
         out += [
             os.path.relpath(os.path.join(dirpath, fn), os.getcwd())
             for fn in filenames

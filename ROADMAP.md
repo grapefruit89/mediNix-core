@@ -70,7 +70,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ### P2 — Aufräumen
 
-- [x] Die 4 nie verdrahteten `lib`-Module (`abc-tiering`/`_helpers`/`wait-for-api`/`mk-secure-curl`) am 2026-10-16 **gelöscht** (0 Importeure; `wait-for-api` importierte `mk-secure-curl` → tote Kette). Aufgaben heute über `storage.backends.*`, `513`-nativ, `wait_for_url`, `mkMerge` gelöst. Zwischenschritt war „markiert statt geloescht" (971203c).
+- [x] Die 4 nie verdrahteten `lib`-Module (`abc-tiering`/`_helpers`/`wait-for-api`/`mk-secure-curl`) am 2026-10-16 **archiviert** (`docs/audit/2026-10-16/repo-cleanup/lib/`). Aufgaben heute über `storage.backends.*`, `513`-nativ, `wait_for_url`, `mkMerge` gelöst. Zwischenschritt war „markiert statt geloescht" (971203c).
 - [x] `docs/AGENT_SOURCES.md` und `docs/UPSTREAM-SOURCES.md` zusammengelegt (L-041): eine Liste, Abschnitt 2 in `docs/UPSTREAM-SOURCES.md`; die alte Datei ist Zeiger.
 - [ ] `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
 

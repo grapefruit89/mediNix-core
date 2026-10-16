@@ -45,7 +45,7 @@ def get_nix_files(repo_root):
     # Returns all .nix files excluding some directories
     files = []
     for root, _, filenames in os.walk(repo_root):
-        if '.gemini' in root or '.git' in root or 'second-brain' in root:
+        if '.gemini' in root or '.git' in root or 'second-brain' in root or 'docs/audit' in root or 'docs/archive' in root:
             continue
         for f in filenames:
             if f.endswith('.nix') and f not in ['default.nix', 'flake.nix']:
@@ -90,7 +90,7 @@ def build_brain():
     files = get_nix_files(repo_root)
     # Also add markdown files
     for root, _, filenames in os.walk(repo_root):
-        if '.git' in root or '.gemini' in root: continue
+        if '.git' in root or '.gemini' in root or 'docs/audit' in root or 'docs/archive' in root: continue
         for f in filenames:
             if f.endswith('.md'): files.append(Path(root) / f)
             

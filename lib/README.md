@@ -25,8 +25,8 @@ Zentraler Ordner für **Nix-Hilfsfunktionen und Engines**.
 ## Nie verdrahtet (0 Importeure) — Entscheidung 2026-10-15: markiert, nicht geloescht
 
 Diese 4 waren **nie angeschlossene** Utilities (0 Importeure, in *keinem*
-Alt-Export referenziert). Am 2026-10-16 **gelöscht** (git-Historie behält sie);
-ihre Aufgaben sind heute **woanders** gelöst:
+Alt-Export referenziert). Am 2026-10-16 **archiviert** → `docs/audit/2026-10-16/repo-cleanup/lib/`
+(operativ entfernt, **Wissen bleibt**); ihre Aufgaben sind heute **woanders** gelöst:
 
 | Modul | Was es tat | Heute gelöst durch |
 |---|---|---|
