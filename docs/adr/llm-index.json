@@ -252,6 +252,48 @@
       "file": "ADR-587-disk-health-smartd.md",
       "topic": "smart monitoring with standby preservation",
       "status": "active"
+    },
+    {
+      "id": "515",
+      "file": "ADR-515-mdns-avahi-aliases.md",
+      "topic": "mDNS aliases {service}.local via avahi",
+      "status": "active"
+    },
+    {
+      "id": "572",
+      "file": "ADR-572-recyclarr-trash-sync.md",
+      "topic": "declarative TRaSH-Guides sync for the arr stack",
+      "status": "active"
+    },
+    {
+      "id": "574",
+      "file": "ADR-574-arr-provisioning.md",
+      "topic": "idempotent arr API provisioning oneshot",
+      "status": "active"
+    },
+    {
+      "id": "578",
+      "file": "ADR-578-orphan-cleanup.md",
+      "topic": "drift detection and orphan cleanup in /var/lib/medinix",
+      "status": "active"
+    },
+    {
+      "id": "581",
+      "file": "ADR-581-ntfy.md",
+      "topic": "internal notification backend (loopback, Caddy-gated)",
+      "status": "active"
+    },
+    {
+      "id": "583",
+      "file": "ADR-583-runtime-guard.md",
+      "topic": "hourly runtime check (nftables / 0.0.0.0 / VPN)",
+      "status": "active"
+    },
+    {
+      "id": "585",
+      "file": "ADR-585-exporters.md",
+      "topic": "manifest-driven prometheus exporters",
+      "status": "active"
     }
   ],
   "duplicates": [

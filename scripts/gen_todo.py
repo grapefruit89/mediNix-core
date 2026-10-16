@@ -101,11 +101,16 @@ def render() -> str:
     return "\n".join(L)
 
 
+def _undated(text: str) -> str:
+    """Datum aus der Kopfzeile entfernen — der Check prueft Inhalt, nicht den Kalender."""
+    return re.sub(r"am \d{4}-\d{2}-\d{2}", "am <DATUM>", text)
+
+
 def main() -> int:
     text = render()
     if "--check" in sys.argv:
         current = TODO.read_text(encoding="utf-8") if TODO.exists() else ""
-        if current != text:
+        if _undated(current) != _undated(text):
             print("docs/TODO.md ist veraltet — 'python3 scripts/gen_todo.py' ausfuehren.")
             return 1
         print("docs/TODO.md ist aktuell.")
