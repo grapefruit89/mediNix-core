@@ -124,4 +124,4 @@ A green `nix flake check` proves the tested property only — never "it runs".
 ## References
 - `../03-gates-audits/medinix-pre-commit` — scanners + 7 Quality Gates (before "done").
 - `medinix-governance` — SSoT, Review-First, commit discipline.
-- `../03-gates-audits/medinix-build-gate` — Context7 option verification.
+- `../03-gates-audits/medinix-build-gate` — option verification against the live source (nixpkgs module code).

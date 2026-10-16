@@ -48,6 +48,9 @@
   nennen, nicht das Thema.
 - **Durchsetzung:** `python3 scripts/check_skills.py` laeuft in `order-lint` (fail-closed bei
   Formfehlern; zu kurze Beschreibungen werden als Hinweis gelistet).
+- **Kuration:** `scripts/skills-exclude.txt` listet Skills, die **nicht** verlinkt werden
+  (fremde Workflows/andere Projekte). Inhalt bleibt im Repo - nur die Sichtbarkeit ist aus.
+  Der Linker raeumt solche Symlinks beim naechsten Lauf selbst weg.
 
 ## Architektur-Invarianten (ADR-0000, NICHT verhandelbar)
 

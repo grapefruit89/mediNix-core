@@ -1,0 +1,22 @@
+# Projekt-Skills, die NICHT verlinkt werden (gelesen von scripts/link-skills.sh).
+# Format: ein Skill-Name pro Zeile (Ordnername unter docs/agents/<kategorie>/).
+# Weiter hinten in einer Zeile ist ein Grund erlaubt ('#' startet Kommentar).
+# Der Inhalt bleibt im Repo - hier wird nur die SICHTBARKEIT fuer den Agenten
+# abgeschaltet, damit dessen Skill-Liste nicht mit fremden Workflows geflutet wird.
+#
+# --- Fremder Workflow / anderes Projekt ---
+kanban-orchestrator            # Hermes-Kanban-Board (Orchestrator-Rolle)
+kanban-worker                  # Hermes-Kanban-Worker
+hermes-session-checkpoint      # Hermes-Container-Snapshots vor /reset
+webhook-subscriptions          # Hermes-Webhooks (event-driven agent runs)
+unraid-ssh-access              # Hermes-Container -> Unraid (globaler Skill: unraid-homelab)
+nixos-llm-first-workflow       # anderes Projekt (Windows 11 + nixos_docs.db)
+medinix-knowledge-extraction   # Knowledge-Vektor-Pipeline (Recherche-Workflow)
+medinix-knowledge-pipeline     # dito
+nixos-chat-export-mining       # dito
+#
+# --- Kandidaten (noch verlinkt). Bitte kuratieren: Inhalt eher MERGEN als ausschliessen.
+# medinix-nix-idioms    # doppelt zu nixos-idiom-audit (Factory-unit-Regel dort ergaenzen)
+# nixos-flake-patterns  # doppelt zu nixos-flake-ci (Scope-Bug-Kapitel dort ergaenzen)
+# medinix-audit-suite   # doppelt zu medinix-pre-commit
+# medinix-conventions   # doppelt zu nixos-medinix-authoring (beide "Hub")

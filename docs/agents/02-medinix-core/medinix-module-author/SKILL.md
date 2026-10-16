@@ -37,5 +37,5 @@ Dieses Skill kombiniert die Erstellung neuer Module und die Integration aus Refe
 - Das Modul muss isoliert kompilieren können, egal auf welchem Host es ausgerollt wird.
 
 ## 6. Verifikation & Nächste Schritte
-- Bevor du das Modul abschließt, nutze **`medinix-build-gate`** für Context7-Validierung neuer Nix-Optionen und den Portability-Check.
+- Bevor du das Modul abschließt, nutze **`medinix-build-gate`** für die Options-Verifikation gegen die Live-Quelle (nixpkgs-Modul-Code, nicht Context7) und den Portability-Check.
 - Danach feuert die **`medinix-audit-suite`** für den finalen Kollisions- und Invarianten-Scan.

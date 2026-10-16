@@ -133,6 +133,10 @@ maschinenlokal und werden deshalb nicht versioniert; nach einem frischen Clone e
 Die formale Seite (`name` == Ordnername, eindeutig; `description` vorhanden) prueft
 `python3 scripts/check_skills.py` in `order-lint`.
 
+Nicht jeder Skill wird verlinkt: `scripts/skills-exclude.txt` schaltet die Sichtbarkeit fuer
+Skills ab, die zu fremden Workflows oder anderen Projekten gehoeren (Inhalt bleibt im Repo,
+versioniert). Der Linker raeumt ausgeschlossene Symlinks selbst weg.
+
 Offene Nacharbeit: 18 der 29 Projekt-Skills haben eine Trigger-Beschreibung unter 80 Zeichen
 (der Check listet sie als Hinweis) - die Beschreibung ist der einzige Trigger, den die Session
 ohne Laden sieht.

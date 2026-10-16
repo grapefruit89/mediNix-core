@@ -18,7 +18,23 @@ DRY_RUN=0
 
 [ -d "$TARGET_DIR" ] || { echo "FEHLER: Zielordner fehlt: $TARGET_DIR" >&2; exit 1; }
 
-linked=0; unchanged=0; pruned=0; conflicts=0
+EXCLUDE_FILE="$REPO_ROOT/scripts/skills-exclude.txt"
+
+# excluded <name>: 0 = steht auf der Ausschlussliste (Sichtbarkeit abschalten).
+excluded() {
+  [ -f "$EXCLUDE_FILE" ] || return 1
+  local line entry
+  while IFS= read -r line; do
+    entry="${line%%#*}"
+    entry="$(printf '%s' "$entry" | tr -d '[:space:]')"
+    if [ -n "$entry" ] && [ "$entry" = "$1" ]; then
+      return 0
+    fi
+  done < "$EXCLUDE_FILE"
+  return 1
+}
+
+linked=0; unchanged=0; pruned=0; conflicts=0; off=0
 
 # 1) Verwaiste Symlinks aufraeumen (zeigen ins Repo, Skill existiert nicht mehr).
 for link in "$TARGET_DIR"/*; do
@@ -26,8 +42,13 @@ for link in "$TARGET_DIR"/*; do
   target="$(readlink -f -- "$link" 2>/dev/null || true)"
   case "$target" in
     "$REPO_ROOT"/docs/agents/*)
+      name="$(basename -- "$link")"
       if [ ! -f "$target/SKILL.md" ]; then
-        echo "  raus (verwaist): $(basename -- "$link")"
+        echo "  raus (verwaist): $name"
+        [ "$DRY_RUN" -eq 1 ] || rm -- "$link"
+        pruned=$((pruned + 1))
+      elif excluded "$name"; then
+        echo "  raus (ausgeschlossen): $name"
         [ "$DRY_RUN" -eq 1 ] || rm -- "$link"
         pruned=$((pruned + 1))
       fi
@@ -40,6 +61,10 @@ while IFS= read -r skill; do
   dir="$(dirname -- "$skill")"
   name="$(basename -- "$dir")"
   link="$TARGET_DIR/$name"
+  if excluded "$name"; then
+    off=$((off + 1))
+    continue
+  fi
   if [ -L "$link" ]; then
     if [ "$(readlink -f -- "$link")" = "$dir" ]; then
       unchanged=$((unchanged + 1))
@@ -60,6 +85,6 @@ while IFS= read -r skill; do
   linked=$((linked + 1))
 done < <(find "$REPO_ROOT/docs/agents" -mindepth 3 -maxdepth 3 -name SKILL.md | sort)
 
-echo "verlinkt: $linked  unveraendert: $unchanged  aufgeraeumt: $pruned  Konflikte: $conflicts"
+echo "verlinkt: $linked  unveraendert: $unchanged  ausgeschlossen: $off  aufgeraeumt: $pruned  Konflikte: $conflicts"
 [ "$DRY_RUN" -eq 1 ] && echo "(dry-run: nichts geschrieben)"
 [ "$conflicts" -eq 0 ] || exit 2
