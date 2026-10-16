@@ -52,7 +52,22 @@ let
   jellyfinUrl =
     if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
   jellyfinMetadataDir = "${metadataDir}/metadata";
-  trickplayHwAccel = if svc.hardware.accel != "none" then "true" else "false";
+
+  # "auto" leitet aus der Host-Hardware ab: eingebaut ist die Intel UHD 630
+  # (i3-9100) -> iHD/VAAPI. EIN aufgeloester Wert fuer ALLE Pfade
+  # (hardware.graphics, LIBVA, VDPAU, Trickplay, DeviceAllow) — vorher war
+  # "auto" uneinheitlich (Env an, Treiber-Pakete aus).
+  accelResolved = if svc.hardware.accel == "auto" then "intel" else svc.hardware.accel;
+  hwAccel = accelResolved != "none";
+  # Eingebaute GPU automatisch: ohne explizite Angabe das erste Render-Device.
+  renderDevice =
+    if svc.hardware.renderDevice != null then
+      svc.hardware.renderDevice
+    else if hwAccel then
+      "/dev/dri/renderD128"
+    else
+      null;
+  trickplayHwAccel = if hwAccel then "true" else "false";
 
   systemXmlSeed = pkgs.writeText "jellyfin-system.xml" (
     builtins.replaceStrings
@@ -76,7 +91,7 @@ let
       [ "@TRANSCODE_DIR@" "@VAAPI_DEVICE@" ]
       [
         "/transcode"
-        (if svc.hardware.renderDevice != null then svc.hardware.renderDevice else "")
+        (if renderDevice != null then renderDevice else "")
       ]
       (builtins.readFile ./data/jellyfin-encoding.xml)
   );
@@ -229,7 +244,10 @@ in
           profiles.dotnet-gpu
           memoryPolicy.jellyfin
           {
-            ExecStart = "${package}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache --webdir ${package}/share/jellyfin-web";
+            # --webdir NICHT setzen: der Wrapper von pkgs.jellyfin bringt
+            # --webdir=${jellyfin-web}/share/jellyfin-web bereits mit; ein eigener
+            # Wert würde ihn überschreiben (und zeigte ins Leere).
+            ExecStart = "${package}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache";
             User = "jellyfin";
             Group = "media";
             UMask = "0002";
@@ -237,7 +255,7 @@ in
               "video"
               "render"
             ];
-            DeviceAllow = lib.mkIf (svc.hardware.renderDevice != null) [ "${svc.hardware.renderDevice} rwm" ];
+            DeviceAllow = lib.mkIf (renderDevice != null) [ "${renderDevice} rwm" ];
             CacheDirectory = "jellyfin-cache";
             ReadWritePaths = [
               stateDir
@@ -256,21 +274,20 @@ in
           JELLYFIN_PublishedServerUrl =
             if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
         }
-        // lib.optionalAttrs (svc.hardware.accel != "none") {
+        // lib.optionalAttrs hwAccel {
           LIBVA_DRIVER_NAME =
             {
-              "auto" = "iHD";
               "intel" = "iHD";
               "vaapi" = "iHD";
               "amd" = "radeonsi";
               "nvidia" = null;
             }
-            .${svc.hardware.accel} or null;
+            .${accelResolved} or null;
           VDPAU_DRIVER = "va_gl";
         };
       };
 
-      hardware.graphics = lib.mkIf (svc.hardware.accel == "intel" || svc.hardware.accel == "vaapi") {
+      hardware.graphics = lib.mkIf (accelResolved == "intel" || accelResolved == "vaapi") {
         enable = true;
         extraPackages = with pkgs; [
           intel-media-driver
