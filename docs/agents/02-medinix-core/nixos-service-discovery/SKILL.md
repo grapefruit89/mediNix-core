@@ -1,5 +1,6 @@
 ---
 name: nixos-service-discovery
+mcp: [nixos]
 description: "Discovery- und Aufnahme-Workflow fuer einen Dienst in mediNix-core: erst Quellen in der richtigen Rangfolge klaeren (Repo-SSoT -> nixpkgs-Modul-Code -> Upstream -> Context7 als Sparformat), dann Nix-Modul und Provisioning bauen, dann die Pruef-Leiter fahren. Laden, bevor ein neuer oder geaenderter Dienst (NNN-*.nix) entsteht."
 ---
 

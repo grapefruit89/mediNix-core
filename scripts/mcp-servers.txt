@@ -1,0 +1,14 @@
+# MCP-Server, die Skills in diesem Repo deklarieren duerfen (SSoT fuer die CI).
+# Format: <server> | <Zweck>.  Geprueft von scripts/check_skills.py.
+# Die LIVE-Konfiguration liegt maschinenlokal in
+# /home/moritz/.config/opencode/opencode.jsonc - die CI kann sie nicht lesen,
+# deshalb steht die Liste hier versioniert. Driftet sie, meldet der Check lokal
+# einen Hinweis (live-Server, der hier fehlt).
+nixos | nixpkgs-Pakete, NixOS-/home-manager-Optionen, Flake-Inputs, Cache-Status (tools.nixos.*)
+context7 | kuratierte Doku-Snippets (nur Sparformat-Index, nie Wahrheit; bei Widerspruch gewinnt die Live-Quelle)
+arr | Sonarr/Radarr/Readarr/Lidarr/Prowlarr-API (Provisioning, Queue-Status)
+chrome-devtools | isolierter Chromium per CDP (Seiten inspizieren, Recherche) - NIE der laufende User-Browser
+ha-mcp | Home Assistant Konfiguration/Automationen (Skills, Helpers, Dashboards)
+homeassistant | Home Assistant Intent-API (Geräte schalten, Zustände lesen, Datum/Zeit)
+kde-mcp | KDE Plasma 6 / Wayland Desktop-Steuerung (Clipboard, Fenster, Eingaben)
+unraid | Unraid-Homelab (Docker-Container, Shares, Dashboard) auf 192.168.2.250

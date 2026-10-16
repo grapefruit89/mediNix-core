@@ -1,5 +1,6 @@
 ---
 name: medinix-build-gate
+mcp: [nixos, context7]
 category: devops
 description: "MANDATORY pre-commit gate sequence for mediNix. Verifies every NixOS option against the LIVE source (nixpkgs module code in the store, nix eval, search.nixos.org, nix-MCP) - never from memory; Context7 is only a quick index. Runs Assertion-Scripts for portability, Decimal-Audits, and prepares the commit with a strict DSP workflow."
 ---

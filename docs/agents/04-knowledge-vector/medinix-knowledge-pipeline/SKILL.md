@@ -1,5 +1,6 @@
 ---
 name: medinix-knowledge-pipeline
+mcp: [nixos]
 category: data
 description: "Handles the end-to-end knowledge extraction pipeline: JSON chat exports to local Vector Store (.npy/.json) and semantic search extraction into mediNix code. Low-RAM aware. No Chroma/SQL."
 ---

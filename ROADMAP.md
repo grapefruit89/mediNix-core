@@ -155,3 +155,5 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - `.agent-state.json` — Korridor: Invarianten, Whitelist, Blacklist, offene Entscheidungen.
 
 - [ ] **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554 (Feishin), 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
+
+- [ ] **Skill-Trigger nachschaerfen (Kante Skills -> Sichtbarkeit):** 18 der 30 Projekt-Skills haben eine `description` unter 80 Zeichen (der Check listet sie als Hinweis) - die Beschreibung ist das Einzige, was die Session ohne Laden sieht. Ausserdem: `nixos-llm-audit`/`medinix-nix-idioms`/`nixos-flake-patterns` als Merge-Kandidaten pruefen (`scripts/skills-exclude.txt` nennt sie).

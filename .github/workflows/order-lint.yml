@@ -17,7 +17,7 @@ jobs:
       # Projekt-Skills: Front-Matter mit name (== Ordnername, eindeutig) und
       # description. Der lokale Symlink (~/.config/opencode/skills) ist
       # maschinenlokal -> nicht CI-pruefbar, dafuer scripts/link-skills.sh.
-      - name: "Projekt-Skills formal ok? (docs/agents/**/SKILL.md)"
+      - name: "Projekt-Skills formal ok? (Front-Matter + mcp-Deklaration, docs/agents/**)"
         run: python3 scripts/check_skills.py
 
       # ADR-Formregel (id, Dateiname, Ueberschrift, Index-Registrierung).

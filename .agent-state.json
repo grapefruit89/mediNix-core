@@ -847,6 +847,17 @@
         "revive_if": "Fix (UPG + SetGID-Erbe) -> Ausnahme entfernen; DynamicUser -> Konto aus der Engine.",
         "source": "Session 2026-10-16 (Kette)",
         "date": "2026-10-16"
+      },
+      {
+        "id": "AB-046",
+        "topic": "Skills mit MCP-Bedarf deklarieren den Server",
+        "was": "Einen MCP-Server im Skill aufrufen (`tools[\"x\"]`, `tools.x.`, `mcp__x` - auch in references/), ohne ihn im Front-Matter als `mcp: [x]` zu deklarieren.",
+        "warum": "Am 2026-10-16 nannten nur 3 von 36 sichtbaren Skills ihren Server; ein Skill ohne Deklaration scheitert still, wenn der Server fehlt oder umbenannt wird (und die Session weiss nicht, welche Voraussetzung sie erfuellen muss).",
+        "evidence": "scripts/check_skills.py prueft: Aufruf ohne Deklaration -> rot, unbekannter Server -> rot; Negativtests (a)-(c) belegt. Server-SSoT: scripts/mcp-servers.txt, Doku: docs/MCP-SETUP.md.",
+        "status": "aktiv",
+        "revive_if": "Nie - Deklaration ist ein Einzeiler im Front-Matter.",
+        "source": "Session 2026-10-16 (Kette Skills -> MCP)",
+        "date": "2026-10-16"
       }
     ],
     "open_decisions": [
