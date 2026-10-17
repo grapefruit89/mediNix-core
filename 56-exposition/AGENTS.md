@@ -5,11 +5,14 @@
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
+> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 50-core/medinix-meta.py generate-docs`).
+> **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).
+
 ## Module Map
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `561-seerr` | `561-seerr.nix` | active | -/5 | - |
+| `561-seerr` | [`561-seerr.nix`](561-seerr.nix) | active | -/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -25,4 +28,4 @@ graph TD
 
 
 ---
-*Generiert durch `medinix-meta.py generate-docs`*
+*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*

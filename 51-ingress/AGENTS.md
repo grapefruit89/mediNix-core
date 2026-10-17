@@ -74,27 +74,30 @@ Die Ingress-Checks laufen erst in CI (`Flake Check`), u. a.
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
+> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 50-core/medinix-meta.py generate-docs`).
+> **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).
+
 ## Module Map
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `511-caddy` | `511-caddy.nix` | active | -/5 | - |
-| `512-pocket-id` | `512-pocket-id.nix` | active | 4/5 |  |
-| `513-cloudflare-dns` | `513-cloudflare-dns.nix` | active | -/5 | - |
-| `514-acme` | `514-acme.nix` | active | -/5 | - |
-| `515-mdns` | `515-mdns.nix` | active | 3/5 | - |
-| `516-crowdsec` | `516-crowdsec.nix` | active | 3/5 | - |
-| `518-landingpage` | `518-landingpage.nix` | active | 2/5 | - |
-| `519-ingress-guardrails` | `519-ingress-guardrails.nix` | active | 2/5 | - |
+| `511-caddy` | [`511-caddy.nix`](511-caddy.nix) | active | -/5 | - |
+| `512-pocket-id` | [`512-pocket-id.nix`](512-pocket-id.nix) | active | 4/5 |  |
+| `513-cloudflare-dns` | [`513-cloudflare-dns.nix`](513-cloudflare-dns.nix) | active | -/5 | - |
+| `514-acme` | [`514-acme.nix`](514-acme.nix) | active | -/5 | - |
+| `515-mdns` | [`515-mdns.nix`](515-mdns.nix) | active | 3/5 | - |
+| `516-crowdsec` | [`516-crowdsec.nix`](516-crowdsec.nix) | active | 3/5 | - |
+| `518-landingpage` | [`518-landingpage.nix`](518-landingpage.nix) | active | 2/5 | - |
+| `519-ingress-guardrails` | [`519-ingress-guardrails.nix`](519-ingress-guardrails.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- `51-ingress/511-caddy`
-- `511-caddy`
-- `lib/registry`
-- `lib/service-factory`
+- [`51-ingress/511-caddy`](../51-ingress/511-caddy.nix)
+- [`511-caddy`](511-caddy.nix)
+- [`lib/registry`](../lib/registry.nix)
+- [`lib/service-factory`](../lib/service-factory.nix)
 
 ## Dependency Graph
 
@@ -115,4 +118,4 @@ graph TD
 
 
 ---
-*Generiert durch `medinix-meta.py generate-docs`*
+*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*

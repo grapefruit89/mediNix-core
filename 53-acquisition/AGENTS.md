@@ -5,25 +5,28 @@
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
+> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 50-core/medinix-meta.py generate-docs`).
+> **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).
+
 ## Module Map
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `532-sonarr` | `532-sonarr.nix` | active | 3/5 | - |
-| `533-radarr` | `533-radarr.nix` | active | 3/5 | - |
-| `534-readarr` | `534-readarr.nix` | active | 3/5 | - |
-| `535-lidarr` | `535-lidarr.nix` | active | 3/5 | - |
-| `536-prowlarr` | `536-prowlarr.nix` | active | 3/5 | - |
+| `532-sonarr` | [`532-sonarr.nix`](532-sonarr.nix) | active | 3/5 | - |
+| `533-radarr` | [`533-radarr.nix`](533-radarr.nix) | active | 3/5 | - |
+| `534-readarr` | [`534-readarr.nix`](534-readarr.nix) | active | 3/5 | - |
+| `535-lidarr` | [`535-lidarr.nix`](535-lidarr.nix) | active | 3/5 | - |
+| `536-prowlarr` | [`536-prowlarr.nix`](536-prowlarr.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- `lib/arr-settings`
-- `lib/hardening-profiles`
-- `lib/memory-policy`
-- `lib/registry`
-- `lib/service-factory`
+- [`lib/arr-settings`](../lib/arr-settings.nix)
+- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
+- [`lib/memory-policy`](../lib/memory-policy.nix)
+- [`lib/registry`](../lib/registry.nix)
+- [`lib/service-factory`](../lib/service-factory.nix)
 
 ## Dependency Graph
 
@@ -58,4 +61,4 @@ graph TD
 
 
 ---
-*Generiert durch `medinix-meta.py generate-docs`*
+*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*

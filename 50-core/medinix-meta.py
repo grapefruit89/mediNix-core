@@ -289,6 +289,12 @@ def generate_docs(check_only=False):
         lines = []
         lines.append(manual_content.rstrip())
         lines.append("\n\n<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->\n")
+        lines.append(
+            "> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module "
+            "(`python3 50-core/medinix-meta.py generate-docs`).\n"
+            "> **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; "
+            "die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).\n"
+        )
         lines.append("## Module Map\n")
         lines.append("| ID | Modul-Datei | Status | Komplexitaet | Ports |")
         lines.append("|---|---|---|---|---|")
@@ -299,7 +305,7 @@ def generate_docs(check_only=False):
             complexity = meta.get("complexity", "-")
             ports_raw = meta.get("ports", "[]")
             ports = ", ".join(parse_yaml_array(ports_raw)) if ports_raw != "[]" else "-"
-            lines.append(f"| `{mod_id}` | `{filename}` | {status} | {complexity}/5 | {ports} |")
+            lines.append(f"| `{mod_id}` | [`{filename}`]({filename}) | {status} | {complexity}/5 | {ports} |")
             
         lines.append("\n## Interne Abhaengigkeiten (Requires)\n")
         lines.append("Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:\n")
@@ -309,8 +315,26 @@ def generate_docs(check_only=False):
             reqs = parse_yaml_array(meta.get("requires", "[]"))
             for r in reqs: all_reqs.add(r)
             
+        def _source_link(req: str) -> str:
+            """Best effort: verlinkt eine Requires-Angabe auf ihre Quelldatei."""
+            candidates = []
+            if req.startswith("lib/"):
+                path = f"lib/{req.removeprefix('lib/')}.nix"
+                candidates.append((path, f"../{path}"))
+            if re.match(r"^[0-9]{2}-[a-z]+/", req):
+                path = f"{req}.nix"
+                candidates.append((path, f"../{path}"))
+            if re.match(r"^[0-9]{3}-", req):
+                same_folder = f"{folder_name}/{req}.nix"
+                candidates.append((same_folder, f"{req}.nix"))
+                candidates.append((f"{req}.nix", f"../{req}.nix"))
+            for path, link in candidates:
+                if (repo_root / path).is_file():
+                    return f"[`{req}`]({link})"
+            return f"`{req}`"
+
         for req in sorted(all_reqs):
-            lines.append(f"- `{req}`")
+            lines.append(f"- {_source_link(req)}")
             
         # Add Mermaid Graph
         lines.append("\n## Dependency Graph\n")
@@ -328,7 +352,11 @@ def generate_docs(check_only=False):
                 lines.append(f"  {mod_id_safe}[\"{mod_id}\"] --> {r_safe}[\"{r}\"]")
         lines.append("```\n")
             
-        lines.append("\n---\n*Generiert durch `medinix-meta.py generate-docs`*")
+        lines.append(
+            "\n---\n*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` "
+            "aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. "
+            "Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*"
+        )
         
         new_text = "\n".join(lines) + "\n"
         
