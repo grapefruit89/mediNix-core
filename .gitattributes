@@ -3,23 +3,15 @@
 *.sh text eol=lf
 *.md text eol=lf
 
-# Generated digests (suppress diffs and keep repository language stats accurate)
+# Generated digests (suppress diffs and keep repository language stats accurate).
+# Nur noch exports/** (Export-Workflow) - die frueheren Namens-Globs
+# (_index/_root/_full/lib/docs.md und `5*.md`) trafen KEINE generierte Datei mehr,
+# versteckten aber echte Diffs HANDGESCHRIEBENER Doku (z. B. 510-ingress-SERVICE.md,
+# 551-jellyfin-tuning-and-spindown.md). Entfernt 2026-10-17 (Traceability).
 exports/** linguist-generated=true
 exports/** -diff
 *.txt linguist-generated=true
 *.txt -diff
-_index.md linguist-generated=true
-_index.md -diff
-_root.md linguist-generated=true
-_root.md -diff
-_full.md linguist-generated=true
-_full.md -diff
-5*.md linguist-generated=true
-5*.md -diff
-lib.md linguist-generated=true
-lib.md -diff
-docs.md linguist-generated=true
-docs.md -diff
 
 # Ausnahme (2026-10-16): versionierte Listen/Allowlists in scripts/ sind TEXT und muessen
 # im Review diffbar sein. Die Sammelregel `*.txt -diff` galt fuer generierte Digests,

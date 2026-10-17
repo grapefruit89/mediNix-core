@@ -89,8 +89,8 @@ Caddy URL: `/icons.svg`
 ## Pocket ID — once per host
 
 Pocket-ID is an **OIDC identity provider**, not the forward-auth endpoint.
-`forward_auth` needs an explicit auth gateway upstream (oauth2-proxy / tinyauth /
-caddy-security); Pocket-ID itself is **not** a valid `forwardAuthUpstream`.
+`forward_auth` needs an explicit auth gateway upstream (oauth2-proxy,
+ADR-517); Pocket-ID itself is **not** a valid `forwardAuthUpstream`.
 
 ```nix
 medinix.pocketId.enable = true;

@@ -379,8 +379,8 @@ in
       type = lib.types.bool;
       default = false;
       description = ''
-        true = ein echter Forward-Auth-Proxy (oauth2-proxy, tinyauth,
-        caddy-security) lauscht auf ingress.auth.forwardAuthUpstream. Dann
+        true = ein echter Forward-Auth-Proxy (oauth2-proxy, ADR-517)
+        lauscht auf ingress.auth.forwardAuthUpstream. Dann
         AUTH__METHOD=External für *arr (nur bei tatsächlich publicer
         vHost-Exposure, siehe F2). false = Forms-Auth.
         Pocket-ID ist KEIN Forward-Auth-Proxy (reiner OIDC-OP, F5) und darf

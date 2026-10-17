@@ -52,6 +52,11 @@ BANS = [
         "systemd-creds: LoadCredentialEncrypted (ADR-521)",
     ),
     (
+        "tinyauth (kein Passkey-Support)",
+        re.compile(r"\btinyauth\b|\bpkgs\.tinyauth\b|\bservices\.tinyauth\b"),
+        "oauth2-proxy (OIDC/Passkey ueber Pocket ID, ADR-517)",
+    ),
+    (
         "iptables / ip6tables / ufw / firewalld (imperative Firewall)",
         re.compile(
             r"(?:^|[|&;(]\s*)(?:sudo\s+)?(?:iptables|ip6tables|ufw|firewalld)\s+(?!=\s)"

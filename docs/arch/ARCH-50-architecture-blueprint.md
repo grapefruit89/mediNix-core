@@ -50,7 +50,7 @@ QuickSync).
 *   **Identity:** **Pocket ID** (`51-ingress/512-pocket-id.nix`) = OIDC-IdP
     (Passkeys). **Wichtig:** Pocket ID hat **keinen forward-auth-Endpoint** — ein
     Caddy-Gate (`auth.mode = "forward-auth"`) braucht einen separaten Auth-Proxy
-    (oauth2-proxy / tinyauth / caddy-security), nicht Pocket ID.
+    (oauth2-proxy, ADR-517), nicht Pocket ID.
 *   **VPN:** **WireGuard** (`52-security/525-vpn-interface.nix`,
     `526-vpn-killswitch.nix`) mit **UID-basiertem nftables-Routing**.
     **`netns`/`PrivateNetwork` ist verboten** (ADR-0011) — kein Maroka-chan,

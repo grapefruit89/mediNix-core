@@ -38,13 +38,15 @@ Zugleich haben nicht alle Dienste ein eigenes OIDC.
    551 ist `stream` (kein `forward_auth`), 561 wird `public` **mit**
    `allowUnauthenticated = true` — beide haben einen eigenen Login.
 
-## Proxy-Wahl: oauth2-proxy (nicht tinyauth, nicht caddy-security)
+## Proxy-Wahl: oauth2-proxy (tinyauth geblacklistet, caddy-security verworfen)
 
-| Kriterium | oauth2-proxy 7.15.5 (MIT) | tinyauth 5.2.0 (AGPL-3.0) | caddy-security (Plugin) |
+| Kriterium | oauth2-proxy 7.15.5 (MIT) | tinyauth 5.2.0 | caddy-security (Plugin) |
 |---|---|---|---|
+| Status | **gewaehlt** | **geblacklistet** (`50-core/BANNED_TECHNOLOGIES.md`: **kein Passkey-Support**) | verworfen |
 | Extra-Daemon | 1 (nixpkgs-Modul `services.oauth2-proxy`) | 1 | 0 |
-| Caddy-Umbau | **keiner** — `511` spricht `forward_auth` schon | keiner | **eigener Caddy-Build** (`caddy.withPlugins`, Overlay) |
-| Reife/Doku | hoch, Standard | neu | Plugin-Pflege |
+| Caddy-Umbau | **keiner** — `511` spricht `forward_auth` schon | keiner | **eigener Caddy-Build** (`pkgs.caddy.withPlugins` — in nixpkgs vorhanden, aber FOD + Hash-Pflege + Rebuild je Update) |
+| Passkeys | ja (OIDC gegen Pocket ID) | **nein** | ja |
+| Lizenz | MIT | AGPL-3.0 | — |
 | Lizenzen | MIT | AGPL-3.0 | — |
 
 **Entschieden: oauth2-proxy** — geringste bewegliche Teile am kritischsten Bauteil

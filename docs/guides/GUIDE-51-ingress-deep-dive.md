@@ -20,7 +20,7 @@ WAN → Caddy (511) → optional forward_auth (512 / externes Auth-Gateway) → 
 ```
 
 > **Pocket ID ist ein OIDC-IdP, nicht der forward_auth-Endpoint.** `forward_auth`
-> braucht ein Upstream wie `oauth2-proxy` / `tinyauth` / `caddy-security`
+> braucht ein Upstream wie `oauth2-proxy` (ADR-517)
 > (`authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`).
 
 ## 🧩 accessGroup (Zugriffs-Vertrag)

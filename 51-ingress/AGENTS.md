@@ -44,7 +44,7 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 - **Pocket-ID (512) kann kein forward-auth.** Sie ist OIDC-IdP **ohne**
   forward-auth-Endpoint. `auth.mode = "forward-auth"` verlangt zusätzlich
   `authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`
-  (oauth2-proxy/tinyauth) — sonst bricht `511` per Assertion ab.
+  (oauth2-proxy, ADR-517) — sonst bricht `511` per Assertion ab.
 - **`localBypass` existiert nicht mehr.** Er war nie verdrahtet (0 Leser).
   `.lan` ist **nur** CIDR-gegated (`lanAbort`); WAN-`public` erzwingt `forward_auth`.
 - **`.lan` ≠ `.local`.** `.lan` ist der Caddy-Vhost, `.local` ist mDNS (515).

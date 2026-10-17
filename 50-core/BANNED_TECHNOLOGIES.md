@@ -28,6 +28,7 @@ unbeschraenktes `sudo`) bleiben manuelle Pruefung.
 | Banned Technology | Replacement / Nix-Way Alternative | Rationale |
 | :--- | :--- | :--- |
 | **`sops-nix` / `agenix`** | `systemd-creds` (LoadCredentialEncrypted) | Absolutely banned. We rely 100% on native systemd TPM2 sealing. Third-party secret managers add unnecessary abstraction, break the pure systemd-native philosophy, and complicate disaster recovery. |
+| **`tinyauth`** | `oauth2-proxy` (OIDC gegen Pocket ID) | Banned: **kein Passkey-Support**. Unser Auth-Flow ist passkey-first (Pocket ID, ADR-512); ein Forward-Auth-Proxy ohne Passkeys bricht das. Ersatz: `oauth2-proxy` (ADR-517). |
 | **`iptables`** | `nftables` | iptables is legacy, inefficient, and abstract. We use modern, declarative nftables rulesets. |
 | **`cron` / `crond` / `anacron`** | `systemd.timers` | cron lacks centralized logging, dependency tracking, and atomic execution. systemd.timers provide native journald integration and predictable execution constraints. |
 | **Docker / Podman / LXC** | Native `systemd.services` (DynamicUser, RootImage) | The Zero-Container rule (enforced in `592-environment.nix`). We build software natively from `nixpkgs` and isolate it using systemd's built-in sandboxing (RestrictAddressFamilies, PrivateTmp). |

@@ -331,7 +331,7 @@ lib.mkMerge [
           || (cfg.authProxyPresent && cfg.ingress.auth.forwardAuthUpstream != "");
         message = ''
           [mediNix] auth.mode = "forward-auth" needs an explicit forward-auth
-          upstream (oauth2-proxy / tinyauth / caddy-security) via
+          upstream (oauth2-proxy, ADR-517) via
           authProxyPresent = true + ingress.auth.forwardAuthUpstream.
           Pocket-ID is an OIDC provider and has NO forward-auth endpoint, so it
           is NOT a valid upstream.
