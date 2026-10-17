@@ -1189,11 +1189,6 @@ in
         type = lib.types.str;
         default = "${cfg.secrets.secretsDir}/seerr.env";
       };
-      cloudflareEnvFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.path;
-        default = null;
-        description = "Pfad zur Cloudflare-EnvironmentFile (.env) mit CF_DNS_API_TOKEN fuer ACME/DNS-01.";
-      };
       usenetEnvFile = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;

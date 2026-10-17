@@ -32,7 +32,6 @@ testPkgs.testers.runNixOSTest {
         ];
         storage.mediaRoot = "/tmp/media";
         storage.downloadDir = "/tmp/downloads";
-        secrets.cloudflareEnvFile = pkgs.writeText "cf.env" "CF_DNS_API_TOKEN=fake";
         jellyfin.adminPasswordFile = pkgs.writeText "jf-admin.cred" "pass123";
         manifest.seerr.allowUnauthenticated = true;
         seerr.enable = true;

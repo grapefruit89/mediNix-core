@@ -100,6 +100,13 @@
       "failure": "`nix flake check --no-build` und die gebauten LINT-Checks beweisen die Unit-Skripte NICHT. `writeShellApplication` laesst shellcheck laufen; ein konstanter Vergleich (`[ \"0\" = \"1\" ]`, SC2050) bricht erst beim Bauen ab. Deshalb war 98db8e3 lokal 47/0 gruen und in der CI rot - die erweiterte Ratsche baute die Unit erstmals.",
       "solution": "Lokaler Ersatz fuer den Systembau: die `.drv`-Pfade aus dem STRING-KONTEXT der Unit-Skripte holen (builtins.getContext auf serviceConfig.ExecStart/script/preStart/...), auf lib.hasSuffix \".drv\" filtern und einzeln mit `nix build <drv>` bauen - 77 Derivationen, Sekunden statt Minuten, deckt shellcheck UND die Wrapper ab."
     }
+  ,
+    {
+      "date": "2026-10-17",
+      "component": "51-ingress/514-acme.nix + 50-core/502-host-settings.nix",
+      "failure": "Klartext-Env-Datei als ACME-Credential (medinix.secrets.cloudflareEnvFile, nullOr path) hatte Vorrang vor dem sealed Token: ein Secret im Nix-Store (ADR-0003 Abschnitt 4 verbietet das) und ein stiller Bypass der Trennungssicherung ACME-Token != DDNS-Token.",
+      "solution": "Option und Fallback entfernt - sealed-only ueber ingress.tls.acmeCredential (ADR-514). Review 2026-10-17, Finding 9."
+    }
   ],
   "recent_refactorings": [
     {
@@ -257,6 +264,8 @@
     "2026-10-16: Projekt-Skills verankert: scripts/link-skills.sh (Symlinks docs/agents -> ~/.config/opencode/skills, idempotent, Ausschlussliste scripts/skills-exclude.txt) + scripts/check_skills.py in order-lint; 20 sichtbar, 9 fremde Workflows ausgeschlossen; Context7-Pflicht in medinix-build-gate durch die Live-Quelle-Rangfolge ersetzt.",
     "2026-10-16: ADR-Formregel + scripts/check_adrs.py (order-lint); 6 Altdateien auf ihre Inhalts-ID umbenannt, 25 ADRs im llm-index registriert; ADR-0002-nixos-grundfunktionen (bindend) + scripts/check_banned_technologies.py.",
     "2026-10-16: nixmeta-Ratsche 2: folder/status/complexity/links.adr + mindestens eine Upstream-Angabe sind fuer Dienst-Module Pflicht; 18 Header mechanisch nachgezogen, Rest in scripts/nixmeta-baseline.txt (42 Dateien, darf nur schrumpfen)."
+  ,
+    "2026-10-17: F9 (Review 51-ingress): `medinix.secrets.cloudflareEnvFile` entfernt. Die Klartext-Env-Datei (nullOr path = Nix-Store-Pfad) hatte VORRANG vor dem sealed ACME-Credential und widersprach ADR-0003 Abschnitt 4 (no secrets in the Nix store); damit war auch die Trennungssicherung ACME != DDNS-Token blind. Jetzt sealed-only: credPath = ingress.tls.acmeCredential (ADR-514). 4 Dateien: 51-ingress/514-acme.nix, 50-core/502-host-settings.nix (Assertion + Message), default.nix (Option), tests/medinix-smoke.nix (Zeile war wirkungslos - acmeHost dort nicht gesetzt)."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",

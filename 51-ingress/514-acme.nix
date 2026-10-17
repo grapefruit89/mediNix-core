@@ -27,11 +27,11 @@ let
   ddns = cfg.dns.ddns;
   acmeHost = ing.tls.acmeHost;
 
-  credPath =
-    if (cfg.secrets.cloudflareEnvFile or null) != null then
-      cfg.secrets.cloudflareEnvFile
-    else
-      ing.tls.acmeCredential or null;
+  # Nur noch das versiegelte Credential. Die frueher bevorzugte Klartext-Env-Datei
+  # (`medinix.secrets.cloudflareEnvFile`, ein Nix-Store-Pfad) hatte VORRANG vor dem
+  # sealed Token und widersprach damit ADR-0003 §4 ("No secrets in the Nix store").
+  # Entfernt: Review 2026-10-17, Finding 9.
+  credPath = ing.tls.acmeCredential or null;
 
   credRuntime = "/run/credentials/acme-${acmeHost}.service/cf-token";
 
@@ -123,16 +123,11 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
   systemd.services."acme-${acmeHost}" = {
     serviceConfig = {
       EnvironmentFile = [
-        (
-          if (cfg.secrets.cloudflareEnvFile or null) != null then
-            cfg.secrets.cloudflareEnvFile
-          else
-            credRuntime
-        )
+        credRuntime
         cfTuningEnv
       ];
     }
-    // lib.optionalAttrs ((cfg.secrets.cloudflareEnvFile or null) == null && credPath != null) {
+    // lib.optionalAttrs (credPath != null) {
       LoadCredentialEncrypted = [ "cf-token:${credPath}" ];
     };
   };
