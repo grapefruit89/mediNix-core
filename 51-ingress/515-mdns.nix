@@ -35,7 +35,7 @@ let
   enabledNames =
     (lib.attrNames (
       lib.filterAttrs (
-        n: vhost:
+        n: _:
         let
           # RT-5: keep in sync with 511's enabledOf — three lookup paths
           # (direct, camelCase, observability.<name>).
