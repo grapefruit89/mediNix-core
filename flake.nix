@@ -851,6 +851,21 @@
               medinix.ingress.vhosts."feishin".accessGroup = "stream";
             };
 
+        # ADR-517: 517 einschalten ohne Issuer bzw. ohne versiegelte Secrets
+        # waere ein Auth-Proxy, der still nicht einloggt -> Build-Fehler.
+        checks.mediNix-negative-oauth2-issuer = expectAssertion "oauth2-issuer" "oidcIssuerUrl fehlt" {
+          medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+          medinix.oauth2Proxy.enable = true;
+        };
+
+        checks.mediNix-negative-oauth2-secrets =
+          expectAssertion "oauth2-secrets" "Credential-Pfade fehlen"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.oauth2Proxy.enable = true;
+              medinix.oauth2Proxy.oidcIssuerUrl = "https://id.example.com";
+            };
+
         # F3: der Upstream-Vergleich toleriert Schema/Trailing-Slash. Genau das
         # dokumentierte Format (http://127.0.0.1:<pocket-id-port>) muss die
         # Assertion ausloesen, sonst zeigt forward_auth auf Pocket-ID selbst.

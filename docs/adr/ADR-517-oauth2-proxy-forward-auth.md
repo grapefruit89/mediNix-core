@@ -75,3 +75,29 @@ kompatibel (`authProxyPresent` + `forwardAuthUpstream` + `forwardAuthUri`).
 - Callback-Hostname/Pfad: oauth2-proxy nutzt `proxyPrefix = "/oauth2"` **auf dem
   jeweiligen vhost** (kein eigener öffentlicher vhost nötig).
 - Ob 552/553 eigene OIDC-Options bekommen oder der Host die App-Settings setzt.
+
+## Umsetzung (2026-10-17)
+
+Beide Teile sind gebaut (Review 51-ingress, Finding 19):
+
+- **511 reicht `/oauth2/*` durch** (`handle /oauth2/* { reverse_proxy
+  <forwardAuthUpstream> }` vor der `route`, Pfad ungestrippt). Gilt für externe
+  wie für den lokalen Proxy. Beweis: der gerenderte Caddyfile aus
+  `checks.mediNix-ingress-header-strip` enthält das `handle` vor der `route`.
+- **`51-ingress/517-oauth2-proxy.nix`** existiert: loopback-only auf 5170,
+  `provider = "oidc"`, `setXauthrequest`/`reverseProxy` gesetzt,
+  `accessGroup`-Klasse bleibt am jeweiligen Dienst (kein eigener vhost).
+- **Kein manueller Spiegel mehr:** `medinix.authProxyPresent` und
+  `ingress.auth.forwardAuthUpstream` werden von 517 per `mkDefault` gesetzt -
+  der Host schaltet nur `medinix.oauth2Proxy.enable` und die zwei versiegelten
+  Credentials (`clientSecretCredential`, `cookieSecretCredential`, ADR-521).
+- Registry: `oauth2-proxy = mkService "oauth2-proxy" 517 "network" "none"` —
+  Port und UID kommen aus der einen Formel (ADR-0000), nichts hartkodiert.
+- Zwei Negativ-Fixtures nageln es fest: `mediNix-negative-oauth2-issuer` und
+  `mediNix-negative-oauth2-secrets`.
+
+**Weiterhin offen:** Punkt 2 dieser ADR (Sonarr/Radarr/Readarr/Lidarr/Prowlarr
+und ntfy/Gatus hinter den Proxy) heißt für den Host aktiv
+`accessGroup = "public"` setzen — die Registry führt diese Dienste als
+`internal`, und 511 rendert `forward_auth` nur für `public`. Ebenso offen bleibt
+Punkt 3 (`561` Seerr auf `allowUnauthenticated = true`).

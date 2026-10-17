@@ -6,3 +6,6 @@ caddy | BESTAETIGT 2026-10-16: 511 ist reiner Manifest-KONSUMENT (Chameleon-Cadd
         Engine eine Unit + ein Konto `caddy` ableiten (daemonServices, hasDaemon default true) -
         real heisst die Unit `caddy-media` bzw. existiert gar nicht (Host-Caddy). Der Key waere
         also eine FALSCHE zweite Identitaet, nicht nur ueberfluessig.
+oauth2-proxy | BESTAETIGT 2026-10-17: 517 ist Auth-Infrastruktur fuer 511 (forward_auth-Bruecke
+        zu Pocket ID, loopback-only). Kein eigener vhost, keine Kachel - die Zugriffsklasse bleibt am
+        jeweiligen Dienst. Ein Manifest-Key wuerde eine falsche zweite Identitaet erzeugen.
