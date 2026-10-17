@@ -17,7 +17,7 @@ WAN
   ↓
 Caddy / 511
   ↓
-optional forward_auth (512 / an explicit external auth gateway)
+forward_auth — only `public`  →  oauth2-proxy (517)  →  Pocket ID (512)
   ↓
 service
 ```
@@ -31,9 +31,9 @@ DNS (513) · TLS/ACME (514) · mDNS (515) · landing (518)
 
 **Numbering rule:** the number is the service's **identity** (port/UID = num × 10),
 **not** its position in a chain. The numbers stay stable. Current slots: `511`
-caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · `518`
-landingpage · `519` guardrails · **`516` crowdsec (implemented)**. **`517` is free**
-(planned: edge-firewall).
+caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · `516`
+crowdsec · **`517` oauth2-proxy (forward-auth, ADR-517)** · `518` landingpage ·
+`519` guardrails. Port/UID of 517 = **5170** (num × 10).
 
 Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables; Caddy +
 firewall stay on; fail2ban is now Legacy — RT-3 aufgelöst, CrowdSec 516 ist der
@@ -63,7 +63,10 @@ medinix.ingress.vhosts."seerr" = {
 | `idp` | WAN login (Pocket-ID only) | no |
 | `internal` / `none` | not WAN | no |
 
-518 is only the renderer. `stream` or `public` on the service module is enough. Set `landing = false` to hide a WAN app from the icon page.
+518 is only the renderer. `stream` or `public` on the service module is enough.
+Per-vhost overrides that 518 actually reads: `ingress.vhosts."<name>".landing = false`
+hides the tile, `.iconId = "<id>"` picks a sprite id, `.iconSvg = "<svg…>"` inlines
+one. Without an override the manifest decides (`ui.showOnLanding`, default `true`).
 
 ## Sprite
 
@@ -74,7 +77,7 @@ Caddy URL: `/icons.svg`
 <use href="/icons.svg#{service}"></use>
 ```
 
-`{service}` is the vhost key. `logos/sonarr.svg` is the source drawing, not the sprite. Do not `<use>` a jsDelivr URL (CORS). Do not open the GitHub blob page as an image.
+The sprite id resolves as **`ingress.vhosts."<name>".iconId` → `manifest.<name>.ui.icon` → the vhost key** (in that order). `logos/sonarr.svg` is the source drawing, not the sprite. Do not `<use>` a jsDelivr URL (CORS). Do not open the GitHub blob page as an image.
 
 ## accessGroup detail
 
@@ -96,9 +99,15 @@ ADR-517); Pocket-ID itself is **not** a valid `forwardAuthUpstream`.
 medinix.pocketId.enable = true;
 medinix.pocketId.exposure = "idp";
 medinix.ingress.auth.mode = "forward-auth";
-medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:4180";
+medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5170";  # 517, num × 10
 medinix.authProxyPresent = true;
 ```
+
+- `forwardAuthUpstream` must be the **auth gateway** (517, oauth2-proxy), **not**
+  Pocket ID. `forwardAuthUri` defaults to `/oauth2/auth`.
+- `medinix.authProxyPresent = true` is the **ack** that this upstream really
+  exists. Without it, 511 refuses to build as soon as `auth.mode = "forward-auth"`
+  is set — fail-closed instead of silently unauthenticated.
 
 511 puts the auth wall only on `public`. `stream` stays App-Login.
 
@@ -108,9 +117,34 @@ medinix.authProxyPresent = true;
 medinix.enable = true;
 medinix.domain = "example.tld";
 medinix.ingress.enable = true;
+# MANDATORY as soon as any vhost or the landing page is on — 511 aborts
+# otherwise ("no implicit trust of RFC1918/CGNAT"). Put your real LAN nets here.
+medinix.ingress.trustedCidrs = [ "192.168.2.0/24" "10.0.0.0/8" ];
 medinix.ingress.tls.acmeHost = "example.tld";
 medinix.ingress.tls.acmeCredential = "/path/to/cf.cred";
 ```
+
+`tls.mode` has three states: ACME via `tls.acmeHost` (the usual path), `"internal"`
+(self-signed, LAN-only) and `"custom"` (your own cert paths). `"off"` (default)
+serves WAN vhosts over **plain HTTP** — only for LAN-only/testing hosts.
+
+## What makes the build fail (fail-closed)
+
+511 refuses to render a half-secured ingress. A new service hits these **first** —
+in this order:
+
+| Assertion (511) | Trigger | Fix |
+| --- | --- | --- |
+| `trustedCidrs is empty but vhosts/landing are enabled` | no `ingress.trustedCidrs` | set your real LAN CIDR(s) |
+| `public vhost(s) without authentication` | `accessGroup = "public"` while `auth.mode != "forward-auth"` | set `auth.mode = "forward-auth"`, or acknowledge with `allowUnauthenticated = true` |
+| `public vhost(s) with unauthenticatedPaths (auth bypass)` | a path allowlist on a `public` vhost | drop the paths, use `accessGroup = "stream"`, or `allowUnauthenticated = true` |
+| `declared but unresolvable` | `ingress.vhosts."foo"` without `medinix.foo.enable` | enable the service or drop the vhost entry |
+| `trustedCidrs enthält Nicht-Private-Netze oder /0` | a public CIDR | private ranges only |
+| `acmeCredential == dns.ddns.cloudflareTokenCredential` | one token for ACME **and** DDNS | issue two separate tokens (ADR-514/R11) |
+
+`unauthenticatedPaths` is deliberately an **authentication bypass** list; it is
+forbidden on `public` unless you also set `allowUnauthenticated = true`. The ack
+is the point — a path allowlist alone is never enough.
 
 ## Anti-pattern
 
@@ -124,3 +158,16 @@ Ban-Entscheidungen; der Firewall-Bouncer setzt sie in nftables um — nur wenn
 `medinix.hostIntegration.nftables = "managed"` (ADR-516-crowdsec,
 `docs/ADMIN-HANDOFF.md`). `fail2ban` ist damit Legacy (519, RT-3 aufgelöst):
 genau **ein** Edge-Bouncer.
+
+## Verify
+
+After `nixos-rebuild switch`:
+
+```bash
+systemctl status caddy-media          # or caddy.service in global mode
+curl -sI https://seerr.example.tld | head -1     # 200/302, not connection refused
+curl -sI https://seerr.example.tld | grep -i 'strict-transport-security'   # TLS on
+dig +short seerr.example.tld          # 513 wrote the record
+```
+
+Without TLS (`tls.mode = "off"`) the vhost answers on `http://` only.

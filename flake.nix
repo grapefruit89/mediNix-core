@@ -877,7 +877,7 @@
                 "192.168.0.0/16"
               ];
               medinix.ingress.auth.mode = "forward-auth";
-              medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:4180";
+              medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5170";
               medinix.authProxyPresent = true;
               medinix.sonarr.enable = true;
             };
