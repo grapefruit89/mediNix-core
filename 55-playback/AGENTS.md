@@ -1,6 +1,31 @@
 # LLM Wiki: `55-playback`
 
-> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
+> **Zweck:** Wiedergabe — Medienserver und ihre Weboberflächen.
+
+Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
+(`python3 50-core/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
+wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String
+nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
+
+**Rolle:** Playback-/Media-Domäne (55x).
+
+**Verantwortung:**
+- `551` Jellyfin, `552` Audiobookshelf, `553` Navidrome — Registry-Rolle `stream`
+- `554` Feishin — statische SPA (Rolle `none`) als Oberfläche für Navidrome
+- Landing-Kacheln: die Module setzen `landing` + `iconSvg`/`iconId` selbst
+
+**Nicht verantwortlich für:**
+- Zugangskontrolle → `51-ingress`: `stream` heißt WAN-sichtbar **ohne** `forward_auth`, die App authentifiziert selbst (OIDC gegen Pocket ID, ADR-517)
+- Transcoding-/GPU-Hardware → 50-core
+- Speicherpfade/Tiering → `57-maintenance`
+
+**Source of truth:**
+- Port/UID/Rolle → `lib/registry.nix` (`jellyfin`/`audiobookshelf`/`navidrome` = `stream`)
+- Kachel-Darstellung → `51-ingress/518-landingpage.nix` plus `ingress.vhosts.<name>.landing`/`iconId`/`iconSvg`
+
+**Bekannte Klemmen:**
+- `stream` ist WAN-offen ohne Ingress-Auth. 511 lässt es nur zu, wenn der Manifest-Eintrag `stream` deklariert **oder** der Dienst in `medinix.ingress.streamAck` steht (Review 2026-10-17, Finding 20) — ein Vhost-Override auf `stream` ist kein Freibrief.
+- `idp` ist per Assertion dem IdP selbst vorbehalten.
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->

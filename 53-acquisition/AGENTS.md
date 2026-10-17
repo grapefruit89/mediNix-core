@@ -1,6 +1,31 @@
 # LLM Wiki: `53-acquisition`
 
-> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
+> **Zweck:** Beschaffung — Indexer-Anbindung und die *arr-Suite (Suche, Überwachung, Download-Auftrag).
+
+Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
+(`python3 50-core/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
+wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String
+nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
+
+**Rolle:** Beschaffungsdomäne (Service-Nummern 53x).
+
+**Verantwortung:**
+- `532` Sonarr (TV), `533` Radarr (Filme), `534` Readarr (Bücher), `535` Lidarr (Musik)
+- `536` Prowlarr — Indexer-Hub für alle *arr
+- Download-Kategorien (`tv`/`movies`/`books`/`music`) als Vertrag mit dem Downloader
+
+**Nicht verantwortlich für:**
+- Download selbst → `54-transfer` (541 SABnzbd)
+- Playback/Medienserver → `55-playback`
+- WAN-Zugang und Auth → `51-ingress`; die Registry führt diese Dienste als `internal`
+
+**Source of truth:**
+- Port/UID/Dienstnummer → `lib/registry.nix` (Dezimalrahmen, ADR-0000)
+- Kategorie je Dienst → `lib/service-contract.nix` (`arr.category`), provisioniert in `57-maintenance/574-provisioning.nix`
+- WAN-Freigabe heißt `ingress.vhosts.<name>.accessGroup = "public"` setzen — nicht das Modul ändern
+
+**Bekannte Klemmen:**
+- ADR-517 nennt Sonarr/Radarr/Readarr/Lidarr/Prowlarr als Kandidaten für `forward_auth`. Über das Modul allein passiert das **nicht**: die Registry-Rolle ist `internal`, und 511 rendert `forward_auth` nur für `accessGroup = "public"` (WAN). Wer sie hinter den Auth-Proxy stellen will, muss aktiv auf `public` stellen.
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->

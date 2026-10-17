@@ -1,6 +1,29 @@
 # LLM Wiki: `58-observability`
 
-> **Zweck:** [BITTE MANUELL AUSFUELLEN: Wofuer ist dieser Ordner zustaendig?]
+> **Zweck:** Beobachtbarkeit und Selbstheilung — Benachrichtigungen, Health-Übersicht, Exporters, Wachhunde.
+
+Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
+(`python3 50-core/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
+wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String
+nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
+
+**Rolle:** Observability-Domäne (58x).
+
+**Verantwortung:**
+- `581` ntfy (Notify-Backend), `582` Gatus (Health-Dashboard)
+- Exporters (manifest-getrieben), Runtime-Guard, Post-Boot-Watchdog, SMART-Monitoring
+
+**Nicht verantwortlich für:**
+- Alarm-Policy und Rufbereitschaft des Betreibers
+- Ingress/Auth → `51-ingress`; Backup → `57-maintenance`
+
+**Source of truth:**
+- was überwacht wird → `manifest`: Gatus und die Exporters sind **Manifest-Konsumenten**, kein Dienst erscheint dort von selbst
+- Endpunkte/Ports → `lib/registry.nix`
+
+**Bekannte Klemmen:**
+- Der Runtime-Guard prüft die *laufende* Maschine (nftables/`0.0.0.0`/VPN) und braucht dafür `CAP_NET_ADMIN` (`583`).
+- Ein neuer Dienst landet nur dann auf Dashboard und Exporters, wenn sein Manifest-Eintrag stimmt — sonst bleibt die Lücke unsichtbar.
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
