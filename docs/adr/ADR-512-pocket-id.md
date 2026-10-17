@@ -17,6 +17,8 @@ module: 51-ingress/512-pocket-id.nix
 
 **Exposure.** `pocketId.exposure`: `idp` (browser login, no forward_auth, no CIDR abort), `internal` (trustedCidrs only), `none` (loopback only; 511 can still forward_auth to `:5120`).
 
+**First-run guard (RT-2).** Pocket-ID serves `/setup` until the first account exists, and the first visitor becomes the admin (upstream Issue #1275). Since Pocket-ID is the IdP behind `forward_auth`, `exposure = "idp"` therefore requires the explicit ack `pocketId.setupCompleted = true`. Bootstrap order: `internal` → create admin + passkey → `setupCompleted = true` → `idp`. Same guard as 552/553.
+
 **Auth wiring lives in 511.** Empty `forwardAuthUpstream` + this unit on → `127.0.0.1:5120`. External proxy → `authProxyPresent` + explicit upstream, this unit stays off.
 
 **Rejected.** Authelia. Three older ADRs (`lightweight-identity`, `oidc-auth-pocketid-authelia`, `pocket-id-oidc-module`) said the same thing twice and kept Authelia as a ghost option.

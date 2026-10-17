@@ -214,6 +214,9 @@
                   medinix.navidrome.enable = true;
                   medinix.seerr.enable = true;
                   medinix.pocketId.enable = true;
+                  # RT-2: exposure defaultet auf "idp"; diese Fixture stellt einen
+                  # fertig gebootstrappten Stack dar, also ist die Ack gesetzt.
+                  medinix.pocketId.setupCompleted = true;
                   medinix.feishin.enable = true;
                   medinix.gatus.enable = true;
                   medinix.observability.ntfy.enable = true;
@@ -242,6 +245,8 @@
           # 2026-10-15 ergaenzt: diese sechs Dienste fehlten in der Ratsche und
           # waren damit eine Blindstelle (Eigentum, Optionen, Units ungeprueft).
           medinix.pocketId.enable = true;
+          # RT-2: siehe oben — der Voll-Stack ist gebootstrappt.
+          medinix.pocketId.setupCompleted = true;
           medinix.feishin.enable = true;
           medinix.maintenance.recyclarr.enable = true;
           medinix.diskHealth.enable = true;

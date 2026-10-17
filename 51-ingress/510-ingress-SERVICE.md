@@ -98,9 +98,21 @@ ADR-517); Pocket-ID itself is **not** a valid `forwardAuthUpstream`.
 ```nix
 medinix.pocketId.enable = true;
 medinix.pocketId.exposure = "idp";
+medinix.pocketId.setupCompleted = true;   # RT-2, siehe unten — Pflicht bei "idp"
 medinix.ingress.auth.mode = "forward-auth";
 medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5170";  # 517, num × 10
 medinix.authProxyPresent = true;
+```
+
+**Bootstrap-Reihenfolge (RT-2):** Pocket-ID öffnet `/setup`, **bis der erste
+Account existiert** — der erste Besucher wird dabei der Admin. `exposure = "idp"`
+ist deshalb erst nach der Ack `setupCompleted = true` erlaubt:
+
+```
+1. exposure = "internal"     # LAN-only, CIDR-Abort
+2. {name}.{domain}/setup     # Admin + Passkey anlegen
+3. setupCompleted = true
+4. exposure = "idp"
 ```
 
 - `forwardAuthUpstream` must be the **auth gateway** (517, oauth2-proxy), **not**

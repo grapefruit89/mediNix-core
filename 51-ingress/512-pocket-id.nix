@@ -86,6 +86,25 @@ in
     '';
   };
 
+  # RT-2 (first-run race) — dieselbe Sperre wie 552/553, hier fuer den IdP
+  # selbst: Pocket-ID oeffnet /setup BIS der erste Account existiert, und der
+  # erste Besucher wird dabei der Admin ("if its the first user after a initial
+  # setup, it will be the admin user", upstream Issue #1275). Pocket-ID ist der
+  # IdP hinter forward_auth — eine Uebernahme ist damit eine Uebernahme des
+  # ganzen Stacks, nicht nur einer App.
+  options.medinix.pocketId.setupCompleted = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = ''
+      Ack, dass der erste Pocket-ID-Admin (mit Passkey) angelegt ist.
+      Bootstrap-Reihenfolge:
+        1. exposure = "internal"  (LAN-only, CIDR-Abort)
+        2. {name}.{domain}/setup im Browser oeffnen, Admin + Passkey anlegen
+        3. setupCompleted = true
+        4. exposure = "idp"
+    '';
+  };
+
   config = lib.mkMerge [
     {
       medinix.manifest.pocket-id = {
@@ -141,6 +160,20 @@ in
             [mediNix] pocketId.exposure = "idp" publishes pocket-id.{domain} through 511,
             but ingress is disabled. Either enable medinix.ingress or set
             pocketId.exposure = "none" (loopback-only IdP).
+          '';
+        }
+        {
+          assertion = cfg.pocketId.exposure != "idp" || cfg.pocketId.setupCompleted;
+          message = ''
+            [mediNix] pocketId.exposure = "idp" publishes pocket-id.{domain} to the WAN,
+            but the first-run /setup page is still OPEN — the first visitor becomes
+            the IdP admin, and with it the admin of every forward_auth service.
+
+            Bootstrap: set exposure = "internal", create the admin + passkey at
+            {name}.{domain}/setup, then set pocketId.setupCompleted = true and
+            switch exposure back to "idp".
+
+            Ref: ADR-512 / RT-2 (same guard as 552/553).
           '';
         }
       ];
