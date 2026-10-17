@@ -34,9 +34,10 @@ let
 
   package = if cfg.package != null then cfg.package else pkgs.radarr;
 
-  # F2: Forward-auth detection follows resolved exposure (ingress.vhosts or manifest)
+  # F2: Forward-auth detection follows the RESOLVED exposure — EIN Produzent
+  # (lib/ingress-access.nix) statt einer vierten Kopie der Regel.
   exposedPublic =
-    (config.medinix.ingress.vhosts."radarr".accessGroup or meta.accessGroup or "none") == "public";
+    (import ../lib/ingress-access.nix { inherit lib; }).accessGroupOf config "radarr" meta == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"

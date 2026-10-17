@@ -26,8 +26,11 @@ let
   inherit (reg) uid;
   inherit (reg) stateDir;
   conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
-  ntfyGroup =
-    config.medinix.manifest.ntfy.accessGroup or (svc.ingress.vhosts.ntfy.accessGroup or "internal");
+  # EIN Produzent (Vhost-Override gewinnt). Vorher stand hier das MANIFEST
+  # zuerst — also die umgekehrte Prioritaet zum restlichen Ingress.
+  ntfyGroup = (import ../lib/ingress-access.nix { inherit lib; }).accessGroupOf svc "ntfy" (
+    config.medinix.manifest.ntfy or { }
+  );
 
   alertScript = pkgs.writeShellScript "send-ntfy-crash-alert" ''
     UNIT_NAME="''${1:-unknown}"

@@ -26,7 +26,14 @@
 rec {
   accessGroupOf =
     cfg: n: m:
-    cfg.ingress.vhosts.${n}.accessGroup or m.accessGroup or "none";
+    let
+      # `accessGroup` hat einen Default (null) — ein Vhost-Eintrag OHNE
+      # accessGroup (z. B. nur `landing = true`) ist deshalb kein
+      # "accessed but has no value defined"-Fehler mehr. `or` faengt diesen
+      # Modulsystem-Fehler NICHT: die Option ist deklariert, nur ohne Wert.
+      override = cfg.ingress.vhosts.${n}.accessGroup or null;
+    in
+    if override != null then override else (m.accessGroup or "none");
 
   # WAN-sichtbare Gruppen (511 Rendering, 513 DNS).
   wanGroups = [

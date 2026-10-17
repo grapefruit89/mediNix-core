@@ -29,6 +29,8 @@ let
   cfg = config.medinix;
 
   registry = (import ../lib/registry.nix { inherit lib; }).services;
+  ia = import ../lib/ingress-access.nix { inherit lib; };
+  manifest = config.medinix.manifest or { };
   # Only services that are actually enabled
   enabledNames =
     (lib.attrNames (
@@ -56,7 +58,9 @@ let
               "enable"
             ];
         in
-        enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
+        enabled
+        && ia.accessGroupOf cfg n (manifest.${n} or { }) != "none"
+        && (registry.${n}.port or null) != null
       ) cfg.ingress.vhosts
     ))
     ++ lib.optional cfg.ingress.landing.enable "home";

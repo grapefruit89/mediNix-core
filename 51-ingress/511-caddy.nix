@@ -70,7 +70,9 @@ let
   # Declared-but-unresolvable vhosts in ingress.vhosts (RT-5/F7 loud instead of silently dead)
   unresolvedVhosts = lib.filter (n: !(enabledServices ? ${n})) (
     lib.attrNames (
-      lib.filterAttrs (_: vhost: (vhost.accessGroup or "internal") != "none") (cfg.ingress.vhosts or { })
+      lib.filterAttrs (n: _: accessGroupOf n (config.medinix.manifest.${n} or { }) != "none") (
+        cfg.ingress.vhosts or { }
+      )
     )
   );
 
