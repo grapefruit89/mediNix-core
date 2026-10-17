@@ -331,14 +331,20 @@ http://{name}.{domain}
 
 
 http://{name}.local
-    └── LAN-only mDNS naming path
+    └── mDNS A record only (515/avahi) — 511 renders NO Caddy site for `.local`
 ```
 
 `.local` is a **naming mechanism**, not a security boundary.
 
 Authentication and network access controls must therefore not rely on the `.local` suffix itself.
 
-The landing page is exposed through the configured root hostname and `home.local` when enabled.
+`.local` names resolve to the LAN IP via mDNS, but Caddy only knows `.lan`
+(`{name}.lan`, `dashboard.lan`) and `{name}.{domain}`. Until a Caddy site block
+for `.local` exists, a request with `Host: {name}.local` matches no site. The
+landing page is served on `https://{domain}` and on `http://dashboard.lan`
+(CIDR-gated) — **not** on `home.local`; 515 publishes `home.local` only as an
+mDNS A record. (Corrected 2026-10-17; the text claimed HTTP + CIDR abort for
+`.local` and a `home.local` landing.)
 
 ---
 
@@ -430,10 +436,13 @@ Examples include detection of competing ingress technologies or ownership confli
 nginx
 httpd
 iptables
+fail2ban
 ```
 
-fail2ban is deliberately NOT on this list (RT-3): CrowdSec (slot 516) is the
-single edge bouncer (519). A second ban engine would duplicate state.
+fail2ban **is** on this list: since 2026-10-15 CrowdSec (slot **516**) is
+implemented and is the single edge bouncer (519, RT-3 aufgelöst). A second ban
+engine would duplicate state. (Corrected 2026-10-17 — this paragraph claimed the
+opposite, and the 519 option description carried the same stale text.)
 The purpose is not to claim that mediNix can control every possible host configuration.
 
 Instead, the guardrails make the intended ownership model explicit and provide a controlled escape hatch through:
@@ -461,10 +470,13 @@ medinix.ingress.guardrails
 Planned slots:
 
 ```text
-517  edge firewall / nftables integration
+517  oauth2-proxy (forward-auth) — ADR-517, port/UID 5170
 ```
 
-516 (CrowdSec) is implemented; 517 remains planned until implemented and verified.
+516 (CrowdSec) is implemented; 517 remains planned until implemented and
+verified. 517 is **oauth2-proxy**, not an "edge firewall" — the earlier naming
+came from the pre-ADR-517 plan and contradicted `510-ingress-SERVICE.md`
+(corrected 2026-10-17).
 
 ---
 
@@ -483,7 +495,8 @@ The resulting changes covered, among other things:
 * authentication behavior for internal *arr services
 * separate ACME/DDNS credentials
 * ACME domain validation
-* landing-page trusted-CIDR enforcement
+* landing-page trusted-CIDR enforcement (the `dashboard.lan` site; the WAN apex
+  `https://{domain}` landing has NO CIDR abort — see the Landing section)
 * VPN identity-chain assertions
 * IPv6 killswitch assertions
 * firewall ownership/activation assertions
@@ -503,7 +516,10 @@ These findings were fixed and independently re-checked.
 
 One design issue remains intentionally open:
 
-> **F7 — customConfig-only vhosts and the exact interaction with `hasStatic` remain an explicit design question.**
+> **F7 — customConfig-only vhosts and how they should interact with a static
+> flag remain an explicit design question.** (The name `hasStatic` used here
+> earlier does **not** exist in any `.nix` file — it was a placeholder for a
+> flag that has not been designed yet. Corrected 2026-10-17.)
 
 It must not be silently converted into an implementation assumption.
 
@@ -511,26 +527,42 @@ It must not be silently converted into an implementation assumption.
 
 # Verification status
 
-The current repository state has passed the available static/build verification:
+**This block is a snapshot, not a promise.** It carries a date and a commit so it
+can be re-checked instead of believed (CONVENTIONS §6: CI proof, not CI claim).
+
+Last verified: **2026-09-24** (Review) — **stale as of 2026-10-17.**
 
 ```text
-Local flake/evaluation       PASS
-Security checks              PASS
-Negative tests               PASS
-Smoke tests                  PASS
-Relevant system builds       PASS
-nixfmt                       PASS
-statix                       PASS
-deadnix                      PASS
-git diff --check              PASS
-GitHub CI Flake Check        PASS
+Local flake/evaluation       PASS   (2026-09-24)
+Security checks              PASS   (2026-09-24)
+Negative tests               PASS   (2026-09-24)
+Smoke tests                  PASS   (2026-09-24)
+Relevant system builds       PASS   (2026-09-24)
+nixfmt                       PASS   (2026-09-24)
+statix                       PASS   (2026-09-24)
+deadnix                      PASS   (2026-09-24)
+git diff --check             PASS   (2026-09-24)
+GitHub CI Flake Check        FAIL   (2026-10-17, run 39030306072)
 ```
 
-The repository is currently synchronized:
+Why the Flake Check is red (measured, not guessed): every check — including all
+`negative-*` fixtures and the ingress header-strip checks — **evaluated
+successfully**; the run then died in the binary-cache step:
 
 ```text
-main == origin/main
-working tree clean
+error: unable to download 'http://127.0.0.1:37515/…narinfo': HTTP error 418
+GitHub API error: TwirpErrorResponse { code: ResourceExhausted, msg: "rate limit exceeded" }
+GitHub Actions Cache throttled Magic Nix Cache. Not trying to use it again on this run.
+```
+
+That is infrastructure (Actions cache / rate limit), not a code regression.
+Re-verify with `gh run list` / `nix flake check` before trusting this table.
+
+The repository state at that snapshot:
+
+```text
+main == origin/main          (2026-09-24)
+working tree clean           (2026-09-24)
 ```
 
 The verification boundary is important:
@@ -640,8 +672,8 @@ Automated change pipeline
 ## Planned
 
 ```text
-516  native CrowdSec integration
-517  native edge-firewall/rate-limit integration
+516  (implemented — see the slot table above)
+517  oauth2-proxy (forward-auth), ADR-517, port/UID 5170
 ```
 
 These are plans, not current capabilities.

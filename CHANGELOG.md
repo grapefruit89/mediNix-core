@@ -3,6 +3,57 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+## 2026-10-17 — 51-ingress-Review: 26 Findings verifiziert, 12 gefixt
+
+Vollständiger Report: `docs/audit/2026-10-17/51-ingress-review/REVIEW-51-ingress.md`.
+
+- **Ack-Modell fail-closed:** `ingress.vhosts.<n>.allowUnauthenticated` ist jetzt
+  `nullOr bool` — der Vhost-Override **gewinnt** (wie `accessGroup`/`landing`).
+  Vorher ODER: eine Manifest-Ack ließ sich vom Host nicht widerrufen, eine
+  geerbte Ack öffnete still. Ein explizites `false` widerruft jetzt und bricht
+  den Build, wenn der vhost public bleibt (Finding 1).
+- **512-Guards lesen die wirksame Exposure:** Der `/setup`-Guard nutzt
+  `ia.isWan (ia.accessGroupOf …)` statt `pocketId.exposure` — ein Vhost-Override
+  konnte ihn vorher vollständig umgehen (Finding 2). Der Upstream-Vergleich
+  extrahiert den Port und toleriert `http://`/`localhost`/Trailing-Slash; vorher
+  lief das dokumentierte Format an der Assertion vorbei (Finding 3).
+- **CIDR-Grenzen:** Der Optionstyp verlangt `[1-9][0-9]{0,2}` als Präfix (`/0`,
+  `/08` → Eval-Fehler); die Assertion prüft zusätzlich `v4 >= /8`, `v6 >= /7`.
+  `10.0.0.0/1` hätte `lanAbort` halb IPv4 geöffnet (Finding 4).
+- **Identity-Header auf jedem Route gestrippt:** `request_header -…` steht jetzt
+  am Anfang jedes `route`, nicht mehr nur im `authBlock`. `stream`/`idp`/`.lan`
+  und `public+allowUnauthenticated` waren vorher spoofbar (Finding 5).
+- **ADR-0000 §4 wiederhergestellt:** `mediaGroup = true` aus 511 entfernt —
+  §4 verbietet 511/512 ausdrücklich GID 5000 (Finding 6).
+- **`internal` rendert `{name}.{domain}` mit TLS + CIDR-Abort:** Vorher nur
+  `.lan`, damit war der dokumentierte Pocket-ID-Passkey-Bootstrap unmöglich
+  (Secure Context fehlt auf `http://….lan`) (Finding 14).
+- **516 liest die richtige Caddy-Unit:** `caddyUnit` wird über
+  `ia.caddyUnitOf` aus dem Modus abgeleitet statt hartkodiert
+  `caddy-media.service` — im Global-Modus las CrowdSec ins Leere. Neue
+  Assertion koppelt die Engine an `ingress.enable` (Finding 13).
+- **513 WAN-IP-Fallback:** jeder Echo-Dienst wird einzeln validiert; vorher hing
+  bei einem HTTP-Fehler der Fehler-Body vor der IP des Fallbacks (Finding 16).
+- **514 Wildcard-Abdeckung:** `*.${domain}` als zusätzliche SAN, wenn `domain`
+  ein Subdomain von `acmeHost` ist — `*.${acmeHost}` deckt nur eine
+  Label-Ebene (Finding 17).
+- **515 nutzt `manifest.enable`:** dieselbe Quelle wie 511/513/518 statt einer
+  eigenen Optionspfad-Auflösung; `lib/registry`-Import entfernt (Finding 18).
+- **519: zwei tote Assertions ersetzt/entfernt:** `networking.useIPTables`
+  existiert in nixpkgs nicht (→ `networking.firewall.backend == "iptables"`,
+  nur bei `firewall == "managed"`); `keepOn.caddy` war unter `ingress.enable`
+  tautologisch (Finding 21).
+- **Doku:** fail2ban/516-Widerspruch (Optionstext + README), 517 als
+  oauth2-proxy statt „edge firewall", `.local`/`home.local`-Versprechen,
+  `hasStatic`, „513 wrote the record", `accessGroupOf`-Zuschreibung, NIXMETA
+  `requires` (Findings 24/25).
+- **Verifikationsblock datiert:** `51-ingress/README.md` behauptete „CI Flake
+  Check PASS" ohne Datum. Gemessen: alle Checks evaluieren, der Run stirbt an
+  der Actions-Cache (`HTTP error 418`, `rate limit exceeded`).
+- **Offen (Betreiberentscheidung):** WAN-Landing, `.local`-Kette, Avahi
+  `openFirewall`, Prune-Filter, `cloudflareEnvFile`-Trennungsassertion,
+  `idp`/`stream`-Ack.
+
 ## 2026-10-16 (3) — Handy-Block übernommen, 589 verworfen, Branch rot (L-045)
 
 - **Übernahme:** 19 Commits (`3fc4d54`), fast-forward, kein Verlust. Neu: AB-033..AB-038,

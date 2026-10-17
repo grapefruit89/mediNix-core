@@ -184,7 +184,7 @@ After `nixos-rebuild switch`:
 systemctl status caddy-media          # or caddy.service in global mode
 curl -sI https://seerr.example.tld | head -1     # 200/302, not connection refused
 curl -sI https://seerr.example.tld | grep -i 'strict-transport-security'   # TLS on
-dig +short seerr.example.tld          # 513 wrote the record
+dig +short seerr.example.tld          # wildcard *.{zone} -> wan.{zone} (513)
 ```
 
 Without TLS (`tls.mode = "off"`) the vhost answers on `http://` only.

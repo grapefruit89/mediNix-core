@@ -37,10 +37,16 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 
 ## Was hier leicht schiefgeht (hart erarbeitet)
 
-- **`accessGroup` hat EINEN Produzenten.** `511` löst per
-  `accessGroupOf n m = ingress.vhosts.<n>.accessGroup or manifest.<n>.accessGroup`
-  auf — der **Vhost gewinnt**. Nie beide Stellen pflegen; die Divergenz war ein
-  stiller Auth-Bypass (F1/F2, `docs/ingress-security-matrix.md`).
+- **`accessGroup` hat EINEN Produzenten.** Die Auflösung lebt in
+  `lib/ingress-access.nix` (`accessGroupOf cfg n m`: Vhost-Override gewinnt,
+  sonst das Manifest) und wird von `511` (Rendering), `513` (DNS), `515` (mDNS)
+  und `518` (Tiles) importiert — nicht in 511 selbst. Nie beide Stellen
+  pflegen; die Divergenz war ein stiller Auth-Bypass (F1/F2,
+  `docs/ingress-security-matrix.md`).
+- **`allowUnauthenticated` löst genauso auf** (`nullOr bool`, Vhost gewinnt).
+  `null` = Manifest entscheidet, ein explizites `false` **widerruft** eine
+  Manifest-Ack. Vorher war es ein ODER — eine geerbte Ack öffnete still
+  (Review 2026-10-17, Finding 1).
 - **Pocket-ID (512) kann kein forward-auth.** Sie ist OIDC-IdP **ohne**
   forward-auth-Endpoint. `auth.mode = "forward-auth"` verlangt zusätzlich
   `authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`
