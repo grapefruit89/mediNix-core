@@ -728,9 +728,11 @@
               # gestrippt: request_header -<H>
               grep -oE 'request_header -[A-Za-z][A-Za-z0-9-]*' "$f" \
                 | sed 's/^request_header -//' | sort -u > stripped
-              # kopiert: der copy_headers-Block (bis zur schliessenden Klammer)
+              # kopiert: der copy_headers-Block (bis zur schliessenden Klammer).
+              # `_` gehoert in die Zeichenklasse: sonst zerfaellt die Direktive
+              # "copy_headers" in "copy" + "headers" und grep -vx entfernt sie nicht.
               sed -n '/copy_headers/,/}/p' "$f" \
-                | grep -oE '[A-Za-z][A-Za-z0-9-]*' | grep -vx 'copy_headers' | sort -u > copied
+                | grep -oE '[A-Za-z][A-Za-z0-9_-]*' | grep -vx 'copy_headers' | sort -u > copied
               comm -23 copied stripped > missing
               if [ -s missing ]; then
                 echo "FAIL: copied but not stripped: $(tr '\n' ' ' < missing)"; exit 1
