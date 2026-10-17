@@ -199,6 +199,16 @@ let
                        X-Auth-Request-User X-Auth-Request-Email
         }
       '';
+      # ADR-517: der Login-/Callback-Endpunkt des Auth-Proxy muss VOR jedem
+      # `forward_auth` erreichbar sein, sonst kann der Browser nie einloggen
+      # (Deadlock: ohne Login kein /oauth2/*, ohne /oauth2/* kein Login).
+      # Caddy sortiert `handle` vor `route` ein; der Pfad wird NICHT gestrippt -
+      # oauth2-proxy erwartet seinen eigenen `proxyPrefix` (/oauth2).
+      oauth2Block = lib.optionalString (needsAuth && ing.auth.forwardAuthUpstream != "") ''
+        handle /oauth2/* {
+          reverse_proxy ${ing.auth.forwardAuthUpstream}
+        }
+      '';
       transportOpts = lib.optionalString isStream ''
         flush_interval -1
         transport http {
@@ -210,6 +220,7 @@ let
     in
     ''
       ${lib.optionalString (!isStream) "encode zstd gzip"}
+      ${oauth2Block}
       route {
         ${stripAuthHeaders}
         ${lib.optionalString isLocal lanAbort}
