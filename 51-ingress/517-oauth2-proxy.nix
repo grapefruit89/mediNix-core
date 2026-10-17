@@ -122,8 +122,7 @@ in
     services.oauth2-proxy = {
       enable = true;
       provider = "oidc";
-      inherit (oa) clientID;
-      oidcIssuerUrl = oa.oidcIssuerUrl;
+      inherit (oa) clientID oidcIssuerUrl;
       httpAddress = "http://127.0.0.1:${toString svc.port}";
       # 511 setzt die X-Forwarded-*-Header; ohne reverseProxy verwirft der
       # Proxy sie, ohne setXauthrequest sieht der Dienst keinen Benutzer.

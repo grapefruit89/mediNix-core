@@ -23,6 +23,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `pocket-id` | `–` | 512 | 5120 | 5120 | **5120** | `network` | `public` |
 | `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `script` | `none` |
 | `crowdsec` | `–` | 516 | – | 5160 | **5160** | `network` | `none` |
+| `oauth2-proxy` | `–` | 517 | 5170 | 5170 | **5170** | `network` | `none` |
 | `sonarr` | `–` | 532 | 5320 | 5320 | **5320** | `dotnet` | `internal` |
 | `radarr` | `–` | 533 | 5330 | 5330 | **5330** | `dotnet` | `internal` |
 | `readarr` | `–` | 534 | 5340 | 5340 | **5340** | `dotnet` | `internal` |
