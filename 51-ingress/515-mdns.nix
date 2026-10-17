@@ -109,8 +109,15 @@ let
 in
 lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.discovery.mdns.enable && enabledNames != [ ]) {
   services.avahi = {
-    enable = true;
+    # mkDefault, damit der Host eingreifen kann (mkForce bzw. explizites false).
+    enable = lib.mkDefault true;
     nssmdns4 = lib.mkDefault true;
+    # Der Schalter lebt in `medinix.discovery.mdns.openFirewall` (Default:
+    # nur bei managed Firewall) - hier nur lesen, nie hartkodieren.
+    openFirewall = lib.mkDefault cfg.discovery.mdns.openFirewall;
+    # nixpkgs-Default ist null = alle Interfaces ausser loopback/p2p. Der Host
+    # kann hier explizit auf seine LAN-Interfaces einschraenken.
+    allowInterfaces = cfg.discovery.mdns.allowInterfaces;
     publish = {
       enable = true;
       addresses = true;
