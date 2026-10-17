@@ -80,12 +80,38 @@ Diese beiden Namen stehen bewusst **nicht** in den Mustern des Checks und werden
 
 | Banned Proxy | Begründung |
 | :--- | :--- |
-| **caddy-security** | Caddy-Plugin, kein eigenes Binary, Rebuild via xcaddy/Download-Service nötig, Hash-Pinning in NixOS, nicht deklarativ LLM-freundlich. Widerspricht dem Single-Binary-pro-Funktion-Prinzip. Redundant zu oauth2-proxy. |
+| **caddy-security** | Caddy-**Plugin**, kein eigenes Binary — widerspricht dem Single-Binary-pro-Funktion-Prinzip. Volle Begründung unten. |
 | **tinyauth** | Keine Passkeys, AGPL-3.0. |
 | **Pomerium** | Kein klassischer `forward_auth`-Modus seit v0.21, eigene Datenplane. |
 | **Authentik Proxy Provider** | Schwergewichtig, an Authentik gebunden. |
 | **Authelia** | Hybrid, OIDC-Provider Beta. |
 | **Vouch · Traefik-ForwardAuth · nginx `auth_request` · oauth2-proxy-Fremd-Forks** | Nicht die Whitelist. |
+
+### Warum `caddy-security` gebannt ist (Weg B: `pkgs.caddy.withPlugins`)
+
+1. **Hash-TOFU bei jedem Caddy-Bump.** Die `withPlugins`-FOD vendored den
+   Caddy-Quellcode samt Plugin — der Hash ändert sich bei **jedem** Caddy-Update in
+   nixpkgs, selbst wenn die Plugin-Version unverändert bleibt. Ablauf dann: Build
+   schlägt fehl → neuen Hash aus der Fehlermeldung übernehmen → erneut bauen. Das ist
+   manueller Pflegeaufwand, den ein LLM **nicht zuverlässig autonom** erledigen kann.
+2. **Kein „Single Binary pro Funktion".** caddy-security macht Caddy zum Proxy **und**
+   Auth-Gateway — zwei Funktionen in **einem** Prozess. `oauth2-proxy` bleibt ein
+   separater, spezialisierter Daemon (eine Aufgabe pro Binary).
+3. **Konfigurationskomplexität & Doku.** Die `security`/`authenticate`-Blöcke
+   (Portal-/Policy-Struktur) sind mächtiger als nötig; die Doku gilt in der Community
+   als „a bit confusing"; es gibt Berichte über gebrochene Pocket-ID-Redirects nach
+   Updates. Das einheitliche `/oauth2/auth`-Muster von `oauth2-proxy` passt direkt auf
+   `511` (`forward_auth`), ohne Umbau.
+4. **Kein offizielles NixOS-Modul.** `services.caddy-security` existiert **nicht** in
+   nixpkgs (geprüft: nur `services.caddy.*`). Man hängt am generischen `withPlugins`
+   und schreibt die Caddyfile-Blöcke selbst. Für `oauth2-proxy` gibt es dagegen das
+   etablierte Modul `services.oauth2-proxy` mit deklarativen Optionen.
+
+**Wenn Weg B trotzdem gegangen wird:** Plugin-Version pinnen (`…@v1.1.29`) **und** den
+TOFU-Prozess für den nächsten Caddy-Bump dokumentieren — sonst scheitert der Build bei
+jedem nixpkgs-Update. `oauth2-proxy` gewinnt in allen Kriterien ausser „ein Prozess
+weniger": kein Hash-Pinning, einheitliches Muster, klare Zuständigkeitstrennung
+(Caddy routet, oauth2-proxy authentifiziert).
 | **Third-Party Loggers** | `journald` | Do not install custom log rotators or forwarders if `systemd-journald` can do the job natively. |
 | **`logrotate`** | `systemd-journald` (`SystemMaxUse=500M`) | Banned (ADR-500). mediNix relies 100% on native systemd journald log limits and automatic retention. Legacy logrotate scripts cause race conditions with service log streams and redundant log layers. |
 | **LLM Vector-DBs / RAG Plugins** | `AGENTS.md` & `grep` | Banned: `qmd`, `ChromaDB`, `FAISS`, heavy Python ML dependencies. Our codebase maps are deterministically generated (`medinix-meta.py generate-docs`). LLMs must use native `grep`/`fd` and read the `AGENTS.md` indexes instead of relying on fuzzy, bloated vector search. |
