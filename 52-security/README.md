@@ -15,7 +15,7 @@ Additive host integration. Domain 52 does not force `networking.firewall.enable`
 
 Four modules. 528 and 529 were stubs; their leftovers live in 520. Do not recreate them.
 
-## Module map
+## 1. Module map
 
 | ID | Module | Responsibility |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ Four modules. 528 and 529 were stubs; their leftovers live in 520. Do not recrea
 | **525** | [`525-vpn-interface.nix`](525-vpn-interface.nix) | WireGuard interface + encrypted private key |
 | **526** | [`526-vpn-killswitch.nix`](526-vpn-killswitch.nix) | UID mark + policy routing + unreachable fallback |
 
-## Credentials
+## 2. Credentials
 
 ```
 encrypted blob on disk
@@ -42,7 +42,7 @@ Accepted names: `*.encrypted`, `*.cred`, `/etc/credstore.encrypted/…`.
 Rejected: `dns.ddns.tokenFile`, `passwordFile`, anything under `storage.mediaRoot`, `secrets.autoGenerate`.
 Store: `/var/lib/medinix/secrets/`.
 
-## VPN
+## 3. VPN
 
 ```
 525 interface
@@ -55,21 +55,11 @@ Store: `/var/lib/medinix/secrets/`.
 
 526 is **not** "absolute isolation". Confined UIDs may still reach loopback, RFC1918/ULA, and the VPN iface. Everything else is drop. WAN without the tunnel is the thing that fails closed.
 
-## Break-glass
+## 4. Break-glass
 
 `media-admin` is SSH-key only. sudo is `systemctl restart <registry unit>` and `systemctl status * --no-pager`. No shell, no `nixos-rebuild`.
 
-## Threat model: GID 5000
-
-`Group=media` plus `UMask=0002` is the library write domain. Compromised Sonarr can rewrite an mkv. It must not rewrite an API key. Secrets stay off `mediaRoot`. Players bind the library read-only; SAB writes only `mediaRoot/downloads`.
-
-## Host firewall
-
-`hostIntegration.firewall = managed` lists 80/443. It does not enable the firewall. 520 asserts `networking.firewall.enable` or `networking.nftables.enable` when `managed` is set.
-
-`medinix.recommended.sysctl` is a suggestion list. 520 does not write `boot.kernel.sysctl`.
-
-## Declarative vs. imperative
+## 5. Declarative vs. imperative
 
 **Declarative** (Nix values, reproducible):
 
@@ -106,7 +96,7 @@ Two deliberate couplings:
 - `networking.nftables.tables.*` (526) — own namespace (`medinix_vpn_*`), written
   **only** while `networking.nftables.enable`, and asserted (see the matrix).
 
-## Host interface
+## 6. Host interface
 
 | Field | Values | Producer | Consumer | 52 behaviour |
 | --- | --- | --- | --- | --- |
@@ -117,7 +107,7 @@ Two deliberate couplings:
 **Forbidden in 52:** writing `boot.kernel.sysctl`, setting
 `networking.firewall.enable` itself, touching Caddy/vhosts/ACME/DDNS/mDNS.
 
-## Fail-closed: assertion matrix
+## 7. Fail-closed: assertion matrix
 
 Every assertion is a **build break**, not a warning.
 
@@ -142,7 +132,7 @@ Every assertion is a **build break**, not a warning.
 | 526 | `checkReversePath != true` | asymmetric routing drops WireGuard packets |
 | 526 | `networking.nftables.enable` | killswitch tables declared but never loaded |
 
-## Known findings
+## 8. Known findings
 
 - **`unitUserOf` fallback (526):** without `serviceConfig.User` the helper falls
   back to the service name; for `DynamicUser = true` that user usually does not
@@ -154,6 +144,16 @@ Every assertion is a **build break**, not a warning.
   `.firewall.checkReversePath`** are set by 520 but read by nobody in-tree — they
   are an exported host suggestion list (503 applies only `recommended.nftables`,
   never sysctl).
+
+## 9. Threat model: GID 5000
+
+`Group=media` plus `UMask=0002` is the library write domain. Compromised Sonarr can rewrite an mkv. It must not rewrite an API key. Secrets stay off `mediaRoot`. Players bind the library read-only; SAB writes only `mediaRoot/downloads`.
+
+## 10. Host firewall
+
+`hostIntegration.firewall = managed` lists 80/443. It does not enable the firewall. 520 asserts `networking.firewall.enable` or `networking.nftables.enable` when `managed` is set.
+
+`medinix.recommended.sysctl` is a suggestion list. 520 does not write `boot.kernel.sysctl`.
 
 ## Agent rule
 
