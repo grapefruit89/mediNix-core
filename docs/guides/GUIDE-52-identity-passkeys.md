@@ -27,6 +27,11 @@ Modul: `51-ingress/512-pocket-id.nix` (nicht `modules/services/identity.nix`,
   verlangt `exposure = "idp"` die Ack `medinix.pocketId.setupCompleted = true`.
   Erststart: `exposure = "internal"` → Admin + Passkey anlegen →
   `setupCompleted = true` → `exposure = "idp"`. Gleiche Sperre wie 552/553.
+- **Bootstrap-Sperre (RT-2):** Pocket-ID öffnet `/setup`, **bis der erste Account
+  existiert** — der erste Besucher wird der Admin (upstream Issue #1275). Deshalb
+  verlangt `exposure = "idp"` die Ack `medinix.pocketId.setupCompleted = true`.
+  Erststart: `exposure = "internal"` → Admin + Passkey anlegen →
+  `setupCompleted = true` → `exposure = "idp"`. Gleiche Sperre wie 552/553.
 - **forward_auth** braucht ein separates Auth-Gateway (`authProxyPresent` +
   `ingress.auth.forwardAuthUpstream`). Pocket ID selbst ist **kein** gültiger
   `forwardAuthUpstream` (F5).

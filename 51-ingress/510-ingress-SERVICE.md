@@ -117,6 +117,11 @@ ist deshalb erst nach der Ack `setupCompleted = true` erlaubt:
 
 - `forwardAuthUpstream` must be the **auth gateway** (517, oauth2-proxy), **not**
   Pocket ID. `forwardAuthUri` defaults to `/oauth2/auth`.
+- **Bootstrap order (RT-2):** Pocket-ID serves `/setup` **until the first account
+  exists** — and the first visitor becomes the admin. So `exposure = "idp"`
+  requires the ack `setupCompleted = true`:
+  `exposure = "internal"` → create admin + passkey at `{name}.{domain}/setup` →
+  `setupCompleted = true` → `exposure = "idp"`.
 - `medinix.authProxyPresent = true` is the **ack** that this upstream really
   exists. Without it, 511 refuses to build as soon as `auth.mode = "forward-auth"`
   is set — fail-closed instead of silently unauthenticated.
