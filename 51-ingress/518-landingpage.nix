@@ -13,8 +13,9 @@
 #   adr: ADR-518
 # ---
 # Renderer only. No program names. A vhost with accessGroup stream|public
-# becomes a tile. landing=false opts out. Sprite file: 50-core/icons.svg
-# served as /icons.svg. Fragment = service name.
+# becomes a tile (resolved via lib/ingress-access.nix, same as 511/513).
+# Per-vhost overrides it declares and reads: landing (hide), iconId, iconSvg.
+# Sprite file: 50-core/icons.svg served as /icons.svg.
 {
   config,
   lib,
@@ -37,14 +38,21 @@ let
   # Gleiche Aufloesung wie 511 (Rendering) und 513 (DNS): der Vhost-Override
   # gewinnt. Vorher las 518 das Manifest direkt — ein public-Override rendert in
   # 511 einen WAN-vHost, lieferte hier aber kein Tile.
-  showOnLanding = m: m.ui.showOnLanding or true;
+  # Vhost-Override (landing) gewinnt, sonst das Manifest (ui.showOnLanding).
+  # Vorher war `landing` deklariert, aber unbenutzt (Dead-Config).
+  showOnLanding =
+    n: m:
+    let
+      override = cfg.ingress.vhosts.${n}.landing or null;
+    in
+    if override != null then override else (m.ui.showOnLanding or true);
   groupOf = n: m: ia.accessGroupOf cfg n m;
 
   wanTiles = lib.filterAttrs (
-    n: m: showOnLanding m && lib.elem (groupOf n m) wanGroups && m.enable
+    n: m: showOnLanding n m && lib.elem (groupOf n m) wanGroups && m.enable
   ) manifest;
 
-  lanTiles = lib.filterAttrs (n: m: showOnLanding m && groupOf n m != "none" && m.enable) manifest;
+  lanTiles = lib.filterAttrs (n: m: showOnLanding n m && groupOf n m != "none" && m.enable) manifest;
 
   wanNames = lib.sort builtins.lessThan (lib.attrNames wanTiles);
   lanNames = lib.sort builtins.lessThan (lib.attrNames lanTiles);
@@ -68,12 +76,19 @@ let
 
   lanHrefFor = n: "http://${n}.lan";
 
+  # Sprite-Id: Vhost-Override (iconId) > Manifest (ui.icon) > Service-Name.
   fragment =
     n: m:
     let
-      raw = m.ui.icon or "";
+      vhostIcon = cfg.ingress.vhosts.${n}.iconId or "";
+      manifestIcon = m.ui.icon or "";
     in
-    if raw != "" then raw else n;
+    if vhostIcon != "" then
+      vhostIcon
+    else if manifestIcon != "" then
+      manifestIcon
+    else
+      n;
 
   mkTile =
     hrefFn: tilesAttr: n:
@@ -81,11 +96,13 @@ let
       m = tilesAttr.${n};
       id = fragment n m;
       title = m.ui.title or n;
+      inlineSvg = cfg.ingress.vhosts.${n}.iconSvg or "";
+      icon = if inlineSvg != "" then inlineSvg else ''<use href="/icons.svg#${id}"></use>'';
     in
     ''
       <a class="srv" href="${hrefFn n}" aria-label="${n}" title="${title}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
-          <use href="/icons.svg#${id}"></use>
+          ${icon}
         </svg>
       </a>
     '';
@@ -150,18 +167,6 @@ let
 
 in
 {
-  options.medinix.ingress.vhosts = lib.mkOption {
-    type = lib.types.attrsOf (
-      lib.types.submodule {
-        options.iconId = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          description = "Sprite id. Empty = service name.";
-        };
-      }
-    );
-  };
-
   config = lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.ingress.landing.enable) {
     medinix.ingress.landing.root = landingRoot;
     medinix.ingress.landing.lanRoot = lanLandingRoot;

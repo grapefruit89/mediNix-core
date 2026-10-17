@@ -42,6 +42,13 @@ let
   # accessGroup = "none" einen Record).
   accessGroupOf = ia.accessGroupOf cfg;
 
+  # Ack fuer einen bewusst unauthentifizierten public-vHost. Manifest UND
+  # Vhost-Override zaehlen (ODER): die Vhost-Option war deklariert, aber
+  # ungelesen (Dead-Config). ODER ist monoton — eine bestehende Ack kann
+  # dadurch nie versehentlich verloren gehen.
+  allowUnauthenticatedOf =
+    n: m: (m.allowUnauthenticated or false) || (cfg.ingress.vhosts.${n}.allowUnauthenticated or false);
+
   enabledServices = lib.filterAttrs (n: m: m.enable && accessGroupOf n m != "none") (
     config.medinix.manifest or { }
   );
@@ -49,7 +56,7 @@ let
   # Enabled public vhosts that would be WAN-reachable without forward_auth and
   # without an explicit acknowledgement (see assertion below).
   publicWithoutAuth = lib.filterAttrs (
-    n: m: accessGroupOf n m == "public" && !(m.allowUnauthenticated or false)
+    n: m: accessGroupOf n m == "public" && !allowUnauthenticatedOf n m
   ) enabledServices;
 
   # Enabled public vhosts that carry an auth-bypass path list.
@@ -57,7 +64,7 @@ let
     n: m:
     accessGroupOf n m == "public"
     && (m.unauthenticatedPaths or [ ]) != [ ]
-    && !(m.allowUnauthenticated or false)
+    && !allowUnauthenticatedOf n m
   ) enabledServices;
 
   # Declared-but-unresolvable vhosts in ingress.vhosts (RT-5/F7 loud instead of silently dead)
@@ -151,7 +158,7 @@ let
         !isLocal
         && (ing.auth.mode == "forward-auth")
         && (accessGroupOf name m == "public")
-        && !(m.allowUnauthenticated or false);
+        && !allowUnauthenticatedOf name m;
       skipPaths = unauthenticatedPathsOf m;
       skipMatcher = lib.optionalString (needsAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}

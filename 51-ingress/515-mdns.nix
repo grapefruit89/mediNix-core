@@ -37,8 +37,24 @@ let
         let
           # RT-5: keep in sync with 511's enabledOf — three lookup paths
           # (direct, camelCase, observability.<name>).
+          # attrByPath statt `or`-Kette: ein vHost-Name, der KEINE Option ist
+          # (z. B. "pocket-id" — 591 brauchte dafuer einen Sonderfall), darf
+          # die Auswertung nicht abbrechen.
+          enabledAt = path: lib.attrByPath path false cfg;
           enabled =
-            cfg.${n}.enable or cfg.${lib.toCamelCase n}.enable or cfg.observability.${n}.enable or false;
+            enabledAt [
+              n
+              "enable"
+            ]
+            || enabledAt [
+              (lib.toCamelCase n)
+              "enable"
+            ]
+            || enabledAt [
+              "observability"
+              n
+              "enable"
+            ];
         in
         enabled && vhost.accessGroup != "none" && (registry.${n}.port or null) != null
       ) cfg.ingress.vhosts

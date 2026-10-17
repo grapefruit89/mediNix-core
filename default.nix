@@ -454,14 +454,27 @@ in
                 '';
               };
               landing = lib.mkOption {
-                type = lib.types.bool;
-                default = false;
-                description = "Show this service on the 518 family page (organ of 511).";
+                type = lib.types.nullOr lib.types.bool;
+                default = null;
+                description = ''
+                  Override the manifest's `ui.showOnLanding` for this vhost.
+                  `null` (default) = the manifest decides. 518 reads this.
+                '';
+              };
+              iconId = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = ''
+                  Sprite id in `50-core/icons.svg` for the 518 tile. Empty
+                  (default) = the manifest's `ui.icon`, else the service name.
+                '';
               };
               iconSvg = lib.mkOption {
                 type = lib.types.lines;
                 default = "";
-                description = "Inline SVG for the 518 tile. Declared next to the service, not in 518.";
+                description = ''
+                  Inline SVG for the 518 tile; wins over the sprite when set.
+                '';
               };
             };
           }
@@ -576,7 +589,7 @@ in
           # (POSIX ERE) — escaping them (`\[`/`\]`) broke valid URLs.
           type = lib.types.strMatching "^(|https?://[]A-Za-z0-9._~:/@[-]+|unix//[A-Za-z0-9._/-]+)$";
           default = "";
-          example = "http://127.0.0.1:4180";
+          example = "http://127.0.0.1:5170";
         };
         forwardAuthUri = lib.mkOption {
           type = lib.types.str;
