@@ -16,7 +16,7 @@
 # nixpkgs_attr: ""
 # state_dir: ""
 # uds_socket: false
-# systemd_hardened: true
+# systemd_hardened: false
 # ---
 {
   config,

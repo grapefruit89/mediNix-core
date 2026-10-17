@@ -42,7 +42,8 @@
 #   → 512 stays off unless explicitly enabled.
 #
 # Exposure (browser vs. Caddy):
-#   Caddy forward_auth talks to 127.0.0.1:5120. That needs no public vhost.
+#   Caddy forward_auth talks to the AUTH PROXY, never to Pocket-ID itself:
+#   517 oauth2-proxy on 127.0.0.1:5170 (5120 is Pocket-ID's own OIDC port).
 #   The login UI / OIDC redirect needs a hostname the *browser* can reach.
 #   Default accessGroup=idp: HTTPS on the wildcard, no forward_auth (deadlock),
 #   no CIDR abort. Override via medinix.ingress.vhosts."pocket-id".accessGroup:
