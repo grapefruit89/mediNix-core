@@ -341,8 +341,10 @@ Authentication and network access controls must therefore not rely on the `.loca
 `.local` names resolve to the LAN IP via mDNS, but Caddy only knows `.lan`
 (`{name}.lan`, `dashboard.lan`) and `{name}.{domain}`. Until a Caddy site block
 for `.local` exists, a request with `Host: {name}.local` matches no site. The
-landing page is served on `https://{domain}` and on `http://dashboard.lan`
-(CIDR-gated) — **not** on `home.local`; 515 publishes `home.local` only as an
+landing page is served on `http://dashboard.lan` (CIDR-gated) — and on
+`https://{domain}` only with `ingress.landing.wanPublic = true` (default false,
+review 2026-10-17, Finding 10) — **not** on `home.local`; 515 publishes
+`home.local` only as an
 mDNS A record. (Corrected 2026-10-17; the text claimed HTTP + CIDR abort for
 `.local` and a `home.local` landing.)
 

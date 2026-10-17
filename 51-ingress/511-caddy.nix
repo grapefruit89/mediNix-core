@@ -308,7 +308,10 @@ let
 
   landingSites = lib.optionals landingOn (
     [ (mkSite "http://dashboard.lan" "${lanAbort}\n${landingLanFiles}") ]
-    ++ lib.optionals (domain != null && tlsEnabled) [
+    # WAN-Apex-Landing nur auf ausdruecklichen Wunsch (Review Finding 10): sie ist
+    # unauthentifiziert und ohne CIDR-Abort und listet jeden stream-/public-Dienst
+    # mit Hostnamen. `dashboard.lan` oben (LAN, lanAbort) bleibt unabhaengig davon.
+    ++ lib.optionals (ing.landing.wanPublic && domain != null && tlsEnabled) [
       (mkSite "http://${domain}" "redir https://{host}{uri} permanent")
       (mkSite domain ''
         ${tlsDirective}
@@ -316,7 +319,7 @@ let
         ${landingFiles}
       '')
     ]
-    ++ lib.optionals (domain != null && !tlsEnabled) [
+    ++ lib.optionals (ing.landing.wanPublic && domain != null && !tlsEnabled) [
       (mkSite "http://${domain}" landingFiles)
     ]
   );

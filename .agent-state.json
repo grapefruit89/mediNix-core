@@ -266,6 +266,8 @@
     "2026-10-16: nixmeta-Ratsche 2: folder/status/complexity/links.adr + mindestens eine Upstream-Angabe sind fuer Dienst-Module Pflicht; 18 Header mechanisch nachgezogen, Rest in scripts/nixmeta-baseline.txt (42 Dateien, darf nur schrumpfen)."
   ,
     "2026-10-17: F9 (Review 51-ingress): `medinix.secrets.cloudflareEnvFile` entfernt. Die Klartext-Env-Datei (nullOr path = Nix-Store-Pfad) hatte VORRANG vor dem sealed ACME-Credential und widersprach ADR-0003 Abschnitt 4 (no secrets in the Nix store); damit war auch die Trennungssicherung ACME != DDNS-Token blind. Jetzt sealed-only: credPath = ingress.tls.acmeCredential (ADR-514). 4 Dateien: 51-ingress/514-acme.nix, 50-core/502-host-settings.nix (Assertion + Message), default.nix (Option), tests/medinix-smoke.nix (Zeile war wirkungslos - acmeHost dort nicht gesetzt)."
+  ,
+    "2026-10-17: F10 (Review 51-ingress): neue Option `medinix.ingress.landing.wanPublic` (bool, default false). Die WAN-Apex-Landing https://{domain} haengt in 511 jetzt daran (TLS-Redirect + Site + Nicht-TLS-Fall); die LAN-Landing dashboard.lan (lanAbort) bleibt unveraendert. README-Zusage auf den Opt-in umgestellt."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",

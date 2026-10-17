@@ -643,11 +643,24 @@ in
           description = ''
             Family icon page built by 518 from stream/public vhosts.
             511 serves it in two places:
-              - https://{domain}       (WAN, TLS, without CIDR abort)
               - http://dashboard.lan   (LAN, CIDR abort via trustedCidrs)
+              - https://{domain}       (WAN apex, TLS, no CIDR abort) - only with
+                `wanPublic = true` (default false, review 2026-10-17 Finding 10)
             `.local` is NOT served by Caddy: 515 only publishes an mDNS A record
             ({name}.local). This text claimed "https://{domain} (LAN-only abort)
             and http://home.local" until the review of 2026-10-17.
+          '';
+        };
+        wanPublic = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Also render the landing page at the WAN apex https://{domain}.
+            Default false: the apex is nobody's service and would be an
+            unauthenticated, unaborted index of every stream/public vhost
+            (Review 2026-10-17, Finding 10). With false the apex is simply not
+            served - no redirect, nothing to discover. The LAN landing
+            (http://dashboard.lan, CIDR abort via trustedCidrs) is unaffected.
           '';
         };
         root = lib.mkOption {
