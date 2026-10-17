@@ -6,7 +6,6 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
-# links:
 # provides: ["media-gid", "emergency-user", "recommended-sysctl"]
 # requires: ["lib/registry"]
 # ports: []
@@ -17,7 +16,7 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-0000
+# adr: ADR-5200
 # links:
 #   adr: ADR-5200
 # ---

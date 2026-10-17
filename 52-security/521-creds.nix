@@ -4,6 +4,7 @@
 # domain: 52
 # folder: 52-security
 # status: active
+# complexity: 3
 # last_reviewed: 2026-09-02
 # provides: ["creds"]
 # requires: ["lib/creds"]

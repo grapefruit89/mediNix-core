@@ -4,7 +4,7 @@ title: Security Domain (Core, Credentials & VPN)
 description: Foundational host security, sealed systemd credentials, break-glass access, WireGuard and fail-closed VPN confinement.
 aliases: [Security, Hardening, Credentials, VPN]
 tags: [architecture, medinix, security, systemd-creds, wireguard, nftables, policy-routing]
-last_reviewed: 2026-09-02
+last_reviewed: 2026-10-17
 ---
 
 # 52-security: Security & Hardening Domain
@@ -68,6 +68,92 @@ Store: `/var/lib/medinix/secrets/`.
 `hostIntegration.firewall = managed` lists 80/443. It does not enable the firewall. 520 asserts `networking.firewall.enable` or `networking.nftables.enable` when `managed` is set.
 
 `medinix.recommended.sysctl` is a suggestion list. 520 does not write `boot.kernel.sysctl`.
+
+## Declarative vs. imperative
+
+**Declarative** (Nix values, reproducible):
+
+- `users.groups.media.gid`, `users.users.media`
+- `users.users.root.openssh.authorizedKeys.keys` (additive)
+- `users.users.media-admin`, `security.sudo.extraConfig`
+- `boot.initrd.systemd.enable`, `boot.initrd.luks.devices."root"`
+- `networking.wireguard.interfaces.<if>` (525)
+- `networking.nftables.tables.medinix_vpn_{mark,filter}` (526 — written only
+  while `networking.nftables.enable`)
+- `systemd.services.medinix-vpn-route` (526)
+- `environment.etc."medinix-killswitch-resolv.conf"` (526)
+- `medinix.recommended.*` (suggestion only — see the host interface)
+
+**Imperative, deliberately** — the `ExecStart` of `medinix-vpn-route` (526):
+
+```
+ip rule add fwmark <mark> table <table> priority 1000
+ip route replace unreachable default table <table> metric 100
+ip route replace default dev <vpnIf> table <table> metric 10
+```
+
+That is **not** a setup script: it is `Type=oneshot` with `RemainAfterExit=true`,
+so the state is re-established on every boot, and `ExecStart` verifies
+fail-closed (`ip rule show | grep`). `networking.iproute2` is **not** an option
+for this on unstable (only `rttablesExtraConfig` exists); a `systemd-networkd`
+rewrite (`[RoutingPolicyRule]`/`[Route]`) is open.
+
+Two deliberate couplings:
+
+- `networking.firewall.checkReversePath = lib.mkDefault "loose"` (526) —
+  WireGuard routing is asymmetric and breaks with `strict`. Overridable; a
+  `mkForce "strict"` breaks the killswitch.
+- `networking.nftables.tables.*` (526) — own namespace (`medinix_vpn_*`), written
+  **only** while `networking.nftables.enable`, and asserted (see the matrix).
+
+## Host interface
+
+| Field | Values | Producer | Consumer | 52 behaviour |
+| --- | --- | --- | --- | --- |
+| `hostIntegration.firewall` | `managed`/`external`/`off` | 500 | 520 (assertion) | `managed` ⟹ `networking.firewall.enable` or `networking.nftables.enable` |
+| `hostIntegration.nftables` | `managed`/`external`/`off` | 500 | 520 (XOR assertion), 526 | `managed` ⟹ 503 sets `networking.nftables.enable`; 526 asserts `enable` — **not** `managed`, so an external host with its own nftables activation passes |
+| `medinix.recommended.*` | free | 520 | 503 (`recommended.nftables`), host | 52 never writes `boot.kernel.sysctl`; the rest is an exported suggestion list |
+
+**Forbidden in 52:** writing `boot.kernel.sysctl`, setting
+`networking.firewall.enable` itself, touching Caddy/vhosts/ACME/DDNS/mDNS.
+
+## Fail-closed: assertion matrix
+
+Every assertion is a **build break**, not a warning.
+
+| Module | Assertion | Protects against |
+| --- | --- | --- |
+| 520 | `firewall = managed` ⟹ `firewall.enable \|\| nftables.enable` | managed claim without an active packet filter |
+| 520 | `firewall = managed` **XOR** `nftables = managed` | two competing packet-filter owners |
+| 520 | `em.enable` ⟹ `em.allowedServices != []` | break-glass user that may restart nothing |
+| 520 | every `em.allowedServices` ∈ `registry.services` | typo in the break-glass list |
+| 520 | `fde.enable` ⟹ `fde.rootUuid != null` | LUKS device without UUID = boot hang |
+| 521 | generated `secretChecks`: `secrets.*File` sealed and not under `storage.mediaRoot` | plaintext secret in the store; API key inside the player write domain |
+| 521 | `!secrets.autoGenerate` | plaintext key generation |
+| 521 | `dns.ddns.tokenFile == null` | Cloudflare token in cleartext |
+| 521 | backup/offsite: `passwordFile` empty and credential sealed | backup password in cleartext |
+| 525 | `privateKeyCredentialPath != null` | WireGuard without a key (cryptic systemd failure) |
+| 525 | `vpn.dns != []` | DNS leak via a cleartext resolv.conf |
+| 525 | `vpn.peer.publicKey != ""` | peerless interface = up, but carries no traffic |
+| 526 | `dnsServers != []`, `vpnInterface != ""` | killswitch without DNS / interface |
+| 526 | every instance name ∈ `config.systemd.services` | killswitch for a non-existent unit |
+| 526 | **R15:** `registry.uid == instance.uid == users.<unit-user>.uid` | killswitch targeting the wrong UID |
+| 526 | **R16:** `ipv6 ∨ !networking.enableIPv6` | IPv6 escape from a confined UID |
+| 526 | `checkReversePath != true` | asymmetric routing drops WireGuard packets |
+| 526 | `networking.nftables.enable` | killswitch tables declared but never loaded |
+
+## Known findings
+
+- **`unitUserOf` fallback (526):** without `serviceConfig.User` the helper falls
+  back to the service name; for `DynamicUser = true` that user usually does not
+  exist → R15 fires. Fail-closed, but the message does not name the cause.
+- **`networking.iproute2`:** no option for `ip rule` / `ip route` with fwmark and
+  `unreachable default` on unstable. The `Type=oneshot` service is the
+  replacement; a `systemd-networkd` rewrite is open.
+- **`medinix.recommended.sysctl`, `.mountOptions.staging`,
+  `.firewall.checkReversePath`** are set by 520 but read by nobody in-tree — they
+  are an exported host suggestion list (503 applies only `recommended.nftables`,
+  never sysctl).
 
 ## Agent rule
 
