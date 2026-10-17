@@ -82,7 +82,8 @@ let
   inherit (ing) trustedCidrs;
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
-  tlsEnabled = ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
+  # Definition in lib/ingress-access.nix (Duplikat mit 518 aufgeloest).
+  tlsEnabled = ia.tlsEnabledOf ing;
 
   tlsDirective =
     if ing.tls.acmeHost != null then

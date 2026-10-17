@@ -59,10 +59,8 @@ let
 
   publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
 
-  tlsEnabled =
-    cfg.ingress.tls.acmeHost != null
-    || cfg.ingress.tls.mode == "custom"
-    || cfg.ingress.tls.mode == "internal";
+  # Definition in lib/ingress-access.nix (Duplikat mit 511 aufgeloest).
+  tlsEnabled = ia.tlsEnabledOf cfg.ingress;
 
   # H19: the link scheme follows the actual TLS state, not just `domain != null`.
   wanHrefFor =

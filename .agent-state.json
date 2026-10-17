@@ -276,6 +276,8 @@
     "2026-10-17: F7 (Review 51-ingress): Global-Modus-Injektion dokumentiert (ingress.mode-Beschreibung + README) und die Unit-Anpassung (OOMScoreAdjust, RuntimeDirectoryMode) auf mkDefault - RuntimeDirectory bleibt hart, weil der Admin-Endpoint daran haengt; auto_https off bleibt (TLS kommt aus 514)."
   ,
     "2026-10-17: F20 (Review 51-ingress): idp/stream sind WAN-offen ohne Ingress-Auth. Neue Assertions in 511: accessGroup=idp ist dem IdP selbst vorbehalten; accessGroup=stream nur, wenn der Manifest-Eintrag stream deklariert oder der Dienst in der neuen Option ingress.streamAck steht. Fixtures mediNix-negative-idp-reserved und mediNix-negative-stream-unacked."
+  ,
+    "2026-10-17: F26/1 (Review 51-ingress, Duplikate): tlsEnabled stand wortgleich in 511:85 und 518:62-65. Neuer Helfer ia.tlsEnabledOf in lib/ingress-access.nix (neben useGlobalOf/caddyUnitOf), beide Module nutzen ihn. Reiner Refactor, gleiche Semantik."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",

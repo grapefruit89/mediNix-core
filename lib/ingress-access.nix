@@ -67,4 +67,11 @@ rec {
   caddyUnitOf =
     mode: caddyEnabled:
     if useGlobalOf mode caddyEnabled then "caddy.service" else "caddy-media.service";
+
+  # Ist TLS ueberhaupt aktiv? `acmeHost` holt Zertifikate, `custom` bringt eigene
+  # Dateien mit, `internal` braucht den Secure Context (Passkeys, Clipboard).
+  # Eine Quelle fuer 511 (Rendering) und 518 (Link-Schema) statt zweier Kopien.
+  # Ref: Review 2026-10-17, Finding 26.
+  tlsEnabledOf =
+    ing: ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
 }
