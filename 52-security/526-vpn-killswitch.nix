@@ -118,6 +118,15 @@ in
         '';
       }
       {
+        assertion = !(lib.elem "medinix-vpn-route" (lib.attrNames activeInstances));
+        message = ''
+          [vpnKillSwitch] Instance name "medinix-vpn-route" collides with the
+          route-setup service defined in this module. The left side of the `//`
+          merge would be silently replaced by the instance entry. Rename the
+          instance. Ref: ADR-526.
+        '';
+      }
+      {
         assertion = config.networking.firewall.checkReversePath != true;
         message = "[mediNix/vpn] 'checkReversePath = true' (strict) verwirft asymmetrische Pakete im WireGuard-Routing! Zwingend 'loose' oder false erforderlich.";
       }
@@ -193,7 +202,7 @@ in
       '';
     };
 
-    systemd.services = {
+    systemd.services = lib.recursiveUpdate {
       # IMPERATIV (bewusst): networking.iproute2 auf unstable bietet keine Option
       # fuer ip rule / ip route mit fwmark und unreachable default (nur
       # rttablesExtraConfig). Der Type=oneshot-Service ist der deklarative
@@ -262,13 +271,13 @@ in
         };
       };
     }
-    // lib.mapAttrs (_name: _v: {
+    (lib.mapAttrs (_name: _v: {
       requires = [ "medinix-vpn-route.service" ];
       after = [ "medinix-vpn-route.service" ];
       serviceConfig = {
         BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];
       };
-    }) activeInstances;
+    }) activeInstances);
 
     environment.etc."medinix-killswitch-resolv.conf".text = lib.concatMapStrings (
       dns: "nameserver ${dns}\n"
