@@ -596,6 +596,11 @@
                   medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:9999";
                   medinix.authProxyPresent = true;
                   medinix.seerr.enable = true; # public vhost → renders forward_auth
+                  # 561 sets allowUnauthenticated = true since ADR-517, which
+                  # makes 511 render NO forward_auth. This fixture tests the
+                  # strip/forward_auth ORDER, not Seerr semantics — so the ack
+                  # is forced off here to keep the render path under test.
+                  medinix.manifest.seerr.allowUnauthenticated = lib.mkForce false;
                 };
               }).config;
             caddyfile = pkgs.writeText "demo.Caddyfile" c.environment.etc."caddy-media/Caddyfile".text;
