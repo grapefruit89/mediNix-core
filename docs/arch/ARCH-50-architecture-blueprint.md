@@ -1,69 +1,95 @@
 ---
 id: "ARCH-50-architecture-blueprint"
-title: "ARCH 5000 architecture blueprint"
+title: "ARCH 50 — Architecture Blueprint"
 domain: 50
 status: active
 complexity: 2
-last_reviewed: 2026-08-12
+last_reviewed: 2026-10-17
 tags:
   - core
 links:
   adr: ""
   repo-harvest: ""
 ---
-# NixOS Architecture Master Blueprint (Host: mediahost)
+# mediNix-core — Architektur-Blueprint
 
 ## 1. User Layer (KISS)
-Dieser Master-Blueprint dient als zentrale Wissensbasis für den Aufbau und Betrieb des Fujitsu Mediahost Homeservers. Die Architektur folgt dem Prinzip **"Infrastructure as Code" (IaC)** unter Nutzung von **NixOS Flakes**. Das System ist so konzipiert, dass es vollständig reproduzierbar ist und alle Dienste (Medien, Infrastruktur, Hausautomatisierung) in logischen Schichten (Tiers) organisiert sind. Der Fokus liegt auf maximaler Sicherheit (SSO/mTLS) bei gleichzeitig hoher Effizienz (HDD Spindown/QuickSync).
 
-## 2. Technical Layer (Aviation-Grade)
+Der Blueprint beschreibt den Aufbau des Fujitsu Mediahost Homeservers als
+**Infrastructure as Code** auf **NixOS Flakes**: vollständig reproduzierbar, alle
+Dienste in Domänen organisiert. Fokus: **maximale Sicherheit** (Zero-Container,
+versiegelte Secrets, fail-closed Ingress) bei hoher Effizienz (HDD-Spindown,
+QuickSync).
+
+## 2. Technical Layer
 
 ### Hardware-Plattform
-*   **Maschine:** Fujitsu Mediahost (i3-9100, 16GB RAM).
-*   **Grafik:** Intel UHD 630 (QuickSync Support für H.264/H.265/HEVC).
+*   **Maschine:** Fujitsu Mediahost (i3-9100, 16 GB RAM).
+*   **Grafik:** Intel UHD 630 (QuickSync für H.264/H.265/HEVC) — `551` setzt
+    `intel-media-driver` + `intel-compute-runtime`.
 *   **Storage-Layout:**
-    *   **OS/Appdata:** Micron/Crucial SATA SSD (~512 GB).
-    *   **Download-Cache:** Apacer NVMe (~250 GB) für `/downloads`.
-    *   **Media-Pool:** Direkte Mounts von Seagate (300GB), Hitachi (500GB) und WD (500GB) HDDs unter `/storage/`.
+    *   **OS/Appdata:** SATA-SSD (~512 GB).
+    *   **Download-Cache:** NVMe (~250 GB) für `/downloads`.
+    *   **Media:** direkte HDD-Mounts unter `/storage/`.
 
 ### Storage-Logik & Spindown-Optimierung
-*   **Dateisystem:** Konsequente Nutzung von **ext4** (einfach, stabil, kein unnötiges Aufwecken).
-*   **Spindown:** Einsatz von `hd-idle` (Timeout: 600s).
-*   **Atomic Move:** Um HDD-Spindown zu schützen, liegen Downloads auf der NVMe. Nach Fertigstellung erfolgt der Transfer via Hardlinks/Atomic-Moves ausschließlich innerhalb von `.staging`-Ordnern auf der jeweiligen Ziel-HDD.
+*   **Dateisystem:** **ext4** (kein ZFS — Overkill für die Kapazität, ADR-570).
+*   **Spindown-Schutz:** smartd mit `-n standby,q`
+    (`58-observability/587-disk-health.nix`, Option `spindownPreservation`) —
+    **nicht** `hd-idle`.
+*   **Atomic Move:** Downloads liegen auf der NVMe; der Transfer erfolgt per
+    Hardlink/Atomic-Move innerhalb von `.staging`-Ordnern auf der Zielplatte.
+*   **mergerfs:** **optional und host-seitig** (`docs/examples/mergerfs-tiering.nix`).
+    Als Default abgelehnt, weil es beim Verzeichnis-Scan alle Platten weckt.
 
 ### Netzwerk & Sicherheit
-*   **Reverse Proxy:** Traefik mit Let's Encrypt (DNS-Challenge via Cloudflare).
-*   **SSO/Identity:** **Pocket ID** (OIDC-Provider für Passkeys) + Traefik ForwardAuth.
-*   **VPN:** WireGuard (Tailscale für Management, VPN-Confinement via Maroka-chan für Downloads).
-*   **Secrets:** `sops-nix` mit Age-Keys, verschlüsselt im Git-Repository.
+*   **Reverse Proxy:** **Caddy** (`51-ingress/511-caddy.nix`) — die **eine** WAN-Tür;
+    Backends binden ausschließlich `127.0.0.1:<port>`.
+*   **TLS:** NixOS-ACME/Lego via Cloudflare **DNS-01** (`51-ingress/514-acme.nix`);
+    Caddy läuft mit `auto_https off` und liest `/var/lib/acme/{acmeHost}/…`.
+*   **Identity:** **Pocket ID** (`51-ingress/512-pocket-id.nix`) = OIDC-IdP
+    (Passkeys). **Wichtig:** Pocket ID hat **keinen forward-auth-Endpoint** — ein
+    Caddy-Gate (`auth.mode = "forward-auth"`) braucht einen separaten Auth-Proxy
+    (oauth2-proxy / tinyauth / caddy-security), nicht Pocket ID.
+*   **VPN:** **WireGuard** (`52-security/525-vpn-interface.nix`,
+    `526-vpn-killswitch.nix`) mit **UID-basiertem nftables-Routing**.
+    **`netns`/`PrivateNetwork` ist verboten** (ADR-0011) — kein Maroka-chan,
+    kein Tailscale.
+*   **Secrets:** **versiegelte systemd-Credentials** (`LoadCredentialEncrypted`),
+    **kein** `sops-nix`/`agenix` (`lib/creds.nix`, ADR-521). Erzeugung/Rotation
+    sind Host-Sache.
+*   **Container:** **keine** (Zero-Container; Assertion gegen
+    `virtualisation.docker.enable`, ADR-0002 §5).
 
 ### Modulare Flake-Struktur
 ```text
-mynixos/
-├── hosts/
-│   ├── mediahost/                  # Host-spezifische Config (hardware-configuration.nix, default.nix)
-│   └── common/core/           # Basis-Konfiguration (Users, SSH, Firewall)
-└── modules/
-    ├── 00-system/             # Nix-Settings, Storage/Mounts
-    ├── 10-infrastructure/     # Traefik, Tailscale, Pocket ID, AdGuard
-    ├── 20-backend-media/      # ARR-Stack (Sonarr, Radarr, Prowlarr, SABnzbd, Recyclarr)
-    ├── 30-frontend-media/     # Jellyfin, Audiobookshelf, Seerr
-    └── 40-services/           # Vaultwarden, Home Assistant, Paperless, n8n, etc.
+mediNix-core/
+├── flake.nix            # Inputs: nixpkgs + flake-utils
+├── default.nix          # Optionen + Engine
+├── lib/                 # derive · registry · service-factory · hardening-profiles · creds
+├── 50-core/ … 59-guardrails/   # NN-domain/NNN-dienst.nix (Dezimalrahmen, ADR-0000)
+└── docs/                # ADRs · Konzepte · Guides · Patterns
 ```
+Auto-Import der Domänen über `builtins.readDir` (kein `import-tree`).
 
 ### Spezifische Service-Implementierungen
-*   **Jellyfin:** Native NixOS-Implementierung mit `intel-media-driver` und `intel-compute-runtime` für QuickSync.
-*   **SABnzbd:** VPN-Isolierung mittels Network Namespaces (Maroka-chan).
-*   **Vaultwarden:** Bewusste Isolation vom SSO-System zur Erhöhung der Sicherheit.
-*   **Valkey:** Ersatz für Redis (aufgrund von Lizenzänderungen).
+*   **Jellyfin (551):** nativ, QuickSync/VAAPI; `auto` wird zu `intel` aufgelöst,
+    RAM-Transcoding über `config/encoding.xml` (`TranscodingTempPath=/transcode`).
+*   **SABnzbd (541):** VPN-Confinement über UID-Routing/nftables (`526`) plus
+    `RestrictNetworkInterfaces`-Invariante.
+*   **Beobachtbarkeit:** ntfy (`581`), Gatus (`582`), smartd (`587`).
 
 ## 3. Reasoning Layer (History)
 
-### Strategische Entscheidungen vs. Alternativen
-*   **Abgrenzung zu mergerfs/ZFS:** mergerfs wurde abgelehnt, da es beim Einlesen von Verzeichnissen alle HDDs gleichzeitig weckt. ZFS wurde aufgrund des Overkills für die geringe Speicherkapazität (1.3TB) und des komplexeren Managements verworfen.
-*   **NixOS native vs. Docker:** Über 20 Services werden nativ als NixOS-Module betrieben, um die volle deklarative Kontrolle über Dependencies und Updates zu behalten.
-*   **Pocket ID vs. Authelia:** Pocket ID wurde aufgrund seines geringen Footprints (~20MB RAM) und der modernen Passkey-Unterstützung gegenüber dem funktional schwereren Authelia bevorzugt.
-*   **Maroka-chan VPN:** Die Wahl fiel auf Maroka-chan, da es eine saubere Trennung des Netzwerk-Stacks auf Kernel-Ebene ermöglicht, ohne den gesamten Host-Traffic zu tunneln.
+*   **mergerfs/ZFS:** abgelehnt — mergerfs weckt beim Scan alle HDDs, ZFS ist für
+    die Kapazität Overkill. mergerfs bleibt als optionale Host-Lösung.
+*   **NixOS nativ statt Docker:** über 20 Dienste als native NixOS-Module für
+    volle deklarative Kontrolle (ADR-0002 §5, ADR-5000).
+*   **Pocket ID statt Authelia:** kleiner Footprint, moderne Passkey-Unterstützung.
+*   **UID-Routing statt `netns`:** deklarativ, kein externer Flake, keine
+    imperativen `ip netns`-Skripte (ADR-0011).
 
 ---
-*Quellen: NIXOS_BRIEFING.md, NIXOS_MASTER_BRIEFING.md (Februar 2026)*
+*Quellen: Repo-Code (Stand 2026-10-17) — `flake.nix`, `lib/`, `51-ingress/`,
+`52-security/`, `55-playback/551`, `58-observability/587`;
+ADR-0000, ADR-0002, ADR-0011, ADR-521, ADR-570.*
