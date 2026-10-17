@@ -125,20 +125,20 @@ BANS = [
         "Jellyfin (ADR-551)",
     ),
     (
-        "Fremd-IdP (alles ausser Pocket ID / Kanidm)",
+        "Fremd-IdP (alles ausser Pocket ID)",
         re.compile(
-            r"\b(?:keycloak|authentik|zitadel|authelia|dex|logto|kratos|hydra"
+            r"\b(?:keycloak|authentik|zitadel|authelia|dex|kanidm|logto|kratos|hydra"
             r"|fusionauth|casdoor|glewlwyd)\b"
         ),
-        "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512) oder Kanidm",
+        "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512)",
     ),
     (
-        "Fremd-Forward-Auth (alles ausser oauth2-proxy / caddy-security)",
+        "Fremd-Forward-Auth (alles ausser oauth2-proxy)",
         re.compile(
             r"\bpomerium\b|pkgs\.pomerium\b|services\.pomerium\b"
-            r"|\bauthelia\b|\bauthentik\b|\bvouch\b"
+            r"|\bauthelia\b|\bauthentik\b|\bvouch\b|\bcaddy[-_]security\b"
         ),
-        "oauth2-proxy (MIT, OIDC) oder caddy-security (Caddy-Plugin) — ADR-517",
+        "oauth2-proxy (MIT, OIDC, 1 Binary; ADR-517) + Caddy-Direktive forward_auth",
     ),
 ]
 
@@ -169,6 +169,13 @@ RAW_BANS = [
         "imperativer Paket-/Kanal-Zustand",
         re.compile(r"\bnix-channel\s+--(?:add|update)\b|\bnix-env\s+-i\b"),
         "flake.nix + nixpkgs-Pin",
+    ),
+    (
+        "caddy-security (Caddy-Plugin: Rebuild/Hash-Pinning, redundant zu oauth2-proxy)",
+        # RAW: der Plugin-Name steht als STRING in `pkgs.caddy.withPlugins { plugins = [ … ] }`
+        # - ein reiner BANS-Eintrag waere wirkungslos (Strings werden ausgeblendet).
+        re.compile(r"caddy[-_]security|greenpau"),
+        "oauth2-proxy (MIT, OIDC, 1 Binary; ADR-517)",
     ),
 ]
 

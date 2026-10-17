@@ -23,10 +23,10 @@ Assertion (`!(config.services.logrotate.enable or false)`) oder ein Guard-Name (
 ist erlaubt. Bedingte Regeln dieser Datei (Postgres/MySQL "als Default", Auto-Updater,
 unbeschraenktes `sudo`) bleiben manuelle Pruefung.
 
-**Whitelist-Regel (§2/§3):** Erlaubt sind **ausschliesslich** **Pocket ID** und **Kanidm**
-(IdPs, ADR-512), **oauth2-proxy** und **caddy-security** (Forward-Auth, ADR-517) — plus die
-Caddy-eingebaute Direktive `forward_auth`. Diese Namen stehen bewusst **nicht** in den
-Mustern des Checks und werden nie als "banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software ist verboten.
+**Whitelist-Regel (§2/§3) — FINAL:** Erlaubt sind **ausschliesslich** **Pocket ID** (IdP)
+und **oauth2-proxy** (Forward-Auth) — plus die Caddy-eingebaute Direktive `forward_auth`.
+Diese beiden Namen stehen bewusst **nicht** in den Mustern des Checks und werden nie als
+"banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software ist verboten.
 
 ## 1. Banned Technologies (Legacy & Bloat)
 
@@ -47,15 +47,13 @@ Mustern des Checks und werden nie als "banned" gemeldet; **jede andere** IdP-/Fo
 
 ## 2. Identity Provider (IdP)
 
-**Erlaubt (Whitelist) — nur diese IdPs:**
+**Erlaubt (Whitelist) — der EINZIGE IdP:**
 
 | Erlaubt | Warum |
 | :--- | :--- |
 | **Pocket ID** | Go, SQLite, **Passkey-only**, **1 Binary**, BSD-2. Referenz-IdP (ADR-512). |
-| **Kanidm** | Rust, Passkey-fähig, schlank; als zweiter IdP ausdrücklich erlaubt. |
 
-**Blacklist — alles andere** (Kriterium: kein Passkey-Support ODER schwergewichtiger
-als Pocket ID: externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit):
+**Blacklist — alles andere:**
 
 | Banned IdP | Begründung |
 | :--- | :--- |
@@ -65,21 +63,24 @@ als Pocket ID: externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit)
 | **Authelia** | Kein reiner IdP (OIDC-Provider Beta), Forward-Auth-Hybrid. |
 | **Dex** | Keine Passkeys (nur statische User/LDAP). |
 | **tinyauth** | Keine Passkeys, AGPL-3.0. |
-| **Logto · Ory (Kratos/Hydra) · FusionAuth · Casdoor · Glewlwyd** | Nicht Pocket ID/Kanidm — kein Passkey-only, externe DB oder schwerer. |
+| **Logto** | Schwergewichtiger als Pocket ID (Node.js + PostgreSQL). |
+| **Kanidm** | Nicht mit dem Single-Binary-pro-Funktion-Prinzip vereinbar. |
+| **Glewlwyd** | Nicht mit dem Single-Binary-pro-Funktion-Prinzip vereinbar. |
+| **Ory (Kratos/Hydra) · FusionAuth · Casdoor** | Kein Passkey-only, externe DB oder schwerer als Pocket ID. |
 
 ## 3. Forward-Auth-Proxys
 
-**Erlaubt (Whitelist) — nur diese zwei:**
+**Erlaubt (Whitelist) — nur dieser Proxy:**
 
 | Erlaubt | Warum |
 | :--- | :--- |
-| **oauth2-proxy** | MIT, OIDC-Client, 1 Binary; nixpkgs-Modul `services.oauth2-proxy` (ADR-517). |
-| **caddy-security** (Caddy-**Plugin**) | Caddy-nativ als Plugin (`pkgs.caddy.withPlugins`) — kein Extra-Daemon. Die Direktive `forward_auth` selbst ist Caddy-eingebaut. |
+| **oauth2-proxy** | MIT, OIDC-Client, 1 Binary; nixpkgs-Modul `services.oauth2-proxy` (ADR-517). Die Direktive `forward_auth` selbst ist Caddy-eingebaut. |
 
 **Blacklist — alles andere:**
 
 | Banned Proxy | Begründung |
 | :--- | :--- |
+| **caddy-security** | Caddy-Plugin, kein eigenes Binary, Rebuild via xcaddy/Download-Service nötig, Hash-Pinning in NixOS, nicht deklarativ LLM-freundlich. Widerspricht dem Single-Binary-pro-Funktion-Prinzip. Redundant zu oauth2-proxy. |
 | **tinyauth** | Keine Passkeys, AGPL-3.0. |
 | **Pomerium** | Kein klassischer `forward_auth`-Modus seit v0.21, eigene Datenplane. |
 | **Authentik Proxy Provider** | Schwergewichtig, an Authentik gebunden. |
