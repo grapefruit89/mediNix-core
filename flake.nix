@@ -578,6 +578,67 @@
               fi
               echo "ok: DDNS prunes the canonical FQDN, not the zone-derived name" > $out
             '';
+        # SSOT/F2: 511 (Rendering), 513 (DNS) und 518 (Tiles) muessen DIESELBE
+        # effektive accessGroup sehen — der Vhost-Override gewinnt. Vorher lasen
+        # 513/518 das Manifest direkt: `none` publizierte trotzdem einen
+        # Cloudflare-Record, ein `public`-Override lieferte kein Tile.
+        # Sonarr steht im Manifest auf `internal` und wird hier ueberschrieben.
+        checks.mediNix-ingress-accessgroup-consistency =
+          let
+            cfgOf =
+              group:
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "home.example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.ingress.auth.mode = "forward-auth";
+                  medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5170";
+                  medinix.authProxyPresent = true;
+                  medinix.dns.mode = "standalone";
+                  medinix.dns.ddns.enable = true;
+                  medinix.dns.ddns.zone = "example.com";
+                  medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
+                  medinix.sonarr.enable = true; # Manifest: accessGroup = "internal"
+                  medinix.ingress.vhosts."sonarr".accessGroup = lib.mkForce group;
+                };
+              }).config;
+            none = cfgOf "none";
+            pub = cfgOf "public";
+            scriptOf = c: pkgs.writeText "accessgroup-ddns-script" c.systemd.services.cloudflare-ddns.script;
+            caddyfileOf =
+              c: pkgs.writeText "accessgroup.Caddyfile" c.environment.etc."caddy-media/Caddyfile".text;
+          in
+          pkgs.runCommand "ingress-accessgroup-consistency-ok"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.coreutils
+              ];
+            }
+            ''
+              # accessGroup = "none" (Manifest: internal) -> nirgends sichtbar
+              if grep -q 'sonarr.home.example.com' ${caddyfileOf none}; then
+                echo "FAIL: 511 rendered a vhost for accessGroup = none"; exit 1
+              fi
+              if grep -q 'sonarr.home.example.com' ${scriptOf none}; then
+                echo "FAIL: 513 published a DNS name for accessGroup = none"; exit 1
+              fi
+              if grep -q 'aria-label="sonarr"' ${none.medinix.ingress.landing.root}/index.html; then
+                echo "FAIL: 518 showed a tile for accessGroup = none"; exit 1
+              fi
+              # accessGroup = "public" (Override gewinnt) -> ueberall sichtbar
+              grep -q 'forward_auth' ${caddyfileOf pub} || {
+                echo "FAIL: 511 did not render forward_auth for a public override"; exit 1;
+              }
+              grep -q 'sonarr.home.example.com' ${scriptOf pub} || {
+                echo "FAIL: 513 did not publish DNS for a public override"; exit 1;
+              }
+              grep -q 'aria-label="sonarr"' ${pub.medinix.ingress.landing.root}/index.html || {
+                echo "FAIL: 518 did not show a tile for a public override"; exit 1;
+              }
+              echo "ok: 511/513/518 resolve the same effective accessGroup (vhost override wins)" > $out
+            '';
         # R7: forward_auth must strip client-supplied identity headers BEFORE
         # copying the trusted ones (header-spoofing regression, checked on the
         # actually rendered Caddyfile).

@@ -24,18 +24,27 @@
 
 let
   cfg = config.medinix;
+  # WAN-Tiles nur fuer stream|public — `idp` ist WAN-Login und bekommt bewusst
+  # KEIN Family-Tile (anders als 511/513, die idp mitrendern/-publizieren).
   wanGroups = [
     "stream"
     "public"
   ];
 
-  wanTiles = lib.filterAttrs (
-    _n: m: (m.ui.showOnLanding or true) && lib.elem (m.accessGroup or "none") wanGroups && m.enable
-  ) (config.medinix.manifest or { });
+  ia = import ../lib/ingress-access.nix { inherit lib; };
+  manifest = config.medinix.manifest or { };
 
-  lanTiles = lib.filterAttrs (
-    _n: m: (m.ui.showOnLanding or true) && (m.accessGroup or "none") != "none" && m.enable
-  ) (config.medinix.manifest or { });
+  # Gleiche Aufloesung wie 511 (Rendering) und 513 (DNS): der Vhost-Override
+  # gewinnt. Vorher las 518 das Manifest direkt — ein public-Override rendert in
+  # 511 einen WAN-vHost, lieferte hier aber kein Tile.
+  showOnLanding = m: m.ui.showOnLanding or true;
+  groupOf = n: m: ia.accessGroupOf cfg n m;
+
+  wanTiles = lib.filterAttrs (
+    n: m: showOnLanding m && lib.elem (groupOf n m) wanGroups && m.enable
+  ) manifest;
+
+  lanTiles = lib.filterAttrs (n: m: showOnLanding m && groupOf n m != "none" && m.enable) manifest;
 
   wanNames = lib.sort builtins.lessThan (lib.attrNames wanTiles);
   lanNames = lib.sort builtins.lessThan (lib.attrNames lanTiles);

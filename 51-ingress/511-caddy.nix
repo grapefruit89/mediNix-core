@@ -23,6 +23,7 @@ let
   ing = cfg.ingress;
   domain = cfg.host.domain;
   df = import ../lib/derive.nix;
+  ia = import ../lib/ingress-access.nix { inherit lib; };
 
   ingressMode = ing.mode or "auto";
   useGlobal =
@@ -33,11 +34,13 @@ let
     else
       config.services.caddy.enable;
 
-  # EIN Produzent für die Exposure: der Vhost-Override gewinnt (das ist die
-  # dokumentierte Bedien-Oberfläche, 51-ingress/AGENTS.md), sonst das Manifest.
-  # 511 und die Konsumenten (z. B. 532) loesen damit identisch auf — keine stille
-  # Divergenz mehr (F2: LAN-Client spooft Host-Header und kommt ohne Login rein).
-  accessGroupOf = n: m: cfg.ingress.vhosts.${n}.accessGroup or m.accessGroup;
+  # EIN Produzent für die Exposure — jetzt wirklich geteilt: die Aufloesung lebt
+  # in lib/ingress-access.nix und wird von 511 (Rendering), 513 (DNS) und 518
+  # (Tiles) importiert. Vorher stand sie nur hier, waehrend 513/518 das Manifest
+  # direkt lasen — der Override divergierte still (F2: LAN-Client spooft
+  # Host-Header und kommt ohne Login rein; 513 publizierte sogar fuer
+  # accessGroup = "none" einen Record).
+  accessGroupOf = ia.accessGroupOf cfg;
 
   enabledServices = lib.filterAttrs (n: m: m.enable && accessGroupOf n m != "none") (
     config.medinix.manifest or { }
@@ -201,14 +204,7 @@ let
   ) enabledServices;
 
   # 2. Externe WAN-VHosts: NUR public, stream und idp (internal bleibt rein auf .lan!)
-  wanServices = lib.filterAttrs (
-    n: m:
-    lib.elem (accessGroupOf n m) [
-      "public"
-      "stream"
-      "idp"
-    ]
-  ) enabledServices;
+  wanServices = lib.filterAttrs (n: m: ia.isWan (accessGroupOf n m)) enabledServices;
 
   wanSites = lib.optionals (domain != null) (
     lib.concatLists (

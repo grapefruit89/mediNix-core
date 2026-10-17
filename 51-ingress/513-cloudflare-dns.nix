@@ -41,21 +41,22 @@ let
   domain = if cfg.host.domain != null then cfg.host.domain else cfg.domain;
   zone = if ddns.zone != null then ddns.zone else domain;
 
-  manifestWanServices = lib.filterAttrs (
-    _: m:
-    m.enable
-    && lib.elem (m.accessGroup or "none") [
-      "public"
-      "stream"
-      "idp"
-    ]
-  ) (config.medinix.manifest or { });
-  vhosts = cfg.ingress.vhosts or { };
+  ia = import ../lib/ingress-access.nix { inherit lib; };
+  manifest = config.medinix.manifest or { };
+
+  # EINE Aufloesung mit 511 (Rendering) und 518 (Tiles): der Vhost-Override
+  # gewinnt. Vorher stand hier `lib.attrNames vhosts` UNGEFILTERT — ein vHost
+  # mit accessGroup = "none" bekam trotzdem einen Cloudflare-Record, obwohl 511
+  # ihn nicht rendert (stiller DNS-Overpublish am Sicherheitsrand).
+  wanManifestLabels = lib.attrNames (
+    lib.filterAttrs (n: m: m.enable && ia.isWan (ia.accessGroupOf cfg n m)) manifest
+  );
+  wanVhostLabels = lib.filter (n: ia.isWan (ia.accessGroupOf cfg n (manifest.${n} or { }))) (
+    lib.attrNames (cfg.ingress.vhosts or { })
+  );
   aliases = cfg.dns.hostnames or { };
 
-  ownedLabels = lib.unique (
-    lib.attrNames manifestWanServices ++ lib.attrNames vhosts ++ lib.attrValues aliases
-  );
+  ownedLabels = lib.unique (wanManifestLabels ++ wanVhostLabels ++ lib.attrValues aliases);
 
   reservedLabels = [
     "wan"
