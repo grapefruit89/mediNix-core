@@ -125,12 +125,12 @@ BANS = [
         "Jellyfin (ADR-551)",
     ),
     (
-        "Fremd-IdP (alles ausser Pocket ID)",
+        "Fremd-IdP (alles ausser Pocket ID / Kanidm)",
         re.compile(
-            r"\b(?:keycloak|authentik|zitadel|authelia|dex|kanidm|logto|kratos|hydra"
+            r"\b(?:keycloak|authentik|zitadel|authelia|dex|logto|kratos|hydra"
             r"|fusionauth|casdoor|glewlwyd)\b"
         ),
-        "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512)",
+        "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512) oder Kanidm",
     ),
     (
         "Fremd-Forward-Auth (alles ausser oauth2-proxy / caddy-security)",

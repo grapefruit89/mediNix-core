@@ -23,10 +23,10 @@ Assertion (`!(config.services.logrotate.enable or false)`) oder ein Guard-Name (
 ist erlaubt. Bedingte Regeln dieser Datei (Postgres/MySQL "als Default", Auto-Updater,
 unbeschraenktes `sudo`) bleiben manuelle Pruefung.
 
-**Whitelist-Regel (§2/§3):** Erlaubt sind **ausschliesslich** **Pocket ID** (IdP, ADR-512),
-**oauth2-proxy** und **caddy-security** (Forward-Auth, ADR-517) — plus die Caddy-eingebaute
-Direktive `forward_auth`. Diese Namen stehen bewusst **nicht** in den Mustern des Checks
-und werden nie als "banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software ist verboten.
+**Whitelist-Regel (§2/§3):** Erlaubt sind **ausschliesslich** **Pocket ID** und **Kanidm**
+(IdPs, ADR-512), **oauth2-proxy** und **caddy-security** (Forward-Auth, ADR-517) — plus die
+Caddy-eingebaute Direktive `forward_auth`. Diese Namen stehen bewusst **nicht** in den
+Mustern des Checks und werden nie als "banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software ist verboten.
 
 ## 1. Banned Technologies (Legacy & Bloat)
 
@@ -47,11 +47,12 @@ und werden nie als "banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software
 
 ## 2. Identity Provider (IdP)
 
-**Erlaubt (Whitelist) — der EINZIGE IdP:**
+**Erlaubt (Whitelist) — nur diese IdPs:**
 
 | Erlaubt | Warum |
 | :--- | :--- |
 | **Pocket ID** | Go, SQLite, **Passkey-only**, **1 Binary**, BSD-2. Referenz-IdP (ADR-512). |
+| **Kanidm** | Rust, Passkey-fähig, schlank; als zweiter IdP ausdrücklich erlaubt. |
 
 **Blacklist — alles andere** (Kriterium: kein Passkey-Support ODER schwergewichtiger
 als Pocket ID: externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit):
@@ -64,7 +65,7 @@ als Pocket ID: externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit)
 | **Authelia** | Kein reiner IdP (OIDC-Provider Beta), Forward-Auth-Hybrid. |
 | **Dex** | Keine Passkeys (nur statische User/LDAP). |
 | **tinyauth** | Keine Passkeys, AGPL-3.0. |
-| **Kanidm · Logto · Ory (Kratos/Hydra) · FusionAuth · Casdoor · Glewlwyd** | Nicht Pocket ID — kein Passkey-only, externe DB oder schwerer. |
+| **Logto · Ory (Kratos/Hydra) · FusionAuth · Casdoor · Glewlwyd** | Nicht Pocket ID/Kanidm — kein Passkey-only, externe DB oder schwerer. |
 
 ## 3. Forward-Auth-Proxys
 
