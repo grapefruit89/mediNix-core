@@ -88,6 +88,15 @@ let
     else
       n;
 
+  # HTML-Attribut-Escaping. Die gepinnte nixpkgs hat hier kein `escapeHTML`
+  # (geprueft in lib/strings.nix), deshalb lokal ueber Kern-lib. `&` muss zuerst
+  # kommen, sonst werden die eigenen Entities erneut escaped.
+  escapeAttr = lib.replaceStrings [ "&" "<" ">" "\"" "'" ] [ "&amp;" "&lt;" "&gt;" "&quot;" "&#39;" ];
+
+  # Attribut-Kontext: `n`, `title` und `id` kommen aus Manifest/Config und werden
+  # HTML-escaped. `iconSvg` bleibt bewusst roh - Betreiber-SVG, gleiche
+  # Vertrauensstufe wie die Datei selbst.
+  # Ref: Review 2026-10-17, Finding 26.
   mkTile =
     hrefFn: tilesAttr: n:
     let
@@ -95,10 +104,10 @@ let
       id = fragment n m;
       title = m.ui.title or n;
       inlineSvg = cfg.ingress.vhosts.${n}.iconSvg or "";
-      icon = if inlineSvg != "" then inlineSvg else ''<use href="/icons.svg#${id}"></use>'';
+      icon = if inlineSvg != "" then inlineSvg else ''<use href="/icons.svg#${escapeAttr id}"></use>'';
     in
     ''
-      <a class="srv" href="${hrefFn n}" aria-label="${n}" title="${title}">
+      <a class="srv" href="${hrefFn n}" aria-label="${escapeAttr n}" title="${escapeAttr title}">
         <svg class="icon" width="120" height="120" aria-hidden="true">
           ${icon}
         </svg>
