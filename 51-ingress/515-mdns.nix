@@ -160,6 +160,17 @@ lib.mkIf (cfg.enable && cfg.ingress.enable && cfg.discovery.mdns.enable && enabl
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.systemd}/bin/systemctl restart medinix-mdns-aliases.service";
+      # Baseline (ADR-5050): die Einheit ruft nur `systemctl` ueber den
+      # systemd-Private-Socket auf. Deshalb CapabilityBoundingSet leer und nur
+      # AF_UNIX - kein Netz, keine Schreibpfade. `RestrictNetworkInterfaces` aus
+      # der ADR gilt hier bewusst NICHT: 515 publiziert auf dem LAN-Interface.
+      # Ref: Review 2026-10-17, Finding 23.
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+      CapabilityBoundingSet = [ "" ];
+      RestrictAddressFamilies = [ "AF_UNIX" ];
     };
   };
 

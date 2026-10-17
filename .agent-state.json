@@ -282,6 +282,8 @@
     "2026-10-17: F26/4 (Review 51-ingress, Altlasten): mkTile in 518 escapet n/title/id fuer den Attribut-Kontext per lib.escapeXML (nixpkgs-Standard; Eigenbau nach Live-Pruefung verworfen). iconSvg bleibt bewusst roh."
   ,
     "2026-10-17: F25/1 (Review 51-ingress, Contract): 510-ingress-SERVICE.md behauptete 'that is the whole contract', listete aber nur accessGroup. Neue Tabelle fuer customConfig/allowUnauthenticated/unauthenticatedPaths/landing/iconId/iconSvg inkl. Leser. F25/2 (ADR-0003 3 'no central assertion registries' vs ADR-5043 1 '590-registry.nix') bleibt offen = Governance-Entscheidung."
+  ,
+    "2026-10-17: F23-A2 (Review 51-ingress, Hardening): medinix-mdns-aliases-restart hatte keine Haertung; jetzt ProtectSystem/ProtectHome/PrivateTmp/NoNewPrivileges + CapabilityBoundingSet leer + RestrictAddressFamilies AF_UNIX. RestrictNetworkInterfaces aus ADR-5050 bewusst nicht (515 publiziert im LAN). NIXMETA systemd_hardened bleibt false (Haupt-Unit ohne CapabilityBoundingSet/SystemCallFilter, Laufzeitbeweis fehlt)."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
