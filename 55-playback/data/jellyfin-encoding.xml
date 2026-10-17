@@ -5,8 +5,9 @@
   <TranscodingTempPath>@TRANSCODE_DIR@</TranscodingTempPath>
   <EnableThrottling>true</EnableThrottling>
   <ThrottleDelaySeconds>180</ThrottleDelaySeconds>
-  <!-- Intel UHD 630 (i3-9100 / Coffee Lake Gen 9) — VAAPI via iHD-Treiber -->
-  <HardwareAccelerationType>vaapi</HardwareAccelerationType>
+  <!-- Encoder wird beim ersten Start bestimmt: auto = verbaute GPU erkennen
+       (Intel/AMD -> vaapi, NVIDIA -> nvenc). Siehe 551-jellyfin.nix preStart. -->
+  <HardwareAccelerationType>@HWACCEL@</HardwareAccelerationType>
   <VaapiDevice>@VAAPI_DEVICE@</VaapiDevice>
   <EnableVppTonemapping>false</EnableVppTonemapping>
   <EnableTonemapping>false</EnableTonemapping>

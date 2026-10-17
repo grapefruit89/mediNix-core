@@ -53,12 +53,24 @@ let
     if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
   jellyfinMetadataDir = "${metadataDir}/metadata";
 
-  # "auto" leitet aus der Host-Hardware ab: eingebaut ist die Intel UHD 630
-  # (i3-9100) -> iHD/VAAPI. EIN aufgeloester Wert fuer ALLE Pfade
-  # (hardware.graphics, LIBVA, VDPAU, Trickplay, DeviceAllow) — vorher war
-  # "auto" uneinheitlich (Env an, Treiber-Pakete aus).
-  accelResolved = if svc.hardware.accel == "auto" then "intel" else svc.hardware.accel;
+  # "auto" = verbaute GPU erkennen (Intel ODER NVIDIA). Nix kann Hardware nicht
+  # abfragen (kein --impure, Korridor-Verbot) — deshalb zwei Schichten:
+  #   (B) Eval: die Host-Deklaration (`services.xserver.videoDrivers`) entscheidet
+  #       ueber Treiber/Pakete. Den NVIDIA-Treiber kann kein Modul selbst
+  #       aktivieren — er ist Kernel-Modul + unfree, also Host-Sache.
+  #   (A) Laufzeit: `preStart` probt die Vendor-ID aus /sys/class/drm und waehlt
+  #       den Encoder (siehe unten) — das ist das eigentliche "auto findet".
+  hostGpu = if builtins.elem "nvidia" config.services.xserver.videoDrivers then "nvidia" else "intel";
+  accelResolved = if svc.hardware.accel == "auto" then hostGpu else svc.hardware.accel;
   hwAccel = accelResolved != "none";
+  hwEncoder =
+    {
+      "intel" = "vaapi";
+      "vaapi" = "vaapi";
+      "amd" = "vaapi";
+      "nvidia" = "nvenc";
+    }
+    .${accelResolved} or "none";
   # Eingebaute GPU automatisch: ohne explizite Angabe das erste Render-Device.
   renderDevice =
     if svc.hardware.renderDevice != null then
@@ -236,7 +248,28 @@ in
             ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/branding.xml'
           fi
           if [ ! -f '${stateDir}/config/encoding.xml' ]; then
-            ${pkgs.coreutils}/bin/cp '${encodingXmlSeed}' '${stateDir}/config/encoding.xml'
+            hw='${hwEncoder}'
+            ${lib.optionalString (svc.hardware.accel == "auto") ''
+              # (A) Laufzeit-Erkennung der verbauten GPU ueber die Vendor-ID.
+              vendor=""
+              for f in /sys/class/drm/renderD*/device/vendor; do
+                if [ -r "$f" ]; then
+                  vendor="$(cat "$f")"
+                  break
+                fi
+              done
+              case "$vendor" in
+                0x10de)
+                  if [ ! -e /dev/nvidia0 ]; then
+                    echo "[mediNix/551-jellyfin] NVIDIA erkannt, aber /dev/nvidia0 fehlt — der Treiber ist nicht aktiv. Setze medinix.hardware.accel explizit oder aktiviere den NVIDIA-Treiber auf dem Host (services.xserver.videoDrivers)." >&2
+                    exit 1
+                  fi
+                  hw="nvenc"
+                  ;;
+                0x8086 | 0x1002) hw="vaapi" ;;
+              esac
+            ''}
+            ${pkgs.gnused}/bin/sed "s|@HWACCEL@|$hw|" '${encodingXmlSeed}' > '${stateDir}/config/encoding.xml'
             ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/encoding.xml'
           fi
         '';
