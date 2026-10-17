@@ -833,6 +833,24 @@
               medinix.ingress.vhosts."pocket-id".accessGroup = "idp";
             };
 
+        # F20: `idp` ist dem IdP selbst vorbehalten - ein fremder Dienst darf die
+        # Klasse nicht per Vhost-Override waehlen (WAN, kein forward_auth).
+        checks.mediNix-negative-idp-reserved =
+          expectAssertion "idp-reserved" "reserved for the IdP itself"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.ingress.vhosts."jellyfin".accessGroup = "idp";
+            };
+
+        # F20: `stream` ist WAN-offen ohne Ingress-Auth; ein Dienst, dessen
+        # Manifest etwas anderes deklariert, braucht die explizite Ack.
+        checks.mediNix-negative-stream-unacked =
+          expectAssertion "stream-unacked" "deviates from the manifest declaration"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.ingress.vhosts."feishin".accessGroup = "stream";
+            };
+
         # F3: der Upstream-Vergleich toleriert Schema/Trailing-Slash. Genau das
         # dokumentierte Format (http://127.0.0.1:<pocket-id-port>) muss die
         # Assertion ausloesen, sonst zeigt forward_auth auf Pocket-ID selbst.

@@ -683,6 +683,19 @@ in
           description = "Nix store path with internal index.html for dashboard.lan; set by 518-landingpage.nix.";
         };
       };
+      streamAck = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "feishin" ];
+        description = ''
+          Services that may run with `accessGroup = "stream"` although their
+          manifest entry declares something else. `stream` is WAN-visible
+          without ingress authentication (the app is expected to log in), so a
+          deviation from the declared intent needs explicit acknowledgement
+          (Review 2026-10-17, Finding 20). Services that already declare
+          `stream` in the manifest need no entry.
+        '';
+      };
     };
 
     # --- Security (guardrails) ---

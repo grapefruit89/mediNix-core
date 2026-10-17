@@ -82,6 +82,10 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 - **516 liest die Caddy-Unit über `ia.caddyUnitOf`** (`caddy.service` bei
   `global`, `caddy-media.service` bei `standalone`) — nie hartkodieren
   (Review Finding 13).
+- **`idp` und `stream` sind WAN-offen ohne Ingress-Auth.** `idp` ist per
+  Assertion dem IdP selbst vorbehalten; `stream` darf nur, wer es im Manifest
+  deklariert — jede Abweichung braucht `medinix.ingress.streamAck = [ … ]`
+  (Review Finding 20). `accessGroup` also nicht per Vhost „mal eben" umlegen.
 
 ## Prüfen
 

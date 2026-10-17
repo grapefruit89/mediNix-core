@@ -274,6 +274,8 @@
     "2026-10-17: F15 (Review 51-ingress): prune_label in 513 loescht nur noch Records mit comment=managed-by=mediNix-core/513; fremde A/AAAA/CNAME werden gemeldet statt geloescht. update_record (Konflikt-Typen am eigenen Namen) bewusst unveraendert."
   ,
     "2026-10-17: F7 (Review 51-ingress): Global-Modus-Injektion dokumentiert (ingress.mode-Beschreibung + README) und die Unit-Anpassung (OOMScoreAdjust, RuntimeDirectoryMode) auf mkDefault - RuntimeDirectory bleibt hart, weil der Admin-Endpoint daran haengt; auto_https off bleibt (TLS kommt aus 514)."
+  ,
+    "2026-10-17: F20 (Review 51-ingress): idp/stream sind WAN-offen ohne Ingress-Auth. Neue Assertions in 511: accessGroup=idp ist dem IdP selbst vorbehalten; accessGroup=stream nur, wenn der Manifest-Eintrag stream deklariert oder der Dienst in der neuen Option ingress.streamAck steht. Fixtures mediNix-negative-idp-reserved und mediNix-negative-stream-unacked."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",

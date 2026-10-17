@@ -451,7 +451,35 @@ lib.mkMerge [
         assertion = (enabledServices == { } && !landingOn) || trustedCidrs != [ ];
         message = "[mediNix] ingress.trustedCidrs is empty but vhosts/landing are enabled. Set your real LAN CIDR(s) — no implicit trust of RFC1918/CGNAT.";
       }
-    ];
+    ]
+    ++ (
+      let
+        # Finding 20 (Review 2026-10-17): `idp` und `stream` sind WAN-offen OHNE
+        # Ingress-Auth. `idp` gehoert dem IdP selbst; `stream` nur Diensten, deren
+        # Manifest-Eintrag stream deklariert - jede Abweichung braucht die
+        # ausdrueckliche Ack `ingress.streamAck`. Geprueft wird die WIRKSAME
+        # Zugriffsgruppe (Vhost-Override gewinnt), ueber Manifest UND vhosts.
+        names = lib.unique (
+          lib.attrNames (config.medinix.manifest or { }) ++ lib.attrNames (cfg.ingress.vhosts or { })
+        );
+        groupOf = n: accessGroupOf n (config.medinix.manifest.${n} or { });
+        declaredOf = n: config.medinix.manifest.${n}.accessGroup or "none";
+        idpNames = lib.filter (n: groupOf n == "idp") names;
+        unackedStream = lib.filter (
+          n: groupOf n == "stream" && declaredOf n != "stream" && !(lib.elem n ing.streamAck)
+        ) names;
+      in
+      [
+        {
+          assertion = lib.all (n: n == "pocket-id") idpNames;
+          message = "[mediNix] accessGroup = \"idp\" is reserved for the IdP itself: ${lib.concatStringsSep ", " idpNames}. Use \"stream\" (app login) or \"public\" + forward_auth.";
+        }
+        {
+          assertion = unackedStream == [ ];
+          message = "[mediNix] accessGroup = \"stream\" deviates from the manifest declaration for: ${lib.concatStringsSep ", " unackedStream}. stream is WAN-visible without ingress auth - acknowledge with medinix.ingress.streamAck = [ \"<service>\" ].";
+        }
+      ]
+    );
 
     services.caddy.globalConfig = lib.mkIf useGlobal globalOptions;
 
