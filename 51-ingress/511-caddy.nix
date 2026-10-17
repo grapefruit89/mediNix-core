@@ -101,13 +101,28 @@ let
     }
   '';
 
-  # request_header: Strip client-supplied identity headers before forward_auth
+  # request_header: Strip client-supplied identity headers before forward_auth.
+  # R19: die Liste MUSS ein Superset von copy_headers sein — Caddy reicht sonst
+  # ALLE uebrigen Client-Header an den Upstream durch, und ein Dienst, der z. B.
+  # X-Forwarded-User oder X-WEBAUTH-USER vertraut, waere aus dem WAN spoofbar.
+  # Der Check mediNix-ingress-header-strip-superset haelt beide Listen gleich.
   stripAuthHeaders = lib.concatMapStrings (h: "request_header -${h}\n") [
     "Remote-User"
     "Remote-Email"
     "Remote-Groups"
     "X-Auth-Request-User"
     "X-Auth-Request-Email"
+    "X-Auth-Request-Groups"
+    "X-Auth-Request-Preferred-Username"
+    "X-Auth-Request-Access-Token"
+    "X-Forwarded-User"
+    "X-Forwarded-Email"
+    "X-Forwarded-Groups"
+    "X-Forwarded-Preferred-Username"
+    "X-Forwarded-Access-Token"
+    "X-Remote-User"
+    "X-WEBAUTH-USER"
+    "Proxy-Authorization"
   ];
 
   lanAbort = lib.optionalString (trustedCidrs != [ ]) ''

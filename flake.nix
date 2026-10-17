@@ -692,6 +692,58 @@
                 || { echo "FAIL: order request_header($req) <= strip($strip) < forward_auth($fa) violated"; exit 1; }
               echo "ok: identity headers stripped on the REQUEST before forward_auth" > $out
             '';
+        # R19: die Strip-Liste muss ein SUPERSET von copy_headers sein. Caddy
+        # reicht alle uebrigen Client-Header an den Upstream durch — ein Dienst,
+        # der einem nicht gestrippten Identitaets-Header vertraut, ist aus dem
+        # WAN spoofbar. Der Check haelt beide Listen deckungsgleich.
+        checks.mediNix-ingress-header-strip-superset =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.ingress.auth.mode = "forward-auth";
+                  medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5170";
+                  medinix.authProxyPresent = true;
+                  medinix.seerr.enable = true;
+                  medinix.manifest.seerr.allowUnauthenticated = lib.mkForce false;
+                };
+              }).config;
+            caddyfile =
+              pkgs.writeText "strip-superset.Caddyfile"
+                c.environment.etc."caddy-media/Caddyfile".text;
+          in
+          pkgs.runCommand "ingress-header-strip-superset-ok"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.gnused
+                pkgs.coreutils
+              ];
+            }
+            ''
+              f=${caddyfile}
+              # gestrippt: request_header -<H>
+              grep -oE 'request_header -[A-Za-z][A-Za-z0-9-]*' "$f" \
+                | sed 's/^request_header -//' | sort -u > stripped
+              # kopiert: der copy_headers-Block (bis zur schliessenden Klammer)
+              sed -n '/copy_headers/,/}/p' "$f" \
+                | grep -oE '[A-Za-z][A-Za-z0-9-]*' | grep -vx 'copy_headers' | sort -u > copied
+              comm -23 copied stripped > missing
+              if [ -s missing ]; then
+                echo "FAIL: copied but not stripped: $(tr '\n' ' ' < missing)"; exit 1
+              fi
+              # Diese emittiert oauth2-proxy (517) — sie MUESSEN gestrippt sein.
+              for h in X-Forwarded-User X-Forwarded-Email X-Forwarded-Groups \
+                       X-Auth-Request-Groups X-WEBAUTH-USER Proxy-Authorization; do
+                grep -q -- "request_header -$h" "$f" || {
+                  echo "FAIL: $h is not stripped (oauth2-proxy identity header)"; exit 1;
+                }
+              done
+              echo "ok: strip list is a superset of copy_headers" > $out
+            '';
 
         # R15: a uid mismatch between registry and instance must fail — the
         # nftables `skuid` would otherwise target the wrong process.
