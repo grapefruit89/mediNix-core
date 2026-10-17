@@ -272,6 +272,8 @@
     "2026-10-17: F8 (Review 51-ingress): medinix.discovery.mdns.openFirewall war Dead-Config (0 Leser, Default true) - jetzt von 515 gelesen, Default = hostIntegration.firewall == managed; neue Option medinix.discovery.mdns.allowInterfaces (Default null wie nixpkgs). avahi enable/openFirewall mit mkDefault, damit der Host eingreifen kann."
   ,
     "2026-10-17: F15 (Review 51-ingress): prune_label in 513 loescht nur noch Records mit comment=managed-by=mediNix-core/513; fremde A/AAAA/CNAME werden gemeldet statt geloescht. update_record (Konflikt-Typen am eigenen Namen) bewusst unveraendert."
+  ,
+    "2026-10-17: F7 (Review 51-ingress): Global-Modus-Injektion dokumentiert (ingress.mode-Beschreibung + README) und die Unit-Anpassung (OOMScoreAdjust, RuntimeDirectoryMode) auf mkDefault - RuntimeDirectory bleibt hart, weil der Admin-Endpoint daran haengt; auto_https off bleibt (TLS kommt aus 514)."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",

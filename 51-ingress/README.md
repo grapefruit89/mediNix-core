@@ -258,6 +258,14 @@ The important ownership principle is:
 
 > **`auto` detects; `global` integrates; `standalone` owns the Caddy service.**
 
+What `global` takes over (Review 2026-10-17, Finding 7): `511` writes
+`services.caddy.globalConfig` (`admin unix//run/caddy/admin.sock` and
+`auto_https off`, because TLS is issued by 514/ACME), renders every vhost into
+that instance and adjusts the unit (`OOMScoreAdjust`, `RuntimeDirectory` — both
+`mkDefault`, so a host may override them). A host that serves its own sites from
+the same global Caddy loses auto-HTTPS for those sites; `standalone` leaves the
+global Caddy untouched.
+
 The module generates Caddy configuration from one authoritative site/vhost representation rather than maintaining parallel hand-written route inventories.
 
 The current security model is intentionally fail-closed:

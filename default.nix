@@ -540,7 +540,14 @@ in
         default = "auto";
         description = ''
           auto: Hook into global caddy if config.services.caddy.enable, else standalone.
-          global: Force injection into global Caddy.
+          global: Force injection into global Caddy. In this mode 511 becomes the
+            owner of that instance: it writes `services.caddy.globalConfig`
+            (`admin unix//run/caddy/admin.sock` + `auto_https off`, because TLS is
+            issued by 514/ACME), renders all vhosts into it and accompanies the
+            unit (OOMScoreAdjust/RuntimeDirectory, both mkDefault). A host that
+            serves its OWN sites from the same global Caddy loses auto-HTTPS for
+            them - use `standalone` if the global Caddy must stay untouched.
+            Review 2026-10-17, Finding 7.
           standalone: Force standalone caddy-media on port 80/443.
         '';
       };

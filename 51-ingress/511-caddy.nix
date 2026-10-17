@@ -466,11 +466,17 @@ lib.mkMerge [
       )
     );
 
+    # Finding 7 (Review 2026-10-17): im Global-Modus haengen wir uns an die
+    # HOST-Caddy. Was der Host ueberschreiben koennen muss, steht auf mkDefault.
+    # `RuntimeDirectory` bleibt hart: unser Admin-Endpoint zeigt auf
+    # `unix//run/caddy/admin.sock` (siehe `adminEndpoint` oben) - biegt der Host
+    # das um, laeuft der Socket ins Leere. `auto_https off` in der globalConfig
+    # ist ebenfalls funktional (TLS kommt aus 514/ACME), siehe `ingress.mode`.
     systemd.services.caddy = lib.mkIf useGlobal {
       serviceConfig = {
-        OOMScoreAdjust = -900;
+        OOMScoreAdjust = lib.mkDefault (-900);
         RuntimeDirectory = "caddy";
-        RuntimeDirectoryMode = "0700";
+        RuntimeDirectoryMode = lib.mkDefault "0700";
       };
     };
 
