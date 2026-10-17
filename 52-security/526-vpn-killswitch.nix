@@ -133,12 +133,29 @@ in
         assertion = config.networking.firewall.checkReversePath != true;
         message = "[mediNix/vpn] 'checkReversePath = true' (strict) verwirft asymmetrische Pakete im WireGuard-Routing! Zwingend 'loose' oder false erforderlich.";
       }
+      {
+        # A2: die Killswitch-Tabellen werden NUR geladen, wenn nftables aktiv
+        # ist. Ohne enable sind sie deklariert, aber wirkungslos: kein fwmark →
+        # die ip rule greift nicht → confined UIDs entkommen ueber die
+        # Default-Route. Bewusst NICHT auf hostIntegration.nftables == "managed"
+        # geprueft: ein external-Host mit eigener nftables-Aktivierung muss
+        # durchgehen.
+        assertion = config.networking.nftables.enable;
+        message = ''
+          [vpnKillSwitch] Active instances require networking.nftables.enable = true.
+          Otherwise the killswitch tables are declared but never loaded and confined
+          UIDs escape via the default route. Ref: ADR-526.
+        '';
+      }
     ];
 
     networking.firewall.checkReversePath = lib.mkDefault "loose";
     networking.firewall.logReversePathDrops = lib.mkDefault true;
 
-    networking.nftables.tables.medinix_vpn_mark = {
+    # A1 (Belt-and-Suspenders): nur die Tabellen sind gegated, NICHT das
+    # Top-Level-mkIf — sonst wuerde bei nftables.enable = false der ganze
+    # Killswitch (Services, Route-Unit, resolv.conf) mitabgeschaltet.
+    networking.nftables.tables.medinix_vpn_mark = lib.mkIf config.networking.nftables.enable {
       family = "inet";
       content = ''
         chain vpn_mark {
@@ -162,7 +179,7 @@ in
       '';
     };
 
-    networking.nftables.tables.medinix_vpn_filter = {
+    networking.nftables.tables.medinix_vpn_filter = lib.mkIf config.networking.nftables.enable {
       family = "inet";
       content = ''
         chain killswitch {
@@ -189,6 +206,12 @@ in
     };
 
     systemd.services = {
+      # IMPERATIV (bewusst): networking.iproute2 auf unstable bietet keine Option
+      # fuer ip rule / ip route mit fwmark und unreachable default (nur
+      # rttablesExtraConfig). Der Type=oneshot-Service ist der deklarative
+      # Ersatz: Zustand wird bei jedem Boot neu hergestellt, ExecStart
+      # verifiziert fail-closed via `ip rule show | grep`. Umbau auf
+      # systemd-networkd ([RoutingPolicyRule]/[Route]) ist offen.
       "medinix-vpn-route" = {
         description = "mediNix VPN Policy Routing";
         wantedBy = [ "multi-user.target" ];

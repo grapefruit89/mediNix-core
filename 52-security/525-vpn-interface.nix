@@ -53,6 +53,16 @@ lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
       assertion = (config.medinix.vpn.dns or [ ]) != [ ];
       message = "[mediNix/vpn] Schutz vor unverschlüsselten DNS-Leaks: 'medinix.vpn.dns' darf bei aktivem VPN nicht leer sein!";
     }
+    {
+      # A3: ein peerloses WireGuard-Interface ist up, traegt aber keinen
+      # Verkehr — "VPN down, und niemand merkt es".
+      assertion = vpn.peer.publicKey != "";
+      message = ''
+        [mediNix] vpn.enable = true and useExistingInterface = false, but
+        vpn.peer.publicKey is empty. A peerless WireGuard interface carries no
+        traffic. Ref: ADR-526.
+      '';
+    }
   ];
 
   medinix.vpn.interface = lib.mkDefault ifName;
@@ -72,7 +82,9 @@ lib.mkIf (cfg.enable && vpn.enable && !vpn.useExistingInterface) {
     };
   };
 
-  systemd.services."wireguard-${ifName}" = lib.mkIf (vpn.privateKeyCredentialPath != null) {
+  # A4: kein mkIf — die Assertion oben (gleicher mkIf-Zweig, Z. 35) garantiert
+  # privateKeyCredentialPath != null bereits.
+  systemd.services."wireguard-${ifName}" = {
     serviceConfig.LoadCredentialEncrypted = [
       "wg-private-key:${vpn.privateKeyCredentialPath}"
     ];
