@@ -89,6 +89,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [TLS-Zertifikate: Lego + Cloudflare DNS-01 mit eigenem Token](adr/ADR-514-acme-lego-dns01.md)
 - [mDNS Aliases (Avahi): {service}.local -> LAN-IP](adr/ADR-515-mdns-avahi-aliases.md)
 - [CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)](adr/ADR-516-crowdsec.md)
+- [Auth-Flow: OIDC wo möglich, Forward-Auth als Lücke, Jellyfin/Seerr ausgenommen](adr/ADR-517-oauth2-proxy-forward-auth.md)
 - [Landingpage Honeypot](adr/ADR-518-landingpage-honeypot.md)
 - [ADR 5200 ssh port policy](adr/ADR-52-ssh-port-policy.md)
 - [ADR 5200 privesc audit hardening](adr/ADR-5200-privesc-audit-hardening.md)

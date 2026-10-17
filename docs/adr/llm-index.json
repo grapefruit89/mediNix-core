@@ -294,6 +294,12 @@
       "file": "ADR-585-exporters.md",
       "topic": "manifest-driven prometheus exporters",
       "status": "active"
+    },
+    {
+      "id": "517",
+      "file": "ADR-517-oauth2-proxy-forward-auth.md",
+      "topic": "auth flow: oidc where possible, forward-auth proxy for the rest, jellyfin/seerr exempt",
+      "status": "active"
     }
   ],
   "duplicates": [

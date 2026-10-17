@@ -56,6 +56,10 @@ in
         inherit (cfg) enable;
         num = 561;
         accessGroup = "public";
+        # ADR-517: Seerr hat einen eigenen Login und bleibt bewusst AUSSERHALB des
+        # Auth-Flows (kein forward_auth). Das ist die ausdrueckliche Ack, die die
+        # 511-Assertion fuer public-ohne-Auth verlangt.
+        allowUnauthenticated = true;
 
         ui = {
           title = "Seerr";
