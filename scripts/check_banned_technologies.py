@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verbotene Technologien als Check (Quelle: 50-core/BANNED_TECHNOLOGIES.md §1).
+"""Verbotene Technologien als Check (Quelle: 50-core/BANNED_TECHNOLOGIES.md §1-§3).
 
 Geprueft werden **nur aktivierende Muster** - also Code, der die verbotene Technologie
 tatsaechlich einschaltet, nicht jede Erwaehnung:
@@ -9,6 +9,9 @@ tatsaechlich einschaltet, nicht jede Erwaehnung:
 * Pakete: `pkgs.<verboten>`
 * Befehle in Kommandoposition (`.sh`, Skript-Bloecke): `iptables -A …`, `crontab …`
 * Import/Paket der Vector-DBs: `import chromadb`, `pkgs.faiss`
+* Fremd-IdP / Fremd-Forward-Auth: `keycloak`, `authentik`, `zitadel`, `authelia`, `dex`,
+  `pomerium`, `tinyauth` (§2/§3). Whitelist - und damit NIE gemeldet: **Pocket ID**
+  (ADR-512) sowie **oauth2-proxy** und **Caddy `forward_auth`** (ADR-517).
 * unreine Eval-Quellen (ADR-0002 §2): `builtins.currentSystem`, `builtins.getEnv`, `<nixpkgs>`
 
 Bewusst NICHT geprueft werden:
@@ -121,6 +124,19 @@ BANS = [
         re.compile(r"services\.plex" + ACTIVATE + r"|pkgs\.plex\b"),
         "Jellyfin (ADR-551)",
     ),
+    (
+        "Fremd-IdP (Keycloak, Authentik, Zitadel, Authelia, Dex) - kein Passkey-only / schwerer als Pocket ID",
+        re.compile(
+            r"\b(?:keycloak|authentik|zitadel|authelia|dex)\b"
+            r"|pkgs\.(?:keycloak|authentik|zitadel|authelia|dex)\b"
+        ),
+        "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512)",
+    ),
+    (
+        "Fremd-Forward-Auth (Pomerium, Authentik-Proxy) - nicht die Whitelist",
+        re.compile(r"\bpomerium\b|pkgs\.pomerium\b|services\.pomerium\b"),
+        "oauth2-proxy (MIT, OIDC) oder Caddy forward_auth (eingebaute Direktive, kein Plugin; ADR-517)",
+    ),
 ]
 
 
@@ -212,7 +228,7 @@ def main() -> int:
               f"({checked} Code-Dateien geprueft).")
         return 1
     print(f"OK: keine aktivierte verbotene Technologie in {checked} Code-Dateien "
-          "(50-core/BANNED_TECHNOLOGIES.md §1) und keine unreinen Eval-Quellen in *.nix (ADR-0002 §2).")
+          "(50-core/BANNED_TECHNOLOGIES.md §1-§3) und keine unreinen Eval-Quellen in *.nix (ADR-0002 §2).")
     return 0
 
 
