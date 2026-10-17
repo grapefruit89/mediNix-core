@@ -68,6 +68,21 @@ Per-vhost overrides that 518 actually reads: `ingress.vhosts."<name>".landing = 
 hides the tile, `.iconId = "<id>"` picks a sprite id, `.iconSvg = "<svg…>"` inlines
 one. Without an override the manifest decides (`ui.showOnLanding`, default `true`).
 
+### Per-vhost overrides — the rest of the contract
+
+Declared in `default.nix` (`ingress.vhosts.<name>.*`), read where noted. Every
+field is optional; an unset field lets the service manifest decide.
+
+| Field | Type | Effect | Read by |
+| --- | --- | --- | --- |
+| `accessGroup` | enum (`stream`/`public`/`idp`/`internal`/`none`) | the class above; `idp` is reserved for the IdP, `stream` needs the manifest's own declaration or `ingress.streamAck` | 511, 513, 515, 518 via `lib/ingress-access.nix` |
+| `landing` | bool or `null` | `false` hides the tile for this host | 518 |
+| `iconId` | str | sprite id, beats `manifest.<name>.ui.icon` and the service name | 518 |
+| `iconSvg` | lines | inline SVG instead of the sprite (trusted operator input, not escaped) | 518 |
+| `allowUnauthenticated` | bool or `null` | acknowledges a `public` vhost that gets no `forward_auth` | 511 (assertion) |
+| `unauthenticatedPaths` | list of paths | auth bypass paths; a `public` vhost with any entry is a build error | 511 |
+| `customConfig` | lines | raw Caddy directives appended to the site — the owner escape hatch | 511 |
+
 ## Sprite
 
 Repo file: `50-core/icons.svg` (copy of logorepo `dist/icons.svg`).

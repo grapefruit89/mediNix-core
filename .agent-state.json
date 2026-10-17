@@ -280,6 +280,8 @@
     "2026-10-17: F26/1 (Review 51-ingress, Duplikate): tlsEnabled stand wortgleich in 511:85 und 518:62-65. Neuer Helfer ia.tlsEnabledOf in lib/ingress-access.nix (neben useGlobalOf/caddyUnitOf), beide Module nutzen ihn. Reiner Refactor, gleiche Semantik."
   ,
     "2026-10-17: F26/4 (Review 51-ingress, Altlasten): mkTile in 518 escapet n/title/id fuer den Attribut-Kontext per lib.escapeXML (nixpkgs-Standard; Eigenbau nach Live-Pruefung verworfen). iconSvg bleibt bewusst roh."
+  ,
+    "2026-10-17: F25/1 (Review 51-ingress, Contract): 510-ingress-SERVICE.md behauptete 'that is the whole contract', listete aber nur accessGroup. Neue Tabelle fuer customConfig/allowUnauthenticated/unauthenticatedPaths/landing/iconId/iconSvg inkl. Leser. F25/2 (ADR-0003 3 'no central assertion registries' vs ADR-5043 1 '590-registry.nix') bleibt offen = Governance-Entscheidung."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
