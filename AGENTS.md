@@ -8,13 +8,13 @@
 ## Eiserne Agenten-Arbeitsregeln (Strikte Arbeitsdisziplin)
 
 1. **Vor jeder Code-Änderung (Pre-Check):**
-   - Prüfe zwingend [`.agent-state.json`](file:///home/moritz/repos/mediNix-core/.agent-state.json) auf bekannte Sackgassen und Fehler (`dead_ends_and_failures`).
-   - Konsultiere [`docs/adr/llm-index.json`](file:///home/moritz/repos/mediNix-core/docs/adr/llm-index.json) für aktive Architekturentscheidungen und Namenskonventionen.
+   - Prüfe zwingend [`.agent-state.json`](./.agent-state.json) auf bekannte Sackgassen und Fehler (`dead_ends_and_failures`).
+   - Konsultiere [`docs/adr/llm-index.json`](./docs/adr/llm-index.json) für aktive Architekturentscheidungen und Namenskonventionen.
 2. **Nach jeder Code-Änderung (Post-Record):**
-   - Dokumentiere jeden Fix, Refactor oder Invarianten-Schutz in [`.agent-state.json`](file:///home/moritz/repos/mediNix-core/.agent-state.json) unter `recent_refactorings`.
-   - Trage genutzte GitHub-Repositories, Doku-Quellen oder Upstream-Muster in [`docs/UPSTREAM-SOURCES.md`](file:///home/moritz/repos/mediNix-core/docs/UPSTREAM-SOURCES.md) ein.
+   - Dokumentiere jeden Fix, Refactor oder Invarianten-Schutz in [`.agent-state.json`](./.agent-state.json) unter `recent_refactorings`.
+   - Trage genutzte GitHub-Repositories, Doku-Quellen oder Upstream-Muster in [`docs/UPSTREAM-SOURCES.md`](./docs/UPSTREAM-SOURCES.md) ein.
 3. **Ideen-Verwaltung (Zero Code-Drift):**
-   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](file:///home/moritz/repos/mediNix-core/ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
+   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](./ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
 4. **Verfassungs-Zwang (ADR-0000):**
    - Jede Code-Änderung muss die Kern-Invarianten einhalten und wird per `nix flake check` lokal verifiziert.
 5. **systemd-first (kernel-nah):**
@@ -24,6 +24,11 @@
 6. **Etablierte Begriffe (Semantic Anchors):**
    - Methoden/Konzepte mit **etabliertem Namen** benennen statt Eigenschöpfung → siehe `docs/TERMINOLOGY.md` (unser Konstrukt → Katalog-Anker + Link).
    - Nur Namen aus dem Katalog zitieren; bei Zweifel dort nachsehen, nicht aus dem Gedächtnis.
+7. **Generatoren, CI-Beweis, Dead-Config, Absicht (Kurzfassung von `docs/CONVENTIONS.md` §6):**
+   - **Generatoren-Pflicht:** Wer ADRs/Dienste/Dateien ändert, lässt `docs/generate_index.py`, `scripts/gen_todo.py` und `50-core/medinix-meta.py generate-docs` **im selben Commit** laufen — sonst wird `Docs Index` bzw. `order-lint` rot.
+   - **CI-Beweis statt -Behauptung:** „grün" nur nach Zählung **aller** Workflows des Head-SHA (`gh run list --limit 12 --json name,conclusion,headSha`).
+   - **Deklariert ≠ wirkt:** jede Option/jedes Feld braucht einen **Leser** (`grep -rn "<name>" --include=*.nix .`).
+   - **Absicht vor Konsistenz:** ein Review-/Subagent-Befund ist Rohmaterial, kein Auftrag — der Fix darf **kein laufendes Feature abschalten** (Default umlegen, Paket-Flag überschreiben).
 
 ---
 
@@ -127,11 +132,11 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 | Ort | Was |
 |---|---|
 | `lib/` | **Engine** `decimal-framework.nix` (besitzt `users.users.<dienst>`, StateDirectory, UPG) · `service-factory.nix` / `service-contract.nix` (Unit-Gerüst + Manifest-Schema) · `hardening-profiles.nix` (**einzige** Hardening-Quelle) · `registry.nix` (SSoT) · `creds` · `memory-policy` · `arr-settings` |
-| `docs/adr/` | 33 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
+| `docs/adr/` | 47 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
 | `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
 | `docs/{arch,patterns,guides,concepts,learn,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`) |
-| `.agent-state.json` | **Korridor**: Whitelist, 43 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
+| `.agent-state.json` | **Korridor**: Whitelist, 53 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
 | `ROADMAP.md` | die einzige Roadmap (Backlog priorisiert · Verworfen · Done mit Hashes) |
 | `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |

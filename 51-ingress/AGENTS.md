@@ -2,6 +2,11 @@
 
 Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README.md`](README.md).
 
+Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
+(`python3 50-core/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
+wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (der Marker-String
+darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
+
 **Rolle:** Edge-/Ingress-Domäne — die Zugangsschicht in die Dienste.
 
 **Verantwortung:**
@@ -10,6 +15,7 @@ Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README
 - DNS/DDNS (513)
 - ACME/TLS (514)
 - mDNS (515)
+- CrowdSec-Bouncer (516)
 - Landingpage (518)
 - Ingress-Guardrails und Ownership-Konflikte (519)
 
@@ -28,6 +34,42 @@ Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README
 - Änderungen an Ingress zuerst gegen den bestehenden Contract prüfen.
 - Keine zweite Service-/Route-Inventarliste erzeugen.
 - Keine Ownership implizit übernehmen.
+
+## Was hier leicht schiefgeht (hart erarbeitet)
+
+- **`accessGroup` hat EINEN Produzenten.** `511` löst per
+  `accessGroupOf n m = ingress.vhosts.<n>.accessGroup or manifest.<n>.accessGroup`
+  auf — der **Vhost gewinnt**. Nie beide Stellen pflegen; die Divergenz war ein
+  stiller Auth-Bypass (F1/F2, `docs/ingress-security-matrix.md`).
+- **Pocket-ID (512) kann kein forward-auth.** Sie ist OIDC-IdP **ohne**
+  forward-auth-Endpoint. `auth.mode = "forward-auth"` verlangt zusätzlich
+  `authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`
+  (oauth2-proxy/tinyauth) — sonst bricht `511` per Assertion ab.
+- **`localBypass` existiert nicht mehr.** Er war nie verdrahtet (0 Leser).
+  `.lan` ist **nur** CIDR-gegated (`lanAbort`); WAN-`public` erzwingt `forward_auth`.
+- **`.lan` ≠ `.local`.** `.lan` ist der Caddy-Vhost, `.local` ist mDNS (515).
+- **TLS kommt nicht von Caddy.** `514-acme.nix` holt das Wildcard über
+  NixOS-ACME/Lego (Cloudflare DNS-01); Caddy läuft `auto_https off` und liest
+  `/var/lib/acme/{acmeHost}/{fullchain,key}.pem`.
+- **Caddy-Admin-API nur über Unix-Socket** im RuntimeDirectory (RT-1) — **nicht**
+  `127.0.0.1:2019`.
+- **Header-Strip-Reihenfolge:** `request_header` **vor** `forward_auth`
+  (`checks.mediNix-ingress-header-strip`).
+- **`trustedCidrs` muss explizit gesetzt sein** — leer + aktive vhosts = Build-Fehler.
+
+## Prüfen (lokal; auf diesem Gerät gibt es kein `nix`)
+
+```bash
+nixfmt --check 51-ingress/*.nix
+python3 scripts/check_manifest_edge.py      # Kante Code -> Manifest
+python3 scripts/nixos_idiom_audit.py --p0-only
+python3 scripts/check_sources.py            # Upstream-Quellen je Manifest-Traeger
+python3 scripts/check_adrs.py               # ADR-Form + Kante Code -> ADR
+```
+
+Die Ingress-Checks laufen erst in CI (`Flake Check`), u. a.
+`mediNix-caddy-single-owner`, `mediNix-ingress-header-strip`,
+`mediNix-negative-vhost-unresolved`, `mediNix-negative-forward-auth-upstream`.
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
