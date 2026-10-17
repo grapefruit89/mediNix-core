@@ -125,17 +125,20 @@ BANS = [
         "Jellyfin (ADR-551)",
     ),
     (
-        "Fremd-IdP (Keycloak, Authentik, Zitadel, Authelia, Dex) - kein Passkey-only / schwerer als Pocket ID",
+        "Fremd-IdP (alles ausser Pocket ID)",
         re.compile(
-            r"\b(?:keycloak|authentik|zitadel|authelia|dex)\b"
-            r"|pkgs\.(?:keycloak|authentik|zitadel|authelia|dex)\b"
+            r"\b(?:keycloak|authentik|zitadel|authelia|dex|kanidm|logto|kratos|hydra"
+            r"|fusionauth|casdoor|glewlwyd)\b"
         ),
         "Pocket ID (Go, SQLite, Passkey-only, 1 Binary, BSD-2; ADR-512)",
     ),
     (
-        "Fremd-Forward-Auth (Pomerium, Authentik-Proxy) - nicht die Whitelist",
-        re.compile(r"\bpomerium\b|pkgs\.pomerium\b|services\.pomerium\b"),
-        "oauth2-proxy (MIT, OIDC) oder Caddy forward_auth (eingebaute Direktive, kein Plugin; ADR-517)",
+        "Fremd-Forward-Auth (alles ausser oauth2-proxy / caddy-security)",
+        re.compile(
+            r"\bpomerium\b|pkgs\.pomerium\b|services\.pomerium\b"
+            r"|\bauthelia\b|\bauthentik\b|\bvouch\b"
+        ),
+        "oauth2-proxy (MIT, OIDC) oder caddy-security (Caddy-Plugin) — ADR-517",
     ),
 ]
 

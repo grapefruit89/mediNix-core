@@ -23,10 +23,10 @@ Assertion (`!(config.services.logrotate.enable or false)`) oder ein Guard-Name (
 ist erlaubt. Bedingte Regeln dieser Datei (Postgres/MySQL "als Default", Auto-Updater,
 unbeschraenktes `sudo`) bleiben manuelle Pruefung.
 
-**Whitelist-Regel (IdP + Forward-Auth, §2/§3):** Die **einzigen** erlaubten Namen sind
-**Pocket ID** (IdP, ADR-512) sowie **oauth2-proxy** und **Caddy `forward_auth`**
-(Forward-Auth, ADR-517). Sie stehen bewusst **nicht** in den Mustern des Checks und
-werden daher nie als "banned" gemeldet; jede andere IdP-/Forward-Auth-Software ist verboten.
+**Whitelist-Regel (§2/§3):** Erlaubt sind **ausschliesslich** **Pocket ID** (IdP, ADR-512),
+**oauth2-proxy** und **caddy-security** (Forward-Auth, ADR-517) — plus die Caddy-eingebaute
+Direktive `forward_auth`. Diese Namen stehen bewusst **nicht** in den Mustern des Checks
+und werden nie als "banned" gemeldet; **jede andere** IdP-/Forward-Auth-Software ist verboten.
 
 ## 1. Banned Technologies (Legacy & Bloat)
 
@@ -47,34 +47,35 @@ werden daher nie als "banned" gemeldet; jede andere IdP-/Forward-Auth-Software i
 
 ## 2. Identity Provider (IdP)
 
-**Erlaubt (einziger IdP) — Whitelist:**
+**Erlaubt (Whitelist) — der EINZIGE IdP:**
 
 | Erlaubt | Warum |
 | :--- | :--- |
 | **Pocket ID** | Go, SQLite, **Passkey-only**, **1 Binary**, BSD-2. Referenz-IdP (ADR-512). |
 
-**Blacklist — Kriterium: kein Passkey-Support ODER schwergewichtiger als Pocket ID**
-(externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit):
+**Blacklist — alles andere** (Kriterium: kein Passkey-Support ODER schwergewichtiger
+als Pocket ID: externe DB, mehrere Container, > 100 MB RAM, JVM/Python-Laufzeit):
 
 | Banned IdP | Begründung |
 | :--- | :--- |
 | **Keycloak** | Java + PostgreSQL, 1–2 GB RAM, kein Passkey-only. |
 | **Authentik** | Python + PostgreSQL + Redis, mehrere Container, > 150 MB RAM. |
 | **Zitadel** | PostgreSQL, mehrere Komponenten. |
-| **tinyauth** | Keine Passkeys, AGPL-3.0. |
 | **Authelia** | Kein reiner IdP (OIDC-Provider Beta), Forward-Auth-Hybrid. |
 | **Dex** | Keine Passkeys (nur statische User/LDAP). |
+| **tinyauth** | Keine Passkeys, AGPL-3.0. |
+| **Kanidm · Logto · Ory (Kratos/Hydra) · FusionAuth · Casdoor · Glewlwyd** | Nicht Pocket ID — kein Passkey-only, externe DB oder schwerer. |
 
 ## 3. Forward-Auth-Proxys
 
-**Erlaubt (ausschließlich) — Whitelist:**
+**Erlaubt (Whitelist) — nur diese zwei:**
 
 | Erlaubt | Warum |
 | :--- | :--- |
 | **oauth2-proxy** | MIT, OIDC-Client, 1 Binary; nixpkgs-Modul `services.oauth2-proxy` (ADR-517). |
-| **Caddy `forward_auth`** | Eingebaute Direktive — **kein Plugin**, kein Caddy-Rebuild. |
+| **caddy-security** (Caddy-**Plugin**) | Caddy-nativ als Plugin (`pkgs.caddy.withPlugins`) — kein Extra-Daemon. Die Direktive `forward_auth` selbst ist Caddy-eingebaut. |
 
-**Blacklist — alles außer der Whitelist:**
+**Blacklist — alles andere:**
 
 | Banned Proxy | Begründung |
 | :--- | :--- |
@@ -82,6 +83,7 @@ werden daher nie als "banned" gemeldet; jede andere IdP-/Forward-Auth-Software i
 | **Pomerium** | Kein klassischer `forward_auth`-Modus seit v0.21, eigene Datenplane. |
 | **Authentik Proxy Provider** | Schwergewichtig, an Authentik gebunden. |
 | **Authelia** | Hybrid, OIDC-Provider Beta. |
+| **Vouch · Traefik-ForwardAuth · nginx `auth_request` · oauth2-proxy-Fremd-Forks** | Nicht die Whitelist. |
 | **Third-Party Loggers** | `journald` | Do not install custom log rotators or forwarders if `systemd-journald` can do the job natively. |
 | **`logrotate`** | `systemd-journald` (`SystemMaxUse=500M`) | Banned (ADR-500). mediNix relies 100% on native systemd journald log limits and automatic retention. Legacy logrotate scripts cause race conditions with service log streams and redundant log layers. |
 | **LLM Vector-DBs / RAG Plugins** | `AGENTS.md` & `grep` | Banned: `qmd`, `ChromaDB`, `FAISS`, heavy Python ML dependencies. Our codebase maps are deterministically generated (`medinix-meta.py generate-docs`). LLMs must use native `grep`/`fd` and read the `AGENTS.md` indexes instead of relying on fuzzy, bloated vector search. |
