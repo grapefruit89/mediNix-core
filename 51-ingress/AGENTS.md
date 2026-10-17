@@ -18,7 +18,8 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 - CrowdSec-Bouncer (516)
 - Landingpage (518)
 - Ingress-Guardrails und Ownership-Konflikte (519)
-- 517 oauth2-proxy: **ADR-517 ist entschieden, das Modul fehlt noch** — Slot 5170 ist reserviert
+  - 517 oauth2-proxy: **ADR-517 ist entschieden, das Modul fehlt noch** — Slot 5170
+    ist reserviert; 511 reicht `/oauth2/*` bereits an den Forward-Auth-Upstream durch
 
 **Nicht verantwortlich für:**
 - Host-Firewall und Host-Security → `52-security`
