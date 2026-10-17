@@ -6,7 +6,7 @@
 # status: active
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
-# requires: ["lib/service-factory"]
+# requires: ["lib/derive", "lib/ingress-access", "lib/service-factory"]
 # adr: ADR-511
 # links:
 #   adr: ADR-511
@@ -25,14 +25,9 @@ let
   df = import ../lib/derive.nix;
   ia = import ../lib/ingress-access.nix { inherit lib; };
 
-  ingressMode = ing.mode or "auto";
-  useGlobal =
-    if ingressMode == "global" then
-      true
-    else if ingressMode == "standalone" then
-      false
-    else
-      config.services.caddy.enable;
+  # Global (Host-Caddy) oder standalone (caddy-media)? Die Logik lebt in
+  # lib/ingress-access.nix, weil 516 daraus die Journal-Unit ableitet.
+  useGlobal = ia.useGlobalOf ing.mode config.services.caddy.enable;
 
   # EIN Produzent für die Exposure — jetzt wirklich geteilt: die Aufloesung lebt
   # in lib/ingress-access.nix und wird von 511 (Rendering), 513 (DNS) und 518
@@ -42,12 +37,20 @@ let
   # accessGroup = "none" einen Record).
   accessGroupOf = ia.accessGroupOf cfg;
 
-  # Ack fuer einen bewusst unauthentifizierten public-vHost. Manifest UND
-  # Vhost-Override zaehlen (ODER): die Vhost-Option war deklariert, aber
-  # ungelesen (Dead-Config). ODER ist monoton — eine bestehende Ack kann
-  # dadurch nie versehentlich verloren gehen.
+  # Ack fuer einen bewusst unauthentifizierten public-vHost. Aufloesung wie
+  # `accessGroup` und `landing`: der Vhost-Override GEWINNT, `null` = das
+  # Manifest entscheidet.
+  # Vorher war es ein ODER aus Manifest und Vhost. Das war monoton in die
+  # falsche Richtung: eine Manifest-Ack liess sich vom Host nicht widerrufen
+  # (`vhosts.<n>.allowUnauthenticated = false` war ein No-op), eine geerbte Ack
+  # oeffnete also still. Jetzt gilt: eine verlorene Ack bricht den Build
+  # (fail-closed), ein explizites `false` widerruft das Manifest. Ref: Review 2026-10-17.
   allowUnauthenticatedOf =
-    n: m: (m.allowUnauthenticated or false) || (cfg.ingress.vhosts.${n}.allowUnauthenticated or false);
+    n: m:
+    let
+      override = cfg.ingress.vhosts.${n}.allowUnauthenticated or null;
+    in
+    if override != null then override else (m.allowUnauthenticated or false);
 
   enabledServices = lib.filterAttrs (n: m: m.enable && accessGroupOf n m != "none") (
     config.medinix.manifest or { }
@@ -101,11 +104,18 @@ let
     }
   '';
 
-  # request_header: Strip client-supplied identity headers before forward_auth.
+  # request_header: Strip client-supplied identity headers on EVERY route.
   # R19: die Liste MUSS ein Superset von copy_headers sein — Caddy reicht sonst
   # ALLE uebrigen Client-Header an den Upstream durch, und ein Dienst, der z. B.
   # X-Forwarded-User oder X-WEBAUTH-USER vertraut, waere aus dem WAN spoofbar.
   # Der Check mediNix-ingress-header-strip-superset haelt beide Listen gleich.
+  #
+  # Scope: der Strip steht seit Review 2026-10-17 am ANFANG jedes `route`-Blocks,
+  # nicht mehr nur im `authBlock`. Vorher bekamen stream/idp/.lan und
+  # public+allowUnauthenticated KEINEN Strip — ein Dienst, der dort einem
+  # Identitaets-Header vertraut (genau das Bedrohungsmodell unten), war aus dem
+  # WAN spoofbar. Die Reihenfolge request_header < forward_auth bleibt erhalten
+  # (Check mediNix-ingress-header-strip prueft sie per Zeilennummer).
   stripAuthHeaders = lib.concatMapStrings (h: "request_header -${h}\n") [
     "Remote-User"
     "Remote-Email"
@@ -181,7 +191,6 @@ let
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
       authBlock = lib.optionalString needsAuth ''
-        ${stripAuthHeaders}
         ${skipMatcher}
         forward_auth ${lib.optionalString (skipPaths != [ ]) "@needAuth "}${ing.auth.forwardAuthUpstream} {
           uri ${ing.auth.forwardAuthUri}
@@ -201,6 +210,7 @@ let
     ''
       ${lib.optionalString (!isStream) "encode zstd gzip"}
       route {
+        ${stripAuthHeaders}
         ${lib.optionalString isLocal lanAbort}
         ${authBlock}
         ${customConfig}
@@ -227,8 +237,36 @@ let
     name: meta: mkSite "http://${name}.lan" (mkServiceBlock name meta { isLocal = true; })
   ) enabledServices;
 
-  # 2. Externe WAN-VHosts: NUR public, stream und idp (internal bleibt rein auf .lan!)
+  # 2. Externe WAN-VHosts: public, stream und idp.
   wanServices = lib.filterAttrs (n: m: ia.isWan (accessGroupOf n m)) enabledServices;
+
+  # 2b. `internal`: KEIN WAN-Dienst, aber ein TLS-Hostname mit CIDR-Abort.
+  # Vorher blieb `internal` rein auf `.lan` — damit war der dokumentierte
+  # Pocket-ID-Bootstrap unmoeglich: Passkey-Registrierung braucht einen Secure
+  # Context, und `http://pocket-id.lan` ist keiner (510-ingress-SERVICE.md und
+  # 512-pocket-id.nix versprechen beide HTTPS auf {name}.{domain} + Abort).
+  # Der Guard in 512 (setupCompleted) haette den Admin sonst in eine Sackgasse
+  # geschickt. `mkServiceBlock … { isLocal = true; }` liefert genau das:
+  # lanAbort (trustedCidrs) statt forward_auth, kein Strip-Bypass.
+  # Nur mit tlsEnabled — ohne TLS gibt es keinen Secure Context, dann bleibt
+  # `internal` bewusst auf `.lan`. Ref: Review 2026-10-17, Finding 14.
+  internalServices = lib.filterAttrs (n: m: accessGroupOf n m == "internal") enabledServices;
+
+  internalSites = lib.optionals (domain != null && tlsEnabled) (
+    lib.concatLists (
+      lib.mapAttrsToList (
+        n: m:
+        lib.concatMap (hostName: [
+          (mkSite "http://${hostName}.${domain}" "redir https://{host}{uri} permanent")
+          (mkSite "${hostName}.${domain}" ''
+            ${tlsDirective}
+            ${securityHeaders}
+            ${mkServiceBlock n m { isLocal = true; }}
+          '')
+        ]) (publicNames n)
+      ) internalServices
+    )
+  );
 
   wanSites = lib.optionals (domain != null) (
     lib.concatLists (
@@ -294,7 +332,7 @@ let
     ]
   );
 
-  allSites = lanSites ++ wanSites ++ landingSites ++ catchAllSites;
+  allSites = lanSites ++ wanSites ++ internalSites ++ landingSites ++ catchAllSites;
 
   siteNameCounts = lib.foldl' (acc: e: acc // { ${e.name} = (acc.${e.name} or 0) + 1; }) { } allSites;
   duplicateSiteNames = lib.sort builtins.lessThan (
@@ -316,9 +354,12 @@ let
   caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
     inherit (df.derive "caddy-media" 511) uid; # 5110 — aus der SSoT abgeleitet
-    # 511 serviert die Medienablage (Tier C) -> media NUR als extraGroups,
-    # Primaergruppe bleibt die UPG (ADR-0000 §4).
-    mediaGroup = true;
+    # KEIN mediaGroup: ADR-0000 §4 ist explizit — "Edge ingress (511) and
+    # identity (512) never receive GID 5000". 511 serviert keine Medienablage:
+    # der Landing-Root kommt aus 518 (pkgs.runCommand -> Nix-Store-Pfad, fuer
+    # alle lesbar), alles andere geht per reverse_proxy an den Dienst. Vorher
+    # stand hier mediaGroup = true mit einem Kommentar, der §4 als Begruendung
+    # zitierte, obwohl §4 genau das verbietet (Review 2026-10-17, Finding 6).
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
     stateDir = "/var/lib/caddy-media";
     profile = "network";
@@ -358,7 +399,7 @@ lib.mkMerge [
         '';
       }
       {
-        assertion = ingressMode != "global" || config.services.caddy.enable;
+        assertion = ing.mode != "global" || config.services.caddy.enable;
         message = "[mediNix] ingress.mode = global requires services.caddy.enable.";
       }
       {
@@ -373,14 +414,27 @@ lib.mkMerge [
         '';
       }
       {
-        assertion =
-          lib.all (
-            c:
-            builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c
-            != null
-          ) trustedCidrs
-          && !(lib.any (lib.hasSuffix "/0") trustedCidrs);
-        message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder /0 (Gefahr der WAN-Freischaltung).";
+        # Den Zeichensatz + `/0` + fuehrende Nullen erzwingt bereits der Optionstyp
+        # (default.nix). Hier bleibt die SEMANTIK: privates Netz UND sinnvolle
+        # Prefix-Grenzen. Vorher pruefte nur ein Praefix-Match (`10\.` …) plus
+        # `hasSuffix "/0"` — `10.0.0.0/1` kam damit durch, und `lanAbort`
+        # (`not remote_ip …`) haette halb IPv4 in Richtung WAN geoeffnet.
+        # Ref: Review 2026-10-17, Finding 4.
+        assertion = lib.all (
+          c:
+          let
+            prefix = lib.toInt (lib.last (lib.splitString "/" c));
+            # v4: /8 ist das weiteste legitime private Netz (10.0.0.0/8).
+            # v6: /7 fuer fc00::/7 (ULA), fe80::/10 und fd00::/8 sind enger.
+            minPrefix = if lib.hasInfix ":" c then 7 else 8;
+            maxPrefix = if lib.hasInfix ":" c then 128 else 32;
+          in
+          builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c
+          != null
+          && prefix >= minPrefix
+          && prefix <= maxPrefix
+        ) trustedCidrs;
+        message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder einen zu weiten Prefix (z. B. /1) — Gefahr der WAN-Freischaltung.";
       }
       {
         assertion = cfg.ingress.auth.mode == "forward-auth" || publicWithoutAuth == { };

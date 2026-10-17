@@ -46,7 +46,16 @@ let
       instead = "Caddy (511)";
     };
     iptables = {
-      enabled = config.networking.useIPTables or false;
+      # Vorher: `config.networking.useIPTables or false`. Diese Option existiert
+      # in nixpkgs nicht (geprueft via search.nixos.org, unstable) — das `or`
+      # machte die Assertion damit dauerhaft wahr und den Guard wirkungslos.
+      # Jetzt auf die echte Groesse gestuetzt, aber NUR wenn mediNix die
+      # Firewall fuehrt: im Modus "external" bleibt die Host-Firewall beim Host,
+      # dort ist ein iptables-Backend legitim (kein Fehlalarm).
+      # Ref: Review 2026-10-17, Finding 21.
+      enabled =
+        (config.medinix.hostIntegration.firewall or "managed") == "managed"
+        && config.networking.firewall.backend == "iptables";
       why = "The stack filters packets with nftables natively (ADR-52).";
       instead = "nftables";
     };
@@ -70,13 +79,15 @@ let
   # Things the ingress domain needs switched ON. Mode-aware: 511 can run the
   # global Caddy or its own standalone caddy-media unit (chameleon), and the
   # firewall may be managed here or by an external host firewall.
+  #
+  # Hier stand bis Review 2026-10-17 ein dritter Eintrag `caddy`. Er war
+  # tautologisch: dieses Modul ist selbst an `ingress.enable` gebunden (unten),
+  # und 511 erzeugt unter `ingress.enable` immer entweder die globale
+  # Caddy-Config (dann erzwingt seine Assertion `services.caddy.enable`) oder
+  # die standalone `caddy-media`-Unit. `k.on` konnte damit nie false sein —
+  # eine Assertion, die nicht ausloesen kann, ist kein Guard, sondern Rauschen
+  # (ADR-5043: keine tautologischen Assertions).
   keepOn = [
-    {
-      name = "caddy";
-      on =
-        (config.services.caddy.enable or false) || (builtins.hasAttr "caddy-media" config.systemd.services);
-      hint = "the single ingress engine (global or standalone)";
-    }
     {
       name = "firewall";
       on =

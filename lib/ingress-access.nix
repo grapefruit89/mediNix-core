@@ -43,4 +43,28 @@ rec {
   ];
 
   isWan = g: lib.elem g wanGroups;
+
+  # Laeuft 511 in der Host-Caddy (`global`) oder als eigene `caddy-media`-Unit
+  # (`standalone`)? `auto` entscheidet anhand von `services.caddy.enable`.
+  #
+  # Diese Frage brauchen mehrere Module: 511 (Rendering), 516 (aus welcher Unit
+  # liest CrowdSec die Access-Logs?) und 519 (Guardrails). Vorher stand die Logik
+  # nur in 511, und 516 hatte `caddy-media.service` hartkodiert — im
+  # Global-Modus las CrowdSec damit ins Leere (stiller Blindflug, keine
+  # Assertion). `caddyEnabled` bleibt Parameter, damit diese Datei eine reine
+  # Funktion ohne NixOS-Kante bleibt.
+  # Ref: Review 2026-10-17, Finding 13.
+  useGlobalOf =
+    mode: caddyEnabled:
+    if mode == "global" then
+      true
+    else if mode == "standalone" then
+      false
+    else
+      caddyEnabled;
+
+  # Unit-Name der Caddy-Instanz, aus der 516 die Access-Logs liest.
+  caddyUnitOf =
+    mode: caddyEnabled:
+    if useGlobalOf mode caddyEnabled then "caddy.service" else "caddy-media.service";
 }

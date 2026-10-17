@@ -174,16 +174,27 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         AUTH=(--variable token@"$RUNTIME_DIRECTORY/cf-token" --expand-header "Authorization: Bearer {{token:trim}}")
         unset TOKEN
 
-        WAN_IP=$(curl -s4 --fail-with-body https://ifconfig.me || curl -s4 --fail-with-body https://api.ipify.org)
-        if [ -z "$WAN_IP" ]; then
-          echo "FATAL: Could not determine WAN IP." >&2
-          exit 1
-        fi
         # RT-4: third-party echo services are a trusted NETWORK, not trusted
         # DATA. Any 200-body (error page, captive portal, garbage) must never
         # reach the Cloudflare API — validate the format before using it.
-        if ! printf '%s' "$WAN_IP" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
-          echo "FATAL: WAN_IP is not a valid IPv4: '$WAN_IP'" >&2
+        # Jeder Versuch wird EINZELN validiert. Vorher lief
+        # `curl … --fail-with-body A || curl … --fail-with-body B` in einer
+        # Command-Substitution: `--fail-with-body` schreibt den Fehler-Body
+        # trotzdem auf stdout, also hing bei einem HTTP-Fehler (429, Captive
+        # Portal) der Body VOR der IP des Fallbacks. Das Format-Gate brach dann
+        # ab, obwohl der zweite Dienst funktioniert haette — der Fallback griff
+        # nur bei Verbindungsfehlern. Ref: Review 2026-10-17, Finding 16.
+        WAN_IP=""
+        for url in https://ifconfig.me https://api.ipify.org; do
+          candidate=$(curl -s4 --fail-with-body "$url" || true)
+          if printf '%s' "$candidate" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+            WAN_IP="$candidate"
+            break
+          fi
+          echo "  WAN IP via $url unusable: '$(printf '%s' "$candidate" | head -c 40)'" >&2
+        done
+        if [ -z "$WAN_IP" ]; then
+          echo "FATAL: Could not determine WAN IP." >&2
           exit 1
         fi
         LAN_IP=$(ip -4 route get 1.1.1.1 2>/dev/null \

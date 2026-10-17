@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-516
 # provides: ["crowdsec", "edge-bouncer"]
-# requires: ["lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
+# requires: ["lib/ingress-access", "lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
 # ports: []
 # upstream_docs: ["https://docs.crowdsec.net/docs/data_sources/intro"]
 # forum_links: []
@@ -48,11 +48,17 @@ let
   cfg = config.medinix;
   active = cfg.crowdsec.enable;
   managed = cfg.hostIntegration.nftables == "managed";
+  ia = import ../lib/ingress-access.nix { inherit lib; };
 
   # Caddy schreibt den Access-Log (JSON, Header gestrippt) nach stdout →
   # journald. Die Acquisition liest genau diese Unit — kein zusaetzliches
   # Datei-Log, keine Rotation, keine zweite Quelle.
-  caddyUnit = "caddy-media.service";
+  # Die Unit haengt am Modus: global laeuft der Host-Caddy (`caddy.service`),
+  # standalone die eigene `caddy-media.service`. Vorher stand hier hartkodiert
+  # `caddy-media.service` — im Global-Modus las CrowdSec damit ins Leere, ohne
+  # Assertion und ohne Warnung (stiller Blindflug, kein Ban mehr).
+  # Ref: Review 2026-10-17, Finding 13.
+  caddyUnit = ia.caddyUnitOf cfg.ingress.mode config.services.caddy.enable;
 in
 {
   options.medinix.crowdsec = {
@@ -105,6 +111,19 @@ in
 
     (lib.mkIf active {
       assertions = [
+        {
+          # Ohne ingress.enable existiert keine Caddy-Unit — die Engine liefe
+          # ohne Datenquelle und bannte nichts (fail-open durch Stille).
+          # Ref: Review 2026-10-17, Finding 13.
+          assertion = cfg.ingress.enable;
+          message = ''
+            [mediNix/516] CrowdSec ist aktiv, aber medinix.ingress ist aus.
+            Die Engine liest ihre Daten ausschliesslich aus den Caddy-Access-Logs
+            (Unit ${caddyUnit}) — ohne Ingress gibt es keine Quelle und keine Bans.
+            Entweder medinix.ingress.enable = true setzen oder
+            medinix.crowdsec.enable = false.
+          '';
+        }
         {
           assertion = !(cfg.crowdsec.bouncer && !managed);
           message = ''

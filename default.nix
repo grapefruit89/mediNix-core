@@ -400,7 +400,12 @@ in
         # RT-7: values are interpolated verbatim into the Caddyfile
         # `remote_ip` matcher — unvalidated strings could inject Caddyfile
         # syntax. CIDR charset only (IPv4 + IPv6), like F9 did for paths.
-        type = lib.types.listOf (lib.types.strMatching "^[0-9A-Fa-f:.]+/[0-9]{1,3}$");
+        # Prefix ohne fuehrende Null und >= 1 (`[1-9][0-9]{0,2}`): damit sind
+        # `/0` und `/08` schon hier ein Eval-Fehler statt erst in Caddy.
+        # Die Prefix-GRENZEN (v4 >= /8, v6 >= /7) prueft 511 — ein zu weites
+        # `10.0.0.0/1` haette sonst `lanAbort` halb IPv4 geoeffnet.
+        # Ref: Review 2026-10-17, Finding 4.
+        type = lib.types.listOf (lib.types.strMatching "^[0-9A-Fa-f:.]+/([1-9][0-9]{0,2})$");
         default = [ ];
         example = [
           "192.168.0.0/16"
@@ -439,13 +444,25 @@ in
                 default = "";
               };
               allowUnauthenticated = lib.mkOption {
-                type = lib.types.bool;
-                default = false;
+                # nullOr (wie `accessGroup` und `landing`): `null` (default) =
+                # das Manifest entscheidet, `true`/`false` am Vhost GEWINNT.
+                # Vorher war es `bool` mit Default false und wurde per ODER mit
+                # dem Manifest verknuepft — eine Manifest-Ack konnte so vom Host
+                # NICHT widerrufen werden (`false` war ein No-op). Das lief in
+                # die falsche Richtung: eine verlorene Ack bricht den Build
+                # (sicher), eine geerbte oeffnete still. Ref: Review 2026-10-17.
+                type = lib.types.nullOr lib.types.bool;
+                default = null;
                 description = ''
                   Explicitly acknowledge an intentionally unauthenticated public
                   vhost. Without it, `accessGroup = "public"` while
                   ingress.auth.mode != "forward-auth" is a build error, and a
                   public vhost carrying unauthenticatedPaths needs it too.
+
+                  `null` (default) = the manifest's `allowUnauthenticated`
+                  decides. `true`/`false` set here wins over the manifest —
+                  `false` therefore actively REVOKES a manifest ack (and the
+                  build fails loudly if the vhost is still public).
                 '';
               };
               unauthenticatedPaths = lib.mkOption {
@@ -496,10 +513,11 @@ in
           default = true;
           description = ''
             Build-time assertions (519) that keep the ingress on the mediNix path:
-            no nginx/httpd/iptables; Caddy and the firewall stay on. fail2ban
-            is NOT blocked (RT-3): CrowdSec (516) is planned but unimplemented,
-            and a fail2ban jail on the Caddy access logs is the sanctioned
-            interim edge bouncer.
+            no nginx/httpd/iptables; the firewall stays on. fail2ban is BLOCKED
+            too — since 2026-10-15 CrowdSec (516) is implemented and is the
+            single edge bouncer (519 RT-3 aufgeloest). This text said the
+            opposite ("fail2ban is NOT blocked, 516 is planned") until the
+            review of 2026-10-17.
             Disable to opt out of the opinionated defaults entirely.
           '';
         };
@@ -623,8 +641,13 @@ in
           type = lib.types.bool;
           default = true;
           description = ''
-            Family icon page served by 511 on https://{domain} (LAN-only abort)
-            and http://home.local. Built by 518 from stream/public vhosts.
+            Family icon page built by 518 from stream/public vhosts.
+            511 serves it in two places:
+              - https://{domain}       (WAN, TLS, without CIDR abort)
+              - http://dashboard.lan   (LAN, CIDR abort via trustedCidrs)
+            `.local` is NOT served by Caddy: 515 only publishes an mDNS A record
+            ({name}.local). This text claimed "https://{domain} (LAN-only abort)
+            and http://home.local" until the review of 2026-10-17.
           '';
         };
         root = lib.mkOption {

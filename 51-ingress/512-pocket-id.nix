@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-01
 # links:
 # provides: ["pocket-id", "oidc"]
-# requires: ["lib/service-factory", "lib/registry"]
+# requires: ["lib/ingress-access", "lib/registry", "lib/service-factory"]
 # ports: [5120]
 # upstream_docs: ["https://pocketid.org/docs/"]
 # forum_links: []
@@ -34,8 +34,11 @@
 # Silent "forward-auth => start Pocket-ID" is gone. That collided with 511:
 #   forward-auth is legal with an external auth proxy and Pocket-ID off.
 # Local IdP path: pocketId.enable = true, forwardAuthUpstream empty
-#   → 511 targets 127.0.0.1:<pocket-id-port>.
-# External path: authProxyPresent + non-empty forwardAuthUpstream
+#   → 511 renders NO forward_auth at all (there is no local proxy). Pocket-ID is
+#     an OIDC OP and has NO forward-auth endpoint, so it can never be the
+#     upstream — 511 asserts exactly that. (This comment claimed
+#     "511 targets 127.0.0.1:<pocket-id-port>" until 2026-10-17.)
+# External path: authProxyPresent + non-empty forwardAuthUpstream (517, port 5170)
 #   → 512 stays off unless explicitly enabled.
 #
 # Exposure (browser vs. Caddy):
@@ -57,8 +60,31 @@ let
   cfg = config.medinix;
   ing = cfg.ingress;
   svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
+  ia = import ../lib/ingress-access.nix { inherit lib; };
 
   externalAuth = (cfg.authProxyPresent or false) && ((ing.auth.forwardAuthUpstream or "") != "");
+
+  # Effektive Exposure von pocket-id. 511/513/515/518 loesen die Zugriffsgruppe
+  # ueber lib/ingress-access.nix auf (Vhost-Override gewinnt, sonst Manifest).
+  # Die Guards unten MUESSEN dieselbe Groesse lesen: vorher prueften sie
+  # `pocketId.exposure` (die deklarierte Policy) — ein Host-Override
+  # `ingress.vhosts."pocket-id".accessGroup = "idp"` bei
+  # `pocketId.exposure = "internal"` oeffnete /setup damit still im WAN.
+  # Ref: Review 2026-10-17, Finding 2.
+  effectiveExposure = ia.accessGroupOf cfg "pocket-id" (config.medinix.manifest."pocket-id" or { });
+
+  # Port aus dem forward-auth-Upstream ziehen. Der Vergleich muss Schema
+  # (`http://`), `localhost` und Trailing-Slash tolerieren — vorher stand hier
+  # ein exakter String-Vergleich gegen "127.0.0.1:5120", und genau das
+  # dokumentierte Format (http://127.0.0.1:5170, 510-ingress-SERVICE.md) kam
+  # daran vorbei. Ref: Review 2026-10-17, Finding 3.
+  upstreamPort = lib.last (
+    lib.splitString ":" (
+      lib.removeSuffix "/" (
+        lib.removePrefix "https://" (lib.removePrefix "http://" ing.auth.forwardAuthUpstream)
+      )
+    )
+  );
 
   # No more implicit enable from auth.mode. Fail-closed, matches 511.
   active = cfg.pocketId.enable;
@@ -145,12 +171,13 @@ in
               ing.auth.mode == "forward-auth"
               && externalAuth
               && cfg.pocketId.enable
-              && ing.auth.forwardAuthUpstream == "127.0.0.1:${toString svc.port}"
+              && upstreamPort == toString svc.port
             );
           message = ''
             [mediNix] Pocket-ID is enabled and authProxyPresent points forwardAuthUpstream
-            back at 127.0.0.1:${toString svc.port}. Pick one owner: local Pocket-ID
-            (leave forwardAuthUpstream empty) or an external proxy (different upstream).
+            (port ${upstreamPort}) back at 127.0.0.1:${toString svc.port}. Pick one owner:
+            local Pocket-ID (no local forward-auth proxy) or an external proxy
+            (different upstream port). Scheme/trailing slash are tolerated here.
             Ref: ADR-512 / 51-ingress contracts.authentication
           '';
         }
@@ -163,15 +190,23 @@ in
           '';
         }
         {
-          assertion = cfg.pocketId.exposure != "idp" || cfg.pocketId.setupCompleted;
+          # Der Guard prueft die WIRKSAME Exposure (`effectiveExposure`), nicht
+          # `pocketId.exposure`. Vorher umging ein Host-Override
+          # (`ingress.vhosts."pocket-id".accessGroup = "idp"` bei
+          # `exposure = "internal"`) den Guard vollstaendig: /setup war im WAN
+          # offen, der erste Besucher wurde IdP-Admin.
+          # `isWan` deckt public/stream/idp — jede WAN-Klasse zaehlt hier.
+          # Ref: Review 2026-10-17, Finding 2.
+          assertion = !(ia.isWan effectiveExposure) || cfg.pocketId.setupCompleted;
           message = ''
-            [mediNix] pocketId.exposure = "idp" publishes pocket-id.{domain} to the WAN,
+            [mediNix] pocket-id is WAN-exposed (effective accessGroup =
+            "${effectiveExposure}", declared exposure = "${cfg.pocketId.exposure}"),
             but the first-run /setup page is still OPEN — the first visitor becomes
             the IdP admin, and with it the admin of every forward_auth service.
 
-            Bootstrap: set exposure = "internal", create the admin + passkey at
-            {name}.{domain}/setup, then set pocketId.setupCompleted = true and
-            switch exposure back to "idp".
+            Bootstrap: set exposure = "internal" (LAN-only + CIDR abort), create the
+            admin + passkey at {name}.{domain}/setup, then set
+            pocketId.setupCompleted = true and switch exposure back to "idp".
 
             Ref: ADR-512 / RT-2 (same guard as 552/553).
           '';
@@ -204,7 +239,8 @@ in
 }
 
 # Gold-Standard (ADR-512):
-# - Pocket ID is the OIDC IdP; 511 decides if/when forward_auth points here
+# - Pocket ID is the OIDC IdP; 511 decides if/when a forward_auth upstream exists
+#   (Pocket-ID itself is never one)
 # - Port 5120 is loopback-only; no TLS/DNS/Caddyfile logic in this file
 # - enable is explicit; forward-auth no longer implies a local IdP
 # - vhost class idp = deadlock shield; exposure is a declared policy

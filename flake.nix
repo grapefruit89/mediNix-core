@@ -805,6 +805,56 @@
           medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
           medinix.ingress.vhosts."ghost-app".accessGroup = "internal";
         };
+
+        # ── Review 2026-10-17 (51-ingress): Fixes mit Fixture festgenagelt ──
+        # F1: der Vhost-Override GEWINNT bei allowUnauthenticated. Hier widerruft
+        # der Host die Manifest-Ack von seerr (561 setzt sie auf true) — der
+        # public-vhost ist damit ungeschuetzt und muss den Build brechen.
+        # Vorher war es ein ODER: das `false` war ein No-op, der Build blieb gruen.
+        # Kein forward-auth-Modus: die Assertion greift genau dann ueber
+        # `publicWithoutAuth` (bei forward-auth waere sie per Definition wahr).
+        checks.mediNix-negative-ack-override-revokes =
+          expectAssertion "ack-override-revokes" "without authentication"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.seerr.enable = true;
+              medinix.ingress.vhosts.seerr.allowUnauthenticated = false;
+            };
+
+        # F2: der /setup-Guard von 512 prueft die WIRKSAME Exposure. Hier ist die
+        # deklarierte Policy "internal", aber der Vhost-Override zieht pocket-id
+        # ins WAN — der erste Besucher waere der IdP-Admin.
+        checks.mediNix-negative-pocket-id-setup-vhost-override =
+          expectAssertion "pocket-id-setup-vhost-override" "setup page is still OPEN"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.pocketId.enable = true;
+              medinix.pocketId.exposure = "internal";
+              medinix.ingress.vhosts."pocket-id".accessGroup = "idp";
+            };
+
+        # F3: der Upstream-Vergleich toleriert Schema/Trailing-Slash. Genau das
+        # dokumentierte Format (http://127.0.0.1:<pocket-id-port>) muss die
+        # Assertion ausloesen, sonst zeigt forward_auth auf Pocket-ID selbst.
+        checks.mediNix-negative-forward-auth-upstream-scheme =
+          expectAssertion "forward-auth-upstream-scheme" "Pick one owner"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.ingress.auth.mode = "forward-auth";
+              medinix.ingress.auth.forwardAuthUpstream = "http://127.0.0.1:5120";
+              medinix.authProxyPresent = true;
+              medinix.pocketId.enable = true;
+              medinix.pocketId.setupCompleted = true;
+            };
+
+        # F4: ein zu weiter CIDR-Prefix oeffnet lanAbort halb IPv4. Der
+        # Optionstyp laesst "10.0.0.0/1" durch, die Assertion muss greifen.
+        checks.mediNix-negative-cidr-prefix-too-wide =
+          expectAssertion "cidr-prefix-too-wide" "zu weiten Prefix"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/1" ];
+              medinix.seerr.enable = true;
+            };
         # RT-1/RT-3/RT-5 (positive): ntfy's vhost (enable flag under
         # observability) must render, the admin endpoint must be the hardened
         # unix socket, and access logging must be active.

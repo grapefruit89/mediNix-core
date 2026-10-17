@@ -85,8 +85,10 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
         || lib.hasSuffix ".${ing.tls.acmeHost}" cfg.domain;
       message = ''
         [mediNix] tls.acmeHost = "${ing.tls.acmeHost}" does not cover
-        domain = "${cfg.domain}". The cert is *.{acmeHost} but the vHosts are
-        {name}.{domain}. Use domain == acmeHost or a subdomain of acmeHost.
+        domain = "${cfg.domain}". The vHosts are {name}.{domain}, so the cert
+        needs *.{domain} (added as a SAN when domain != acmeHost) or a domain
+        that is a subdomain of acmeHost. Use domain == acmeHost or a subdomain
+        of acmeHost.
       '';
     }
   ];
@@ -100,7 +102,16 @@ lib.mkIf (cfg.enable && ing.enable && acmeHost != null) {
     };
     certs.${acmeHost} = {
       domain = acmeHost;
-      extraDomainNames = [ "*.${acmeHost}" ];
+      # `*.${acmeHost}` deckt genau EINE Label-Ebene. Ist `domain` ein Subdomain
+      # von `acmeHost` (domain = home.example.com, acmeHost = example.com),
+      # rendert 511 {name}.home.example.com — das deckt der Wildcard NICHT ab,
+      # TLS bricht zur Laufzeit. Deshalb kommt `*.${domain}` als zusaetzliche SAN
+      # dazu. 513 kennt dieselbe Ein-Label-Grenze (RT-8), 514 bisher nicht.
+      # Ref: Review 2026-10-17, Finding 17.
+      extraDomainNames = [
+        "*.${acmeHost}"
+      ]
+      ++ lib.optional (cfg.domain != null && cfg.domain != acmeHost) "*.${cfg.domain}";
       dnsProvider = "cloudflare";
       # lego DNS resolver. (The former `environment = { CLOUDFLARE_* }` block
       # referenced security.acme.certs.<name>.environment, which does not exist

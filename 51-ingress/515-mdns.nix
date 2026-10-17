@@ -8,7 +8,7 @@
 # last_reviewed: 2026-10-02
 # links:
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["lib/ingress-access"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -28,41 +28,21 @@
 let
   cfg = config.medinix;
 
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
   ia = import ../lib/ingress-access.nix { inherit lib; };
   manifest = config.medinix.manifest or { };
-  # Only services that are actually enabled
+  # Nur Dienste, die wirklich aktiv sind. Quelle ist `manifest.enable` — dieselbe
+  # Groesse wie in 511 (Rendering), 513 (DNS) und 518 (Tiles).
+  #
+  # Vorher stand hier eine eigene Aufloesung ueber Optionspfade
+  # (cfg.<n>.enable / camelCase / observability.<n>) plus `registry.<n>.port`.
+  # Das war ein dritter Interpretationsweg fuer dieselbe Frage und konnte still
+  # divergieren: 511 rendert `{name}.lan` fuer JEDEN aktiven Manifest-Dienst,
+  # 515 publizierte `{name}.local` aber nur fuer zusaetzlich deklarierte vHosts.
+  # Der Kommentar verwies auf "511's enabledOf" — die Funktion existiert in 511
+  # nicht (dort steht `lib.filterAttrs (n: m: m.enable && …)`).
+  # Ref: Review 2026-10-17, Finding 18.
   enabledNames =
-    (lib.attrNames (
-      lib.filterAttrs (
-        n: _:
-        let
-          # RT-5: keep in sync with 511's enabledOf — three lookup paths
-          # (direct, camelCase, observability.<name>).
-          # attrByPath statt `or`-Kette: ein vHost-Name, der KEINE Option ist
-          # (z. B. "pocket-id" — 591 brauchte dafuer einen Sonderfall), darf
-          # die Auswertung nicht abbrechen.
-          enabledAt = path: lib.attrByPath path false cfg;
-          enabled =
-            enabledAt [
-              n
-              "enable"
-            ]
-            || enabledAt [
-              (lib.toCamelCase n)
-              "enable"
-            ]
-            || enabledAt [
-              "observability"
-              n
-              "enable"
-            ];
-        in
-        enabled
-        && ia.accessGroupOf cfg n (manifest.${n} or { }) != "none"
-        && (registry.${n}.port or null) != null
-      ) cfg.ingress.vhosts
-    ))
+    (lib.attrNames (lib.filterAttrs (n: m: m.enable && ia.accessGroupOf cfg n m != "none") manifest))
     ++ lib.optional cfg.ingress.landing.enable "home";
 
   aliasScript = pkgs.writeShellScript "medinix-mdns-aliases" ''
