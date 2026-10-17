@@ -290,10 +290,21 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
             if ! echo "$records" | jq -e '.success' > /dev/null; then
               continue
             fi
-            for id in $(echo "$records" | jq -r '.result[].id'); do
+            # Finding 15 (Review 2026-10-17): NUR eigene Records loeschen. Ohne
+            # diesen Filter raeumte der Prune auch fremde A/AAAA/CNAME weg -
+            # dieser Pfad laeuft nie fuer dienst-eigene Namen, jeder Treffer kann
+            # also von Hand oder von einem anderen Werkzeug stammen. Records, die
+            # 513 selbst angelegt hat, tragen den Marker (siehe update_record) und
+            # werden weiterhin aufgeraeumt; fremde werden gemeldet, nicht angefasst.
+            for id in $(echo "$records" | jq -r '.result[] | select(.comment == "managed-by=mediNix-core/513") | .id'); do
               echo "  Pruning leftover $stype $record_name ($id)"
               cf DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" > /dev/null
             done
+            local foreign
+            foreign=$(echo "$records" | jq -r '[.result[] | select(.comment != "managed-by=mediNix-core/513")] | length')
+            if [ "${"foreign:-0"}" != "0" ]; then
+              echo "  Kept $foreign foreign $stype record(s) at $record_name - not ours, not touched" >&2
+            fi
           done
         }
 

@@ -270,6 +270,8 @@
     "2026-10-17: F10 (Review 51-ingress): neue Option `medinix.ingress.landing.wanPublic` (bool, default false). Die WAN-Apex-Landing https://{domain} haengt in 511 jetzt daran (TLS-Redirect + Site + Nicht-TLS-Fall); die LAN-Landing dashboard.lan (lanAbort) bleibt unveraendert. README-Zusage auf den Opt-in umgestellt."
   ,
     "2026-10-17: F8 (Review 51-ingress): medinix.discovery.mdns.openFirewall war Dead-Config (0 Leser, Default true) - jetzt von 515 gelesen, Default = hostIntegration.firewall == managed; neue Option medinix.discovery.mdns.allowInterfaces (Default null wie nixpkgs). avahi enable/openFirewall mit mkDefault, damit der Host eingreifen kann."
+  ,
+    "2026-10-17: F15 (Review 51-ingress): prune_label in 513 loescht nur noch Records mit comment=managed-by=mediNix-core/513; fremde A/AAAA/CNAME werden gemeldet statt geloescht. update_record (Konflikt-Typen am eigenen Namen) bewusst unveraendert."
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
