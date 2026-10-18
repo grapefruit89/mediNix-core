@@ -36,6 +36,13 @@ packets through the VPN table.
 - Reference: Nix-Grok `modules/10-network/1096-vpn.nix` (UID-routing + IP leak-check).
 
 ## 3. 59X-Assertions-Schema — Invariants + Errors
+
+> **STATUS 2026-10-17 — Zeitdokument, nicht mehr geltende Praxis.**
+> Das hier beschriebene Schema wurde mit `533126e` ("Comprehensive architecture and
+> audit fixes") selbst wieder verworfen: `590-registry.nix` ist gelöscht, an seine
+> Stelle trat `591-cross-domain.nix` mit **inline**-Assertions. Geltend sind
+> ADR-0003 §3 + ADR-5043. Der Abschnitt bleibt als Historie stehen.
+
 Old monolithic files (`591-assertions.nix`, `592-rollout.nix`, `596-security-assertions.nix`)
 DELETED. Replaced by:
 - `590-registry.nix` — DATA ONLY (no NixOS module): `invariants` (INV-01..07, system

@@ -19,27 +19,40 @@ mediNix Invarianten (INV-01..07 + INV-SECRET):
 - INV-SECRET kein Secret-Pfad im Nix-Store (cloudflareTokenCredential,
   sabnzbd.serverCredentialFile, jellyfin.adminPasswordCredential)
 
-PITFALL: Invariante mit `assertion = true` ist ein No-Op (feuert nie). Echte
-Invariante prüft Messbares, z.B.:
+PITFALL: Eine Assertion mit `assertion = true` ist ein No-Op (feuert nie). Echte
+Invariante prüft Messbares - heute direkt am Ort, z.B. so (Muster aus
+`59-guardrails/591-cross-domain.nix`):
 ```nix
-(reg.mkInvariant "INV-01"
-  (let r = import ../lib/registry.nix { inherit lib; };
-   in lib.all (svc: svc.port == null || svc.port == svc.num * 10)
-        (lib.attrValues r.services)))
+{
+  assertion =
+    let r = import ../lib/registry.nix { inherit lib; };
+    in lib.all (svc: svc.port == null || svc.port == svc.num * 10) (lib.attrValues r.services);
+  message = ''
+    [mediNix/591] Ein Registry-Port verletzt Port = Num * 10.
+    Was: <betroffener Dienst>
+    Warum: Der Dezimalrahmen ist die eine Ableitungsquelle (ADR-0000).
+    Wie: Dienstnummer im Registry-Eintrag korrigieren.
+  '';
+}
 ```
 
-## 59X-Assertions-Schema (ADR-0000 konform)
-`59-guardrails/` Mapping 59X = Assertions für Domain 5X:
-- `590-registry.nix` = SSoT: `invariants` + `errors` + Helper
-  `mkInvariant`/`mkError`/`mkErrorDoc`. KEINE Config-Blöcke, nur Daten.
-- `591-ingress` (TLS/AUTH), `592-security` (SEC), `594-transfer` (VPN),
-  `597-maintenance` (DNS), `599-cross-domain` (INV-01..07) importieren 590,
-  rufen `reg.mkError`/`reg.mkInvariant` auf. Domains ohne Assertions = leere Stubs.
-- Gating: `lib.mkIf cfg.enable { ... }` — NICHT `cfg.security.enable` (Bug A!).
-- Hilfsdienste (emergency-user, backup-ssh) in `59-guardrails/ops/`
-  (`59A1-`, `59A2-`) außerhalb des 59X-Schemas.
-- KEIN `cfg.services.X.enable` — flaches `cfg.X.enable` (Bug B!).
-- Message MUSS ADR-Link enthalten (siehe medinix-assertion-quality).
+## Wo Assertions heute leben (Stand 2026-10-17)
+
+**Kein zentrales Register.** Das frühere 59X-Schema (`590-registry.nix` mit
+`invariants`/`errors` + `mkInvariant`/`mkError`; `591-ingress`, `592-security`,
+`594-transfer`, `597-maintenance`, `599-cross-domain`) wurde mit `533126e`
+("Comprehensive architecture and audit fixes") **verworfen**. `mkInvariant` kommt im
+Repo nicht mehr vor, und ADR-0003 §3 verbietet ein solches Register ausdrücklich.
+
+Geltende Praxis:
+- **Cross-Domain-Garantien** → `59-guardrails/591-cross-domain.nix` (der einzige Ort mit
+  mehreren Domänen im Blick: Dezimalrahmen, Ports, Wildcard-Binds, Store-Pfade).
+- **Alles andere** → `assertions` **inline** in dem Modul, dessen Option geprüft wird.
+- Gating: `lib.mkIf cfg.enable` bzw. `cfg.<dienst>.enable` — `cfg.security.enable` als
+  Gate für fremde Assertions ist ein Fehler.
+- Message-Format (ADR-5043): Was/Warum/Wie + Modul-Locator, z. B. `[mediNix/517] …`.
+  `INV-01 … INV-SECRET` bleiben **Namen in Prosa**, keine Codes zum Nachschlagen.
+- Regressionen: `checks.mediNix-negative-*` in `flake.nix` (per `expectAssertion`).
 
 ## Workflow: "Zeige Dateien vor dem Commit" (User-Präferenz)
 Bei größeren Modul-Neuschöpfungen/Refactors: Inhalt im Chat zeigen, Commit/Push

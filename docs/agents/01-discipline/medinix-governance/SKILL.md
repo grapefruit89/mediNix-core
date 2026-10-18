@@ -57,8 +57,11 @@ This caught a real Unit-naming bug that a second AI reviewer mis-diagnosed (see 
   `532-sonarr.nix` builds `systemd.services.sonarr` (Factory `name="sonarr"`).
 
 ## Invariant discipline (fail-closed)
-- All security/config guarantees are Build-time `assertions` in `59-guardrails/590-registry.nix`
-  + `599-cross-domain.nix` (INV-*). New checks ALWAYS go in the registry, never inline text.
+- All security/config guarantees are Build-time `assertions`. Cross-domain ones live in
+  `59-guardrails/591-cross-domain.nix`; everything else sits **inline** in the module whose
+  option it validates (ADR-0003 §3, ADR-5043). There is **no** central registry: the
+  `INV-*` names below are descriptive labels in prose, not codes to look up.
+  (Historie: `590-registry.nix` + `599-cross-domain.nix` gab es bis `533126e`.)
 - VPN confinement (`525-usenet-confinement.nix`): `usenet-confinement.enable = true` WITHOUT
   `vpn.interface` AND `vpn.dnsServers` → eval error (INV-04 / INV-VPN-01/03/04/05).
   No silent fallback to 1.1.1.1 / host DNS (INV-VPN-05 — framed as conscious POLICY, not just

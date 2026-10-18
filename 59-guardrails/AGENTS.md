@@ -19,7 +19,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - jede Regel steht bei ihrem Gegenstand; dieser Ordner sammelt nur die domänenübergreifenden
 
 **Bekannte Klemmen:**
-- ADR-5043 fordert in Abschnitt 1 ein zentrales Register (`59-guardrails/590-registry.nix` mit `invariants`/`errors`). **Die Datei existiert nicht**, und ADR-0003 §3 verbietet genau das („no central assertion registries"). Der Widerspruch ist als Governance-Entscheidung offen (Review 2026-10-17, Finding 25); bis dahin gilt der Code: inline, ohne Codes, mit lesbarem Was/Warum/Wie.
+- **Entschieden und angeglichen (2026-10-17, Finding 25):** Es gibt **kein** zentrales Assertion-Register (ADR-0003 §3). ADR-5043 beschreibt jetzt die geltende Praxis: Assertions inline beim geprüften Option, Message mit Was/Warum/Wie und Modul-Locator; cross-domain Garantien nur in `591-cross-domain.nix`. Historie: `590-registry.nix` existierte bis `533126e` (dort gelöscht, dort entstand 591).
 
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->

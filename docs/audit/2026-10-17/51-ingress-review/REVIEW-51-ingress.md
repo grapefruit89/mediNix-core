@@ -1,5 +1,32 @@
 # Review 51-ingress — Verifikation und Fixes
 
+## Abschluss (2026-10-17/18)
+
+Alle 26 Findings sind abgearbeitet. Bereits beim Schreiben dieses Reviews als
+"gefixt" markiert und im Handy-Block `acc71b7` bzw. `0e50fa9` gelandet:
+F1–F6, F13, F14, F16, F17, F18, F21. Fuer die damals offenen Punkte:
+
+| Finding | Was | Commit |
+|---|---|---|
+| F7 | Global-Modus: Unit-Anpassung auf `mkDefault`, Grenze dokumentiert | `09e796e` |
+| F8 | Avahi `mkDefault` + `allowInterfaces`; `openFirewall`-Schalter verdrahtet | `96d97a3` |
+| F9 | ACME sealed-only (Fallback-Option entfernt) | `54f40aa` |
+| F10 | `landing.wanPublic` — WAN-Apex nur noch opt-in | `8f32643` |
+| F15 | `prune_label` loescht nur eigene Records | `a5cb4ec` |
+| F19 | `/oauth2/*`-Route in 511 | `f6bb4e0` |
+| F19 | Modul `517-oauth2-proxy.nix` + 2 Fixtures + ADR-Nachtrag | `18e1598`, `66e7d1b` |
+| F20 | `idp` per Assertion beim IdP; `stream` nur deklariert oder via `ingress.streamAck` | `4a38db8` |
+| F23 | A1 Header; A2 Haertung der Restart-Unit in 515 | `95a7a5d` |
+| F25 | Contract-Tabelle vervollstaendigt | `49aa789` |
+| F25 | ADR-5043 an ADR-0003 + Realitaet angeglichen (Register verworfen) | dieser Commit |
+| F26 | `tlsEnabled` zentral; 518-Attribute escaped | `85db883`, `a6ec5cb`, `5b61baf` |
+
+**Widerlegt:** F12 (Domain-Alias, keine drei Quellen), F22 (17 `negative-*`-Fixtures
+existieren). **Bewusst offen:** F11 (Code-Entscheidung), F24 (Doku-Sweep-Rest).
+Nicht-Eingaenge: F26/2 (`reloadServices` = bewusste Prioritaet) und F26/3
+(`state.json` = Record des letzten Syncs).
+
+
 **Datum:** 2026-10-17
 **Basis:** externer Review mit 26 Findings (Teil 2 des Reviews)
 **Methode:** jedes Finding gegen den echten Code geprüft, dann gefixt oder als
