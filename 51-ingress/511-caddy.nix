@@ -11,6 +11,10 @@
 # links:
 #   adr: ADR-511
 # ---
+# Catch-All *.${domain} rendert respond 404 (T-01). Wildcard-Check: Caddy matcht
+# *.${domain} nur eine Label-Ebene tief — a.b.${domain} fällt nicht unter den
+# Catch-All und wird von Caddy mit Default-404 abgewiesen.
+# Verifikation: curl -H 'Host: a.b.${domain}' → 404.
 {
   lib,
   pkgs,

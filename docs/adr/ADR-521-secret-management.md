@@ -47,4 +47,14 @@ No external KMS, no GPG/age keyring.
 > credentials are rotatable and he's working with a single node."
 > → systemd-credentials is the idiomatic NixOS-native choice.
 
+## HNDL-Risiko und systemd-creds
+`.cred`-Dateien sind hardwaregebunden (TPM2 + Host-Key), aber nicht Post-Quantum-kryptografisch abgesichert (PQC). Ein Angreifer, der `.cred`-Dateien heute im Rahmen eines Harvest-Now-Decrypt-Later (HNDL)-Angriffs kopiert, kann sie in 10–20 Jahren entschlüsseln, sobald TPM2-Schlüssel oder asymmetrische Verfahren durch Quantencomputer gebrochen werden.
+
+**Gegenmaßnahmen und Härtung:**
+1. **Keine Veröffentlichung:** `.cred`-Dateien dürfen NIEMALS in öffentliche Repositories gelangen (abgesichert via `.gitignore`, private Repos oder lokale Offsite-Backups).
+2. **Regelmäßige Rotation:** Alle Secrets und API-Keys mindestens alle 12 Monate rotieren.
+3. **Lebensdauer-Begrenzung:** Nutzung von `--not-after=` bei `systemd-creds encrypt` zur automatischen Entwertung veralteter Ciphertexte.
+
+*Quellen:* Chat-1-Block 04 (Entscheidung `D-04-03`) und `blocks/04-credentials-systemd-creds.json`.
+
 ---

@@ -19,6 +19,10 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 *Priorisiert, P0 zuerst. Jeder Eintrag nennt die Quelle, damit die Vorgeschichte nachvollziehbar bleibt.*
 
+### Security Roadmap (geplante Auth-Ergänzungen)
+
+- [ ] **FIDO2 / Passkey-only Authentifizierung:** Geplante Auth-Ergänzung für IdP und Reverse-Proxy. Passkey-only-Flow für Pocket ID (Chat 1, Block 01) und hardwaregestütztes WebAuthn via Caddy / oauth2-proxy als zweiter Faktor. Status: `proposed`. Quellen: ADR-512 (Pocket ID) und Chat-1-Block 01 (`01-arch-vs-nixos`).
+
 ### P0 — Verfassungs-Verstöße in Guardrails und Vorlagen
 
 - [x] **OCI/Podman widerspricht ADR-0000** an zwei Stellen (behoben `b9a146f`; die Vorlage wurde dabei komplett verfassungskonform neu geschrieben): die Assertion-Meldung in `50-core/500-host-baseline.nix:73` nennt „optional rootless Podman via oci-containers" als zulässig, und `docs/examples/5xx-service.example.nix:9-10` führt OCI als „Prio 2". Korrekt ist: keine Container (ADR-0000, `docs/NO-CONTAINERS.md`). Quelle: Migrations-Roadmap §3.7.

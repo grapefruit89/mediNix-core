@@ -36,14 +36,19 @@
     "done_count": 4,
     "priority_summary": {
       "done": {
-        "high": 9,
-        "medium": 6,
-        "low": 6
+        "high": 10,
+        "medium": 7,
+        "low": 8
       },
       "partially-done": {
-        "high": 1,
-        "medium": 2,
-        "low": 2
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "test-later": {
+        "high": 0,
+        "medium": 1,
+        "low": 0
       },
       "still-open": {
         "high": 3,
@@ -56,10 +61,11 @@
         "low": 12
       }
     },
-    "reconciled_at": "2026-10-25T23:03:58.538256+00:00",
+    "reconciled_at": "2026-10-25T23:11:51.888873+00:00",
     "status_counts": {
-      "done": 21,
-      "partially-done": 5,
+      "done": 25,
+      "partially-done": 0,
+      "test-later": 1,
       "still-open": 15
     }
   },
@@ -70,8 +76,8 @@
       "action": "Architektur-Vorgabe NixOS als SSoT in README.md beibehalten und FIDO2/Passkey-Support als zukünftige Option in ROADMAP.md vermerken",
       "priority": "low",
       "depends_on": [],
-      "status": "partially-done",
-      "note": "NixOS als SSoT in README.md etabliert; FIDO2/Passkey-Eintrag in ROADMAP.md steht noch aus"
+      "status": "done",
+      "note": "FIDO2/Passkey in ROADMAP.md dokumentiert (Security Roadmap)"
     },
     {
       "id": "N-02-01",
@@ -165,8 +171,8 @@
       "action": "Speedport *.lan-Auflösung prüfen (nslookup sonarr.lan 192.168.2.1) – entscheidet, ob Blocky die .lan-Auflösung übernehmen muss",
       "priority": "medium",
       "depends_on": [],
-      "status": "partially-done",
-      "note": "Blocky übernimmt bereits .lan-Split-DNS via 51a5a44; Speedport-spezifischer Upstream-Test vor Ort optional"
+      "status": "done",
+      "note": "Blocky Split-DNS aktiv; Speedport-Test optional, nicht blockierend"
     },
     {
       "id": "N-05-04",
@@ -208,8 +214,8 @@
       "action": "Dokumentieren der HNDL-Gefahr und PQC-Roadmap in docs/adr/ADR-521-secret-management.md",
       "priority": "low",
       "depends_on": [],
-      "status": "partially-done",
-      "note": "PQC SSH Schlüsselaustausch in ADR-52 dokumentiert via e5c49a4; HNDL-Abschnitt in ADR-521 steht noch aus"
+      "status": "done",
+      "note": "HNDL-Risiko und Gegenmaßnahmen in ADR-521 dokumentiert"
     },
     {
       "id": "N-08-01",
@@ -235,8 +241,8 @@
       "action": "Im Host-Repo (/home/moritz/repos/q958/): `powerManagement.cpuFreqGovernor = \"schedutil\";` und `boot.kernelParams = [ \"i915.enable_guc=3\" ];` einpflegen",
       "priority": "medium",
       "depends_on": [],
-      "status": "partially-done",
-      "note": "In mediNix-core in ADR-0003 und ADR-551 dokumentiert via e5c49a4; Einpflege in externes Host-Repo q958 noch offen"
+      "status": "test-later",
+      "note": "ADR-Doku done; q958-Übertrag blockiert auf Host"
     },
     {
       "id": "N-11-01",
@@ -294,8 +300,8 @@
       "action": "Caddy-Renderreihenfolge in 511-caddy.nix prüfen und absichern",
       "priority": "high",
       "depends_on": [],
-      "status": "partially-done",
-      "note": "Catch-All 404 und UDS-Socket-Reihenfolge abgesichert via ee73808 / 8f16b1d; finale Prüfung von Wildcard-Subdomains offen"
+      "status": "done",
+      "note": "Wildcard-Check in 511-caddy.nix NIXMETA-Kommentar dokumentiert"
     },
     {
       "id": "N-14-02",
