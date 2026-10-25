@@ -36,6 +36,8 @@ let
   registry = import ../lib/registry.nix { inherit lib; };
 in
 {
+  options.medinix.firewall.debug = lib.mkEnableOption "Firewall-Debug-Modus (reject + Logging statt stillem drop)";
+
   options.medinix.security.fde = {
     enable = lib.mkEnableOption "LUKS2 root + TPM2 unlock (initrd systemd)";
     rootUuid = lib.mkOption {
@@ -102,6 +104,12 @@ in
         "nosuid"
         "nodev"
       ];
+    })
+
+    # T-12: Declarative firewall debug-reject mode
+    (lib.mkIf (cfg.enable && cfg.firewall.debug && cfg.hostIntegration.firewall == "managed") {
+      networking.firewall.rejectPackets = true;
+      networking.firewall.logRefusedConnections = true;
     })
 
     # Login-Credential (L-047): Root-SSH-Keys kommen vom Host. Ohne sie - und ohne
