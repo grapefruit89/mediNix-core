@@ -1,0 +1,93 @@
+{
+  "block_id": "23-systemd-hardening-syntax-bugs",
+  "title": "Syntax- und Direktivenfehler im Systemd-Hardening (SocketBindAllow, OnFailure)",
+  "topics": [
+    "systemd-hardening",
+    "syntax-bugs"
+  ],
+  "message_ids": [
+    30,
+    31,
+    32,
+    33
+  ],
+  "summary": "Systematisches Review deckte zwei gravierende Direktivenfehler im Systemd-Hardening auf. Erstens erwartet SocketBindAllow laut systemd.resource-control(5) zwingend Port-Syntax ([protocol:]port), keine IP-Strings wie 127.0.0.1; fehlerhafte Syntax bricht bind() oder ist wirkungslos. Zweitens ist OnFailure eine [Unit]-Direktive und wird innerhalb von serviceConfig lautlos ignoriert, wodurch ntfy-Fehlermeldungen bei Dienstausfällen ausbleiben.",
+  "decisions": [
+    {
+      "id": "D-23-01",
+      "statement": "SocketBindAllow-Direktiven von IP-Adress-Strings auf gültige Systemd-Port-Syntax umstellen.",
+      "status": "decided",
+      "rationale": "systemd.resource-control(5) unterstützt in SocketBindAllow keine reinen IP-Strings; die Direktive war syntaxwidrig und verhinderte sauberes Socket-Gating.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Syntaktisch konformes Socket-Binding",
+          "Verhindert Abstürze von Diensten beim Binden"
+        ],
+        "con": [
+          "Portnummern müssen explizit deklariert werden"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/hardening-profiles.nix",
+          "status": "exists",
+          "current_state": "SocketBindAllow verwendet IP-Strings wie 127.0.0.1",
+          "proposed_change": "Umstellung auf Port-Syntax oder Entfernung fehlerhafter IP-Bind-Regeln"
+        }
+      ],
+      "source_message_ids": [
+        31
+      ]
+    },
+    {
+      "id": "D-23-02",
+      "statement": "OnFailure-Direktiven aus serviceConfig in unitConfig verschieben.",
+      "status": "decided",
+      "rationale": "OnFailure ist systemd-weit eine Unit-Eigenschaft; in serviceConfig wird sie von systemd ignoriert und löst bei Fehlern keine Alarmierungs-Units aus.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Zuverlässige Fehleralarmierung (ntfy) bei Unit-Crashes",
+          "Systemd-konforme Direktiven-Platzierung"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/service-factory.nix",
+          "status": "exists",
+          "current_state": "OnFailure fälschlich in serviceConfig platziert",
+          "proposed_change": "Verschiebung in unitConfig"
+        }
+      ],
+      "source_message_ids": [
+        31
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-23-01",
+      "action": "SocketBindAllow auf Port-Syntax korrigieren",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "N-23-02",
+      "action": "OnFailure nach unitConfig verschieben",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

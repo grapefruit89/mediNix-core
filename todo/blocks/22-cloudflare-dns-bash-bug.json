@@ -1,0 +1,58 @@
+{
+  "block_id": "22-cloudflare-dns-bash-bug",
+  "title": "Bash-Interpolations-Bug im Prune-Pfad von Cloudflare-DDNS (513)",
+  "topics": [
+    "cloudflare-dns",
+    "bash-interpolation-bug"
+  ],
+  "message_ids": [
+    14,
+    15
+  ],
+  "summary": "Im Prune-Pfad von 513-cloudflare-dns.nix wurde ein subtiler Bash-Interpolationsfehler identifiziert: if [ '${foreign:-0}' != '0' ] wurde als Nix-Interpolation von foreign:-0 interpretiert. Dadurch steht im Shell-Skript wörtlich foreign:-0 != 0, was immer wahr ist. Infolgedessen gibt das DDNS-Skript bei jedem Sync fälschlicherweise aus, es habe 0 fremde Records behalten.",
+  "decisions": [
+    {
+      "id": "D-22-01",
+      "statement": "Bash-Syntax im Prune-Pfad von 513-cloudflare-dns.nix durch doppelte einfache Anführungszeichen (''${foreign:-0}) vor Nix-Interpolation schützen.",
+      "status": "decided",
+      "rationale": "Verhindert fehlerhafte String-Interpolation zur Nix-Buildzeit, sodass Bash-Parameter-Expansion zur Laufzeit korrekt ausgewertet wird.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Korrektes Logging im DDNS-Sync-Lauf",
+          "Beseitigt irreführende Falsch-Positiv-Meldungen"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "fehlerhafte Interpolation im Prune-Pfad (if [ \"${\\\"foreign:-0\\\"}\" != \"0\" ]; then)",
+          "proposed_change": "Korrektur zu if [ \"''${foreign:-0}\" != \"0\" ]; then"
+        }
+      ],
+      "source_message_ids": [
+        15
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-22-01",
+      "action": "513 Prune-Bug fixen",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

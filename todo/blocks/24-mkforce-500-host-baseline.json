@@ -1,0 +1,58 @@
+{
+  "block_id": "24-mkforce-500-host-baseline",
+  "title": "Bereinigung des mkForce-Policy-Verstoßes in 500-host-baseline",
+  "topics": [
+    "mkforce-cleanup",
+    "banned-technologies"
+  ],
+  "message_ids": [
+    20,
+    21
+  ],
+  "summary": "In 500-host-baseline.nix wird system.nixos.label mittels lib.mkForce überschrieben, um die Git-Revision einzubinden. Dies stellt einen direkten Verstoß gegen BANNED_TECHNOLOGIES und ADR-0003 §2 dar, die mkForce strikt verbieten. Der Versions-String muss über reguläre, composable NixOS-Optionen oder saubere Defaults ohne Override-Gewalt deklariert werden.",
+  "decisions": [
+    {
+      "id": "D-24-01",
+      "statement": "lib.mkForce bei system.nixos.label in 500-host-baseline.nix entfernen und durch composable Deklaration ersetzen.",
+      "status": "decided",
+      "rationale": "Setzt das in ADR-0003 §2 und BANNED_TECHNOLOGIES.md verankerte absolute Verbot von lib.mkForce durch; stellt Composability sicher.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "100% Einhaltung der Verfassungs- und Korridor-Regeln",
+          "Keine Ausnahmen im Architektur-Linter"
+        ],
+        "con": [
+          "Ggf. Anpassung der Priorität oder Nutzung von system.nixos.versionSuffix"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/50-core/500-base-settings.nix",
+          "status": "exists",
+          "current_state": "system.nixos.label nutzt lib.mkForce",
+          "proposed_change": "mkForce entfernen und Standard-NixOS-Mechanismen nutzen"
+        }
+      ],
+      "source_message_ids": [
+        21
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-24-01",
+      "action": "mkForce in 500-host-baseline.nix durch composable Mechanismus ersetzen",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

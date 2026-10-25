@@ -1,0 +1,197 @@
+{
+  "block_id": "27-caddy-plugin-replacements",
+  "title": "Kernel-nahe Alternativen für Caddy-Plugins (nftables, security.acme, systemd)",
+  "topics": [
+    "caddy-plugins",
+    "kernel-near-replacements"
+  ],
+  "message_ids": [
+    1
+  ],
+  "summary": "Systematische Bewertung von Caddy-Plugins auf Basis des mediNix-Prinzips 'Kernel-Nähe vor User-Space-Overhead'. Vier Caddy-Plugins (GeoIP, Cloudflare-DNS, Rate-Limiting, Dynamic-DNS) werden durch native Linux-/NixOS-Mechanismen (nftables GeoIP-Sets, security.acme mit Lego, nftables limit rate, systemd-Timer) ersetzt. Tarpit- und Honeypot-Plugins (caddy-tarpit, caddy-defender, cerberus) werden strikt abgelehnt, da 'wer scannt, fliegt raus' über CrowdSec und nftables-Drop gelöst wird.",
+  "decisions": [
+    {
+      "id": "D-27-01",
+      "statement": "caddy-maxmind-geolocation durch kernel-nahe nftables GeoIP-Sets ersetzen.",
+      "status": "decided",
+      "rationale": "nftables verwirft unerwünschten Länder-Traffic vor dem TCP-Handshake im Kernel; schont Caddy-Ressourcen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Extrem ressourcenschonend",
+          "Schutz aller Ports statt nur HTTP"
+        ],
+        "con": [
+          "Erfordert regelmäßiges IP-Set-Update via Script"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-02",
+      "statement": "caddy-cloudflare / caddy-dns/cloudflare durch NixOS-Bordmittel (security.acme + Lego) ersetzen.",
+      "status": "decided",
+      "rationale": "security.acme trennt TLS-Zertifikatsbeschaffung sauber von Caddy; Caddy läuft mit auto_https off und liest nur fertige Certs.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Kein Custom-Caddy-Build nötig",
+          "Blast-Radius-Trennung der Tokens"
+        ],
+        "con": [
+          "ACME-Dienst läuft als eigener systemd-Timer"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-03",
+      "statement": "caddy-ratelimit durch nftables 'limit rate' auf Port 80 ersetzen (Port 443 ausgenommen).",
+      "status": "decided",
+      "rationale": "Verhindert DoS-Angriffe kernel-nah; Port 443 bleibt ungedrosselt, um legitime Medien-Streams nicht zu drosseln.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Kernel-nahe Ratenbegrenzung ohne User-Space-Parsing"
+        ],
+        "con": [
+          "Statische Schwellenwerte"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-04",
+      "statement": "caddy-dynamicdns durch systemd-Timer und dediziertes DDNS-Skript (513-cloudflare-dns) ersetzen.",
+      "status": "decided",
+      "rationale": "Entkoppelt DNS-Aktualisierung vollständig vom Webserver-Prozess; robuster bei Caddy-Restarts.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Unabhängiger Lebenszyklus",
+          "Fein granulare Timer-Intervalle"
+        ],
+        "con": [
+          "Eigenes Skript erforderlich"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-05",
+      "statement": "caddy-tarpit verwerfen ('Wer scannt, fliegt raus').",
+      "status": "rejected",
+      "rationale": "Tarpits halten TCP-Sockets unnötig lange offen und binden Ressourcen; Scanner werden über CrowdSec detektiert und per nftables sofort stumm gedroppt.",
+      "verdict": "worse",
+      "trade_offs": {
+        "pro": [
+          "Keine Ressourcenbindung in Caddy"
+        ],
+        "con": [
+          "Scanner wird nicht verzögert, sondern direkt gebannt"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-06",
+      "statement": "caddy-defender ablehnen.",
+      "status": "rejected",
+      "rationale": "Basiert auf User-Space-Tarpit-Logik; verstößt gegen das Prinzip der Kernel-Nähe.",
+      "verdict": "worse",
+      "trade_offs": {
+        "pro": [
+          "Konsistente Architektur"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-07",
+      "statement": "cerberus ablehnen.",
+      "status": "rejected",
+      "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab.",
+      "verdict": "worse",
+      "trade_offs": {
+        "pro": [
+          "Keine Honeypot-Wartung"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-27-08",
+      "statement": "caddy-cloudflare-ip optional halten; statische IP-Ranges in trusted_proxies bevorzugen.",
+      "status": "proposed",
+      "rationale": "Cloudflare IP-Ranges ändern sich extrem selten; statische Ranges in trusted_proxies genügen für 99% aller Anwendungsfälle ohne Build-Plugin.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Kein dynamisches Plugin nötig"
+        ],
+        "con": [
+          "Manuelle Aktualisierung bei Cloudflare-IP-Änderungen"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-27-01",
+      "action": "nftables GeoIP-Sets evaluieren",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-27-02",
+      "action": "caddy-ratelimit durch nftables ersetzen",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "N-27-03",
+      "action": "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

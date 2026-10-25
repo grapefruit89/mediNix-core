@@ -1,0 +1,56 @@
+{
+  "block_id": "25-docs-trias",
+  "title": "Dokumentationstrias: Lastenheft, Pflichtenheft und ADRs",
+  "topics": [
+    "docs-trias",
+    "architecture-methodology"
+  ],
+  "message_ids": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "summary": "Definiert eine dreistufige Dokumentationshierarchie für mediNix zur konsistenten Führung von KI-Coding-Agenten. Das Lastenheft definiert das 'Was' aus Auftraggebersicht (fachliche Anforderungen), das Pflichtenheft das 'Wie' (konkrete technische Realisierung) und ADRs das 'Warum' (unveränderliche Entscheidungshistorie an Architektur-Gabelungen). Diese Trennung verhindert Missverständnisse und Diskrepanzen zwischen Spezifikation und Implementierung.",
+  "decisions": [
+    {
+      "id": "D-25-01",
+      "statement": "Dreiteilung der Projektdokumentation in Lastenheft (Was), Pflichtenheft (Wie) und ADRs (Warum) etablieren.",
+      "status": "decided",
+      "rationale": "Schafft klare Trennung zwischen Anforderung, technischem Design und Entscheidungshistorie; optimiert Prompting und Review-Workflows mit LLMs.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Glasklare Verantwortlichkeiten der Dokumenttypen",
+          "Bessere Führung autonomer Agenten"
+        ],
+        "con": [
+          "Dokumentationspflege auf drei Ebenen"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        27,
+        29
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-25-01",
+      "action": "Dokumentationstrias in ADR-0000 oder docs/ verankern",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

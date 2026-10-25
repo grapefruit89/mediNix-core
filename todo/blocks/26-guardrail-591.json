@@ -1,0 +1,74 @@
+{
+  "block_id": "26-guardrail-591",
+  "title": "Zentralisierung aller System- und Cross-Domain-Guardrails in 591",
+  "topics": [
+    "guardrails",
+    "decimal-framework-verification"
+  ],
+  "message_ids": [
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "summary": "Bestätigt die bestehende Architektur von 59-guardrails/591-cross-domain.nix als alleinige zentrale Sammelstelle für alle Cross-Domain-, Sicherheits- und Ingress-Assertions. Der Vorschlag, eine zusätzliche Datei 509-guardrails.nix einzuführen, wurde als redundant und regelwidrig verworfen. Domain 59 bündelt alle statischen Compile-Time-Prüfungen gemäss ADR-0000 §2 (keine Daemons in _9).",
+  "decisions": [
+    {
+      "id": "D-26-01",
+      "statement": "Alle übergreifenden System-Assertions in 591-cross-domain.nix bündeln und keinen separaten 509-Block anlegen.",
+      "status": "decided",
+      "rationale": "591 deckt bereits Docker-Bans, Port-Leaks, Wildcard-Binds, VPN-ReversePath und Dezimalrahmen-Checks ab; eine Aufspaltung in 509 würde die SSoT verletzen und Redundanz erzeugen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Zentrale Anlaufstelle für Compile-Time-Prüfungen",
+          "Konforme Einhaltung von ADR-0000 §2"
+        ],
+        "con": [
+          "591 wächst mit neuen Systemprüfungen an"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        38,
+        39
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [
+    {
+      "from": "Neues Modul 509-guardrails.nix für grundlegende Core-Assertions einführen",
+      "to": "Bestehendes Modul 591-cross-domain.nix als Single Source of Truth für alle Assertions beibehalten",
+      "source_message_ids": [
+        38,
+        39
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "509-guardrails.nix als zusätzliche Assertion-Datei anlegen",
+      "reason": "Redundant zu 591-cross-domain.nix; fragmentiert die Guardrail-Logik.",
+      "source_message_ids": [
+        38,
+        39
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-26-01",
+      "action": "keine",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}
