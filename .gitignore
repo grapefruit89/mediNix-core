@@ -50,3 +50,9 @@ Textdatei.txt
 *.cred
 *.encrypted
 
+# Agent Skills (project-scope, lokal)
+.agents/
+.claude/
+agent/
+skills-lock.json
+
