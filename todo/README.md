@@ -167,6 +167,11 @@ korrigiert (`[72..79]` statt `[73..80]`).
   - Quelle (Block-ID, Decision-ID)
   - Warum besser (aus `rationale`)
 
+  ### Backlog (Wissens-Archiv für Nebenstränge)
+  Ideen, Analysen oder Chat-Exzerpte, die keine neuen Blöcke in `todo/blocks/` erzeugen (weil sie redundant zu bereits dokumentierten Entscheidungen sind, veraltete Vorgänger-Repositories betreffen oder als off-topic verworfen wurden), landen strukturiert in `/home/moritz/repos/mediNix-core/todo/backlog/`.
+  - **Warum:** Wissen und historische Diskussionspfade bewahren, ohne den aktiven Plan/Block-Baum mit Rauschen zu belasten (Zero-Knowledge-Loss-Prinzip).
+  - **Format:** Eine Markdown-Datei pro Thema (`<datum>_<chat>_<thema>.md`) plus zentraler Katalog in `/home/moritz/repos/mediNix-core/todo/backlog/_index.json`.
+
   ### Phase 5: Archivieren
   - Rohchunks in `/home/moritz/repos/mediNix-core/todo/_archive/`
     belassen.

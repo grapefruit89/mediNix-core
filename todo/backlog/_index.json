@@ -1,0 +1,49 @@
+{
+  "entries": [
+    {
+      "chat": "DeepSeek_NixOS-Architektur-Entscheidungen-Extraktion_20261025-2330.json",
+      "messages": 2,
+      "thema": "Architektur-Entscheidungen Extraktion früher Chats",
+      "grund": "redundant zu Chat 1 (Blöcke 01-14, ADR-0000, ADR-5000)",
+      "bewertung": "redundant",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_architektur-entscheidungen-extraktion_redundant-chat1.md"
+    },
+    {
+      "chat": "DeepSeek_NixHome-v6.0-Fresh-Eyes-Audit-Report_20261025-2331.json",
+      "messages": 4,
+      "thema": "NixHome v6.0 Fresh Eyes Audit",
+      "grund": "Altrepo mynixos-v5 Audit; in mediNix-core längst gelöst (511, 520, 526)",
+      "bewertung": "redundant",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixhome-v6-fresh-eyes-audit_altrepo-mynixos-v5.md"
+    },
+    {
+      "chat": "DeepSeek_NixmitGROK-Projektanalyse_20261025-2350.json",
+      "messages": 4,
+      "thema": "NixmitGROK Projektanalyse",
+      "grund": "Altrepo nixmitgrok; profile.local.nix und altes Rollout-Modell in mediNix abgelöst",
+      "bewertung": "off-topic",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixmitgrok-projektanalyse_altrepo-nixmitgrok.md"
+    },
+    {
+      "chat": "DeepSeek_NixOS-Security-Audit-Report_20261025-2331.json",
+      "messages": 12,
+      "thema": "NixOS Security Audit Report",
+      "grund": "redundant zu Chat 1/2; SSO, Lockdown und Backup bereits in ADR-512, ADR-5200, ADR-576",
+      "bewertung": "redundant",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixos-security-audit-report_redundant-sso-lockdown.md"
+    },
+    {
+      "chat": "DeepSeek_NixmitGROK-Review_20261025-2350.json",
+      "messages": 14,
+      "thema": "NixmitGROK Review Fehlversuch",
+      "grund": "fehlgeschlagener Review-Loop auf Altrepo mit halluzinierten Pfaden; kein Erkenntnisgewinn",
+      "bewertung": "off-topic",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixmitgrok-review_fehlgeschlagener-review-loop.md"
+    }
+  ]
+}
