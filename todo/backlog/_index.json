@@ -44,6 +44,33 @@
       "bewertung": "off-topic",
       "datum": "2026-10-26",
       "file": "2026-10-26_nixmitgrok-review_fehlgeschlagener-review-loop.md"
+    },
+    {
+      "chat": "DeepSeek_NixOS-Projekte-Vergleich-und-Synthese_20261025-2330.json",
+      "messages": 42,
+      "thema": "NixOS Projekte Vergleich und Synthese",
+      "grund": "redundant zu Chat 1 (Blöcke 01, 04, 19, ADR-0000, ADR-5000, ADR-512)",
+      "bewertung": "redundant",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixos-projekte-vergleich-synthese_redundant-mtls-tailscale.md"
+    },
+    {
+      "chat": "DeepSeek_NixOS-Boilerplate-Architecture-Alignment_20261025-2335.json",
+      "messages": 102,
+      "thema": "NixOS Boilerplate Architecture Alignment",
+      "grund": "Gründungs-Session von mediNix-core; alle Prinzipien (1:1:1, ODO, NIXMETA, Verbote) längst implementiert",
+      "bewertung": "redundant",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_boilerplate-architecture-alignment_gruendungs-session-super-repo.md"
+    },
+    {
+      "chat": "DeepSeek_NixOS-KI-Agenten-und-Tools-Vergleich_20261025-2333.json",
+      "messages": 108,
+      "thema": "NixOS KI-Agenten und Tools Vergleich",
+      "grund": "off-topic Frickel-Session zu hermes-webui auf Test-VM; abgebrochen nach 10 Iterationen",
+      "bewertung": "off-topic",
+      "datum": "2026-10-26",
+      "file": "2026-10-26_nixos-ki-agenten-tools-vergleich_offtopic-hermes-webui.md"
     }
   ]
 }
