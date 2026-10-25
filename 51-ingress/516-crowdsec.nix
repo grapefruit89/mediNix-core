@@ -143,8 +143,11 @@ in
       # ── Engine (nativ) ────────────────────────────────────────────────
       services.crowdsec = {
         enable = true;
-        # Collection = Caddy-Parser + base-http-scenarios (Hub: crowdsecurity/caddy).
-        hub.collections = [ "crowdsecurity/caddy" ];
+        # Collection = Caddy-Parser + base-http-scenarios (Hub: crowdsecurity/caddy) + http-probing.
+        hub.collections = [
+          "crowdsecurity/caddy"
+          "crowdsecurity/http-probing"
+        ];
         settings = {
           acquisitions = [
             {
