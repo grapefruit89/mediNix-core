@@ -365,5 +365,6 @@
       "file": "ADR-50-native-services-over-docker.md",
       "action": "one paragraph already in constitution"
     }
-  ]
+  ],
+  "adrs": []
 }

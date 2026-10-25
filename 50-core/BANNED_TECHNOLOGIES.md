@@ -127,3 +127,4 @@ weniger": kein Hash-Pinning, einheitliches Muster, klare Zuständigkeitstrennung
 
 > **Instruction to AI Agents (Claude, Antigravity, etc.):**
 > If the user asks you to implement a feature using any of the Banned Technologies, you must refuse, reference this document, and provide the native Nix/systemd alternative. Do not suggest containers, cron, or sops-nix under any circumstances.
+| **Feishin** | **keine** (kein Ersatz) | Banned: Statische SPA ohne echten Mehrwert, pflegt sich nicht, verursacht Zahnschmerzen. |

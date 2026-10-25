@@ -28,14 +28,13 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 | **551** | [Jellyfin](551-jellyfin.nix) <br> [[ADR-5510]] | `5510` | The primary video and general media server. Handles heavy lifting like GPU transcoding. |
 | **552** | [Audiobookshelf](552-audiobookshelf.nix) <br> [[ADR-5520]] | `5520` | Dedicated server for audiobooks and podcasts. (Note: Has limited write access to write cover art). |
 | **553** | [Navidrome](553-navidrome.nix) <br> [[ADR-5530]] | `5530` | Lightweight, lightning-fast music server compatible with the Subsonic API. |
-| **554** | [Feishin](554-feishin.nix) <br> [[ADR-5530]] | N/A | A modern, static Single Page Application (SPA) frontend for Navidrome or Jellyfin. Served directly via Caddy. |
 
 ## 🛡️ Key Architecture Decisions
 
 - **Hardware Acceleration (VA-API):** Jellyfin uses the `dotnet-gpu` hardening profile. It selectively pokes holes in the sandbox (`DeviceAllow`) to access `/dev/dri`, enabling ultra-efficient Intel QuickSync transcoding without exposing the entire host hardware (`PrivateDevices=false`).
 - **Transcode RAM Disk:** Jellyfin's transcode directory is mounted as a `TemporaryFileSystem` (tmpfs). This ensures that heavy, temporary transcode chunks are written to RAM instead of burning through the SSD's write endurance.
 - **Strict Read-Only Mounts:** Services like Jellyfin and Navidrome mount the primary media directories via `BindReadOnlyPaths`. Any attempt by the application (or an attacker exploiting the application) to delete a movie or song will be blocked at the kernel/systemd level.
-- **Static SPA Injection:** Feishin (`554-feishin.nix`) is not a running service. It is a static web app injected directly into Caddy's configuration via `try_files {path} /index.html`, eliminating the need for an unnecessary NodeJS backend process.
+- **Removed 2026-10-25: Feishin (banned)**
 
 ## 📚 Guides & Specifications
 

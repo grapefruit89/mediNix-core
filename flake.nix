@@ -217,7 +217,6 @@
                   # RT-2: exposure defaultet auf "idp"; diese Fixture stellt einen
                   # fertig gebootstrappten Stack dar, also ist die Ack gesetzt.
                   medinix.pocketId.setupCompleted = true;
-                  medinix.feishin.enable = true;
                   medinix.gatus.enable = true;
                   medinix.observability.ntfy.enable = true;
                 };
@@ -247,7 +246,6 @@
           medinix.pocketId.enable = true;
           # RT-2: siehe oben — der Voll-Stack ist gebootstrappt.
           medinix.pocketId.setupCompleted = true;
-          medinix.feishin.enable = true;
           medinix.maintenance.recyclarr.enable = true;
           medinix.diskHealth.enable = true;
           medinix.discovery.mdns.enable = true;
@@ -281,10 +279,6 @@
           medinix.navidrome.setupCompleted = true;
           medinix.audiobookshelf.setupCompleted = true;
           medinix.manifest.seerr.allowUnauthenticated = true;
-          # feishin wird als public vhost gerendert; der Stack-Check braucht
-          # dieselbe bewusste Freigabe wie seerr (Produktion setzt hier
-          # ingress.auth.mode = "forward-auth" oder einen echten Ack).
-          medinix.manifest.feishin.allowUnauthenticated = true;
         };
 
         stackNixos = lib.nixosSystem {
@@ -391,7 +385,7 @@
         #      (sonst meldet z. B. services.sonarr den nixpkgs-Default 8989,
         #      obwohl 53-acquisition/532-sonarr.nix eine eigene Unit baut).
         # Dienste ohne eval-sichtbaren Traeger (Datei-basiert: gatus, ntfy,
-        # jellyfin; ohne Daemon: feishin) werden im Ergebnis AUSGEWIESEN, damit
+        # jellyfin) werden im Ergebnis AUSGEWIESEN, damit
         # die Luecke sichtbar ist statt still.
         checks.mediNix-ports-verdrahtet =
           let
@@ -848,7 +842,7 @@
           expectAssertion "stream-unacked" "deviates from the manifest declaration"
             {
               medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
-              medinix.ingress.vhosts."feishin".accessGroup = "stream";
+              medinix.ingress.vhosts."seerr".accessGroup = "stream";
             };
 
         # ADR-517: 517 einschalten ohne Issuer bzw. ohne versiegelte Secrets

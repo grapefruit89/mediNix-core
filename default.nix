@@ -241,10 +241,6 @@ in
         '';
       };
     };
-    feishin = {
-      enable = lib.mkEnableOption "Feishin SPA (static files)";
-      package = mkPackageOption "feishin";
-    };
     pocketId = {
       enable = lib.mkEnableOption "Pocket ID OIDC Provider";
       package = mkPackageOption "pocket-id";
@@ -686,7 +682,7 @@ in
       streamAck = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        example = [ "feishin" ];
+        example = [ "jellyfin" ];
         description = ''
           Services that may run with `accessGroup = "stream"` although their
           manifest entry declares something else. `stream` is WAN-visible
@@ -850,12 +846,12 @@ in
         type = lib.types.attrsOf (lib.types.strMatching "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
         default = { };
         example = {
-          feishin = "music";
+          jellyfin = "media";
         };
         description = ''
           Extra public hostname for a registry service. 511 serves the same
           template on {alias}.{domain}; 513 prunes leftover CNAMEs for both names.
-          Example: feishin = "music" → https://music.example.com
+          Example: jellyfin = "media" → https://media.example.com
         '';
       };
       ddns = {

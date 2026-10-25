@@ -33,7 +33,6 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `jellyfin` | `–` | 551 | 5510 | 5510 | **5510** | `dotnet-gpu` | `stream` |
 | `audiobookshelf` | `–` | 552 | 5520 | 5520 | **5520** | `nodejs` | `stream` |
 | `navidrome` | `–` | 553 | 5530 | 5530 | **5530** | `nodejs` | `stream` |
-| `feishin` | `–` | 554 | – | – | **5540** | `network` | `none` |
 | `seerr` | `–` | 561 | 5610 | 5610 | **5610** | `nodejs` | `public` |
 | `ntfy` | `–` | 581 | 5810 | 5810 | **5810** | `network` | `internal` |
 | `gatus` | `–` | 582 | 5820 | 5820 | **5820** | `network` | `internal` |
@@ -102,7 +101,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Jellyfin media playback](adr/ADR-551-jellyfin-media-playback.md)
 - [ADR 5520 audiobookshelf port framework](adr/ADR-552-audiobookshelf.md)
 - [ADR 5530 navidrome music streaming](adr/ADR-553-navidrome.md)
-- [Feishin als statische SPA (kein eigener Daemon)](adr/ADR-554-feishin-static-spa.md)
 - [ADR 5610 seerr request management](adr/ADR-561-seerr.md)
 - [Storage-Tiering: tmpfiles-Struktur + optionale MergerFS-Pools](adr/ADR-570-storage-tiering-mergerfs.md)
 - [ADR 5710 sqlite mcp server](adr/ADR-571-sqlite-mcp.md)

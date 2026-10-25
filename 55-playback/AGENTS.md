@@ -40,7 +40,6 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `551-jellyfin` | [`551-jellyfin.nix`](551-jellyfin.nix) | active | 3/5 |  |
 | `552-audiobookshelf` | [`552-audiobookshelf.nix`](552-audiobookshelf.nix) | active | -/5 | - |
 | `553-navidrome` | [`553-navidrome.nix`](553-navidrome.nix) | active | -/5 | - |
-| `554-feishin` | [`554-feishin.nix`](554-feishin.nix) | active | -/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -63,7 +62,6 @@ graph TD
   551_jellyfin["551-jellyfin"] --> creds["lib/creds"]
   552_audiobookshelf["552-audiobookshelf"]
   553_navidrome["553-navidrome"]
-  554_feishin["554-feishin"]
 ```
 
 

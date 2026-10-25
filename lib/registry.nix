@@ -62,7 +62,6 @@ rec {
     jellyfin = mkService "jellyfin" 551 "dotnet-gpu" "stream";
     audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
     navidrome = mkService "navidrome" 553 "nodejs" "stream";
-    feishin = mkNoPort "feishin" 554 "network" "none";
     seerr = mkService "seerr" 561 "nodejs" "public";
 
     gatus = mkService "gatus" 582 "network" "internal";
