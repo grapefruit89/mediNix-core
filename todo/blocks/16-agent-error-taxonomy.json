@@ -1,0 +1,157 @@
+{
+  "block_id": "16-agent-error-taxonomy",
+  "title": "Agenten-Fehlerklassen & Selbstkorrektur-Leitplanken für mediNix",
+  "topics": [
+    "agent-error-taxonomy"
+  ],
+  "message_ids": [
+    12,
+    13,
+    14,
+    15,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "summary": "Systematische Erfassung und Taxonomie wiederkehrender Fehler von Coding-Agenten bei der Bearbeitung des mediNix-Flakes. Unterscheidet Tool-Aufruf-Fehler (ungültige Attributpfade, Trailing Commas, maskierte Exit-Codes durch Shell-Pipes), Prozess-Verschwendung ('Scheiben-Messen' mit vielen Einzelaufrufen statt Bundles) und die gefährlichste Fehlerklasse: 'Gate berechnet, aber nicht erzwungen' (Commit trotz rotem Test). Definiert 5 verbindliche Gegenmaßnahmen zur Selbstkorrektur.",
+  "decisions": [
+    {
+      "id": "D-16-01",
+      "statement": "Gegenmaßnahme 1 (Form/Binary-Version billig vorab prüfen): Tool-Verfügbarkeit und Versionen vor schweren Operationen in einem minimalen Call validieren.",
+      "status": "decided",
+      "rationale": "Verhindert Fehlschläge durch falsche PATH-Variablen, inkompatible Versionen (z. B. PATH-nixfmt 1.5.0 vs. CI-Pin 1.4.0) oder nicht installierte Binaries.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Spart teure Folgeaufrufe und fehlerhafte Modifikationen"
+        ],
+        "con": [
+          "Ein kleiner initialer Check nötig"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        3,
+        19
+      ]
+    },
+    {
+      "id": "D-16-02",
+      "statement": "Gegenmaßnahme 2 (Ausgaben filtern): Shell-Ausgaben deterministisch auf relevante Zeilen begrenzen (-m1, grep -c, head).",
+      "status": "decided",
+      "rationale": "Verhindert Kontext-Überlauf, unlesbare Dumps und Parsing-Fehler bei mehrzeiligen Shell-Argumenten.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Kompakter Kontext",
+          "Fokussierte Fehlersuche"
+        ],
+        "con": [
+          "Filterung muss sorgfältig gewählt werden"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        3,
+        19
+      ]
+    },
+    {
+      "id": "D-16-03",
+      "statement": "Gegenmaßnahme 3 (Kein Scheiben-Messen): Zusammengehörige Prüfungen und Messungen in atomaren Bundles statt multiplen Einzel-Calls ausführen.",
+      "status": "decided",
+      "rationale": "Das Aufteilen von Statusabfragen in Einzelschritte ('Scheiben-Messen') verbrennt unkontrolliert Token und Zeit (2–4 Extra-Calls pro Finding).",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Dramatische Reduktion der Latenz und Tokenkosten"
+        ],
+        "con": [
+          "Erfordert vorausschauende Bündelung"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        3,
+        19
+      ]
+    },
+    {
+      "id": "D-16-04",
+      "statement": "Gegenmaßnahme 4 (Ein Call = Ein Schritt mit messbarem Ergebnis): Jeder Tool-Call muss einen klaren Zustandsübergang mit verifizierbarem Resultat liefern.",
+      "status": "decided",
+      "rationale": "Verhindert zielloses Tasten im Nebel und unfertige Zwischenschritte; jeder Schritt schließt eine Teilhypothese ab.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Hohe Nachvollziehbarkeit",
+          "Klare Stoppbedingungen"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        3,
+        19
+      ]
+    },
+    {
+      "id": "D-16-05",
+      "statement": "Gegenmaßnahme 5 (Strikte Rc-Gating-Erzwingung vor Commit): Kein Git-Commit ohne explizite Prüfung des Rückgabecodes vorangegangener Gates (if [ $? -ne 0 ]; then exit 1; fi).",
+      "status": "decided",
+      "rationale": "Beseitigt die gefährlichste Fehlerklasse ('Gate berechnet, aber nicht erzwungen'), bei der Fehlerausgaben protokolliert, der Commit aber dennoch ungestraft ausgeführt wurde.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Absoluter Schutz vor Commits auf rotem Zustand",
+          "Fail-Closed Git-Workflow"
+        ],
+        "con": [
+          "Bricht Workflows sofort ab"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        19,
+        21
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [
+    {
+      "from": "Exit-Code in Shell-Pipes ungeprüft lassen (z. B. nixfmt | sed)",
+      "to": "Setzen von set -o pipefail bzw. getrennte Ausführung, damit Fehler im ersten Befehl nicht von Folgebefehlen maskiert werden",
+      "source_message_ids": [
+        19
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Schwere Nix-Builds und QEMU-VM-Tests interaktiv im Vordergrund mit hohem Timeout blockierend ausführen",
+      "reason": "Blockiert Agenten-Sessions für 10–20 Minuten pro Lauf und führt zu Timeout-Abbrüchen; Hintergrund-Tasks oder no-build Checks sind vorzuziehen.",
+      "source_message_ids": [
+        19,
+        21
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-16-01",
+      "action": "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-1"
+  }
+}

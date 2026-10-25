@@ -1,0 +1,165 @@
+{
+  "block_id": "15-nixmap-ast-audit",
+  "title": "Nixmap AST- & Syntax-Audit für deklarative NixOS-Module",
+  "topics": [
+    "nixmap-ast-audit"
+  ],
+  "message_ids": [
+    0,
+    1
+  ],
+  "summary": "Definiert eine 44-Regeln-Auditmatrix (Nixmap) für deklarativen, fehlertoleranten NixOS-Code. Kernregeln umfassen das Verbot des //-Operators zugunsten von lib.recursiveUpdate, das Verbot imperativer Kontrollflüsse (if-then-else in Modul-Configs zugunsten von lib.mkIf), das Verbot von assert/throw/abort zugunsten deklarativer assertions-Listen, die Vermeidung von Scope-Verschmutzung durch with, die Prüfung auf echte Selbstreferenzen bei rec und die Verhinderung von Rekursionsschleifen durch optionen-abhängige Imports.",
+  "decisions": [
+    {
+      "id": "D-15-01",
+      "statement": "//-Operator bei Attributset-Merges verbieten und durch lib.recursiveUpdate ersetzen.",
+      "status": "decided",
+      "rationale": "Der //-Operator überschreibt Keys flach und führt bei verschachtelten Attributsets (wie systemd.services oder nftables-Chains) zu stillem Key-Verlust (Fail-Open-Gefahr). lib.recursiveUpdate merged verschachtelte Strukturen sicher.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Verhindert versehentlichen Key-Verlust bei Set-Merges",
+          "Fail-Closed-Verhalten bei Konfigurationserweiterungen"
+        ],
+        "con": [
+          "Minimal höherer Auswertungsaufwand"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-15-02",
+      "statement": "Rohes 'if ... then ... else' in NixOS-Moduldefinitionen zugunsten von 'lib.mkIf' vermeiden.",
+      "status": "decided",
+      "rationale": "'if c then a else {}' erzeugt bei false leere Attributsets oder Typkonflikte; 'lib.mkIf' integriert sich nahtlos in das NixOS-Merge-System und erzeugt bei false keine Definition.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Saubere Integration in NixOS Module System",
+          "Keine leeren Dummy-Attribute bei inaktiven Optionen"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-15-03",
+      "statement": "Nix-Builtin 'assert' durch deklarative 'assertions'-Listen mit Fehlertext und ADR-Referenz ersetzen.",
+      "status": "decided",
+      "rationale": "Rohes assert bricht sofort unformatiert ab; NixOS-assertions sammeln alle Fehler, geben verständliche Meldungen aus und referenzieren Architekturentscheidungen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Sammelt alle Validierungsfehler vor Abbruch",
+          "Klare Diagnostik für Betreiber und AI-Agenten"
+        ],
+        "con": [
+          "Nur innerhalb von NixOS-Modulen anwendbar"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-15-04",
+      "statement": "'with'-Ausdrücke zur Vermeidung von Scope-Verschmutzung und Mehrdeutigkeiten verbieten.",
+      "status": "decided",
+      "rationale": "'with pkgs;' oder 'with lib;' verschleiert die Herkunft von Symbolen, bricht statische Code-Analyse und führt zu schwer auffindbaren Shadowing-Bugs.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Explizite Herkunft aller Bezeichner",
+          "Exakte statische Prüfbarkeit mit Tools"
+        ],
+        "con": [
+          "Geringfügig mehr Schreibarbeit"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-15-05",
+      "statement": "'rec'-Attributsets auf nachgewiesene Selbstreferenzen beschränken.",
+      "status": "decided",
+      "rationale": "'rec {' ohne Selbstreferenz verführt zu versehentlichen Zyklen und erschwert das Refactoring; lokale let-Bindings sind transparenter.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Vermeidet unbeabsichtigte Zyklen",
+          "Bessere Lesbarkeit"
+        ],
+        "con": [
+          "Keine"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    },
+    {
+      "id": "D-15-06",
+      "statement": "Bedingte Imports basierend auf eigenen Modul-Optionen strikt verbieten (Anti-Pattern #module-recursion).",
+      "status": "decided",
+      "rationale": "Bedingte Imports wie 'imports = lib.optional cfg.enable ...' erzeugen zirkuläre Abhängigkeiten während des Modul-Fixpunkts und brechen die Nix-Evaluation mit Endlosschleifen ab.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Verhindert unlösbare Modul-Rekursionen",
+          "Deterministische Import-Graphen"
+        ],
+        "con": [
+          "Bedingte Logik muss in den Modulen selbst via mkIf gekapselt werden"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        1
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-15-01",
+      "question": "Welche konkreten Prüfkriterien umfassen die restlichen der 44 Nixmap-Auditregeln im vollständigen Regelsatz?",
+      "why_open": "Im Chat wurden die 8 kritischsten Regeln explizit genannt und analysiert; die vollständige 44-Regeln-Tabelle lag als externes Audit-Artefakt vor.",
+      "blocking": false
+    }
+  ],
+  "corrections": [],
+  "rejected": [
+    {
+      "idea": "Nixmap als vollständigen Ersatz für NixOS-Modulhandbuch und Flake-Dokumentation betrachten",
+      "reason": "Nixmap deckt primär elementare Sprachregeln und AST-Muster ab; Modulspezifika wie mkOption-Typen, submodule-Merge und Flake-Outputs müssen separat geprüft werden.",
+      "source_message_ids": [
+        1
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-15-01",
+      "action": "Lint-Matrix als scripts/check-nixmap.py implementieren",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}
