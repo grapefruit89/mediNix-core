@@ -121,9 +121,7 @@ in
     })
 
     (lib.mkIf cfg.enable {
-      system.nixos.label = lib.mkIf (self != null) (
-        lib.mkForce "${config.system.nixos.version}-${self.shortRev or "dirty"}"
-      );
+      system.nixos.label = lib.mkIf (self != null) "${config.system.nixos.version}-${self.shortRev or "dirty"}";
       system.configurationRevision = lib.mkIf (self != null) (self.rev or null);
     })
   ];
