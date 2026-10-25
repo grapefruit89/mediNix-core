@@ -77,6 +77,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Architektur-Manifest (bindend): die fuenf Prinzipien](adr/ADR-0003-architektur-manifest.md)
 - [ADR-0010 — Demarkationslinie: Boot-Seeds (Dateisystem) vs. Fachlogik (REST-API)](adr/ADR-0010-api-vs-filesystem.md)
 - [ADR-0011 — UID-basiertes nftables-Routing vs. Network Namespaces (netns)](adr/ADR-0011-uid-routing-vs-netns.md)
+- [Community-Flakes Benchmark & Architektur-Abgrenzung](adr/ADR-019-community-flakes-benchmark.md)
 - [Gerichtete Abhängigkeiten: Quelle → Ableitung (Guardrails lesen nie das Abgeleitete)](adr/ADR-040-gerichtete-abhaengigkeiten.md)
 - [ADR 5000 native services over docker](adr/ADR-5000-native-services-over-docker.md)
 - [ADR 5020 knowledge extraction pipeline](adr/ADR-5020-knowledge-extraction-pipeline.md)

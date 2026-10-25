@@ -38,7 +38,7 @@
       "done": {
         "high": 12,
         "medium": 7,
-        "low": 8
+        "low": 10
       },
       "partially-done": {
         "high": 0,
@@ -50,23 +50,28 @@
         "medium": 1,
         "low": 0
       },
+      "blocked": {
+        "high": 0,
+        "medium": 0,
+        "low": 1
+      },
       "still-open": {
         "high": 1,
-        "medium": 8,
-        "low": 4
+        "medium": 9,
+        "low": 0
       },
       "total": {
         "high": 13,
-        "medium": 16,
-        "low": 12
+        "medium": 17,
+        "low": 11
       }
     },
-    "reconciled_at": "2026-10-25T23:14:33.737620+00:00",
+    "reconciled_at": "2026-10-25T23:37:30.308041+00:00",
     "status_counts": {
-      "done": 27,
-      "partially-done": 0,
+      "done": 29,
+      "blocked": 1,
       "test-later": 1,
-      "still-open": 13
+      "still-open": 10
     }
   },
   "todos": [
@@ -233,7 +238,8 @@
       "action": "Kernel-Modul-Blacklist im Host-Layer (q958) gegen ungenutzte Filesysteme (cifs, firewire, etc.) prüfen",
       "priority": "low",
       "depends_on": [],
-      "status": "still-open"
+      "status": "blocked",
+      "note": "Host-Aufgabe q958, kein mediNix-core"
     },
     {
       "id": "N-10-01",
@@ -292,7 +298,8 @@
       "action": "Import-Konventionen in docs/adr/ADR-040-gerichtete-abhaengigkeiten.md weiter präzisieren",
       "priority": "low",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Import-Konventionen in docs/adr/ADR-040-gerichtete-abhaengigkeiten.md dokumentiert"
     },
     {
       "id": "N-14-01",
@@ -350,7 +357,8 @@
       "action": "Community-Muster in docs/adr/ dokumentieren",
       "priority": "low",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Community-Benchmark in docs/adr/ADR-019-community-flakes-benchmark.md dokumentiert"
     },
     {
       "id": "N-20-01",
@@ -450,9 +458,10 @@
       "id": "N-27-02",
       "block_id": "27-caddy-plugin-replacements",
       "action": "caddy-ratelimit durch nftables ersetzen",
-      "priority": "low",
+      "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "still-open",
+      "note": "nftables-Rate-Limit ist Code, nicht Doku. Gehört in eigenes Paket"
     },
     {
       "id": "N-27-03",
