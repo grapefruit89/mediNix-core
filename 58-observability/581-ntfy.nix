@@ -39,7 +39,8 @@ let
       -H "Priority: high" \
       -H "Tags: warning,skull" \
       -d "Dienst $UNIT_NAME ist auf Host unerwartet abgestürzt!" \
-      "http://127.0.0.1:${toString port}/alerts" || true
+      --unix-socket "${reg.uds_path}" \
+      "http://localhost/alerts" || true
   '';
 in
 lib.mkMerge [
@@ -51,6 +52,7 @@ lib.mkMerge [
         Type = "oneshot";
         ExecStart = "${alertScript} %i";
         DynamicUser = true;
+        SupplementaryGroups = [ "ntfy" ];
         PrivateTmp = true;
       };
     };
@@ -86,7 +88,8 @@ lib.mkMerge [
     # UID = Port = 5810) und ProtectSystem = "full" erzwingt.
     environment.etc."ntfy/server.yml".source = (pkgs.formats.yaml { }).generate "ntfy-server.yml" {
       base-url = cfg.baseUrl;
-      listen-http = "127.0.0.1:${toString port}";
+      listen-http = "-";
+      listen-unix = reg.uds_path;
       cache-file = "${stateDir}/cache.db";
       attachment-cache-dir = "${stateDir}/attachments";
       auth-default-access = "read-write";
@@ -128,7 +131,12 @@ lib.mkMerge [
     name = "ntfy";
     ownsAccount = false;
     inherit uid stateDir;
-    execStart = "${pkgs.ntfy-sh}/bin/ntfy serve -c /etc/ntfy/server.yml";
+    execStart = "${pkgs.ntfy-sh}/bin/ntfy serve -c /etc/ntfy/server.yml --listen-unix-mode 0770";
     profile = "network";
+    extraConfig = {
+      RuntimeDirectory = "ntfy";
+      RuntimeDirectoryMode = "0770";
+      UMask = "0007";
+    };
   }))
 ]
