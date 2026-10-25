@@ -37,7 +37,11 @@ rec {
       ''
     else if provider == "host" then
       ''
+        # host provider: returns default gateway. Real WAN-IP comes from router-specific provider (T-26 speedport).
         ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
+        if [ -z "$ROUTER" ]; then
+          ROUTER=$(ip -4 route get 1.1.1.1 2>/dev/null | grep -oP '(?<=via )\S+' | head -n1)
+        fi
         if [ -z "$ROUTER" ]; then
           echo "FATAL: Could not determine default gateway." >&2
           exit 1
