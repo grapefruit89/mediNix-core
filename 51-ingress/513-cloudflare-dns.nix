@@ -42,7 +42,7 @@ let
   zone = if ddns.zone != null then ddns.zone else domain;
 
   ia = import ../lib/ingress-access.nix { inherit lib; };
-  wanIpLib = import ../lib/wan-ip-provider.nix { inherit lib; };
+  wanIpLib = import ../lib/wan-ip-provider.nix { inherit lib pkgs; };
   manifest = config.medinix.manifest or { };
 
   # EINE Aufloesung mit 511 (Rendering) und 518 (Tiles): der Vhost-Override
@@ -180,6 +180,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         unset TOKEN
 
         ${wanIpLib.mkWanIpProvider {
+          inherit pkgs;
           provider = ddns.wanIp.provider;
           command = ddns.wanIp.command;
         }}

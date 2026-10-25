@@ -908,6 +908,7 @@ in
               "host"
               "external"
               "command"
+              "speedport"
             ];
             default = "external";
             description = ''

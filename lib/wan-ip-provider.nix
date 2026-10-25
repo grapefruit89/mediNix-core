@@ -9,12 +9,13 @@
 # links:
 #   adr: ADR-513
 # ---
-{ lib }:
+{ lib, pkgs ? null }:
 rec {
   mkWanIpProvider =
     {
       provider ? "external",
       command ? null,
+      pkgs ? pkgs,
     }:
     if provider == "external" then
       ''
@@ -57,6 +58,51 @@ rec {
         ${lib.optionalString (command != null) command}
         if [ -z "''${WAN_IP:-}" ]; then
           echo "FATAL: Custom command did not set WAN_IP." >&2
+          exit 1
+        fi
+      ''
+    else if provider == "speedport" then
+      let
+        speedportApi = pkgs.callPackage ../pkgs/speedport-api { };
+        pythonEnv = pkgs.python312.withPackages (_: [ speedportApi ]);
+      in
+      ''
+        # speedport: WAN-IP via Speedport API (Python 3.12, public_ip_v4 synchron)
+        ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
+        if [ -z "$ROUTER" ]; then
+          ROUTER=$(ip -4 route get 1.1.1.1 2>/dev/null | grep -oP '(?<=via )\S+' | head -n1)
+        fi
+        if [ -z "$ROUTER" ]; then
+          echo "FATAL: Could not determine default gateway." >&2
+          exit 1
+        fi
+        PASSWORD_FILE="''${SPEEDPORT_PASSWORD_FILE:-/home/moritz/.secrets/speedport-password}"
+        if [ ! -r "$PASSWORD_FILE" ]; then
+          echo "FATAL: Speedport password file not readable: $PASSWORD_FILE" >&2
+          exit 1
+        fi
+        WAN_IP=$(${pythonEnv}/bin/python3 - "$ROUTER" "$PASSWORD_FILE" <<'PY'
+import asyncio, sys
+from pathlib import Path
+from speedport import Speedport
+
+async def main():
+    router, pw_file = sys.argv[1], Path(sys.argv[2])
+    pw = pw_file.read_text().strip()
+    async with Speedport(router, pw, pause_time=0) as sp:
+        await sp.login()
+        await sp.update_ip_data()
+        print(sp.public_ip_v4)
+
+asyncio.run(main())
+PY
+)
+        if [ -z "$WAN_IP" ]; then
+          echo "FATAL: Could not determine WAN IP from Speedport." >&2
+          exit 1
+        fi
+        if ! printf '%s' "$WAN_IP" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+          echo "FATAL: Speedport WAN IP is not a valid IPv4: '$WAN_IP'" >&2
           exit 1
         fi
       ''
