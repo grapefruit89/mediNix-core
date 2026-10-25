@@ -48,6 +48,7 @@ rec {
     caddy = mkService "caddy" 511 "network" "none";
     pocket-id = mkService "pocket-id" 512 "network" "public";
     cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
+    blocky = mkNoPortWithUnit "blocky" 515 "network" "none" "blocky";
     crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";
     oauth2-proxy = mkService "oauth2-proxy" 517 "network" "none";
 
