@@ -42,6 +42,7 @@ let
   zone = if ddns.zone != null then ddns.zone else domain;
 
   ia = import ../lib/ingress-access.nix { inherit lib; };
+  wanIpLib = import ../lib/wan-ip-provider.nix { inherit lib; };
   manifest = config.medinix.manifest or { };
 
   # EINE Aufloesung mit 511 (Rendering) und 518 (Tiles): der Vhost-Override
@@ -132,7 +133,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       };
     })
     {
-      description = "mediNix-core 513 anchor DDNS (wan + lan, wildcard → wan)";
+      description = "mediNix-core 513 anchor DDNS (wan, wildcard → wan)";
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
@@ -174,45 +175,11 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         AUTH=(--variable token@"$RUNTIME_DIRECTORY/cf-token" --expand-header "Authorization: Bearer {{token:trim}}")
         unset TOKEN
 
-        # RT-4: third-party echo services are a trusted NETWORK, not trusted
-        # DATA. Any 200-body (error page, captive portal, garbage) must never
-        # reach the Cloudflare API — validate the format before using it.
-        # Jeder Versuch wird EINZELN validiert. Vorher lief
-        # `curl … --fail-with-body A || curl … --fail-with-body B` in einer
-        # Command-Substitution: `--fail-with-body` schreibt den Fehler-Body
-        # trotzdem auf stdout, also hing bei einem HTTP-Fehler (429, Captive
-        # Portal) der Body VOR der IP des Fallbacks. Das Format-Gate brach dann
-        # ab, obwohl der zweite Dienst funktioniert haette — der Fallback griff
-        # nur bei Verbindungsfehlern. Ref: Review 2026-10-17, Finding 16.
-        WAN_IP=""
-        for url in https://ifconfig.me https://api.ipify.org; do
-          candidate=$(curl -s4 --fail-with-body "$url" || true)
-          if printf '%s' "$candidate" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
-            WAN_IP="$candidate"
-            break
-          fi
-          echo "  WAN IP via $url unusable: '$(printf '%s' "$candidate" | head -c 40)'" >&2
-        done
-        if [ -z "$WAN_IP" ]; then
-          echo "FATAL: Could not determine WAN IP." >&2
-          exit 1
-        fi
-        LAN_IP=$(ip -4 route get 1.1.1.1 2>/dev/null \
-          | awk '{ for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit } }')
-        if [ -z "$LAN_IP" ]; then
-          LAN_IP=$(ip -4 -o addr show scope global \
-            | awk '{ split($4, a, "/"); print a[1]; exit }')
-        fi
-        if [ -z "$LAN_IP" ]; then
-          echo "FATAL: Could not determine LAN IP." >&2
-          exit 1
-        fi
-        if ! printf '%s' "$LAN_IP" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
-          echo "FATAL: LAN_IP is not a valid IPv4: '$LAN_IP'" >&2
-          exit 1
-        fi
+        ${wanIpLib.mkWanIpProvider {
+          provider = ddns.wanIp.provider or "external";
+          command = ddns.wanIp.command or null;
+        }}
         echo "Detected WAN IP: $WAN_IP"
-        echo "Detected LAN IP: $LAN_IP"
 
         ZONE_ID=$(curl -s --fail-with-body "''${AUTH[@]}" -X GET "https://api.cloudflare.com/client/v4/zones?name=$ZONE" \
           -H "Content-Type: application/json" | jq -e -r 'if .success then .result[0].id else empty end')
@@ -309,18 +276,6 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         }
 
         update_record "wan.$ZONE" "A" "$WAN_IP"
-        # RT-4: lan.{zone} publishes a private RFC1918 address to PUBLIC DNS —
-        # recon gold for attackers, zero external benefit (split-DNS is
-        # host-side, ADR-5115). Opt-in via dns.ddns.publishLanRecord; when
-        # off, actively remove leftovers from earlier runs (self-healing).
-        ${lib.optionalString ddns.publishLanRecord ''
-          update_record "lan.$ZONE" "A" "$LAN_IP"
-        ''}${
-          lib.optionalString (!ddns.publishLanRecord) ''
-            echo "  lan record: publishLanRecord=false — pruning public RFC1918 leftovers"
-            prune_label "lan.$ZONE"
-          ''
-        }
         # RT-8: a wildcard covers exactly ONE label below the zone. With
         # domain != zone (e.g. home.example.com under example.com) the service
         # FQDNs {label}.{domain} are NOT covered by *.{zone} — split-DNS stays
@@ -334,8 +289,8 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
           prune_label "$n"
         done
 
-        jq -n --arg wan "$WAN_IP" --arg lan "$LAN_IP" --arg schema "$SCHEMA" \
-          '{wan:$wan,lan:$lan,schema:$schema}' > "$STATE_FILE"
+        jq -n --arg wan "$WAN_IP" --arg schema "$SCHEMA" \
+          '{wan:$wan,schema:$schema}' > "$STATE_FILE"
 
         echo "DDNS anchor sync completed (schema $SCHEMA)."
       '';
