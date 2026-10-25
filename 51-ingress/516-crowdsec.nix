@@ -145,7 +145,7 @@ in
         enable = true;
         # Collection = Caddy-Parser + base-http-scenarios (Hub: crowdsecurity/caddy).
         hub.collections = [ "crowdsecurity/caddy" ];
-        localConfig = {
+        settings = {
           acquisitions = [
             {
               source = "journalctl";
@@ -180,6 +180,9 @@ in
         hardeningOnly = true;
         extraConfig = {
           ReadWritePaths = [ "/var/lib/crowdsec" ];
+          ProtectControlGroups = lib.mkForce "strict";
+          ProtectHostname = lib.mkForce "true:${config.services.crowdsec.name}";
+          ProtectKernelLogs = lib.mkForce false;
         };
       };
 
