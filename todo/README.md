@@ -180,6 +180,13 @@ korrigiert (`[72..79]` statt `[73..80]`).
   - [ ] Keine Secrets in der JSON.
   - [ ] plan.json ist valide JSON.
 
+  ## Verbindliche Agenten-Regeln (Quelle: blocks/16-agent-error-taxonomy.json)
+  1. **Gate berechnet ≠ Gate erzwungen:** Kein Git-Commit bei rotem Eval oder fehlschlagendem Gate — auch wenn „nur Doku" geändert wurde.
+  2. **Keine Spekulation bei Tool-Aufrufen:** Attributpfade, Optionen und Typen vorab gegen `nix eval` oder `options.json` validieren, nicht aus dem Gedächtnis.
+  3. **Pipes & Exit-Codes absichern:** In Shell-Pipes `set -o pipefail` erzwingen; Exit-Codes vor Folgeaktionen explizit prüfen. Trailing-Commas ausschließen.
+  4. **Scheiben-Messen vermeiden:** Mehrere unabhängige Statusabfragen in einem Lauf bündeln (`sys-triage`, multi-path Checks), nicht sequenziell tröpfeln.
+  5. **Plan vor Code-Änderung:** Vor Code-Änderungen Plan zeigen (Freshness Gate + erwartete Konflikte).
+
   ## Startbefehl
   Lies /home/moritz/repos/mediNix-core/todo/README.md und
   /home/moritz/repos/mediNix-core/todo/schema.json.

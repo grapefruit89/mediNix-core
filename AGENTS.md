@@ -29,6 +29,12 @@
    - **CI-Beweis statt -Behauptung:** „grün" nur nach Zählung **aller** Workflows des Head-SHA (`gh run list --limit 12 --json name,conclusion,headSha`).
    - **Deklariert ≠ wirkt:** jede Option/jedes Feld braucht einen **Leser** (`grep -rn "<name>" --include=*.nix .`).
    - **Absicht vor Konsistenz:** ein Review-/Subagent-Befund ist Rohmaterial, kein Auftrag — der Fix darf **kein laufendes Feature abschalten** (Default umlegen, Paket-Flag überschreiben).
+8. **Agenten-Fehler-Taxonomie & Selbstkorrektur (Quelle: `todo/blocks/16-agent-error-taxonomy.json`):**
+   - **Gate berechnet ≠ Gate erzwungen:** Kein Git-Commit bei rotem Eval oder fehlschlagendem Gate — ausnahmslos, auch wenn „nur Doku" geändert wurde.
+   - **Keine Spekulation bei Tool-Aufrufen:** Attributpfade, Optionen und Typen vorab gegen `nix eval` oder `options.json` validieren, niemals aus dem Modellgedächtnis raten.
+   - **Pipes & Exit-Codes absichern:** In Shell-Pipes `set -o pipefail` erzwingen; Exit-Codes vor Folgeaktionen explizit prüfen. Trailing-Commas in JSON/Nix ausschließen.
+   - **Scheiben-Messen vermeiden:** Mehrere unabhängige Statusabfragen in einem Lauf bündeln (`sys-triage`, multi-path Checks), nicht sequenziell in Einzel-Calls tröpfeln.
+   - **Plan vor Code-Änderung:** Vor Code-Änderungen Plan zeigen (Freshness Gate, erwartete Konflikte, saubere Stoppbedingungen).
 
 ---
 

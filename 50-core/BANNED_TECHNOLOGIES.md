@@ -44,6 +44,9 @@ Diese beiden Namen stehen bewusst **nicht** in den Mustern des Checks und werden
 | **`nginx` / `Traefik`** | `Caddy` | We have exactly ONE reverse proxy instance (Caddy). Adding another Ingress layer breaks architectural purity. |
 | **Postgres / MySQL** (Default) | `SQLite` + WAL | For a homelab, heavy DB servers per service are pure overhead. If a service supports SQLite natively, it MUST be used over a heavy relational DB. |
 | **App Auto-Updaters** | `nixpkgs` | Built-in self-updaters break declarative reproducibility. Versioning must strictly happen via Nix flake pinning. |
+| **`caddy-tarpit`** | `CrowdSec`-Ban + `nftables` DROP | Nicht kernel-nah, App-Layer-Tarpit; Scan-Abwehr via CrowdSec-Ban + nftables DROP. |
+| **`caddy-defender`** | `CrowdSec` + `nftables` | Tarpit-Logik, nicht kernel-nah. |
+| **`cerberus`** | `nftables` | Honeypot, nicht kernel-nah. |
 
 ## 2. Identity Provider (IdP)
 

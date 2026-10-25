@@ -36,7 +36,7 @@
     "done_count": 4,
     "priority_summary": {
       "done": {
-        "high": 10,
+        "high": 12,
         "medium": 7,
         "low": 8
       },
@@ -51,7 +51,7 @@
         "low": 0
       },
       "still-open": {
-        "high": 3,
+        "high": 1,
         "medium": 8,
         "low": 4
       },
@@ -61,12 +61,12 @@
         "low": 12
       }
     },
-    "reconciled_at": "2026-10-25T23:11:51.888873+00:00",
+    "reconciled_at": "2026-10-25T23:14:33.737620+00:00",
     "status_counts": {
-      "done": 25,
+      "done": 27,
       "partially-done": 0,
       "test-later": 1,
-      "still-open": 15
+      "still-open": 13
     }
   },
   "todos": [
@@ -325,7 +325,8 @@
       "action": "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren",
       "priority": "high",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Gegenmaßnahmen aus 16-agent-error-taxonomy in AGENTS.md und todo/README.md integriert"
     },
     {
       "id": "N-17-01",
@@ -459,7 +460,8 @@
       "action": "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)",
       "priority": "high",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "caddy-tarpit, caddy-defender und cerberus in 50-core/BANNED_TECHNOLOGIES.md gebannt"
     }
   ]
 }
