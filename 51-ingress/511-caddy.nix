@@ -24,6 +24,7 @@ let
   domain = cfg.host.domain;
   df = import ../lib/derive.nix;
   ia = import ../lib/ingress-access.nix { inherit lib; };
+  registry = (import ../lib/registry.nix { inherit lib; }).services;
 
   # Global (Host-Caddy) oder standalone (caddy-media)? Die Logik lebt in
   # lib/ingress-access.nix, weil 516 daraus die Journal-Unit ableitet.
@@ -218,6 +219,12 @@ let
         }
       '';
       customConfig = m.customConfig or "";
+      svc = registry.${name} or { };
+      upstream =
+        if (svc.uds_socket or false) then
+          "unix/${svc.uds_path}"
+        else
+          "http://127.0.0.1:${toString m.port}";
     in
     ''
       ${lib.optionalString (!isStream) "encode zstd gzip"}
@@ -227,7 +234,7 @@ let
         ${lib.optionalString isLocal lanAbort}
         ${authBlock}
         ${customConfig}
-        reverse_proxy http://127.0.0.1:${toString m.port} {
+        reverse_proxy ${upstream} {
           header_up X-Real-IP {client_ip}
           header_up X-Forwarded-For {client_ip}
           header_up X-Forwarded-Proto {scheme}
