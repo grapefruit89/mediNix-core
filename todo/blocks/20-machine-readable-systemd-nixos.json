@@ -1,0 +1,93 @@
+{
+  "block_id": "20-machine-readable-systemd-nixos",
+  "title": "Maschinenlesbare Systemd- & NixOS-Schnittstellen für AI-Agenten",
+  "topics": [
+    "machine-readable-systemd-nixos"
+  ],
+  "message_ids": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    38,
+    39,
+    40,
+    41
+  ],
+  "summary": "Identifiziert und kuratiert maschinenlesbare Schnittstellen für Systemd und NixOS zur Elimination von LLM-Halluzinationen. Durch die Abfrage von D-Bus (org.freedesktop.systemd1), nixpkgs options.json und systemd-analyze Security-Scoring erhalten Agenten deterministische Wahrheiten über Direktiven, Datentypen und Sicherheitslevel. Dies beschleunigt die Modulerstellung und schützt vor erfundenen Optionen.",
+  "decisions": [
+    {
+      "id": "D-20-01",
+      "statement": "Maschinenlesbare D-Bus-Schnittstelle (org.freedesktop.systemd1) und systemd-analyze als primäre Validierungsquellen für Agenten festlegen.",
+      "status": "decided",
+      "rationale": "Erlaubt Agenten die exakte Inspektion von Unit-Zuständen, Direktiven und Security-Scores zur Laufzeit ohne unzuverlässiges Text-Parsing.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Präzise strukturierte Antworten",
+          "Zero-Halluzination bei Unit-Optionen"
+        ],
+        "con": [
+          "Erfordert D-Bus-Zugriff zur Laufzeit"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        30,
+        31,
+        34,
+        35
+      ]
+    },
+    {
+      "id": "D-20-02",
+      "statement": "NixOS options.json und CLI-Tools ('nixos-option', 'nix eval --json') als verbindliche Optionen-Referenz vor Code-Edits vorschreiben.",
+      "status": "decided",
+      "rationale": "Verhindert, dass Agenten nicht existierende Optionen erfinden (wie z. B. 'networking.iproute2') oder falsche Attributpfade raten.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Verhindert fehlschlagende Build-Versuche",
+          "Schnelle Freshness-Gates"
+        ],
+        "con": [
+          "Minimale Eval-Latenz vor dem Editieren"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        38,
+        39,
+        40,
+        41
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [
+    {
+      "idea": "Agenten-Wissen rein aus dem Modellgedächtnis ohne statische Optionen-Validierung nutzen",
+      "reason": "Führt bei sich schnell ändernden nixpkgs-Optionen zwangsläufig zu Halluzinationen und Fehlbuilds.",
+      "source_message_ids": [
+        38,
+        39
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-20-01",
+      "action": "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

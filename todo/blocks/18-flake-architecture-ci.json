@@ -1,0 +1,115 @@
+{
+  "block_id": "18-flake-architecture-ci",
+  "title": "Flake-Architektur, Input-Pinning & CI-Check-Optimierung",
+  "topics": [
+    "flake-architecture-ci"
+  ],
+  "message_ids": [
+    24,
+    25,
+    36,
+    37,
+    64,
+    65
+  ],
+  "summary": "Strukturiert die Flake-Outputs und die CI-Pipeline zur Beschleunigung der Entwicklungszyklen. Führt treefmt.nix für eine konsistente, reproduzierbare Formatierung ein und entkoppelt langwierige QEMU-VM-Smoke-Tests (10–20 Minuten) aus der interaktiven Agenten-Schleife hin zu asynchronen CI-Läufen. Die bestehenden 47 Flake-Checks und Negative-Fixtures werden gezielt in schnelle Evaluierungs-Gates und nachgelagerte Derivations-Builds aufgeteilt.",
+  "decisions": [
+    {
+      "id": "D-18-01",
+      "statement": "treefmt.nix zur Vereinheitlichung aller Formatierungswerkzeuge im Flake integrieren.",
+      "status": "decided",
+      "rationale": "Garantiert identische Formatierung (Nix, JSON, Markdown) lokal und in CI; verhindert Diff-Konflikte und Version-Mismatches (z. B. PATH-nixfmt vs. CI-Pin).",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Einheitlicher Befehl 'nix fmt'",
+          "Präzise gepinnte Tool-Versionen"
+        ],
+        "con": [
+          "Zusätzlicher Flake-Input für treefmt-nix"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "D-18-02",
+      "statement": "Schwere QEMU-VM-Tests aus der interaktiven Agenten-Schleife in asynchrone CI-Gates auslagern.",
+      "status": "decided",
+      "rationale": "VM-Boot-Tests dauern 10–20 Minuten und führten wiederkehrend zu Agenten-Timeouts; lokale Schleifen nutzen schnelle eval- und syntax-Checks ('--no-build').",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Sekundenschnelle lokale Iterationszyklen",
+          "Keine blockierten Agenten-Sessions"
+        ],
+        "con": [
+          "Vollständige Laufzeit-Regressionstests erst nach CI-Push sichtbar"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        24,
+        25,
+        65
+      ]
+    },
+    {
+      "id": "D-18-03",
+      "statement": "Strikte Trennung von schnellen Eval-Checks (L1) und Derivations-Builds (L2) in checks.<system>.",
+      "status": "decided",
+      "rationale": "Erlaubt gezielte 'nix flake check --no-build'-Validierung für 80% aller Konfigurationsänderungen ohne Erstellung unzähliger Store-Pfade.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Minimale Ressourcennutzung beim Entwickeln",
+          "Sofortige Fehlererkennung bei Assertion-Verletzungen"
+        ],
+        "con": [
+          "Build-Fehler in Paket-Derivationen werden erst beim Bau erkannt"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "status": "exists",
+          "current_state": "checks enthält gemischte Eval- und Build-Derivationen",
+          "proposed_change": "Aufteilung und treefmt-Integration strukturieren"
+        }
+      ],
+      "source_message_ids": [
+        25,
+        36,
+        37
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [
+    {
+      "idea": "Vollständigen QEMU-VM-Boot bei jedem interaktiven Edit-Schritt erzwingen",
+      "reason": "Blockiert die Agenten-Ausführung für bis zu 20 Minuten und verbraucht massiv CPU/Token ohne Mehrwert bei reinen Doku- oder Optionsänderungen.",
+      "source_message_ids": [
+        25,
+        65
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-18-01",
+      "action": "CI-Check-Bündelung + QEMU-Entkopplung",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

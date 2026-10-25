@@ -1,0 +1,102 @@
+{
+  "block_id": "17-manifest-service-contract",
+  "title": "Manifest-Architektur & SSoT Service-Contract mit Schema-Versionierung",
+  "topics": [
+    "manifest-service-contract"
+  ],
+  "message_ids": [
+    24,
+    25,
+    64,
+    65
+  ],
+  "summary": "Etabliert ein zentrales SSoT-Servicemanifest in lib/manifest.nix mit formaler Schema-Versionierung zur Vermeidung von Breaking Changes zwischen mediNix-Core und Host-Konfigurationen. Jeder Dienst deklariert standardisierte Attribute wie Name, Port/UID-Nummer, AccessGroup (stream, internal, public, idp, none), HealthPath, Backup-Pfade und VPN-Killswitch-Bedarf. Aus diesem typisierten Manifest leiten Ingress (Caddy), Observability (Gatus) und Backup (Restic) ihre Konfigurationen vollautomatisch und fehlertolerant ab.",
+  "decisions": [
+    {
+      "id": "D-17-01",
+      "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
+      "status": "decided",
+      "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Einheitliche Deklaration aller Dienste",
+          "Kein Verdriften von Ports, Pfaden oder Zugriffsgruppen"
+        ],
+        "con": [
+          "Erfordert Migration bestehender vHost-Deklarationen"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/manifest.nix",
+          "status": "missing",
+          "current_state": "Manifest existiert als ad-hoc Attributset in 511-caddy.nix",
+          "proposed_change": "Formales Schema mit Schema-Versionierung in lib/manifest.nix anlegen"
+        }
+      ],
+      "source_message_ids": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "D-17-02",
+      "statement": "Schema-Versionierung für das Manifest etablieren (schema_version = 1).",
+      "status": "decided",
+      "rationale": "Verhindert Inkompatibilitäten und subtile Fehlkonfigurationen bei zukünftigen Erweiterungen des Manifest-Schemas auf Host-Ebene.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Explizite API-Stabilität",
+          "Fail-closed bei inkompatibler Host-Konfiguration"
+        ],
+        "con": [
+          "Versionierungs-Overhead bei Schema-Änderungen"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        64,
+        65
+      ]
+    },
+    {
+      "id": "D-17-03",
+      "statement": "Standardisierte Pflichtfelder pro Dienst definieren (name, num, accessGroup, healthPath, backupPaths, needsVpn).",
+      "status": "decided",
+      "rationale": "Ermöglicht statische Typprüfung und automatische Generierung von Caddy-Vhosts, Gatus-Endpoints und Restic-Jobs ohne Duplizierung.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Hohe Automatisierungsgüte",
+          "Compile-time-Validierung über Assertions"
+        ],
+        "con": [
+          "Alle Dienste müssen die Attribute vollständig pflegen"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        25,
+        65
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-17-01",
+      "action": "Manifest-Schema als lib/manifest.nix formalisieren",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "block_id": "21-observability-automation",
+  "title": "Observability-Automation: Gatus-Healthchecks & VPN-Laufzeit-Selftest",
+  "topics": [
+    "observability-automation"
+  ],
+  "message_ids": [
+    24,
+    25,
+    28,
+    29,
+    64,
+    65
+  ],
+  "summary": "Konzipiert die automatisierte Observability-Pipeline in Domain 58. Generiert Gatus-Healthchecks (582) vollautomatisch aus den im Manifest deklarierten Vhosts und Endpunkten. Etabliert feste, kollisionsfreie Portbänder für Exportarr-Metriken (5850 ff.) und führt einen eigenständigen VPN-Laufzeit-Selftest (586-vpn-selftest.nix) ein, der die Killswitch-Funktion durch gezielte WAN- und DNS-Probes periodisch verifiziert.",
+  "decisions": [
+    {
+      "id": "D-21-01",
+      "statement": "Gatus-Healthcheck-Konfiguration (582-gatus.nix) automatisch aus dem zentralen Service-Manifest ableiten.",
+      "status": "decided",
+      "rationale": "Verhindert, dass neue Dienste manuell in Gatus nachgetragen werden müssen; jeder aktive Vhost mit healthPath erhält sofort Monitoring.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Zero-Maintenance-Monitoring bei Dienstaktivierung",
+          "Konsistente Namensgebung"
+        ],
+        "con": [
+          "healthPath muss im Manifest gepflegt sein"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/58-observability/582-gatus.nix",
+          "status": "exists",
+          "current_state": "Pflegt Endpunkte statisch",
+          "proposed_change": "Dynamische Generierung aus config.medinix.manifest einbinden"
+        }
+      ],
+      "source_message_ids": [
+        25,
+        28,
+        29
+      ]
+    },
+    {
+      "id": "D-21-02",
+      "statement": "Exportarr-Instanzen in ein festes, abgeleitetes Portband (5850 ff.) innerhalb der Observability-Dekade 58 einbinden.",
+      "status": "decided",
+      "rationale": "Hält das Prinzip des Dezimalrahmens ein, wonach Metrik-Exporter in Domain 58 (Observability) liegen und keine Acquisition-Ports belegen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Klare Port-Hierarchie",
+          "Trennung von Dienst-Traffic und Metrik-Scraping"
+        ],
+        "con": [
+          "Konfiguration erfordert Zuordnung in 585"
+        ]
+      },
+      "code_refs": [],
+      "source_message_ids": [
+        25,
+        65
+      ]
+    },
+    {
+      "id": "D-21-03",
+      "statement": "Eigenständigen VPN-Laufzeit-Selftest (586-vpn-selftest.nix) zur Validierung des Killswitches implementieren.",
+      "status": "decided",
+      "rationale": "Eine statische nftables-Regel schützt nicht vor Fehlern im IP-Routing zur Laufzeit; 586 prüft periodisch via Ping/DNS unter der VPN-UID, dass kein Traffic leckt.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Laufzeit-Verifikation des Fail-Closed-Verhaltens",
+          "Sofortige Alarmierung bei Leaks"
+        ],
+        "con": [
+          "Zusätzliche systemd-Timer-Unit"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/58-observability/586-vpn-selftest.nix",
+          "status": "missing",
+          "current_state": "Nicht vorhanden",
+          "proposed_change": "Unit zur periodischen VPN-Routing-Prüfung erstellen"
+        }
+      ],
+      "source_message_ids": [
+        25,
+        65
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [],
+  "rejected": [
+    {
+      "idea": "Gatus-Monitoring-Endpunkte manuell und hardcodiert in 582-gatus.nix pflegen",
+      "reason": "Führt zu sofortiger Dokumentations- und Monitoring-Drift, wenn Dienste umbenannt oder deaktiviert werden.",
+      "source_message_ids": [
+        25,
+        29
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-21-01",
+      "action": "Gatus-Healthcheck-Generierung aus Manifest implementieren",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-21-02",
+      "action": "586-vpn-selftest.nix anlegen",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": false,
+    "generated_by": "phase-1"
+  }
+}
