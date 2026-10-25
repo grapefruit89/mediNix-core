@@ -49,7 +49,7 @@ let
     // {
       uds_socket = true;
       uds_path = "/run/${name}/${name}.sock";
-      port = null;
+      # port NICHT überschreiben — bleibt number * 10
     };
 in
 rec {

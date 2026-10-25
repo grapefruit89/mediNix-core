@@ -162,7 +162,6 @@ in
 
     # ADR-0000: eine Quelle fuer Port/UID (Registry), nichts hartkodiert.
     users.users.oauth2-proxy.uid = svc.uid;
-    users.users.caddy.extraGroups = [ "oauth2-proxy" ];
 
     # F19: kein manueller Spiegel mehr. Wer 517 einschaltet, hat einen
     # Auth-Proxy, und 511 zeigt automatisch auf ihn - beides mkDefault, der Host
