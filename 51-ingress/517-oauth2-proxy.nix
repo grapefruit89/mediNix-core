@@ -15,7 +15,7 @@
 # upstream_github: "https://github.com/oauth2-proxy/oauth2-proxy"
 # nixpkgs_attr: "services.oauth2-proxy"
 # state_dir: "/var/lib/oauth2-proxy"
-# uds_socket: false
+# uds_socket: true
 # systemd_hardened: true
 # adr: ADR-517
 # links:
@@ -55,7 +55,7 @@ in
         Forward-Auth-Proxy starten. Wer ihn einschaltet, verdrahtet 511
         mit: `authProxyPresent` wird wahr und
         `ingress.auth.forwardAuthUpstream` defaultet auf
-        `http://127.0.0.1:${toString svc.port}` (ADR-517).
+        `unix//run/oauth2-proxy/oauth2-proxy.sock` (ADR-517).
       '';
     };
     oidcIssuerUrl = lib.mkOption {
@@ -123,7 +123,7 @@ in
       enable = true;
       provider = "oidc";
       inherit (oa) clientID oidcIssuerUrl;
-      httpAddress = "http://127.0.0.1:${toString svc.port}";
+      httpAddress = "unix:///run/oauth2-proxy/oauth2-proxy.sock";
       # 511 setzt die X-Forwarded-*-Header; ohne reverseProxy verwirft der
       # Proxy sie, ohne setXauthrequest sieht der Dienst keinen Benutzer.
       reverseProxy = true;
@@ -141,6 +141,9 @@ in
     };
 
     systemd.services.oauth2-proxy.serviceConfig = {
+      RuntimeDirectory = "oauth2-proxy";
+      RuntimeDirectoryMode = "0770";
+      SupplementaryGroups = [ "caddy" ];
       LoadCredentialEncrypted = [
         "client-secret:${oa.clientSecretCredential}"
         "cookie-secret:${oa.cookieSecretCredential}"
@@ -158,11 +161,12 @@ in
 
     # ADR-0000: eine Quelle fuer Port/UID (Registry), nichts hartkodiert.
     users.users.oauth2-proxy.uid = svc.uid;
+    users.groups.caddy = { };
 
     # F19: kein manueller Spiegel mehr. Wer 517 einschaltet, hat einen
     # Auth-Proxy, und 511 zeigt automatisch auf ihn - beides mkDefault, der Host
     # kann (z. B. auf einen externen Proxy) ueberschreiben.
     medinix.authProxyPresent = lib.mkDefault true;
-    medinix.ingress.auth.forwardAuthUpstream = lib.mkDefault "http://127.0.0.1:${toString svc.port}";
+    medinix.ingress.auth.forwardAuthUpstream = lib.mkDefault "unix//run/oauth2-proxy/oauth2-proxy.sock";
   };
 }

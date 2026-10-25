@@ -193,6 +193,7 @@ let
       '';
       authBlock = lib.optionalString needsAuth ''
         ${skipMatcher}
+        # forward_auth upstream: unix//run/oauth2-proxy/oauth2-proxy.sock (UDS) or http://...
         forward_auth ${lib.optionalString (skipPaths != [ ]) "@needAuth "}${ing.auth.forwardAuthUpstream} {
           uri ${ing.auth.forwardAuthUri}
           copy_headers Remote-User Remote-Email Remote-Groups \
