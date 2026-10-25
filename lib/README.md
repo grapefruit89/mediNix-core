@@ -18,6 +18,7 @@ Zentraler Ordner für **Nix-Hilfsfunktionen und Engines**.
 | `creds.nix` | `{ lib }` | Pfadkonvention für Secrets | **5** |
 | `cli.nix` | `{ pkgs, registryJson, … }` | `packages.medinix` CLI | 2 |
 | `decimal-framework.nix` | `{ lib, config }` | Decimal-Engine (ADR-0000) | 1 |
+| `manifest.nix` | `{ lib }` | **SSoT**: Manifest-Schema v1 Helper (`mkManifestEntry`) | 1 |
 | `service-contract.nix` | `{ config, lib }` | **NixOS-Modul**: `medinix.manifest`-Schema + Assertions | 1 |
 | `smoke-test.nix` | `{ config, lib }` | **NixOS-Modul**: Eval-Smoke-Test | 1 |
 | `arr-provision/` | (Python-Paket) | `packages.arr-provision` | – |

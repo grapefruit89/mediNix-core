@@ -36,7 +36,7 @@
     "done_count": 4,
     "priority_summary": {
       "done": {
-        "high": 12,
+        "high": 13,
         "medium": 7,
         "low": 10
       },
@@ -56,7 +56,7 @@
         "low": 1
       },
       "still-open": {
-        "high": 1,
+        "high": 0,
         "medium": 9,
         "low": 0
       },
@@ -66,12 +66,12 @@
         "low": 11
       }
     },
-    "reconciled_at": "2026-10-25T23:37:30.308041+00:00",
+    "reconciled_at": "2026-10-25T23:46:21.374341+00:00",
     "status_counts": {
-      "done": 29,
+      "done": 30,
       "blocked": 1,
       "test-later": 1,
-      "still-open": 10
+      "still-open": 9
     }
   },
   "todos": [
@@ -341,7 +341,8 @@
       "action": "Manifest-Schema als lib/manifest.nix formalisieren",
       "priority": "high",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Manifest-Schema v1 und mkManifestEntry in lib/manifest.nix formalisiert"
     },
     {
       "id": "N-18-01",
