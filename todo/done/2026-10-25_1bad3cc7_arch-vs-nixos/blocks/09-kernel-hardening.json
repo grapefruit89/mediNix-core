@@ -1,0 +1,167 @@
+{
+  "block_id": "09-kernel-hardening",
+  "title": "Kernel-Hardening: Konsumer-Profile, Sysctl-Härtung & Keine Custom Patches",
+  "topics": [
+    "kernel-hardening",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    98,
+    99,
+    100,
+    101
+  ],
+  "summary": "Definiert den Kernel-Hardening-Ansatz für mediNix-core auf Konsumer-Hardware: Eigene Kernel-Patches oder manuelle Kernel-Kompilierungen werden explizit abgelehnt (Wartungsaufwand, Inkompatibilitäten). Stattdessen setzt das Projekt auf standardisierte NixOS-Mechanismen: `medinix.recommended.sysctl` (kptr_restrict, dmesg_restrict, kexec_load_disabled, yama.ptrace_scope), systemd-Sandbox-Direktiven (seccomp SystemCallFilter, ProtectSystem) und optional fertige Distribution-Kernel (pkgs.linuxPackages_hardened). Kernel-Blacklists verhindern das Laden veralteter oder riskanter Module.",
+  "decisions": [
+    {
+      "id": "D-09-01",
+      "statement": "Keine eigenen Kernel-Patches (`boot.kernelPatches`) kompilieren; stattdessen Standard-Kernel mit deklarativen Sysctl- und Modul-Härtungen nutzen.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Schnelle Updates via Binärcache ohne lokale Kernel-Kompilierung",
+          "Keine Pflege eigener C-Patches",
+          "Hohe Hardware-Kompatibilität"
+        ],
+        "con": [
+          "Keine experimentellen Kernel-Compiler-Flags (z.B. spezielle Clang-Sanitizer)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "status": "exists",
+          "current_state": "Definiert empfohlene Sysctl-Werte (kptr_restrict=2, dmesg_restrict=1, kexec_load_disabled=1, ptrace_scope=1).",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-5200-privesc-audit-hardening.md",
+          "status": "exists",
+          "current_state": "Dokumentiert Host-Baseline und Privesc-Härtung.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        100,
+        101
+      ]
+    },
+    {
+      "id": "D-09-02",
+      "statement": "Verteidigungsschichten über systemd-Sandboxing (seccomp, ProtectSystem, UPG) statt Kernel-Rekompilierung.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Granulare Isolation pro Dienst",
+          "Fehler in einem Dienst gefährden nicht den Host",
+          "Nativ in systemd ohne Performance-Verlust"
+        ],
+        "con": [
+          "Aufwändige Pflege von Hardening-Profilen bei neuen Diensten"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-5050-systemd-hardening-baseline.md",
+          "status": "exists",
+          "current_state": "Erzwingt die 5 Säulen des systemd-Hardenings.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/service-factory.nix",
+          "status": "exists",
+          "current_state": "Injiziert Profile (base, web, dotnet, nodejs) mit seccomp und systemd-Schutz.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        98,
+        99,
+        101
+      ]
+    },
+    {
+      "id": "D-09-03",
+      "statement": "Deklarative Kernel-Modul-Blacklist (`boot.blacklistedKernelModules`) und `security.lockKernelModules` gegen ungenutzte Angriffsflächen evaluieren.",
+      "status": "proposed",
+      "rationale": "Im Chat (Nachrichten 100–101) fragte der Nutzer explizit nach Kernel-Blacklisten für Consumer-/Homelab-Hardware. Obskure Netzwerkprotokolle (dccp, sctp, rds, tipc), veraltete Dateisysteme oder ungenutzte Peripherietreiber können deklarativ geblockt werden. `security.lockKernelModules = true` sperrt das Nachladen nach dem Boot.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Reduziert Kernel-Angriffsfläche ohne Rebuild des Kernels",
+          "Verhindert automatisches Laden angreifbarer Legacy-Protokolle",
+          "Kombinierbar mit Standard-Kernel"
+        ],
+        "con": [
+          "Kann Hardware-Hotplugging oder spezielle VPN-/Tunnelmodule blockieren, wenn nicht sorgfältig kuratiert"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "status": "exists",
+          "current_state": "Definiert medinix.recommended.sysctl, enthält aber noch keine Modul-Blacklist.",
+          "proposed_change": "Empfohlene Modul-Blacklist (z. B. medinix.recommended.blacklistedKernelModules) vorschlagen."
+        }
+      ],
+      "source_message_ids": [
+        100,
+        101
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-09-01",
+      "question": "Soll für den Host `pkgs.linuxPackages_hardened` evaluiert werden, oder führt das Deaktivieren von User-Namespaces (`allowUserNamespaces = false`) zu Inkompatibilitäten bei Containern/Flatpaks?",
+      "why_open": "Hardened-Kernel deaktiviert User-Namespaces standardmäßig, was Podman/Docker beeinträchtigen kann.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Manuelle Kernel-Patches für Homelab-Sicherheit kompilieren",
+      "to": "Standard-Kernel mit Sysctl-Parametern und systemd-Sandboxing reicht für Konsumer-Hardware völlig aus; Patches erzeugen unverhältnismäßigen Wartungsaufwand",
+      "source_message_ids": [
+        100,
+        101
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Eigene Kernel-Patches schreiben und Kernel selbst kompilieren",
+      "reason": "Zu hoher Wartungsaufwand, Verlust von Binärcaches, fragile Homelab-Wartung.",
+      "source_message_ids": [
+        100,
+        101
+      ]
+    },
+    {
+      "idea": "LKRG (Linux Kernel Runtime Guard) als Pflichtmodul erzwingen",
+      "reason": "Kann mit künftigen Kernel-Updates brechen und zu Boot-Hangs führen; für Consumer-Homelab zu instabil.",
+      "source_message_ids": [
+        99,
+        100,
+        101
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-09-01",
+      "action": "Kernel-Modul-Blacklist im Host-Layer (q958) gegen ungenutzte Filesysteme (cifs, firewire, etc.) prüfen",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

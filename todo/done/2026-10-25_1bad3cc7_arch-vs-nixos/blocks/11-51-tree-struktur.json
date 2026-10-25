@@ -1,0 +1,155 @@
+{
+  "block_id": "11-51-tree-struktur",
+  "title": "51-ingress Ordner-Restrukturierung: 515-blocky, 513-DDNS, Lib-Auslagerung",
+  "topics": [
+    "51-tree-struktur",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    106,
+    107,
+    108,
+    109,
+    110,
+    111
+  ],
+  "summary": "Definiert den bereinigten Zielbaum für den Ordner 51-ingress nach der Ausmusterung von Avahi/mDNS. Slot 515 wird für 515-blocky.nix (internes Split-DNS) nachgenutzt (UID 5150 via mkNoPortWithUnit, Port 53 manuell gesetzt). 513-cloudflare-dns.nix wird auf reines WAN-DDNS beschränkt (Entfall von publishLanRecord). Die WAN-IP-Ermittlung wird als lib/wan-ip-provider.nix ausgelagert. Das ACME DNS-01 Zertifikats-Handling und CrowdSec bleiben in ihren Dezimalslots erhalten.",
+  "decisions": [
+    {
+      "id": "D-11-01",
+      "statement": "Dezimal-Slot 515 für `515-blocky.nix` (internes Split-DNS) nachnutzen (UID 5150 via `mkNoPortWithUnit`, Port 53 manuell gesetzt).",
+      "status": "proposed",
+      "rationale": "mDNS (515-mdns.nix) ist tote Konfiguration und entfällt. Durch die Nachnutzung des Slots 515 für Blocky bleibt die dezimale Systematik der 51-Domäne (Access/Ingress) vollständig erhalten, ohne neue Fantasienummern einführen zu müssen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Behält den strengen Dezimalrahmen (51x für Ingress) bei",
+          "Nutzt freiwerdenden Slot 515 sinnvoll nach",
+          "Deterministische UID 5150 für den Blocky-Dienst"
+        ],
+        "con": [
+          "Port 53 kann wegen Privilegierung (<1024) nicht direkt als 5150 abgeleitet werden, sondern muss manuell deklariert werden"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "status": "exists",
+          "current_state": "515-mdns.nix deklariert Avahi und mDNS-Publishing.",
+          "proposed_change": "515-mdns.nix durch 515-blocky.nix ersetzen (UID 5150, Port 53, Split-DNS)."
+        }
+      ],
+      "source_message_ids": [
+        110,
+        111
+      ]
+    },
+    {
+      "id": "D-11-02",
+      "statement": "Vollständige Ausmusterung von `515-mdns.nix` (Avahi) aus dem 51-Ingress-Tree.",
+      "status": "decided",
+      "rationale": "Caddy rendert bereits keine `.local`-Sites mehr. Avahi verbraucht Ressourcen und leckt interne Hostnamen im LAN. DNS-basierte Namensauflösung via Blocky ist deterministischer und plattformübergreifend kompatibel.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Entfernt ungenutzte Hintergrunddienste (Avahi-Daemon)",
+          "Beseitigt mDNS-Multicast-Chatter im Heimnetz",
+          "Verhindert Verwirrung durch parallele .local-Domains"
+        ],
+        "con": [
+          "Erfordert funktionierenden Split-DNS-Server im LAN"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "status": "exists",
+          "current_state": "Modul existiert im Repository.",
+          "proposed_change": "Modul löschen bzw. durch Blocky ersetzen."
+        }
+      ],
+      "source_message_ids": [
+        106,
+        107,
+        110,
+        111
+      ]
+    },
+    {
+      "id": "D-11-03",
+      "statement": "`513-cloudflare-dns.nix` auf reines WAN-DDNS beschränken und Router-Abstraktion nach `lib/wan-ip-provider.nix` auslagern.",
+      "status": "proposed",
+      "rationale": "Das bisherige 513 vermischt WAN-DDNS, LAN-A-Records und HTTP-Echo-Abfragen. Die Trennung in reines WAN-DDNS und eine pure Router-Provider-Bibliothek erhöht die Wartbarkeit und verhindert Leaks privater IPs.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Single Responsibility Principle für 513",
+          "Keine RFC1918-Leaks mehr in öffentlichen Cloudflare-Zonen",
+          "Wiederverwendbare Provider-Bibliothek für unterschiedliche Router"
+        ],
+        "con": [
+          "Aufteilung in zwei Dateien statt eines monolithischen Skripts"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "Enthält LAN-Record-Logik und externe Web-Echo-Scripte.",
+          "proposed_change": "LAN-Publishing entfernen und WAN-IP-Ermittlung über Provider-Lib anbinden."
+        }
+      ],
+      "source_message_ids": [
+        108,
+        109,
+        110,
+        111
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-11-01",
+      "question": "Soll 513-cloudflare-dns.nix semantisch in 513-cloudflare-ddns.nix umbenannt werden, oder bleibt der Dateiname zur Vermeidung von Git-Historienbrüchen identisch?",
+      "why_open": "Umbenennung verdeutlicht die reine WAN-Rolle, erfordert aber Anpassung von Importen und Dokumentationen.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Blocky muss als 515 zwingend Port 5150 als DNS-Port binden",
+      "to": "Blocky nutzt UID 5150 aus dem Dezimalrahmen, bindet aber Port 53 via manueller Portzuweisung unter mkNoPortWithUnit",
+      "source_message_ids": [
+        111
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Neuen Dezimalslot wie 513b oder Sub-Nummern für WAN-Provider einführen",
+      "reason": "Verletzt die strikte 3-stellige Ganzzahl-Konvention des Dezimalrahmens (ADR-0000).",
+      "source_message_ids": [
+        111
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-11-01",
+      "action": "Strukturumbau in 51-ingress nach Freigabe vorbereiten (515-blocky.nix erstellen, 515-mdns.nix entfernen)",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-11-02",
+      "action": "lib/wan-ip-provider.nix erstellen und 513-cloudflare-dns.nix auf reines WAN-DDNS beschränken (LAN-Publishing entfernen)",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

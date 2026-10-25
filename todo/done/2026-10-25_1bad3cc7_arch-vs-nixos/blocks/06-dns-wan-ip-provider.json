@@ -1,0 +1,245 @@
+{
+  "block_id": "06-dns-wan-ip-provider",
+  "title": "DNS WAN-IP-Ermittlung, Router-Provider-Dispatch & RFC1918-Recon-Schutz",
+  "topics": [
+    "dns-wan-ip-provider",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    108,
+    109
+  ],
+  "summary": "Definiert die WAN- und LAN-IP-Ermittlung für Cloudflare DDNS (513) sowie den Schutz vor Reconnaissance. Externe Web-Echo-Dienste (ifconfig.me, ipify.org) sollen durch lokale Router-Abfragen (Speedport/Fritzbox) oder DNS-Resolver abgelöst werden. Die Router-IP darf nicht hartcodiert werden, sondern wird dynamisch als Default-Gateway ermittelt. Ein modularer Provider-Dispatch (types.enum) ermöglicht Router-Wechsel. publishLanRecord = false bleibt verbindlicher Standard, um RFC1918-Leaks in öffentlichem DNS (Recon-Gold) zu verhindern; interne Auflösung erfolgt strikt über Split-DNS.",
+  "decisions": [
+    {
+      "id": "D-06-01",
+      "statement": "WAN-IP-Ermittlung: Externe Echo-Dienste (ifconfig.me, ipify.org) durch lokalen Router-Dispatch oder DNS-Query ablösen.",
+      "status": "proposed",
+      "rationale": "Im Ist-Zustand nutzt 513-cloudflare-dns.nix externe HTTP-Echo-Dienste (https://ifconfig.me, https://api.ipify.org). Diese erzeugen Drittanbieter-Abhängigkeiten, lecken IP-Abfragen und sind instabil (Captive Portals, Rate-Limits). Die lokale Abfrage des Routers oder ein direkter DoH/DNS-Query ist privatsphäreschonender und robuster.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Keine Datenleaks an fremde Web-Dienste (ifconfig.me)",
+          "Unabhängig von HTTP-Rate-Limits externer Echo-Services",
+          "Schnellere und lokal auditierbare IP-Ermittlung"
+        ],
+        "con": [
+          "Erfordert router-spezifische Implementierung (Speedport/Fritzbox)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "Nutzt for url in https://ifconfig.me https://api.ipify.org (Zeilen 188–195).",
+          "proposed_change": "WAN_IP-Ermittlung auf modularen Provider-Dispatch (Router/DNS) umstellen. Speedport-Adapter: speedport-api public_ip_v4 via Default-Gateway."
+        }
+      ],
+      "source_message_ids": [
+        42,
+        43,
+        45,
+        108,
+        109
+      ]
+    },
+    {
+      "id": "D-06-02",
+      "statement": "Keine festen Router-IPs hardcodieren: Der Router wird zur Laufzeit dynamisch als Default-Gateway aus der Routing-Tabelle ermittelt.",
+      "status": "decided",
+      "rationale": "Ein Hardcodieren von 192.168.2.1 bricht sofort bei geändertem Subnetz oder Router-Tausch. Das Default-Gateway (ip route show default | awk '{print $3}') ist die einzige robuste Invariante für den Router-Zugriff.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Portabel über unterschiedliche IP-Bereiche und Subnetze",
+          "Keine Magic Numbers im Nix-Code",
+          "Übersteht Subnetzänderungen ohne Rebuild"
+        ],
+        "con": [
+          "Minimaler Shell-Aufruf zur Laufzeit nötig"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "LAN_IP wird dynamisch ermittelt (ip route get 1.1.1.1); Router-IP ist noch nicht als Gateway-Variable abstrahiert.",
+          "proposed_change": "ROUTER_IP aus Default-Gateway ableiten für lokale Router-Abfragen."
+        }
+      ],
+      "source_message_ids": [
+        48,
+        49
+      ]
+    },
+    {
+      "id": "D-06-03",
+      "statement": "publishLanRecord = false bleibt Standard: Keine RFC1918-Adressen in öffentlichem Cloudflare-DNS publizieren (Schutz vor Recon-Gold).",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Keine Preisgabe interner IP-Adressen an die Öffentlichkeit",
+          "Schutz vor DNS-Reconnaissance",
+          "Klare Trennung zwischen öffentlichem WAN-Anchor und lokalem DNS"
+        ],
+        "con": [
+          "LAN-Zugriff erfordert funktionierenden internen DNS-Resolver (Blocky)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "publishLanRecord ist optional und standardmäßig inaktiv.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-513-cloudflare-dns.md",
+          "status": "exists",
+          "current_state": "Dokumentiert gray-cloud DNS-only Architektur.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    },
+    {
+      "id": "D-06-04",
+      "statement": "Modularen Provider-Dispatch für DDNS via `types.enum` anbieten (z. B. Speedport, FritzBox, DNS/DoH, External).",
+      "status": "proposed",
+      "rationale": "Ermöglicht den nahtlosen Router-Wechsel (z. B. Speedport zu FritzBox) über eine deklarative NixOS-Option, ohne Skripte im Modul umschreiben zu müssen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Erweiterbare Architektur für verschiedene Router-Modelle",
+          "Deklarative Umschaltung via NixOS-Option",
+          "Fallback auf DoH/DNS wenn Router keine API bietet"
+        ],
+        "con": [
+          "Zusätzliche Optionen und Implementierungsaufwand für Adapter"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "status": "exists",
+          "current_state": "Feste for-Schleife mit ifconfig.me / ipify.org.",
+          "proposed_change": "Einführen von options.medinix.dns.ddns.wanIp.provider."
+        }
+      ],
+      "source_message_ids": [
+        50,
+        51
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-06-01",
+      "question": "Soll der Speedport Smart 4 WAN-IP-Abruf über UPnP/IGD oder über das Web-GUI-Engineering-Interface (speedport.ip / Status-JSON) erfolgen?",
+      "why_open": "Speedport bietet verschiedene Schnittstellen; UPnP ist oft standardmäßig im Router deaktiviert, Web-API benötigt ggf. Login-Handling.",
+      "blocking": false
+    },
+    {
+      "id": "Q-06-02",
+      "question": "Welche Berechtigung / Credentials benötigt der Router-Abruf, falls UPnP im Router deaktiviert ist?",
+      "why_open": "Falls Web-API nötig ist, muss das Router-Passwort via systemd-creds sicher bereitgestellt werden.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Router-IP fest auf 192.168.2.1 setzen",
+      "to": "Router-IP dynamisch aus dem Default-Gateway der Routing-Tabelle ermitteln (keine Hardcodierung von IP-Adressen)",
+      "source_message_ids": [
+        48,
+        49
+      ]
+    },
+    {
+      "from": "TR-064 SOAP-Calls für Speedport Smart 4 nutzen",
+      "to": "TR-064 ist für FritzBoxen; Speedport Smart 4 unterstützt TR-064 nicht oder nur eingeschränkt, nutzt stattdessen Web-API oder UPnP",
+      "source_message_ids": [
+        46,
+        47
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "TR-064 SOAP-Schnittstelle beim Speedport Smart 4 erzwingen",
+      "reason": "Speedport Smart 4 implementiert TR-064 nicht vollständig; führt zu fehlschlagenden SOAP-Requests.",
+      "source_message_ids": [
+        46,
+        47
+      ]
+    },
+    {
+      "idea": "Feste Router-IP 192.168.2.1 im NixOS-Modul hardcodieren",
+      "reason": "Verletzt das Portabilitäts- und SSoT-Prinzip; bricht sofort bei geändertem Subnetz.",
+      "source_message_ids": [
+        48,
+        49
+      ]
+    },
+    {
+      "idea": "RFC1918-IPs standardmäßig in öffentliche Cloudflare-DNS-Zone schreiben (publishLanRecord = true)",
+      "reason": "Leakt interne Netzwerk-Topologie öffentlich im Internet (Recon-Gold); interner Traffic gehört ins Split-DNS.",
+      "source_message_ids": [
+        26,
+        27
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-06-01",
+      "action": "In 513-cloudflare-dns.nix: WAN-IP-Ermittlung abstrahieren und Router-Gateway-Erkennung vorbereiten",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-06-02",
+      "action": "Speedport UPnP vs Web-API Abruf für WAN-IP testen und als Provider-Option modellieren",
+      "priority": "low",
+      "depends_on": [
+        "N-06-01"
+      ]
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

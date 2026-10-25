@@ -1,0 +1,1773 @@
+{
+  "meta": {
+    "generated_at": "2026-10-25T14:55:13.750629",
+    "source": "mediNix-core + registry.nix + nixpkgs + upstream",
+    "total_programs": 24,
+    "baseline_id": "2026-10",
+    "baseline_generated_at": "2026-10-25T14:30:34.795911+00:00",
+    "nixpkgs_rev": "ec2d622de0773551768cf98f3fc50cbcc003b9c5"
+  },
+  "programs": [
+    {
+      "id": "511",
+      "name": "Caddy",
+      "registry_num": 511,
+      "role": "Reverse Proxy & TLS-Terminierung",
+      "nixpkgs_attr": "pkgs.caddy",
+      "nixos_module": "services.caddy",
+      "links": {
+        "github": "https://github.com/caddyserver/caddy",
+        "docs": "https://caddyserver.com/docs/",
+        "api": "https://caddyserver.com/docs/api",
+        "context7": "https://context7.com/caddyserver/caddy"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "2.11.1",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "2.11.4",
+        "upstream_source": "https://api.github.com/repos/caddyserver/caddy/releases/latest",
+        "github_repo": "caddyserver/caddy",
+        "security_status": "vulnerable",
+        "security_cves": [
+          "CVE-2026-0354"
+        ]
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [
+            "CAP_NET_BIND_SERVICE"
+          ],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -900,
+          "cpu_weight": 400,
+          "io_weight": 200,
+          "memory_high": null,
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/caddy"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "51-ingress/511-caddy.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "access",
+      "tags": [
+        "ingress",
+        "tls",
+        "routing",
+        "http"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "516",
+      "name": "CrowdSec",
+      "registry_num": 516,
+      "role": "Edge-IPS & Bouncer-Engine",
+      "nixpkgs_attr": "pkgs.crowdsec",
+      "nixos_module": "services.crowdsec",
+      "links": {
+        "github": "https://github.com/crowdsecurity/crowdsec",
+        "docs": "https://docs.crowdsec.net/",
+        "api": "https://crowdsecurity.github.io/api_doc/",
+        "context7": "https://context7.com/crowdsecurity/crowdsec"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "1.7.2",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "1.7.8",
+        "upstream_source": "https://api.github.com/repos/crowdsecurity/crowdsec/releases/latest",
+        "github_repo": "crowdsecurity/crowdsec",
+        "security_status": "vulnerable",
+        "security_cves": [
+          "NIXPKGS-2026-2196"
+        ]
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/crowdsec/data/crowdsec.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-32000",
+            "mmap_size": "134217728",
+            "busy_timeout": "5000"
+          },
+          "source": "51-ingress/516-crowdsec.nix"
+        },
+        "hardening": {
+          "systemd_profile": "base",
+          "capabilities": [
+            "CAP_NET_ADMIN",
+            "CAP_NET_RAW"
+          ],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -500,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "512M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/etc/crowdsec",
+            "/var/lib/crowdsec/data"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/metrics",
+          "metrics": "prometheus",
+          "source": "51-ingress/516-crowdsec.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "access",
+      "tags": [
+        "security",
+        "ips",
+        "edge",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-blocky",
+      "name": "Blocky",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "DNS-Resolver / System-Daemon, nicht in registry.nix (nur Domain 50 Baseline)",
+      "role": "Interner DNS-Resolver & Split-DNS",
+      "nixpkgs_attr": "pkgs.blocky",
+      "nixos_module": "services.blocky",
+      "links": {
+        "github": "https://github.com/0xERR0R/blocky",
+        "docs": "https://0xerr0r.github.io/blocky/",
+        "api": "https://0xerr0r.github.io/blocky/latest/interfaces/",
+        "context7": "n/a"
+      },
+      "used_in": [],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "0.29.0",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "0.35.0",
+        "upstream_source": "https://api.github.com/repos/0xERR0R/blocky/releases/latest",
+        "github_repo": "0xERR0R/blocky",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [
+            "CAP_NET_BIND_SERVICE"
+          ],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -800,
+          "cpu_weight": 150,
+          "io_weight": 150,
+          "memory_high": "256M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/blocky"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/metrics",
+          "metrics": "prometheus",
+          "source": "unknown"
+        }
+      },
+      "used_in_planned": [
+        "/home/moritz/repos/mediNix-core/51-ingress/515-blocky.nix"
+      ],
+      "category": "access",
+      "tags": [
+        "dns",
+        "split-dns",
+        "filtering"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "512",
+      "name": "Pocket ID",
+      "registry_num": 512,
+      "role": "OIDC Identity Provider (Passkey-first)",
+      "nixpkgs_attr": "pkgs.pocket-id",
+      "nixos_module": "services.pocket-id",
+      "links": {
+        "github": "https://github.com/stonith404/pocket-id",
+        "docs": "https://pocket-id.org/docs/",
+        "api": "https://pocket-id.org/docs/api/",
+        "context7": "n/a"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/51-ingress/512-pocket-id.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "2.18.0",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "2.18.0",
+        "upstream_source": "https://api.github.com/repos/stonith404/pocket-id/releases/latest",
+        "github_repo": "stonith404/pocket-id",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/pocket-id/data/pocket-id.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "51-ingress/512-pocket-id.nix"
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -900,
+          "cpu_weight": 200,
+          "io_weight": 200,
+          "memory_high": "512M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/pocket-id/data"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/health",
+          "metrics": "none",
+          "source": "51-ingress/512-pocket-id.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "access",
+      "tags": [
+        "auth",
+        "oidc",
+        "identity",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "517",
+      "name": "oauth2-proxy",
+      "registry_num": 517,
+      "role": "Forward-Auth Bridge zum IdP",
+      "nixpkgs_attr": "pkgs.oauth2-proxy",
+      "nixos_module": "services.oauth2-proxy",
+      "links": {
+        "github": "https://github.com/oauth2-proxy/oauth2-proxy",
+        "docs": "https://oauth2-proxy.github.io/oauth2-proxy/",
+        "api": "n/a",
+        "context7": "https://context7.com/oauth2-proxy/oauth2-proxy"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/51-ingress/517-oauth2-proxy.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "7.8.1",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "7.8.1",
+        "upstream_source": "https://api.github.com/repos/oauth2-proxy/oauth2-proxy/releases/latest",
+        "github_repo": "oauth2-proxy/oauth2-proxy",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -700,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "128M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "none",
+          "source": "51-ingress/517-oauth2-proxy.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "access",
+      "tags": [
+        "auth",
+        "forward-auth",
+        "oidc-client"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-speedport-api",
+      "name": "speedport-api",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Externes Python-Tool / DDNS-Provider-Helper für 513-cloudflare-dns, kein mediNix-Service",
+      "role": "Router-Adapter für WAN-IP-Ermittlung",
+      "nixpkgs_attr": null,
+      "nixos_module": null,
+      "links": {
+        "github": "https://github.com/Andre0512/speedport-api",
+        "docs": "https://github.com/Andre0512/speedport-api/blob/main/README.md",
+        "api": "n/a",
+        "context7": "n/a"
+      },
+      "used_in": [],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "0.6.0 (extern/uv)",
+        "nixpkgs_branch": "none",
+        "upstream_version": "0.6.0",
+        "upstream_source": "https://api.github.com/repos/Andre0512/speedport-api/releases/latest",
+        "github_repo": "Andre0512/speedport-api",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "python",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "unknown"
+        },
+        "performance": {
+          "oom_score_adjust": 500,
+          "cpu_weight": 50,
+          "io_weight": 50,
+          "memory_high": "256M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "51-ingress/513-cloudflare-dns.nix"
+        }
+      },
+      "used_in_planned": [
+        "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix"
+      ],
+      "category": "access",
+      "tags": [
+        "library",
+        "wan-ip",
+        "router"
+      ],
+      "runtime": "library"
+    },
+    {
+      "id": "551",
+      "name": "Jellyfin",
+      "registry_num": 551,
+      "role": "Media Streaming Server (QuickSync Transcoding)",
+      "nixpkgs_attr": "pkgs.jellyfin",
+      "nixos_module": "services.jellyfin",
+      "links": {
+        "github": "https://github.com/jellyfin/jellyfin",
+        "docs": "https://jellyfin.org/docs/",
+        "api": "https://api.jellyfin.org/",
+        "context7": "https://context7.com/jellyfin/jellyfin"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/55-playback/551-jellyfin.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "10.10.6",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "10.10.7",
+        "upstream_source": "https://api.github.com/repos/jellyfin/jellyfin/releases/latest",
+        "github_repo": "jellyfin/jellyfin",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/jellyfin/data/jellyfin.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-128000",
+            "mmap_size": "536870912",
+            "busy_timeout": "10000"
+          },
+          "source": "55-playback/551-jellyfin.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet-gpu",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 100,
+          "cpu_weight": 300,
+          "io_weight": 300,
+          "memory_high": "4G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/jellyfin/config",
+            "/var/lib/jellyfin/data"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/health",
+          "metrics": "none",
+          "source": "55-playback/551-jellyfin.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "core-app",
+      "tags": [
+        "streaming",
+        "video",
+        "transcoding",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "561",
+      "name": "Seerr",
+      "registry_num": 561,
+      "role": "Medien-Request- und Entdeckungs-Management",
+      "nixpkgs_attr": "pkgs.seerr",
+      "nixos_module": "services.seerr",
+      "links": {
+        "github": "https://github.com/seerr-team/seerr",
+        "docs": "https://docs.overseerr.dev/",
+        "api": "https://api-docs.overseerr.dev/",
+        "context7": "https://context7.com/seerr-team/seerr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/56-exposition/561-seerr.nix"
+      ],
+      "criticality": "high",
+      "baseline": {
+        "checked_at": "2026-10-25T15:24:10.609358+00:00",
+        "nixpkgs_version": "3.2.0",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "3.5.1",
+        "upstream_source": "https://api.github.com/repos/seerr-team/seerr/releases/latest",
+        "github_repo": "seerr-team/seerr",
+        "security_status": "vulnerable",
+        "security_cves": [
+          "CVE-2026-73291"
+        ]
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/seerr/db/db.sqlite3",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-32000",
+            "mmap_size": "134217728",
+            "busy_timeout": "5000"
+          },
+          "source": "56-exposition/561-seerr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "nodejs",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/seerr/db"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/api/v1/status",
+          "metrics": "none",
+          "source": "56-exposition/561-seerr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "exposition",
+      "tags": [
+        "catalog",
+        "request",
+        "api",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "532",
+      "name": "Sonarr",
+      "registry_num": 532,
+      "role": "Serien-Download- und Dateiverwaltung",
+      "nixpkgs_attr": "pkgs.sonarr",
+      "nixos_module": "services.sonarr",
+      "links": {
+        "github": "https://github.com/Sonarr/Sonarr",
+        "docs": "https://wiki.servarr.com/sonarr",
+        "api": "https://sonarr.tv/docs/api/",
+        "context7": "https://context7.com/Sonarr/Sonarr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/53-acquisition/532-sonarr.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "4.0.13.2932",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "4.0.13.2932",
+        "upstream_source": "https://api.github.com/repos/Sonarr/Sonarr/releases/latest",
+        "github_repo": "Sonarr/Sonarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/sonarr/sonarr.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "53-acquisition/532-sonarr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1.5G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/sonarr"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "exportarr",
+          "source": "53-acquisition/532-sonarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "ingestion",
+      "tags": [
+        "acquisition",
+        "tv",
+        "sqlite",
+        "dotnet"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "533",
+      "name": "Radarr",
+      "registry_num": 533,
+      "role": "Film-Download- und Dateiverwaltung",
+      "nixpkgs_attr": "pkgs.radarr",
+      "nixos_module": "services.radarr",
+      "links": {
+        "github": "https://github.com/Radarr/Radarr",
+        "docs": "https://wiki.servarr.com/radarr",
+        "api": "https://radarr.video/docs/api/",
+        "context7": "https://context7.com/Radarr/Radarr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/53-acquisition/533-radarr.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "5.19.3.9730",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "5.19.3.9730",
+        "upstream_source": "https://api.github.com/repos/Radarr/Radarr/releases/latest",
+        "github_repo": "Radarr/Radarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/radarr/radarr.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "53-acquisition/533-radarr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1.5G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/radarr"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "exportarr",
+          "source": "53-acquisition/533-radarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "ingestion",
+      "tags": [
+        "acquisition",
+        "movies",
+        "sqlite",
+        "dotnet"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "536",
+      "name": "Prowlarr",
+      "registry_num": 536,
+      "role": "Zentrales Indexer- und Proxy-Management",
+      "nixpkgs_attr": "pkgs.prowlarr",
+      "nixos_module": "services.prowlarr",
+      "links": {
+        "github": "https://github.com/Prowlarr/Prowlarr",
+        "docs": "https://wiki.servarr.com/prowlarr",
+        "api": "https://prowlarr.com/docs/api/",
+        "context7": "https://context7.com/Prowlarr/Prowlarr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/53-acquisition/536-prowlarr.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "1.31.2.4975",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "1.31.2.4975",
+        "upstream_source": "https://api.github.com/repos/Prowlarr/Prowlarr/releases/latest",
+        "github_repo": "Prowlarr/Prowlarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/prowlarr/prowlarr.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-32000",
+            "mmap_size": "134217728",
+            "busy_timeout": "5000"
+          },
+          "source": "53-acquisition/536-prowlarr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1.5G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/prowlarr"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "exportarr",
+          "source": "53-acquisition/536-prowlarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "ingestion",
+      "tags": [
+        "acquisition",
+        "indexer",
+        "sqlite",
+        "dotnet"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "541",
+      "name": "SABnzbd",
+      "registry_num": 541,
+      "role": "Usenet-Download-Client",
+      "nixpkgs_attr": "pkgs.sabnzbd",
+      "nixos_module": "services.sabnzbd",
+      "links": {
+        "github": "https://github.com/sabnzbd/sabnzbd",
+        "docs": "https://sabnzbd.org/wiki/",
+        "api": "https://sabnzbd.org/wiki/advanced/api",
+        "context7": "https://context7.com/sabnzbd/sabnzbd"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/54-transfer/541-sabnzbd.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "4.4.1",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "4.4.1",
+        "upstream_source": "https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest",
+        "github_repo": "sabnzbd/sabnzbd",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "python",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 300,
+          "cpu_weight": 200,
+          "io_weight": 200,
+          "memory_high": "2G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/sabnzbd/sabnzbd.ini"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/api?mode=version",
+          "metrics": "none",
+          "source": "54-transfer/541-sabnzbd.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "processing",
+      "tags": [
+        "transfer",
+        "usenet",
+        "download",
+        "par2"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "552",
+      "name": "Audiobookshelf",
+      "registry_num": 552,
+      "role": "Hörbuch- und Podcast-Server",
+      "nixpkgs_attr": "pkgs.audiobookshelf",
+      "nixos_module": "services.audiobookshelf",
+      "links": {
+        "github": "https://github.com/advplyr/audiobookshelf",
+        "docs": "https://www.audiobookshelf.org/docs/",
+        "api": "https://api.audiobookshelf.org/",
+        "context7": "https://context7.com/advplyr/audiobookshelf"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/55-playback/552-audiobookshelf.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "2.34.0",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "2.37.1",
+        "upstream_source": "https://api.github.com/repos/advplyr/audiobookshelf/releases/latest",
+        "github_repo": "advplyr/audiobookshelf",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/audiobookshelf/config/absdatabase.sqlite",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "55-playback/552-audiobookshelf.nix"
+        },
+        "hardening": {
+          "systemd_profile": "nodejs",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 150,
+          "cpu_weight": 150,
+          "io_weight": 150,
+          "memory_high": "2G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/audiobookshelf/config",
+            "/var/lib/audiobookshelf/metadata"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/healthcheck",
+          "metrics": "none",
+          "source": "55-playback/552-audiobookshelf.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "core-app",
+      "tags": [
+        "streaming",
+        "audio",
+        "books",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "553",
+      "name": "Navidrome",
+      "registry_num": 553,
+      "role": "Subsonic-kompatibler Musik-Server",
+      "nixpkgs_attr": "pkgs.navidrome",
+      "nixos_module": "services.navidrome",
+      "links": {
+        "github": "https://github.com/navidrome/navidrome",
+        "docs": "https://www.navidrome.org/docs/",
+        "api": "https://www.navidrome.org/docs/developers/subsonic-api/",
+        "context7": "https://context7.com/navidrome/navidrome"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/55-playback/553-navidrome.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "0.61.1",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "0.64.2",
+        "upstream_source": "https://api.github.com/repos/navidrome/navidrome/releases/latest",
+        "github_repo": "navidrome/navidrome",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/navidrome/navidrome.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "55-playback/553-navidrome.nix"
+        },
+        "hardening": {
+          "systemd_profile": "base",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 150,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/navidrome"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "none",
+          "source": "55-playback/553-navidrome.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "core-app",
+      "tags": [
+        "streaming",
+        "audio",
+        "music",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "535",
+      "name": "Lidarr",
+      "registry_num": 535,
+      "role": "Musik-Download- und Sammlungsverwaltung",
+      "nixpkgs_attr": "pkgs.lidarr",
+      "nixos_module": "services.lidarr",
+      "links": {
+        "github": "https://github.com/Lidarr/Lidarr",
+        "docs": "https://wiki.servarr.com/lidarr",
+        "api": "https://lidarr.audio/docs/api/",
+        "context7": "https://context7.com/Lidarr/Lidarr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/53-acquisition/535-lidarr.nix"
+      ],
+      "criticality": "low",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "2.9.6.4519",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "2.9.6.4519",
+        "upstream_source": "https://api.github.com/repos/Lidarr/Lidarr/releases/latest",
+        "github_repo": "Lidarr/Lidarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/lidarr/lidarr.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "53-acquisition/535-lidarr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1.5G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/lidarr"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "exportarr",
+          "source": "53-acquisition/535-lidarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "ingestion",
+      "tags": [
+        "acquisition",
+        "music",
+        "sqlite",
+        "dotnet"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "534",
+      "name": "Readarr",
+      "registry_num": 534,
+      "role": "Buch- und E-Book-Download-Verwaltung",
+      "nixpkgs_attr": "pkgs.readarr",
+      "nixos_module": "services.readarr",
+      "links": {
+        "github": "https://github.com/Readarr/Readarr",
+        "docs": "https://wiki.servarr.com/readarr",
+        "api": "https://readarr.com/docs/api/",
+        "context7": "n/a"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/53-acquisition/534-readarr.nix"
+      ],
+      "criticality": "low",
+      "baseline": {
+        "checked_at": "2026-10-25T15:24:10.609358+00:00",
+        "nixpkgs_version": "0.4.11.2678",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "0.4.18.2805",
+        "upstream_source": "https://api.github.com/repos/Readarr/Readarr/releases",
+        "github_repo": "Readarr/Readarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/readarr/readarr.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-64000",
+            "mmap_size": "268435456",
+            "busy_timeout": "5000"
+          },
+          "source": "53-acquisition/534-readarr.nix"
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 200,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "1.5G",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/readarr"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/ping",
+          "metrics": "exportarr",
+          "source": "53-acquisition/534-readarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "ingestion",
+      "tags": [
+        "acquisition",
+        "books",
+        "sqlite",
+        "dotnet"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "582",
+      "name": "Gatus",
+      "registry_num": 582,
+      "role": "Automatisches Health- und Uptime-Dashboard",
+      "nixpkgs_attr": "pkgs.gatus",
+      "nixos_module": "services.gatus",
+      "links": {
+        "github": "https://github.com/TwiN/gatus",
+        "docs": "https://gatus.io/docs",
+        "api": "n/a",
+        "context7": "https://context7.com/TwiN/gatus"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/58-observability/582-gatus.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "5.16.0",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "5.16.0",
+        "upstream_source": "https://api.github.com/repos/TwiN/gatus/releases/latest",
+        "github_repo": "TwiN/gatus",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/gatus/data.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-32000",
+            "mmap_size": "134217728",
+            "busy_timeout": "5000"
+          },
+          "source": "58-observability/582-gatus.nix"
+        },
+        "hardening": {
+          "systemd_profile": "base",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -500,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "256M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/gatus"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/health",
+          "metrics": "native",
+          "source": "58-observability/582-gatus.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "observability",
+      "tags": [
+        "monitoring",
+        "health",
+        "dashboard",
+        "sqlite"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "581",
+      "name": "ntfy",
+      "registry_num": 581,
+      "role": "Internes Push-Benachrichtigungs-Backend",
+      "nixpkgs_attr": "pkgs.ntfy-sh",
+      "nixos_module": "services.ntfy-sh",
+      "links": {
+        "github": "https://github.com/binwiederhier/ntfy",
+        "docs": "https://docs.ntfy.sh/",
+        "api": "https://docs.ntfy.sh/publish/",
+        "context7": "https://context7.com/binwiederhier/ntfy"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/58-observability/581-ntfy.nix"
+      ],
+      "criticality": "medium",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "2.14.0",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "2.29.0",
+        "upstream_source": "https://api.github.com/repos/binwiederhier/ntfy/releases/latest",
+        "github_repo": "binwiederhier/ntfy",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": true,
+          "db_path": "/var/lib/ntfy-sh/cache.db",
+          "tuning": {
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL",
+            "cache_size": "-32000",
+            "mmap_size": "134217728",
+            "busy_timeout": "5000"
+          },
+          "source": "58-observability/581-ntfy.nix"
+        },
+        "hardening": {
+          "systemd_profile": "base",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -700,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "256M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/ntfy-sh"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/v1/health",
+          "metrics": "none",
+          "source": "58-observability/581-ntfy.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "observability",
+      "tags": [
+        "alerting",
+        "push",
+        "notifications"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-recyclarr",
+      "name": "Recyclarr",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Wartungs-/Sync-Timer (572-recyclarr.nix), kein persistenter Service in registry.nix",
+      "role": "Deklarative TRaSH-Guides Synchronisation",
+      "nixpkgs_attr": "pkgs.recyclarr",
+      "nixos_module": null,
+      "links": {
+        "github": "https://github.com/recyclarr/recyclarr",
+        "docs": "https://recyclarr.dev/",
+        "api": "n/a",
+        "context7": "https://context7.com/recyclarr/recyclarr"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/57-maintenance/572-recyclarr.nix"
+      ],
+      "criticality": "low",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "7.4.1",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "7.4.1",
+        "upstream_source": "https://api.github.com/repos/recyclarr/recyclarr/releases/latest",
+        "github_repo": "recyclarr/recyclarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "dotnet",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 500,
+          "cpu_weight": 50,
+          "io_weight": 50,
+          "memory_high": "512M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [
+            "/var/lib/recyclarr/recyclarr.yml"
+          ],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "57-maintenance/572-recyclarr.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "maintenance",
+      "tags": [
+        "config-sync",
+        "acquisition",
+        "timer"
+      ],
+      "runtime": "timer"
+    },
+    {
+      "id": "ext-avahi",
+      "name": "Avahi",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Systemweiter mDNS-Daemon (515-mdns.nix), kein mediNix-App-Service; Ausmusterung geplant (A-11)",
+      "role": "mDNS Service Discovery (Ausmusterung geplant)",
+      "nixpkgs_attr": "pkgs.avahi",
+      "nixos_module": "services.avahi",
+      "links": {
+        "github": "https://github.com/avahi/avahi",
+        "docs": "https://avahi.org/",
+        "api": "n/a",
+        "context7": "n/a"
+      },
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix"
+      ],
+      "criticality": "low",
+      "baseline": {
+        "checked_at": "2026-10-25T14:30:34.795911+00:00",
+        "nixpkgs_version": "0.8",
+        "nixpkgs_branch": "release-25.11",
+        "upstream_version": "0.8",
+        "upstream_source": "https://api.github.com/repos/avahi/avahi/releases/latest",
+        "github_repo": "avahi/avahi",
+        "security_status": "outdated",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [
+            "CAP_NET_ADMIN",
+            "CAP_SYS_CHROOT"
+          ],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": -500,
+          "cpu_weight": 50,
+          "io_weight": 50,
+          "memory_high": "64M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "51-ingress/515-mdns.nix"
+        }
+      },
+      "used_in_planned": [],
+      "category": "access",
+      "tags": [
+        "dns",
+        "mdns",
+        "discovery"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-restic",
+      "name": "restic",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Systemweiter Backup-Daemon (576-backup.nix), kein mediNix Application-Service mit eigenem Port",
+      "role": "Snapshot-Backup-Engine & Repository-Verwaltung",
+      "nixpkgs_attr": "pkgs.restic",
+      "nixos_module": "services.restic",
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/57-maintenance/576-backup.nix"
+      ],
+      "used_in_planned": [],
+      "criticality": "high",
+      "links": {
+        "github": "https://github.com/restic/restic",
+        "docs": "https://restic.readthedocs.io/",
+        "api": "n/a",
+        "context7": "https://context7.com/restic/restic"
+      },
+      "baseline": {
+        "checked_at": "2026-10-25T15:06:35.879020+00:00",
+        "nixpkgs_version": "0.19.1",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "0.19.1",
+        "upstream_source": "https://api.github.com/repos/restic/restic/releases/latest",
+        "github_repo": "restic/restic",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "client",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": null,
+          "cpu_weight": null,
+          "io_weight": null,
+          "memory_high": null,
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "unknown"
+        }
+      },
+      "category": "maintenance",
+      "tags": [
+        "backup",
+        "snapshot",
+        "encryption"
+      ],
+      "runtime": "timer"
+    },
+    {
+      "id": "ext-smartd",
+      "name": "smartmontools",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Hardware-Monitoring-Daemon (587-disk-health.nix), kein mediNix Application-Service mit eigenem Port",
+      "role": "Festplatten-SMART-Überwachung & Alarmierung via ntfy",
+      "nixpkgs_attr": "pkgs.smartmontools",
+      "nixos_module": "services.smartd",
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/58-observability/587-disk-health.nix"
+      ],
+      "used_in_planned": [],
+      "criticality": "high",
+      "links": {
+        "github": "https://github.com/smartmontools/smartmontools",
+        "docs": "https://www.smartmontools.org/",
+        "api": "n/a",
+        "context7": "n/a"
+      },
+      "baseline": {
+        "checked_at": "2026-10-25T15:06:35.879020+00:00",
+        "nixpkgs_version": "7.5",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "7.5",
+        "upstream_source": "https://api.github.com/repos/smartmontools/smartmontools/releases/latest",
+        "github_repo": "smartmontools/smartmontools",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "unknown",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": false,
+          "source": "unknown"
+        },
+        "performance": {
+          "oom_score_adjust": -500,
+          "cpu_weight": 50,
+          "io_weight": 50,
+          "memory_high": "64M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "58-observability/587-disk-health.nix"
+        }
+      },
+      "category": "observability",
+      "tags": [
+        "monitoring",
+        "hardware",
+        "smart",
+        "disk"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-exportarr",
+      "name": "exportarr",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Metriken-Sidecar-Exporter (585-exporters.nix), dynamische Port-Vergabe je arr-Dienst",
+      "role": "Prometheus-Metriken-Exporter für Sonarr, Radarr, Prowlarr, Lidarr, Readarr, SABnzbd",
+      "nixpkgs_attr": "pkgs.exportarr",
+      "nixos_module": null,
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/58-observability/585-exporters.nix"
+      ],
+      "used_in_planned": [],
+      "criticality": "medium",
+      "links": {
+        "github": "https://github.com/onedr0p/exportarr",
+        "docs": "https://github.com/onedr0p/exportarr#readme",
+        "api": "n/a",
+        "context7": "https://context7.com/onedr0p/exportarr"
+      },
+      "baseline": {
+        "checked_at": "2026-10-25T15:06:35.879020+00:00",
+        "nixpkgs_version": "2.3.0",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "2.3.0",
+        "upstream_source": "https://api.github.com/repos/onedr0p/exportarr/releases/latest",
+        "github_repo": "onedr0p/exportarr",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "network",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 500,
+          "cpu_weight": 50,
+          "io_weight": 50,
+          "memory_high": "128M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": "/metrics",
+          "metrics": "prometheus",
+          "source": "58-observability/585-exporters.nix"
+        }
+      },
+      "category": "observability",
+      "tags": [
+        "monitoring",
+        "metrics",
+        "prometheus"
+      ],
+      "runtime": "daemon"
+    },
+    {
+      "id": "ext-rclone",
+      "name": "rclone",
+      "registry_num": null,
+      "non_registry": true,
+      "non_registry_reason": "Cloud-Storage Sync-Transport für Offsite-Backups (576-backup.nix)",
+      "role": "Offsite-Backup-Kopie & Cloud-Storage-Transfer",
+      "nixpkgs_attr": "pkgs.rclone",
+      "nixos_module": null,
+      "used_in": [
+        "/home/moritz/repos/mediNix-core/57-maintenance/576-backup.nix"
+      ],
+      "used_in_planned": [],
+      "criticality": "high",
+      "links": {
+        "github": "https://github.com/rclone/rclone",
+        "docs": "https://rclone.org/docs/",
+        "api": "https://rclone.org/rc/",
+        "context7": "https://context7.com/rclone/rclone"
+      },
+      "baseline": {
+        "checked_at": "2026-10-25T15:06:35.879020+00:00",
+        "nixpkgs_version": "1.75.2",
+        "nixpkgs_branch": "unstable",
+        "upstream_version": "1.75.2",
+        "upstream_source": "https://api.github.com/repos/rclone/rclone/releases/latest",
+        "github_repo": "rclone/rclone",
+        "security_status": "ok",
+        "security_cves": []
+      },
+      "recipes": {
+        "sqlite": {
+          "enabled": false
+        },
+        "hardening": {
+          "systemd_profile": "client",
+          "capabilities": [],
+          "seccomp": "@system-service",
+          "private_users": true,
+          "source": "lib/hardening-profiles.nix"
+        },
+        "performance": {
+          "oom_score_adjust": 500,
+          "cpu_weight": 100,
+          "io_weight": 100,
+          "memory_high": "512M",
+          "source": "lib/memory-policy.nix"
+        },
+        "backup": {
+          "paths": [],
+          "method": null,
+          "source": "unknown"
+        },
+        "monitoring": {
+          "health_path": null,
+          "metrics": "none",
+          "source": "unknown"
+        }
+      },
+      "category": "maintenance",
+      "tags": [
+        "backup",
+        "offsite",
+        "sync"
+      ],
+      "runtime": "sub-tool"
+    }
+  ]
+}

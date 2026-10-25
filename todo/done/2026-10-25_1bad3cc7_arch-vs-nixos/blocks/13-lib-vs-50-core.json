@@ -1,0 +1,170 @@
+{
+  "block_id": "13-lib-vs-50-core",
+  "title": "Architektur-Trennung: Top-Level lib/ vs. 50-core & Auto-Discovery von Modulen",
+  "topics": [
+    "lib-vs-50-core",
+    "adr-dezimalrahmen"
+  ],
+  "message_ids": [
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123
+  ],
+  "summary": "Klärt die architektonische Abgrenzung zwischen dem Top-Level-Ordner lib/ und der Domäne 50-core/. Der Nutzer hinterfragt die Notwendigkeit von lib/ und schlägt die Eingliederung in 50-core/ als universelle Basis vor. Die Analyse zeigt: lib/ enthält pure Nix-Funktionen (Berechnungen, Registry, Hardening-Profile), während 50-core/ NixOS-Module mit systemd-Units und Optionen deklariert. Ein automatischer Import von Modulen existiert bereits via builtins.readDir in default.nix. Pure Funktionen können nicht blind wie Plugins auto-geladen werden, da Nix strikt funktional evaluiert.",
+  "decisions": [
+    {
+      "id": "D-13-01",
+      "statement": "Trennung zwischen reiner Funktionsbibliothek (`lib/`) und NixOS-Host-Modulen (`50-core/`) architektonisch beibehalten.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Klare Trennung: Pure Functions (Berechnung) vs. NixOS Modules (Systemzustand)",
+          "Ermöglicht isoliertes Unit-Testing reiner Funktionen",
+          "Kein Mischen von Evaluierungszeitpunkten"
+        ],
+        "con": [
+          "Zwei Einstiegspunkte im Root-Verzeichnis (lib/ und 50-core/)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/registry.nix",
+          "status": "exists",
+          "current_state": "Pure Nix-Attributmenge der Dienste.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/50-core/500-host-baseline.nix",
+          "status": "exists",
+          "current_state": "NixOS-Modul mit options und config.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        112,
+        113,
+        114,
+        115
+      ]
+    },
+    {
+      "id": "D-13-02",
+      "statement": "Auto-Import in `default.nix` bleibt auf standardisierte Dienstmodule (`XX-domain/NNN-*.nix`) beschränkt.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Robuste und vorhersagbare Modul-Evaluation",
+          "Keine Parsing-Crashes bei Daten- oder Funktionsdateien",
+          "Volle Kompatibilität mit dem NixOS-Modulsystem"
+        ],
+        "con": [
+          "Hilfsfunktionen müssen in Modulen explizit importiert werden"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/default.nix",
+          "status": "exists",
+          "current_state": "Importiert XX-domain/NNN-*.nix automatisch via readDir.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        116,
+        117,
+        118,
+        119
+      ]
+    },
+    {
+      "id": "D-13-03",
+      "statement": "Gerichtete Abhängigkeiten (ADR-040): Alle Domänen dürfen Foundation (`50-core`) und `lib/` importieren; Peer-zu-Peer-Importe zwischen Service-Domänen bleiben strikt verboten.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Verhindert zirkuläre Abhängigkeiten",
+          "Ermöglicht isoliertes Testen einzelner Domänen",
+          "Saubere Schichtenarchitektur (DAG)"
+        ],
+        "con": [
+          "Gemeinsam genutzte Hilfsfunktionen müssen in lib/ oder 50-core gehoben werden"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-040-gerichtete-abhaengigkeiten.md",
+          "status": "exists",
+          "current_state": "Definiert DAG der Importe von Leaf zu Core/Lib.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        113,
+        115
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-13-01",
+      "question": "Soll lib/ perspektivisch unter 50-core/lib/ verschachtelt werden, um den Root-Ordner strikt dezimal zu halten?",
+      "why_open": "Erfordert Anpassung aller relativen Pfade (../lib/ -> ../50-core/lib/); Nutzen rein kosmetisch.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Nix-Parser kann Funktionen automatisch wie Caddy-Plugins auffinden und einbinden",
+      "to": "Nix benötigt für Hilfsfunktionen explizite Imports oder Parameter-Passing; automatisches Einhängen funktioniert nur für NixOS-Module mit standardisierter Signatur via readDir",
+      "source_message_ids": [
+        117,
+        119
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Blindes Auto-Importieren aller beliebigen .nix-Dateien aus dem gesamten Repo-Baum",
+      "reason": "Führt zu Evaluationsfehlern, da pure Functions, Datensätze und Tests keine NixOS-Modul-Signatur haben.",
+      "source_message_ids": [
+        116,
+        117
+      ]
+    },
+    {
+      "idea": "Vollständiges Verschieben aller Bibliotheksfunktionen in NixOS-Optionswerte",
+      "reason": "Erzeugt signifikanten Overhead bei der Flake-Evaluation und birgt das Risiko zirkulärer Modul-Abhängigkeiten.",
+      "source_message_ids": [
+        115
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-13-01",
+      "action": "Import-Konventionen in docs/adr/ADR-040-gerichtete-abhaengigkeiten.md weiter präzisieren",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

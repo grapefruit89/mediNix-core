@@ -1,0 +1,185 @@
+{
+  "block_id": "03-crowdsec-scan-ban",
+  "title": "CrowdSec Scan-Erkennung & nftables-Bouncer Ban-Kette",
+  "topics": [
+    "crowdsec-scan-ban",
+    "caddy-catch-all",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "summary": "Beschreibt die vollständige Kette zur Abwehr und Sperrung von Scannern unbekannter Subdomains: Caddy fungiert als Sensor (liefert 404), CrowdSec als Detektor (erkennt Unique-404-Scans via Szenario http-scan-uniques_404) und der nftables-Bouncer als Aktor (sperrt die Angreifer-IP auf allen Ports in der Kernel-INPUT-Chain). Statuscodes 403 und 666 sowie HTTP-Tarpits wurden verworfen. Zur Komplettierung der Kette muss in 516-crowdsec.nix die Collection crowdsecurity/http-probing nachgerüstet werden.",
+  "decisions": [
+    {
+      "id": "D-03-01",
+      "statement": "CrowdSec Hub-Collections um `crowdsecurity/http-probing` erweitern, um das Szenario `http-scan-uniques_404` zur Scan-Erkennung zu aktivieren.",
+      "status": "decided",
+      "rationale": "Im Ist-Zustand enthält 516-crowdsec.nix nur `crowdsecurity/caddy`. Ohne `crowdsecurity/http-probing` fehlt das Szenario `http-scan-uniques_404`, das wiederholte 404-Aufrufe unbekannter Subdomains detektiert. Die Erweiterung schließt die Detektionslücke der Ban-Kette.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Scan-Erkennung für unbekannte Subdomains greift zuverlässig",
+          "Vollständige Kette: Caddy (404) -> CrowdSec (Scan-Alert) -> nftables (Drop)",
+          "Standard-Hub-Szenario ohne fragile Custom-Regeln"
+        ],
+        "con": [
+          "Minimaler Mehraufwand für Szenario-Download und Evaluation im CrowdSec-Daemon"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+          "status": "exists",
+          "current_state": "hub.collections = [ \"crowdsecurity/caddy\" ]; (Zeile 153).",
+          "proposed_change": "hub.collections um \"crowdsecurity/http-probing\" erweitern."
+        }
+      ],
+      "source_message_ids": [
+        12,
+        13,
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "id": "D-03-02",
+      "statement": "Firewall-Bouncer (nftables) als alleiniger Durchsetzungs-Aktor: Bans sperren Angreifer-IPs kernel-nah auf allen Ports (INPUT-Chain).",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Kernel-Drop auf allen Ports (SSH, HTTP, HTTPS)",
+          "Keine Socket- oder CPU-Belastung im Webserver bei gebannten IPs",
+          "Zentraler Bouncer nach ADR-516 ohne App-Layer-Overhead"
+        ],
+        "con": [
+          "Erfordert Host-Hoheit über die Firewall (`hostIntegration.nftables = \"managed\"`)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+          "status": "exists",
+          "current_state": "services.crowdsec-firewall-bouncer ist aktiv mit settings.mode = 'nftables' und createRulesets = true.",
+          "proposed_change": "Keine Änderung – Status Quo funktioniert wie entworfen."
+        }
+      ],
+      "source_message_ids": [
+        13,
+        21,
+        23
+      ]
+    },
+    {
+      "id": "D-03-03",
+      "statement": "Ban-Dauer für Scanner im CrowdSec-Default-Profil von 4h auf 168h (7 Tage) verlängern.",
+      "status": "proposed",
+      "rationale": "Scannende Bots wechseln ihre IPs nicht im 4-Stunden-Takt; 7 Tage Ban-Dauer hält wiederkehrende Scan-Wellen fern und entlastet das Log-Parsing nachhaltig.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Nachhaltiger Schutz gegen Botnetze",
+          "Entlastung von Caddy und CrowdSec",
+          "Weniger wiederholte Verbindungsversuche"
+        ],
+        "con": [
+          "Falls eine IP versehentlich gebannt wird (False Positive), ist die Sperre länger aktiv (erfordert manuelles cscli decisions delete)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+          "status": "exists",
+          "current_state": "profiles.[0].decisions.[0].duration = \"4h\"; (Zeile 168).",
+          "proposed_change": "Dauer auf duration = \"168h\" anheben oder Option `medinix.crowdsec.banDuration` einführen."
+        }
+      ],
+      "source_message_ids": [
+        13,
+        23
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-03-01",
+      "question": "Soll die Ban-Dauer (aktuell 4h) fest auf 168h gesetzt werden oder über eine neue Option `medinix.crowdsec.banDuration` konfigurierbar sein?",
+      "why_open": "Im Chat wurden 168h für Scanner vorgeschlagen; im Code steht 4h als Standard. Option erhöht Flexibilität.",
+      "blocking": false
+    },
+    {
+      "id": "Q-03-02",
+      "question": "Soll ein Filter für Caddy-Logs implementiert werden, der 404-Fehler auf der legitimen Domain ignoriert, damit nur 404er auf unbekannten Hosts den Scan-Ban auslösen?",
+      "why_open": "Verhindert, dass ein fehlendes statisches Asset (z.B. 404 auf Bild) auf der echten Domain das Scan-Szenario triggert.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "403 Forbidden als Verweigerungs-Signal für Scanner ausgeben",
+      "to": "404 Not Found als Detektor/Köder nutzen; die eigentliche Verweigerung erfolgt erst als IP-Drop im nftables-Bouncer, nicht über HTTP-403",
+      "source_message_ids": [
+        18,
+        19,
+        20,
+        21
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "App-Layer-Bouncer in Caddy (Caddy CrowdSec Bouncer Modul) statt nftables-Bouncer",
+      "reason": "Ein App-Layer-Bouncer bindet Caddy-Ressourcen für jeden Request; der nftables-Bouncer verwirft Pakete kernel-nah auf allen Ports (INPUT-Chain) ohne TCP-Handshake.",
+      "source_message_ids": [
+        13,
+        21,
+        23
+      ]
+    },
+    {
+      "idea": "HTTP-Tarpit (endlessh-ähnlich) für scannende Web-Clients",
+      "reason": "Bindet offene Sockets und Dateideskriptoren im Webserver; CrowdSec sieht dabei keine Statuscodes für adaptive Bans.",
+      "source_message_ids": [
+        20,
+        21
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-03-01",
+      "action": "In 516-crowdsec.nix: 'crowdsecurity/http-probing' zu services.crowdsec.hub.collections hinzufügen",
+      "priority": "high",
+      "depends_on": [
+        "N-02-01"
+      ]
+    },
+    {
+      "id": "N-03-02",
+      "action": "Entscheiden und ggf. Option für Ban-Dauer (168h) in 516-crowdsec.nix evaluieren",
+      "priority": "medium",
+      "depends_on": [
+        "N-03-01"
+      ]
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

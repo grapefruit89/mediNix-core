@@ -1,0 +1,163 @@
+{
+  "block_id": "07-pqc-hndl",
+  "title": "Post-Quantum-Kryptografie (PQC) & Harvest-Now-Decrypt-Later (HNDL) Analyse",
+  "topics": [
+    "pqc-hndl",
+    "credentials-systemd-creds"
+  ],
+  "message_ids": [
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    68,
+    69
+  ],
+  "summary": "Analysiert die Bedrohung durch Harvest-Now-Decrypt-Later (HNDL) im Kontext von Git-Repos und Secret-Management sowie den aktuellen Stand standardisierter Post-Quantum-Kryptografie (NIST FIPS 203/204/205). Agenix mit ssh-ed25519 auf GitHub ist anfällig für HNDL. Reine PQC-Verschlüsselung existiert in aktuellen Toolstacks noch nicht produktiv, sondern nur als hybride Verfahren (OpenSSH mlkem768x25519 für Kex, age v1.3+ hybrid). systemd-creds ist zwar nicht PQC-algorithmisch, neutralisiert HNDL jedoch durch physische Hardware-Bindung an den lokalen TPM2-Chip, solange Blobs nicht öffentlich hochgeladen werden.",
+  "decisions": [
+    {
+      "id": "D-07-01",
+      "statement": "Verzicht auf Agenix wegen fehlender PQC-Fähigkeit und HNDL-Gefahr bei asymmetrisch verschlüsselten Git-Secrets.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Keine HNDL-exponierten verschlüsselten Secrets in Git",
+          "Kein Vertrauen auf ungehärtete asymmetrische Verschlüsselung",
+          "Reduktion externer Tool-Abhängigkeiten"
+        ],
+        "con": [
+          "Keine rein Git-basierte Secret-Synchronisation zwischen Nodes"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-521-secret-management.md",
+          "status": "exists",
+          "current_state": "Schließt sops/age/agenix aus und setzt auf systemd-creds.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        58,
+        59,
+        60,
+        61,
+        62
+      ]
+    },
+    {
+      "id": "D-07-02",
+      "statement": "systemd-creds mit TPM2+Hostkey als HNDL-Resistenz durch Hardware-Bindung (keine algorithmische PQC, aber physikalische Bindung).",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Physische Bindung verhindert Entschlüsselung auf fremden Maschinen",
+          "Unabhängig von zukünftigen Kryptoanalysen klassischer Kurven solange TPM2 intakt ist",
+          "Nativ im Linux-Ökosystem"
+        ],
+        "con": [
+          "Nicht exportierbar auf andere Hardware ohne Neu-Verschlüsselung",
+          "Keine mathematische PQC-Garantie"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/52-security/521-creds.nix",
+          "status": "exists",
+          "current_state": "Deklariert versiegelte .encrypted/.cred Pfade.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        61,
+        62,
+        63,
+        69
+      ]
+    },
+    {
+      "id": "D-07-03",
+      "statement": "Hybride Post-Quantum-Kex (`mlkem768x25519-sha256`) für SSH-Verbindungen als Standard etablieren.",
+      "status": "proposed",
+      "rationale": "OpenSSH unterstützt ab Version 9.9/10.0 standardmäßig hybriden Schlüsselaustausch nach FIPS 203 (ML-KEM-768 + X25519). Dies schützt administrative SSH-Sessions gegen HNDL im Netzwerk-Traffic.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Netzwerk-Traffic gegen HNDL geschützt",
+          "NIST-standardisiertes FIPS-203-Verfahren",
+          "Hybrid: Sicherheit wenn mindestens ein Algorithmus hält"
+        ],
+        "con": [
+          "Minimal größere SSH-Handshake-Pakete"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-52-ssh-port-policy.md",
+          "status": "exists",
+          "current_state": "Definiert Port-Policy und Key-Only Auth, aber noch keine explizite Kex-Vorgabe für PQC.",
+          "proposed_change": "Empfehlung für hybride PQC-Kex (mlkem768x25519) in SSH-Hardening ergänzen."
+        }
+      ],
+      "source_message_ids": [
+        68,
+        69
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-07-01",
+      "question": "Soll OpenSSH in mediNix-core explizit auf `KexAlgorithms mlkem768x25519-sha256` gepinnt werden oder dem nixpkgs/OpenSSH-Default (ab v10.0 Standard) überlassen werden?",
+      "why_open": "Nixpkgs aktualisiert OpenSSH schrittweise; explizites Pinnen garantiert PQC sofort, kann aber ältere SSH-Clients aussperren.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "systemd-creds ist quantensicher",
+      "to": "systemd-creds ist NICHT quantensicher (keine PQC), sondern bietet Schutz durch hardwaregebundene Schlüssel (TPM2); mathematische PQC erfordert Algorithmen wie ML-KEM/ML-DSA",
+      "source_message_ids": [
+        63,
+        69
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Agenix mit klassischen Ed25519-Schlüsseln auf GitHub nutzen",
+      "reason": "Anfällig für Harvest-Now-Decrypt-Later; Angreifer können Ciphertexte heute speichern und mit Quantencomputern in Zukunft brechen.",
+      "source_message_ids": [
+        59,
+        60,
+        61
+      ]
+    },
+    {
+      "idea": "Warten auf reine PQC-Kryptografie vor dem Deployment",
+      "reason": "Reine PQC-Tools sind produktiv noch nicht verfügbar; hybride Verfahren und Hardware-Bindung (TPM2) bieten heute den maximal möglichen Schutz.",
+      "source_message_ids": [
+        69
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-07-01",
+      "action": "Dokumentieren der HNDL-Gefahr und PQC-Roadmap in docs/adr/ADR-521-secret-management.md",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

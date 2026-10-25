@@ -1,0 +1,244 @@
+{
+  "block_id": "14-config-review-51-ingress",
+  "title": "Config-Review 51-ingress: Caddy, Pocket-ID, ACME & LLM-Chunking-Verfahren",
+  "topics": [
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    70,
+    71,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    124,
+    125
+  ],
+  "summary": "Konsolidiert die verbleibenden Detailbefunde aus dem Ingress-Review (51-ingress) sowie das methodische Vorgehen bei der LLM-gestützten Wissensextraktion. Behandelt spezifische Absicherungen in Caddy (customConfig-Escape-Hatch strikt hinter Authentifizierung platzieren), semantische CIDR-Prüfungen im Ingress-Access-Layer, Pocket-ID Initialisierungs-Schutz (setupCompleted-Guardrail) und die Festlegung des JSON-Block-Verarbeitungsmodells zur verlustfreien Auswertung langer Chat-Transkripte.",
+  "decisions": [
+    {
+      "id": "D-14-01",
+      "statement": "Caddy `customConfig`-Escape-Hatch strikt hinter Authentifizierungs- und Bouncer-Direktiven platzieren.",
+      "status": "decided",
+      "rationale": "Wird customConfig vor den Forward-Auth- oder CrowdSec-Blöcken gerendert, können fehlerhafte oder unvorsichtige Snippets den Zugriffsschutz für geschützte Backends komplett umgehen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Verhindert Sicherheits-Bypasses durch individuelle Site-Konfigurationen",
+          "Erzwingt Authentifizierung und CrowdSec-Prüfung vor Backend-Routen",
+          "Deterministische Render-Reihenfolge in Caddyfile"
+        ],
+        "con": [
+          "Einschränkung der Flexibilität bei sehr exotischen Caddy-Direktiven"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "status": "exists",
+          "current_state": "Rendert customConfig an konfigurierbarer Stelle.",
+          "proposed_change": "customConfig zwingend nach forward_auth und IP-Filtering einsortieren."
+        }
+      ],
+      "source_message_ids": [
+        18,
+        19,
+        71
+      ]
+    },
+    {
+      "id": "D-14-02",
+      "statement": "Semantische CIDR-Validierung im Ingress-Access-Layer anstelle von einfachen String-Präfix-Prüfungen implementieren.",
+      "status": "proposed",
+      "rationale": "Einfache String-Checks (z. B. auf '192.168.') erkennen ungültige Subnetzmasken nicht und können bei komplexen Netzwerkkonfigurationen fehlschlagen.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Robuste und fehlertolerante Subnetz-Validierung",
+          "Erkennt ungültige IP-Eingaben zur Evaluierungszeit",
+          "Erhöht die Zuverlässigkeit von Zugangsregeln"
+        ],
+        "con": [
+          "Geringfügig komplexere Prüffunktion in Nix"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/ingress-access.nix",
+          "status": "exists",
+          "current_state": "Prüft IP-Listen mit elementaren String-Funktionen.",
+          "proposed_change": "Validierung über semantische IP/CIDR-Parser-Funktion abbilden."
+        }
+      ],
+      "source_message_ids": [
+        20,
+        21,
+        71
+      ]
+    },
+    {
+      "id": "D-14-03",
+      "statement": "LLM-Verarbeitungsstrategie: Granulares JSON-Block-Chunking mit Topic-Index und Code-Abgleich statt monolithischem Dump.",
+      "status": "decided",
+      "rationale": "Ein monolithischer Prompt mit 70k+ Tokens überfordert das Context-Window, erzeugt Halluzinationen und verliert Feinheiten. Das Chunking in 14 thematische Blöcke mit striktem Schema und Code-Verifikation sichert 100% Informationstreue.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Kein Kontext-Überlauf bei langen Gesprächen",
+          "Jeder Block ist atomar prüf- und freigebbar",
+          "Vollständige Rückführbarkeit auf Quell-Nachrichten"
+        ],
+        "con": [
+          "Mehrstufiger Prozess (Phase 0 bis 6) erfordert Workflow-Disziplin"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/todo/README.md",
+          "status": "exists",
+          "current_state": "Dokumentiert den Phasen-Workflow 0 bis 6.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        124,
+        125
+      ]
+    },
+    {
+      "id": "D-14-04",
+      "statement": "Pocket-ID Setup-Lockdown (`setupCompleted` Assertion) zur Vermeidung von Takeovers offener IdP-Instanzen nach Deployment.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Verhindert feindliche Initialisierung durch Dritte",
+          "Erzwingt deterministischen Administrator-Account",
+          "Fail-closed bei unfertiger Authentifizierung"
+        ],
+        "con": [
+          "Initiale Einrichtung erfordert expliziten Konfigurationsschritt"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/512-pocket-id.nix",
+          "status": "exists",
+          "current_state": "Enthält Guardrails für initialen Setup-Status.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/519-ingress-guardrails.nix",
+          "status": "exists",
+          "current_state": "Validiert Ingress-Sicherheitsanforderungen.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        36,
+        71
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-14-01",
+      "question": "Soll Caddy globalConfig in 511-caddy.nix komplett unveränderlich sein oder gezielte Host-Overrides via mkDefault zulassen?",
+      "why_open": "mkDefault erlaubt Flexibilität auf unterschiedlichen Maschinen, verringert aber die deterministische Härtungsgewähr.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "70k+ Token Chat-Historie unstrukturiert als Markdown an LLM übergeben",
+      "to": "Strukturierte Verarbeitung via JSON-Blöcke (Phase 0–3) mit anschließender Konsolidierung (Phase 4–6)",
+      "source_message_ids": [
+        124,
+        125
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Monolithischen Chat-Dump in einem einzigen Schritt ohne Zwischenblöcke verarbeiten",
+      "reason": "Führt zu Token-Überlauf, Halluzinationen und Verlust kritischer Architektur-Details.",
+      "source_message_ids": [
+        124,
+        125
+      ]
+    },
+    {
+      "idea": "Interne TLS-Zertifikate über eigene CA anstatt ACME DNS-01 verteilen",
+      "reason": "Erfordert manuelle Installation von Root-Zertifikaten auf allen Mobilgeräten und Smart-TVs; Nutzer lehnte dies explizit ab.",
+      "source_message_ids": [
+        28,
+        29,
+        71
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-14-01",
+      "action": "Caddy-Renderreihenfolge in 511-caddy.nix prüfen und absichern",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "N-14-02",
+      "action": "In lib/ingress-access.nix: Semantische CIDR- und IP-Validierung anstelle primitiver String-Präfix-Prüfungen implementieren",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

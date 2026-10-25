@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-10-25T14:59:37.218928",
+  "source": "programs.json + repology + github releases",
+  "total_deltas": 21,
+  "security_relevant_count": 3,
+  "deltas": [
+    {
+      "program": "Caddy",
+      "nixpkgs": "2.11.1",
+      "upstream": "2.11.4",
+      "delta": "patch",
+      "security_relevant": true,
+      "action": "Dringendes Security-Update des nixpkgs Inputs auf 2.11.4"
+    },
+    {
+      "program": "CrowdSec",
+      "nixpkgs": "1.7.2",
+      "upstream": "1.7.8",
+      "delta": "patch",
+      "security_relevant": true,
+      "action": "Dringendes Security-Update des nixpkgs Inputs auf 1.7.8"
+    },
+    {
+      "program": "Blocky",
+      "nixpkgs": "0.29.0",
+      "upstream": "0.35.0",
+      "delta": "major/minor",
+      "security_relevant": false,
+      "action": "Reguläres Update des nixpkgs Inputs auf 0.35.0"
+    },
+    {
+      "program": "Pocket ID",
+      "nixpkgs": "2.18.0",
+      "upstream": "2.18.0",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "oauth2-proxy",
+      "nixpkgs": "7.15.5",
+      "upstream": "7.15.5",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "speedport-api",
+      "nixpkgs": "unverpackt",
+      "upstream": "0.6.0 (PyPI), v2: 0.7.1",
+      "delta": "external",
+      "security_relevant": false,
+      "action": "separates Tooling / nicht in nixpkgs (Host-Test nötig)"
+    },
+    {
+      "program": "Jellyfin",
+      "nixpkgs": "10.11.8",
+      "upstream": "10.11.8",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Seerr",
+      "nixpkgs": "3.2.0",
+      "upstream": "3.4.0",
+      "delta": "patch",
+      "security_relevant": true,
+      "action": "Dringendes Security-Update des nixpkgs Inputs auf 3.4.0"
+    },
+    {
+      "program": "Sonarr",
+      "nixpkgs": "4.0.13.2932",
+      "upstream": "4.0.13.2932",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Radarr",
+      "nixpkgs": "5.19.3.9730",
+      "upstream": "5.19.3.9730",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Prowlarr",
+      "nixpkgs": "1.31.2.4975",
+      "upstream": "1.31.2.4975",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "SABnzbd",
+      "nixpkgs": "5.0.4",
+      "upstream": "5.0.4",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Audiobookshelf",
+      "nixpkgs": "2.34.0",
+      "upstream": "2.37.1",
+      "delta": "major/minor",
+      "security_relevant": false,
+      "action": "Reguläres Update des nixpkgs Inputs auf 2.37.1"
+    },
+    {
+      "program": "Navidrome",
+      "nixpkgs": "0.61.1",
+      "upstream": "0.64.2",
+      "delta": "major/minor",
+      "security_relevant": false,
+      "action": "Reguläres Update des nixpkgs Inputs auf 0.64.2"
+    },
+    {
+      "program": "Feishin",
+      "nixpkgs": "0.12.3",
+      "upstream": "0.12.3",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Lidarr",
+      "nixpkgs": "2.8.2.4244",
+      "upstream": "2.8.2.4244",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Readarr",
+      "nixpkgs": "0.4.10.2644",
+      "upstream": "0.4.10.2644",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Gatus",
+      "nixpkgs": "5.36.0",
+      "upstream": "5.36.0",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "ntfy",
+      "nixpkgs": "2.14.0",
+      "upstream": "2.29.0",
+      "delta": "major/minor",
+      "security_relevant": false,
+      "action": "Reguläres Update des nixpkgs Inputs auf 2.29.0"
+    },
+    {
+      "program": "Recyclarr",
+      "nixpkgs": "7.4.1",
+      "upstream": "7.4.1",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    },
+    {
+      "program": "Avahi",
+      "nixpkgs": "0.8",
+      "upstream": "0.8",
+      "delta": "none",
+      "security_relevant": false,
+      "action": "aktuell und synchron"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "block_id": "02-caddy-catch-all",
+  "title": "Caddy Catch-All für unbekannte Subdomains & TLS-Zertifikatsstrategie",
+  "topics": [
+    "caddy-catch-all",
+    "crowdsec-scan-ban",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89
+  ],
+  "summary": "Behandelt den Umgang von Caddy mit unbekannten Subdomains (Catch-All) und Scannern sowie die TLS-Zertifikatsstrategie für interne Dienste. Unbekannte Subdomains werden als Scan-Verkehr eingestuft. Statuscodes 666 (nicht RFC-konform) und 403 (verrät Existenz) wurden verworfen. Im Code wurde für unbekannte Subdomains (*.${domain}) ein harter abort (TCP Connection Drop) in Caddy implementiert. Für interne Subdomains wurde tls internal (lokale CA mit manueller Trust-Verteilung auf Endgeräten) verworfen; stattdessen ist ACME DNS-01 mit echtem Zertifikat über Cloudflare gesetzt.",
+  "decisions": [
+    {
+      "id": "D-02-01",
+      "statement": "Caddy Catch-All: `abort` durch `respond 404` ersetzen, damit CrowdSec Scan-Verkehr erkennt und bannen kann.",
+      "status": "decided",
+      "verdict": "better",
+      "rationale": "`abort` schließt TCP ohne HTTP-Status. CrowdSec-Szenario `http-scan-uniques_404` matcht auf 404 und feuert bei `abort` nie. `respond 404` liefert das nötige Signal für die Ban-Kette (CrowdSec → nftables-Bouncer).",
+      "trade_offs": {
+        "pro": [
+          "CrowdSec kann Scanner bannen",
+          "Ban-Kette funktioniert",
+          "Body kann 'Get off my lawn' enthalten"
+        ],
+        "con": [
+          "Scanner bekommt HTTP-Antwort statt TCP-Close (minimaler Info-Gewinn)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "status": "exists",
+          "current_state": "catchAllSites rendert 'abort' für *.${domain} (Zeilen ~339–348).",
+          "proposed_change": "catchAllSites rendert 'respond \"Get off my lawn\" 404' für *.${domain}, sowohl HTTP als auch HTTPS."
+        }
+      ],
+      "source_message_ids": [
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "id": "D-02-02",
+      "statement": "Kein tls internal (lokale CA) für interne Dienste; stattdessen ACME DNS-01 Challenge für echte Zertifikate ohne manuelle CA-Installation.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Keine manuelle Root-CA-Verteilung auf Endgeräten nötig",
+          "Funktioniert auf allen Smart-TVs und Mobilgeräten out-of-the-box",
+          "Kein offener Port 80/443 für HTTP-01/TLS-ALPN-01 nötig"
+        ],
+        "con": [
+          "Abhängigkeit von Cloudflare DNS API Token für die DNS-01 Challenge"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/514-acme.nix",
+          "status": "exists",
+          "current_state": "ACME-Konfiguration nutzt DNS-01 Provider Lego mit Cloudflare DNS.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "status": "exists",
+          "current_state": "tlsDirective nutzt acme/certmagic Zertifikate oder Host-Zertifikate.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89
+      ]
+    }
+  ],
+  "open_questions": [],
+  "corrections": [
+    {
+      "from": "Blocky als TLS-Trust-Anchor für interne Zertifikate nutzen",
+      "to": "Blocky ist ein reiner DNS-Resolver und kann keine TLS-Trust-Anchors verwalten; Trust-Anchors müssen im Betriebssystem/Browser der Clients liegen",
+      "source_message_ids": [
+        82,
+        83
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "HTTP-Statuscode 666 ('get off my lawn') für Scanner ausgeben",
+      "reason": "Nicht RFC-9110-konform; bricht HTTP-Parser und Middleboxes und liefert ein unnötiges Signal.",
+      "source_message_ids": [
+        16,
+        17
+      ]
+    },
+    {
+      "idea": "HTTP-Statuscode 403 (Forbidden) für unbekannte Subdomains nutzen",
+      "reason": "Verrät dem Angreifer, dass der Host existiert und die Ressource geschützt ist; lädt zu weiterem Scanning ein.",
+      "source_message_ids": [
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "idea": "tls internal (Caddy lokale Root-CA) für LAN-Subdomains",
+      "reason": "Erfordert manuelle Installation und Wartung von Root-Zertifikaten auf allen Heimnetz-Geräten (TVs, Handys), was vom Nutzer explizit abgelehnt wurde.",
+      "source_message_ids": [
+        82,
+        83,
+        84,
+        85,
+        86
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-02-01",
+      "action": "In 511-caddy.nix: `abort` durch `respond \"Get off my lawn\" 404` in catchAllSites ersetzen",
+      "priority": "high",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}
