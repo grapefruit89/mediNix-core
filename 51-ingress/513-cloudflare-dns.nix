@@ -281,7 +281,7 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
             done
             local foreign
             foreign=$(echo "$records" | jq -r '[.result[] | select(.comment != "managed-by=mediNix-core/513")] | length')
-            if [ "${"foreign:-0"}" != "0" ]; then
+            if [ "''${foreign:-0}" != "0" ]; then
               echo "  Kept $foreign foreign $stype record(s) at $record_name - not ours, not touched" >&2
             fi
           done
