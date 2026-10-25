@@ -559,4 +559,15 @@ lib.mkMerge [
   (lib.mkIf (cfg.enable && ing.enable && !useGlobal && ing.tls.acmeHost != null) {
     users.users.caddy-media.extraGroups = [ "caddy" ];
   })
+
+  # Caddy-User (global = caddy, standalone = caddy-media) in alle UDS-Service-Gruppen
+  (lib.mkIf (cfg.enable && ing.enable) (
+    let
+      caddyUser = if useGlobal then "caddy" else "caddy-media";
+      udsServices = lib.filterAttrs (_: svc: svc.uds_socket or false) registry;
+    in
+    {
+      users.users.${caddyUser}.extraGroups = lib.mkAfter (lib.attrNames udsServices);
+    }
+  ))
 ]
