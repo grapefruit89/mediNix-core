@@ -61,6 +61,10 @@ The decimal structure maintains a sharp boundary between structure and runtime s
 
 So `532` reads as: `5` (namespace: project mediNix) · `3` (decade: Ingestion / Acquisition) · `2` (leaf: second acquisition service).
 
+### §1.3 Fraktales Ordnungsprinzip (Universelle Grammatik)
+
+Der Dezimalrahmen fungiert nicht nur als Verfassung für NixOS-Dienstmodule, sondern als universelle, fraktale Grammatik für die gesamte Dateisystem- und Repository-Ordnung. Dieselbe dekadische Systematik ordnet reine Hilfsfunktionen (`lib/`), Architektur-Dokumente (`docs/adr/`), Skripte und Credentials (`/var/lib/medinix/secrets/`) entlang der funktionalen Pipeline von Foundation (`_0`) bis Guardrails (`_9`). Die strengen Modul- und Runtime-Invarianten (keine Daemons in `_0`/`_9`, $\text{Port} = \text{UID} = \text{num} \times 10$) gelten dabei ausschließlich für ausführbare Dienstmodule und binden Nicht-Modul-Artefakte nicht. Dadurch bleibt das gesamte System über alle Abstraktionsebenen hinweg intuitiv navigierbar und frei von unstrukturierten Sonderordnern. (Quelle: Chat 1 Block 12 D-12-01).
+
 ---
 
 ## 2. The Structural Boundary Slots (`_0`, `_1`, `_2`, `_9`)
@@ -135,6 +139,10 @@ Declaring an optional `role` string in the service manifest (e.g. `role = "media
 Linux capabilities are an operational decision of the host system and are **never derived from numbers**.
 - **Validation only, no automatic injection:** The engine validates declared capabilities against a strict compile-time whitelist (`allowedCapabilities = [ "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" ]`). **It does not inject them into systemd unit configs.** Each service module requiring ambient capabilities must explicitly configure them in its own `serviceConfig.AmbientCapabilities`.
 - **Root Capability Defense:** Dangerous root capabilities (`CAP_SYS_ADMIN`, `CAP_SYS_RAWIO`, `CAP_SYS_MODULE`, `CAP_SETPCAP`, `CAP_SETUID`, `CAP_SETGID`, `CAP_CHOWN`, `CAP_NET_BROADCAST`) are strictly forbidden and trigger immediate build failure.
+
+### §4.4 Credentials-Speicherort (Secrets & Sealed Creds)
+
+TPM-versiegelte Geheimnisse (`.cred`-Dateien) liegen standardmäßig im persistenten System-Datenverzeichnis `/var/lib/medinix/secrets/` und niemals innerhalb des versionierten Nix-Modulbaums. Die Bereitstellung und Deklaration wird von `52-security/521-creds.nix` verwaltet und via `LoadCredentialEncrypted` an die jeweiligen Service-Units übergeben. Die Versionierung oder Sicherung dieser Schlüsseldateien erfolgt ausschließlich über private Repositorys oder separate lokale Backups mit strengem Zugriffsschutz, niemals in öffentlichen Quellen. Diese Trennung stellt sicher, dass die Dezimalphilosophie für Secret-Referenzen gewahrt bleibt, ohne sensible Daten im Nix-Store oder Git zu exponieren. (Quelle: Chat 1 Block 04 D-04-01, ADR-521).
 
 ---
 

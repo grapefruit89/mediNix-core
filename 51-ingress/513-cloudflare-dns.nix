@@ -25,6 +25,13 @@
 # derive a service hostname. 513 prunes ONLY the canonical {label}.${cfg.domain},
 # never {label}.${zone} — a mismatched zone must not be able to delete an
 # unrelated record.
+#
+# WAN-IP Provider & Speedport Runtime Notes (T-27):
+# - Rate-Limit: Speedport sperrt Logins fuer 5 Minuten nach Fehlversuchen (LoginPausedError).
+#   DDNS-Check-Intervall muss >= 15 Min sein; Session-Wiederverwendung beachten.
+# - speedport-api benoetigt Python 3.12 (pyproject.toml).
+# - public_ip_v4 ist synchron implementiert (kein await).
+# - host-Provider liefert die Router-IP bis T-26.
 {
   lib,
   pkgs,
