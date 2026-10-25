@@ -61,8 +61,8 @@
           "paths": [
             "/var/lib/caddy"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": null,
@@ -144,8 +144,8 @@
             "/etc/crowdsec",
             "/var/lib/crowdsec/data"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/metrics",
@@ -215,8 +215,8 @@
           "paths": [
             "/var/lib/blocky"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/metrics",
@@ -291,8 +291,8 @@
           "paths": [
             "/var/lib/pocket-id/data"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/health",
@@ -501,8 +501,8 @@
             "/var/lib/jellyfin/config",
             "/var/lib/jellyfin/data"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/health",
@@ -580,8 +580,8 @@
           "paths": [
             "/var/lib/seerr/db"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/api/v1/status",
@@ -657,8 +657,8 @@
           "paths": [
             "/var/lib/sonarr"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -734,8 +734,8 @@
           "paths": [
             "/var/lib/radarr"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -811,8 +811,8 @@
           "paths": [
             "/var/lib/prowlarr"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -879,8 +879,8 @@
           "paths": [
             "/var/lib/sabnzbd/sabnzbd.ini"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/api?mode=version",
@@ -957,8 +957,8 @@
             "/var/lib/audiobookshelf/config",
             "/var/lib/audiobookshelf/metadata"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/healthcheck",
@@ -1034,8 +1034,8 @@
           "paths": [
             "/var/lib/navidrome"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -1111,8 +1111,8 @@
           "paths": [
             "/var/lib/lidarr"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -1188,8 +1188,8 @@
           "paths": [
             "/var/lib/readarr"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/ping",
@@ -1265,8 +1265,8 @@
           "paths": [
             "/var/lib/gatus"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/health",
@@ -1342,8 +1342,8 @@
           "paths": [
             "/var/lib/ntfy-sh"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": "/v1/health",
@@ -1411,8 +1411,8 @@
           "paths": [
             "/var/lib/recyclarr/recyclarr.yml"
           ],
-          "method": null,
-          "source": "unknown"
+          "method": "restic",
+          "source": "57-maintenance/576-backup.nix"
         },
         "monitoring": {
           "health_path": null,
