@@ -42,6 +42,15 @@ let
   mkNoPort =
     name: number: profile: caddyClass:
     mkNoPortWithUnit name number profile caddyClass null;
+
+  mkUdsService =
+    name: number: profile: caddyClass: unitName:
+    (mkServiceWithUnit name number profile caddyClass unitName)
+    // {
+      uds_socket = true;
+      uds_path = "/run/${name}/${name}.sock";
+      port = null;
+    };
 in
 rec {
   services = {
@@ -50,7 +59,7 @@ rec {
     cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
     blocky = mkNoPortWithUnit "blocky" 515 "network" "none" "blocky";
     crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";
-    oauth2-proxy = mkService "oauth2-proxy" 517 "network" "none";
+    oauth2-proxy = mkUdsService "oauth2-proxy" 517 "network" "none" "oauth2-proxy";
 
     sonarr = mkService "sonarr" 532 "dotnet" "internal";
     radarr = mkService "radarr" 533 "dotnet" "internal";

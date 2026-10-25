@@ -9,7 +9,7 @@
 # links:
 # provides: ["forward-auth-proxy"]
 # requires: ["lib/registry"]
-# ports: [5170]
+# ports: []
 # upstream_docs: ["https://oauth2-proxy.github.io/oauth2-proxy/"]
 # forum_links: []
 # upstream_github: "https://github.com/oauth2-proxy/oauth2-proxy"
@@ -123,7 +123,7 @@ in
       enable = true;
       provider = "oidc";
       inherit (oa) clientID oidcIssuerUrl;
-      httpAddress = "unix:///run/oauth2-proxy/oauth2-proxy.sock";
+      httpAddress = "unix://${svc.uds_path}";
       # 511 setzt die X-Forwarded-*-Header; ohne reverseProxy verwirft der
       # Proxy sie, ohne setXauthrequest sieht der Dienst keinen Benutzer.
       reverseProxy = true;
@@ -167,6 +167,6 @@ in
     # Auth-Proxy, und 511 zeigt automatisch auf ihn - beides mkDefault, der Host
     # kann (z. B. auf einen externen Proxy) ueberschreiben.
     medinix.authProxyPresent = lib.mkDefault true;
-    medinix.ingress.auth.forwardAuthUpstream = lib.mkDefault "unix//run/oauth2-proxy/oauth2-proxy.sock";
+    medinix.ingress.auth.forwardAuthUpstream = lib.mkDefault "unix/${svc.uds_path}";
   };
 }
