@@ -1,14 +1,14 @@
 {
   "meta": {
-    "generated_at": "2026-10-25T15:55:24.260532+00:00",
+    "generated_at": "2026-10-25T17:28:12.161750+00:00",
     "generated_from": "programs.json",
-    "total_programs": 24,
+    "total_programs": 23,
     "note": "Abgeleitete Sicht. Single Source ist programs.json. Bei Änderung: /tmp/gen_concerns.py erneut ausführen."
   },
   "distributions": {
     "category": {
       "counts": {
-        "access": 7,
+        "access": 6,
         "core-app": 3,
         "exposition": 1,
         "ingestion": 5,
@@ -20,11 +20,10 @@
         "access": [
           "511",
           "516",
-          "ext-blocky",
+          "515",
           "512",
           "517",
-          "ext-speedport-api",
-          "ext-avahi"
+          "ext-speedport-api"
         ],
         "core-app": [
           "551",
@@ -59,7 +58,7 @@
     },
     "runtime": {
       "counts": {
-        "daemon": 20,
+        "daemon": 19,
         "library": 1,
         "timer": 2,
         "sub-tool": 1
@@ -68,7 +67,7 @@
         "daemon": [
           "511",
           "516",
-          "ext-blocky",
+          "515",
           "512",
           "517",
           "551",
@@ -83,7 +82,6 @@
           "534",
           "582",
           "581",
-          "ext-avahi",
           "ext-smartd",
           "ext-exportarr"
         ],
@@ -109,7 +107,7 @@
         "ips": 1,
         "edge": 1,
         "sqlite": 12,
-        "dns": 2,
+        "dns": 1,
         "split-dns": 1,
         "filtering": 1,
         "auth": 2,
@@ -146,8 +144,6 @@
         "notifications": 1,
         "config-sync": 1,
         "timer": 1,
-        "mdns": 1,
-        "discovery": 1,
         "backup": 2,
         "snapshot": 1,
         "encryption": 1,
@@ -196,14 +192,13 @@
           "582"
         ],
         "dns": [
-          "ext-blocky",
-          "ext-avahi"
+          "515"
         ],
         "split-dns": [
-          "ext-blocky"
+          "515"
         ],
         "filtering": [
-          "ext-blocky"
+          "515"
         ],
         "auth": [
           "512",
@@ -324,12 +319,6 @@
         "timer": [
           "ext-recyclarr"
         ],
-        "mdns": [
-          "ext-avahi"
-        ],
-        "discovery": [
-          "ext-avahi"
-        ],
         "backup": [
           "ext-restic",
           "ext-rclone"
@@ -368,7 +357,7 @@
         "ingress": 1,
         "security": 1,
         "sqlite": 12,
-        "dns": 2,
+        "dns": 1,
         "auth": 2,
         "library": 1,
         "streaming": 3,
@@ -402,8 +391,7 @@
           "582"
         ],
         "dns": [
-          "ext-blocky",
-          "ext-avahi"
+          "515"
         ],
         "auth": [
           "512",
@@ -458,7 +446,7 @@
       "description": "ADR-0000 Dekaden-Kategorien (10-Slot-Taxonomie)",
       "category_count": 7,
       "distribution": {
-        "access": 7,
+        "access": 6,
         "core-app": 3,
         "exposition": 1,
         "ingestion": 5,
@@ -471,7 +459,7 @@
       "description": "Runtime-Modi (daemon, timer, sub-tool, library, static)",
       "runtime_count": 4,
       "distribution": {
-        "daemon": 20,
+        "daemon": 19,
         "library": 1,
         "timer": 2,
         "sub-tool": 1
@@ -479,7 +467,7 @@
     },
     "tags": {
       "description": "Orthogonale funktionale Tags (Cluster-Sicht)",
-      "tag_count": 57,
+      "tag_count": 55,
       "distribution": {
         "ingress": 1,
         "tls": 1,
@@ -489,7 +477,7 @@
         "ips": 1,
         "edge": 1,
         "sqlite": 12,
-        "dns": 2,
+        "dns": 1,
         "split-dns": 1,
         "filtering": 1,
         "auth": 2,
@@ -526,8 +514,6 @@
         "notifications": 1,
         "config-sync": 1,
         "timer": 1,
-        "mdns": 1,
-        "discovery": 1,
         "backup": 2,
         "snapshot": 1,
         "encryption": 1,
@@ -543,7 +529,7 @@
         "ingress": 1,
         "security": 1,
         "sqlite": 12,
-        "dns": 2,
+        "dns": 1,
         "auth": 2,
         "library": 1,
         "streaming": 3,
@@ -602,59 +588,49 @@
       "description": "systemd-Hardening-Profile",
       "source": "lib/hardening-profiles.nix",
       "programs_by_profile": {
-        "unknown": [
+        "network": [
           "511",
-          "516",
-          "ext-blocky",
+          "515",
           "512",
           "517",
+          "ext-exportarr"
+        ],
+        "base": [
+          "516",
+          "553",
+          "582",
+          "581"
+        ],
+        "python": [
           "ext-speedport-api",
-          "551",
+          "541"
+        ],
+        "dotnet-gpu": [
+          "551"
+        ],
+        "nodejs": [
           "561",
+          "552"
+        ],
+        "dotnet": [
           "532",
           "533",
           "536",
-          "541",
-          "552",
-          "553",
           "535",
           "534",
-          "582",
-          "581",
-          "ext-recyclarr",
-          "ext-avahi",
+          "ext-recyclarr"
+        ],
+        "client": [
           "ext-restic",
-          "ext-smartd",
-          "ext-exportarr",
           "ext-rclone"
+        ],
+        "unknown": [
+          "ext-smartd"
         ]
       },
-      "profile_count": 1,
+      "profile_count": 8,
       "unknown_profile_programs": [
-        "511",
-        "516",
-        "ext-blocky",
-        "512",
-        "517",
-        "ext-speedport-api",
-        "551",
-        "561",
-        "532",
-        "533",
-        "536",
-        "541",
-        "552",
-        "553",
-        "535",
-        "534",
-        "582",
-        "581",
-        "ext-recyclarr",
-        "ext-avahi",
-        "ext-restic",
-        "ext-smartd",
-        "ext-exportarr",
-        "ext-rclone"
+        "ext-smartd"
       ]
     },
     "performance": {
@@ -675,7 +651,7 @@
       "description": "HTTP-Health + Metriken",
       "programs_with_health": [
         "516",
-        "ext-blocky",
+        "515",
         "512",
         "517",
         "551",
@@ -706,14 +682,13 @@
           "553",
           "581",
           "ext-recyclarr",
-          "ext-avahi",
           "ext-restic",
           "ext-smartd",
           "ext-rclone"
         ],
         "prometheus": [
           "516",
-          "ext-blocky",
+          "515",
           "ext-exportarr"
         ],
         "exportarr": [
