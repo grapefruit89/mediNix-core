@@ -1,12 +1,401 @@
 {
-  "generated_at": null,
-  "source_chat": "/home/moritz/repos/mediNix-core/todo/_input/chat.json",
-  "blocks_processed": [],
-  "summary": {
-    "decided": 0,
-    "proposed": 0,
-    "rejected": 0,
-    "open": 0
+  "meta": {
+    "generated_at": "2026-10-25T22:55:54.256476+00:00",
+    "total_blocks": 27,
+    "blocks_processed": [
+      "01-arch-vs-nixos",
+      "02-caddy-catch-all",
+      "03-crowdsec-scan-ban",
+      "04-credentials-systemd-creds",
+      "05-mdns-vs-blocky",
+      "06-dns-wan-ip-provider",
+      "07-pqc-hndl",
+      "08-firewall-nftables",
+      "09-kernel-hardening",
+      "10-power-management",
+      "11-51-tree-struktur",
+      "12-adr-dezimalrahmen",
+      "13-lib-vs-50-core",
+      "14-config-review-51-ingress",
+      "15-nixmap-ast-audit",
+      "16-agent-error-taxonomy",
+      "17-manifest-service-contract",
+      "18-flake-architecture-ci",
+      "19-community-flakes-benchmark",
+      "20-machine-readable-systemd-nixos",
+      "21-observability-automation",
+      "22-cloudflare-dns-bash-bug",
+      "23-systemd-hardening-syntax-bugs",
+      "24-mkforce-500-host-baseline",
+      "25-docs-trias",
+      "26-guardrail-591",
+      "27-caddy-plugin-replacements"
+    ],
+    "total_next_steps": 41,
+    "open_count": 37,
+    "done_count": 4,
+    "priority_summary": {
+      "open": {
+        "high": 9,
+        "medium": 16,
+        "low": 12
+      },
+      "done": {
+        "high": 4,
+        "medium": 0,
+        "low": 0
+      },
+      "total": {
+        "high": 13,
+        "medium": 16,
+        "low": 12
+      }
+    }
   },
-  "todos": []
+  "todos": [
+    {
+      "id": "N-01-01",
+      "block_id": "01-arch-vs-nixos",
+      "action": "Architektur-Vorgabe NixOS als SSoT in README.md beibehalten und FIDO2/Passkey-Support als zukünftige Option in ROADMAP.md vermerken",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-02-01",
+      "block_id": "02-caddy-catch-all",
+      "action": "In 511-caddy.nix: `abort` durch `respond \"Get off my lawn\" 404` in catchAllSites ersetzen",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-03-01",
+      "block_id": "03-crowdsec-scan-ban",
+      "action": "In 516-crowdsec.nix: 'crowdsecurity/http-probing' zu services.crowdsec.hub.collections hinzufügen",
+      "priority": "high",
+      "depends_on": [
+        "N-02-01"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-03-02",
+      "block_id": "03-crowdsec-scan-ban",
+      "action": "Entscheiden und ggf. Option für Ban-Dauer (168h) in 516-crowdsec.nix evaluieren",
+      "priority": "medium",
+      "depends_on": [
+        "N-03-01"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-04-01",
+      "block_id": "04-credentials-systemd-creds",
+      "action": "Sicherstellen, dass `*.cred` und `*.encrypted` in .gitignore von mediNix-core stehen und niemals ins Git gelangen",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-04-02",
+      "block_id": "04-credentials-systemd-creds",
+      "action": "Prüfen, ob oauth2-proxy (517) nativ auf Unix Domain Sockets umgestellt werden soll (Defense-in-Depth für Auth-Gatekeeper)",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-04-03",
+      "block_id": "04-credentials-systemd-creds",
+      "action": "In 512-pocket-id.nix: Testweise UNIX_SOCKET und TRUST_PROXY=true aktivieren und Audit-Log auf korrekte Client-IPs verifizieren",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-05-01",
+      "block_id": "05-mdns-vs-blocky",
+      "action": "515-mdns.nix entfernen oder per Option standardmäßig deaktivieren (medinix.discovery.mdns.enable = false)",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-05-02",
+      "block_id": "05-mdns-vs-blocky",
+      "action": "515-blocky.nix anlegen: Split-DNS für *.lan und *.m7c5.de → Caddy-IP; uid 5150, Port 53, CAP_NET_BIND_SERVICE via network-Profil",
+      "priority": "high",
+      "depends_on": [
+        "N-05-01"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-05-03",
+      "block_id": "05-mdns-vs-blocky",
+      "action": "Speedport *.lan-Auflösung prüfen (nslookup sonarr.lan 192.168.2.1) – entscheidet, ob Blocky die .lan-Auflösung übernehmen muss",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-05-04",
+      "block_id": "05-mdns-vs-blocky",
+      "action": "README.md in 51-ingress aktualisieren: .local als tot markieren, Blocky als Split-DNS dokumentieren",
+      "priority": "medium",
+      "depends_on": [
+        "N-05-02"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-06-01",
+      "block_id": "06-dns-wan-ip-provider",
+      "action": "In 513-cloudflare-dns.nix: WAN-IP-Ermittlung abstrahieren und Router-Gateway-Erkennung vorbereiten",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-06-02",
+      "block_id": "06-dns-wan-ip-provider",
+      "action": "Speedport UPnP vs Web-API Abruf für WAN-IP testen und als Provider-Option modellieren",
+      "priority": "low",
+      "depends_on": [
+        "N-06-01"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-07-01",
+      "block_id": "07-pqc-hndl",
+      "action": "Dokumentieren der HNDL-Gefahr und PQC-Roadmap in docs/adr/ADR-521-secret-management.md",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-08-01",
+      "block_id": "08-firewall-nftables",
+      "action": "Prüfen, ob in 520-core-security.nix eine Option `medinix.firewall.rejectLogging` für temporäre Fehlersuche ergänzt werden soll",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-09-01",
+      "block_id": "09-kernel-hardening",
+      "action": "Kernel-Modul-Blacklist im Host-Layer (q958) gegen ungenutzte Filesysteme (cifs, firewire, etc.) prüfen",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-10-01",
+      "block_id": "10-power-management",
+      "action": "Im Host-Repo (/home/moritz/repos/q958/): `powerManagement.cpuFreqGovernor = \"schedutil\";` und `boot.kernelParams = [ \"i915.enable_guc=3\" ];` einpflegen",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-11-01",
+      "block_id": "11-51-tree-struktur",
+      "action": "Strukturumbau in 51-ingress nach Freigabe vorbereiten (515-blocky.nix erstellen, 515-mdns.nix entfernen)",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-11-02",
+      "block_id": "11-51-tree-struktur",
+      "action": "lib/wan-ip-provider.nix erstellen und 513-cloudflare-dns.nix auf reines WAN-DDNS beschränken (LAN-Publishing entfernen)",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-12-01",
+      "block_id": "12-adr-dezimalrahmen",
+      "action": "ADR-0000 nach Review um den Grundsatz des fraktalen Dateisystem-Ordnungsprinzips ergänzen",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-12-02",
+      "block_id": "12-adr-dezimalrahmen",
+      "action": "In ADR-0000-dezimalrahmen-verfassung.md: Systematische Verortung von Secret-Pfaden und Credentials-Speicherorten dokumentieren",
+      "priority": "low",
+      "depends_on": [
+        "N-12-01"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-13-01",
+      "block_id": "13-lib-vs-50-core",
+      "action": "Import-Konventionen in docs/adr/ADR-040-gerichtete-abhaengigkeiten.md weiter präzisieren",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-14-01",
+      "block_id": "14-config-review-51-ingress",
+      "action": "Caddy-Renderreihenfolge in 511-caddy.nix prüfen und absichern",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-14-02",
+      "block_id": "14-config-review-51-ingress",
+      "action": "In lib/ingress-access.nix: Semantische CIDR- und IP-Validierung anstelle primitiver String-Präfix-Prüfungen implementieren",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-15-01",
+      "block_id": "15-nixmap-ast-audit",
+      "action": "Lint-Matrix als scripts/check-nixmap.py implementieren",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-16-01",
+      "block_id": "16-agent-error-taxonomy",
+      "action": "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-17-01",
+      "block_id": "17-manifest-service-contract",
+      "action": "Manifest-Schema als lib/manifest.nix formalisieren",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-18-01",
+      "block_id": "18-flake-architecture-ci",
+      "action": "CI-Check-Bündelung + QEMU-Entkopplung",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-19-01",
+      "block_id": "19-community-flakes-benchmark",
+      "action": "Community-Muster in docs/adr/ dokumentieren",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-20-01",
+      "block_id": "20-machine-readable-systemd-nixos",
+      "action": "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-21-01",
+      "block_id": "21-observability-automation",
+      "action": "Gatus-Healthcheck-Generierung aus Manifest implementieren",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-21-02",
+      "block_id": "21-observability-automation",
+      "action": "586-vpn-selftest.nix anlegen",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-22-01",
+      "block_id": "22-cloudflare-dns-bash-bug",
+      "action": "513 Prune-Bug fixen",
+      "priority": "high",
+      "depends_on": [],
+      "status": "done",
+      "commit_hash": "90553ad"
+    },
+    {
+      "id": "N-23-01",
+      "block_id": "23-systemd-hardening-syntax-bugs",
+      "action": "SocketBindAllow auf Port-Syntax korrigieren",
+      "priority": "high",
+      "depends_on": [],
+      "status": "done",
+      "commit_hash": "f3153df"
+    },
+    {
+      "id": "N-23-02",
+      "block_id": "23-systemd-hardening-syntax-bugs",
+      "action": "OnFailure nach unitConfig verschieben",
+      "priority": "high",
+      "depends_on": [],
+      "status": "done",
+      "commit_hash": "f3153df"
+    },
+    {
+      "id": "N-24-01",
+      "block_id": "24-mkforce-500-host-baseline",
+      "action": "mkForce in 500-host-baseline.nix durch composable Mechanismus ersetzen",
+      "priority": "high",
+      "depends_on": [],
+      "status": "done",
+      "commit_hash": "21ca67f"
+    },
+    {
+      "id": "N-25-01",
+      "block_id": "25-docs-trias",
+      "action": "Dokumentationstrias in ADR-0000 oder docs/ verankern",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-26-01",
+      "block_id": "26-guardrail-591",
+      "action": "keine",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-27-01",
+      "block_id": "27-caddy-plugin-replacements",
+      "action": "nftables GeoIP-Sets evaluieren",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-27-02",
+      "block_id": "27-caddy-plugin-replacements",
+      "action": "caddy-ratelimit durch nftables ersetzen",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-27-03",
+      "block_id": "27-caddy-plugin-replacements",
+      "action": "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    }
+  ]
 }

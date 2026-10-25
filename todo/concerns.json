@@ -1,0 +1,828 @@
+{
+  "meta": {
+    "generated_at": "2026-10-25T22:55:54.258570+00:00",
+    "total_concerns": 18,
+    "chat1_concerns_count": 8,
+    "new_concerns_count": 10,
+    "note": "Aggregierte Concern-Matrix aus Chat 1 und den Blöcken 15-27."
+  },
+  "distributions": {
+    "category": {
+      "counts": {
+        "access": 6,
+        "core-app": 3,
+        "exposition": 1,
+        "ingestion": 5,
+        "processing": 1,
+        "observability": 4,
+        "maintenance": 3
+      },
+      "programs": {
+        "access": [
+          "511",
+          "516",
+          "515",
+          "512",
+          "517",
+          "ext-speedport-api"
+        ],
+        "core-app": [
+          "551",
+          "552",
+          "553"
+        ],
+        "exposition": [
+          "561"
+        ],
+        "ingestion": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534"
+        ],
+        "processing": [
+          "541"
+        ],
+        "observability": [
+          "582",
+          "581",
+          "ext-smartd",
+          "ext-exportarr"
+        ],
+        "maintenance": [
+          "ext-recyclarr",
+          "ext-restic",
+          "ext-rclone"
+        ]
+      }
+    },
+    "runtime": {
+      "counts": {
+        "daemon": 19,
+        "library": 1,
+        "timer": 2,
+        "sub-tool": 1
+      },
+      "programs": {
+        "daemon": [
+          "511",
+          "516",
+          "515",
+          "512",
+          "517",
+          "551",
+          "561",
+          "532",
+          "533",
+          "536",
+          "541",
+          "552",
+          "553",
+          "535",
+          "534",
+          "582",
+          "581",
+          "ext-smartd",
+          "ext-exportarr"
+        ],
+        "library": [
+          "ext-speedport-api"
+        ],
+        "timer": [
+          "ext-recyclarr",
+          "ext-restic"
+        ],
+        "sub-tool": [
+          "ext-rclone"
+        ]
+      }
+    },
+    "tags": {
+      "counts": {
+        "ingress": 1,
+        "tls": 1,
+        "routing": 1,
+        "http": 1,
+        "security": 1,
+        "ips": 1,
+        "edge": 1,
+        "sqlite": 12,
+        "dns": 1,
+        "split-dns": 1,
+        "filtering": 1,
+        "auth": 2,
+        "oidc": 1,
+        "identity": 1,
+        "forward-auth": 1,
+        "oidc-client": 1,
+        "library": 1,
+        "wan-ip": 1,
+        "router": 1,
+        "streaming": 3,
+        "video": 1,
+        "transcoding": 1,
+        "catalog": 1,
+        "request": 1,
+        "api": 1,
+        "acquisition": 6,
+        "tv": 1,
+        "dotnet": 5,
+        "movies": 1,
+        "indexer": 1,
+        "transfer": 1,
+        "usenet": 1,
+        "download": 1,
+        "par2": 1,
+        "audio": 2,
+        "books": 2,
+        "music": 2,
+        "monitoring": 3,
+        "health": 1,
+        "dashboard": 1,
+        "alerting": 1,
+        "push": 1,
+        "notifications": 1,
+        "config-sync": 1,
+        "timer": 1,
+        "backup": 2,
+        "snapshot": 1,
+        "encryption": 1,
+        "hardware": 1,
+        "smart": 1,
+        "disk": 1,
+        "metrics": 1,
+        "prometheus": 1,
+        "offsite": 1,
+        "sync": 1
+      },
+      "programs": {
+        "ingress": [
+          "511"
+        ],
+        "tls": [
+          "511"
+        ],
+        "routing": [
+          "511"
+        ],
+        "http": [
+          "511"
+        ],
+        "security": [
+          "516"
+        ],
+        "ips": [
+          "516"
+        ],
+        "edge": [
+          "516"
+        ],
+        "sqlite": [
+          "516",
+          "512",
+          "551",
+          "561",
+          "532",
+          "533",
+          "536",
+          "552",
+          "553",
+          "535",
+          "534",
+          "582"
+        ],
+        "dns": [
+          "515"
+        ],
+        "split-dns": [
+          "515"
+        ],
+        "filtering": [
+          "515"
+        ],
+        "auth": [
+          "512",
+          "517"
+        ],
+        "oidc": [
+          "512"
+        ],
+        "identity": [
+          "512"
+        ],
+        "forward-auth": [
+          "517"
+        ],
+        "oidc-client": [
+          "517"
+        ],
+        "library": [
+          "ext-speedport-api"
+        ],
+        "wan-ip": [
+          "ext-speedport-api"
+        ],
+        "router": [
+          "ext-speedport-api"
+        ],
+        "streaming": [
+          "551",
+          "552",
+          "553"
+        ],
+        "video": [
+          "551"
+        ],
+        "transcoding": [
+          "551"
+        ],
+        "catalog": [
+          "561"
+        ],
+        "request": [
+          "561"
+        ],
+        "api": [
+          "561"
+        ],
+        "acquisition": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534",
+          "ext-recyclarr"
+        ],
+        "tv": [
+          "532"
+        ],
+        "dotnet": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534"
+        ],
+        "movies": [
+          "533"
+        ],
+        "indexer": [
+          "536"
+        ],
+        "transfer": [
+          "541"
+        ],
+        "usenet": [
+          "541"
+        ],
+        "download": [
+          "541"
+        ],
+        "par2": [
+          "541"
+        ],
+        "audio": [
+          "552",
+          "553"
+        ],
+        "books": [
+          "552",
+          "534"
+        ],
+        "music": [
+          "553",
+          "535"
+        ],
+        "monitoring": [
+          "582",
+          "ext-smartd",
+          "ext-exportarr"
+        ],
+        "health": [
+          "582"
+        ],
+        "dashboard": [
+          "582"
+        ],
+        "alerting": [
+          "581"
+        ],
+        "push": [
+          "581"
+        ],
+        "notifications": [
+          "581"
+        ],
+        "config-sync": [
+          "ext-recyclarr"
+        ],
+        "timer": [
+          "ext-recyclarr"
+        ],
+        "backup": [
+          "ext-restic",
+          "ext-rclone"
+        ],
+        "snapshot": [
+          "ext-restic"
+        ],
+        "encryption": [
+          "ext-restic"
+        ],
+        "hardware": [
+          "ext-smartd"
+        ],
+        "smart": [
+          "ext-smartd"
+        ],
+        "disk": [
+          "ext-smartd"
+        ],
+        "metrics": [
+          "ext-exportarr"
+        ],
+        "prometheus": [
+          "ext-exportarr"
+        ],
+        "offsite": [
+          "ext-rclone"
+        ],
+        "sync": [
+          "ext-rclone"
+        ]
+      }
+    },
+    "cluster_tags_14": {
+      "counts": {
+        "ingress": 1,
+        "security": 1,
+        "sqlite": 12,
+        "dns": 1,
+        "auth": 2,
+        "library": 1,
+        "streaming": 3,
+        "acquisition": 6,
+        "dotnet": 5,
+        "transfer": 1,
+        "monitoring": 3,
+        "alerting": 1,
+        "config-sync": 1,
+        "backup": 2
+      },
+      "programs": {
+        "ingress": [
+          "511"
+        ],
+        "security": [
+          "516"
+        ],
+        "sqlite": [
+          "516",
+          "512",
+          "551",
+          "561",
+          "532",
+          "533",
+          "536",
+          "552",
+          "553",
+          "535",
+          "534",
+          "582"
+        ],
+        "dns": [
+          "515"
+        ],
+        "auth": [
+          "512",
+          "517"
+        ],
+        "library": [
+          "ext-speedport-api"
+        ],
+        "streaming": [
+          "551",
+          "552",
+          "553"
+        ],
+        "acquisition": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534",
+          "ext-recyclarr"
+        ],
+        "dotnet": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534"
+        ],
+        "transfer": [
+          "541"
+        ],
+        "monitoring": [
+          "582",
+          "ext-smartd",
+          "ext-exportarr"
+        ],
+        "alerting": [
+          "581"
+        ],
+        "config-sync": [
+          "ext-recyclarr"
+        ],
+        "backup": [
+          "ext-restic",
+          "ext-rclone"
+        ]
+      }
+    }
+  },
+  "concerns": {
+    "categories": {
+      "description": "ADR-0000 Dekaden-Kategorien (10-Slot-Taxonomie)",
+      "category_count": 7,
+      "distribution": {
+        "access": 6,
+        "core-app": 3,
+        "exposition": 1,
+        "ingestion": 5,
+        "processing": 1,
+        "observability": 4,
+        "maintenance": 3
+      }
+    },
+    "runtimes": {
+      "description": "Runtime-Modi (daemon, timer, sub-tool, library, static)",
+      "runtime_count": 4,
+      "distribution": {
+        "daemon": 19,
+        "library": 1,
+        "timer": 2,
+        "sub-tool": 1
+      }
+    },
+    "tags": {
+      "description": "Orthogonale funktionale Tags (Cluster-Sicht)",
+      "tag_count": 55,
+      "distribution": {
+        "ingress": 1,
+        "tls": 1,
+        "routing": 1,
+        "http": 1,
+        "security": 1,
+        "ips": 1,
+        "edge": 1,
+        "sqlite": 12,
+        "dns": 1,
+        "split-dns": 1,
+        "filtering": 1,
+        "auth": 2,
+        "oidc": 1,
+        "identity": 1,
+        "forward-auth": 1,
+        "oidc-client": 1,
+        "library": 1,
+        "wan-ip": 1,
+        "router": 1,
+        "streaming": 3,
+        "video": 1,
+        "transcoding": 1,
+        "catalog": 1,
+        "request": 1,
+        "api": 1,
+        "acquisition": 6,
+        "tv": 1,
+        "dotnet": 5,
+        "movies": 1,
+        "indexer": 1,
+        "transfer": 1,
+        "usenet": 1,
+        "download": 1,
+        "par2": 1,
+        "audio": 2,
+        "books": 2,
+        "music": 2,
+        "monitoring": 3,
+        "health": 1,
+        "dashboard": 1,
+        "alerting": 1,
+        "push": 1,
+        "notifications": 1,
+        "config-sync": 1,
+        "timer": 1,
+        "backup": 2,
+        "snapshot": 1,
+        "encryption": 1,
+        "hardware": 1,
+        "smart": 1,
+        "disk": 1,
+        "metrics": 1,
+        "prometheus": 1,
+        "offsite": 1,
+        "sync": 1
+      },
+      "cluster_14_distribution": {
+        "ingress": 1,
+        "security": 1,
+        "sqlite": 12,
+        "dns": 1,
+        "auth": 2,
+        "library": 1,
+        "streaming": 3,
+        "acquisition": 6,
+        "dotnet": 5,
+        "transfer": 1,
+        "monitoring": 3,
+        "alerting": 1,
+        "config-sync": 1,
+        "backup": 2
+      }
+    },
+    "sqlite": {
+      "description": "SQLite-Tuning (journal_mode, synchronous, cache_size, mmap_size, busy_timeout)",
+      "programs_enabled": [
+        "516",
+        "512",
+        "551",
+        "561",
+        "532",
+        "533",
+        "536",
+        "552",
+        "553",
+        "535",
+        "534",
+        "582"
+      ],
+      "program_count": 12,
+      "tuning_variants": [
+        {
+          "journal_mode": "WAL",
+          "synchronous": "NORMAL",
+          "cache_size": "-32000",
+          "mmap_size": "134217728",
+          "busy_timeout": "5000"
+        },
+        {
+          "journal_mode": "WAL",
+          "synchronous": "NORMAL",
+          "cache_size": "-64000",
+          "mmap_size": "268435456",
+          "busy_timeout": "5000"
+        },
+        {
+          "journal_mode": "WAL",
+          "synchronous": "NORMAL",
+          "cache_size": "-128000",
+          "mmap_size": "536870912",
+          "busy_timeout": "10000"
+        }
+      ],
+      "variant_count": 3
+    },
+    "hardening": {
+      "description": "systemd-Hardening-Profile",
+      "source": "lib/hardening-profiles.nix",
+      "programs_by_profile": {
+        "network": [
+          "511",
+          "515",
+          "512",
+          "517",
+          "ext-exportarr"
+        ],
+        "base": [
+          "516",
+          "553",
+          "582",
+          "581"
+        ],
+        "python": [
+          "ext-speedport-api",
+          "541"
+        ],
+        "dotnet-gpu": [
+          "551"
+        ],
+        "nodejs": [
+          "561",
+          "552"
+        ],
+        "dotnet": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534",
+          "ext-recyclarr"
+        ],
+        "client": [
+          "ext-restic",
+          "ext-rclone"
+        ],
+        "unknown": [
+          "ext-smartd"
+        ]
+      },
+      "profile_count": 8,
+      "unknown_profile_programs": [
+        "ext-smartd"
+      ]
+    },
+    "performance": {
+      "description": "OOM/CPU/IO-Gewichtung und Memory-Limits",
+      "source": "lib/memory-policy.nix",
+      "programs_with_limits": [],
+      "program_count": 0
+    },
+    "backup": {
+      "description": "Backup-Pfade und -Methode",
+      "programs_with_paths": [],
+      "program_count": 0,
+      "methods_used": [
+        null
+      ]
+    },
+    "monitoring": {
+      "description": "HTTP-Health + Metriken",
+      "programs_with_health": [
+        "516",
+        "515",
+        "512",
+        "517",
+        "551",
+        "561",
+        "532",
+        "533",
+        "536",
+        "541",
+        "552",
+        "553",
+        "535",
+        "534",
+        "582",
+        "581",
+        "ext-exportarr"
+      ],
+      "health_count": 17,
+      "metrics_by_type": {
+        "none": [
+          "511",
+          "512",
+          "517",
+          "ext-speedport-api",
+          "551",
+          "561",
+          "541",
+          "552",
+          "553",
+          "581",
+          "ext-recyclarr",
+          "ext-restic",
+          "ext-smartd",
+          "ext-rclone"
+        ],
+        "prometheus": [
+          "516",
+          "515",
+          "ext-exportarr"
+        ],
+        "exportarr": [
+          "532",
+          "533",
+          "536",
+          "535",
+          "534"
+        ],
+        "native": [
+          "582"
+        ]
+      }
+    },
+    "manifest": {
+      "description": "SSoT Service Contract Schema (lib/manifest.nix)",
+      "source": "17-manifest-service-contract",
+      "fields": [
+        "id",
+        "decimal",
+        "access_group",
+        "health_path",
+        "backup_paths",
+        "vpn_routed",
+        "sqlite_tuning",
+        "hardening_profile"
+      ],
+      "status": "proposed",
+      "goal": "Single Source of Truth für Modul-Metadaten; deklarative Generierung von Gatus-, Restic- und Homepage-Konfigurationen"
+    },
+    "flake-ci": {
+      "description": "Flake-Architektur & 3-Stufen-CI (Fast-Eval PR-Gate, Unit-Tests, Full-Check)",
+      "source": "18-flake-architecture-ci",
+      "components": [
+        "fast-eval gate (<3s)",
+        "nix-unit für lib/",
+        "flake check --no-build",
+        "periodischer vollständiger VM/QEMU-Testlauf"
+      ],
+      "status": "decided"
+    },
+    "community-benchmark": {
+      "description": "Best-Practices-Benchmark gegen Community-Flakes (nixarr, Misterio77, nix-darwin)",
+      "source": "19-community-flakes-benchmark",
+      "patterns": [
+        "follows-Minimierung",
+        "Pinning von System-Inputs",
+        "Keine Container/Namespaces für UDS",
+        "Minimaler Overlay-Scope"
+      ],
+      "status": "decided"
+    },
+    "machine-readable": {
+      "description": "Maschinenlesbare Systemd- und NixOS-Optionen-Extraktion für Agenten",
+      "source": "20-machine-readable-systemd-nixos",
+      "tools": [
+        "nixos-option --json",
+        "systemd-analyze security --json",
+        "sys-triage"
+      ],
+      "status": "decided"
+    },
+    "observability": {
+      "description": "Deklarative Observability & Monitoring-Automatisierung",
+      "source": "21-observability-automation",
+      "components": [
+        "Gatus Auto-Konfiguration aus Manifest",
+        "VictoriaLogs sys-log CLI",
+        "Ntfy Push-Alarmierung"
+      ],
+      "status": "decided"
+    },
+    "caddy-plugins": {
+      "description": "Kernel-nahe und native Alternativen zu Custom-Caddy-Plugins",
+      "source": "27-caddy-plugin-replacements",
+      "replacements": {
+        "caddy-security-headers": "Standard Caddyfile header Direktive",
+        "caddy-ratelimit": "Caddy native rate_limit oder nftables / CrowdSec",
+        "caddy-tarpit": "Sofortiger Drop via nftables / CrowdSec",
+        "caddy-defender": "CrowdSec Ban-Kette",
+        "caddy-cerberus": "Kernel-nah via nftables"
+      },
+      "status": "decided"
+    },
+    "nixmap": {
+      "description": "44-Regeln Nix-AST Lint Matrix & statische Analyse",
+      "source": "15-nixmap-ast-audit",
+      "enforced_rules": [
+        "Kein // Operator (recursiveUpdate statt //)",
+        "Keine assert/throw im Modulbaum",
+        "Kein with (explizite Bindings)",
+        "Keine rec-Selbstreferenz",
+        "Option-Default-Prüfung"
+      ],
+      "status": "decided"
+    },
+    "agent-errors": {
+      "description": "Taxonomie von Agenten-Fehlerklassen & automatisierte Guardrails",
+      "source": "16-agent-error-taxonomy",
+      "error_classes": [
+        "Tool-Aufruf-Fehler (Quotes, Escapes)",
+        "Trailing Commas in JSON/Nix",
+        "Maskierte Exit-Codes in Pipes",
+        "Ghost-Configs",
+        "Lange synchrone Blockaden"
+      ],
+      "mitigations": [
+        "Statische Validierung vor Commit",
+        "sys-triage vor Änderungen",
+        "Zero-Remote Invariante"
+      ],
+      "status": "decided"
+    },
+    "docs-trias": {
+      "description": "Architektur-Dokumentations-Trias (ADR, NIXMETA, programs.json)",
+      "source": "25-docs-trias",
+      "roles": {
+        "ADR": "Warum (Architekturentscheidungen, Trade-offs, Begründung)",
+        "NIXMETA": "Was (Modulinvarianten, Ports, Pfade im Code-Header)",
+        "programs.json": "Wie (Maschinenlesbare Konfiguration, Datenverzeichnisse, Tuning)"
+      },
+      "status": "decided"
+    },
+    "guardrails": {
+      "description": "Cross-Domain Guardrails & Invarianten-Prüfung (591-cross-domain.nix)",
+      "source": "26-guardrail-591",
+      "invariants": [
+        "Port=UID=Numx10",
+        "Keine Daemonen auf 0 und 9",
+        "UDS-Konsistenz",
+        "Keine Banned Technologies"
+      ],
+      "status": "decided"
+    }
+  }
+}
