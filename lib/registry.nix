@@ -55,7 +55,7 @@ in
 rec {
   services = {
     caddy = mkService "caddy" 511 "network" "none";
-    pocket-id = mkService "pocket-id" 512 "network" "public";
+    pocket-id = mkUdsService "pocket-id" 512 "network" "public" "pocket-id";
     cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
     blocky = mkNoPortWithUnit "blocky" 515 "network" "none" "blocky";
     crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";

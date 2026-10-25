@@ -217,8 +217,8 @@ in
       services.pocket-id = {
         enable = true;
         settings = {
-          HOST = "127.0.0.1";
-          PORT = svc.port;
+          UNIX_SOCKET = svc.uds_path;
+          TRUST_PROXY = true;
         };
         user = "pocket-id";
       };
@@ -231,6 +231,10 @@ in
         profile = "network";
         hardeningOnly = true;
         extraConfig = {
+          RuntimeDirectory = "pocket-id";
+          RuntimeDirectoryMode = "0770";
+          UMask = lib.mkForce "0007";
+          StateDirectoryMode = lib.mkForce "0700";
           RestrictNetworkInterfaces = [ "lo" ];
           ReadWritePaths = [ svc.stateDir ];
         };
