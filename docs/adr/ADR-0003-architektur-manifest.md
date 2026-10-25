@@ -19,6 +19,9 @@ The core must never assume it owns the bare-metal host. We integrate politely.
 * **DO:** Use the `hostIntegration` tri-state (`managed`, `external`, `off`) to dictate if the core applies these recommendations additively, or if they are handed off to the host admin via `ADMIN-HANDOFF.md`.
 * **DON'T:** Never blindly override host components (`networking.nftables.enable = true` unconditionally is forbidden). 
 
+### Host-Empfehlung CPU-Governor
+Für den Headless-Betrieb des mediNix-Hosts wird die Verwendung des `schedutil`-Governors in Verbindung mit dem dynamischen Daemon `auto-cpufreq` als Host-Voraussetzung empfohlen. `schedutil` reagiert über den Kernel-Scheduler ohne Userspace-Polling direkt auf Laständerungen (z. B. CPU-intensives SABnzbd-Entpacken oder GPU-assistiertes Transcoding), während `auto-cpufreq` im Leerlauf maximale C-States und geringe Leistungsaufnahme sicherstellt. Laptop-orientierte Tools wie TLP dürfen wegen gegenseitiger Signalblockaden nicht parallel betrieben werden. Diese dynamische Ressourcensteuerung ergänzt die OOM- und Speicher-Policies aus `lib/memory-policy.nix` auf Betriebssystemebene. (Quelle: `lib/memory-policy.nix`, Chat 1 Block 10 D-10-01).
+
 ## 2. Priority Discipline & Additive Configuration
 * **DO:** Use standard Nix list additions (e.g. `[ "@system-service" ]` instead of strings) so that `systemd` configurations can merge elegantly with upstream or host configurations.
 * **DON'T:** **`mkForce` is strictly forbidden.** If you have to use `mkForce`, the architecture is wrong and needs to be refactored.

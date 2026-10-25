@@ -46,3 +46,8 @@ the backup daemon (594) all had to agree on a magic number.
 - `grep -rn "53844" --include="*.nix" .` must return only documentation text,
   never a live port assignment.
 - Build assertion in 525 fires if `cfg.port != 22`.
+
+## Hybride PQC-Empfehlung (HNDL-Schutz)
+
+Für administrative SSH-Sessions wird die Aktivierung des hybriden Post-Quantum-Schlüsselaustauschs `mlkem768x25519-sha256` empfohlen (ab OpenSSH 9.9 verfügbar, ab OpenSSH 10.0 Standard). Das Verfahren kombiniert den NIST-standardisierten FIPS-203-Algorithmus (ML-KEM-768) mit der klassischen X25519-Kurve. Dies schützt aufgezeichneten Netzwerkverkehr wirksam vor retrospektiver Entschlüsselung durch zukünftige Quantencomputer („Harvest Now, Decrypt Later“, HNDL). Da mediNix dem Prinzip *Publish-Don't-Apply* folgt, erfolgt keine harte Durchsetzung im Code, sondern die Bereitstellung als Host-Härtungsempfehlung. (Quelle: OpenSSH Upstream 9.9/10.0, Chat 1 Block 07 D-07-03).
+
