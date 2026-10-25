@@ -22,8 +22,7 @@ rec {
     ];
     SocketBindDeny = [ "any" ];
     SocketBindAllow = [
-      "127.0.0.1"
-      "::1"
+      "1024-65535"
     ];
   };
   # Connect anywhere; still bind only localhost. 526 is the WAN choke.
@@ -37,8 +36,7 @@ rec {
     ];
     SocketBindDeny = [ "any" ];
     SocketBindAllow = [
-      "127.0.0.1"
-      "::1"
+      "1024-65535"
     ];
   };
   networkPolicy.proxy = {
@@ -91,7 +89,6 @@ rec {
       0
       143
     ];
-    OnFailure = [ "alert-ntfy@%n.service" ];
     # "-" prefix (systemd.exec): ignore the entry when the path does not exist.
     # Without it a missing path (e.g. /run/secrets, legacy) aborts the unit with
     # 226/NAMESPACE at namespace setup. All entries are "deny if present".

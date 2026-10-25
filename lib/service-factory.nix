@@ -116,6 +116,9 @@ else
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       requires = [ "network.target" ];
+      unitConfig = {
+        OnFailure = [ "alert-ntfy@%n.service" ];
+      };
       serviceConfig = lib.mkMerge [
         # 0) Standard-Logging: alles in Journal (kein /var/log-File, kein stdout-Verlust)
         {
