@@ -108,6 +108,10 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         Ref: ADR-513
       '';
     }
+    {
+      assertion = ddns.wanIp.provider != "command" || ddns.wanIp.command != null;
+      message = "[mediNix/513] wanIp.provider = \"command\" requires wanIp.command != null.";
+    }
   ];
 
   systemd.services.cloudflare-ddns = lib.mkMerge [
@@ -176,8 +180,8 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
         unset TOKEN
 
         ${wanIpLib.mkWanIpProvider {
-          provider = ddns.wanIp.provider or "external";
-          command = ddns.wanIp.command or null;
+          provider = ddns.wanIp.provider;
+          command = ddns.wanIp.command;
         }}
         echo "Detected WAN IP: $WAN_IP"
 

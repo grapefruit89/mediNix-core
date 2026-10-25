@@ -902,6 +902,27 @@ in
             (self-healing). true = Legacy-Verhalten für bestehende Setups.
           '';
         };
+        wanIp = {
+          provider = lib.mkOption {
+            type = lib.types.enum [
+              "host"
+              "external"
+              "command"
+            ];
+            default = "external";
+            description = ''
+              WAN-IP provider:
+              - host:     default gateway (runtime) — placeholder, returns router IP until speedport provider is wired (T-26)
+              - external: ifconfig.me / api.ipify.org (current default until T-26)
+              - command:  custom shell command (must set WAN_IP)
+            '';
+          };
+          command = lib.mkOption {
+            type = lib.types.nullOr lib.types.lines;
+            default = null;
+            description = "Custom shell command, only when provider = command. Must set WAN_IP.";
+          };
+        };
       };
     };
 
