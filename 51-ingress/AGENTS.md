@@ -14,7 +14,7 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 - Auth-/OIDC-Integration (512)
 - DNS/DDNS (513)
 - ACME/TLS (514)
-- mDNS (515)
+- Split-DNS/Blocky (515)
 - CrowdSec-Bouncer (516)
 - Landingpage (518)
 - Ingress-Guardrails und Ownership-Konflikte (519)
@@ -143,7 +143,7 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 | `512-pocket-id` | [`512-pocket-id.nix`](512-pocket-id.nix) | active | 4/5 |  |
 | `513-cloudflare-dns` | [`513-cloudflare-dns.nix`](513-cloudflare-dns.nix) | active | -/5 | - |
 | `514-acme` | [`514-acme.nix`](514-acme.nix) | active | -/5 | - |
-| `515-mdns` | [`515-mdns.nix`](515-mdns.nix) | active | 3/5 | - |
+| `515-blocky` | [`515-blocky.nix`](515-blocky.nix) | active | 3/5 |  |
 | `516-crowdsec` | [`516-crowdsec.nix`](516-crowdsec.nix) | active | 3/5 | - |
 | `517-oauth2-proxy` | [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) | active | 3/5 |  |
 | `518-landingpage` | [`518-landingpage.nix`](518-landingpage.nix) | active | 2/5 | - |
@@ -172,7 +172,8 @@ graph TD
   512_pocket_id["512-pocket-id"] --> service_factory["lib/service-factory"]
   513_cloudflare_dns["513-cloudflare-dns"] --> service_factory["lib/service-factory"]
   514_acme["514-acme"]
-  515_mdns["515-mdns"] --> ingress_access["lib/ingress-access"]
+  515_blocky["515-blocky"] --> registry["lib/registry"]
+  515_blocky["515-blocky"] --> service_factory["lib/service-factory"]
   516_crowdsec["516-crowdsec"] --> ingress_access["lib/ingress-access"]
   516_crowdsec["516-crowdsec"] --> service_factory["lib/service-factory"]
   516_crowdsec["516-crowdsec"] --> registry["lib/registry"]

@@ -22,6 +22,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `caddy` | `–` | 511 | 5110 | 5110 | **5110** | `network` | `none` |
 | `pocket-id` | `–` | 512 | 5120 | 5120 | **5120** | `network` | `public` |
 | `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `script` | `none` |
+| `blocky` | `–` | 515 | – | 5150 | **5150** | `network` | `none` |
 | `crowdsec` | `–` | 516 | – | 5160 | **5160** | `network` | `none` |
 | `oauth2-proxy` | `–` | 517 | 5170 | 5170 | **5170** | `network` | `none` |
 | `sonarr` | `–` | 532 | 5320 | 5320 | **5320** | `dotnet` | `internal` |
@@ -87,7 +88,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Pocket ID OIDC process](adr/ADR-512-pocket-id.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-513-cloudflare-dns.md)
 - [TLS-Zertifikate: Lego + Cloudflare DNS-01 mit eigenem Token](adr/ADR-514-acme-lego-dns01.md)
-- [mDNS Aliases (Avahi): {service}.local -> LAN-IP](adr/ADR-515-mdns-avahi-aliases.md)
 - [CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)](adr/ADR-516-crowdsec.md)
 - [Auth-Flow: OIDC wo möglich, Forward-Auth als Lücke, Jellyfin/Seerr ausgenommen](adr/ADR-517-oauth2-proxy-forward-auth.md)
 - [Landingpage Honeypot](adr/ADR-518-landingpage-honeypot.md)

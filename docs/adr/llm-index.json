@@ -255,9 +255,9 @@
     },
     {
       "id": "515",
-      "file": "ADR-515-mdns-avahi-aliases.md",
-      "topic": "mDNS aliases {service}.local via avahi",
-      "status": "active"
+      "file": "ARCHIVE-ADR-515-mdns-avahi-aliases.md",
+      "topic": "mDNS aliases {service}.local via avahi (archived, replaced by Blocky)",
+      "status": "archived"
     },
     {
       "id": "572",

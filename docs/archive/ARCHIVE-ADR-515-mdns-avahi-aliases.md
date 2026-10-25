@@ -1,10 +1,10 @@
 ---
 id: "ADR-515"
-title: "mDNS Aliases (Avahi): {service}.local -> LAN-IP"
+title: "mDNS Aliases (Avahi): {service}.local -> LAN-IP (Archiviert - ersetzt durch Blocky)"
 domain: 51
-status: active
+status: archived
 complexity: 3
-last_reviewed: 2026-10-16
+last_reviewed: 2026-10-25
 tags:
   - ingress
   - dns
@@ -14,9 +14,9 @@ links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-515: mDNS Aliases — {service}.local (51-ingress, Dienst 515)
+# ADR-515: mDNS Aliases — {service}.local (Archiviert — ersetzt durch Blocky)
 
-## Status: active
+## Status: archived (ersetzt durch Blocky Split-DNS)
 ## Date: 2026-10-16
 ## Source: 51-ingress/515-mdns.nix + lib/registry.nix
 ## Related: ADR-511 (Caddy), ADR-51 (Split-DNS-Hinweis), ADR-0000 (Dezimalrahmen)

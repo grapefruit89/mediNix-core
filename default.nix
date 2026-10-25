@@ -1046,37 +1046,6 @@ in
       };
     };
 
-    discovery = {
-      mdns = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-        };
-        # Finding 8 (Review 2026-10-17): mDNS oeffnet UDP/5353 sonst auf ALLEN
-        # Interfaces (nixpkgs `services.avahi.openFirewall`, Default true) - auch
-        # WAN-seitig. Default: nur oeffnen, wenn mediNix die Firewall fuehrt; im
-        # Modus "external" entscheidet der Host.
-        openFirewall = lib.mkOption {
-          type = lib.types.bool;
-          default = cfg.hostIntegration.firewall == "managed";
-          description = ''
-            Open UDP/5353 for avahi (mDNS). Default: only when mediNix manages
-            the firewall (hostIntegration.firewall == "managed").
-          '';
-        };
-        allowInterfaces = lib.mkOption {
-          type = lib.types.nullOr (lib.types.listOf lib.types.str);
-          default = null;
-          example = [ "lan0" ];
-          description = ''
-            Restrict mDNS to these interfaces. nixpkgs default null = all local
-            interfaces except loopback/point-to-point - which includes WAN-side
-            ones (Review 2026-10-17, Finding 8).
-          '';
-        };
-      };
-    };
-
     vpn = {
       enable = lib.mkEnableOption "Flake-managed WireGuard VPN (mediNix erstellt das Interface selbst)";
 

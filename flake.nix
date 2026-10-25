@@ -248,7 +248,6 @@
           medinix.pocketId.setupCompleted = true;
           medinix.maintenance.recyclarr.enable = true;
           medinix.diskHealth.enable = true;
-          medinix.discovery.mdns.enable = true;
           # 2026-10-15 (Teil 2): diese Units existierten im Stack GAR NICHT und waren
           # damit ungeprueft (gemessen: mediNix-*, acme-*, cloudflare-ddns fehlten in
           # der Unit-Liste). 513 baut nur im Modus "standalone" eine Unit; 514 nur mit
