@@ -164,7 +164,7 @@ in
               decisions = [
                 {
                   type = "ban";
-                  duration = "4h";
+                  duration = "168h";
                 }
               ];
               on_success = "break";
