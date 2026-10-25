@@ -143,12 +143,13 @@ in
     systemd.services.oauth2-proxy.serviceConfig = {
       RuntimeDirectory = "oauth2-proxy";
       RuntimeDirectoryMode = "0770";
-      SupplementaryGroups = [ "caddy" ];
+      UMask = "0007";
+      StateDirectory = "oauth2-proxy";
+      StateDirectoryMode = "0700";
       LoadCredentialEncrypted = [
         "client-secret:${oa.clientSecretCredential}"
         "cookie-secret:${oa.cookieSecretCredential}"
       ];
-      StateDirectory = "oauth2-proxy";
       # ADR-5050-Baseline. Bewusst OHNE `RestrictNetworkInterfaces`: der Proxy
       # muss den Issuer erreichen koennen (Netz + DNS). Die Abschottung nach
       # aussen macht der Loopback-Listener plus 511 als einziges WAN-Gesicht.
@@ -161,7 +162,7 @@ in
 
     # ADR-0000: eine Quelle fuer Port/UID (Registry), nichts hartkodiert.
     users.users.oauth2-proxy.uid = svc.uid;
-    users.groups.caddy = { };
+    users.users.caddy.extraGroups = [ "oauth2-proxy" ];
 
     # F19: kein manueller Spiegel mehr. Wer 517 einschaltet, hat einen
     # Auth-Proxy, und 511 zeigt automatisch auf ihn - beides mkDefault, der Host
