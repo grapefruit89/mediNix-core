@@ -48,6 +48,7 @@ rec {
     caddy = mkService "caddy" 511 "network" "none";
     pocket-id = mkService "pocket-id" 512 "network" "public";
     cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
+    blocky = mkNoPortWithUnit "blocky" 515 "network" "none" "blocky";
     crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";
     oauth2-proxy = mkService "oauth2-proxy" 517 "network" "none";
 
@@ -62,7 +63,6 @@ rec {
     jellyfin = mkService "jellyfin" 551 "dotnet-gpu" "stream";
     audiobookshelf = mkService "audiobookshelf" 552 "nodejs" "stream";
     navidrome = mkService "navidrome" 553 "nodejs" "stream";
-    feishin = mkNoPort "feishin" 554 "network" "none";
     seerr = mkService "seerr" 561 "nodejs" "public";
 
     gatus = mkService "gatus" 582 "network" "internal";

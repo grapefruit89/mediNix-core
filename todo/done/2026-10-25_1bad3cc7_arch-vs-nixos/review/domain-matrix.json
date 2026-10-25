@@ -1,0 +1,543 @@
+{
+  "generated_at": "2026-10-25T16:00:22.409093+00:00",
+  "source": "todo/done/2026-10-25_1bad3cc7_arch-vs-nixos/",
+  "total_todos": 29,
+  "total_anti_patterns": 31,
+  "domains": {
+    "flake.nix": {
+      "domain": "flake.nix",
+      "todo_count": 3,
+      "anti_count": 0,
+      "total": 3,
+      "todos": [
+        {
+          "id": "T-22",
+          "type": "dependency-update",
+          "title": "Caddy auf 2.11.4 updaten (CVE-2026-0354)",
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "code_diff_status": null
+        },
+        {
+          "id": "T-23",
+          "type": "dependency-update",
+          "title": "CrowdSec auf 1.7.8 updaten (NIXPKGS-2026-2196)",
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "code_diff_status": null
+        },
+        {
+          "id": "T-24",
+          "type": "dependency-update",
+          "title": "Seerr auf 3.4.0 updaten (CVE-2026-73291)",
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "code_diff_status": null
+        }
+      ],
+      "anti_patterns": [],
+      "files_in_domain": [
+        "flake.nix"
+      ],
+      "priority_reason": "3 kritische Dependency-CVEs (Caddy CVE-2026-0354, CrowdSec NIXPKGS-2026-2196, Seerr CVE-2026-73291)"
+    },
+    "51-ingress": {
+      "domain": "51-ingress",
+      "todo_count": 14,
+      "anti_count": 14,
+      "total": 28,
+      "todos": [
+        {
+          "id": "T-01",
+          "type": "code-change",
+          "title": "Caddy Catch-All: abort durch respond 404 ersetzen",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-02",
+          "type": "code-change",
+          "title": "CrowdSec: Hub-Collections um crowdsecurity/http-probing erweitern",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-03",
+          "type": "code-change",
+          "title": "CrowdSec: Ban-Dauer von 4h auf 168h verlängern",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-05",
+          "type": "test-later",
+          "title": "Pocket-ID UDS evaluieren (Gin-Bug #1249)",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/512-pocket-id.nix",
+          "code_diff_status": "unklar"
+        },
+        {
+          "id": "T-06",
+          "type": "code-change",
+          "title": "oauth2-proxy: Auf Unix Domain Socket umstellen",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/517-oauth2-proxy.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-07",
+          "type": "code-change",
+          "title": "mDNS-Ausmusterung: 515-mdns.nix entfernen / deaktivieren",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-08",
+          "type": "test-later",
+          "title": "WAN-IP: Speedport-Adapter via Default-Gateway",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "unklar"
+        },
+        {
+          "id": "T-09",
+          "type": "code-change",
+          "title": "Keine festen Router-IPs: Default-Gateway dynamisch ableiten",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-10",
+          "type": "code-change",
+          "title": "Modularer Provider-Dispatch für DDNS via types.enum",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-16",
+          "type": "code-change",
+          "title": "51-Baum: Slot 515 für 515-blocky.nix nachnutzen",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-17",
+          "type": "code-change",
+          "title": "51-Baum: Vollständige Ausmusterung von 515-mdns.nix",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-18",
+          "type": "code-change",
+          "title": "51-Baum: LAN-Publishing aus 513 entfernen & Provider-Lib auslagern",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-26",
+          "type": "code-change",
+          "title": "513-cloudflare-dns.nix: Provider speedport integrieren",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "unklar"
+        },
+        {
+          "id": "T-27",
+          "type": "doc-change",
+          "title": "513-cloudflare-dns.nix: Rate-Limit- und Laufzeitdokumentation",
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+          "code_diff_status": "unklar"
+        }
+      ],
+      "anti_patterns": [
+        {
+          "id": "A-03",
+          "title": "HTTP-Statuscode 666 ('get off my lawn') für Scanner ausgeben",
+          "source_block": "02-caddy-catch-all"
+        },
+        {
+          "id": "A-04",
+          "title": "HTTP-Statuscode 403 (Forbidden) für unbekannte Subdomains nutzen",
+          "source_block": "02-caddy-catch-all"
+        },
+        {
+          "id": "A-05",
+          "title": "tls internal (Caddy lokale Root-CA) für LAN-Subdomains",
+          "source_block": "02-caddy-catch-all"
+        },
+        {
+          "id": "A-06",
+          "title": "App-Layer-Bouncer in Caddy (Caddy CrowdSec Bouncer Modul) statt nftables-Bouncer",
+          "source_block": "03-crowdsec-scan-ban"
+        },
+        {
+          "id": "A-07",
+          "title": "HTTP-Tarpit (endlessh-ähnlich) für scannende Web-Clients",
+          "source_block": "03-crowdsec-scan-ban"
+        },
+        {
+          "id": "A-11",
+          "title": "mDNS behalten für Zero-Conf",
+          "source_block": "05-mdns-vs-blocky"
+        },
+        {
+          "id": "A-12",
+          "title": ".local in Caddy durch .lan ersetzen",
+          "source_block": "05-mdns-vs-blocky"
+        },
+        {
+          "id": "A-13",
+          "title": "Bind auf LAN beschränken als Ersatz für DNS-Eintrag",
+          "source_block": "05-mdns-vs-blocky"
+        },
+        {
+          "id": "A-14",
+          "title": "TR-064 SOAP-Schnittstelle beim Speedport Smart 4 erzwingen",
+          "source_block": "06-dns-wan-ip-provider"
+        },
+        {
+          "id": "A-15",
+          "title": "Feste Router-IP 192.168.2.1 im NixOS-Modul hardcodieren",
+          "source_block": "06-dns-wan-ip-provider"
+        },
+        {
+          "id": "A-16",
+          "title": "RFC1918-IPs standardmäßig in öffentliche Cloudflare-DNS-Zone schreiben (publishLanRecord = true)",
+          "source_block": "06-dns-wan-ip-provider"
+        },
+        {
+          "id": "A-25",
+          "title": "Neuen Dezimalslot wie 513b oder Sub-Nummern für WAN-Provider einführen",
+          "source_block": "11-51-tree-struktur"
+        },
+        {
+          "id": "A-29",
+          "title": "Monolithischen Chat-Dump in einem einzigen Schritt ohne Zwischenblöcke verarbeiten",
+          "source_block": "14-config-review-51-ingress"
+        },
+        {
+          "id": "A-30",
+          "title": "Interne TLS-Zertifikate über eigene CA anstatt ACME DNS-01 verteilen",
+          "source_block": "14-config-review-51-ingress"
+        }
+      ],
+      "files_in_domain": [
+        "511-caddy.nix",
+        "512-pocket-id.nix",
+        "513-cloudflare-dns.nix",
+        "514-acme.nix",
+        "515-mdns.nix",
+        "516-crowdsec.nix",
+        "517-oauth2-proxy.nix",
+        "518-landingpage.nix",
+        "519-ingress-guardrails.nix"
+      ],
+      "priority_reason": "14 offene Todos + 14 Anti-Patterns (Caddy, CrowdSec, DNS, DDNS)"
+    },
+    "52-security": {
+      "domain": "52-security",
+      "todo_count": 3,
+      "anti_count": 7,
+      "total": 10,
+      "todos": [
+        {
+          "id": "T-04",
+          "type": "code-change",
+          "title": "Secret-Management: *.cred und *.encrypted in .gitignore aufnehmen",
+          "file": "/home/moritz/repos/mediNix-core/.gitignore",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-12",
+          "type": "code-change",
+          "title": "Firewall: Deklarativer Debug-Reject-Modus mit Logging",
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-13",
+          "type": "test-later",
+          "title": "Kernel-Hardening: Modul-Blacklist & lockKernelModules evaluieren",
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "code_diff_status": "unklar"
+        }
+      ],
+      "anti_patterns": [
+        {
+          "id": "A-08",
+          "title": "sops-nix für Secret-Management in mediNix-core nutzen",
+          "source_block": "04-credentials-systemd-creds"
+        },
+        {
+          "id": "A-09",
+          "title": "Eine gemeinsame Passwörter-Sammeldatei (`all-secrets.cred`) für alle Dienste nutzen",
+          "source_block": "04-credentials-systemd-creds"
+        },
+        {
+          "id": "A-10",
+          "title": "socat-UDS-Bridge vor Pocket ID schalten, um Unix Domain Sockets zu erzwingen",
+          "source_block": "04-credentials-systemd-creds"
+        },
+        {
+          "id": "A-17",
+          "title": "Agenix mit klassischen Ed25519-Schlüsseln auf GitHub nutzen",
+          "source_block": "07-pqc-hndl"
+        },
+        {
+          "id": "A-18",
+          "title": "Warten auf reine PQC-Kryptografie vor dem Deployment",
+          "source_block": "07-pqc-hndl"
+        },
+        {
+          "id": "A-19",
+          "title": "Imperative `iptables -A INPUT ...` Befehle zur schnellen Portöffnung nutzen",
+          "source_block": "08-firewall-nftables"
+        },
+        {
+          "id": "A-20",
+          "title": "Permanentes REJECT statt DROP für unberechtigte Verbindungen",
+          "source_block": "08-firewall-nftables"
+        }
+      ],
+      "files_in_domain": [
+        "520-core-security.nix",
+        "521-creds.nix",
+        "525-vpn-interface.nix",
+        "526-vpn-killswitch.nix"
+      ],
+      "priority_reason": "3 offene Todos + 7 Anti-Patterns (Secret-Management, PQC, Firewall)"
+    },
+    "50-core": {
+      "domain": "50-core",
+      "todo_count": 0,
+      "anti_count": 7,
+      "total": 7,
+      "todos": [],
+      "anti_patterns": [
+        {
+          "id": "A-01",
+          "title": "Arch Linux als Basis für mediNix-core nutzen",
+          "source_block": "01-arch-vs-nixos"
+        },
+        {
+          "id": "A-02",
+          "title": "Ansible für mediNix-Host-Konfiguration einsetzen",
+          "source_block": "01-arch-vs-nixos"
+        },
+        {
+          "id": "A-21",
+          "title": "Eigene Kernel-Patches schreiben und Kernel selbst kompilieren",
+          "source_block": "09-kernel-hardening"
+        },
+        {
+          "id": "A-22",
+          "title": "LKRG (Linux Kernel Runtime Guard) als Pflichtmodul erzwingen",
+          "source_block": "09-kernel-hardening"
+        },
+        {
+          "id": "A-23",
+          "title": "TLP und auto-cpufreq gleichzeitig aktivieren",
+          "source_block": "10-power-management"
+        },
+        {
+          "id": "A-24",
+          "title": "i915.enable_psr und i915.enable_fbc manuell forcieren",
+          "source_block": "10-power-management"
+        },
+        {
+          "id": "A-31",
+          "title": "Feishin",
+          "source_block": "banned-technologies"
+        }
+      ],
+      "files_in_domain": [
+        "500-host-baseline.nix",
+        "501-decimal-engine.nix",
+        "502-host-settings.nix",
+        "503-host-integration.nix"
+      ],
+      "priority_reason": "7 Anti-Patterns (Arch, Kernel-Hardening, Power-Mgmt, Banned Technologies)"
+    },
+    "docs": {
+      "domain": "docs",
+      "todo_count": 5,
+      "anti_count": 1,
+      "total": 6,
+      "todos": [
+        {
+          "id": "T-11",
+          "type": "doc-change",
+          "title": "PQC-Hardening: Hybriden Schlüsselaustausch für SSH dokumentieren",
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-52-ssh-port-policy.md",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-14",
+          "type": "doc-change",
+          "title": "Power-Management: schedutil und auto-cpufreq im Manifest verankern",
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0003-architektur-manifest.md",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-15",
+          "type": "doc-change",
+          "title": "GPU-Transcoding: Intel GuC/HuC Kernel-Parameter in Jellyfin-ADR",
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-551-jellyfin-media-playback.md",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-19",
+          "type": "doc-change",
+          "title": "Dezimalrahmen: Fraktales Dateisystem-Ordnungsprinzip in ADR-0000 verankern",
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+          "code_diff_status": "offen"
+        },
+        {
+          "id": "T-20",
+          "type": "doc-change",
+          "title": "Dezimalrahmen: Secret-Pfade und Credentials-Speicherort in ADR-0000 ergänzen",
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+          "code_diff_status": "offen"
+        }
+      ],
+      "anti_patterns": [
+        {
+          "id": "A-26",
+          "title": "Credentials unverschlüsselt oder uneinheitlich über beliebige Unterordner verstreuen",
+          "source_block": "12-adr-dezimalrahmen"
+        }
+      ],
+      "files_in_domain": [
+        "agents/07-patterns-misc/nixos-dotnet-env-config/templates/arr-settings.nix",
+        "audit/2026-10-16/repo-cleanup/lib/_helpers.nix",
+        "audit/2026-10-16/repo-cleanup/lib/abc-tiering.nix",
+        "audit/2026-10-16/repo-cleanup/lib/mk-secure-curl.nix",
+        "audit/2026-10-16/repo-cleanup/lib/wait-for-api.nix",
+        "examples/5xx-service.example.nix",
+        "examples/mergerfs-tiering.nix",
+        "examples/simple.nix",
+        "examples/vpn-confinement.nix"
+      ],
+      "priority_reason": "5 offene Todos (ADRs) + 1 Anti-Pattern"
+    },
+    "lib": {
+      "domain": "lib",
+      "todo_count": 2,
+      "anti_count": 2,
+      "total": 4,
+      "todos": [
+        {
+          "id": "T-21",
+          "type": "conflict",
+          "title": "Ingress: Semantische CIDR-Validierung",
+          "file": "/home/moritz/repos/mediNix-core/lib/ingress-access.nix",
+          "code_diff_status": "konflikt"
+        },
+        {
+          "id": "T-30",
+          "type": "code-change",
+          "title": "Feishin entfernt (554-feishin.nix, registry, memory-policy, flake.nix)",
+          "file": "/home/moritz/repos/mediNix-core/lib/registry.nix",
+          "code_diff_status": null
+        }
+      ],
+      "anti_patterns": [
+        {
+          "id": "A-27",
+          "title": "Blindes Auto-Importieren aller beliebigen .nix-Dateien aus dem gesamten Repo-Baum",
+          "source_block": "13-lib-vs-50-core"
+        },
+        {
+          "id": "A-28",
+          "title": "Vollständiges Verschieben aller Bibliotheksfunktionen in NixOS-Optionswerte",
+          "source_block": "13-lib-vs-50-core"
+        }
+      ],
+      "files_in_domain": [
+        "arr-settings.nix",
+        "cli.nix",
+        "creds.nix",
+        "decimal-framework.nix",
+        "derive.nix",
+        "hardening-profiles.nix",
+        "ingress-access.nix",
+        "memory-policy.nix",
+        "registry.nix",
+        "service-contract.nix",
+        "service-factory.nix",
+        "smoke-test.nix"
+      ],
+      "priority_reason": "2 offene Todos + 2 Anti-Patterns (Ingress-Access, Registry-Bereinigung)"
+    },
+    "57-maintenance": {
+      "domain": "57-maintenance",
+      "todo_count": 1,
+      "anti_count": 0,
+      "total": 1,
+      "todos": [
+        {
+          "id": "T-28",
+          "type": "code-change",
+          "title": "backup.method in programs.json auf 'restic' setzen (576-backup.nix nutzt Restic)",
+          "file": "/home/moritz/repos/mediNix-core/57-maintenance/576-backup.nix",
+          "code_diff_status": null
+        }
+      ],
+      "anti_patterns": [],
+      "files_in_domain": [
+        "570-storage.nix",
+        "571-sqlite-wal.nix",
+        "572-recyclarr.nix",
+        "574-provisioning.nix",
+        "575-update-notifier.nix",
+        "576-backup.nix",
+        "577-drift-detection.nix",
+        "578-orphan-cleanup.nix",
+        "579-backup-ssh.nix"
+      ],
+      "priority_reason": "1 offenes Todo (Backup-Methode Restic)"
+    },
+    "pkgs": {
+      "domain": "pkgs",
+      "todo_count": 1,
+      "anti_count": 0,
+      "total": 1,
+      "todos": [
+        {
+          "id": "T-25",
+          "type": "dependency-update",
+          "title": "speedport-api paketieren",
+          "file": "/home/moritz/repos/mediNix-core/pkgs/speedport-api/default.nix",
+          "code_diff_status": "unklar"
+        }
+      ],
+      "anti_patterns": [],
+      "files_in_domain": [
+        "speedport-api/default.nix"
+      ],
+      "priority_reason": "1 offenes Todo (speedport-api Paketierung)"
+    },
+    "58-observability": {
+      "domain": "58-observability",
+      "todo_count": 0,
+      "anti_count": 0,
+      "total": 0,
+      "todos": [],
+      "anti_patterns": [],
+      "files_in_domain": [
+        "581-ntfy.nix",
+        "582-gatus.nix",
+        "583-runtime-guard.nix",
+        "584-post-boot-watchdog.nix",
+        "585-exporters.nix",
+        "587-disk-health.nix"
+      ],
+      "priority_reason": "0 offene Todos + 0 Anti-Patterns (Observability-Baseline intakt)"
+    }
+  },
+  "priority_order": [
+    "flake.nix",
+    "51-ingress",
+    "52-security",
+    "50-core",
+    "docs",
+    "lib",
+    "57-maintenance",
+    "pkgs",
+    "58-observability"
+  ]
+}

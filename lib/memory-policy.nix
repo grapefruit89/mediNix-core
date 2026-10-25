@@ -141,12 +141,6 @@ in
     ioWeight = 150;
     memoryHigh = "1G";
   };
-  feishin = mkLimits {
-    oomScore = 200;
-    cpuWeight = 100;
-    ioWeight = 100;
-    memoryHigh = "256M";
-  };
 
   # Observability
   ntfy = mkLimits {

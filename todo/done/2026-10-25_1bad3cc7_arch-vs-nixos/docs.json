@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "generated_at": "2026-10-25T14:59:59.639023",
+    "total": 21,
+    "with_official_docs": 21,
+    "with_api_reference": 16,
+    "with_nixos_module": 18
+  },
+  "docs": [
+    {
+      "program": "Caddy",
+      "official_docs": "https://caddyserver.com/docs/",
+      "api_reference": "https://caddyserver.com/docs/api",
+      "nixos_module": "https://search.nixos.org/options?query=services.caddy",
+      "nixmeta_header": "51-ingress/511-caddy.nix"
+    },
+    {
+      "program": "CrowdSec",
+      "official_docs": "https://docs.crowdsec.net/",
+      "api_reference": "https://docs.crowdsec.net/docs/local_api/intro",
+      "nixos_module": "https://search.nixos.org/options?query=services.crowdsec",
+      "nixmeta_header": "51-ingress/516-crowdsec.nix"
+    },
+    {
+      "program": "Blocky",
+      "official_docs": "https://0xerr0r.github.io/blocky/latest/",
+      "api_reference": null,
+      "nixos_module": "https://search.nixos.org/options?query=services.blocky",
+      "nixmeta_header": "51-ingress/515-blocky.nix"
+    },
+    {
+      "program": "Pocket ID",
+      "official_docs": "https://pocket-id.org/docs/",
+      "api_reference": "https://pocket-id.org/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.pocket-id",
+      "nixmeta_header": "51-ingress/512-pocket-id.nix"
+    },
+    {
+      "program": "oauth2-proxy",
+      "official_docs": "https://oauth2-proxy.github.io/oauth2-proxy/",
+      "api_reference": null,
+      "nixos_module": "https://search.nixos.org/options?query=services.oauth2-proxy",
+      "nixmeta_header": "51-ingress/517-oauth2-proxy.nix"
+    },
+    {
+      "program": "speedport-api",
+      "official_docs": "https://github.com/jamedbrandt/speedport-api#readme",
+      "api_reference": "https://pypi.org/project/speedport-api/",
+      "nixos_module": null,
+      "nixmeta_header": "51-ingress/513-cloudflare-dns.nix",
+      "pypi": "https://pypi.org/project/speedport-api/",
+      "github_readme": "https://github.com/jamedbrandt/speedport-api#readme"
+    },
+    {
+      "program": "Jellyfin",
+      "official_docs": "https://jellyfin.org/docs/",
+      "api_reference": "https://api.jellyfin.org/",
+      "nixos_module": "https://search.nixos.org/options?query=services.jellyfin",
+      "nixmeta_header": "55-media/551-jellyfin.nix"
+    },
+    {
+      "program": "Seerr",
+      "official_docs": "https://docs.seerr.dev/",
+      "api_reference": "https://api.seerr.dev/",
+      "nixos_module": "https://search.nixos.org/options?query=services.seerr",
+      "nixmeta_header": "56-exposition/561-seerr.nix"
+    },
+    {
+      "program": "Sonarr",
+      "official_docs": "https://wiki.servarr.com/sonarr",
+      "api_reference": "https://sonarr.tv/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.sonarr",
+      "nixmeta_header": "53-acquisition/532-sonarr.nix"
+    },
+    {
+      "program": "Radarr",
+      "official_docs": "https://wiki.servarr.com/radarr",
+      "api_reference": "https://radarr.video/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.radarr",
+      "nixmeta_header": "53-acquisition/533-radarr.nix"
+    },
+    {
+      "program": "Prowlarr",
+      "official_docs": "https://wiki.servarr.com/prowlarr",
+      "api_reference": "https://prowlarr.com/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.prowlarr",
+      "nixmeta_header": "53-acquisition/536-prowlarr.nix"
+    },
+    {
+      "program": "SABnzbd",
+      "official_docs": "https://sabnzbd.org/wiki/",
+      "api_reference": "https://sabnzbd.org/wiki/advanced/api",
+      "nixos_module": "https://search.nixos.org/options?query=services.sabnzbd",
+      "nixmeta_header": "54-processing/541-sabnzbd.nix"
+    },
+    {
+      "program": "Audiobookshelf",
+      "official_docs": "https://www.audiobookshelf.org/docs/",
+      "api_reference": "https://api.audiobookshelf.org/",
+      "nixos_module": "https://search.nixos.org/options?query=services.audiobookshelf",
+      "nixmeta_header": "55-media/552-audiobookshelf.nix"
+    },
+    {
+      "program": "Navidrome",
+      "official_docs": "https://www.navidrome.org/docs/",
+      "api_reference": "https://www.navidrome.org/docs/developers/subsonic-api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.navidrome",
+      "nixmeta_header": "55-media/553-navidrome.nix"
+    },
+    {
+      "program": "Feishin",
+      "official_docs": "https://github.com/jeffvli/feishin#readme",
+      "api_reference": null,
+      "nixos_module": null,
+      "nixmeta_header": "55-media/554-feishin.nix"
+    },
+    {
+      "program": "Lidarr",
+      "official_docs": "https://wiki.servarr.com/lidarr",
+      "api_reference": "https://lidarr.audio/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.lidarr",
+      "nixmeta_header": "53-acquisition/535-lidarr.nix"
+    },
+    {
+      "program": "Readarr",
+      "official_docs": "https://wiki.servarr.com/readarr",
+      "api_reference": "https://readarr.com/docs/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.readarr",
+      "nixmeta_header": "53-acquisition/534-readarr.nix"
+    },
+    {
+      "program": "Gatus",
+      "official_docs": "https://gatus.io/docs",
+      "api_reference": "https://gatus.io/docs/api",
+      "nixos_module": "https://search.nixos.org/options?query=services.gatus",
+      "nixmeta_header": "58-observability/582-gatus.nix"
+    },
+    {
+      "program": "ntfy",
+      "official_docs": "https://docs.ntfy.sh/",
+      "api_reference": "https://docs.ntfy.sh/api/",
+      "nixos_module": "https://search.nixos.org/options?query=services.ntfy-sh",
+      "nixmeta_header": "58-observability/581-ntfy.nix"
+    },
+    {
+      "program": "Recyclarr",
+      "official_docs": "https://recyclarr.dev/",
+      "api_reference": null,
+      "nixos_module": null,
+      "nixmeta_header": "57-maintenance/572-recyclarr.nix"
+    },
+    {
+      "program": "Avahi",
+      "official_docs": "https://avahi.org/",
+      "api_reference": null,
+      "nixos_module": "https://search.nixos.org/options?query=services.avahi",
+      "nixmeta_header": "51-ingress/515-mdns.nix"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "block_id": "10-power-management",
+  "title": "Power-Management & On-Demand Effizienz für Intel i3-9100 / UHD 630",
+  "topics": [
+    "power-management",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    102,
+    103,
+    104,
+    105
+  ],
+  "summary": "Definiert die Power-Management- und Effizienzstrategie für den Homelab-Host (Fujitsu Esprimo Q958 mit Intel Core i3-9100 und integrierter Intel UHD 630 GPU). Ziel ist dynamische On-Demand-Leistung im Leerlauf ohne dauerhafte 100%-Taktung. Empfohlenes Setup: CPU-Governor schedutil (integriert in Linux-Scheduler), auto-cpufreq für dynamische Lastskalierung (TLP ausschließen), Intel GuC/HuC Firmware-Aktivierung via i915.enable_guc=3 für GPU-Effizienz und Hardware-Transcoding, sowie Spindown-Schutz für ruhende Platten. PSR und FBC sollen nicht manuell forciert werden.",
+  "decisions": [
+    {
+      "id": "D-10-01",
+      "statement": "CPU-Frequenzskalierung auf modernen `schedutil`-Governor setzen und dynamische Regelung via `auto-cpufreq` einsetzen (TLP deaktivieren).",
+      "status": "proposed",
+      "rationale": "Auf einem Headless-Homelab-Server bietet schedutil in Verbindung mit auto-cpufreq eine blitzschnelle, bedarfsgerechte Skalierung ohne die Laptop-spezifischen Akku-Profile von TLP. TLP und auto-cpufreq schließen sich gegenseitig aus.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Extrem geringer Stromverbrauch und Abwärme im Leerlauf",
+          "Volle CPU-Leistung bei Last (z. B. Entpacken, Transcoding)",
+          "Scheduler-native Skalierung ohne Userspace-Polling-Verzögerung"
+        ],
+        "con": [
+          "auto-cpufreq und TLP dürfen niemals gleichzeitig aktiv sein (Konflikt)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0003-architektur-manifest.md",
+          "status": "exists",
+          "current_state": "Beschreibt mediNix-Appliance; Power-Management ist Host-Hoheit.",
+          "proposed_change": "Empfehlung für schedutil / auto-cpufreq in Host-Dokumentation aufnehmen."
+        }
+      ],
+      "source_message_ids": [
+        102,
+        103,
+        104,
+        105
+      ]
+    },
+    {
+      "id": "D-10-02",
+      "statement": "Intel GPU GuC/HuC Firmware-Laden (`i915.enable_guc=3`) für UHD 630 Hardware-Beschleunigung und Energieeffizienz aktivieren.",
+      "status": "proposed",
+      "rationale": "Für Intel CPUs der 9. Generation (i3-9100 Coffee Lake) entlastet die GuC/HuC-Firmware die CPU bei Video-Transcoding (Jellyfin QuickSync) und verbessert die Energieverwaltung der GPU.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Hardware-beschleunigtes Transcoding in Jellyfin",
+          "Geringere CPU-Auslastung bei Medienwiedergabe",
+          "Erweiterte Energiesparmodi der GPU"
+        ],
+        "con": [
+          "Erfordert redistributable Firmware im Kernel"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-551-jellyfin-media-playback.md",
+          "status": "exists",
+          "current_state": "Dokumentiert Jellyfin-Transcoding und Hardware-Beschleunigung.",
+          "proposed_change": "GuC/HuC Kernel-Parameter i915.enable_guc=3 als Host-Voraussetzung vermerken."
+        }
+      ],
+      "source_message_ids": [
+        104,
+        105
+      ]
+    },
+    {
+      "id": "D-10-03",
+      "statement": "Keine manuellen Overrides für `i915.enable_psr` oder `i915.enable_fbc` setzen.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Stabiler Betrieb ohne Display-Subsystem-Crashes",
+          "Keine unnötigen Kernel-Parameter"
+        ],
+        "con": []
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/50-core/500-host-baseline.nix",
+          "status": "exists",
+          "current_state": "Definiert Host-Hygiene; keine manuellen i915-Flags deklariert.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        105
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-10-01",
+      "question": "Soll `services.auto-cpufreq.enable = true` im Host-Repository (q958) oder als optionale Empfehlung in mediNix-core hinterlegt werden?",
+      "why_open": "Power-Management ist Host-Hoheit, da mediNix-core hardware-unabhängig bleiben soll.",
+      "blocking": false
+    },
+    {
+      "id": "Q-10-02",
+      "question": "Wird `thermald` benötigt, um thermisches Throttling bei anhaltender Transcoding-Last auf dem Fujitsu Q958 leise zu regeln?",
+      "why_open": "Kompaktes USFF-Gehäuse des Q958 hat begrenzte Kühlkapazitäten.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Powertop --auto-tune dauerhaft als Service aktivieren",
+      "to": "Powertop nur als interaktives Diagnose-Tool nutzen; auto-tune kann Einstellungen von auto-cpufreq/TLP überschreiben und zu USB-Instabilitäten führen",
+      "source_message_ids": [
+        103,
+        105
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "TLP und auto-cpufreq gleichzeitig aktivieren",
+      "reason": "Schließen sich gegenseitig aus; konkurrierende Daemons erzeugen Frequenz-Flackern und Instabilitäten.",
+      "source_message_ids": [
+        103,
+        105
+      ]
+    },
+    {
+      "idea": "i915.enable_psr und i915.enable_fbc manuell forcieren",
+      "reason": "Wird ab Intel Gen 8 automatisch vom Kernel geregelt; manuelles Erzwingen führt zu Instabilitäten.",
+      "source_message_ids": [
+        105
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-10-01",
+      "action": "Im Host-Repo (/home/moritz/repos/q958/): `powerManagement.cpuFreqGovernor = \"schedutil\";` und `boot.kernelParams = [ \"i915.enable_guc=3\" ];` einpflegen",
+      "priority": "medium",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

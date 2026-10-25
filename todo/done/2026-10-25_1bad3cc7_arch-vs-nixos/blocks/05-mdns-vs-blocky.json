@@ -1,0 +1,186 @@
+{
+  "block_id": "05-mdns-vs-blocky",
+  "title": "mDNS/515 raus, Blocky als Split-DNS (Pilot)",
+  "topics": [
+    "mdns-vs-blocky",
+    "dns-wan-ip-provider"
+  ],
+  "message_ids": [
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "summary": "Avahi/mDNS (515-mdns.nix) ist in der aktuellen Caddy-Konfiguration bereits tote Konfiguration – 511-caddy.nix rendert keine .local-Sites (laut README: '511 renders NO Caddy site for .local'). Mit Blocky als internem Split-DNS ist mDNS redundant. Entscheidung: 515-mdns raus, Blocky übernimmt *.lan und *.m7c5.de → Caddy-IP. .lan und .{domain} bleiben die zwei Namensräume, beide in Caddy gerendert. Voraussetzung: .lan muss per Unicast-DNS aufgelöst werden (Blocky oder Speedport).",
+  "decisions": [
+    {
+      "id": "D-05-01",
+      "statement": "mDNS/515 wird entfernt; Blocky übernimmt die interne Namensauflösung als Split-DNS.",
+      "status": "decided",
+      "rationale": "Caddy rendert keine .local-Sites (laut README). Avahi publiziert nutzlose Records, erzeugt Multicast-Traffic (UDP 5353), bietet Angriffsfläche (historische CVEs) und startet einen Prozess pro Alias. Blocky ist bereits im Stack und kann Split-DNS zentral, auditierbar, subnetz-übergreifend.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Avahi-Daemon raus",
+          "20 avahi-publish-Prozesse raus",
+          "Kein Multicast-Traffic mehr",
+          "Zentrale, auditierbare Auflösung",
+          "Funktioniert über Subnetzgrenzen"
+        ],
+        "con": [
+          ".lan braucht DNS-Auflösung (Blocky oder Speedport)",
+          "Geräte, die kein DNS nutzen (IoT mit hardcodiertem DNS), finden .lan nicht"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+          "status": "exists",
+          "current_state": "Avahi publiziert {service}.local via avahi-publish; systemd.paths auf /run/systemd/netif/leases restartet bei jeder Lease-Änderung. userServices = true publiziert alle User-Services, nicht nur mediNix.",
+          "proposed_change": "Modul entfernen oder per Option standardmäßig deaktivieren. 515-blocky.nix übernimmt Split-DNS.",
+          "verified": true
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "status": "exists",
+          "current_state": "Rendert http://{name}.lan (CIDR-gated via lanAbort) und https://{name}.{domain}. Rendert KEINE .local-Sites (laut README explizit).",
+          "proposed_change": "Keine Änderung nötig – .lan bleibt, .{domain} bleibt.",
+          "verified": true
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/ingress-access.nix",
+          "status": "exists",
+          "current_state": "accessGroupOf, isWan, caddyUnitOf – wird von 511/513/518 genutzt.",
+          "proposed_change": "Keine Änderung nötig.",
+          "verified": true
+        }
+      ],
+      "source_message_ids": [
+        72,
+        73,
+        76,
+        77,
+        79
+      ]
+    },
+    {
+      "id": "D-05-02",
+      "statement": ".lan und .{domain} bleiben die beiden Namensräume. Keine .local-Sites in Caddy.",
+      "status": "decided",
+      "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Zwei klar getrennte Namensräume",
+          "Weniger bewegliche Teile",
+          "Konsistenz mit bestehender 511-caddy.nix"
+        ],
+        "con": []
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/51-ingress/511-caddy.nix",
+          "status": "exists",
+          "current_state": "lanSites = http://{name}.lan, wanSites = https://{name}.{domain}, internalSites = https://{name}.{domain} + lanAbort.",
+          "proposed_change": "Keine Änderung.",
+          "verified": true
+        }
+      ],
+      "source_message_ids": [
+        76,
+        77
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-05-01",
+      "question": "Löst der Speedport *.lan automatisch auf, oder braucht es Blocky dafür?",
+      "why_open": "Ohne Unicast-DNS-Auflösung funktioniert .lan nicht. Speedport-Verhalten nicht verifiziert. Prüfen mit: nslookup sonarr.lan 192.168.2.1",
+      "blocking": false
+    },
+    {
+      "id": "Q-05-02",
+      "question": "Welche Nummer/Slot bekommt 515-blocky.nix? Erbt es den Dezimal-Slot 515 (uid 5150) von mDNS, oder wird es ein neuer Slot?",
+      "why_open": "Port 53 ist privilegiert, nicht 5150. mkNoPortWithUnit (uid 5150, port null) + CAP_NET_BIND_SERVICE via network-Profil wäre konsistent mit 513/516.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Ich dachte, .lan wäre das einzige, was keinen DNS-Server braucht (nur .local).",
+      "to": "Genau umgekehrt: .local ist das einzige, was ohne DNS-Server funktioniert (weil mDNS). .lan und .{domain} brauchen beide Unicast-DNS. Caddy rendert .local nicht, also ist .local tot und Avahi publiziert nutzlose Records.",
+      "source_message_ids": [
+        75,
+        76
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "mDNS behalten für Zero-Conf",
+      "reason": "Caddy serviert .local nicht; Avahi ist zusätzlicher Daemon mit Angriffsfläche; Blocky ist bereits im Stack und löst das gleiche Problem zentraler.",
+      "source_message_ids": [
+        73,
+        74
+      ]
+    },
+    {
+      "idea": ".local in Caddy durch .lan ersetzen",
+      "reason": "Falsche Annahme: .lan ist bereits in Caddy gerendert. .local war nie in Caddy. Es gibt nichts zu ersetzen, nur zu entfernen.",
+      "source_message_ids": [
+        77,
+        78
+      ]
+    },
+    {
+      "idea": "Bind auf LAN beschränken als Ersatz für DNS-Eintrag",
+      "reason": "Bind (Caddy lauscht nur auf LAN-IP) und DNS-Auflösung sind zwei getrennte Schichten. Bind verhindert Zugriff von außen, nicht die Namensauflösung. Beides wird gebraucht.",
+      "source_message_ids": [
+        79,
+        80
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-05-01",
+      "action": "515-mdns.nix entfernen oder per Option standardmäßig deaktivieren (medinix.discovery.mdns.enable = false)",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "N-05-02",
+      "action": "515-blocky.nix anlegen: Split-DNS für *.lan und *.m7c5.de → Caddy-IP; uid 5150, Port 53, CAP_NET_BIND_SERVICE via network-Profil",
+      "priority": "high",
+      "depends_on": [
+        "N-05-01"
+      ]
+    },
+    {
+      "id": "N-05-03",
+      "action": "Speedport *.lan-Auflösung prüfen (nslookup sonarr.lan 192.168.2.1) – entscheidet, ob Blocky die .lan-Auflösung übernehmen muss",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-05-04",
+      "action": "README.md in 51-ingress aktualisieren: .local als tot markieren, Blocky als Split-DNS dokumentieren",
+      "priority": "medium",
+      "depends_on": [
+        "N-05-02"
+      ]
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "generated_by": "phase-3-pilot",
+    "generated_at": null,
+    "verified_against_code": true,
+    "note": "Pilot-Block. Alle code_refs müssen vom User gegen den echten Code geprüft werden. verified: false bedeutet: vom Agenten behauptet, nicht vom User bestätigt."
+  }
+}

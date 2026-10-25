@@ -1,0 +1,165 @@
+{
+  "block_id": "08-firewall-nftables",
+  "title": "nftables Firewall-Architektur, Default-DROP Policy & Debug-Reject Modus",
+  "topics": [
+    "firewall-nftables",
+    "config-review-51-ingress"
+  ],
+  "message_ids": [
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97
+  ],
+  "summary": "Definiert die Firewall-Architektur für mediNix-core: Reine deklarative nftables-Firewall ohne iptables-Altlasten. Standard-Policy ist striktes Fail-Closed (Default-DROP) auf der INPUT-Chain für alle unberechtigten Ports. Für Troubleshooting wird ein umschaltbarer Debug-Modus diskutiert, der gezielt REJECT mit Logging (systemd-journald / journalctl -k) ausgibt, anstatt Pakete stumm zu verwerfen. iptables ist unter NixOS lediglich ein Wrapper um nftables; die Steuerung erfolgt über deklarative Tabellen und den CrowdSec-Bouncer.",
+  "decisions": [
+    {
+      "id": "D-08-01",
+      "statement": "Striktes Fail-Closed (Default-DROP) auf allen unberechtigten eingehenden Ports via nftables.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Maximaler Schutz gegen Port-Scanning und unautorisierte Dienste",
+          "Keine stillschweigend offenen Ports",
+          "Konsistent mit Fail-Closed-Doktrin"
+        ],
+        "con": [
+          "Debugging von Verbindungsproblemen schwieriger, da keine ICMP-Rückmeldung erfolgt"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-5210-nftables-firewall-baseline.md",
+          "status": "exists",
+          "current_state": "Definiert nftables-Baseline mit Default-DROP auf WAN.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "status": "exists",
+          "current_state": "Enthält Guardrails für hostIntegration.firewall = managed XOR hostIntegration.nftables = managed.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        90,
+        91
+      ]
+    },
+    {
+      "id": "D-08-02",
+      "statement": "Reines nftables-Backend ohne legacy iptables-Kommandos verwenden.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Atomare Regelsatz-Aktualisierung",
+          "Einheitliche Syntax für IPv4 und IPv6",
+          "Keine iptables-Drift"
+        ],
+        "con": [
+          "Erfordert nftables-Kenntnisse für manuelle Inspektion (nft list ruleset)"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-5210-nftables-firewall-baseline.md",
+          "status": "exists",
+          "current_state": "Verbietet imperative iptables-Kommandos.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        94,
+        95,
+        96,
+        97
+      ]
+    },
+    {
+      "id": "D-08-03",
+      "statement": "Deklarativer Debug-Modus für Firewall: Umschaltbar auf REJECT mit Kernel-Logging für Diagnose-Zwecke.",
+      "status": "proposed",
+      "rationale": "Beim Debuggen von Netzwerk- und VPN-Problemen führt Default-DROP zu zeitraubenden Timeouts. Ein umschaltbarer Schalter (z. B. `medinix.firewall.debugReject = true`), der `reject with icmpx type admin-prohibited` loggt, beschleunigt die Fehlersuche erheblich.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Sofortiges Feedback bei geblockten Verbindungen",
+          "Auditierbare Log-Meldungen in journalctl -k",
+          "Verhindert langes Warten auf Timeouts"
+        ],
+        "con": [
+          "Im Produktivbetrieb unerwünscht, da REJECT dem Scanner antwortet"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+          "status": "exists",
+          "current_state": "recommended.firewall.checkReversePath deklariert; kein expliziter debugReject-Schalter vorhanden.",
+          "proposed_change": "Option für debugReject mit Log-Präfix zur Diagnose vorschlagen."
+        }
+      ],
+      "source_message_ids": [
+        92,
+        93
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-08-01",
+      "question": "Soll der Debug-Reject-Schalter als temporäre Option in 520-core-security.nix oder rein im Host-Layer (q958) implementiert werden?",
+      "why_open": "Firewall-Regelsätze gehören primär zum Host-Layer (Publish-Don't-Apply).",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Man muss sich zwischen iptables und nftables als separaten Tools entscheiden",
+      "to": "iptables ist in NixOS nur eine Abstraktionsschicht / Wrapper über dem nftables-Kernel-Subsystem; direkte nftables-Regeln sind die native Ebene",
+      "source_message_ids": [
+        96,
+        97
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Imperative `iptables -A INPUT ...` Befehle zur schnellen Portöffnung nutzen",
+      "reason": "Widerspricht der deklarativen Reproduzierbarkeit von NixOS und wird in ADR-5210 explizit als Anti-Pattern verboten.",
+      "source_message_ids": [
+        95
+      ]
+    },
+    {
+      "idea": "Permanentes REJECT statt DROP für unberechtigte Verbindungen",
+      "reason": "Verrät Scannern aktive Hosts und Port-Filterung; im Normalbetrieb ist stummes DROP die sicherere Wahl.",
+      "source_message_ids": [
+        91,
+        92,
+        93
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-08-01",
+      "action": "Prüfen, ob in 520-core-security.nix eine Option `medinix.firewall.rejectLogging` für temporäre Fehlersuche ergänzt werden soll",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

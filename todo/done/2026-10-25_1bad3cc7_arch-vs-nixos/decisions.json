@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "source_chat": "2026-10-25_1bad3cc7_arch-vs-nixos",
+    "total": 20
+  },
+  "items": [
+    {
+      "id": "D-01-01",
+      "title": "NixOS bleibt die verbindliche Betriebssystem-Basis für mediNix-core; Arch Linux oder imperative Distributionen werden nicht eingesetzt.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen.",
+      "source_block": "01-arch-vs-nixos"
+    },
+    {
+      "id": "D-01-02",
+      "title": "Keine externen Konfigurationsmanagement-Tools (wie Ansible) für die Basis-Konfiguration von mediNix-core einsetzen.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS.",
+      "source_block": "01-arch-vs-nixos"
+    },
+    {
+      "id": "D-02-02",
+      "title": "Kein tls internal (lokale CA) für interne Dienste; stattdessen ACME DNS-01 Challenge für echte Zertifikate ohne manuelle CA-Installation.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung.",
+      "source_block": "02-caddy-catch-all"
+    },
+    {
+      "id": "D-03-02",
+      "title": "Firewall-Bouncer (nftables) als alleiniger Durchsetzungs-Aktor: Bans sperren Angreifer-IPs kernel-nah auf allen Ports (INPUT-Chain).",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist.",
+      "source_block": "03-crowdsec-scan-ban"
+    },
+    {
+      "id": "D-04-01",
+      "title": "systemd-creds (mit TPM2 / Host-Key) als verbindlicher Secret-Standard; sops-nix und agenix werden verworfen.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix und ADR-521 setzen systemd-creds bereits verbindlich durch. Keine externen Binaries, keine GPG-Keyrings, native Einbindung via LoadCredentialEncrypted.",
+      "source_block": "04-credentials-systemd-creds"
+    },
+    {
+      "id": "D-04-02",
+      "title": "Strikte Granularität: Genau eine separate `.cred`-Datei pro Secret (keine Sammel-Passwort-Datei).",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix definiert bereits separate Dateien pro Dienst (sonarrApiKeyFile, jellyfinAdminPasswordFile, etc.). Verhindert, dass ein kompromittierter Dienst Zugriff auf die Secrets anderer Dienste erhält (Isolation / Least Privilege).",
+      "source_block": "04-credentials-systemd-creds"
+    },
+    {
+      "id": "D-05-02",
+      "title": ".lan und .{domain} bleiben die beiden Namensräume. Keine .local-Sites in Caddy.",
+      "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)",
+      "source_block": "05-mdns-vs-blocky"
+    },
+    {
+      "id": "D-06-03",
+      "title": "publishLanRecord = false bleibt Standard: Keine RFC1918-Adressen in öffentlichem Cloudflare-DNS publizieren (Schutz vor Recon-Gold).",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden.",
+      "source_block": "06-dns-wan-ip-provider"
+    },
+    {
+      "id": "D-07-01",
+      "title": "Verzicht auf Agenix wegen fehlender PQC-Fähigkeit und HNDL-Gefahr bei asymmetrisch verschlüsselten Git-Secrets.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel.",
+      "source_block": "07-pqc-hndl"
+    },
+    {
+      "id": "D-07-02",
+      "title": "systemd-creds mit TPM2+Hostkey als HNDL-Resistenz durch Hardware-Bindung (keine algorithmische PQC, aber physikalische Bindung).",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs.",
+      "source_block": "07-pqc-hndl"
+    },
+    {
+      "id": "D-08-01",
+      "title": "Striktes Fail-Closed (Default-DROP) auf allen unberechtigten eingehenden Ports via nftables.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet.",
+      "source_block": "08-firewall-nftables"
+    },
+    {
+      "id": "D-08-02",
+      "title": "Reines nftables-Backend ohne legacy iptables-Kommandos verwenden.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift.",
+      "source_block": "08-firewall-nftables"
+    },
+    {
+      "id": "D-09-01",
+      "title": "Keine eigenen Kernel-Patches (`boot.kernelPatches`) kompilieren; stattdessen Standard-Kernel mit deklarativen Sysctl- und Modul-Härtungen nutzen.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter.",
+      "source_block": "09-kernel-hardening"
+    },
+    {
+      "id": "D-09-02",
+      "title": "Verteidigungsschichten über systemd-Sandboxing (seccomp, ProtectSystem, UPG) statt Kernel-Rekompilierung.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch.",
+      "source_block": "09-kernel-hardening"
+    },
+    {
+      "id": "D-10-03",
+      "title": "Keine manuellen Overrides für `i915.enable_psr` oder `i915.enable_fbc` setzen.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics.",
+      "source_block": "10-power-management"
+    },
+    {
+      "id": "D-12-02",
+      "title": "Eliminierung von Magic Numbers: Ports und UIDs werden ausnahmslos als Funktion der Dienstnummer (`derivation = number * 10`) berechnet.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen.",
+      "source_block": "12-adr-dezimalrahmen"
+    },
+    {
+      "id": "D-13-01",
+      "title": "Trennung zwischen reiner Funktionsbibliothek (`lib/`) und NixOS-Host-Modulen (`50-core/`) architektonisch beibehalten.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen.",
+      "source_block": "13-lib-vs-50-core"
+    },
+    {
+      "id": "D-13-02",
+      "title": "Auto-Import in `default.nix` bleibt auf standardisierte Dienstmodule (`XX-domain/NNN-*.nix`) beschränkt.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen.",
+      "source_block": "13-lib-vs-50-core"
+    },
+    {
+      "id": "D-13-03",
+      "title": "Gerichtete Abhängigkeiten (ADR-040): Alle Domänen dürfen Foundation (`50-core`) und `lib/` importieren; Peer-zu-Peer-Importe zwischen Service-Domänen bleiben strikt verboten.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs.",
+      "source_block": "13-lib-vs-50-core"
+    },
+    {
+      "id": "D-14-04",
+      "title": "Pocket-ID Setup-Lockdown (`setupCompleted` Assertion) zur Vermeidung von Takeovers offener IdP-Instanzen nach Deployment.",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird.",
+      "source_block": "14-config-review-51-ingress"
+    }
+  ]
+}

@@ -22,6 +22,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `caddy` | `–` | 511 | 5110 | 5110 | **5110** | `network` | `none` |
 | `pocket-id` | `–` | 512 | 5120 | 5120 | **5120** | `network` | `public` |
 | `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `script` | `none` |
+| `blocky` | `–` | 515 | – | 5150 | **5150** | `network` | `none` |
 | `crowdsec` | `–` | 516 | – | 5160 | **5160** | `network` | `none` |
 | `oauth2-proxy` | `–` | 517 | 5170 | 5170 | **5170** | `network` | `none` |
 | `sonarr` | `–` | 532 | 5320 | 5320 | **5320** | `dotnet` | `internal` |
@@ -33,7 +34,6 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `jellyfin` | `–` | 551 | 5510 | 5510 | **5510** | `dotnet-gpu` | `stream` |
 | `audiobookshelf` | `–` | 552 | 5520 | 5520 | **5520** | `nodejs` | `stream` |
 | `navidrome` | `–` | 553 | 5530 | 5530 | **5530** | `nodejs` | `stream` |
-| `feishin` | `–` | 554 | – | – | **5540** | `network` | `none` |
 | `seerr` | `–` | 561 | 5610 | 5610 | **5610** | `nodejs` | `public` |
 | `ntfy` | `–` | 581 | 5810 | 5810 | **5810** | `network` | `internal` |
 | `gatus` | `–` | 582 | 5820 | 5820 | **5820** | `network` | `internal` |
@@ -88,7 +88,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Pocket ID OIDC process](adr/ADR-512-pocket-id.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-513-cloudflare-dns.md)
 - [TLS-Zertifikate: Lego + Cloudflare DNS-01 mit eigenem Token](adr/ADR-514-acme-lego-dns01.md)
-- [mDNS Aliases (Avahi): {service}.local -> LAN-IP](adr/ADR-515-mdns-avahi-aliases.md)
 - [CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)](adr/ADR-516-crowdsec.md)
 - [Auth-Flow: OIDC wo möglich, Forward-Auth als Lücke, Jellyfin/Seerr ausgenommen](adr/ADR-517-oauth2-proxy-forward-auth.md)
 - [Landingpage Honeypot](adr/ADR-518-landingpage-honeypot.md)
@@ -102,7 +101,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Jellyfin media playback](adr/ADR-551-jellyfin-media-playback.md)
 - [ADR 5520 audiobookshelf port framework](adr/ADR-552-audiobookshelf.md)
 - [ADR 5530 navidrome music streaming](adr/ADR-553-navidrome.md)
-- [Feishin als statische SPA (kein eigener Daemon)](adr/ADR-554-feishin-static-spa.md)
 - [ADR 5610 seerr request management](adr/ADR-561-seerr.md)
 - [Storage-Tiering: tmpfiles-Struktur + optionale MergerFS-Pools](adr/ADR-570-storage-tiering-mergerfs.md)
 - [ADR 5710 sqlite mcp server](adr/ADR-571-sqlite-mcp.md)

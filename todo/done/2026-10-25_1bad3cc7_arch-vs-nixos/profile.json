@@ -1,0 +1,215 @@
+{
+  "meta": {
+    "source_chat": "2026-10-25_1bad3cc7_arch-vs-nixos",
+    "derived_from": [
+      "/home/moritz/repos/mediNix-core/todo/blocks/*.json",
+      "/home/moritz/repos/mediNix-core/todo/antipatterns.md",
+      "/home/moritz/repos/mediNix-core/todo/decisions.md",
+      "/home/moritz/repos/mediNix-core/todo/plan.json"
+    ],
+    "generated_at": "2026-10-25T14:40:10.627167"
+  },
+  "threat_model": [
+    {
+      "id": "TM-01",
+      "threat": "Externe Port- und Web-Scanner (Shodan, Censys, automatisierte Botnets)",
+      "defense": "Fail-closed Catch-All (respond 404), adaptive CrowdSec-Ban-Kette (http-probing, 168h Ban), nftables Default-DROP auf INPUT-Chain, keine Service-Subdomains im öffentlichen DNS"
+    },
+    {
+      "id": "TM-02",
+      "threat": "Harvest-Now-Decrypt-Later (HNDL durch künftige Quantencomputer)",
+      "defense": "systemd-creds mit TPM2+Hostkey (physische Hardware-Bindung, keine asymmetrischen Ciphertexte im öffentlichen Git), hybride Post-Quantum-Kex (ML-KEM-768/X25519) für administrative SSH-Sitzungen"
+    },
+    {
+      "id": "TM-03",
+      "threat": "DNS-Reconnaissance & RFC1918-Leaks (interne Netztopologie leakt an Dritte)",
+      "defense": "publishLanRecord = false, Split-DNS via Blocky (*.lan und *.m7c5.de nur intern), keine privaten Service-Namen oder RFC1918-IPs in öffentlichen Cloudflare-Zonen"
+    },
+    {
+      "id": "TM-04",
+      "threat": "Supply-Chain & Drittanbieter-Exposition im kritischen Pfad",
+      "defense": "WAN-IP lokal vom Router (Default-Gateway), ACME DNS-01 via Lego, vollständiger Verzicht auf externe HTTP-Echo-Dienste (ifconfig.me, ipify.org)"
+    },
+    {
+      "id": "TM-05",
+      "threat": "Fehlkonfiguration, Drift & Privilege Escalation",
+      "defense": "Deklarative Fail-Closed Guardrails (519), Strippen von Spoofing-Headern vor Forward-Auth, keine zwei SOTs, UPG (UID=GID 5000), Systemd-Sandboxing nach 5 Säulen"
+    }
+  ],
+  "hard_constraints": [
+    {
+      "id": "HC-01",
+      "constraint": "NixOS als einzige Basis; keine imperativen Linux-Distributionen",
+      "rationale": "Deklarative Reproduzierbarkeit, atomare Generation-Upgrades und systemimmanente Rollbacks garantiert; schließt Konfigurationsdrift strukturell aus (vgl. D-01-01, D-01-02)."
+    },
+    {
+      "id": "HC-02",
+      "constraint": "Credentials hardwaregebunden via systemd-creds (TPM2 + Hostkey)",
+      "rationale": "Physische Bindung an den Host-TPM2 verhindert Entschlüsselung auf Fremdsystemen und schützt vor HNDL, ohne auf ungehärtete externe Krypto-Tools angewiesen zu sein (vgl. D-04-01, D-07-02)."
+    },
+    {
+      "id": "HC-03",
+      "constraint": "ACME DNS-01 Zertifikate via Cloudflare; kein tls internal, keine manuelle CA-Verteilung",
+      "rationale": "Öffentlich vertrauenswürdige Zertifikate ohne Wartungsaufwand auf Endgeräten und ohne exponierten Port 80/443 für HTTP-01 Challenges (vgl. D-02-02)."
+    },
+    {
+      "id": "HC-04",
+      "constraint": "Split-DNS: interne Namen (*.lan, interne *.m7c5.de) werden AUSSCHLIESSLICH über Blocky aufgelöst",
+      "rationale": "Verhindert Leaks privater IPs ins Internet, liefert schnelle lokale Auflösung und ersetzt unkontrollierten mDNS/Avahi-Multicast-Chatter (vgl. D-05-01, D-06-03)."
+    },
+    {
+      "id": "HC-05",
+      "constraint": "WAN-IP lokal vom Default-Gateway ermitteln, keine externen Web-Echo-Dienste",
+      "rationale": "Unabhängigkeit von Drittanbieter-Verfügbarkeit, Schutz der IP-Historie vor fremden Loggern und keine HTTP-Rate-Limits (vgl. D-06-01, D-06-02)."
+    },
+    {
+      "id": "HC-06",
+      "constraint": "Fail-Closed Doktrin: Default-DROP auf Paketfilter-Ebene, Assertions statt stiller Defaults",
+      "rationale": "Fehlkonfigurationen oder unberechtigte Verbindungen brechen den Build bzw. verwerfen Pakete kernel-nah; kein implizites Vertrauen (vgl. D-08-01, D-14-04)."
+    },
+    {
+      "id": "HC-07",
+      "constraint": "Native Systemd-Dienste und 5 Säulen des Systemd-Hardenings statt Container (Docker/Podman)",
+      "rationale": "Vermeidet redundante Abstraktions- und Virtualisierungsschichten; nutzt Seccomp, ProtectSystem, PrivateTmp und UPG nativ im Kernel (vgl. D-09-02)."
+    },
+    {
+      "id": "HC-08",
+      "constraint": "Dezimalrahmen (ADR-0000) als universelles fraktales Ordnungsprinzip und Eliminierung von Magic Numbers",
+      "rationale": "Mathematisch kollisionsfreie UIDs und Ports (number * 10), deterministische Ordnerhierarchie und klare Zuständigkeiten im gesamten Projekt (vgl. D-12-01, D-12-02)."
+    },
+    {
+      "id": "HC-09",
+      "constraint": "Strikt gerichtete Abhängigkeiten (ADR-040): Imports nur von Leaf zu Core/Lib, niemals Peer-to-Peer",
+      "rationale": "Verhindert zirkuläre Abhängigkeiten, entkoppelt Domänen und sichert die modulare Wartbarkeit des Flakes (vgl. D-13-03)."
+    }
+  ],
+  "hard_non_goals": [
+    {
+      "id": "NG-01",
+      "non_goal": "sops-nix, agenix oder asymmetrisch verschlüsselte Secret-Dateien im Git-Repository",
+      "reason": "Undurchsichtige Wrapper, externe Abhängigkeiten, anfällig für Harvest-Now-Decrypt-Later (HNDL) bei künftigen Quantencomputern.",
+      "antipattern_refs": [
+        "A-08",
+        "A-17"
+      ]
+    },
+    {
+      "id": "NG-02",
+      "non_goal": "Manuelle Root-CA-Verteilung auf Endgeräten (tls internal)",
+      "reason": "Hoher operativer Wartungsaufwand auf Smart-TVs, Mobilgeräten und IoT-Clients; bricht bei jedem Neugerät.",
+      "antipattern_refs": [
+        "A-05",
+        "A-30"
+      ]
+    },
+    {
+      "id": "NG-03",
+      "non_goal": "Externe HTTP-Echo-Dienste (ifconfig.me, ipify.org) für DDNS",
+      "reason": "Drittanbieter-Abhängigkeit, Captive-Portal-Risiko und Datenschutz-Leaks der eigenen IP-Abfragen.",
+      "antipattern_refs": [
+        "A-14",
+        "A-15",
+        "A-16"
+      ]
+    },
+    {
+      "id": "NG-04",
+      "non_goal": "Imperative Firewall-Befehle (iptables -A ...)",
+      "reason": "Bricht die deklarative Reproduzierbarkeit von NixOS und führt zu unkontrolliertem Regelsatz-Drift.",
+      "antipattern_refs": [
+        "A-19",
+        "A-20"
+      ]
+    },
+    {
+      "id": "NG-05",
+      "non_goal": "Applikations-Layer-Bouncer oder HTTP-Tarpits statt Kernel-Bouncer",
+      "reason": "Binden Webserver-Sockets und Ressourcen; nftables Default-DROP via CrowdSec-Bouncer ist kernelnah überlegen.",
+      "antipattern_refs": [
+        "A-06",
+        "A-07"
+      ]
+    },
+    {
+      "id": "NG-06",
+      "non_goal": "Eigene Kernel-Patches, manuelle Kernel-Kompilierung oder LKRG",
+      "reason": "Unverhältnismäßiger Wartungsaufwand, Verlust binärer Cache-Pakete und Boot-Hang-Risiko im Consumer-Homelab.",
+      "antipattern_refs": [
+        "A-21",
+        "A-22"
+      ]
+    },
+    {
+      "id": "NG-07",
+      "non_goal": "Zwei konkurrierende Source-of-Truths (NixOS + Ansible, oder konkurrierende Daemons wie TLP + auto-cpufreq)",
+      "reason": "Widerspricht der Single Source of Truth; erzeugt Regelsatz-Konflikte, Instabilitäten und Frequenz-Flackern.",
+      "antipattern_refs": [
+        "A-02",
+        "A-23"
+      ]
+    },
+    {
+      "id": "NG-08",
+      "non_goal": "Verteilung von Secrets über Git oder unverschlüsselte Sammel-Dateien",
+      "reason": "Verletzt das Least-Privilege-Prinzip; kompromittierte Einzeldienste gefährden das Gesamtsystem.",
+      "antipattern_refs": [
+        "A-09",
+        "A-26"
+      ]
+    },
+    {
+      "id": "NG-09",
+      "non_goal": "mDNS/Avahi als parallele Auflösungsschicht neben Split-DNS",
+      "reason": "Erzeugt unnötigen Multicast-Chatter im LAN, bietet historische Angriffsfläche und wird von Caddy nicht bedient.",
+      "antipattern_refs": [
+        "A-11",
+        "A-12",
+        "A-13"
+      ]
+    },
+    {
+      "id": "NG-10",
+      "non_goal": "Monolithische Chat-Dumps oder unstrukturiertes Vorgehen bei LLM-Analysen",
+      "reason": "Führt zu Token-Überlauf, Halluzinationen und Verlust kritischer Architektur-Details.",
+      "antipattern_refs": [
+        "A-29"
+      ]
+    }
+  ],
+  "context": {
+    "hardware": {
+      "cpu": "Intel Core i3-9100 (4C/4T, 3.6 - 4.2 GHz, 9. Gen Coffee Lake)",
+      "gpu": "Intel UHD Graphics 630 (QuickSync Transcoding, GuC/HuC Support)",
+      "tpm": "TPM2 vorhanden (Hardware-Voraussetzung für systemd-creds Binding)",
+      "form_factor": "Fujitsu Esprimo Q958 USFF (Ultra Small Form Factor)"
+    },
+    "network": {
+      "router": "Telekom Speedport Smart 4 Typ A (192.168.2.1)",
+      "wan": "Dynamische öffentliche IPv4 (Cloudflare DDNS)",
+      "lan": "192.168.2.0/24 Subnetz",
+      "resolver": "Blocky als zentraler interner Split-DNS (Port 53)"
+    },
+    "scope": {
+      "type": "Single-Host Headless Homelab Appliance",
+      "operator": "Einzeloperator (Moritz)",
+      "services": "mediNix Media-Stack (Caddy, Pocket-ID, oauth2-proxy, CrowdSec, Blocky, Jellyfin, Sonarr, Radarr, Seerr)"
+    }
+  },
+  "philosophy": [
+    "Nichts dem Zufall überlassen — explizite Deklarationen schlagen implizite Defaults",
+    "Belt and Suspenders — mehrere voneinander unabhängige Verteidigungsschichten (Defense-in-Depth)",
+    "Fail-closed — bei Unklarheit oder Fehlkonfiguration bricht der Build, das System bleibt sicher verschlossen",
+    "Keine zwei SOTs — genau eine Single Source of Truth pro Funktionalität, keine Parallelstrukturen",
+    "Kernel-nah vor Applikations-Ebene — nftables vor App-Bouncern, systemd vor User-Containern",
+    "Hardware-Bindung vor reiner Mathematik — physisches TPM2 neutralisiert HNDL heute wirksam",
+    "Öffentlich vertrauenswürdig vor lokalem Mehraufwand — ACME DNS-01 schlägt eigene Client-CAs",
+    "Minimaler Footprint & On-Demand Effizienz — dynamische Skalierung ohne unnötige Dauerlast"
+  ],
+  "compatibility_rules": [
+    "CR-01: Jede neue Komponente muss widerspruchsfrei in die hard_constraints passen.",
+    "CR-02: Jede neue Komponente darf keines der hard_non_goals berühren.",
+    "CR-03: Jede neue Komponente muss mindestens neutral zum threat_model stehen und darf keine Angriffsfläche vergrößern.",
+    "CR-04: Jede neue Komponente muss die philosophy respektieren (keine zweite SOT, keine spekulativen Features).",
+    "CR-05: Jede neue Komponente muss im context funktionieren (Single-Host, Esprimo Q958, Speedport-Gateway)."
+  ]
+}

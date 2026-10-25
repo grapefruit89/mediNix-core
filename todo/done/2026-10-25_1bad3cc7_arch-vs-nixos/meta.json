@@ -1,0 +1,29 @@
+{
+  "chat_id": "2026-10-25_1bad3cc7_arch-vs-nixos",
+  "chat_group_id": "1bad3cc7-fa1d-4591-9a7d-b630248a33fa",
+  "total_messages": 126,
+  "blocks_count": 14,
+  "decisions_count": 42,
+  "verdict_summary": {
+    "better": 22,
+    "neutral": 20
+  },
+  "code_diff_summary": {
+    "offen": 17,
+    "umgesetzt": 1,
+    "konflikt": 1,
+    "unklar": 3,
+    "speedport_final": 3
+  },
+  "todo_summary": {
+    "total": 27,
+    "by_type": {
+      "code-change": 13,
+      "test-later": 3,
+      "doc-change": 6,
+      "conflict": 1,
+      "dependency-update": 4
+    }
+  },
+  "archived_at": "2026-10-25T14:31:32.296404+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "generated_at": null,
+  "source_chat": "/home/moritz/repos/mediNix-core/todo/_input/chat.json",
+  "blocks_processed": [],
+  "summary": {
+    "decided": 0,
+    "proposed": 0,
+    "rejected": 0,
+    "open": 0
+  },
+  "todos": []
+}

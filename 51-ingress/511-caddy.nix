@@ -338,11 +338,11 @@ let
 
   # 4. Catch-All Abort für unbekannte WAN-Subdomains
   catchAllSites = lib.optionals (domain != null) (
-    [ (mkSite "http://*.${domain}" "abort") ]
+    [ (mkSite "http://*.${domain}" ''respond "Get off my lawn" 404'') ]
     ++ lib.optionals tlsEnabled [
       (mkSite "*.${domain}" ''
         ${tlsDirective}
-        abort
+        respond "Get off my lawn" 404
       '')
     ]
   );

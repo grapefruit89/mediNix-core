@@ -1,0 +1,320 @@
+{
+  "meta": {
+    "source_chat": "2026-10-25_1bad3cc7_arch-vs-nixos",
+    "total": 31
+  },
+  "items": [
+    {
+      "id": "A-01",
+      "title": "Arch Linux als Basis für mediNix-core nutzen",
+      "reason": "Rolling Release ohne systemimmanente Rollbacks und imperative Konfiguration verletzen das Clean-Slate- und Reproduzierbarkeits-Prinzip von mediNix.",
+      "source_block": "01-arch-vs-nixos",
+      "source_messages": [
+        0,
+        1,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "A-02",
+      "title": "Ansible für mediNix-Host-Konfiguration einsetzen",
+      "reason": "Redundant und widerspricht der deklarativen NixOS-Architektur.",
+      "source_block": "01-arch-vs-nixos",
+      "source_messages": [
+        4,
+        5
+      ]
+    },
+    {
+      "id": "A-03",
+      "title": "HTTP-Statuscode 666 ('get off my lawn') für Scanner ausgeben",
+      "reason": "Nicht RFC-9110-konform; bricht HTTP-Parser und Middleboxes und liefert ein unnötiges Signal.",
+      "source_block": "02-caddy-catch-all",
+      "source_messages": [
+        16,
+        17
+      ]
+    },
+    {
+      "id": "A-04",
+      "title": "HTTP-Statuscode 403 (Forbidden) für unbekannte Subdomains nutzen",
+      "reason": "Verrät dem Angreifer, dass der Host existiert und die Ressource geschützt ist; lädt zu weiterem Scanning ein.",
+      "source_block": "02-caddy-catch-all",
+      "source_messages": [
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "id": "A-05",
+      "title": "tls internal (Caddy lokale Root-CA) für LAN-Subdomains",
+      "reason": "Erfordert manuelle Installation und Wartung von Root-Zertifikaten auf allen Heimnetz-Geräten (TVs, Handys), was vom Nutzer explizit abgelehnt wurde.",
+      "source_block": "02-caddy-catch-all",
+      "source_messages": [
+        82,
+        83,
+        84,
+        85,
+        86
+      ]
+    },
+    {
+      "id": "A-06",
+      "title": "App-Layer-Bouncer in Caddy (Caddy CrowdSec Bouncer Modul) statt nftables-Bouncer",
+      "reason": "Ein App-Layer-Bouncer bindet Caddy-Ressourcen für jeden Request; der nftables-Bouncer verwirft Pakete kernel-nah auf allen Ports (INPUT-Chain) ohne TCP-Handshake.",
+      "source_block": "03-crowdsec-scan-ban",
+      "source_messages": [
+        13,
+        21,
+        23
+      ]
+    },
+    {
+      "id": "A-07",
+      "title": "HTTP-Tarpit (endlessh-ähnlich) für scannende Web-Clients",
+      "reason": "Bindet offene Sockets und Dateideskriptoren im Webserver; CrowdSec sieht dabei keine Statuscodes für adaptive Bans.",
+      "source_block": "03-crowdsec-scan-ban",
+      "source_messages": [
+        20,
+        21
+      ]
+    },
+    {
+      "id": "A-08",
+      "title": "sops-nix für Secret-Management in mediNix-core nutzen",
+      "reason": "Zu komplex, undurchsichtig, externe Abhängigkeit; systemd-creds ist schlanker, nativer und systemd-integriert (in ADR-521 strikt verboten).",
+      "source_block": "04-credentials-systemd-creds",
+      "source_messages": [
+        52,
+        53
+      ]
+    },
+    {
+      "id": "A-09",
+      "title": "Eine gemeinsame Passwörter-Sammeldatei (`all-secrets.cred`) für alle Dienste nutzen",
+      "reason": "Verletzt das Prinzip der geringsten Rechte (Least Privilege); ein kompromittierter Einzel-Dienst könnte alle Secrets lesen.",
+      "source_block": "04-credentials-systemd-creds",
+      "source_messages": [
+        64,
+        65
+      ]
+    },
+    {
+      "id": "A-10",
+      "title": "socat-UDS-Bridge vor Pocket ID schalten, um Unix Domain Sockets zu erzwingen",
+      "reason": "Over-Engineering; erzeugt zusätzliche Prozesse pro Service, während systemd-Hardening und Loopback-Isolation bereits ausreichen.",
+      "source_block": "04-credentials-systemd-creds",
+      "source_messages": [
+        35,
+        37
+      ]
+    },
+    {
+      "id": "A-11",
+      "title": "mDNS behalten für Zero-Conf",
+      "reason": "Caddy serviert .local nicht; Avahi ist zusätzlicher Daemon mit Angriffsfläche; Blocky ist bereits im Stack und löst das gleiche Problem zentraler.",
+      "source_block": "05-mdns-vs-blocky",
+      "source_messages": [
+        73,
+        74
+      ]
+    },
+    {
+      "id": "A-12",
+      "title": ".local in Caddy durch .lan ersetzen",
+      "reason": "Falsche Annahme: .lan ist bereits in Caddy gerendert. .local war nie in Caddy. Es gibt nichts zu ersetzen, nur zu entfernen.",
+      "source_block": "05-mdns-vs-blocky",
+      "source_messages": [
+        77,
+        78
+      ]
+    },
+    {
+      "id": "A-13",
+      "title": "Bind auf LAN beschränken als Ersatz für DNS-Eintrag",
+      "reason": "Bind (Caddy lauscht nur auf LAN-IP) und DNS-Auflösung sind zwei getrennte Schichten. Bind verhindert Zugriff von außen, nicht die Namensauflösung. Beides wird gebraucht.",
+      "source_block": "05-mdns-vs-blocky",
+      "source_messages": [
+        79,
+        80
+      ]
+    },
+    {
+      "id": "A-14",
+      "title": "TR-064 SOAP-Schnittstelle beim Speedport Smart 4 erzwingen",
+      "reason": "Speedport Smart 4 implementiert TR-064 nicht vollständig; führt zu fehlschlagenden SOAP-Requests.",
+      "source_block": "06-dns-wan-ip-provider",
+      "source_messages": [
+        46,
+        47
+      ]
+    },
+    {
+      "id": "A-15",
+      "title": "Feste Router-IP 192.168.2.1 im NixOS-Modul hardcodieren",
+      "reason": "Verletzt das Portabilitäts- und SSoT-Prinzip; bricht sofort bei geändertem Subnetz.",
+      "source_block": "06-dns-wan-ip-provider",
+      "source_messages": [
+        48,
+        49
+      ]
+    },
+    {
+      "id": "A-16",
+      "title": "RFC1918-IPs standardmäßig in öffentliche Cloudflare-DNS-Zone schreiben (publishLanRecord = true)",
+      "reason": "Leakt interne Netzwerk-Topologie öffentlich im Internet (Recon-Gold); interner Traffic gehört ins Split-DNS.",
+      "source_block": "06-dns-wan-ip-provider",
+      "source_messages": [
+        26,
+        27
+      ]
+    },
+    {
+      "id": "A-17",
+      "title": "Agenix mit klassischen Ed25519-Schlüsseln auf GitHub nutzen",
+      "reason": "Anfällig für Harvest-Now-Decrypt-Later; Angreifer können Ciphertexte heute speichern und mit Quantencomputern in Zukunft brechen.",
+      "source_block": "07-pqc-hndl",
+      "source_messages": [
+        59,
+        60,
+        61
+      ]
+    },
+    {
+      "id": "A-18",
+      "title": "Warten auf reine PQC-Kryptografie vor dem Deployment",
+      "reason": "Reine PQC-Tools sind produktiv noch nicht verfügbar; hybride Verfahren und Hardware-Bindung (TPM2) bieten heute den maximal möglichen Schutz.",
+      "source_block": "07-pqc-hndl",
+      "source_messages": [
+        69
+      ]
+    },
+    {
+      "id": "A-19",
+      "title": "Imperative `iptables -A INPUT ...` Befehle zur schnellen Portöffnung nutzen",
+      "reason": "Widerspricht der deklarativen Reproduzierbarkeit von NixOS und wird in ADR-5210 explizit als Anti-Pattern verboten.",
+      "source_block": "08-firewall-nftables",
+      "source_messages": [
+        95
+      ]
+    },
+    {
+      "id": "A-20",
+      "title": "Permanentes REJECT statt DROP für unberechtigte Verbindungen",
+      "reason": "Verrät Scannern aktive Hosts und Port-Filterung; im Normalbetrieb ist stummes DROP die sicherere Wahl.",
+      "source_block": "08-firewall-nftables",
+      "source_messages": [
+        91,
+        92,
+        93
+      ]
+    },
+    {
+      "id": "A-21",
+      "title": "Eigene Kernel-Patches schreiben und Kernel selbst kompilieren",
+      "reason": "Zu hoher Wartungsaufwand, Verlust von Binärcaches, fragile Homelab-Wartung.",
+      "source_block": "09-kernel-hardening",
+      "source_messages": [
+        100,
+        101
+      ]
+    },
+    {
+      "id": "A-22",
+      "title": "LKRG (Linux Kernel Runtime Guard) als Pflichtmodul erzwingen",
+      "reason": "Kann mit künftigen Kernel-Updates brechen und zu Boot-Hangs führen; für Consumer-Homelab zu instabil.",
+      "source_block": "09-kernel-hardening",
+      "source_messages": [
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "id": "A-23",
+      "title": "TLP und auto-cpufreq gleichzeitig aktivieren",
+      "reason": "Schließen sich gegenseitig aus; konkurrierende Daemons erzeugen Frequenz-Flackern und Instabilitäten.",
+      "source_block": "10-power-management",
+      "source_messages": [
+        103,
+        105
+      ]
+    },
+    {
+      "id": "A-24",
+      "title": "i915.enable_psr und i915.enable_fbc manuell forcieren",
+      "reason": "Wird ab Intel Gen 8 automatisch vom Kernel geregelt; manuelles Erzwingen führt zu Instabilitäten.",
+      "source_block": "10-power-management",
+      "source_messages": [
+        105
+      ]
+    },
+    {
+      "id": "A-25",
+      "title": "Neuen Dezimalslot wie 513b oder Sub-Nummern für WAN-Provider einführen",
+      "reason": "Verletzt die strikte 3-stellige Ganzzahl-Konvention des Dezimalrahmens (ADR-0000).",
+      "source_block": "11-51-tree-struktur",
+      "source_messages": [
+        111
+      ]
+    },
+    {
+      "id": "A-26",
+      "title": "Credentials unverschlüsselt oder uneinheitlich über beliebige Unterordner verstreuen",
+      "reason": "Erhöht das Leak-Risiko drastisch und bricht die Nachvollziehbarkeit im Härtungsaudit.",
+      "source_block": "12-adr-dezimalrahmen",
+      "source_messages": [
+        120,
+        121
+      ]
+    },
+    {
+      "id": "A-27",
+      "title": "Blindes Auto-Importieren aller beliebigen .nix-Dateien aus dem gesamten Repo-Baum",
+      "reason": "Führt zu Evaluationsfehlern, da pure Functions, Datensätze und Tests keine NixOS-Modul-Signatur haben.",
+      "source_block": "13-lib-vs-50-core",
+      "source_messages": [
+        116,
+        117
+      ]
+    },
+    {
+      "id": "A-28",
+      "title": "Vollständiges Verschieben aller Bibliotheksfunktionen in NixOS-Optionswerte",
+      "reason": "Erzeugt signifikanten Overhead bei der Flake-Evaluation und birgt das Risiko zirkulärer Modul-Abhängigkeiten.",
+      "source_block": "13-lib-vs-50-core",
+      "source_messages": [
+        115
+      ]
+    },
+    {
+      "id": "A-29",
+      "title": "Monolithischen Chat-Dump in einem einzigen Schritt ohne Zwischenblöcke verarbeiten",
+      "reason": "Führt zu Token-Überlauf, Halluzinationen und Verlust kritischer Architektur-Details.",
+      "source_block": "14-config-review-51-ingress",
+      "source_messages": [
+        124,
+        125
+      ]
+    },
+    {
+      "id": "A-30",
+      "title": "Interne TLS-Zertifikate über eigene CA anstatt ACME DNS-01 verteilen",
+      "reason": "Erfordert manuelle Installation von Root-Zertifikaten auf allen Mobilgeräten und Smart-TVs; Nutzer lehnte dies explizit ab.",
+      "source_block": "14-config-review-51-ingress",
+      "source_messages": [
+        28,
+        29,
+        71
+      ]
+    },
+    {
+      "id": "A-31",
+      "name": "Feishin",
+      "reason": "Statische SPA ohne Mehrwert; pflegt sich nicht; verursacht Zahnschmerzen. Projektweit entfernt 2026-10-25."
+    }
+  ]
+}

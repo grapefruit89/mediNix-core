@@ -294,7 +294,7 @@ in
                 # leer bedeutet "unbekannt".
                 #
                 # "0M" ist ein bewusster Sentinel fuer "kein eigener Prozess"
-                # (feishin ist eine statische SPA, die Caddy ausliefert) - nicht
+                # (feishin war eine statische SPA, entfernt 2026-10-25) - nicht
                 # "braucht 0 MB".
                 #
                 # ANZEIGE-/Planungswert. Die DURCHSETZUNG (cgroup MemoryMin/Low/

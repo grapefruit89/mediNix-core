@@ -35,7 +35,7 @@ One HTTP edge for every registered vhost. Stock `pkgs.caddy`. Certificates come 
 - Lego issuance (514)
 - Per-app icons (service modules → 518)
 - Caddy DNS plugins, CrowdSec, rate-limit builds
-- 554-feishin still writes its own `virtualHosts` and bypasses this engine
+- (Feishin entfernt 2026-10-25) its own `virtualHosts` and bypasses this engine
 
 ## Rejected (old ADR-51 text)
 

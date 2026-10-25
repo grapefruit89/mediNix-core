@@ -26,10 +26,10 @@ A service describes itself. Ingress organs only consume that description.
 
 | Domain | Role | Modules |
 | --- | --- | --- |
-| `51-ingress` | Reverse proxy, TLS, DNS, mDNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-cloudflare-dns, 514-acme, 515-mdns, 518-landingpage |
+| `51-ingress` | Reverse proxy, TLS, DNS, Split-DNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-cloudflare-dns, 514-acme, 515-blocky, 518-landingpage |
 | `52-security` | Core security, Credentials, VPN | 520-core-security, 521-creds, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr indexers | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
-| `55-playback` | Playback & Streaming | 551-jellyfin, 552-audiobookshelf, 553-navidrome, 554-feishin |
+| `55-playback` | Playback & Streaming | 551-jellyfin, 552-audiobookshelf, 553-navidrome |
 | `56-exposition` | Request Management & API Gateway | 561-seerr |
 | `57-maintenance` | Storage, Optimize, sync, backup, provision | 570-storage, 571-sqlite-wal, 572-recyclarr, 574-provisioning, 575-update-notifier, 576-backup, 577-drift-detection, 578-orphan-cleanup, 579-backup-ssh |
 | `58-observability` | Notifications & Watchdogs | 581-ntfy, 583-runtime-guard, 584-post-boot-watchdog, 587-disk-health |

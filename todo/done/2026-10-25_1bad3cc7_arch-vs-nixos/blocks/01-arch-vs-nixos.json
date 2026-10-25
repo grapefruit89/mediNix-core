@@ -1,0 +1,143 @@
+{
+  "block_id": "01-arch-vs-nixos",
+  "title": "Arch Linux vs. NixOS – Grundphilosophie, Immutabilität & Wartbarkeit",
+  "topics": [
+    "arch-vs-nixos"
+  ],
+  "message_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "summary": "Diskutiert die architektonischen und philosophischen Unterschiede zwischen Arch Linux (imperativ, Rolling Release, manuelle Disziplin, maximale Nutzersouveränität) und NixOS (deklarativ, atomare Upgrades, unveränderlicher Nix-Store, Git-versionierte Infrastruktur). Es wird geklärt, dass Passkeys/FIDO2 auf beiden Systemen unterstützt werden, NixOS jedoch strukturelle Konsistenzgarantien bietet. Ansible wird als Hilfsmittel für Arch diskutiert, aber nicht als Ersatz für NixOS.",
+  "decisions": [
+    {
+      "id": "D-01-01",
+      "statement": "NixOS bleibt die verbindliche Betriebssystem-Basis für mediNix-core; Arch Linux oder imperative Distributionen werden nicht eingesetzt.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Deklarative Reproduzierbarkeit per Git",
+          "Atomare Upgrades und triviales Rollback",
+          "Isolierter, unveränderlicher /nix/store",
+          "Keine Konfigurationsdrift über Zeit"
+        ],
+        "con": [
+          "Steile Lernkurve für die Nix-Sprache",
+          "Höherer Speicherbedarf für Generationen vor Garbage Collection"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "status": "exists",
+          "current_state": "Flake-basierte NixOS-Konfiguration mit isolierten Modulen, Checks und CI-Gates.",
+          "proposed_change": "Keine Änderung – Bestätigung des Architektur-Fundaments."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0003-architektur-manifest.md",
+          "status": "exists",
+          "current_state": "Deklaratives Architektur-Manifest für mediNix als reproduzierbare NixOS-Appliance.",
+          "proposed_change": "Keine Änderung nötig."
+        }
+      ],
+      "source_message_ids": [
+        0,
+        1,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "D-01-02",
+      "statement": "Keine externen Konfigurationsmanagement-Tools (wie Ansible) für die Basis-Konfiguration von mediNix-core einsetzen.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Einheitliche SSoT in Nix-Flakes",
+          "Keine Python-/SSH-Abhängigkeit auf dem Zielhost für das Konfigurationsmanagement",
+          "Konsistente State-Validierung vor dem Build"
+        ],
+        "con": [
+          "NixOS-spezifisches Wissen erforderlich"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/flake.nix",
+          "status": "exists",
+          "current_state": "Rein deklaratives Flake ohne imperative Provisioner.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        4,
+        5
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-01-01",
+      "question": "Soll FIDO2 / Passkey-Hardware-Authentifizierung für den lokalen Login oder die Festplatten-Entschlüsselung (systemd-cryptenroll / libfido2) in mediNix-core nativ evaluiert werden?",
+      "why_open": "Wurde im Chat als Kernfeature für den Kollegen genannt; im Homelab aktuell noch unklar, ob Headless-Betrieb oder lokale Entschlüsselung via FIDO2 gewünscht ist.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Ansible als Ergänzung oder Vergleich zu NixOS vorschlagen",
+      "to": "Ansible ist für imperative Systeme (Arch, Debian) gedacht; auf NixOS ist die deklarative Nix-Sprache die alleinige Single Source of Truth",
+      "source_message_ids": [
+        4,
+        5
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Arch Linux als Basis für mediNix-core nutzen",
+      "reason": "Rolling Release ohne systemimmanente Rollbacks und imperative Konfiguration verletzen das Clean-Slate- und Reproduzierbarkeits-Prinzip von mediNix.",
+      "source_message_ids": [
+        0,
+        1,
+        8,
+        9
+      ]
+    },
+    {
+      "idea": "Ansible für mediNix-Host-Konfiguration einsetzen",
+      "reason": "Redundant und widerspricht der deklarativen NixOS-Architektur.",
+      "source_message_ids": [
+        4,
+        5
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-01-01",
+      "action": "Architektur-Vorgabe NixOS als SSoT in README.md beibehalten und FIDO2/Passkey-Support als zukünftige Option in ROADMAP.md vermerken",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}

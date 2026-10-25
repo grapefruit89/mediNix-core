@@ -241,10 +241,6 @@ in
         '';
       };
     };
-    feishin = {
-      enable = lib.mkEnableOption "Feishin SPA (static files)";
-      package = mkPackageOption "feishin";
-    };
     pocketId = {
       enable = lib.mkEnableOption "Pocket ID OIDC Provider";
       package = mkPackageOption "pocket-id";
@@ -686,7 +682,7 @@ in
       streamAck = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        example = [ "feishin" ];
+        example = [ "jellyfin" ];
         description = ''
           Services that may run with `accessGroup = "stream"` although their
           manifest entry declares something else. `stream` is WAN-visible
@@ -850,12 +846,12 @@ in
         type = lib.types.attrsOf (lib.types.strMatching "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
         default = { };
         example = {
-          feishin = "music";
+          jellyfin = "media";
         };
         description = ''
           Extra public hostname for a registry service. 511 serves the same
           template on {alias}.{domain}; 513 prunes leftover CNAMEs for both names.
-          Example: feishin = "music" → https://music.example.com
+          Example: jellyfin = "media" → https://media.example.com
         '';
       };
       ddns = {
@@ -1047,37 +1043,6 @@ in
       idleTimeoutSec = lib.mkOption {
         type = lib.types.int;
         default = 900;
-      };
-    };
-
-    discovery = {
-      mdns = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-        };
-        # Finding 8 (Review 2026-10-17): mDNS oeffnet UDP/5353 sonst auf ALLEN
-        # Interfaces (nixpkgs `services.avahi.openFirewall`, Default true) - auch
-        # WAN-seitig. Default: nur oeffnen, wenn mediNix die Firewall fuehrt; im
-        # Modus "external" entscheidet der Host.
-        openFirewall = lib.mkOption {
-          type = lib.types.bool;
-          default = cfg.hostIntegration.firewall == "managed";
-          description = ''
-            Open UDP/5353 for avahi (mDNS). Default: only when mediNix manages
-            the firewall (hostIntegration.firewall == "managed").
-          '';
-        };
-        allowInterfaces = lib.mkOption {
-          type = lib.types.nullOr (lib.types.listOf lib.types.str);
-          default = null;
-          example = [ "lan0" ];
-          description = ''
-            Restrict mDNS to these interfaces. nixpkgs default null = all local
-            interfaces except loopback/point-to-point - which includes WAN-side
-            ones (Review 2026-10-17, Finding 8).
-          '';
-        };
       };
     };
 

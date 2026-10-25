@@ -1,0 +1,168 @@
+{
+  "block_id": "12-adr-dezimalrahmen",
+  "title": "ADR-0000 Dezimalrahmen: Universelles Dateisystem- & Ordnungsprinzip",
+  "topics": [
+    "adr-dezimalrahmen",
+    "lib-vs-50-core"
+  ],
+  "message_ids": [
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123
+  ],
+  "summary": "Grundsatzdiskussion über die philosophische Tragweite des Dezimalrahmens (ADR-0000). Der Nutzer stellt klar, dass der Dezimalrahmen kein reines Modul-Schema für Daemons ist, sondern ein universelles, fraktales bzw. dendritisches Dateisystem- und Organisationsprinzip für das gesamte mediNix-Projekt. Dies umfasst die Zuordnung von Basis- und Hilfsstrukturen (Foundation), die Eliminierung von Magic Numbers durch Berechnungsregeln (number * 10) und die zukünftige systematische Verortung von Credentials.",
+  "decisions": [
+    {
+      "id": "D-12-01",
+      "statement": "Dezimalrahmen (ADR-0000) als universelles, fraktales Ordnungsprinzip für das gesamte Repository definieren, nicht nur für NixOS-Dienstmodule.",
+      "status": "decided",
+      "rationale": "Die Beschränkung auf reine Daemon-Module erzeugt künstliche Inkonsistenzen (z. B. Unsicherheit über die Rolle von Foundation, Hilfsdateien und Speicherorten). Das universelle Verständnis ordnet das gesamte System deterministisch.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Einheitliche mentale Ordnung für alle Systemteile",
+          "Klarheit über Verortung von Hilfsdateien, Dokumentation und Konfiguration",
+          "Vermeidet Sonderlocken und unorganisierte Ordnerablagen"
+        ],
+        "con": [
+          "Erfordert konsequente Disziplin bei der Namensgebung im gesamten Projekt"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+          "status": "exists",
+          "current_state": "Formuliert Dezimalrahmen primär als Modul- und Port/UID-Matrix.",
+          "proposed_change": "Präambel erweitern: Dezimalrahmen als fraktales Dateisystem- und Ordnungsprinzip etablieren."
+        }
+      ],
+      "source_message_ids": [
+        120,
+        122,
+        123
+      ]
+    },
+    {
+      "id": "D-12-02",
+      "statement": "Eliminierung von Magic Numbers: Ports und UIDs werden ausnahmslos als Funktion der Dienstnummer (`derivation = number * 10`) berechnet.",
+      "status": "decided",
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen.",
+      "verdict": "neutral",
+      "trade_offs": {
+        "pro": [
+          "Mathematisch kollisionsfreie Zuweisung im Bereich 5000–5999",
+          "Keine händischen Port-Listen nötig",
+          "Koppelt Service-Identität fest an UID und Port"
+        ],
+        "con": [
+          "Standardports müssen via Reverse-Proxy oder Ausnahmeregelung (z.B. Port 53) gemappt werden"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/50-core/501-decimal-engine.nix",
+          "status": "exists",
+          "current_state": "Enthält mathematische Validierungs- und Ableitungsfunktionen.",
+          "proposed_change": "Keine Änderung."
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/lib/derive.nix",
+          "status": "exists",
+          "current_state": "Implementiert derivePort, deriveUid, deriveGid.",
+          "proposed_change": "Keine Änderung."
+        }
+      ],
+      "source_message_ids": [
+        120,
+        121
+      ]
+    },
+    {
+      "id": "D-12-03",
+      "statement": "Systematische Verortung von Credentials: Nicht-öffentliche Secrets werden in dedizierten Creds-Ordnern gebündelt, ohne den öffentlichen Modul-Baum zu kompromittieren.",
+      "status": "proposed",
+      "rationale": "Die Speicherung von Credentials darf weder Magic Numbers noch unkontrollierte Ablagen im Git erzeugen. Ein dedizierter Slot oder gesonderter Creds-Pfad harmonisiert das Secret-Management mit der Dezimalphilosophie.",
+      "verdict": "better",
+      "trade_offs": {
+        "pro": [
+          "Strikte Isolation von sensiblen Daten",
+          "Klare Ignoriervorschriften in .gitignore",
+          "Strukturierte Ablage nach Dezimalnummern"
+        ],
+        "con": [
+          "Erfordert saubere Trennung zwischen Deklaration und Schlüsselmaterial"
+        ]
+      },
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+          "status": "exists",
+          "current_state": "Erwähnt Credentials noch nicht als eigene Strukturkomponente.",
+          "proposed_change": "Abschnitt über Credentials-Speicherorte und Secret-Pfade ergänzen."
+        }
+      ],
+      "source_message_ids": [
+        120,
+        121
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-12-01",
+      "question": "Soll für Credentials ein formaler Slot im Dezimalrahmen (z. B. unter 52-security als 521-creds) festgeschrieben werden?",
+      "why_open": "Secret-Handling ist eng an Host-Bindung gekoppelt und muss sauber von portablen Modulen getrennt bleiben.",
+      "blocking": false
+    }
+  ],
+  "corrections": [
+    {
+      "from": "Der Dezimalrahmen ist nur ein enges Schema für NixOS-Services mit Hintergrunddaemons",
+      "to": "Der Dezimalrahmen ist ein fraktales Ordnungs- und Dateisystemprinzip für alle Systembestandteile",
+      "source_message_ids": [
+        122,
+        123
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "idea": "Credentials unverschlüsselt oder uneinheitlich über beliebige Unterordner verstreuen",
+      "reason": "Erhöht das Leak-Risiko drastisch und bricht die Nachvollziehbarkeit im Härtungsaudit.",
+      "source_message_ids": [
+        120,
+        121
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "id": "N-12-01",
+      "action": "ADR-0000 nach Review um den Grundsatz des fraktalen Dateisystem-Ordnungsprinzips ergänzen",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "N-12-02",
+      "action": "In ADR-0000-dezimalrahmen-verfassung.md: Systematische Verortung von Secret-Pfaden und Credentials-Speicherorten dokumentieren",
+      "priority": "low",
+      "depends_on": [
+        "N-12-01"
+      ]
+    }
+  ],
+  "secret_mentions": [],
+  "_meta": {
+    "verified_against_code": true,
+    "generated_by": "phase-3"
+  }
+}
