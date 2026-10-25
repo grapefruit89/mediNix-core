@@ -35,21 +35,32 @@
     "open_count": 37,
     "done_count": 4,
     "priority_summary": {
-      "open": {
-        "high": 9,
-        "medium": 16,
-        "low": 12
-      },
       "done": {
-        "high": 4,
-        "medium": 0,
-        "low": 0
+        "high": 9,
+        "medium": 6,
+        "low": 6
+      },
+      "partially-done": {
+        "high": 1,
+        "medium": 2,
+        "low": 2
+      },
+      "still-open": {
+        "high": 3,
+        "medium": 8,
+        "low": 4
       },
       "total": {
         "high": 13,
         "medium": 16,
         "low": 12
       }
+    },
+    "reconciled_at": "2026-10-25T23:03:58.538256+00:00",
+    "status_counts": {
+      "done": 21,
+      "partially-done": 5,
+      "still-open": 15
     }
   },
   "todos": [
@@ -59,7 +70,8 @@
       "action": "Architektur-Vorgabe NixOS als SSoT in README.md beibehalten und FIDO2/Passkey-Support als zukünftige Option in ROADMAP.md vermerken",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "partially-done",
+      "note": "NixOS als SSoT in README.md etabliert; FIDO2/Passkey-Eintrag in ROADMAP.md steht noch aus"
     },
     {
       "id": "N-02-01",
@@ -67,7 +79,9 @@
       "action": "In 511-caddy.nix: `abort` durch `respond \"Get off my lawn\" 404` in catchAllSites ersetzen",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "ee73808",
+      "note": "erledigt durch Chat-1-Quickwin ee73808"
     },
     {
       "id": "N-03-01",
@@ -77,7 +91,9 @@
       "depends_on": [
         "N-02-01"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "ee73808",
+      "note": "erledigt durch Chat-1-Quickwin ee73808"
     },
     {
       "id": "N-03-02",
@@ -87,7 +103,9 @@
       "depends_on": [
         "N-03-01"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "79dac74",
+      "note": "erledigt durch Chat-1-Quickwin 79dac74"
     },
     {
       "id": "N-04-01",
@@ -95,7 +113,9 @@
       "action": "Sicherstellen, dass `*.cred` und `*.encrypted` in .gitignore von mediNix-core stehen und niemals ins Git gelangen",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "41dd098",
+      "note": "erledigt durch Chat-1-Quickwin 41dd098"
     },
     {
       "id": "N-04-02",
@@ -103,7 +123,9 @@
       "action": "Prüfen, ob oauth2-proxy (517) nativ auf Unix Domain Sockets umgestellt werden soll (Defense-in-Depth für Auth-Gatekeeper)",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "89d5c00",
+      "note": "erledigt durch Chat-1-Quickwin 89d5c00"
     },
     {
       "id": "N-04-03",
@@ -111,7 +133,9 @@
       "action": "In 512-pocket-id.nix: Testweise UNIX_SOCKET und TRUST_PROXY=true aktivieren und Audit-Log auf korrekte Client-IPs verifizieren",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "400a4c0",
+      "note": "erledigt durch Chat-1-Quickwin 400a4c0"
     },
     {
       "id": "N-05-01",
@@ -119,7 +143,9 @@
       "action": "515-mdns.nix entfernen oder per Option standardmäßig deaktivieren (medinix.discovery.mdns.enable = false)",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "d90ce5a",
+      "note": "erledigt durch Chat-1-Quickwin d90ce5a"
     },
     {
       "id": "N-05-02",
@@ -129,7 +155,9 @@
       "depends_on": [
         "N-05-01"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "51a5a44",
+      "note": "erledigt durch Chat-1-Quickwin 51a5a44"
     },
     {
       "id": "N-05-03",
@@ -137,7 +165,8 @@
       "action": "Speedport *.lan-Auflösung prüfen (nslookup sonarr.lan 192.168.2.1) – entscheidet, ob Blocky die .lan-Auflösung übernehmen muss",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "partially-done",
+      "note": "Blocky übernimmt bereits .lan-Split-DNS via 51a5a44; Speedport-spezifischer Upstream-Test vor Ort optional"
     },
     {
       "id": "N-05-04",
@@ -147,7 +176,9 @@
       "depends_on": [
         "N-05-02"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "d90ce5a",
+      "note": "erledigt durch Chat-1-Quickwin d90ce5a"
     },
     {
       "id": "N-06-01",
@@ -155,7 +186,9 @@
       "action": "In 513-cloudflare-dns.nix: WAN-IP-Ermittlung abstrahieren und Router-Gateway-Erkennung vorbereiten",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "14e756e",
+      "note": "erledigt durch Chat-1-Quickwin 14e756e"
     },
     {
       "id": "N-06-02",
@@ -165,7 +198,9 @@
       "depends_on": [
         "N-06-01"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "389552f",
+      "note": "erledigt durch Chat-1-Quickwin 389552f"
     },
     {
       "id": "N-07-01",
@@ -173,7 +208,8 @@
       "action": "Dokumentieren der HNDL-Gefahr und PQC-Roadmap in docs/adr/ADR-521-secret-management.md",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "partially-done",
+      "note": "PQC SSH Schlüsselaustausch in ADR-52 dokumentiert via e5c49a4; HNDL-Abschnitt in ADR-521 steht noch aus"
     },
     {
       "id": "N-08-01",
@@ -181,7 +217,9 @@
       "action": "Prüfen, ob in 520-core-security.nix eine Option `medinix.firewall.rejectLogging` für temporäre Fehlersuche ergänzt werden soll",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "19d6113",
+      "note": "erledigt durch Chat-1-Quickwin 19d6113"
     },
     {
       "id": "N-09-01",
@@ -189,7 +227,7 @@
       "action": "Kernel-Modul-Blacklist im Host-Layer (q958) gegen ungenutzte Filesysteme (cifs, firewire, etc.) prüfen",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-10-01",
@@ -197,7 +235,8 @@
       "action": "Im Host-Repo (/home/moritz/repos/q958/): `powerManagement.cpuFreqGovernor = \"schedutil\";` und `boot.kernelParams = [ \"i915.enable_guc=3\" ];` einpflegen",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "partially-done",
+      "note": "In mediNix-core in ADR-0003 und ADR-551 dokumentiert via e5c49a4; Einpflege in externes Host-Repo q958 noch offen"
     },
     {
       "id": "N-11-01",
@@ -205,7 +244,9 @@
       "action": "Strukturumbau in 51-ingress nach Freigabe vorbereiten (515-blocky.nix erstellen, 515-mdns.nix entfernen)",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "51a5a44",
+      "note": "erledigt durch Chat-1-Quickwin 51a5a44 und d90ce5a"
     },
     {
       "id": "N-11-02",
@@ -213,7 +254,9 @@
       "action": "lib/wan-ip-provider.nix erstellen und 513-cloudflare-dns.nix auf reines WAN-DDNS beschränken (LAN-Publishing entfernen)",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "14e756e",
+      "note": "erledigt durch Chat-1-Quickwin 14e756e"
     },
     {
       "id": "N-12-01",
@@ -221,7 +264,9 @@
       "action": "ADR-0000 nach Review um den Grundsatz des fraktalen Dateisystem-Ordnungsprinzips ergänzen",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "99877f0",
+      "note": "erledigt durch Chat-1-Quickwin 99877f0"
     },
     {
       "id": "N-12-02",
@@ -231,7 +276,9 @@
       "depends_on": [
         "N-12-01"
       ],
-      "status": "open"
+      "status": "done",
+      "commit": "99877f0",
+      "note": "erledigt durch Chat-1-Quickwin 99877f0"
     },
     {
       "id": "N-13-01",
@@ -239,7 +286,7 @@
       "action": "Import-Konventionen in docs/adr/ADR-040-gerichtete-abhaengigkeiten.md weiter präzisieren",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-14-01",
@@ -247,7 +294,8 @@
       "action": "Caddy-Renderreihenfolge in 511-caddy.nix prüfen und absichern",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "partially-done",
+      "note": "Catch-All 404 und UDS-Socket-Reihenfolge abgesichert via ee73808 / 8f16b1d; finale Prüfung von Wildcard-Subdomains offen"
     },
     {
       "id": "N-14-02",
@@ -255,7 +303,7 @@
       "action": "In lib/ingress-access.nix: Semantische CIDR- und IP-Validierung anstelle primitiver String-Präfix-Prüfungen implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-15-01",
@@ -263,7 +311,7 @@
       "action": "Lint-Matrix als scripts/check-nixmap.py implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-16-01",
@@ -271,7 +319,7 @@
       "action": "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-17-01",
@@ -279,7 +327,7 @@
       "action": "Manifest-Schema als lib/manifest.nix formalisieren",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-18-01",
@@ -287,7 +335,7 @@
       "action": "CI-Check-Bündelung + QEMU-Entkopplung",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-19-01",
@@ -295,7 +343,7 @@
       "action": "Community-Muster in docs/adr/ dokumentieren",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-20-01",
@@ -303,7 +351,7 @@
       "action": "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-21-01",
@@ -311,7 +359,7 @@
       "action": "Gatus-Healthcheck-Generierung aus Manifest implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-21-02",
@@ -319,7 +367,7 @@
       "action": "586-vpn-selftest.nix anlegen",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-22-01",
@@ -328,7 +376,9 @@
       "priority": "high",
       "depends_on": [],
       "status": "done",
-      "commit_hash": "90553ad"
+      "commit_hash": "90553ad",
+      "commit": "90553ad",
+      "note": "erledigt durch Bugfix 90553ad"
     },
     {
       "id": "N-23-01",
@@ -337,7 +387,9 @@
       "priority": "high",
       "depends_on": [],
       "status": "done",
-      "commit_hash": "f3153df"
+      "commit_hash": "f3153df",
+      "commit": "f3153df",
+      "note": "erledigt durch Bugfix f3153df"
     },
     {
       "id": "N-23-02",
@@ -346,7 +398,9 @@
       "priority": "high",
       "depends_on": [],
       "status": "done",
-      "commit_hash": "f3153df"
+      "commit_hash": "f3153df",
+      "commit": "f3153df",
+      "note": "erledigt durch Bugfix f3153df"
     },
     {
       "id": "N-24-01",
@@ -355,7 +409,9 @@
       "priority": "high",
       "depends_on": [],
       "status": "done",
-      "commit_hash": "21ca67f"
+      "commit_hash": "21ca67f",
+      "commit": "21ca67f",
+      "note": "erledigt durch Bugfix 21ca67f"
     },
     {
       "id": "N-25-01",
@@ -363,7 +419,7 @@
       "action": "Dokumentationstrias in ADR-0000 oder docs/ verankern",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-26-01",
@@ -371,7 +427,9 @@
       "action": "keine",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit": "status-quo",
+      "note": "Status Quo bestätigt: 591-cross-domain.nix ist SSoT, 509-guardrails.nix verworfen"
     },
     {
       "id": "N-27-01",
@@ -379,7 +437,7 @@
       "action": "nftables GeoIP-Sets evaluieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-27-02",
@@ -387,7 +445,7 @@
       "action": "caddy-ratelimit durch nftables ersetzen",
       "priority": "low",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     },
     {
       "id": "N-27-03",
@@ -395,7 +453,7 @@
       "action": "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "still-open"
     }
   ]
 }
