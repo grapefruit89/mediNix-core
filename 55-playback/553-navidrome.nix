@@ -171,8 +171,9 @@ in
                 exec ${package}/bin/navidrome --configfile ${stateDir}/navidrome.toml
               '';
               User = "navidrome";
-              Group = "media";
-              UMask = "0002";
+              RuntimeDirectory = "navidrome";
+              RuntimeDirectoryMode = "0770";
+              UMask = "0007";
               ReadWritePaths = [ stateDir ];
               BindReadOnlyPaths = [ "${svc.storage.mediaRoot}/music:${svc.storage.mediaRoot}/music" ];
               InaccessiblePaths = [ "-${creds.storeDir}" ];
@@ -183,8 +184,7 @@ in
           )
         ];
         environment = {
-          ND_PORT = toString port;
-          ND_ADDRESS = "127.0.0.1";
+          ND_ADDRESS = "unix:${reg.uds_path}";
           ND_MUSICFOLDER = "${svc.storage.mediaRoot}/music";
           ND_DATAFOLDER = stateDir;
           ND_ENABLEUSERSONSIGNUP = "false";
