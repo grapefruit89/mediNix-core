@@ -1,32 +1,13 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, aiohttp
-, pycryptodome
-}:
-
-buildPythonPackage rec {
+{ lib, python312Packages, fetchPypi }:
+python312Packages.buildPythonPackage rec {
   pname = "speedport-api";
   version = "0.6.0";
-
+  pyproject = true;
   src = fetchPypi {
     inherit pname version;
-    sha256 = lib.fakeSha256;
+    hash = "sha256-QVewcFQeSfhSNHE++jEVI9ZWTew5hfl9Un47//oIx6c=";
   };
-
-  propagatedBuildInputs = [
-    aiohttp
-    pycryptodome
-  ];
-
+  build-system = with python312Packages; [ setuptools ];
+  propagatedBuildInputs = with python312Packages; [ aiohttp pycryptodome ];
   doCheck = false;
-
-  pythonImportsCheck = [ "speedport" ];
-
-  meta = with lib; {
-    description = "Async Python library and CLI to control Telekom Speedport Smart 4 routers";
-    homepage = "https://github.com/Andre0512/speedport-api";
-    license = licenses.mit;
-    maintainers = [ ];
-  };
 }
