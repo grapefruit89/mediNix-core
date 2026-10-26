@@ -238,3 +238,14 @@ Partitioning of top-level system directories across multiple independent applian
 
 The methodological and cross-cutting architectural specifications (Stages 2 & 3) live in:
 - **[ARCH-0000 — Decimal Framework Appendix](file:///home/moritz/repos/mediNix-core/docs/arch/ARCH-0000-framework-appendix.md)**
+
+---
+
+## 13. Documentation Triad (Dokumentationstrias: Lastenheft, Pflichtenheft, ADRs)
+
+*Quelle: `todo/blocks/25-docs-trias.json` (D-25-01)*
+
+Zur Vermeidung von Missverständnissen und Diskrepanzen zwischen Spezifikation, technischer Realisierung und Architektur-Entscheidungen folgt mediNix einer strikten dreistufigen Dokumentationshierarchie:
+1. **Lastenheft (Das „Was“):** Fachliche Anforderungen und Zielkriterien aus Auftraggebersicht (z. B. `ROADMAP.md`, `docs/TODO.md`).
+2. **Pflichtenheft (Das „Wie“):** Konkrete technische Umsetzungsspezifikation, Modulsignaturen, Typen und Schnittstellen (z. B. Guides, Modulkommentare, `docs/arch/`).
+3. **ADRs (Das „Warum“):** Unveränderliche Architekturentscheidungen an Weggabelungen (MADR-Format in `docs/adr/`), inklusive expliziter Begründung und Ausschlusslog verworfener Alternativen.

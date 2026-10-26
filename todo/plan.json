@@ -37,7 +37,7 @@
     "priority_summary": {
       "done": {
         "high": 13,
-        "medium": 7,
+        "medium": 10,
         "low": 10
       },
       "partially-done": {
@@ -57,7 +57,7 @@
       },
       "still-open": {
         "high": 0,
-        "medium": 9,
+        "medium": 6,
         "low": 0
       },
       "total": {
@@ -66,12 +66,12 @@
         "low": 11
       }
     },
-    "reconciled_at": "2026-10-25T23:46:21.374341+00:00",
+    "reconciled_at": "2026-10-26T09:20:12.082593+00:00",
     "status_counts": {
-      "done": 30,
+      "done": 33,
       "blocked": 1,
       "test-later": 1,
-      "still-open": 9
+      "still-open": 6
     }
   },
   "todos": [
@@ -350,7 +350,8 @@
       "action": "CI-Check-Bündelung + QEMU-Entkopplung",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "CI-Check-Hierarchie (L1: --no-build lokal vs. L2: asynchrone CI) in AGENTS.md verankert"
     },
     {
       "id": "N-19-01",
@@ -367,7 +368,8 @@
       "action": "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Maschinenlesbare Quellen (D-Bus, systemd-analyze, nix eval options.json) in AGENTS.md verankert"
     },
     {
       "id": "N-21-01",
@@ -435,7 +437,8 @@
       "action": "Dokumentationstrias in ADR-0000 oder docs/ verankern",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Dokumentationstrias (Lastenheft, Pflichtenheft, ADRs) in ADR-0000 verankert"
     },
     {
       "id": "N-26-01",

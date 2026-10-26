@@ -35,6 +35,12 @@
    - **Pipes & Exit-Codes absichern:** In Shell-Pipes `set -o pipefail` erzwingen; Exit-Codes vor Folgeaktionen explizit prüfen. Trailing-Commas in JSON/Nix ausschließen.
    - **Scheiben-Messen vermeiden:** Mehrere unabhängige Statusabfragen in einem Lauf bündeln (`sys-triage`, multi-path Checks), nicht sequenziell in Einzel-Calls tröpfeln.
    - **Plan vor Code-Änderung:** Vor Code-Änderungen Plan zeigen (Freshness Gate, erwartete Konflikte, saubere Stoppbedingungen).
+9. **Maschinenlesbare Quellen vor Spekulation (Quelle: `todo/blocks/20-machine-readable-systemd-nixos.json`):**
+   - **Systemd & D-Bus:** Zur Unit-Inspektion und Validierung von Direktiven immer maschinenlesbare Schnittstellen bevorzugen (`busctl call org.freedesktop.systemd1 ...`, `systemctl show -p ...`, `systemd-analyze security <unit>`) statt unzuverlässigem Log-/Text-Parsing.
+   - **NixOS-Optionen:** Vor dem Einbringen neuer Optionen/Pakete die Existenz in nixpkgs via `nix eval --json` oder `nixos-option` bzw. `options.json` validieren. Niemals nicht-existierende Attribute oder Optionen raten.
+10. **CI-Check-Hierarchie & QEMU-Entkopplung (Quelle: `todo/blocks/18-flake-architecture-ci.json`):**
+   - **L1 (Interaktive lokale Schleife):** `nix flake check --no-build` (prüft Eval, Assertions, Nixfmt, Statix, Deadnix) – muss vor jedem Commit 100% grün sein (~5–10s).
+   - **L2 (Asynchrone CI-Gates):** Vollständige Derivations-Builds und schwere QEMU-VM-Smoke-Tests laufen in der GitHub Actions CI (`flake-check.yml`), nicht in der synchronen lokalen Agenten-Schleife, um Timeouts und Tokenverbrennung zu verhindern.
 
 ---
 
