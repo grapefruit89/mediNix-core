@@ -37,7 +37,7 @@
     "priority_summary": {
       "done": {
         "high": 13,
-        "medium": 12,
+        "medium": 16,
         "low": 10
       },
       "partially-done": {
@@ -57,7 +57,7 @@
       },
       "still-open": {
         "high": 0,
-        "medium": 4,
+        "medium": 0,
         "low": 0
       },
       "total": {
@@ -66,12 +66,11 @@
         "low": 11
       }
     },
-    "reconciled_at": "2026-10-26T09:23:56.513092+00:00",
+    "reconciled_at": "2026-10-26T09:28:21.709070+00:00",
     "status_counts": {
-      "done": 35,
+      "done": 39,
       "blocked": 1,
-      "test-later": 1,
-      "still-open": 4
+      "test-later": 1
     }
   },
   "todos": [
@@ -379,7 +378,8 @@
       "action": "Gatus-Healthcheck-Generierung aus Manifest implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "Manifest-driven Gatus Healthchecks bereits in 582-gatus.nix aktiv (0e1f8f9)"
     },
     {
       "id": "N-21-02",
@@ -387,7 +387,8 @@
       "action": "586-vpn-selftest.nix anlegen",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "586-vpn-selftest.nix als systemd-Timer/Oneshot implementiert"
     },
     {
       "id": "N-22-01",
@@ -458,7 +459,8 @@
       "action": "nftables GeoIP-Sets evaluieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "nftables GeoIP-Sets in ADR-5210 evaluiert"
     },
     {
       "id": "N-27-02",
@@ -466,8 +468,8 @@
       "action": "caddy-ratelimit durch nftables ersetzen",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open",
-      "note": "nftables-Rate-Limit ist Code, nicht Doku. Gehört in eigenes Paket"
+      "status": "done",
+      "note": "caddy-ratelimit durch nftables medinix_ratelimit auf Port 80 in 520-core-security.nix ersetzt"
     },
     {
       "id": "N-27-03",

@@ -37,6 +37,11 @@ let
 in
 {
   options.medinix.firewall.debug = lib.mkEnableOption "Firewall-Debug-Modus (reject + Logging statt stillem drop)";
+  options.medinix.firewall.rateLimitPort80 = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+    description = "Aktiviert kernel-nahes Rate-Limiting via nftables auf Port 80 (Schutz vor HTTP-Scan-Fluten, D-27-03).";
+  };
 
   options.medinix.security.fde = {
     enable = lib.mkEnableOption "LUKS2 root + TPM2 unlock (initrd systemd)";
@@ -110,6 +115,19 @@ in
     (lib.mkIf (cfg.enable && cfg.firewall.debug && cfg.hostIntegration.firewall == "managed") {
       networking.firewall.rejectPackets = true;
       networking.firewall.logRefusedConnections = true;
+    })
+
+    # D-27-03: Kernel-nahes Rate-Limiting auf Port 80 (Ersatz fuer caddy-ratelimit)
+    (lib.mkIf (cfg.enable && cfg.firewall.rateLimitPort80 && cfg.hostIntegration.nftables == "managed") {
+      networking.nftables.tables.medinix_ratelimit = {
+        family = "inet";
+        content = ''
+          chain ingress_limit {
+            type filter hook input priority filter - 1; policy accept;
+            tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets } drop
+          }
+        '';
+      };
     })
 
     # Login-Credential (L-047): Root-SSH-Keys kommen vom Host. Ohne sie - und ohne
