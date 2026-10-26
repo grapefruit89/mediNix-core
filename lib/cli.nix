@@ -30,18 +30,18 @@ let
 in
 pkgs.writeShellApplication {
   name = "medinix";
-  runtimeInputs = with pkgs; [
-    systemd
-    iproute2
-    sqlite
-    curl
-    jq
-    coreutils
-    util-linux
-    gawk
-    gnugrep
-    gnused
-    findutils
+  runtimeInputs = [
+    pkgs.systemd
+    pkgs.iproute2
+    pkgs.sqlite
+    pkgs.curl
+    pkgs.jq
+    pkgs.coreutils
+    pkgs.util-linux
+    pkgs.gawk
+    pkgs.gnugrep
+    pkgs.gnused
+    pkgs.findutils
   ];
   text = ''
     set -euo pipefail

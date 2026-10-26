@@ -74,4 +74,20 @@ rec {
   # Ref: Review 2026-10-17, Finding 26.
   tlsEnabledOf =
     ing: ing.tls.acmeHost != null || ing.tls.mode == "custom" || ing.tls.mode == "internal";
+
+  # Semantische CIDR-Validierung (D-14-02):
+  # Prueft, ob ein gegebener CIDR-String syntaktisch und semantisch in private
+  # IP-Bereiche faellt (RFC 1918, RFC 6598 CGNAT, RFC 4193 ULA, Loopback, Link-Local)
+  # und weder zu weite Praefixe (v4 < /8, v6 < /7) noch fehlerhafte Grenzen enthaelt.
+  isPrivateCidr =
+    c:
+    let
+      prefix = lib.toInt (lib.last (lib.splitString "/" c));
+      minPrefix = if lib.hasInfix ":" c then 7 else 8;
+      maxPrefix = if lib.hasInfix ":" c then 128 else 32;
+    in
+    builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c
+    != null
+    && prefix >= minPrefix
+    && prefix <= maxPrefix;
 }

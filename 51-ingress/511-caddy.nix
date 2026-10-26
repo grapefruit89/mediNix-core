@@ -446,21 +446,8 @@ lib.mkMerge [
         # Prefix-Grenzen. Vorher pruefte nur ein Praefix-Match (`10\.` …) plus
         # `hasSuffix "/0"` — `10.0.0.0/1` kam damit durch, und `lanAbort`
         # (`not remote_ip …`) haette halb IPv4 in Richtung WAN geoeffnet.
-        # Ref: Review 2026-10-17, Finding 4.
-        assertion = lib.all (
-          c:
-          let
-            prefix = lib.toInt (lib.last (lib.splitString "/" c));
-            # v4: /8 ist das weiteste legitime private Netz (10.0.0.0/8).
-            # v6: /7 fuer fc00::/7 (ULA), fe80::/10 und fd00::/8 sind enger.
-            minPrefix = if lib.hasInfix ":" c then 7 else 8;
-            maxPrefix = if lib.hasInfix ":" c then 128 else 32;
-          in
-          builtins.match "(10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|127\\.|169\\.254\\.|100\\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\\.|[fF][cCdD][0-9A-Fa-f]{2}:|[fF][eE]80:|::1/).*" c
-          != null
-          && prefix >= minPrefix
-          && prefix <= maxPrefix
-        ) trustedCidrs;
+        # Ref: Review 2026-10-17, Finding 4; ausgelagert nach lib/ingress-access.nix (D-14-02).
+        assertion = lib.all ia.isPrivateCidr trustedCidrs;
         message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder einen zu weiten Prefix (z. B. /1) — Gefahr der WAN-Freischaltung.";
       }
       {

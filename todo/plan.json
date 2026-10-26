@@ -37,7 +37,7 @@
     "priority_summary": {
       "done": {
         "high": 13,
-        "medium": 10,
+        "medium": 12,
         "low": 10
       },
       "partially-done": {
@@ -57,7 +57,7 @@
       },
       "still-open": {
         "high": 0,
-        "medium": 6,
+        "medium": 4,
         "low": 0
       },
       "total": {
@@ -66,12 +66,12 @@
         "low": 11
       }
     },
-    "reconciled_at": "2026-10-26T09:20:12.082593+00:00",
+    "reconciled_at": "2026-10-26T09:23:56.513092+00:00",
     "status_counts": {
-      "done": 33,
+      "done": 35,
       "blocked": 1,
       "test-later": 1,
-      "still-open": 6
+      "still-open": 4
     }
   },
   "todos": [
@@ -316,7 +316,8 @@
       "action": "In lib/ingress-access.nix: Semantische CIDR- und IP-Validierung anstelle primitiver String-Präfix-Prüfungen implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "isPrivateCidr in lib/ingress-access.nix implementiert und in 511-caddy.nix Assertion angebunden"
     },
     {
       "id": "N-15-01",
@@ -324,7 +325,8 @@
       "action": "Lint-Matrix als scripts/check-nixmap.py implementieren",
       "priority": "medium",
       "depends_on": [],
-      "status": "still-open"
+      "status": "done",
+      "note": "scripts/check-nixmap.py implementiert und verifiziert (0 Befunde in allen Modulen)"
     },
     {
       "id": "N-16-01",

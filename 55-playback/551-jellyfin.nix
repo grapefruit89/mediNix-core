@@ -322,11 +322,11 @@ in
 
       hardware.graphics = lib.mkIf (accelResolved == "intel" || accelResolved == "vaapi") {
         enable = true;
-        extraPackages = with pkgs; [
-          intel-media-driver
-          vpl-gpu-rt
-          intel-vaapi-driver
-          intel-compute-runtime
+        extraPackages = [
+          pkgs.intel-media-driver
+          pkgs.vpl-gpu-rt
+          pkgs.intel-vaapi-driver
+          pkgs.intel-compute-runtime
         ];
       };
     })
