@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-10-26T14:43:15.902733+00:00",
+    "generated_at": "2026-10-26T14:50:44.938573+00:00",
     "total_blocks": 28,
     "blocks_processed": [
       "01-arch-vs-nixos",
@@ -32,12 +32,12 @@
       "27-caddy-plugin-replacements",
       "28-verify-open-points"
     ],
-    "total_next_steps": 51,
-    "open_count": 47,
+    "total_next_steps": 52,
+    "open_count": 48,
     "done_count": 4,
     "priority_summary": {
       "open": {
-        "high": 12,
+        "high": 13,
         "medium": 19,
         "low": 16
       },
@@ -47,7 +47,7 @@
         "low": 0
       },
       "total": {
-        "high": 16,
+        "high": 17,
         "medium": 19,
         "low": 16
       }
@@ -475,6 +475,14 @@
       "block_id": "28-verify-open-points",
       "action": "Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise)",
       "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "T-28-11",
+      "block_id": "28-verify-open-points",
+      "action": "Q-28-08 umsetzen: Infra-Daten in committeten Chat-/Audit-Exporten sanitisieren (m7c5.de -> example.com, 192.168.x -> RFC5737, oeffentliche IPs entfernen) ODER Repo privat halten",
+      "priority": "high",
       "depends_on": [],
       "status": "open"
     }
