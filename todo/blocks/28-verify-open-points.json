@@ -54,8 +54,14 @@
     },
     {
       "id": "Q-28-08",
-      "question": "17 committete Archiv-Dateien (todo/done/**, docs/audit/**) enthalten echte Infra-Daten: m7c5.de (35x), 192.168.2.x (42x), oeffentliche IPv4 (18x), @m7c5.de (2x). Vor dem Push entscheiden: sanitisieren (example.com / RFC5737) oder Repo privat halten?",
-      "why_open": "Remote ist github.com/grapefruit89/mediNix-core; keine Secrets gefunden (P0=0), aber Infra-Metadaten.",
+      "question": "19 committete Dateien (Roh-Chat-Exporte in todo/done/**, Destillate in todo/*.json) enthalten Infra-Metadaten (echte WAN-Domain, LAN-Subnetz, oeffentliche IPv4, Admin-E-Mail). Vor dem Push entscheiden: Exporte entfernen + Destillate sanitisieren ODER Repo privat halten?",
+      "why_open": "Remote ist github.com/grapefruit89/mediNix-core (oeffentlich). Keine Secrets (P0-Scan = 0), aber Infra-Metadaten in 19 committeten Dateien. Befund: der Host-Anschluss existiert bereits (50-core/502-host-settings.nix: host.domain/adminEmail/hostname/fqdn/ramGb, Alias medinix.domain; 503-host-integration.nix: hostIntegration.* = managed|external|off; default.nix: host.credentials). Im .nix-Code steht KEIN Infra-Datum (grep = 0 Treffer) - die Treffer sind Roh-Chat-Exporte und destillierte Todo-JSONs. Damit ist es reine Repo-Hygiene, kein Flake-Problem.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-09",
+      "question": "Host-Anschluss bestaetigt: 502-host-settings (host.domain/adminEmail/hostname/fqdn/ramGb + Alias medinix.domain), 503-host-integration (managed|external|off), default.nix host.credentials. Soll diese Verkabelung in docs/ (z. B. docs/HOST-WIRING.md) sichtbar dokumentiert werden?",
+      "why_open": "Befund aus der Infra-Leak-Analyse 2026-10-26; Doku-Ort noch nicht entschieden.",
       "blocking": false
     }
   ],
@@ -124,8 +130,32 @@
     },
     {
       "id": "T-28-11",
-      "action": "Q-28-08 umsetzen: Infra-Daten in committeten Chat-/Audit-Exporten sanitisieren (m7c5.de -> example.com, 192.168.x -> RFC5737, oeffentliche IPs entfernen) ODER Repo privat halten",
+      "action": "Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/done/chats-2-5/*.json, todo/done/2026-10-25_*/{plan,profile,snippets,todo,NOTtodo,antipatterns,decisions}.{json,md}, review/domain-matrix.*, blocks/05+06, todo/backlog-Notiz. Destillierte blocks/*.json bleiben. Dateien vorher in ein privates Archiv verschieben (Korridor AB-036: archivieren statt loeschen).",
       "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-12",
+      "action": "Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipatterns.md, todo/blocks/28-verify-open-points.json) auf example.com bzw. RFC-5737-Netze umschreiben (Scrub-Skript + aggregate.py).",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-13",
+      "action": "Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4 ausserhalb RFC 5737 (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24) sowie example.com/net/org; Einbindung in order-lint und in die lokale Gate-Kette (Korridor AB-044: Kante braucht einen Check).",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-14",
+      "action": "`.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren).",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-15",
+      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (lib/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
+      "priority": "low",
       "depends_on": []
     }
   ]

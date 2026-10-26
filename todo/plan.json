@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-10-26T14:50:44.938573+00:00",
+    "generated_at": "2026-10-26T15:08:41.783793+00:00",
     "total_blocks": 28,
     "blocks_processed": [
       "01-arch-vs-nixos",
@@ -32,14 +32,14 @@
       "27-caddy-plugin-replacements",
       "28-verify-open-points"
     ],
-    "total_next_steps": 52,
-    "open_count": 48,
+    "total_next_steps": 56,
+    "open_count": 52,
     "done_count": 4,
     "priority_summary": {
       "open": {
-        "high": 13,
-        "medium": 19,
-        "low": 16
+        "high": 14,
+        "medium": 20,
+        "low": 18
       },
       "done": {
         "high": 4,
@@ -47,9 +47,9 @@
         "low": 0
       },
       "total": {
-        "high": 17,
-        "medium": 19,
-        "low": 16
+        "high": 18,
+        "medium": 20,
+        "low": 18
       }
     }
   },
@@ -481,8 +481,40 @@
     {
       "id": "T-28-11",
       "block_id": "28-verify-open-points",
-      "action": "Q-28-08 umsetzen: Infra-Daten in committeten Chat-/Audit-Exporten sanitisieren (m7c5.de -> example.com, 192.168.x -> RFC5737, oeffentliche IPs entfernen) ODER Repo privat halten",
+      "action": "Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/done/chats-2-5/*.json, todo/done/2026-10-25_*/{plan,profile,snippets,todo,NOTtodo,antipatterns,decisions}.{json,md}, review/domain-matrix.*, blocks/05+06, todo/backlog-Notiz. Destillierte blocks/*.json bleiben. Dateien vorher in ein privates Archiv verschieben (Korridor AB-036: archivieren statt loeschen).",
       "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "T-28-12",
+      "block_id": "28-verify-open-points",
+      "action": "Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipatterns.md, todo/blocks/28-verify-open-points.json) auf example.com bzw. RFC-5737-Netze umschreiben (Scrub-Skript + aggregate.py).",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "T-28-13",
+      "block_id": "28-verify-open-points",
+      "action": "Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4 ausserhalb RFC 5737 (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24) sowie example.com/net/org; Einbindung in order-lint und in die lokale Gate-Kette (Korridor AB-044: Kante braucht einen Check).",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "T-28-14",
+      "block_id": "28-verify-open-points",
+      "action": "`.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren).",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "T-28-15",
+      "block_id": "28-verify-open-points",
+      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (lib/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
+      "priority": "low",
       "depends_on": [],
       "status": "open"
     }
