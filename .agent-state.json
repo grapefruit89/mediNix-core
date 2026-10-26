@@ -67,7 +67,7 @@
     {
       "date": "2026-10-15",
       "component": "checks.mediNix-stack-eval (Voll-Stack-Ratsche)",
-      "failure": "Ein Dienst ausserhalb der Ratsche ist ungeprueft. Nach dem Erweitern um pocket-id, feishin, recyclarr, diskHealth, mdns, ddns fand die Ratsche SOFORT drei vorbestehende Konflikte, die per Auge und Einzel-Check unsichtbar waren: (1) pocket-id setzte media als PRIMAERgruppe + einen eigenen users.users-Block (UPG-Verstoss, L-023-Klasse), (2) PrivateUsers plain false im Profil gegen plain true upstream, (3) Restart plain on-failure gegen plain always.",
+      "failure": "Ein Dienst ausserhalb der Ratsche ist ungeprueft. Nach dem Erweitern um pocket-id, recyclarr, diskHealth, mdns, ddns fand die Ratsche SOFORT drei vorbestehende Konflikte, die per Auge und Einzel-Check unsichtbar waren: (1) pocket-id setzte media als PRIMAERgruppe + einen eigenen users.users-Block (UPG-Verstoss, L-023-Klasse), (2) PrivateUsers plain false im Profil gegen plain true upstream, (3) Restart plain on-failure gegen plain always.",
       "solution": "Ratsche deckt jetzt 18 Dienste. Muster fuer die Loesung von Konflikten dieser Klasse: das Hardening-Profil liefert nur noch lib.mkDefault, eine spezifischere (auch staerkere) Definition gewinnt (wie schon bei RestartSec, L-025)."
     },
     {
@@ -99,8 +99,7 @@
       "component": "Unit-Skripte: eval gruen, Build rot",
       "failure": "`nix flake check --no-build` und die gebauten LINT-Checks beweisen die Unit-Skripte NICHT. `writeShellApplication` laesst shellcheck laufen; ein konstanter Vergleich (`[ \"0\" = \"1\" ]`, SC2050) bricht erst beim Bauen ab. Deshalb war 98db8e3 lokal 47/0 gruen und in der CI rot - die erweiterte Ratsche baute die Unit erstmals.",
       "solution": "Lokaler Ersatz fuer den Systembau: die `.drv`-Pfade aus dem STRING-KONTEXT der Unit-Skripte holen (builtins.getContext auf serviceConfig.ExecStart/script/preStart/...), auf lib.hasSuffix \".drv\" filtern und einzeln mit `nix build <drv>` bauen - 77 Derivationen, Sekunden statt Minuten, deckt shellcheck UND die Wrapper ab."
-    }
-  ,
+    },
     {
       "date": "2026-10-17",
       "component": "51-ingress/514-acme.nix + 50-core/502-host-settings.nix",
@@ -263,33 +262,40 @@
     "2026-10-16: Band-Pruefung aus 591 in den Check checks.mediNix-frameband-fremdkonten verschoben (AB-042: Assertions lesen nur Quellen) - die Assertion hatte engine-abgeleitete Konten (Test-Probe) als fremd gewertet (L-048).",
     "2026-10-16: Projekt-Skills verankert: scripts/link-skills.sh (Symlinks docs/agents -> ~/.config/opencode/skills, idempotent, Ausschlussliste scripts/skills-exclude.txt) + scripts/check_skills.py in order-lint; 20 sichtbar, 9 fremde Workflows ausgeschlossen; Context7-Pflicht in medinix-build-gate durch die Live-Quelle-Rangfolge ersetzt.",
     "2026-10-16: ADR-Formregel + scripts/check_adrs.py (order-lint); 6 Altdateien auf ihre Inhalts-ID umbenannt, 25 ADRs im llm-index registriert; ADR-0002-nixos-grundfunktionen (bindend) + scripts/check_banned_technologies.py.",
-    "2026-10-16: nixmeta-Ratsche 2: folder/status/complexity/links.adr + mindestens eine Upstream-Angabe sind fuer Dienst-Module Pflicht; 18 Header mechanisch nachgezogen, Rest in scripts/nixmeta-baseline.txt (42 Dateien, darf nur schrumpfen)."
-  ,
-    "2026-10-17: F9 (Review 51-ingress): `medinix.secrets.cloudflareEnvFile` entfernt. Die Klartext-Env-Datei (nullOr path = Nix-Store-Pfad) hatte VORRANG vor dem sealed ACME-Credential und widersprach ADR-0003 Abschnitt 4 (no secrets in the Nix store); damit war auch die Trennungssicherung ACME != DDNS-Token blind. Jetzt sealed-only: credPath = ingress.tls.acmeCredential (ADR-514). 4 Dateien: 51-ingress/514-acme.nix, 50-core/502-host-settings.nix (Assertion + Message), default.nix (Option), tests/medinix-smoke.nix (Zeile war wirkungslos - acmeHost dort nicht gesetzt)."
-  ,
-    "2026-10-17: F10 (Review 51-ingress): neue Option `medinix.ingress.landing.wanPublic` (bool, default false). Die WAN-Apex-Landing https://{domain} haengt in 511 jetzt daran (TLS-Redirect + Site + Nicht-TLS-Fall); die LAN-Landing dashboard.lan (lanAbort) bleibt unveraendert. README-Zusage auf den Opt-in umgestellt."
-  ,
-    "2026-10-17: F8 (Review 51-ingress): medinix.discovery.mdns.openFirewall war Dead-Config (0 Leser, Default true) - jetzt von 515 gelesen, Default = hostIntegration.firewall == managed; neue Option medinix.discovery.mdns.allowInterfaces (Default null wie nixpkgs). avahi enable/openFirewall mit mkDefault, damit der Host eingreifen kann."
-  ,
-    "2026-10-17: F15 (Review 51-ingress): prune_label in 513 loescht nur noch Records mit comment=managed-by=mediNix-core/513; fremde A/AAAA/CNAME werden gemeldet statt geloescht. update_record (Konflikt-Typen am eigenen Namen) bewusst unveraendert."
-  ,
-    "2026-10-17: F7 (Review 51-ingress): Global-Modus-Injektion dokumentiert (ingress.mode-Beschreibung + README) und die Unit-Anpassung (OOMScoreAdjust, RuntimeDirectoryMode) auf mkDefault - RuntimeDirectory bleibt hart, weil der Admin-Endpoint daran haengt; auto_https off bleibt (TLS kommt aus 514)."
-  ,
-    "2026-10-17: F20 (Review 51-ingress): idp/stream sind WAN-offen ohne Ingress-Auth. Neue Assertions in 511: accessGroup=idp ist dem IdP selbst vorbehalten; accessGroup=stream nur, wenn der Manifest-Eintrag stream deklariert oder der Dienst in der neuen Option ingress.streamAck steht. Fixtures mediNix-negative-idp-reserved und mediNix-negative-stream-unacked."
-  ,
-    "2026-10-17: F26/1 (Review 51-ingress, Duplikate): tlsEnabled stand wortgleich in 511:85 und 518:62-65. Neuer Helfer ia.tlsEnabledOf in lib/ingress-access.nix (neben useGlobalOf/caddyUnitOf), beide Module nutzen ihn. Reiner Refactor, gleiche Semantik."
-  ,
-    "2026-10-17: F26/4 (Review 51-ingress, Altlasten): mkTile in 518 escapet n/title/id fuer den Attribut-Kontext per lib.escapeXML (nixpkgs-Standard; Eigenbau nach Live-Pruefung verworfen). iconSvg bleibt bewusst roh."
-  ,
-    "2026-10-17: F25/1 (Review 51-ingress, Contract): 510-ingress-SERVICE.md behauptete 'that is the whole contract', listete aber nur accessGroup. Neue Tabelle fuer customConfig/allowUnauthenticated/unauthenticatedPaths/landing/iconId/iconSvg inkl. Leser. F25/2 (ADR-0003 3 'no central assertion registries' vs ADR-5043 1 '590-registry.nix') bleibt offen = Governance-Entscheidung."
-  ,
-    "2026-10-17: F23-A2 (Review 51-ingress, Hardening): medinix-mdns-aliases-restart hatte keine Haertung; jetzt ProtectSystem/ProtectHome/PrivateTmp/NoNewPrivileges + CapabilityBoundingSet leer + RestrictAddressFamilies AF_UNIX. RestrictNetworkInterfaces aus ADR-5050 bewusst nicht (515 publiziert im LAN). NIXMETA systemd_hardened bleibt false (Haupt-Unit ohne CapabilityBoundingSet/SystemCallFilter, Laufzeitbeweis fehlt)."
-  ,
-    "2026-10-17: F19a (Review 51-ingress / ADR-517): 511 rendert jetzt `handle /oauth2/* { reverse_proxy <forwardAuthUpstream> }` VOR der route, sobald needsAuth gilt - vorher lief der Login-Endpunkt selbst in forward_auth (Deadlock). Unabhaengig von 517. F19b (Modul 517 oauth2-proxy + versiegelte Secrets) bleibt offen: nixpkgs-Credential-Mechanik muss vorher exakt gelesen werden."
-  ,
-    "2026-10-17: F19b (ADR-517): 517-oauth2-proxy.nix gebaut (loopback 5170, provider=oidc, reverseProxy+setXauthrequest, versiegelte Secrets via LoadCredentialEncrypted + %d-Pfade; clientSecretFile/cookie.secretFile bewusst null - das nixpkgs-Modul baut daraus ein unversiegeltes LoadCredential). Registry 517 -> uid/port 5170 (belegt). 517 setzt authProxyPresent + forwardAuthUpstream per mkDefault (kein manueller Spiegel). KEIN RestrictNetworkInterfaces (Proxy muss den Issuer erreichen). Fixtures mediNix-negative-oauth2-issuer/-secrets lokal gruen. check_manifest_edge verlangte einen Allowlist-Eintrag wie bei caddy."
-  ,
-    "2026-10-17: F25/2 (Review 51-ingress, Finding 25) = A umgesetzt: F25/2: ADR-5043 angeglichen - Register-Zwang (590-registry.nix) und [CODE]-Pflicht gestrichen, Was/Warum/Wie bleibt Pflicht. Historie belegt: 590-registry.nix existierte (angelegt 42687ab), wurde mit 533126e geloescht, dort entstand 591-cross-domain.nix. Angeglichen: ADR-5043, medinix-governance/SKILL.md, invariants-and-assertions-schema.md; Zeitdokumente (session-2026-08-12-patterns.md) nur mit Status-Hinweis markiert, 59-guardrails/AGENTS.md aktualisiert. Review-Doc hat jetzt eine Abschluss-Tabelle Finding->Commit."
+    "2026-10-16: nixmeta-Ratsche 2: folder/status/complexity/links.adr + mindestens eine Upstream-Angabe sind fuer Dienst-Module Pflicht; 18 Header mechanisch nachgezogen, Rest in scripts/nixmeta-baseline.txt (42 Dateien, darf nur schrumpfen).",
+    "2026-10-17: F9 (Review 51-ingress): `medinix.secrets.cloudflareEnvFile` entfernt. Die Klartext-Env-Datei (nullOr path = Nix-Store-Pfad) hatte VORRANG vor dem sealed ACME-Credential und widersprach ADR-0003 Abschnitt 4 (no secrets in the Nix store); damit war auch die Trennungssicherung ACME != DDNS-Token blind. Jetzt sealed-only: credPath = ingress.tls.acmeCredential (ADR-514). 4 Dateien: 51-ingress/514-acme.nix, 50-core/502-host-settings.nix (Assertion + Message), default.nix (Option), tests/medinix-smoke.nix (Zeile war wirkungslos - acmeHost dort nicht gesetzt).",
+    "2026-10-17: F10 (Review 51-ingress): neue Option `medinix.ingress.landing.wanPublic` (bool, default false). Die WAN-Apex-Landing https://{domain} haengt in 511 jetzt daran (TLS-Redirect + Site + Nicht-TLS-Fall); die LAN-Landing dashboard.lan (lanAbort) bleibt unveraendert. README-Zusage auf den Opt-in umgestellt.",
+    "2026-10-17: F8 (Review 51-ingress): medinix.discovery.mdns.openFirewall war Dead-Config (0 Leser, Default true) - jetzt von 515 gelesen, Default = hostIntegration.firewall == managed; neue Option medinix.discovery.mdns.allowInterfaces (Default null wie nixpkgs). avahi enable/openFirewall mit mkDefault, damit der Host eingreifen kann.",
+    "2026-10-17: F15 (Review 51-ingress): prune_label in 513 loescht nur noch Records mit comment=managed-by=mediNix-core/513; fremde A/AAAA/CNAME werden gemeldet statt geloescht. update_record (Konflikt-Typen am eigenen Namen) bewusst unveraendert.",
+    "2026-10-17: F7 (Review 51-ingress): Global-Modus-Injektion dokumentiert (ingress.mode-Beschreibung + README) und die Unit-Anpassung (OOMScoreAdjust, RuntimeDirectoryMode) auf mkDefault - RuntimeDirectory bleibt hart, weil der Admin-Endpoint daran haengt; auto_https off bleibt (TLS kommt aus 514).",
+    "2026-10-17: F20 (Review 51-ingress): idp/stream sind WAN-offen ohne Ingress-Auth. Neue Assertions in 511: accessGroup=idp ist dem IdP selbst vorbehalten; accessGroup=stream nur, wenn der Manifest-Eintrag stream deklariert oder der Dienst in der neuen Option ingress.streamAck steht. Fixtures mediNix-negative-idp-reserved und mediNix-negative-stream-unacked.",
+    "2026-10-17: F26/1 (Review 51-ingress, Duplikate): tlsEnabled stand wortgleich in 511:85 und 518:62-65. Neuer Helfer ia.tlsEnabledOf in lib/ingress-access.nix (neben useGlobalOf/caddyUnitOf), beide Module nutzen ihn. Reiner Refactor, gleiche Semantik.",
+    "2026-10-17: F26/4 (Review 51-ingress, Altlasten): mkTile in 518 escapet n/title/id fuer den Attribut-Kontext per lib.escapeXML (nixpkgs-Standard; Eigenbau nach Live-Pruefung verworfen). iconSvg bleibt bewusst roh.",
+    "2026-10-17: F25/1 (Review 51-ingress, Contract): 510-ingress-SERVICE.md behauptete 'that is the whole contract', listete aber nur accessGroup. Neue Tabelle fuer customConfig/allowUnauthenticated/unauthenticatedPaths/landing/iconId/iconSvg inkl. Leser. F25/2 (ADR-0003 3 'no central assertion registries' vs ADR-5043 1 '590-registry.nix') bleibt offen = Governance-Entscheidung.",
+    "2026-10-17: F23-A2 (Review 51-ingress, Hardening): medinix-mdns-aliases-restart hatte keine Haertung; jetzt ProtectSystem/ProtectHome/PrivateTmp/NoNewPrivileges + CapabilityBoundingSet leer + RestrictAddressFamilies AF_UNIX. RestrictNetworkInterfaces aus ADR-5050 bewusst nicht (515 publiziert im LAN). NIXMETA systemd_hardened bleibt false (Haupt-Unit ohne CapabilityBoundingSet/SystemCallFilter, Laufzeitbeweis fehlt).",
+    "2026-10-17: F19a (Review 51-ingress / ADR-517): 511 rendert jetzt `handle /oauth2/* { reverse_proxy <forwardAuthUpstream> }` VOR der route, sobald needsAuth gilt - vorher lief der Login-Endpunkt selbst in forward_auth (Deadlock). Unabhaengig von 517. F19b (Modul 517 oauth2-proxy + versiegelte Secrets) bleibt offen: nixpkgs-Credential-Mechanik muss vorher exakt gelesen werden.",
+    "2026-10-17: F19b (ADR-517): 517-oauth2-proxy.nix gebaut (loopback 5170, provider=oidc, reverseProxy+setXauthrequest, versiegelte Secrets via LoadCredentialEncrypted + %d-Pfade; clientSecretFile/cookie.secretFile bewusst null - das nixpkgs-Modul baut daraus ein unversiegeltes LoadCredential). Registry 517 -> uid/port 5170 (belegt). 517 setzt authProxyPresent + forwardAuthUpstream per mkDefault (kein manueller Spiegel). KEIN RestrictNetworkInterfaces (Proxy muss den Issuer erreichen). Fixtures mediNix-negative-oauth2-issuer/-secrets lokal gruen. check_manifest_edge verlangte einen Allowlist-Eintrag wie bei caddy.",
+    "2026-10-17: F25/2 (Review 51-ingress, Finding 25) = A umgesetzt: F25/2: ADR-5043 angeglichen - Register-Zwang (590-registry.nix) und [CODE]-Pflicht gestrichen, Was/Warum/Wie bleibt Pflicht. Historie belegt: 590-registry.nix existierte (angelegt 42687ab), wurde mit 533126e geloescht, dort entstand 591-cross-domain.nix. Angeglichen: ADR-5043, medinix-governance/SKILL.md, invariants-and-assertions-schema.md; Zeitdokumente (session-2026-08-12-patterns.md) nur mit Status-Hinweis markiert, 59-guardrails/AGENTS.md aktualisiert. Review-Doc hat jetzt eine Abschluss-Tabelle Finding->Commit.",
+    {
+      "date": "2026-10-26",
+      "action": "fix(gates): 586-vpn-selftest nutzt activeInstances statt nicht existierendem vpnCfg.enable (Eval rot)",
+      "verified": true
+    },
+    {
+      "date": "2026-10-26",
+      "action": "fix(gates): pkgs/speedport-api NIXMETA-Header; ADR-019 im llm-index; ADR-515 (Blocky split-DNS) aktiv + Modulverweis; ADR-51-split-dns-note deprecated",
+      "verified": true
+    },
+    {
+      "date": "2026-10-26",
+      "action": "fix(gates): check_banned_technologies unterstuetzt scripts/banned-allowlist.txt (HINWEIS statt stilles Skippen) fuer Entscheidungs-Register",
+      "verified": true
+    },
+    {
+      "date": "2026-10-26",
+      "action": "docs(todo): Regel 'Fundstellen sofort in die Todo-Liste' in AGENTS.md + Korridor verankert; T-28-08..10 aus offenen Hinweisen angelegt",
+      "verified": true
+    }
   ],
   "corridor": {
     "zweck": "Entscheidungs-Korridor: erst hier pruefen, dann handeln. Regeln sind mit Datum, Beweis und Wiederbelebungsbedingung (revive_if) belegt.",
@@ -983,7 +989,7 @@
       },
       {
         "id": "D-03",
-        "frage": "Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd?",
+        "frage": "Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, avahi, recyclarr, smartd?",
         "optionen": [
           "erweitern",
           "so lassen"
@@ -1105,6 +1111,13 @@
         "grund": null,
         "datum": "2026-10-16",
         "begruendung": "e803ba8 setzt mutableUsers=false global; die nixpkgs-Assertion fordert ein privilegiertes Konto. Test-only Stub haelt die Absicht 'rein deklarativ' aufrecht, ohne echten Zugang zu erfinden."
+      },
+      {
+        "date": "2026-10-26",
+        "entscheidung": "Jeder Befund aus Review/Analyse/Gate-Lauf wird sofort als Todo-Eintrag in todo/blocks/NN-*.json erfasst (next_steps + ggf. open_questions) und per aggregate.py in plan.json uebernommen - nicht nur im Chat genannt.",
+        "grund": "Betreiber-Anweisung 2026-10-26: Fundstellen muessen sauber abarbeitbar sein.",
+        "datum": "2026-10-26",
+        "begruendung": "Sonst gehen Befunde verloren oder werden doppelt gesucht; plan.json ist die einzige abarbeitbare Liste."
       }
     ]
   }

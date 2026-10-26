@@ -1,3 +1,13 @@
+# ---
+# id: "speedport-api"
+# title: "Speedport-API (Python) - WAN-IP ueber Telekom-Router"
+# domain: 51
+# status: active
+# complexity: 1
+# last_reviewed: 2026-10-26
+# links:
+#   adr: ADR-513
+# ---
 { lib, python312Packages, fetchPypi }:
 python312Packages.buildPythonPackage rec {
   pname = "speedport-api";

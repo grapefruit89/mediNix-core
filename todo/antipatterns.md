@@ -35,7 +35,6 @@
 | `A-28` | Vollständiges Verschieben aller Bibliotheksfunktionen in NixOS-Optionswerte | Erzeugt signifikanten Overhead bei der Flake-Evaluation und birgt das Risiko zirkulärer Modul-Abhängigkeiten. | `13-lib-vs-50-core` |
 | `A-29` | Monolithischen Chat-Dump in einem einzigen Schritt ohne Zwischenblöcke verarbeiten | Führt zu Token-Überlauf, Halluzinationen und Verlust kritischer Architektur-Details. | `14-config-review-51-ingress` |
 | `A-30` | Interne TLS-Zertifikate über eigene CA anstatt ACME DNS-01 verteilen | Erfordert manuelle Installation von Root-Zertifikaten auf allen Mobilgeräten und Smart-TVs; Nutzer lehnte dies explizit ab. | `14-config-review-51-ingress` |
-| `A-31` | Feishin | Statische SPA ohne Mehrwert; pflegt sich nicht; verursacht Wartungsaufwand. Projektweit entfernt. | `01-arch-vs-nixos / NOTtodo` |
 | `A-32` | Nixmap als vollständigen Ersatz für NixOS-Modulhandbuch und Flake-Dokumentation betrachten | Nixmap deckt primär elementare Sprachregeln und AST-Muster ab; Modulspezifika wie mkOption-Typen, submodule-Merge und Flake-Outputs müssen separat geprüft werden. | `15-nixmap-ast-audit` |
 | `A-33` | Schwere Nix-Builds und QEMU-VM-Tests interaktiv im Vordergrund mit hohem Timeout blockierend ausführen | Blockiert Agenten-Sessions für 10–20 Minuten pro Lauf und führt zu Timeout-Abbrüchen; Hintergrund-Tasks oder no-build Checks sind vorzuziehen. | `16-agent-error-taxonomy` |
 | `A-34` | Vollständigen QEMU-VM-Boot bei jedem interaktiven Edit-Schritt erzwingen | Blockiert die Agenten-Ausführung für bis zu 20 Minuten und verbraucht massiv CPU/Token ohne Mehrwert bei reinen Doku- oder Optionsänderungen. | `18-flake-architecture-ci` |
@@ -168,10 +167,6 @@
 ## A-30: Interne TLS-Zertifikate über eigene CA anstatt ACME DNS-01 verteilen
 - **Warum verworfen:** Erfordert manuelle Installation von Root-Zertifikaten auf allen Mobilgeräten und Smart-TVs; Nutzer lehnte dies explizit ab.
 - **Quelle:** `14-config-review-51-ingress`
-
-## A-31: Feishin
-- **Warum verworfen:** Statische SPA ohne Mehrwert; pflegt sich nicht; verursacht Wartungsaufwand. Projektweit entfernt.
-- **Quelle:** `01-arch-vs-nixos / NOTtodo`
 
 ## A-32: Nixmap als vollständigen Ersatz für NixOS-Modulhandbuch und Flake-Dokumentation betrachten
 - **Warum verworfen:** Nixmap deckt primär elementare Sprachregeln und AST-Muster ab; Modulspezifika wie mkOption-Typen, submodule-Merge und Flake-Outputs müssen separat geprüft werden.

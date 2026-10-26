@@ -29,8 +29,8 @@ Verify against the primary source before applying any audit finding.
    - NOTE: `cfg.services.<name>.enable` (filter line) IS correct — only the
      PATH options were wrong.
 
-3. **Feishin in registry as mkService** (Antigravity, P2)
-   - Feishin is a static SPA served via Caddy, no own port. Use `mkNoPort`
+3. **Static SPA in registry as mkService** (Antigravity, P2)
+   - A static SPA is served via Caddy and has no own port. Use `mkNoPort`
      not `mkService`. Works but semantically wrong.
 
 ## Phantom bug (DO NOT apply — DeepSeek was wrong)
@@ -48,7 +48,7 @@ Verify against the primary source before applying any audit finding.
 - **P1** = services start but SSO/auth/provisioning broken. Fix soon after
   first deploy. Example: Pocket-ID on wrong port → SSO dead.
 - **P2** = runs but architecture not clean (tech debt). Can wait.
-  Example: Feishin mkService vs mkNoPort.
+  Example: static SPA mkService vs mkNoPort.
 
 ## Workflow
 Given an audit: grep the exact lines it cites, open the primary source file,

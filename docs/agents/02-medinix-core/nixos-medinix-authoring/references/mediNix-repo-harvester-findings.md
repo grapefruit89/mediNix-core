@@ -47,10 +47,6 @@ Quelle: GitHub-Issues + Docker/README der Upstream-Repos, extrahiert via
 - **media-group:** `extraGroups = mkAfter ["media"]` (sonst stille leere Bibliothek)
 - **OIDC:** via EnvironmentFile
 
-## Feishin (554) — aus CLAUDE.md Gold
-- **Kein Prozess:** statische SPA, Caddy `file_server` + `try_files {path} /index.html`
-- **Port:** 5540 (3× falsch beurteilt historisch — ist statisch, nicht eigenständig)
-
 ## Allgemein (CLAUDE.md Gold, in ADRs migriert)
 - Timing-Bug: Vorgaben erst nach 1. Start (DB-Marker statt Config-File)
 - Jellyfin: `/var/cache/jellyfin` via tmpfiles

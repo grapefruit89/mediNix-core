@@ -36,6 +36,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+ALLOWLIST = ROOT / "scripts" / "banned-allowlist.txt"
 SUFFIXES = (".nix", ".sh", ".py", ".yml", ".yaml", ".bash", ".service")
 TEXT_ASSIGN = re.compile(r"\b(?:message|description|help|warning|example)\s*=\s*''.*?''", re.S)
 # Python-Docstrings: sie zitieren die verbotenen Muster (z. B. in check_*.py)
@@ -203,13 +204,37 @@ def nix_code_only(text: str) -> str:
     return QUOTED.sub('""', text)
 
 
+def allowlist() -> dict[str, str]:
+    """{repo-relativer Pfad: Begruendung} aus scripts/banned-allowlist.txt.
+
+    Ausnahmen sind bewusst NICHT still: jede uebersprungene Datei wird als HINWEIS
+    ausgegeben. Gedacht nur fuer Register/Doku, die gebannte Technologien als zu
+    vermeidende Option nennen (Korridor AB-044: Kante braucht dokumentierte Ausnahme).
+    """
+    allowed: dict[str, str] = {}
+    if not ALLOWLIST.exists():
+        return allowed
+    for raw in ALLOWLIST.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        reason = raw.split("#", 1)[1].strip() if "#" in raw else ""
+        allowed[line] = reason
+    return allowed
+
+
 def main() -> int:
     hits: list[str] = []
     checked = 0
+    allowed = allowlist()
     for path in sorted(ROOT.glob("**/*")):
         if ".git" in path.parts or not path.is_file() or path.suffix not in SUFFIXES:
             continue
         if path.resolve() == Path(__file__).resolve():
+            continue
+        rel = path.relative_to(ROOT).as_posix()
+        if rel in allowed:
+            print(f"HINWEIS: {rel}: uebersprungen (Allowlist: {allowed[rel]})")
             continue
         checked += 1
         code = code_only(path.read_text(encoding="utf-8", errors="replace"))

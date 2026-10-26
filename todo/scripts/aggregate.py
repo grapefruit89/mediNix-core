@@ -18,7 +18,7 @@ chat1_blocks = sorted(CHAT1_BLOCKS_DIR.glob("*.json"))
 new_blocks = sorted(NEW_BLOCKS_DIR.glob("*.json"))
 all_block_files = chat1_blocks + new_blocks
 
-assert len(all_block_files) == 27, f"Expected 27 blocks, got {len(all_block_files)}"
+assert len(all_block_files) == 28, f"Expected 27 blocks, got {len(all_block_files)}"
 
 loaded_blocks = []
 for p in all_block_files:
@@ -182,16 +182,6 @@ for line in chat1_antipatterns_text.splitlines():
             "reason": reason,
             "source": source
         })
-
-# Check if A-31 is present; if not, add Feishin from NOTtodo.json
-has_a31 = any(e["id"] == "A-31" for e in table_entries)
-if not has_a31:
-    table_entries.append({
-        "id": "A-31",
-        "title": "Feishin",
-        "reason": "Statische SPA ohne Mehrwert; pflegt sich nicht; verursacht Wartungsaufwand. Projektweit entfernt.",
-        "source": "01-arch-vs-nixos / NOTtodo"
-    })
 
 # Collect new antipatterns from blocks 15-27
 new_entries = [

@@ -2,7 +2,7 @@
 id: "ADR-51-split-dns-note"
 title: "ADR 5115 split dns note"
 domain: 51
-status: active
+status: deprecated
 complexity: 2
 last_reviewed: 2026-08-20
 tags:
@@ -14,12 +14,12 @@ links:
 ---
 # ADR-5115: Split-DNS for stream services (Hairpin-NAT avoidance)
 
-## Status: note (no architecture decision, just documentation)
+## Status: deprecated (2026-10-26) — ueberholt durch ADR-515 (Blocky als Split-DNS im Ingress)
 ## Date: 2026-08-11
 ## Source: User Input (Speedport Custom-DNS, Blocky/AdGuard Alternative)
 
 ## Context
-Stream services (Jellyfin/ABS/Navidrome/Feishin, caddyClass=stream) are WAN-exposed.
+Stream services (Jellyfin/ABS/Navidrome, caddyClass=stream) are WAN-exposed.
 If a client in the LAN accesses `https://jellyfin.example.com`, the resolution must point to the **server's LAN IP** - not the WAN IP (otherwise Hairpin-NAT occurs: the packet goes out to the router, then back in, causing performance loss and potential blockages).
 
 ## Decision

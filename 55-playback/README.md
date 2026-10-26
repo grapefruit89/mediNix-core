@@ -34,7 +34,6 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 - **Hardware Acceleration (VA-API):** Jellyfin uses the `dotnet-gpu` hardening profile. It selectively pokes holes in the sandbox (`DeviceAllow`) to access `/dev/dri`, enabling ultra-efficient Intel QuickSync transcoding without exposing the entire host hardware (`PrivateDevices=false`).
 - **Transcode RAM Disk:** Jellyfin's transcode directory is mounted as a `TemporaryFileSystem` (tmpfs). This ensures that heavy, temporary transcode chunks are written to RAM instead of burning through the SSD's write endurance.
 - **Strict Read-Only Mounts:** Services like Jellyfin and Navidrome mount the primary media directories via `BindReadOnlyPaths`. Any attempt by the application (or an attacker exploiting the application) to delete a movie or song will be blocked at the kernel/systemd level.
-- **Removed 2026-10-25: Feishin (banned)**
 
 ## 📚 Guides & Specifications
 

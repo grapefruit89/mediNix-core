@@ -1,0 +1,11 @@
+# Ausnahmen fuer scripts/check_banned_technologies.py
+#
+# Format: <repo-relativer Pfad>  # <Begruendung>
+# Zweck: Dateien, die gebannte Technologien ausdruecklich als ZU VERMEIDENDE
+# Option dokumentieren (Entscheidungs-/Antipattern-Register), sind kein Einsatz.
+# Der Checker gibt fuer jede Ausnahme einen HINWEIS aus (kein stilles Skippen).
+#
+# Regel: nur Register/Dokumentation. Produktivcode (NixOS-Module, pkgs, flake.nix,
+# Skripte, die auf dem Host laufen) kommt hier NICHT hinein.
+
+todo/scripts/aggregate.py  # Entscheidungs-/Antipattern-Register: nennt gebannte Plugins als zu vermeidende Option (caddy-security-headers -> native header-Direktive)

@@ -40,7 +40,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 
 > **UPG (ADR-0000 §4):** `Port = UID = Primär-GID = Nummer × 10`. Die geteilte Gruppe
 > `media` (GID 5000) ist **ausschließlich** supplementary (`extraGroups`) — nie Primärgruppe.
-> Dienste ohne eigenen Listener (z. B. `cloudflare-dns`, `feishin`) haben keinen Port.
+> Dienste ohne eigenen Listener (z. B. `cloudflare-dns`) haben keinen Port.
 <!-- SERVICE-MAP END -->
 
 ## 📚 Kategorien
@@ -89,6 +89,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Pocket ID OIDC process](adr/ADR-512-pocket-id.md)
 - [ADR 5130 cloudflare dns no proxy](adr/ADR-513-cloudflare-dns.md)
 - [TLS-Zertifikate: Lego + Cloudflare DNS-01 mit eigenem Token](adr/ADR-514-acme-lego-dns01.md)
+- [Blocky als Split-DNS im Ingress (ersetzt mDNS/Avahi)](adr/ADR-515-blocky-split-dns.md)
 - [CrowdSec als einziger Edge-Bouncer (Engine + Firewall-Bouncer)](adr/ADR-516-crowdsec.md)
 - [Auth-Flow: OIDC wo möglich, Forward-Auth als Lücke, Jellyfin/Seerr ausgenommen](adr/ADR-517-oauth2-proxy-forward-auth.md)
 - [Landingpage Honeypot](adr/ADR-518-landingpage-honeypot.md)

@@ -145,7 +145,7 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 | `514-acme` | [`514-acme.nix`](514-acme.nix) | active | -/5 | - |
 | `515-blocky` | [`515-blocky.nix`](515-blocky.nix) | active | 3/5 |  |
 | `516-crowdsec` | [`516-crowdsec.nix`](516-crowdsec.nix) | active | 3/5 | - |
-| `517-oauth2-proxy` | [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) | active | 3/5 |  |
+| `517-oauth2-proxy` | [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) | active | 3/5 | - |
 | `518-landingpage` | [`518-landingpage.nix`](518-landingpage.nix) | active | 2/5 | - |
 | `519-ingress-guardrails` | [`519-ingress-guardrails.nix`](519-ingress-guardrails.nix) | active | 2/5 | - |
 

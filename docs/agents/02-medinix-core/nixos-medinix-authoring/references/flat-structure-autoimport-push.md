@@ -23,7 +23,7 @@ let
 in { imports = allModules; ... }
 ```
 - Hardcoded lists rot after renames: this session's root default.nix still pointed at
-  `512-three-way-ingress`, `541-mover`, `561-feishin` (all renamed) → broken build.
+  `512-three-way-ingress`, `541-mover` (all renamed) → broken build.
 - Per-domain `default.nix` only kept if it holds logic (53-acquisition = *arr factory,
   57-maintenance = provisioning). Pure auto-import `default.nix` (e.g. old
   `55-playback/default.nix`) is REDUNDANT with the master → delete.

@@ -15,6 +15,7 @@
    - Trage genutzte GitHub-Repositories, Doku-Quellen oder Upstream-Muster in [`docs/UPSTREAM-SOURCES.md`](./docs/UPSTREAM-SOURCES.md) ein.
 3. **Ideen-Verwaltung (Zero Code-Drift):**
    - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](./ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
+   - **Fundstellen sofort erfassen (2026-10-26):** Jeder Befund aus Review, Analyse, Gate-Lauf oder Debugging wird **im selben Turn** als Todo-Eintrag angelegt — `next_steps` in `todo/blocks/NN-*.json` (Prio + Evidenz `datei:zeile`) und, wenn eine Entscheidung fehlt, zusätzlich als `open_questions`. Kein Befund bleibt nur im Chat. Danach `python3 todo/scripts/aggregate.py` laufen lassen (`plan.json`).
 4. **Verfassungs-Zwang (ADR-0000):**
    - Jede Code-Änderung muss die Kern-Invarianten einhalten und wird per `nix flake check` lokal verifiziert.
 5. **systemd-first (kernel-nah):**
@@ -135,7 +136,7 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 | `52-security` | Security | nftables-Baseline (520) · sealed Credentials (521) · WireGuard (525) · VPN-Killswitch (526) |
 | `53-acquisition` | Ingestion | Sonarr · Radarr · Readarr · Lidarr · Prowlarr |
 | `54-transfer` | Processing | SABnzbd (541) · Mover (543) |
-| `55-playback` | Core UI/App | Jellyfin (551) · Audiobookshelf (552) · Navidrome (553) · Feishin (554) |
+| `55-playback` | Core UI/App | Jellyfin (551) · Audiobookshelf (552) · Navidrome (553) |
 | `56-exposition` | Exposition | Seerr (561) |
 | `57-maintenance` | Maintenance | Storage/SetGID (570) · SQLite-WAL (571) · Recyclarr (572) · Provisioning (574) · Update-Notifier (575) · Backup/restic (576) · Drift (577) · Orphan-Cleanup (578) · Backup-SSH (579) |
 | `58-observability` | Observability | ntfy (581) · Gatus (582) · Runtime-Guard (583) · Boot-Watchdog (584) · Exporter (585) · Disk-Health/smartd (587) |

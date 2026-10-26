@@ -342,7 +342,7 @@ Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code
 
 - **Watchdog & Registry Unit-Namen (584-post-boot-watchdog.nix & lib/registry.nix)**:
   - `registry.nix` um flexible `unitName`-Behandlung erweitert: `cloudflare-dns` nutzt reale Unit `cloudflare-ddns.service`, `ntfy` nutzt `ntfy-sh.service`.
-  - Statische Web-Assets ohne systemd-Unit (`feishin`) erhalten `unitName = null`.
+  - Statische Web-Assets ohne systemd-Unit erhalten `unitName = null`.
   - Watchdog filtert `null`-Units sauber heraus und prüft nun exakt die existierenden systemd-Dienste.
 
 - **Seerr Hardening-Profil (555-seerr.nix & lib/registry.nix)**:
@@ -364,7 +364,7 @@ Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code
 
 - **Dokumentation & Handoff synchronisiert**:
   - `ADMIN-HANDOFF.md`: `firewall = "managed"` für Port-Freigabe ergänzt; ACME-Token auf `ingress.tls.acmeCredential` korrigiert.
-  - `README.md`: Modultabelle auf tatsächlichen Bestand aktualisiert; Feishin als portlose SPA korrigiert; „No hardcoded deployment IPs“ präzisiert.
+  - `README.md`: Modultabelle auf tatsächlichen Bestand aktualisiert; portlose SPA korrigiert; „No hardcoded deployment IPs“ präzisiert.
 
 ## 2026-09-03 — Arr-Provisioning & CI Activation (Commits 0b00f61 & c544c89)
 
@@ -396,7 +396,7 @@ Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/opt
 - **52-security**: nftables, Kernel-Hardening, SSH-Anti-Lockout, systemd-credentials (LoadCredentialEncrypted)
 - **53-acquisition**: Arr-Stack (532-536: Sonarr/Radarr/Readarr/Lidarr/Prowlarr, native .NET)
 - **54-transfer**: SABnzbd (541, `-b 0` no-daemon), SQLite-WAL-Tune (542), Tier-B-Cleanup-Mover (543)
-- **55-playback**: Jellyfin (551) + Audiobookshelf (552) + Navidrome (553) + Feishin (554, static SPA)
+- **55-playback**: Jellyfin (551) + Audiobookshelf (552) + Navidrome (553)
 - **56-requests**: Seerr (561)
 - **57-maintenance**: SQLite-Optimize (571), Recyclarr (572), Exportarr (573), Provisioning (574), Update-Notifier (575),
   Backup/Restic (576), Drift-Detection (577)

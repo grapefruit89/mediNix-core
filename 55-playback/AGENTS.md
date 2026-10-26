@@ -11,7 +11,6 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 **Verantwortung:**
 - `551` Jellyfin, `552` Audiobookshelf, `553` Navidrome — Registry-Rolle `stream`
-- `554` Feishin — statische SPA (Rolle `none`) als Oberfläche für Navidrome
 - Landing-Kacheln: die Module setzen `landing` + `iconSvg`/`iconId` selbst
 
 **Nicht verantwortlich für:**

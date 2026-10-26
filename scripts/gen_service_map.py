@@ -30,6 +30,7 @@ MARKER_END = "<!-- SERVICE-MAP END -->"
 CALLS = [
     ("mkServiceWithUnit", 6),
     ("mkNoPortWithUnit", 6),
+    ("mkUdsService", 5),   # UDS statt TCP-Port (512 pocket-id, 517 oauth2-proxy)
     ("mkService", 4),
     ("mkNoPort", 4),
 ]
@@ -105,7 +106,7 @@ def render(services: list[dict[str, object]]) -> str:
         "",
         "> **UPG (ADR-0000 §4):** `Port = UID = Primär-GID = Nummer × 10`. Die geteilte Gruppe",
         "> `media` (GID 5000) ist **ausschließlich** supplementary (`extraGroups`) — nie Primärgruppe.",
-        "> Dienste ohne eigenen Listener (z. B. `cloudflare-dns`, `feishin`) haben keinen Port.",
+        "> Dienste ohne eigenen Listener (z. B. `cloudflare-dns`) haben keinen Port.",
         MARKER_END,
     ]
     return "\n".join(out)

@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-10-25
 # links:
-#   adr: ADR-515-mdns-avahi-aliases
+#   adr: ADR-515
 # provides: ["split-dns"]
 # requires: ["lib/registry", "lib/service-factory"]
 # ports: [53]

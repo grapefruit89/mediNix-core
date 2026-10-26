@@ -53,7 +53,6 @@ How to attach a new program: [`51-ingress/510-ingress-SERVICE.md`](51-ingress/51
 | Jellyfin | 551 | 5510 | 5510 | 5000 | stream | 127.0.0.1 |
 | Audiobookshelf | 552 | 5520 | 5520 | 5000 | stream | 127.0.0.1 |
 | Navidrome | 553 | 5530 | 5530 | 5000 | stream | 127.0.0.1 |
-| Feishin | 554 | – | – | 5000 | stream | – (static SPA) |
 | Seerr | 561 | 5610 | 5610 | 5000 | public | 127.0.0.1 |
 | ntfy | 581 | 5810 | 5810 | 5000 | internal | 127.0.0.1 |
 **caddyClass / `accessGroup`:** `stream` (media, no auth), `internal` (LAN abort), `public` (forward-auth when on), `idp` (Pocket ID UI), `none` (no vhost). `.local` is always HTTP.

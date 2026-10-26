@@ -1,7 +1,7 @@
 {
   "meta": {
-    "generated_at": "2026-10-25T22:55:54.257028+00:00",
-    "total_blocks": 27,
+    "generated_at": "2026-10-26T14:43:15.903304+00:00",
+    "total_blocks": 28,
     "total_decisions": 67,
     "status_counts": {
       "decided": 64,
@@ -20,10 +20,9 @@
       "flake": 6,
       "systemd": 4,
       "observability": 3,
-      "caddy-plugins": 7
-    },
-    "reconciled_at": "2026-10-25T23:03:58.538791+00:00",
-    "implemented_count": 35
+      "caddy-plugins": 7,
+      "other": 0
+    }
   },
   "by_theme": {
     "architecture-framework": [
@@ -34,9 +33,7 @@
         "statement": "NixOS bleibt die verbindliche Betriebssystem-Basis für mediNix-core; Arch Linux oder imperative Distributionen werden nicht eingesetzt.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen."
       },
       {
         "id": "D-01-02",
@@ -45,9 +42,7 @@
         "statement": "Keine externen Konfigurationsmanagement-Tools (wie Ansible) für die Basis-Konfiguration von mediNix-core einsetzen.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS."
       },
       {
         "id": "D-11-02",
@@ -56,9 +51,7 @@
         "statement": "Vollständige Ausmusterung von `515-mdns.nix` (Avahi) aus dem 51-Ingress-Tree.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Caddy rendert bereits keine `.local`-Sites mehr. Avahi verbraucht Ressourcen und leckt interne Hostnamen im LAN. DNS-basierte Namensauflösung via Blocky ist deterministischer und plattformübergreifend kompatibel.",
-        "implemented": true,
-        "commit": "d90ce5a"
+        "rationale": "Caddy rendert bereits keine `.local`-Sites mehr. Avahi verbraucht Ressourcen und leckt interne Hostnamen im LAN. DNS-basierte Namensauflösung via Blocky ist deterministischer und plattformübergreifend kompatibel."
       },
       {
         "id": "D-12-01",
@@ -67,9 +60,7 @@
         "statement": "Dezimalrahmen (ADR-0000) als universelles, fraktales Ordnungsprinzip für das gesamte Repository definieren, nicht nur für NixOS-Dienstmodule.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Die Beschränkung auf reine Daemon-Module erzeugt künstliche Inkonsistenzen (z. B. Unsicherheit über die Rolle von Foundation, Hilfsdateien und Speicherorten). Das universelle Verständnis ordnet das gesamte System deterministisch.",
-        "implemented": true,
-        "commit": "99877f0"
+        "rationale": "Die Beschränkung auf reine Daemon-Module erzeugt künstliche Inkonsistenzen (z. B. Unsicherheit über die Rolle von Foundation, Hilfsdateien und Speicherorten). Das universelle Verständnis ordnet das gesamte System deterministisch."
       },
       {
         "id": "D-12-02",
@@ -78,9 +69,7 @@
         "statement": "Eliminierung von Magic Numbers: Ports und UIDs werden ausnahmslos als Funktion der Dienstnummer (`derivation = number * 10`) berechnet.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen.",
-        "implemented": true,
-        "commit": "99877f0"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen."
       },
       {
         "id": "D-13-01",
@@ -89,9 +78,7 @@
         "statement": "Trennung zwischen reiner Funktionsbibliothek (`lib/`) und NixOS-Host-Modulen (`50-core/`) architektonisch beibehalten.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen."
       },
       {
         "id": "D-13-02",
@@ -100,9 +87,7 @@
         "statement": "Auto-Import in `default.nix` bleibt auf standardisierte Dienstmodule (`XX-domain/NNN-*.nix`) beschränkt.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen."
       },
       {
         "id": "D-13-03",
@@ -111,9 +96,7 @@
         "statement": "Gerichtete Abhängigkeiten (ADR-040): Alle Domänen dürfen Foundation (`50-core`) und `lib/` importieren; Peer-zu-Peer-Importe zwischen Service-Domänen bleiben strikt verboten.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs."
       },
       {
         "id": "D-24-01",
@@ -122,9 +105,7 @@
         "statement": "lib.mkForce bei system.nixos.label in 500-host-baseline.nix entfernen und durch composable Deklaration ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Setzt das in ADR-0003 §2 und BANNED_TECHNOLOGIES.md verankerte absolute Verbot von lib.mkForce durch; stellt Composability sicher.",
-        "implemented": true,
-        "commit": "21ca67f"
+        "rationale": "Setzt das in ADR-0003 §2 und BANNED_TECHNOLOGIES.md verankerte absolute Verbot von lib.mkForce durch; stellt Composability sicher."
       },
       {
         "id": "D-25-01",
@@ -133,8 +114,7 @@
         "statement": "Dreiteilung der Projektdokumentation in Lastenheft (Was), Pflichtenheft (Wie) und ADRs (Warum) etablieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Schafft klare Trennung zwischen Anforderung, technischem Design und Entscheidungshistorie; optimiert Prompting und Review-Workflows mit LLMs.",
-        "implemented": false
+        "rationale": "Schafft klare Trennung zwischen Anforderung, technischem Design und Entscheidungshistorie; optimiert Prompting und Review-Workflows mit LLMs."
       },
       {
         "id": "D-26-01",
@@ -143,9 +123,7 @@
         "statement": "Alle übergreifenden System-Assertions in 591-cross-domain.nix bündeln und keinen separaten 509-Block anlegen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "591 deckt bereits Docker-Bans, Port-Leaks, Wildcard-Binds, VPN-ReversePath und Dezimalrahmen-Checks ab; eine Aufspaltung in 509 würde die SSoT verletzen und Redundanz erzeugen.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "591 deckt bereits Docker-Bans, Port-Leaks, Wildcard-Binds, VPN-ReversePath und Dezimalrahmen-Checks ab; eine Aufspaltung in 509 würde die SSoT verletzen und Redundanz erzeugen."
       }
     ],
     "caddy-ingress": [
@@ -156,9 +134,7 @@
         "statement": "Caddy Catch-All: `abort` durch `respond 404` ersetzen, damit CrowdSec Scan-Verkehr erkennt und bannen kann.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "`abort` schließt TCP ohne HTTP-Status. CrowdSec-Szenario `http-scan-uniques_404` matcht auf 404 und feuert bei `abort` nie. `respond 404` liefert das nötige Signal für die Ban-Kette (CrowdSec → nftables-Bouncer).",
-        "implemented": true,
-        "commit": "ee73808"
+        "rationale": "`abort` schließt TCP ohne HTTP-Status. CrowdSec-Szenario `http-scan-uniques_404` matcht auf 404 und feuert bei `abort` nie. `respond 404` liefert das nötige Signal für die Ban-Kette (CrowdSec → nftables-Bouncer)."
       },
       {
         "id": "D-02-02",
@@ -167,9 +143,7 @@
         "statement": "Kein tls internal (lokale CA) für interne Dienste; stattdessen ACME DNS-01 Challenge für echte Zertifikate ohne manuelle CA-Installation.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung.",
-        "implemented": true,
-        "commit": "ee73808"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung."
       },
       {
         "id": "D-14-01",
@@ -178,9 +152,7 @@
         "statement": "Caddy `customConfig`-Escape-Hatch strikt hinter Authentifizierungs- und Bouncer-Direktiven platzieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Wird customConfig vor den Forward-Auth- oder CrowdSec-Blöcken gerendert, können fehlerhafte oder unvorsichtige Snippets den Zugriffsschutz für geschützte Backends komplett umgehen.",
-        "implemented": true,
-        "commit": "ee73808"
+        "rationale": "Wird customConfig vor den Forward-Auth- oder CrowdSec-Blöcken gerendert, können fehlerhafte oder unvorsichtige Snippets den Zugriffsschutz für geschützte Backends komplett umgehen."
       },
       {
         "id": "D-14-03",
@@ -189,8 +161,7 @@
         "statement": "LLM-Verarbeitungsstrategie: Granulares JSON-Block-Chunking mit Topic-Index und Code-Abgleich statt monolithischem Dump.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Ein monolithischer Prompt mit 70k+ Tokens überfordert das Context-Window, erzeugt Halluzinationen und verliert Feinheiten. Das Chunking in 14 thematische Blöcke mit striktem Schema und Code-Verifikation sichert 100% Informationstreue.",
-        "implemented": false
+        "rationale": "Ein monolithischer Prompt mit 70k+ Tokens überfordert das Context-Window, erzeugt Halluzinationen und verliert Feinheiten. Das Chunking in 14 thematische Blöcke mit striktem Schema und Code-Verifikation sichert 100% Informationstreue."
       },
       {
         "id": "D-14-04",
@@ -199,9 +170,7 @@
         "statement": "Pocket-ID Setup-Lockdown (`setupCompleted` Assertion) zur Vermeidung von Takeovers offener IdP-Instanzen nach Deployment.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird.",
-        "implemented": true,
-        "commit": "9867d92"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird."
       }
     ],
     "security-firewall": [
@@ -212,9 +181,7 @@
         "statement": "CrowdSec Hub-Collections um `crowdsecurity/http-probing` erweitern, um das Szenario `http-scan-uniques_404` zur Scan-Erkennung zu aktivieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Im Ist-Zustand enthält 516-crowdsec.nix nur `crowdsecurity/caddy`. Ohne `crowdsecurity/http-probing` fehlt das Szenario `http-scan-uniques_404`, das wiederholte 404-Aufrufe unbekannter Subdomains detektiert. Die Erweiterung schließt die Detektionslücke der Ban-Kette.",
-        "implemented": true,
-        "commit": "ee73808"
+        "rationale": "Im Ist-Zustand enthält 516-crowdsec.nix nur `crowdsecurity/caddy`. Ohne `crowdsecurity/http-probing` fehlt das Szenario `http-scan-uniques_404`, das wiederholte 404-Aufrufe unbekannter Subdomains detektiert. Die Erweiterung schließt die Detektionslücke der Ban-Kette."
       },
       {
         "id": "D-03-02",
@@ -223,9 +190,7 @@
         "statement": "Firewall-Bouncer (nftables) als alleiniger Durchsetzungs-Aktor: Bans sperren Angreifer-IPs kernel-nah auf allen Ports (INPUT-Chain).",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist.",
-        "implemented": true,
-        "commit": "79dac74"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist."
       },
       {
         "id": "D-08-01",
@@ -234,9 +199,7 @@
         "statement": "Striktes Fail-Closed (Default-DROP) auf allen unberechtigten eingehenden Ports via nftables.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet."
       },
       {
         "id": "D-08-02",
@@ -245,9 +208,7 @@
         "statement": "Reines nftables-Backend ohne legacy iptables-Kommandos verwenden.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift."
       }
     ],
     "secrets": [
@@ -258,9 +219,7 @@
         "statement": "systemd-creds (mit TPM2 / Host-Key) als verbindlicher Secret-Standard; sops-nix und agenix werden verworfen.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix und ADR-521 setzen systemd-creds bereits verbindlich durch. Keine externen Binaries, keine GPG-Keyrings, native Einbindung via LoadCredentialEncrypted.",
-        "implemented": true,
-        "commit": "74a8a70"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix und ADR-521 setzen systemd-creds bereits verbindlich durch. Keine externen Binaries, keine GPG-Keyrings, native Einbindung via LoadCredentialEncrypted."
       },
       {
         "id": "D-04-02",
@@ -269,9 +228,7 @@
         "statement": "Strikte Granularität: Genau eine separate `.cred`-Datei pro Secret (keine Sammel-Passwort-Datei).",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix definiert bereits separate Dateien pro Dienst (sonarrApiKeyFile, jellyfinAdminPasswordFile, etc.). Verhindert, dass ein kompromittierter Dienst Zugriff auf die Secrets anderer Dienste erhält (Isolation / Least Privilege).",
-        "implemented": true,
-        "commit": "74a8a70"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix definiert bereits separate Dateien pro Dienst (sonarrApiKeyFile, jellyfinAdminPasswordFile, etc.). Verhindert, dass ein kompromittierter Dienst Zugriff auf die Secrets anderer Dienste erhält (Isolation / Least Privilege)."
       },
       {
         "id": "D-04-03",
@@ -280,9 +237,7 @@
         "statement": "Verschlüsselte `.cred`-Dateien dürfen NIEMALS in öffentliche Repositories committet werden (Schutz vor Harvest-Now-Decrypt-Later und Metadaten-Recon).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Auch wenn .cred-Dateien mit TPM2+Hostkey hardwaregebunden sind, lecken sie Metadaten (Dienstnamen, Rotationszeitpunkte) und stellen ein HNDL-Risiko dar. Secrets verbleiben lokal in geschützten Pfaden (z.B. ~/.secrets/ oder privates Git).",
-        "implemented": true,
-        "commit": "41dd098"
+        "rationale": "Auch wenn .cred-Dateien mit TPM2+Hostkey hardwaregebunden sind, lecken sie Metadaten (Dienstnamen, Rotationszeitpunkte) und stellen ein HNDL-Risiko dar. Secrets verbleiben lokal in geschützten Pfaden (z.B. ~/.secrets/ oder privates Git)."
       },
       {
         "id": "D-07-01",
@@ -291,9 +246,7 @@
         "statement": "Verzicht auf Agenix wegen fehlender PQC-Fähigkeit und HNDL-Gefahr bei asymmetrisch verschlüsselten Git-Secrets.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel."
       },
       {
         "id": "D-07-02",
@@ -302,9 +255,7 @@
         "statement": "systemd-creds mit TPM2+Hostkey als HNDL-Resistenz durch Hardware-Bindung (keine algorithmische PQC, aber physikalische Bindung).",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs."
       }
     ],
     "networking-dns": [
@@ -315,9 +266,7 @@
         "statement": "mDNS/515 wird entfernt; Blocky übernimmt die interne Namensauflösung als Split-DNS.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Caddy rendert keine .local-Sites (laut README). Avahi publiziert nutzlose Records, erzeugt Multicast-Traffic (UDP 5353), bietet Angriffsfläche (historische CVEs) und startet einen Prozess pro Alias. Blocky ist bereits im Stack und kann Split-DNS zentral, auditierbar, subnetz-übergreifend.",
-        "implemented": true,
-        "commit": "d90ce5a"
+        "rationale": "Caddy rendert keine .local-Sites (laut README). Avahi publiziert nutzlose Records, erzeugt Multicast-Traffic (UDP 5353), bietet Angriffsfläche (historische CVEs) und startet einen Prozess pro Alias. Blocky ist bereits im Stack und kann Split-DNS zentral, auditierbar, subnetz-übergreifend."
       },
       {
         "id": "D-05-02",
@@ -326,9 +275,7 @@
         "statement": ".lan und .{domain} bleiben die beiden Namensräume. Keine .local-Sites in Caddy.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)",
-        "implemented": true,
-        "commit": "d90ce5a"
+        "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)"
       },
       {
         "id": "D-06-02",
@@ -337,9 +284,7 @@
         "statement": "Keine festen Router-IPs hardcodieren: Der Router wird zur Laufzeit dynamisch als Default-Gateway aus der Routing-Tabelle ermittelt.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Ein Hardcodieren von 192.168.2.1 bricht sofort bei geändertem Subnetz oder Router-Tausch. Das Default-Gateway (ip route show default | awk '{print $3}') ist die einzige robuste Invariante für den Router-Zugriff.",
-        "implemented": true,
-        "commit": "94db365"
+        "rationale": "Ein Hardcodieren von 192.168.2.1 bricht sofort bei geändertem Subnetz oder Router-Tausch. Das Default-Gateway (ip route show default | awk '{print $3}') ist die einzige robuste Invariante für den Router-Zugriff."
       },
       {
         "id": "D-06-03",
@@ -348,9 +293,7 @@
         "statement": "publishLanRecord = false bleibt Standard: Keine RFC1918-Adressen in öffentlichem Cloudflare-DNS publizieren (Schutz vor Recon-Gold).",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden.",
-        "implemented": true,
-        "commit": "14e756e"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden."
       },
       {
         "id": "D-22-01",
@@ -359,9 +302,7 @@
         "statement": "Bash-Syntax im Prune-Pfad von 513-cloudflare-dns.nix durch doppelte einfache Anführungszeichen (''${foreign:-0}) vor Nix-Interpolation schützen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert fehlerhafte String-Interpolation zur Nix-Buildzeit, sodass Bash-Parameter-Expansion zur Laufzeit korrekt ausgewertet wird.",
-        "implemented": true,
-        "commit": "90553ad"
+        "rationale": "Verhindert fehlerhafte String-Interpolation zur Nix-Buildzeit, sodass Bash-Parameter-Expansion zur Laufzeit korrekt ausgewertet wird."
       }
     ],
     "hardware-kernel": [
@@ -372,9 +313,7 @@
         "statement": "Keine eigenen Kernel-Patches (`boot.kernelPatches`) kompilieren; stattdessen Standard-Kernel mit deklarativen Sysctl- und Modul-Härtungen nutzen.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter."
       },
       {
         "id": "D-09-02",
@@ -383,9 +322,7 @@
         "statement": "Verteidigungsschichten über systemd-Sandboxing (seccomp, ProtectSystem, UPG) statt Kernel-Rekompilierung.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch."
       },
       {
         "id": "D-10-03",
@@ -394,9 +331,7 @@
         "statement": "Keine manuellen Overrides für `i915.enable_psr` oder `i915.enable_fbc` setzen.",
         "status": "decided",
         "verdict": "neutral",
-        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics."
       }
     ],
     "nixmap": [
@@ -407,8 +342,7 @@
         "statement": "//-Operator bei Attributset-Merges verbieten und durch lib.recursiveUpdate ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Der //-Operator überschreibt Keys flach und führt bei verschachtelten Attributsets (wie systemd.services oder nftables-Chains) zu stillem Key-Verlust (Fail-Open-Gefahr). lib.recursiveUpdate merged verschachtelte Strukturen sicher.",
-        "implemented": false
+        "rationale": "Der //-Operator überschreibt Keys flach und führt bei verschachtelten Attributsets (wie systemd.services oder nftables-Chains) zu stillem Key-Verlust (Fail-Open-Gefahr). lib.recursiveUpdate merged verschachtelte Strukturen sicher."
       },
       {
         "id": "D-15-02",
@@ -417,8 +351,7 @@
         "statement": "Rohes 'if ... then ... else' in NixOS-Moduldefinitionen zugunsten von 'lib.mkIf' vermeiden.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "'if c then a else {}' erzeugt bei false leere Attributsets oder Typkonflikte; 'lib.mkIf' integriert sich nahtlos in das NixOS-Merge-System und erzeugt bei false keine Definition.",
-        "implemented": false
+        "rationale": "'if c then a else {}' erzeugt bei false leere Attributsets oder Typkonflikte; 'lib.mkIf' integriert sich nahtlos in das NixOS-Merge-System und erzeugt bei false keine Definition."
       },
       {
         "id": "D-15-03",
@@ -427,8 +360,7 @@
         "statement": "Nix-Builtin 'assert' durch deklarative 'assertions'-Listen mit Fehlertext und ADR-Referenz ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Rohes assert bricht sofort unformatiert ab; NixOS-assertions sammeln alle Fehler, geben verständliche Meldungen aus und referenzieren Architekturentscheidungen.",
-        "implemented": false
+        "rationale": "Rohes assert bricht sofort unformatiert ab; NixOS-assertions sammeln alle Fehler, geben verständliche Meldungen aus und referenzieren Architekturentscheidungen."
       },
       {
         "id": "D-15-04",
@@ -437,8 +369,7 @@
         "statement": "'with'-Ausdrücke zur Vermeidung von Scope-Verschmutzung und Mehrdeutigkeiten verbieten.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "'with pkgs;' oder 'with lib;' verschleiert die Herkunft von Symbolen, bricht statische Code-Analyse und führt zu schwer auffindbaren Shadowing-Bugs.",
-        "implemented": false
+        "rationale": "'with pkgs;' oder 'with lib;' verschleiert die Herkunft von Symbolen, bricht statische Code-Analyse und führt zu schwer auffindbaren Shadowing-Bugs."
       },
       {
         "id": "D-15-05",
@@ -447,8 +378,7 @@
         "statement": "'rec'-Attributsets auf nachgewiesene Selbstreferenzen beschränken.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "'rec {' ohne Selbstreferenz verführt zu versehentlichen Zyklen und erschwert das Refactoring; lokale let-Bindings sind transparenter.",
-        "implemented": false
+        "rationale": "'rec {' ohne Selbstreferenz verführt zu versehentlichen Zyklen und erschwert das Refactoring; lokale let-Bindings sind transparenter."
       },
       {
         "id": "D-15-06",
@@ -457,8 +387,7 @@
         "statement": "Bedingte Imports basierend auf eigenen Modul-Optionen strikt verbieten (Anti-Pattern #module-recursion).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Bedingte Imports wie 'imports = lib.optional cfg.enable ...' erzeugen zirkuläre Abhängigkeiten während des Modul-Fixpunkts und brechen die Nix-Evaluation mit Endlosschleifen ab.",
-        "implemented": false
+        "rationale": "Bedingte Imports wie 'imports = lib.optional cfg.enable ...' erzeugen zirkuläre Abhängigkeiten während des Modul-Fixpunkts und brechen die Nix-Evaluation mit Endlosschleifen ab."
       }
     ],
     "agent-errors": [
@@ -469,8 +398,7 @@
         "statement": "Gegenmaßnahme 1 (Form/Binary-Version billig vorab prüfen): Tool-Verfügbarkeit und Versionen vor schweren Operationen in einem minimalen Call validieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert Fehlschläge durch falsche PATH-Variablen, inkompatible Versionen (z. B. PATH-nixfmt 1.5.0 vs. CI-Pin 1.4.0) oder nicht installierte Binaries.",
-        "implemented": false
+        "rationale": "Verhindert Fehlschläge durch falsche PATH-Variablen, inkompatible Versionen (z. B. PATH-nixfmt 1.5.0 vs. CI-Pin 1.4.0) oder nicht installierte Binaries."
       },
       {
         "id": "D-16-02",
@@ -479,8 +407,7 @@
         "statement": "Gegenmaßnahme 2 (Ausgaben filtern): Shell-Ausgaben deterministisch auf relevante Zeilen begrenzen (-m1, grep -c, head).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert Kontext-Überlauf, unlesbare Dumps und Parsing-Fehler bei mehrzeiligen Shell-Argumenten.",
-        "implemented": false
+        "rationale": "Verhindert Kontext-Überlauf, unlesbare Dumps und Parsing-Fehler bei mehrzeiligen Shell-Argumenten."
       },
       {
         "id": "D-16-03",
@@ -489,8 +416,7 @@
         "statement": "Gegenmaßnahme 3 (Kein Scheiben-Messen): Zusammengehörige Prüfungen und Messungen in atomaren Bundles statt multiplen Einzel-Calls ausführen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Das Aufteilen von Statusabfragen in Einzelschritte ('Scheiben-Messen') verbrennt unkontrolliert Token und Zeit (2–4 Extra-Calls pro Finding).",
-        "implemented": false
+        "rationale": "Das Aufteilen von Statusabfragen in Einzelschritte ('Scheiben-Messen') verbrennt unkontrolliert Token und Zeit (2–4 Extra-Calls pro Finding)."
       },
       {
         "id": "D-16-04",
@@ -499,8 +425,7 @@
         "statement": "Gegenmaßnahme 4 (Ein Call = Ein Schritt mit messbarem Ergebnis): Jeder Tool-Call muss einen klaren Zustandsübergang mit verifizierbarem Resultat liefern.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert zielloses Tasten im Nebel und unfertige Zwischenschritte; jeder Schritt schließt eine Teilhypothese ab.",
-        "implemented": false
+        "rationale": "Verhindert zielloses Tasten im Nebel und unfertige Zwischenschritte; jeder Schritt schließt eine Teilhypothese ab."
       },
       {
         "id": "D-16-05",
@@ -509,8 +434,7 @@
         "statement": "Gegenmaßnahme 5 (Strikte Rc-Gating-Erzwingung vor Commit): Kein Git-Commit ohne explizite Prüfung des Rückgabecodes vorangegangener Gates (if [ $? -ne 0 ]; then exit 1; fi).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Beseitigt die gefährlichste Fehlerklasse ('Gate berechnet, aber nicht erzwungen'), bei der Fehlerausgaben protokolliert, der Commit aber dennoch ungestraft ausgeführt wurde.",
-        "implemented": false
+        "rationale": "Beseitigt die gefährlichste Fehlerklasse ('Gate berechnet, aber nicht erzwungen'), bei der Fehlerausgaben protokolliert, der Commit aber dennoch ungestraft ausgeführt wurde."
       }
     ],
     "manifest": [
@@ -521,8 +445,7 @@
         "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet.",
-        "implemented": false
+        "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet."
       },
       {
         "id": "D-17-02",
@@ -531,8 +454,7 @@
         "statement": "Schema-Versionierung für das Manifest etablieren (schema_version = 1).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert Inkompatibilitäten und subtile Fehlkonfigurationen bei zukünftigen Erweiterungen des Manifest-Schemas auf Host-Ebene.",
-        "implemented": false
+        "rationale": "Verhindert Inkompatibilitäten und subtile Fehlkonfigurationen bei zukünftigen Erweiterungen des Manifest-Schemas auf Host-Ebene."
       },
       {
         "id": "D-17-03",
@@ -541,8 +463,7 @@
         "statement": "Standardisierte Pflichtfelder pro Dienst definieren (name, num, accessGroup, healthPath, backupPaths, needsVpn).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Ermöglicht statische Typprüfung und automatische Generierung von Caddy-Vhosts, Gatus-Endpoints und Restic-Jobs ohne Duplizierung.",
-        "implemented": false
+        "rationale": "Ermöglicht statische Typprüfung und automatische Generierung von Caddy-Vhosts, Gatus-Endpoints und Restic-Jobs ohne Duplizierung."
       }
     ],
     "flake": [
@@ -553,8 +474,7 @@
         "statement": "treefmt.nix zur Vereinheitlichung aller Formatierungswerkzeuge im Flake integrieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Garantiert identische Formatierung (Nix, JSON, Markdown) lokal und in CI; verhindert Diff-Konflikte und Version-Mismatches (z. B. PATH-nixfmt vs. CI-Pin).",
-        "implemented": false
+        "rationale": "Garantiert identische Formatierung (Nix, JSON, Markdown) lokal und in CI; verhindert Diff-Konflikte und Version-Mismatches (z. B. PATH-nixfmt vs. CI-Pin)."
       },
       {
         "id": "D-18-02",
@@ -563,8 +483,7 @@
         "statement": "Schwere QEMU-VM-Tests aus der interaktiven Agenten-Schleife in asynchrone CI-Gates auslagern.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "VM-Boot-Tests dauern 10–20 Minuten und führten wiederkehrend zu Agenten-Timeouts; lokale Schleifen nutzen schnelle eval- und syntax-Checks ('--no-build').",
-        "implemented": false
+        "rationale": "VM-Boot-Tests dauern 10–20 Minuten und führten wiederkehrend zu Agenten-Timeouts; lokale Schleifen nutzen schnelle eval- und syntax-Checks ('--no-build')."
       },
       {
         "id": "D-18-03",
@@ -573,8 +492,7 @@
         "statement": "Strikte Trennung von schnellen Eval-Checks (L1) und Derivations-Builds (L2) in checks.<system>.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Erlaubt gezielte 'nix flake check --no-build'-Validierung für 80% aller Konfigurationsänderungen ohne Erstellung unzähliger Store-Pfade.",
-        "implemented": false
+        "rationale": "Erlaubt gezielte 'nix flake check --no-build'-Validierung für 80% aller Konfigurationsänderungen ohne Erstellung unzähliger Store-Pfade."
       },
       {
         "id": "D-19-01",
@@ -583,8 +501,7 @@
         "statement": "Network Namespaces (Nixarr-Ansatz) für VPN-Routing verwerfen und mediNix UID-basiertes fwmark + nftables Policy Routing beibehalten.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Network Namespaces brechen DNS-Split-Horizon, UDS-Kommunikation und native Systemd-Socket-Aktivierung zwischen Diensten; UID-fwmark isoliert den Datenverkehr transparent ohne Netzwerk-Silos.",
-        "implemented": false
+        "rationale": "Network Namespaces brechen DNS-Split-Horizon, UDS-Kommunikation und native Systemd-Socket-Aktivierung zwischen Diensten; UID-fwmark isoliert den Datenverkehr transparent ohne Netzwerk-Silos."
       },
       {
         "id": "D-19-02",
@@ -593,8 +510,7 @@
         "statement": "Container-basierte Homelab-Muster (Podman/Docker wie bei lukethacoder) weiterhin strikt ablehnen (BANNED_TECHNOLOGIES).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Container erzeugen imperativen Zustand außerhalb von Nix, verdoppeln Isolationsebenen und verhindern nahtlose TPM2-Credentials und UPG-Dateirechte.",
-        "implemented": false
+        "rationale": "Container erzeugen imperativen Zustand außerhalb von Nix, verdoppeln Isolationsebenen und verhindern nahtlose TPM2-Credentials und UPG-Dateirechte."
       },
       {
         "id": "D-19-03",
@@ -603,8 +519,7 @@
         "statement": "Monolithische 'settings.nix'-Dateien (phenax-Muster) ablehnen; Konfiguration strikt über Dezimalrahmen (502-host-settings.nix) verteilen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Zentrale settings.nix erzeugt eine unkontrollierte 'God-File'-Abhängigkeit; mediNix hält Host-Settings in 502 und Service-Fakten in der Registry dezentral.",
-        "implemented": false
+        "rationale": "Zentrale settings.nix erzeugt eine unkontrollierte 'God-File'-Abhängigkeit; mediNix hält Host-Settings in 502 und Service-Fakten in der Registry dezentral."
       }
     ],
     "systemd": [
@@ -615,8 +530,7 @@
         "statement": "Maschinenlesbare D-Bus-Schnittstelle (org.freedesktop.systemd1) und systemd-analyze als primäre Validierungsquellen für Agenten festlegen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Erlaubt Agenten die exakte Inspektion von Unit-Zuständen, Direktiven und Security-Scores zur Laufzeit ohne unzuverlässiges Text-Parsing.",
-        "implemented": false
+        "rationale": "Erlaubt Agenten die exakte Inspektion von Unit-Zuständen, Direktiven und Security-Scores zur Laufzeit ohne unzuverlässiges Text-Parsing."
       },
       {
         "id": "D-20-02",
@@ -625,8 +539,7 @@
         "statement": "NixOS options.json und CLI-Tools ('nixos-option', 'nix eval --json') als verbindliche Optionen-Referenz vor Code-Edits vorschreiben.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert, dass Agenten nicht existierende Optionen erfinden (wie z. B. 'networking.iproute2') oder falsche Attributpfade raten.",
-        "implemented": false
+        "rationale": "Verhindert, dass Agenten nicht existierende Optionen erfinden (wie z. B. 'networking.iproute2') oder falsche Attributpfade raten."
       },
       {
         "id": "D-23-01",
@@ -635,9 +548,7 @@
         "statement": "SocketBindAllow-Direktiven von IP-Adress-Strings auf gültige Systemd-Port-Syntax umstellen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "systemd.resource-control(5) unterstützt in SocketBindAllow keine reinen IP-Strings; die Direktive war syntaxwidrig und verhinderte sauberes Socket-Gating.",
-        "implemented": true,
-        "commit": "f3153df"
+        "rationale": "systemd.resource-control(5) unterstützt in SocketBindAllow keine reinen IP-Strings; die Direktive war syntaxwidrig und verhinderte sauberes Socket-Gating."
       },
       {
         "id": "D-23-02",
@@ -646,9 +557,7 @@
         "statement": "OnFailure-Direktiven aus serviceConfig in unitConfig verschieben.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "OnFailure ist systemd-weit eine Unit-Eigenschaft; in serviceConfig wird sie von systemd ignoriert und löst bei Fehlern keine Alarmierungs-Units aus.",
-        "implemented": true,
-        "commit": "f3153df"
+        "rationale": "OnFailure ist systemd-weit eine Unit-Eigenschaft; in serviceConfig wird sie von systemd ignoriert und löst bei Fehlern keine Alarmierungs-Units aus."
       }
     ],
     "observability": [
@@ -659,8 +568,7 @@
         "statement": "Gatus-Healthcheck-Konfiguration (582-gatus.nix) automatisch aus dem zentralen Service-Manifest ableiten.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert, dass neue Dienste manuell in Gatus nachgetragen werden müssen; jeder aktive Vhost mit healthPath erhält sofort Monitoring.",
-        "implemented": false
+        "rationale": "Verhindert, dass neue Dienste manuell in Gatus nachgetragen werden müssen; jeder aktive Vhost mit healthPath erhält sofort Monitoring."
       },
       {
         "id": "D-21-02",
@@ -669,8 +577,7 @@
         "statement": "Exportarr-Instanzen in ein festes, abgeleitetes Portband (5850 ff.) innerhalb der Observability-Dekade 58 einbinden.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Hält das Prinzip des Dezimalrahmens ein, wonach Metrik-Exporter in Domain 58 (Observability) liegen und keine Acquisition-Ports belegen.",
-        "implemented": false
+        "rationale": "Hält das Prinzip des Dezimalrahmens ein, wonach Metrik-Exporter in Domain 58 (Observability) liegen und keine Acquisition-Ports belegen."
       },
       {
         "id": "D-21-03",
@@ -679,8 +586,7 @@
         "statement": "Eigenständigen VPN-Laufzeit-Selftest (586-vpn-selftest.nix) zur Validierung des Killswitches implementieren.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Eine statische nftables-Regel schützt nicht vor Fehlern im IP-Routing zur Laufzeit; 586 prüft periodisch via Ping/DNS unter der VPN-UID, dass kein Traffic leckt.",
-        "implemented": false
+        "rationale": "Eine statische nftables-Regel schützt nicht vor Fehlern im IP-Routing zur Laufzeit; 586 prüft periodisch via Ping/DNS unter der VPN-UID, dass kein Traffic leckt."
       }
     ],
     "caddy-plugins": [
@@ -691,8 +597,7 @@
         "statement": "caddy-maxmind-geolocation durch kernel-nahe nftables GeoIP-Sets ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "nftables verwirft unerwünschten Länder-Traffic vor dem TCP-Handshake im Kernel; schont Caddy-Ressourcen.",
-        "implemented": false
+        "rationale": "nftables verwirft unerwünschten Länder-Traffic vor dem TCP-Handshake im Kernel; schont Caddy-Ressourcen."
       },
       {
         "id": "D-27-02",
@@ -701,9 +606,7 @@
         "statement": "caddy-cloudflare / caddy-dns/cloudflare durch NixOS-Bordmittel (security.acme + Lego) ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "security.acme trennt TLS-Zertifikatsbeschaffung sauber von Caddy; Caddy läuft mit auto_https off und liest nur fertige Certs.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "security.acme trennt TLS-Zertifikatsbeschaffung sauber von Caddy; Caddy läuft mit auto_https off und liest nur fertige Certs."
       },
       {
         "id": "D-27-03",
@@ -712,8 +615,7 @@
         "statement": "caddy-ratelimit durch nftables 'limit rate' auf Port 80 ersetzen (Port 443 ausgenommen).",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Verhindert DoS-Angriffe kernel-nah; Port 443 bleibt ungedrosselt, um legitime Medien-Streams nicht zu drosseln.",
-        "implemented": false
+        "rationale": "Verhindert DoS-Angriffe kernel-nah; Port 443 bleibt ungedrosselt, um legitime Medien-Streams nicht zu drosseln."
       },
       {
         "id": "D-27-04",
@@ -722,9 +624,7 @@
         "statement": "caddy-dynamicdns durch systemd-Timer und dediziertes DDNS-Skript (513-cloudflare-dns) ersetzen.",
         "status": "decided",
         "verdict": "better",
-        "rationale": "Entkoppelt DNS-Aktualisierung vollständig vom Webserver-Prozess; robuster bei Caddy-Restarts.",
-        "implemented": true,
-        "commit": "status-quo"
+        "rationale": "Entkoppelt DNS-Aktualisierung vollständig vom Webserver-Prozess; robuster bei Caddy-Restarts."
       },
       {
         "id": "D-27-05",
@@ -733,8 +633,7 @@
         "statement": "caddy-tarpit verwerfen ('Wer scannt, fliegt raus').",
         "status": "rejected",
         "verdict": "worse",
-        "rationale": "Tarpits halten TCP-Sockets unnötig lange offen und binden Ressourcen; Scanner werden über CrowdSec detektiert und per nftables sofort stumm gedroppt.",
-        "implemented": false
+        "rationale": "Tarpits halten TCP-Sockets unnötig lange offen und binden Ressourcen; Scanner werden über CrowdSec detektiert und per nftables sofort stumm gedroppt."
       },
       {
         "id": "D-27-06",
@@ -743,8 +642,7 @@
         "statement": "caddy-defender ablehnen.",
         "status": "rejected",
         "verdict": "worse",
-        "rationale": "Basiert auf User-Space-Tarpit-Logik; verstößt gegen das Prinzip der Kernel-Nähe.",
-        "implemented": false
+        "rationale": "Basiert auf User-Space-Tarpit-Logik; verstößt gegen das Prinzip der Kernel-Nähe."
       },
       {
         "id": "D-27-07",
@@ -753,10 +651,10 @@
         "statement": "cerberus ablehnen.",
         "status": "rejected",
         "verdict": "worse",
-        "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab.",
-        "implemented": false
+        "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab."
       }
-    ]
+    ],
+    "other": []
   },
   "items": [
     {
@@ -766,9 +664,7 @@
       "statement": "NixOS bleibt die verbindliche Betriebssystem-Basis für mediNix-core; Arch Linux oder imperative Distributionen werden nicht eingesetzt.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. NixOS bietet strukturelle Garantien (deklarative Konfiguration, atomare Upgrades, schreibgeschützter Nix-Store, Rollback-Fähigkeit), die den Wartungsaufwand im Homelab minimieren und Drift ausschließen."
     },
     {
       "id": "D-01-02",
@@ -777,9 +673,7 @@
       "statement": "Keine externen Konfigurationsmanagement-Tools (wie Ansible) für die Basis-Konfiguration von mediNix-core einsetzen.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ansible auf NixOS einzusetzen erzeugt zwei konkurrierende Wahrheitsquellen und bricht das deklarative Single-Source-of-Truth-Prinzip von NixOS."
     },
     {
       "id": "D-02-01",
@@ -788,9 +682,7 @@
       "statement": "Caddy Catch-All: `abort` durch `respond 404` ersetzen, damit CrowdSec Scan-Verkehr erkennt und bannen kann.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "`abort` schließt TCP ohne HTTP-Status. CrowdSec-Szenario `http-scan-uniques_404` matcht auf 404 und feuert bei `abort` nie. `respond 404` liefert das nötige Signal für die Ban-Kette (CrowdSec → nftables-Bouncer).",
-      "implemented": true,
-      "commit": "ee73808"
+      "rationale": "`abort` schließt TCP ohne HTTP-Status. CrowdSec-Szenario `http-scan-uniques_404` matcht auf 404 und feuert bei `abort` nie. `respond 404` liefert das nötige Signal für die Ban-Kette (CrowdSec → nftables-Bouncer)."
     },
     {
       "id": "D-02-02",
@@ -799,9 +691,7 @@
       "statement": "Kein tls internal (lokale CA) für interne Dienste; stattdessen ACME DNS-01 Challenge für echte Zertifikate ohne manuelle CA-Installation.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung.",
-      "implemented": true,
-      "commit": "ee73808"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Status Quo im Code (514-acme.nix / 511-caddy.nix). Der Nutzer lehnt manuelle CA-Installation auf Endgeräten (Smartphones, TVs) strikt ab. ACME DNS-01 ermöglicht öffentlich vertrauenswürdige Zertifikate ohne Portweiterleitung."
     },
     {
       "id": "D-03-01",
@@ -810,9 +700,7 @@
       "statement": "CrowdSec Hub-Collections um `crowdsecurity/http-probing` erweitern, um das Szenario `http-scan-uniques_404` zur Scan-Erkennung zu aktivieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Im Ist-Zustand enthält 516-crowdsec.nix nur `crowdsecurity/caddy`. Ohne `crowdsecurity/http-probing` fehlt das Szenario `http-scan-uniques_404`, das wiederholte 404-Aufrufe unbekannter Subdomains detektiert. Die Erweiterung schließt die Detektionslücke der Ban-Kette.",
-      "implemented": true,
-      "commit": "ee73808"
+      "rationale": "Im Ist-Zustand enthält 516-crowdsec.nix nur `crowdsecurity/caddy`. Ohne `crowdsecurity/http-probing` fehlt das Szenario `http-scan-uniques_404`, das wiederholte 404-Aufrufe unbekannter Subdomains detektiert. Die Erweiterung schließt die Detektionslücke der Ban-Kette."
     },
     {
       "id": "D-03-02",
@@ -821,9 +709,7 @@
       "statement": "Firewall-Bouncer (nftables) als alleiniger Durchsetzungs-Aktor: Bans sperren Angreifer-IPs kernel-nah auf allen Ports (INPUT-Chain).",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist.",
-      "implemented": true,
-      "commit": "79dac74"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. `services.crowdsec-firewall-bouncer` ist in `516-crowdsec.nix` bereits implementiert und sperrt IPs systemweit via nftables, sobald `hostIntegration.nftables == \"managed\"` gesetzt ist."
     },
     {
       "id": "D-04-01",
@@ -832,9 +718,7 @@
       "statement": "systemd-creds (mit TPM2 / Host-Key) als verbindlicher Secret-Standard; sops-nix und agenix werden verworfen.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix und ADR-521 setzen systemd-creds bereits verbindlich durch. Keine externen Binaries, keine GPG-Keyrings, native Einbindung via LoadCredentialEncrypted.",
-      "implemented": true,
-      "commit": "74a8a70"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix und ADR-521 setzen systemd-creds bereits verbindlich durch. Keine externen Binaries, keine GPG-Keyrings, native Einbindung via LoadCredentialEncrypted."
     },
     {
       "id": "D-04-02",
@@ -843,9 +727,7 @@
       "statement": "Strikte Granularität: Genau eine separate `.cred`-Datei pro Secret (keine Sammel-Passwort-Datei).",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix definiert bereits separate Dateien pro Dienst (sonarrApiKeyFile, jellyfinAdminPasswordFile, etc.). Verhindert, dass ein kompromittierter Dienst Zugriff auf die Secrets anderer Dienste erhält (Isolation / Least Privilege).",
-      "implemented": true,
-      "commit": "74a8a70"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 521-creds.nix definiert bereits separate Dateien pro Dienst (sonarrApiKeyFile, jellyfinAdminPasswordFile, etc.). Verhindert, dass ein kompromittierter Dienst Zugriff auf die Secrets anderer Dienste erhält (Isolation / Least Privilege)."
     },
     {
       "id": "D-04-03",
@@ -854,9 +736,7 @@
       "statement": "Verschlüsselte `.cred`-Dateien dürfen NIEMALS in öffentliche Repositories committet werden (Schutz vor Harvest-Now-Decrypt-Later und Metadaten-Recon).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Auch wenn .cred-Dateien mit TPM2+Hostkey hardwaregebunden sind, lecken sie Metadaten (Dienstnamen, Rotationszeitpunkte) und stellen ein HNDL-Risiko dar. Secrets verbleiben lokal in geschützten Pfaden (z.B. ~/.secrets/ oder privates Git).",
-      "implemented": true,
-      "commit": "41dd098"
+      "rationale": "Auch wenn .cred-Dateien mit TPM2+Hostkey hardwaregebunden sind, lecken sie Metadaten (Dienstnamen, Rotationszeitpunkte) und stellen ein HNDL-Risiko dar. Secrets verbleiben lokal in geschützten Pfaden (z.B. ~/.secrets/ oder privates Git)."
     },
     {
       "id": "D-05-01",
@@ -865,9 +745,7 @@
       "statement": "mDNS/515 wird entfernt; Blocky übernimmt die interne Namensauflösung als Split-DNS.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Caddy rendert keine .local-Sites (laut README). Avahi publiziert nutzlose Records, erzeugt Multicast-Traffic (UDP 5353), bietet Angriffsfläche (historische CVEs) und startet einen Prozess pro Alias. Blocky ist bereits im Stack und kann Split-DNS zentral, auditierbar, subnetz-übergreifend.",
-      "implemented": true,
-      "commit": "d90ce5a"
+      "rationale": "Caddy rendert keine .local-Sites (laut README). Avahi publiziert nutzlose Records, erzeugt Multicast-Traffic (UDP 5353), bietet Angriffsfläche (historische CVEs) und startet einen Prozess pro Alias. Blocky ist bereits im Stack und kann Split-DNS zentral, auditierbar, subnetz-übergreifend."
     },
     {
       "id": "D-05-02",
@@ -876,9 +754,7 @@
       "statement": ".lan und .{domain} bleiben die beiden Namensräume. Keine .local-Sites in Caddy.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)",
-      "implemented": true,
-      "commit": "d90ce5a"
+      "rationale": "Der User wollte .local/mDNS löschen und durch {service}.lan ersetzen. Die Prüfung ergab: .local war nie in Caddy gerendert. .lan ist bereits der LAN-Namensraum, .{domain} der WAN-Namensraum. Keine neue Struktur nötig. (Status Quo, keine Änderung – verdict von better auf neutral korrigiert.)"
     },
     {
       "id": "D-06-02",
@@ -887,9 +763,7 @@
       "statement": "Keine festen Router-IPs hardcodieren: Der Router wird zur Laufzeit dynamisch als Default-Gateway aus der Routing-Tabelle ermittelt.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Ein Hardcodieren von 192.168.2.1 bricht sofort bei geändertem Subnetz oder Router-Tausch. Das Default-Gateway (ip route show default | awk '{print $3}') ist die einzige robuste Invariante für den Router-Zugriff.",
-      "implemented": true,
-      "commit": "94db365"
+      "rationale": "Ein Hardcodieren von 192.168.2.1 bricht sofort bei geändertem Subnetz oder Router-Tausch. Das Default-Gateway (ip route show default | awk '{print $3}') ist die einzige robuste Invariante für den Router-Zugriff."
     },
     {
       "id": "D-06-03",
@@ -898,9 +772,7 @@
       "statement": "publishLanRecord = false bleibt Standard: Keine RFC1918-Adressen in öffentlichem Cloudflare-DNS publizieren (Schutz vor Recon-Gold).",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden.",
-      "implemented": true,
-      "commit": "14e756e"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 513-cloudflare-dns.nix publiziert RFC1918-Records nur bei explizitem Opt-In. Interne Namen gehören ins Split-DNS (Blocky), nicht in öffentliche DNS-Zonen, da sie Angreifern die interne Netzwerktopologie verraten würden."
     },
     {
       "id": "D-07-01",
@@ -909,9 +781,7 @@
       "statement": "Verzicht auf Agenix wegen fehlender PQC-Fähigkeit und HNDL-Gefahr bei asymmetrisch verschlüsselten Git-Secrets.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Agenix nutzt klassische SSH-Public-Keys (Ed25519/RSA), die von Quantencomputern gebrochen werden können. Auf GitHub abgelegte Ciphertexte sind ein direktes HNDL-Ziel."
     },
     {
       "id": "D-07-02",
@@ -920,9 +790,7 @@
       "statement": "systemd-creds mit TPM2+Hostkey als HNDL-Resistenz durch Hardware-Bindung (keine algorithmische PQC, aber physikalische Bindung).",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Ein Angreifer kann ohne Zugriff auf den physischen TPM2-Chip des Hosts die .cred-Dateien nicht entschlüsseln. Die Hardware-Bindung neutralisiert HNDL für lokale Offline-Blobs."
     },
     {
       "id": "D-08-01",
@@ -931,9 +799,7 @@
       "statement": "Striktes Fail-Closed (Default-DROP) auf allen unberechtigten eingehenden Ports via nftables.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5210 und 520-core-security.nix erzwingen Default-DROP für den WAN-Verkehr. Nur explizit erlaubte TCP-Ports (allowedTCPPorts) werden geöffnet."
     },
     {
       "id": "D-08-02",
@@ -942,9 +808,7 @@
       "statement": "Reines nftables-Backend ohne legacy iptables-Kommandos verwenden.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. iptables ist in modernen NixOS-Versionen nur ein Kompatibilitäts-Wrapper. Direkte nftables-Nutzung verhindert Regelsatz-Konflikte und Drift."
     },
     {
       "id": "D-09-01",
@@ -953,9 +817,7 @@
       "statement": "Keine eigenen Kernel-Patches (`boot.kernelPatches`) kompilieren; stattdessen Standard-Kernel mit deklarativen Sysctl- und Modul-Härtungen nutzen.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Eigene Kernel-Patches brechen Binärcaches, verlängern Buildzeiten drastisch und erfordern ständige Upstream-Pflege. Für Konsumer-Homelab-Hardware reicht die Konfiguration fertiger Parameter."
     },
     {
       "id": "D-09-02",
@@ -964,9 +826,7 @@
       "statement": "Verteidigungsschichten über systemd-Sandboxing (seccomp, ProtectSystem, UPG) statt Kernel-Rekompilierung.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-5050 erzwingt die 5 systemd-Hardening-Säulen für alle Dienste. Seccomp-Filter und Filesystem-Isolation schützen das System prozess-nah ohne Kernel-Bruch."
     },
     {
       "id": "D-10-03",
@@ -975,9 +835,7 @@
       "statement": "Keine manuellen Overrides für `i915.enable_psr` oder `i915.enable_fbc` setzen.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. Der Kernel verwaltet Panel Self Refresh und Framebuffer Compression ab der 8. Intel-Generation automatisch; manuelle Overrides führen auf Headless-Systemen häufig zu Instabilitäten oder Kernel-Panics."
     },
     {
       "id": "D-11-02",
@@ -986,9 +844,7 @@
       "statement": "Vollständige Ausmusterung von `515-mdns.nix` (Avahi) aus dem 51-Ingress-Tree.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Caddy rendert bereits keine `.local`-Sites mehr. Avahi verbraucht Ressourcen und leckt interne Hostnamen im LAN. DNS-basierte Namensauflösung via Blocky ist deterministischer und plattformübergreifend kompatibel.",
-      "implemented": true,
-      "commit": "d90ce5a"
+      "rationale": "Caddy rendert bereits keine `.local`-Sites mehr. Avahi verbraucht Ressourcen und leckt interne Hostnamen im LAN. DNS-basierte Namensauflösung via Blocky ist deterministischer und plattformübergreifend kompatibel."
     },
     {
       "id": "D-12-01",
@@ -997,9 +853,7 @@
       "statement": "Dezimalrahmen (ADR-0000) als universelles, fraktales Ordnungsprinzip für das gesamte Repository definieren, nicht nur für NixOS-Dienstmodule.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Die Beschränkung auf reine Daemon-Module erzeugt künstliche Inkonsistenzen (z. B. Unsicherheit über die Rolle von Foundation, Hilfsdateien und Speicherorten). Das universelle Verständnis ordnet das gesamte System deterministisch.",
-      "implemented": true,
-      "commit": "99877f0"
+      "rationale": "Die Beschränkung auf reine Daemon-Module erzeugt künstliche Inkonsistenzen (z. B. Unsicherheit über die Rolle von Foundation, Hilfsdateien und Speicherorten). Das universelle Verständnis ordnet das gesamte System deterministisch."
     },
     {
       "id": "D-12-02",
@@ -1008,9 +862,7 @@
       "statement": "Eliminierung von Magic Numbers: Ports und UIDs werden ausnahmslos als Funktion der Dienstnummer (`derivation = number * 10`) berechnet.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen.",
-      "implemented": true,
-      "commit": "99877f0"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-0000 erzwingt bereits die mathematische Ableitung, um Kollisionen im gesamten Homelab-Cluster rechnerisch auszuschließen."
     },
     {
       "id": "D-13-01",
@@ -1019,9 +871,7 @@
       "statement": "Trennung zwischen reiner Funktionsbibliothek (`lib/`) und NixOS-Host-Modulen (`50-core/`) architektonisch beibehalten.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. lib/ enthält zustandslose, pure Nix-Hilfsfunktionen ohne Systemzustand. 50-core/ deklariert NixOS-Optionen und Systemd-Dienste. Das Mischen von Modulen und Utility-Funktionen würde den NixOS-Modul-Parser verlangsamen und Zyklen begünstigen."
     },
     {
       "id": "D-13-02",
@@ -1030,9 +880,7 @@
       "statement": "Auto-Import in `default.nix` bleibt auf standardisierte Dienstmodule (`XX-domain/NNN-*.nix`) beschränkt.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. default.nix durchsucht via builtins.readDir automatisch alle Domänenordner nach Moduldateien. Ein blindes Einhängen von Bibliotheken ohne Modul-Signatur ({ config, lib, pkgs, ... }) würde zu Parsing-Fehlern führen."
     },
     {
       "id": "D-13-03",
@@ -1041,9 +889,7 @@
       "statement": "Gerichtete Abhängigkeiten (ADR-040): Alle Domänen dürfen Foundation (`50-core`) und `lib/` importieren; Peer-zu-Peer-Importe zwischen Service-Domänen bleiben strikt verboten.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. ADR-040 sichert die Entkopplung der Domänen. Foundation und Libs bilden die gemeinsame Basis aller Leafs."
     },
     {
       "id": "D-14-01",
@@ -1052,9 +898,7 @@
       "statement": "Caddy `customConfig`-Escape-Hatch strikt hinter Authentifizierungs- und Bouncer-Direktiven platzieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Wird customConfig vor den Forward-Auth- oder CrowdSec-Blöcken gerendert, können fehlerhafte oder unvorsichtige Snippets den Zugriffsschutz für geschützte Backends komplett umgehen.",
-      "implemented": true,
-      "commit": "ee73808"
+      "rationale": "Wird customConfig vor den Forward-Auth- oder CrowdSec-Blöcken gerendert, können fehlerhafte oder unvorsichtige Snippets den Zugriffsschutz für geschützte Backends komplett umgehen."
     },
     {
       "id": "D-14-03",
@@ -1063,8 +907,7 @@
       "statement": "LLM-Verarbeitungsstrategie: Granulares JSON-Block-Chunking mit Topic-Index und Code-Abgleich statt monolithischem Dump.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Ein monolithischer Prompt mit 70k+ Tokens überfordert das Context-Window, erzeugt Halluzinationen und verliert Feinheiten. Das Chunking in 14 thematische Blöcke mit striktem Schema und Code-Verifikation sichert 100% Informationstreue.",
-      "implemented": false
+      "rationale": "Ein monolithischer Prompt mit 70k+ Tokens überfordert das Context-Window, erzeugt Halluzinationen und verliert Feinheiten. Das Chunking in 14 thematische Blöcke mit striktem Schema und Code-Verifikation sichert 100% Informationstreue."
     },
     {
       "id": "D-14-04",
@@ -1073,9 +916,7 @@
       "statement": "Pocket-ID Setup-Lockdown (`setupCompleted` Assertion) zur Vermeidung von Takeovers offener IdP-Instanzen nach Deployment.",
       "status": "decided",
       "verdict": "neutral",
-      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird.",
-      "implemented": true,
-      "commit": "9867d92"
+      "rationale": "Status Quo, keine Änderung – verdict von better auf neutral korrigiert. 512-pocket-id.nix und 519-ingress-guardrails.nix erzwingen bereits Assertions, damit Pocket-ID nicht unkonfiguriert im Netz exponiert wird."
     },
     {
       "id": "D-15-01",
@@ -1084,8 +925,7 @@
       "statement": "//-Operator bei Attributset-Merges verbieten und durch lib.recursiveUpdate ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Der //-Operator überschreibt Keys flach und führt bei verschachtelten Attributsets (wie systemd.services oder nftables-Chains) zu stillem Key-Verlust (Fail-Open-Gefahr). lib.recursiveUpdate merged verschachtelte Strukturen sicher.",
-      "implemented": false
+      "rationale": "Der //-Operator überschreibt Keys flach und führt bei verschachtelten Attributsets (wie systemd.services oder nftables-Chains) zu stillem Key-Verlust (Fail-Open-Gefahr). lib.recursiveUpdate merged verschachtelte Strukturen sicher."
     },
     {
       "id": "D-15-02",
@@ -1094,8 +934,7 @@
       "statement": "Rohes 'if ... then ... else' in NixOS-Moduldefinitionen zugunsten von 'lib.mkIf' vermeiden.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "'if c then a else {}' erzeugt bei false leere Attributsets oder Typkonflikte; 'lib.mkIf' integriert sich nahtlos in das NixOS-Merge-System und erzeugt bei false keine Definition.",
-      "implemented": false
+      "rationale": "'if c then a else {}' erzeugt bei false leere Attributsets oder Typkonflikte; 'lib.mkIf' integriert sich nahtlos in das NixOS-Merge-System und erzeugt bei false keine Definition."
     },
     {
       "id": "D-15-03",
@@ -1104,8 +943,7 @@
       "statement": "Nix-Builtin 'assert' durch deklarative 'assertions'-Listen mit Fehlertext und ADR-Referenz ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Rohes assert bricht sofort unformatiert ab; NixOS-assertions sammeln alle Fehler, geben verständliche Meldungen aus und referenzieren Architekturentscheidungen.",
-      "implemented": false
+      "rationale": "Rohes assert bricht sofort unformatiert ab; NixOS-assertions sammeln alle Fehler, geben verständliche Meldungen aus und referenzieren Architekturentscheidungen."
     },
     {
       "id": "D-15-04",
@@ -1114,8 +952,7 @@
       "statement": "'with'-Ausdrücke zur Vermeidung von Scope-Verschmutzung und Mehrdeutigkeiten verbieten.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "'with pkgs;' oder 'with lib;' verschleiert die Herkunft von Symbolen, bricht statische Code-Analyse und führt zu schwer auffindbaren Shadowing-Bugs.",
-      "implemented": false
+      "rationale": "'with pkgs;' oder 'with lib;' verschleiert die Herkunft von Symbolen, bricht statische Code-Analyse und führt zu schwer auffindbaren Shadowing-Bugs."
     },
     {
       "id": "D-15-05",
@@ -1124,8 +961,7 @@
       "statement": "'rec'-Attributsets auf nachgewiesene Selbstreferenzen beschränken.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "'rec {' ohne Selbstreferenz verführt zu versehentlichen Zyklen und erschwert das Refactoring; lokale let-Bindings sind transparenter.",
-      "implemented": false
+      "rationale": "'rec {' ohne Selbstreferenz verführt zu versehentlichen Zyklen und erschwert das Refactoring; lokale let-Bindings sind transparenter."
     },
     {
       "id": "D-15-06",
@@ -1134,8 +970,7 @@
       "statement": "Bedingte Imports basierend auf eigenen Modul-Optionen strikt verbieten (Anti-Pattern #module-recursion).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Bedingte Imports wie 'imports = lib.optional cfg.enable ...' erzeugen zirkuläre Abhängigkeiten während des Modul-Fixpunkts und brechen die Nix-Evaluation mit Endlosschleifen ab.",
-      "implemented": false
+      "rationale": "Bedingte Imports wie 'imports = lib.optional cfg.enable ...' erzeugen zirkuläre Abhängigkeiten während des Modul-Fixpunkts und brechen die Nix-Evaluation mit Endlosschleifen ab."
     },
     {
       "id": "D-16-01",
@@ -1144,8 +979,7 @@
       "statement": "Gegenmaßnahme 1 (Form/Binary-Version billig vorab prüfen): Tool-Verfügbarkeit und Versionen vor schweren Operationen in einem minimalen Call validieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert Fehlschläge durch falsche PATH-Variablen, inkompatible Versionen (z. B. PATH-nixfmt 1.5.0 vs. CI-Pin 1.4.0) oder nicht installierte Binaries.",
-      "implemented": false
+      "rationale": "Verhindert Fehlschläge durch falsche PATH-Variablen, inkompatible Versionen (z. B. PATH-nixfmt 1.5.0 vs. CI-Pin 1.4.0) oder nicht installierte Binaries."
     },
     {
       "id": "D-16-02",
@@ -1154,8 +988,7 @@
       "statement": "Gegenmaßnahme 2 (Ausgaben filtern): Shell-Ausgaben deterministisch auf relevante Zeilen begrenzen (-m1, grep -c, head).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert Kontext-Überlauf, unlesbare Dumps und Parsing-Fehler bei mehrzeiligen Shell-Argumenten.",
-      "implemented": false
+      "rationale": "Verhindert Kontext-Überlauf, unlesbare Dumps und Parsing-Fehler bei mehrzeiligen Shell-Argumenten."
     },
     {
       "id": "D-16-03",
@@ -1164,8 +997,7 @@
       "statement": "Gegenmaßnahme 3 (Kein Scheiben-Messen): Zusammengehörige Prüfungen und Messungen in atomaren Bundles statt multiplen Einzel-Calls ausführen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Das Aufteilen von Statusabfragen in Einzelschritte ('Scheiben-Messen') verbrennt unkontrolliert Token und Zeit (2–4 Extra-Calls pro Finding).",
-      "implemented": false
+      "rationale": "Das Aufteilen von Statusabfragen in Einzelschritte ('Scheiben-Messen') verbrennt unkontrolliert Token und Zeit (2–4 Extra-Calls pro Finding)."
     },
     {
       "id": "D-16-04",
@@ -1174,8 +1006,7 @@
       "statement": "Gegenmaßnahme 4 (Ein Call = Ein Schritt mit messbarem Ergebnis): Jeder Tool-Call muss einen klaren Zustandsübergang mit verifizierbarem Resultat liefern.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert zielloses Tasten im Nebel und unfertige Zwischenschritte; jeder Schritt schließt eine Teilhypothese ab.",
-      "implemented": false
+      "rationale": "Verhindert zielloses Tasten im Nebel und unfertige Zwischenschritte; jeder Schritt schließt eine Teilhypothese ab."
     },
     {
       "id": "D-16-05",
@@ -1184,8 +1015,7 @@
       "statement": "Gegenmaßnahme 5 (Strikte Rc-Gating-Erzwingung vor Commit): Kein Git-Commit ohne explizite Prüfung des Rückgabecodes vorangegangener Gates (if [ $? -ne 0 ]; then exit 1; fi).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Beseitigt die gefährlichste Fehlerklasse ('Gate berechnet, aber nicht erzwungen'), bei der Fehlerausgaben protokolliert, der Commit aber dennoch ungestraft ausgeführt wurde.",
-      "implemented": false
+      "rationale": "Beseitigt die gefährlichste Fehlerklasse ('Gate berechnet, aber nicht erzwungen'), bei der Fehlerausgaben protokolliert, der Commit aber dennoch ungestraft ausgeführt wurde."
     },
     {
       "id": "D-17-01",
@@ -1194,8 +1024,7 @@
       "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet.",
-      "implemented": false
+      "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet."
     },
     {
       "id": "D-17-02",
@@ -1204,8 +1033,7 @@
       "statement": "Schema-Versionierung für das Manifest etablieren (schema_version = 1).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert Inkompatibilitäten und subtile Fehlkonfigurationen bei zukünftigen Erweiterungen des Manifest-Schemas auf Host-Ebene.",
-      "implemented": false
+      "rationale": "Verhindert Inkompatibilitäten und subtile Fehlkonfigurationen bei zukünftigen Erweiterungen des Manifest-Schemas auf Host-Ebene."
     },
     {
       "id": "D-17-03",
@@ -1214,8 +1042,7 @@
       "statement": "Standardisierte Pflichtfelder pro Dienst definieren (name, num, accessGroup, healthPath, backupPaths, needsVpn).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Ermöglicht statische Typprüfung und automatische Generierung von Caddy-Vhosts, Gatus-Endpoints und Restic-Jobs ohne Duplizierung.",
-      "implemented": false
+      "rationale": "Ermöglicht statische Typprüfung und automatische Generierung von Caddy-Vhosts, Gatus-Endpoints und Restic-Jobs ohne Duplizierung."
     },
     {
       "id": "D-18-01",
@@ -1224,8 +1051,7 @@
       "statement": "treefmt.nix zur Vereinheitlichung aller Formatierungswerkzeuge im Flake integrieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Garantiert identische Formatierung (Nix, JSON, Markdown) lokal und in CI; verhindert Diff-Konflikte und Version-Mismatches (z. B. PATH-nixfmt vs. CI-Pin).",
-      "implemented": false
+      "rationale": "Garantiert identische Formatierung (Nix, JSON, Markdown) lokal und in CI; verhindert Diff-Konflikte und Version-Mismatches (z. B. PATH-nixfmt vs. CI-Pin)."
     },
     {
       "id": "D-18-02",
@@ -1234,8 +1060,7 @@
       "statement": "Schwere QEMU-VM-Tests aus der interaktiven Agenten-Schleife in asynchrone CI-Gates auslagern.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "VM-Boot-Tests dauern 10–20 Minuten und führten wiederkehrend zu Agenten-Timeouts; lokale Schleifen nutzen schnelle eval- und syntax-Checks ('--no-build').",
-      "implemented": false
+      "rationale": "VM-Boot-Tests dauern 10–20 Minuten und führten wiederkehrend zu Agenten-Timeouts; lokale Schleifen nutzen schnelle eval- und syntax-Checks ('--no-build')."
     },
     {
       "id": "D-18-03",
@@ -1244,8 +1069,7 @@
       "statement": "Strikte Trennung von schnellen Eval-Checks (L1) und Derivations-Builds (L2) in checks.<system>.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Erlaubt gezielte 'nix flake check --no-build'-Validierung für 80% aller Konfigurationsänderungen ohne Erstellung unzähliger Store-Pfade.",
-      "implemented": false
+      "rationale": "Erlaubt gezielte 'nix flake check --no-build'-Validierung für 80% aller Konfigurationsänderungen ohne Erstellung unzähliger Store-Pfade."
     },
     {
       "id": "D-19-01",
@@ -1254,8 +1078,7 @@
       "statement": "Network Namespaces (Nixarr-Ansatz) für VPN-Routing verwerfen und mediNix UID-basiertes fwmark + nftables Policy Routing beibehalten.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Network Namespaces brechen DNS-Split-Horizon, UDS-Kommunikation und native Systemd-Socket-Aktivierung zwischen Diensten; UID-fwmark isoliert den Datenverkehr transparent ohne Netzwerk-Silos.",
-      "implemented": false
+      "rationale": "Network Namespaces brechen DNS-Split-Horizon, UDS-Kommunikation und native Systemd-Socket-Aktivierung zwischen Diensten; UID-fwmark isoliert den Datenverkehr transparent ohne Netzwerk-Silos."
     },
     {
       "id": "D-19-02",
@@ -1264,8 +1087,7 @@
       "statement": "Container-basierte Homelab-Muster (Podman/Docker wie bei lukethacoder) weiterhin strikt ablehnen (BANNED_TECHNOLOGIES).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Container erzeugen imperativen Zustand außerhalb von Nix, verdoppeln Isolationsebenen und verhindern nahtlose TPM2-Credentials und UPG-Dateirechte.",
-      "implemented": false
+      "rationale": "Container erzeugen imperativen Zustand außerhalb von Nix, verdoppeln Isolationsebenen und verhindern nahtlose TPM2-Credentials und UPG-Dateirechte."
     },
     {
       "id": "D-19-03",
@@ -1274,8 +1096,7 @@
       "statement": "Monolithische 'settings.nix'-Dateien (phenax-Muster) ablehnen; Konfiguration strikt über Dezimalrahmen (502-host-settings.nix) verteilen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Zentrale settings.nix erzeugt eine unkontrollierte 'God-File'-Abhängigkeit; mediNix hält Host-Settings in 502 und Service-Fakten in der Registry dezentral.",
-      "implemented": false
+      "rationale": "Zentrale settings.nix erzeugt eine unkontrollierte 'God-File'-Abhängigkeit; mediNix hält Host-Settings in 502 und Service-Fakten in der Registry dezentral."
     },
     {
       "id": "D-20-01",
@@ -1284,8 +1105,7 @@
       "statement": "Maschinenlesbare D-Bus-Schnittstelle (org.freedesktop.systemd1) und systemd-analyze als primäre Validierungsquellen für Agenten festlegen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Erlaubt Agenten die exakte Inspektion von Unit-Zuständen, Direktiven und Security-Scores zur Laufzeit ohne unzuverlässiges Text-Parsing.",
-      "implemented": false
+      "rationale": "Erlaubt Agenten die exakte Inspektion von Unit-Zuständen, Direktiven und Security-Scores zur Laufzeit ohne unzuverlässiges Text-Parsing."
     },
     {
       "id": "D-20-02",
@@ -1294,8 +1114,7 @@
       "statement": "NixOS options.json und CLI-Tools ('nixos-option', 'nix eval --json') als verbindliche Optionen-Referenz vor Code-Edits vorschreiben.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert, dass Agenten nicht existierende Optionen erfinden (wie z. B. 'networking.iproute2') oder falsche Attributpfade raten.",
-      "implemented": false
+      "rationale": "Verhindert, dass Agenten nicht existierende Optionen erfinden (wie z. B. 'networking.iproute2') oder falsche Attributpfade raten."
     },
     {
       "id": "D-21-01",
@@ -1304,8 +1123,7 @@
       "statement": "Gatus-Healthcheck-Konfiguration (582-gatus.nix) automatisch aus dem zentralen Service-Manifest ableiten.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert, dass neue Dienste manuell in Gatus nachgetragen werden müssen; jeder aktive Vhost mit healthPath erhält sofort Monitoring.",
-      "implemented": false
+      "rationale": "Verhindert, dass neue Dienste manuell in Gatus nachgetragen werden müssen; jeder aktive Vhost mit healthPath erhält sofort Monitoring."
     },
     {
       "id": "D-21-02",
@@ -1314,8 +1132,7 @@
       "statement": "Exportarr-Instanzen in ein festes, abgeleitetes Portband (5850 ff.) innerhalb der Observability-Dekade 58 einbinden.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Hält das Prinzip des Dezimalrahmens ein, wonach Metrik-Exporter in Domain 58 (Observability) liegen und keine Acquisition-Ports belegen.",
-      "implemented": false
+      "rationale": "Hält das Prinzip des Dezimalrahmens ein, wonach Metrik-Exporter in Domain 58 (Observability) liegen und keine Acquisition-Ports belegen."
     },
     {
       "id": "D-21-03",
@@ -1324,8 +1141,7 @@
       "statement": "Eigenständigen VPN-Laufzeit-Selftest (586-vpn-selftest.nix) zur Validierung des Killswitches implementieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Eine statische nftables-Regel schützt nicht vor Fehlern im IP-Routing zur Laufzeit; 586 prüft periodisch via Ping/DNS unter der VPN-UID, dass kein Traffic leckt.",
-      "implemented": false
+      "rationale": "Eine statische nftables-Regel schützt nicht vor Fehlern im IP-Routing zur Laufzeit; 586 prüft periodisch via Ping/DNS unter der VPN-UID, dass kein Traffic leckt."
     },
     {
       "id": "D-22-01",
@@ -1334,9 +1150,7 @@
       "statement": "Bash-Syntax im Prune-Pfad von 513-cloudflare-dns.nix durch doppelte einfache Anführungszeichen (''${foreign:-0}) vor Nix-Interpolation schützen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert fehlerhafte String-Interpolation zur Nix-Buildzeit, sodass Bash-Parameter-Expansion zur Laufzeit korrekt ausgewertet wird.",
-      "implemented": true,
-      "commit": "90553ad"
+      "rationale": "Verhindert fehlerhafte String-Interpolation zur Nix-Buildzeit, sodass Bash-Parameter-Expansion zur Laufzeit korrekt ausgewertet wird."
     },
     {
       "id": "D-23-01",
@@ -1345,9 +1159,7 @@
       "statement": "SocketBindAllow-Direktiven von IP-Adress-Strings auf gültige Systemd-Port-Syntax umstellen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "systemd.resource-control(5) unterstützt in SocketBindAllow keine reinen IP-Strings; die Direktive war syntaxwidrig und verhinderte sauberes Socket-Gating.",
-      "implemented": true,
-      "commit": "f3153df"
+      "rationale": "systemd.resource-control(5) unterstützt in SocketBindAllow keine reinen IP-Strings; die Direktive war syntaxwidrig und verhinderte sauberes Socket-Gating."
     },
     {
       "id": "D-23-02",
@@ -1356,9 +1168,7 @@
       "statement": "OnFailure-Direktiven aus serviceConfig in unitConfig verschieben.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "OnFailure ist systemd-weit eine Unit-Eigenschaft; in serviceConfig wird sie von systemd ignoriert und löst bei Fehlern keine Alarmierungs-Units aus.",
-      "implemented": true,
-      "commit": "f3153df"
+      "rationale": "OnFailure ist systemd-weit eine Unit-Eigenschaft; in serviceConfig wird sie von systemd ignoriert und löst bei Fehlern keine Alarmierungs-Units aus."
     },
     {
       "id": "D-24-01",
@@ -1367,9 +1177,7 @@
       "statement": "lib.mkForce bei system.nixos.label in 500-host-baseline.nix entfernen und durch composable Deklaration ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Setzt das in ADR-0003 §2 und BANNED_TECHNOLOGIES.md verankerte absolute Verbot von lib.mkForce durch; stellt Composability sicher.",
-      "implemented": true,
-      "commit": "21ca67f"
+      "rationale": "Setzt das in ADR-0003 §2 und BANNED_TECHNOLOGIES.md verankerte absolute Verbot von lib.mkForce durch; stellt Composability sicher."
     },
     {
       "id": "D-25-01",
@@ -1378,8 +1186,7 @@
       "statement": "Dreiteilung der Projektdokumentation in Lastenheft (Was), Pflichtenheft (Wie) und ADRs (Warum) etablieren.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Schafft klare Trennung zwischen Anforderung, technischem Design und Entscheidungshistorie; optimiert Prompting und Review-Workflows mit LLMs.",
-      "implemented": false
+      "rationale": "Schafft klare Trennung zwischen Anforderung, technischem Design und Entscheidungshistorie; optimiert Prompting und Review-Workflows mit LLMs."
     },
     {
       "id": "D-26-01",
@@ -1388,9 +1195,7 @@
       "statement": "Alle übergreifenden System-Assertions in 591-cross-domain.nix bündeln und keinen separaten 509-Block anlegen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "591 deckt bereits Docker-Bans, Port-Leaks, Wildcard-Binds, VPN-ReversePath und Dezimalrahmen-Checks ab; eine Aufspaltung in 509 würde die SSoT verletzen und Redundanz erzeugen.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "591 deckt bereits Docker-Bans, Port-Leaks, Wildcard-Binds, VPN-ReversePath und Dezimalrahmen-Checks ab; eine Aufspaltung in 509 würde die SSoT verletzen und Redundanz erzeugen."
     },
     {
       "id": "D-27-01",
@@ -1399,8 +1204,7 @@
       "statement": "caddy-maxmind-geolocation durch kernel-nahe nftables GeoIP-Sets ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "nftables verwirft unerwünschten Länder-Traffic vor dem TCP-Handshake im Kernel; schont Caddy-Ressourcen.",
-      "implemented": false
+      "rationale": "nftables verwirft unerwünschten Länder-Traffic vor dem TCP-Handshake im Kernel; schont Caddy-Ressourcen."
     },
     {
       "id": "D-27-02",
@@ -1409,9 +1213,7 @@
       "statement": "caddy-cloudflare / caddy-dns/cloudflare durch NixOS-Bordmittel (security.acme + Lego) ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "security.acme trennt TLS-Zertifikatsbeschaffung sauber von Caddy; Caddy läuft mit auto_https off und liest nur fertige Certs.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "security.acme trennt TLS-Zertifikatsbeschaffung sauber von Caddy; Caddy läuft mit auto_https off und liest nur fertige Certs."
     },
     {
       "id": "D-27-03",
@@ -1420,8 +1222,7 @@
       "statement": "caddy-ratelimit durch nftables 'limit rate' auf Port 80 ersetzen (Port 443 ausgenommen).",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Verhindert DoS-Angriffe kernel-nah; Port 443 bleibt ungedrosselt, um legitime Medien-Streams nicht zu drosseln.",
-      "implemented": false
+      "rationale": "Verhindert DoS-Angriffe kernel-nah; Port 443 bleibt ungedrosselt, um legitime Medien-Streams nicht zu drosseln."
     },
     {
       "id": "D-27-04",
@@ -1430,9 +1231,7 @@
       "statement": "caddy-dynamicdns durch systemd-Timer und dediziertes DDNS-Skript (513-cloudflare-dns) ersetzen.",
       "status": "decided",
       "verdict": "better",
-      "rationale": "Entkoppelt DNS-Aktualisierung vollständig vom Webserver-Prozess; robuster bei Caddy-Restarts.",
-      "implemented": true,
-      "commit": "status-quo"
+      "rationale": "Entkoppelt DNS-Aktualisierung vollständig vom Webserver-Prozess; robuster bei Caddy-Restarts."
     },
     {
       "id": "D-27-05",
@@ -1441,8 +1240,7 @@
       "statement": "caddy-tarpit verwerfen ('Wer scannt, fliegt raus').",
       "status": "rejected",
       "verdict": "worse",
-      "rationale": "Tarpits halten TCP-Sockets unnötig lange offen und binden Ressourcen; Scanner werden über CrowdSec detektiert und per nftables sofort stumm gedroppt.",
-      "implemented": false
+      "rationale": "Tarpits halten TCP-Sockets unnötig lange offen und binden Ressourcen; Scanner werden über CrowdSec detektiert und per nftables sofort stumm gedroppt."
     },
     {
       "id": "D-27-06",
@@ -1451,8 +1249,7 @@
       "statement": "caddy-defender ablehnen.",
       "status": "rejected",
       "verdict": "worse",
-      "rationale": "Basiert auf User-Space-Tarpit-Logik; verstößt gegen das Prinzip der Kernel-Nähe.",
-      "implemented": false
+      "rationale": "Basiert auf User-Space-Tarpit-Logik; verstößt gegen das Prinzip der Kernel-Nähe."
     },
     {
       "id": "D-27-07",
@@ -1461,8 +1258,7 @@
       "statement": "cerberus ablehnen.",
       "status": "rejected",
       "verdict": "worse",
-      "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab.",
-      "implemented": false
+      "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab."
     }
   ]
 }

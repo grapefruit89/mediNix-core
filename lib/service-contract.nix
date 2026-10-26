@@ -52,7 +52,7 @@ in
             hasDaemon = lib.mkOption {
               type = lib.types.bool;
               default = true;
-              description = "Gibt an, ob der Dienst einen eigenen systemd-Daemon besitzt (false für statische SPAs wie Feishin).";
+              description = "Gibt an, ob der Dienst einen eigenen systemd-Daemon besitzt (false für statische SPAs ohne systemd-Daemon).";
             };
 
             # --- PFLICHTFELDER (Kein Default: Fehlt die Angabe, bricht die Eval ab) ---
@@ -294,7 +294,7 @@ in
                 # leer bedeutet "unbekannt".
                 #
                 # "0M" ist ein bewusster Sentinel fuer "kein eigener Prozess"
-                # (feishin war eine statische SPA, entfernt 2026-10-25) - nicht
+                # (statische SPAs haben keinen eigenen Prozess) - nicht
                 # "braucht 0 MB".
                 #
                 # ANZEIGE-/Planungswert. Die DURCHSETZUNG (cgroup MemoryMin/Low/

@@ -8,7 +8,7 @@
 ## 1. Offene Entscheidungen (Korridor)
 
 - [ ] Root-Dateien nach docs/CONVENTIONS.md konsolidieren (ADMIN-HANDOFF.md, AGENTS.md, CLAUDE.md, opencode.json, ROADMAP.md, UPSTREAM-SOURCES.md)?
-- [ ] Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, feishin, avahi, recyclarr, smartd?
+- [ ] Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, avahi, recyclarr, smartd?
 - [ ] Ankreuzbogen Schicht 3 (Generator medinix-meta.py new-service) bauen?
 - [ ] Stufe 3 (QEMU-Smoke-Test) lokal freischalten?
 - [ ] 515 mDNS-Refresh umbauen? (.path-Trigger ist bereits systemd-nativ; Umbau = lateral)
@@ -41,7 +41,7 @@ _Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 53_
 - [ ] Backlog: **arr-provision bündeln** (I): 8 Einzel-CLIs (`arr-sync-*`) → **ein** `arr-provision <subcommand>` (weniger Entry-Points, ein `--help`).
 - [ ] Backlog: **`medinix gather <symptom>`** (G): die 7 geordneten Abschnitte (WAS · WER · IST · LOGS · PFADE · DIFF · FIX) aus Registry + systemd, redigiert + Token-gekappt.
 - [ ] Backlog: **Doc-Nit** (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixpkgs.nixos-mcp` auf `mediahost@192.168.0.10`) → auf den lokalen `nixos`-MCP umstellen.
-- [ ] Herkunft und Archiv: **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554 (Feishin), 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
+- [ ] Herkunft und Archiv: **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554, 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
 - [ ] Herkunft und Archiv: **Skill-Trigger nachschaerfen (Kante Skills -> Sichtbarkeit):** 18 der 30 Projekt-Skills haben eine `description` unter 80 Zeichen (der Check listet sie als Hinweis) - die Beschreibung ist das Einzige, was die Session ohne Laden sieht. Ausserdem: `nixos-llm-audit`/`medinix-nix-idioms`/`nixos-flake-patterns` als Merge-Kandidaten pruefen (`scripts/skills-exclude.txt` nennt sie).
 
 ## 3. Ledger — Befunde ohne Abschluss

@@ -52,6 +52,12 @@
       "status": "active"
     },
     {
+      "id": "019",
+      "file": "ADR-019-community-flakes-benchmark.md",
+      "topic": "community flakes benchmark & architecture boundary",
+      "status": "active"
+    },
+    {
       "id": "040",
       "file": "ADR-040-gerichtete-abhaengigkeiten.md",
       "topic": "040-gerichtete-abhaengigkeiten",
@@ -91,7 +97,7 @@
       "id": "51-split-dns-note",
       "file": "ADR-51-split-dns-note.md",
       "topic": "51-split-dns-note",
-      "status": "legacy-domain-name"
+      "status": "deprecated"
     },
     {
       "id": "511",
@@ -194,12 +200,6 @@
       "status": "legacy-domain-name"
     },
     {
-      "id": "554",
-      "file": "ADR-554-feishin-static-spa.md",
-      "topic": "static spa, no daemon",
-      "status": "active"
-    },
-    {
       "id": "561",
       "file": "ADR-561-seerr.md",
       "topic": "561-seerr",
@@ -255,9 +255,9 @@
     },
     {
       "id": "515",
-      "file": "ARCHIVE-ADR-515-mdns-avahi-aliases.md",
-      "topic": "mDNS aliases {service}.local via avahi (archived, replaced by Blocky)",
-      "status": "archived"
+      "file": "ADR-515-blocky-split-dns.md",
+      "topic": "Blocky split-DNS in ingress replaces mDNS/Avahi",
+      "status": "active"
     },
     {
       "id": "572",

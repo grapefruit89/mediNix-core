@@ -21,7 +21,7 @@ DEFAULT_OUT = "/opt/data/docs/nixos-topics"
 
 TOPICS = {
     "Caddy-Ingress": r"caddy|ingress|reverse_proxy|tls|domain|example\.de",
-    "Media-Stack": r"jellyfin|sonarr|radarr|sabnzbd|prowlarr|readarr|lidarr|audiobookshelf|navidrome|feishin",
+    "Media-Stack": r"jellyfin|sonarr|radarr|sabnzbd|prowlarr|readarr|lidarr|audiobookshelf|navidrome",
     "Storage-ABC": r"mergerfs|tier|storage|disk|mount|hdd|ssd|nvme|zfs",
     "Security-AntiLockout": r"anti-lockout|ssh|assertion|firewall|nftables|fail2ban|sovereign",
     "Dezimalrahmen-SSoT": r"dezimalrahmen|isomorphie|registry|uid|port|sso|nms",

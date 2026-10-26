@@ -35,7 +35,7 @@ let
   ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-boot";
 
   registry = import ../lib/registry.nix { inherit lib; };
-  # All services from Registry with a systemd unit (excluding static SPAs like Feishin)
+  # All services from Registry with a systemd unit (excluding static SPAs)
   allUnits = lib.filter (u: u != null) (lib.mapAttrsToList (_: svc: svc.unitName) registry.services);
   unitList = lib.concatStringsSep " " allUnits;
 

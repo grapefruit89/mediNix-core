@@ -1,0 +1,120 @@
+{
+  "block_id": "28-verify-open-points",
+  "title": "Offene Pruefpunkte aus dem Review des Stands bd0019f",
+  "topics": [
+    "nix-eval",
+    "nftables",
+    "lib-cleanup"
+  ],
+  "message_ids": [],
+  "summary": "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix, nftables-Syntax der Port-80-Ratelimit-Regel).",
+  "decisions": [],
+  "open_questions": [
+    {
+      "id": "Q-28-01",
+      "question": "586-vpn-selftest.nix:42 nutzt vpnCfg.enable, aber services.vpnKillSwitch hat kein Top-Level-enable (nur instances.<name>.enable). Fix wie 526: hasVpnInstances = activeInstances != {} ?",
+      "why_open": "nix flake check --no-build ist dadurch rot (rc=1, attribute 'enable' missing).",
+      "blocking": true
+    },
+    {
+      "id": "Q-28-02",
+      "question": "lib/wan-ip-provider.nix deklariert { lib, pkgs ? null }, nutzt in mkWanIpProvider aber pkgs ? pkgs - ist der aeussere Default toter Parameter?",
+      "why_open": "Verdacht aus dem Review; nicht gemessen.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-03",
+      "question": "Ist die nftables-Regel 'tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets } drop' syntaktisch gueltig (Reihenfolge over/burst)?",
+      "why_open": "Nicht verifiziert; Pruefung: generiertes Ruleset gegen nft -c.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-04",
+      "question": "515-blocky.nix setzt customDNS.mapping fuer 'lan' und '<domain>' auf 127.0.0.1. Fuer LAN-Clients ist 127.0.0.1 der Client selbst - muss dort die LAN-IP des Hosts stehen?",
+      "why_open": "Beim Schreiben der ADR-515 aufgefallen; nicht gemessen, welcher Wert fuer LAN-Clients wirkt.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-05",
+      "question": "Korridor AB-036 ('Ausgemustertes archivieren statt loeschen') vs. geloeschte docs/archive/ARCHIVE-ADR-554-feishin-static-spa.md: Archivkopie aus HEAD wiederherstellen oder Loeschung als bewusste Entscheidung dokumentieren?",
+      "why_open": "AB-036 verlangt Archivierung; der Loeschauftrag kam vom Betreiber ('Feishin komplett entfernen'). Beides ist begruendbar, die Entscheidung fehlt.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-06",
+      "question": "nixmeta meldet, dass 52-security/521-creds.nix inzwischen konform ist und aus scripts/nixmeta-baseline.txt entfernt werden darf - Zeile entfernen?",
+      "why_open": "Hinweis des Checks (kein Fehler); Baseline darf laut Kommentar nur schrumpfen.",
+      "blocking": false
+    },
+    {
+      "id": "Q-28-07",
+      "question": "check_adrs listet 8 Legacy-Slug-IDs (ADR-571-sqlite-wal, ADR-576-backup-classification, ...) statt numerischer IDs - auf ADR-<nummer> umbenennen (llm-index.naming)?",
+      "why_open": "Hinweise, keine Fehler; Umbenennung beruehrt Dateinamen, Ueberschriften und Verweise.",
+      "blocking": false
+    }
+  ],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "T-28-01",
+      "action": "Q-28-01 fixen und `nix flake check --no-build` gruen nachweisen",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-02",
+      "action": "Q-28-02 pruefen: aeusseren pkgs-Default entfernen oder im Funktionskopf nutzen",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-03",
+      "action": "Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-04",
+      "action": "nixmeta-Check rot: pkgs/speedport-api/default.nix hat keinen NIXMETA-Header (Zeile 1 muss '# ---' sein) - Header ergaenzen",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-05",
+      "action": "check_adrs rot: ADR-019-community-flakes-benchmark.md fehlt in docs/adr/llm-index.json; 51-ingress/515-blocky.nix verweist auf nicht existierende ADR-515-mdns-avahi-aliases - Index ergaenzen bzw. ADR anlegen/Allowlist",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-06",
+      "action": "check_banned_technologies rot: todo/scripts/aggregate.py:342 enthaelt 'caddy-security' (Antipattern-Text) - pruefen, ob die Pruefung das Antipattern-Register ausschliessen muss",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-07",
+      "action": "Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients messen)",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-08",
+      "action": "Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json/corridor als bewusste Ausnahme zu AB-036 eintragen",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-09",
+      "action": "Q-28-06 umsetzen: 52-security/521-creds.nix aus scripts/nixmeta-baseline.txt entfernen (Baseline schrumpfen)",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "T-28-10",
+      "action": "Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise)",
+      "priority": "low",
+      "depends_on": []
+    }
+  ]
+}

@@ -40,6 +40,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `583-runtime-guard` | [`583-runtime-guard.nix`](583-runtime-guard.nix) | active | 3/5 | - |
 | `584-post-boot-watchdog` | [`584-post-boot-watchdog.nix`](584-post-boot-watchdog.nix) | active | 2/5 | - |
 | `585-exporters` | [`585-exporters.nix`](585-exporters.nix) | active | -/5 | - |
+| `586-vpn-selftest` | [`586-vpn-selftest.nix`](586-vpn-selftest.nix) | active | 2/5 | - |
 | `587-disk-health` | [`587-disk-health.nix`](587-disk-health.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
@@ -61,6 +62,8 @@ graph TD
   584_post_boot_watchdog["584-post-boot-watchdog"] --> hardening_profiles["lib/hardening-profiles"]
   584_post_boot_watchdog["584-post-boot-watchdog"] --> registry["lib/registry"]
   585_exporters["585-exporters"]
+  586_vpn_selftest["586-vpn-selftest"] --> registry["lib/registry"]
+  586_vpn_selftest["586-vpn-selftest"] --> hardening_profiles["lib/hardening-profiles"]
   587_disk_health["587-disk-health"]
 ```
 

@@ -28,7 +28,7 @@ Strikte flache Hierarchie: **eine Ebene** unter dem Repo-Root.
 | `52-security` | Core-Security, Credentials, VPN |
 | `53-acquisition` | *arr (Sonarr, Radarr, Readarr, Lidarr, Prowlarr) |
 | `54-transfer` | SABnzbd, Mover (SSD→HDD) |
-| `55-playback` | Jellyfin, Audiobookshelf, Navidrome, Feishin |
+| `55-playback` | Jellyfin, Audiobookshelf, Navidrome |
 | `56-exposition` | Seerr |
 | `57-maintenance` | Storage, sqlite-wal, Backup, Provisioning, Drift |
 | `58-observability` | ntfy, Gatus, runtime-guard, disk-health |

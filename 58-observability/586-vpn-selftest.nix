@@ -39,7 +39,9 @@ let
   ntfyUrl = "http://127.0.0.1:${toString ntfyPort}/alerts";
 
   activeInstances = lib.filterAttrs (_n: v: v.enable) (vpnCfg.instances or { });
-  hasVpnInstances = vpnCfg.enable && (activeInstances != { });
+  # services.vpnKillSwitch hat KEIN Top-Level-enable; aktiv ist der Killswitch
+  # genau dann, wenn mindestens eine Instanz enabled ist (gleiche Logik wie 526).
+  hasVpnInstances = activeInstances != { };
 
   selftestScript = pkgs.writeShellApplication {
     name = "medinix-vpn-selftest";

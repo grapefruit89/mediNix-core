@@ -48,8 +48,6 @@ access — CLACDE.md gold-standard for *arr-like services.
 > gebracht hat. Nimm die Bedingung weg und prüfe, ob es bricht.
 
 ## Operational Notes (migrated from CLAUDE.md, ports corrected 5530)
-- (Feishin-Kopplung entfernt 2026-10-25) Wer hier Port/Adresse
-  ändert, muss `serverUrl` in Feishin mitziehen (siehe ADR-5530/5540).
 - **OIDC:** via EnvironmentFile `ND_OIDC_CLIENT_ID_FILE` (ADR-5000: keine inline secrets).
 - **Music read-only:** BindReadOnlyPaths für mediaRoot/music reicht (Navidrome schreibt
   nur Metadata in StateDir).
