@@ -354,9 +354,14 @@ in
 
         script = mkDdnsScript "check";
 
+        unitConfig = {
+          OnFailure = [ "alert-ntfy@%n.service" ];
+        };
+
         serviceConfig = {
-          Restart = "on-failure";
-          RestartSec = "5min";
+          # BEWUSST kein Restart: verhindert Lockout/Retry-Sturm bei Router- oder CF-Ausfall.
+          # Fehlschlag → ntfy (OnFailure). Der naechste Intervall-Timer prueft erneut.
+          Restart = "no";
         };
       }
     ];

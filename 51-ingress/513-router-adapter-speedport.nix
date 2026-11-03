@@ -66,6 +66,7 @@ let
     import asyncio
     import sys
     from pathlib import Path
+    import aiohttp
     from speedport import Speedport
     from speedport.exceptions import LoginPausedError, LoginException
 
@@ -81,14 +82,30 @@ let
             print(f"FATAL: cannot read password file {pw_file}: {e}", file=sys.stderr)
             sys.exit(1)
 
-        async with Speedport(router, pw, pause_time=0) as sp:
+        sp = Speedport(router, pw, pause_time=0)
+        try:
+            await asyncio.wait_for(sp.create(), timeout=20.0)
+        except asyncio.TimeoutError:
+            print(f"FATAL: Speedport connection timeout (Router {router} nicht erreichbar nach 20s)", file=sys.stderr)
+            sys.exit(1)
+        except (aiohttp.ClientError, ConnectionError, OSError) as e:
+            print(f"FATAL: Speedport unreachable ({type(e).__name__}): {e}", file=sys.stderr)
+            sys.exit(1)
+
+        try:
             try:
-                await sp.login()
+                await asyncio.wait_for(sp.login(), timeout=15.0)
+            except asyncio.TimeoutError:
+                print(f"FATAL: Speedport connection timeout beim Login (15s)", file=sys.stderr)
+                sys.exit(1)
             except LoginPausedError as e:
                 print(f"FATAL: Speedport Login gesperrt (pause_time aktiv): {e}", file=sys.stderr)
                 sys.exit(1)
             except LoginException as e:
                 print(f"FATAL: Speedport Login fehlgeschlagen: {e}", file=sys.stderr)
+                sys.exit(2)
+            except (aiohttp.ClientError, ConnectionError, OSError) as e:
+                print(f"FATAL: Speedport unreachable beim Login ({type(e).__name__}): {e}", file=sys.stderr)
                 sys.exit(1)
 
             # Workaround gegen suppress(LoginPausedError): direkt sp.api.get_ip_data()
@@ -151,6 +168,8 @@ let
 
             print(f"Unbekannte Aktion: {action}", file=sys.stderr)
             sys.exit(2)
+        finally:
+            await sp.close()
 
     asyncio.run(main())
   '';
