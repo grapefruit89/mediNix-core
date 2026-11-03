@@ -28,6 +28,8 @@ opencode.json
 # Python venv / scripts / databases
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 venv/
 *.sqlite
 *.sqlite3
