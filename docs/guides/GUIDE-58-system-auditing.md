@@ -21,7 +21,7 @@ Transparenz entsteht aus **Checks** und dem **generierten Modul-Graph**.
   (Port-Riegel, Token-Trennung, vHost-Auflösung, UID-Kette …).
 - **NIXMETA-Header:** jedes Modul trägt Metadaten; `medinix-meta.py` erzeugt daraus
   die `AGENTS.md` je Domäne inkl. Module Map, Requires und Mermaid-Abhängigkeits-
-  graph. Prüfen: `python 50-core/medinix-meta.py check-docs`.
+  graph. Prüfen: `python scripts/medinix-meta.py check-docs`.
 - **Ordnungs-/Kanten-Checks:** `order-lint` (`docs/CONVENTIONS.md` §Die Kette).
 - **Optionaler Graph:** `docs/patterns/PATTERN-58-sre-nixoscope.md` beschreibt den
   Einsatz von NixoScope zur Visualisierung der Modul-Abhängigkeiten.

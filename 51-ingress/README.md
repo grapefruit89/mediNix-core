@@ -149,7 +149,7 @@ There are two deliberately different graphs.
 NIXMETA headers declare `requires` and `provides`.
 
 ```text
-python3 50-core/medinix-meta.py generate-docs
+python3 scripts/medinix-meta.py generate-docs
         │
         ▼
      AGENTS.md

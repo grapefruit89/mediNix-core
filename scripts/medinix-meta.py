@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import json
 import sqlite3
@@ -291,7 +292,7 @@ def generate_docs(check_only=False):
         lines.append("\n\n<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->\n")
         lines.append(
             "> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module "
-            "(`python3 50-core/medinix-meta.py generate-docs`).\n"
+            "(`python3 scripts/medinix-meta.py generate-docs`).\n"
             "> **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; "
             "die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).\n"
         )
@@ -353,7 +354,7 @@ def generate_docs(check_only=False):
         lines.append("```\n")
             
         lines.append(
-            "\n---\n*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` "
+            "\n---\n*Maschinell erzeugt durch `python3 scripts/medinix-meta.py generate-docs` "
             "aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. "
             "Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*"
         )
@@ -378,7 +379,6 @@ def generate_docs(check_only=False):
     if check_only:
         if errors > 0:
             logger.error("Doc-Check fehlgeschlagen!")
-            import sys
             sys.exit(1)
         else:
             logger.info("Alle AGENTS.md sind up to date!")

@@ -79,7 +79,7 @@ Vollständiger Report: `docs/audit/2026-10-17/51-ingress-review/REVIEW-51-ingres
   `abc-tiering.nix`, `wait-for-api.nix`, `mk-secure-curl.nix`, `_helpers.nix` —
   0 Importeure; Zwecke heute andernorts gelöst (storage.backends / `wait_for_url` /
   `513`-nativ / `mkMerge`). Regel: **gelöschter Code = verlorenes Wissen** → Archiv, nicht `rm`.
-- **Scanner angepasst:** `scripts/nixmeta_check.py` + `50-core/medinix-meta.py`
+- **Scanner angepasst:** `scripts/nixmeta_check.py` + `scripts/medinix-meta.py`
   überspringen `docs/audit/` + `docs/archive/` (Eingelagertes wird **nicht** gegated).
 - **Begründung + Ersatz je Modul:** `docs/AUDIT-LEDGER.md` **L-045**, Archiv-`README.md`.
 

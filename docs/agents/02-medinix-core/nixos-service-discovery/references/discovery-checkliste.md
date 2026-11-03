@@ -51,7 +51,7 @@ nix flake check --print-build-logs                     # wie die CI (mit Builds)
 python3 scripts/check_adrs.py ; python3 scripts/check_skills.py
 python3 scripts/check_banned_technologies.py ; bash docs/agents/shared/scripts/folder_lint.sh .
 python3 scripts/gen_todo.py --check ; python3 scripts/gen_service_map.py --check
-python3 50-core/medinix-meta.py check-docs
+python3 scripts/medinix-meta.py check-docs
 ```
 
 - [ ] Alle Schritte gruen; bei rot: **Ursache benennen, nicht raten** (bei Eval-Blockern erst

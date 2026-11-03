@@ -3,7 +3,7 @@
 Agentenorientierte Arbeitskarte. Menschliche Architektur-/Betriebsdoku: [`README.md`](README.md).
 
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
-(`python3 50-core/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
+(`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (der Marker-String
 darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 
@@ -94,8 +94,8 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 `check-docs` läuft in **keiner** CI — eine veraltete Karte fällt dort nicht auf:
 
 ```bash
-python3 50-core/medinix-meta.py generate-docs   # nach NIXMETA-Header-Aenderungen
-python3 50-core/medinix-meta.py check-docs      # Gegenprobe
+python3 scripts/medinix-meta.py generate-docs   # nach NIXMETA-Header-Aenderungen
+python3 scripts/medinix-meta.py check-docs      # Gegenprobe
 ```
 
 Mit `nix`: die CI nutzt die **flake-gepinnten** Tools, nicht die PATH-Versionen
@@ -132,7 +132,7 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
-> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 50-core/medinix-meta.py generate-docs`).
+> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 scripts/medinix-meta.py generate-docs`).
 > **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).
 
 ## Module Map
@@ -192,4 +192,4 @@ graph TD
 
 
 ---
-*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*
+*Maschinell erzeugt durch `python3 scripts/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*

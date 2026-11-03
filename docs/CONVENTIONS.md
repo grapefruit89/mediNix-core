@@ -30,8 +30,8 @@ Läuft zusätzlich in CI (`.github/workflows/order-lint.yml`) — Verstöße bre
   (bzw. `docs/agents/shared/scripts/`). Wegwerf-Skripte → `scratch/` oder sofort löschen.
 - **`*/AGENTS.md` ist generiert.** Nur **oberhalb** von
   `<!-- AUTO-GENERATED, DO NOT EDIT BELOW -->` von Hand editieren.
-  Neu erzeugen: `python 50-core/medinix-meta.py generate-docs`
-  Prüfen:        `python 50-core/medinix-meta.py check-docs`
+  Neu erzeugen: `python scripts/medinix-meta.py generate-docs`
+  Prüfen:        `python scripts/medinix-meta.py check-docs`
 - **Dokumentation nach `docs/`**, nicht ins Root (Root = nur Nix-Pflicht
   (`flake.nix`, `default.nix`, `flake.lock`, `repl.nix`, `statix.toml`), die
   Doku-Build-Konfiguration `mkdocs.yml` (sie muss neben `docs/` liegen, weil
@@ -137,7 +137,7 @@ prüft `docs/INDEX.md`, `order-lint` prüft `docs/TODO.md`):
 
 ```bash
 python3 docs/generate_index.py && python3 scripts/gen_todo.py \
-  && python3 50-core/medinix-meta.py generate-docs && git diff --exit-code
+  && python3 scripts/medinix-meta.py generate-docs && git diff --exit-code
 ```
 
 **CI-Beweis statt CI-Behauptung:** „grün" nur, wenn **alle** Workflows des
@@ -197,7 +197,7 @@ versioniert, Prosa allein genuegt nicht.
 | Code -> Manifest | Registry-Dienst mit Port braucht `medinix.manifest.<name>`; kein Manifest-Key ohne Registry-Dienst | `scripts/check_manifest_edge.py` (order-lint), Ausnahmen: `scripts/manifest-edge-allowlist.txt` |
 | Code -> ADR | jeder `adr:`-Verweis im Modul-Header zeigt auf eine existierende ADR-ID; ein Verweis auf den DATEINAMEN ist immer ein Fehler | `scripts/check_adrs.py` (order-lint), Altfaelle: `scripts/adr-refs-allowlist.txt` |
 | ADR -> Index | Datei steht in `docs/adr/llm-index.json`; id/Dateiname/Ueberschrift passen | `scripts/check_adrs.py` |
-| Docs -> Generatoren | `docs/TODO.md`, `docs/INDEX.md`, Ordner-`AGENTS.md` sind aktuell | `scripts/gen_todo.py --check`, `scripts/gen_service_map.py --check`, `50-core/medinix-meta.py check-docs`, `docs/generate_index.py` + `git diff --exit-code` |
+| Docs -> Generatoren | `docs/TODO.md`, `docs/INDEX.md`, Ordner-`AGENTS.md` sind aktuell | `scripts/gen_todo.py --check`, `scripts/gen_service_map.py --check`, `scripts/medinix-meta.py check-docs`, `docs/generate_index.py` + `git diff --exit-code` |
 | Skills -> Sichtbarkeit | jeder Projekt-Skill hat einen Symlink (bzw. steht bewusst auf der Ausschlussliste) | `scripts/link-skills.sh --dry-run` (lokal), `scripts/check_skills.py` (Form, CI) |
 | Skills -> MCP | wer einen Server aufruft (`tools["x"]`/`tools.x.`/`mcp__x`, auch in `references/`), deklariert ihn als `mcp: [x]`; deklarierte Server muessen in `scripts/mcp-servers.txt` stehen | `scripts/check_skills.py` (order-lint) — siehe `docs/MCP-SETUP.md` |
 | Korridor -> Checks | Muster der AB-Regeln (DynamicUser, media als Primaergruppe, stateDir-Suffix, hartkodierte uid) sind maschinell geprueft | `scripts/check_corridor.py` (order-lint), Ausnahmen: `scripts/corridor-allowlist.txt` |

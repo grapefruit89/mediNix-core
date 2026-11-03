@@ -26,7 +26,7 @@
    - Methoden/Konzepte mit **etabliertem Namen** benennen statt Eigenschöpfung → siehe `docs/TERMINOLOGY.md` (unser Konstrukt → Katalog-Anker + Link).
    - Nur Namen aus dem Katalog zitieren; bei Zweifel dort nachsehen, nicht aus dem Gedächtnis.
 7. **Generatoren, CI-Beweis, Dead-Config, Absicht (Kurzfassung von `docs/CONVENTIONS.md` §6):**
-   - **Generatoren-Pflicht:** Wer ADRs/Dienste/Dateien ändert, lässt `docs/generate_index.py`, `scripts/gen_todo.py` und `50-core/medinix-meta.py generate-docs` **im selben Commit** laufen — sonst wird `Docs Index` bzw. `order-lint` rot.
+   - **Generatoren-Pflicht:** Wer ADRs/Dienste/Dateien ändert, lässt `docs/generate_index.py`, `scripts/gen_todo.py` und `scripts/medinix-meta.py generate-docs` **im selben Commit** laufen — sonst wird `Docs Index` bzw. `order-lint` rot.
    - **CI-Beweis statt -Behauptung:** „grün" nur nach Zählung **aller** Workflows des Head-SHA (`gh run list --limit 12 --json name,conclusion,headSha`).
    - **Deklariert ≠ wirkt:** jede Option/jedes Feld braucht einen **Leser** (`grep -rn "<name>" --include=*.nix .`).
    - **Absicht vor Konsistenz:** ein Review-/Subagent-Befund ist Rohmaterial, kein Auftrag — der Fix darf **kein laufendes Feature abschalten** (Default umlegen, Paket-Flag überschreiben).

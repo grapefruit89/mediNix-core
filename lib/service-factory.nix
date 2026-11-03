@@ -2,7 +2,7 @@
 # id: "service-factory"
 # title: "Systemd-native Service Factory (mkService, isolation=systemd-only)"
 # domain: 50
-# folder: 50-media
+# folder: 50-core
 # status: active
 # complexity: 4
 # last_reviewed: 2026-08-11

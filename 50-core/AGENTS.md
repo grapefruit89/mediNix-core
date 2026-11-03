@@ -47,7 +47,7 @@ Agentenorientierte Arbeitskarte. Menschliche Doku: [`BANNED_TECHNOLOGIES.md`](BA
 ## Prüfen
 
 ```bash
-python3 50-core/medinix-meta.py generate-docs && python3 50-core/medinix-meta.py check-docs
+python3 scripts/medinix-meta.py generate-docs && python3 scripts/medinix-meta.py check-docs
 python3 scripts/nixmeta_check.py            # NIXMETA-Ratsche (Header-Vollstaendigkeit)
 python3 scripts/check_sources.py            # Upstream-Quellen je Manifest-Traeger
 python3 scripts/check_banned_technologies.py
@@ -62,7 +62,7 @@ Nur mit `nix` (CI nutzt die flake-gepinnten Tools, nicht die PATH-Versionen):
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 
-> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 50-core/medinix-meta.py generate-docs`).
+> ⚙️ **Maschinell erzeugt** aus den NIXMETA-Headern der Module (`python3 scripts/medinix-meta.py generate-docs`).
 > **Nicht von Hand aendern** — handgepflegt ist nur der Teil **ueber** der Markierung; die Wahrheit steht in den unten verlinkten `.nix`-Dateien (`docs/CONVENTIONS.md` §1).
 
 ## Module Map
@@ -91,4 +91,4 @@ graph TD
 
 
 ---
-*Maschinell erzeugt durch `python3 50-core/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*
+*Maschinell erzeugt durch `python3 scripts/medinix-meta.py generate-docs` aus den NIXMETA-Headern der oben verlinkten `.nix`-Dateien. Handgepflegt ist nur der Teil ueber der AUTO-GENERATED-Markierung.*
