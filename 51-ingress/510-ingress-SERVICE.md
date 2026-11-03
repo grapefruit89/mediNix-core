@@ -97,7 +97,7 @@ The sprite id resolves as **`ingress.vhosts."<name>".iconId` → `manifest.<name
 ## accessGroup detail
 
 | Group | HTTPS `{name}.{domain}` | Auth | `.local` |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `stream` | yes, no compression | never | HTTP + CIDR abort |
 | `internal` | yes, abort outside `trustedCidrs` | never | same abort |
 | `public` | yes | `forward_auth` when enabled | CIDR abort |
