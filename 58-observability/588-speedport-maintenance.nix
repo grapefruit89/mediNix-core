@@ -25,6 +25,12 @@
 # Reißt um 05:00 Uhr gezielt bestehende Sessions ab und setzt den 24h-Telekom-Timer zurueck,
 # um unkontrollierte Zwangstrennungen waehrend des Tages / Feierabends zu verhindern.
 # Triggert nach bestaetigter neuer Uptime rein deklarativ cloudflare-ddns.service.
+#
+# Lifecycle & Alarmierungs-Design:
+# - OnFailure: Feuert nach Ausschoepfung des Retrys (StartLimitBurst = 2, RestartSec = 6min).
+#   Wartet 6 Minuten zwischen Versuchen, damit die 5-minuetige Login-Sperre (pause_time) ablaeuft.
+# - Session-Ende: Speedport.__aexit__ ruft sp.close() auf und beendet die TCP-Verbindung sauber.
+# - Zeitzone: Explizit Europe/Berlin im systemd Calendar-Format.
 {
   config,
   lib,
@@ -52,7 +58,7 @@ let
     echo "=== [Speedport Maintenance] Starte kontrollierte Zwangstrennung um $(date) ==="
 
     ${pythonEnv}/bin/python3 - "$ROUTER" "$PASSWORD_FILE" <<'PY'
-import asyncio, sys, time
+import asyncio, sys
 from pathlib import Path
 import aiohttp
 from speedport import Speedport
@@ -73,9 +79,11 @@ async def main():
             sys.exit(1)
 
         await sp.update_ip_data()
+        await sp.update_status()
         old_ip = sp.public_ip_v4
+        old_ip_v6 = sp.public_ip_v6
         old_uptime = sp.inet_uptime
-        print(f"Status vor Reconnect: WAN-IP={old_ip}, Verbindung aktiv seit={old_uptime}")
+        print(f"Status vor Reconnect: WAN-IPv4={old_ip}, WAN-IPv6={old_ip_v6}, Uptime={old_uptime}")
 
         print("Sende Reconnect-Befehl an Router (Connect.json)...")
         await sp.reconnect()
@@ -86,15 +94,18 @@ async def main():
             await asyncio.sleep(3)
             try:
                 await sp.update_ip_data()
+                await sp.update_status()
                 new_ip = sp.public_ip_v4
+                new_ip_v6 = sp.public_ip_v6
                 new_uptime = sp.inet_uptime
-                # Erfolgskriterium: Uptime hat sich geaendert (Router hat neu verbunden) und valide IP liegt an
+                # Erfolgskriterium: Uptime hat sich geaendert (Router hat neu verbunden) und valide IPv4 liegt an
                 if new_ip and not new_ip.startswith("0.") and new_uptime != old_uptime:
                     print(f"Erfolgreich reconnectet nach ca. {attempt * 3}s!")
-                    print(f"Neue WAN-IP: {new_ip}, Neue Uptime: {new_uptime}")
+                    print(f"Neue WAN-IPv4: {new_ip}, Neue WAN-IPv6: {new_ip_v6}")
+                    print(f"Verbindung aktiv seit: {new_uptime} (vorher: {old_uptime})")
                     return
             except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError, OSError):
-                # Waehrend des Verbindungsaufbaus antwortet das IP-Modul evtl. noch nicht
+                # Waehrend des Verbindungsaufbaus antwortet das Status/IP-Modul evtl. noch nicht
                 pass
             except Exception as e:
                 print(f"Unerwarteter Fehler bei Statusabfrage waehrend Reconnect: {type(e).__name__}: {e}", file=sys.stderr)
@@ -114,8 +125,8 @@ in
     enable = lib.mkEnableOption "Tägliche proaktive Speedport-Zwangstrennung um 05:00 Uhr morgens";
     time = lib.mkOption {
       type = lib.types.str;
-      default = "*-*-* 05:00:00";
-      description = "systemd OnCalendar Zeitangabe für die Zwangstrennung.";
+      default = "*-*-* 05:00:00 Europe/Berlin";
+      description = "systemd OnCalendar Zeitangabe für die Zwangstrennung (inkl. Zeitzone).";
     };
     routerIp = lib.mkOption {
       type = lib.types.str;
@@ -136,12 +147,19 @@ in
   };
 
   config = lib.mkIf (config.medinix.enable && cfg.enable) {
+    assertions = [
+      {
+        assertion = cfg.passwordCredential != null || cfg.passwordFile != null;
+        message = "[mediNix/588-speedport-maintenance] speedportMaintenance ist aktiviert, aber weder passwordCredential noch passwordFile wurde gesetzt.";
+      }
+    ];
+
     systemd.services.speedport-reconnect = {
       description = "Speedport Smart 4 Proactive Reconnect (05:00 Uhr Zwangstrennung)";
       wantedBy = [ ]; # Nur durch Timer getriggert
 
       # Nach erfolgreichem Reconnect sofort Cloudflare-DDNS triggern (rein deklarativ via systemd)
-      onSuccess = lib.optionals (config.medinix.dns.ddns.enable or false) [ "cloudflare-ddns.service" ];
+      onSuccess = lib.optionals (config.systemd.services ? "cloudflare-ddns") [ "cloudflare-ddns.service" ];
 
       unitConfig = {
         OnFailure = [ "alert-ntfy@%n.service" ];
