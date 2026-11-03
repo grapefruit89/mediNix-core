@@ -88,10 +88,14 @@ async def main():
         print("Sende Reconnect-Befehl an Router (Connect.json)...")
         await sp.reconnect()
 
-        # Warte auf Neuaufbau des DSL/PPP-Tunnels (typisch 12-25s)
-        print("Warte auf Reconnect-Bestaetigung...")
-        for attempt in range(1, 15):
-            await asyncio.sleep(3)
+        # 15s Initial-Puffer: Dem Router Zeit geben, die DSL/PPP-Verbindung sauber zu trennen
+        print("Warte 15s Initial-Puffer fuer Leitungs-Reset...")
+        await asyncio.sleep(15)
+
+        # Polling mit Puffer: Bis zu 12 Versuche a 5s (= max. 60s zusaetzlich)
+        print("Pruefe Verbindungsaufbau (bis zu 60s Puffer)...")
+        for attempt in range(1, 13):
+            await asyncio.sleep(5)
             try:
                 await sp.update_ip_data()
                 await sp.update_status()
@@ -100,7 +104,8 @@ async def main():
                 new_uptime = sp.inet_uptime
                 # Erfolgskriterium: Uptime hat sich geaendert (Router hat neu verbunden) und valide IPv4 liegt an
                 if new_ip and not new_ip.startswith("0.") and new_uptime != old_uptime:
-                    print(f"Erfolgreich reconnectet nach ca. {attempt * 3}s!")
+                    total_wait = 15 + (attempt * 5)
+                    print(f"Erfolgreich reconnectet nach insgesamt ca. {total_wait}s!")
                     print(f"Neue WAN-IPv4: {new_ip}, Neue WAN-IPv6: {new_ip_v6}")
                     print(f"Verbindung aktiv seit: {new_uptime} (vorher: {old_uptime})")
                     return
@@ -111,7 +116,7 @@ async def main():
                 print(f"Unerwarteter Fehler bei Statusabfrage waehrend Reconnect: {type(e).__name__}: {e}", file=sys.stderr)
                 sys.exit(1)
 
-        print("FEHLER: Reconnect konnte nicht bestaetigt werden (Uptime unveraendert oder keine gueltige IP).", file=sys.stderr)
+        print("FEHLER: Reconnect konnte innerhalb des Puffer-Zeitfensters nicht bestaetigt werden.", file=sys.stderr)
         sys.exit(1)
 
 asyncio.run(main())
@@ -175,7 +180,7 @@ in
         {
           Type = "oneshot";
           ExecStart = "${reconnectScript}";
-          TimeoutStartSec = "90s";
+          TimeoutStartSec = "120s";
 
           # Begrenzter Retry: Warte 6 Minuten (Speedport LoginPaused-Sperre ist 5min)
           Restart = "on-failure";
