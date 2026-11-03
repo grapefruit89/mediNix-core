@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-11-03
 # provides: ["ddns"]
-# requires: ["lib/service-factory", "51-ingress/ingress-access"]
+# requires: ["50-core/service-factory", "51-ingress/ingress-access"]
 # adr: ADR-513
 # links:
 #   adr: ADR-513
@@ -32,7 +32,7 @@
 let
   cfg = config.medinix;
   ddns = cfg.dns.ddns;
-  df = import ../lib/derive.nix;
+  df = import ../50-core/derive.nix;
   cfStateDir = "/var/lib/cloudflare-ddns";
   cfUid = (df.derive "cloudflare-ddns" 513).uid; # 5130
   domain = if cfg.host.domain != null then cfg.host.domain else cfg.domain;
@@ -315,7 +315,7 @@ in
 
     # ── Drift-Check (alle ddns.interval) ──────────────────────────────────
     systemd.services.cloudflare-ddns = lib.mkMerge [
-      ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+      ((import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
         name = "cloudflare-ddns";
         uid = cfUid;
         profile = "network";
@@ -368,7 +368,7 @@ in
 
     # ── Zwangstrennung (05:00, nur mit Router-Adapter) ────────────────────
     systemd.services.cloudflare-ddns-reconnect = lib.mkIf hasReconnect (lib.mkMerge [
-      ((import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+      ((import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
         name = "cloudflare-ddns-reconnect";
         uid = cfUid;
         profile = "network";

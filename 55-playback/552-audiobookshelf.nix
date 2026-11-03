@@ -7,7 +7,7 @@
 # complexity: 2
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
-# requires: ["52-security/creds", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["52-security/creds", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
 # adr: ADR-552
 # links:
 #   adr: ADR-552
@@ -22,7 +22,7 @@
 let
   cfg = config.medinix.audiobookshelf;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.audiobookshelf;
   meta = config.medinix.manifest.audiobookshelf;
 
@@ -30,8 +30,8 @@ let
   inherit (reg) sharedGid;
   creds = import ../52-security/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../50-core/memory-policy.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.audiobookshelf;
 
@@ -116,7 +116,7 @@ in
       assertions = [
         {
           assertion = meta.num == reg.num;
-          message = "[mediNix/552-audiobookshelf] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+          message = "[mediNix/552-audiobookshelf] Manifest-Nummer (${toString meta.num}) stimmt nicht mit 50-core/registry.nix (${toString reg.num}) überein!";
         }
         {
           assertion = !exposedWan || cfg.setupCompleted;
@@ -132,7 +132,7 @@ in
         }
       ];
 
-      # users.users.audiobookshelf besitzt die Engine (lib/decimal-framework.nix, UPG).
+      # users.users.audiobookshelf besitzt die Engine (50-core/501-decimal-engine.nix, UPG).
       users.groups.media.gid = sharedGid;
 
       systemd.tmpfiles.rules = [

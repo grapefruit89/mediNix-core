@@ -33,15 +33,14 @@ SCAN_DIRS = [
     "55-playback",
     "57-maintenance",
     "58-observability",
-    "lib",
 ]
 
-# Ausnahmen / Allowlist für legitime Konstrukte (z. B. pure Bibliotheksfunktionen in lib/)
+# Ausnahmen / Allowlist für legitime Konstrukte (z. B. pure Bibliotheksfunktionen in 50-core/)
 ALLOWLIST_WITH = set()
 
 ALLOWLIST_ASSERT = {
-    "lib/manifest.nix",          # Pure Helper Library Assertions
-    "lib/decimal-framework.nix",  # Pure Engine Assertions
+    "50-core/manifest.nix",          # Pure Helper Library Assertions
+    "50-core/501-decimal-engine.nix",  # Pure Engine Assertions
 }
 
 
@@ -64,7 +63,7 @@ def audit_file(filepath: Path) -> list[tuple[str, str, int, str]]:
 
         # Regel 2: Rohes assert in Modulen (außerhalb reiner lib-Helper)
         if re.search(r"^\s*assert\s+", line):
-            if rel_path not in ALLOWLIST_ASSERT and not rel_path.startswith("lib/"):
+            if rel_path not in ALLOWLIST_ASSERT:
                 findings.append(("NIXMAP-02", "Rohes 'assert' in Modul gefunden; bevorzuge 'assertions = [ ... ]' (D-15-03)", idx, line.strip()))
 
         # Regel 3: Bedingte Imports basierend auf cfg.enable

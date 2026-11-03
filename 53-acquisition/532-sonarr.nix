@@ -9,7 +9,7 @@
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg
 # links:
 # provides: []
-# requires: ["53-acquisition/arr-settings", "51-ingress/ingress-access", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["53-acquisition/arr-settings", "51-ingress/ingress-access", "50-core/service-factory", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
 # adr: ADR-532, ADR-5050
 # links:
 #   adr: ADR-532
@@ -27,7 +27,7 @@ let
   meta = config.medinix.manifest.sonarr;
 
   inherit (meta) port uid stateDir;
-  mkService = import ../lib/service-factory.nix { inherit lib config; };
+  mkService = import ../50-core/service-factory.nix { inherit lib config; };
   arrSettings = import ./arr-settings.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.sonarr;

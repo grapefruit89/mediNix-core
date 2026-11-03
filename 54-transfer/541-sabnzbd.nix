@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-07
 # links:
 #   adr: ADR-526
-# requires: ["lib/hardening-profiles", "lib/memory-policy", "52-security/creds"]
+# requires: ["50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds"]
 # adr: ADR-526
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
@@ -27,8 +27,8 @@ let
 
   inherit (meta) port uid stateDir;
   creds = import ../52-security/creds.nix { inherit lib; };
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../50-core/memory-policy.nix { inherit lib; };
   tempDir = "/run/sabnzbd-tmp";
 
   vpnIf =

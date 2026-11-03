@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-09-02
 # provides: ["backup"]
-# requires: ["lib/hardening-profiles", "lib/registry"]
+# requires: ["50-core/hardening-profiles", "50-core/registry"]
 # adr: ADR-576
 # links:
 #   adr: ADR-576
@@ -22,8 +22,8 @@
 let
   cfg = config.medinix;
   bkp = cfg.maintenance.backup;
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  registry = import ../lib/registry.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  registry = import ../50-core/registry.nix { inherit lib; };
 
   optEnable =
     name:

@@ -2,12 +2,13 @@
 # id: "registry"
 # title: "mediNix SSoT Registry"
 # domain: 50
+# folder: 50-core
 # last_reviewed: 2026-09-02
 # ---
 { lib, ... }:
 
 let
-  # EINE Ableitungs-Formel (lib/derive.nix) — nicht doppelt pflegen (DRY/SSOT).
+  # EINE Ableitungs-Formel (50-core/derive.nix) — nicht doppelt pflegen (DRY/SSOT).
   df = import ./derive.nix;
 
   mkServiceWithUnit = name: number: profile: caddyClass: unitName: {

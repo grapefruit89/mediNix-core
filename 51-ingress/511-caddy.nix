@@ -7,7 +7,7 @@
 # complexity: 5
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
-# requires: ["lib/derive", "51-ingress/ingress-access", "lib/service-factory"]
+# requires: ["50-core/derive", "51-ingress/ingress-access", "50-core/service-factory"]
 # adr: ADR-511
 # links:
 #   adr: ADR-511
@@ -27,9 +27,9 @@ let
   cfg = config.medinix;
   ing = cfg.ingress;
   domain = cfg.host.domain;
-  df = import ../lib/derive.nix;
+  df = import ../50-core/derive.nix;
   ia = import ./ingress-access.nix { inherit lib; };
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
 
   # Global (Host-Caddy) oder standalone (caddy-media)? Die Logik lebt in
   # 51-ingress/ingress-access.nix, weil 516 daraus die Journal-Unit ableitet.
@@ -379,7 +379,7 @@ let
     }
   '') allSites;
 
-  caddyStandalone = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+  caddyStandalone = (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
     name = "caddy-media";
     inherit (df.derive "caddy-media" 511) uid; # 5110 — aus der SSoT abgeleitet
     # KEIN mediaGroup: ADR-0000 §4 ist explizit — "Edge ingress (511) and
@@ -391,7 +391,7 @@ let
     execStart = "${pkgs.caddy}/bin/caddy run --config /etc/caddy-media/Caddyfile";
     stateDir = "/var/lib/caddy-media";
     profile = "network";
-    # CPU/IO/Memory stehen in lib/memory-policy.nix (SSoT). Hier nur, was NICHT
+    # CPU/IO/Memory stehen in 50-core/memory-policy.nix (SSoT). Hier nur, was NICHT
     # zur Memory-/Ressourcen-Policy gehoert.
     extraConfig = {
       Type = lib.mkDefault "exec";

@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-515
 # provides: ["split-dns"]
-# requires: ["lib/registry", "lib/service-factory"]
+# requires: ["50-core/registry", "50-core/service-factory"]
 # ports: [53]
 # state_dir: "/var/lib/blocky"
 # nixpkgs_attr: "services.blocky"
@@ -96,7 +96,7 @@ in
       };
     };
 
-    systemd.services.blocky = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+    systemd.services.blocky = (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
       name = "blocky";
       profile = "network";
       ownsAccount = false;

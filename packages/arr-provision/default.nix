@@ -2,7 +2,7 @@
 # id: "arr-provision"
 # title: "arr-provision — Python-CLIs fuer deklarative *arr/Seerr-API-Sync"
 # domain: 50
-# folder: "lib/arr-provision"
+# folder: "packages/arr-provision"
 # status: active
 # complexity: 3
 # last_reviewed: 2026-10-15

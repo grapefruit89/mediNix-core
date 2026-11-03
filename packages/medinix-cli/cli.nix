@@ -2,7 +2,7 @@
 # id: "cli"
 # title: "mediNix Health-CLI + Triage (aus der Registry generiert)"
 # domain: 50
-# folder: "lib"
+# folder: "packages/medinix-cli"
 # status: active
 # complexity: 3
 # last_reviewed: 2026-10-15
@@ -11,7 +11,7 @@
 # ---
 # mediNix Health CLI — registry unitName is the systemd unit.
 # ids/show/logs/triage: Ist-Zustand (IDs, Ports, Pfade, Rechte, Logs) in EINEM Aufruf.
-# triage <symptom> arbeitet die Kette aus lib/runbook.json ab (SSoT; docs/RUNBOOK.md §5 generiert).
+# triage <symptom> arbeitet die Kette aus packages/medinix-cli/runbook.json ab (SSoT; docs/RUNBOOK.md §5 generiert).
 {
   pkgs,
   registryJson,
@@ -24,7 +24,7 @@
 let
   effectiveDomain = if mediaDomain != null then mediaDomain else "";
 
-  # Runbook = SSoT: lib/runbook.json. EINE Quelle — das CLI liest sie direkt,
+  # Runbook = SSoT: packages/medinix-cli/runbook.json. EINE Quelle — das CLI liest sie direkt,
   # docs/RUNBOOK.md §5 wird daraus generiert (scripts/gen_runbook.py).
   runbookJson = builtins.readFile ./runbook.json;
 in

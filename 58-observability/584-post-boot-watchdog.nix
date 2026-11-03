@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-0000, ADR-5043
 # provides: []
-# requires: ["lib/hardening-profiles", "lib/registry"]
+# requires: ["50-core/hardening-profiles", "50-core/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -30,11 +30,11 @@
 
 let
   cfg = config.medinix;
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  ntfyPort = (import ../50-core/registry.nix { inherit lib; }).services.ntfy.port;
   ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-boot";
 
-  registry = import ../lib/registry.nix { inherit lib; };
+  registry = import ../50-core/registry.nix { inherit lib; };
   # All services from Registry with a systemd unit (excluding static SPAs)
   allUnits = lib.filter (u: u != null) (lib.mapAttrsToList (_: svc: svc.unitName) registry.services);
   unitList = lib.concatStringsSep " " allUnits;

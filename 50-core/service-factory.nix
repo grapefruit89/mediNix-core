@@ -14,9 +14,9 @@
 # upstream_github: "https://github.com/grapefruit89/mediNix-core"
 # ---
 #
-# lib/service-factory.nix — Systemd-native Service Factory
+# 50-core/service-factory.nix — Systemd-native Service Factory
 # Generates a systemd service from a descriptor attrset. No docker, no netns.
-# Hardening comes from lib/hardening-profiles.nix (profile selected in registry).
+# Hardening comes from 50-core/hardening-profiles.nix (profile selected in registry).
 { lib, config, ... }:
 
 let
@@ -129,7 +129,7 @@ else
         }
         # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
         (profiles.${profile} or profiles.base)
-        # 1b) Zentrale Memory- & OOM-Policy (lib/memory-policy.nix)
+        # 1b) Zentrale Memory- & OOM-Policy (50-core/memory-policy.nix)
         (memoryPolicy.${name} or memoryPolicy.default)
         # 2) Service-spezifische Basis (User/Exec/State)
         {

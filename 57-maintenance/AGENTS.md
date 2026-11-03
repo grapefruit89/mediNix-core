@@ -51,24 +51,24 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
-- [`lib/registry`](../lib/registry.nix)
+- [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
+- [`50-core/registry`](../50-core/registry.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
   570_storage["570-storage"]
-  571_sqlite_wal["571-sqlite-wal"] --> hardening_profiles["lib/hardening-profiles"]
-  571_sqlite_wal["571-sqlite-wal"] --> registry["lib/registry"]
-  572_recyclarr["572-recyclarr"] --> registry["lib/registry"]
+  571_sqlite_wal["571-sqlite-wal"] --> hardening_profiles["50-core/hardening-profiles"]
+  571_sqlite_wal["571-sqlite-wal"] --> registry["50-core/registry"]
+  572_recyclarr["572-recyclarr"] --> registry["50-core/registry"]
   574_provisioning["574-provisioning"]
-  575_update_notifier["575-update-notifier"] --> hardening_profiles["lib/hardening-profiles"]
-  576_backup["576-backup"] --> hardening_profiles["lib/hardening-profiles"]
-  576_backup["576-backup"] --> registry["lib/registry"]
-  577_drift_detection["577-drift-detection"] --> hardening_profiles["lib/hardening-profiles"]
+  575_update_notifier["575-update-notifier"] --> hardening_profiles["50-core/hardening-profiles"]
+  576_backup["576-backup"] --> hardening_profiles["50-core/hardening-profiles"]
+  576_backup["576-backup"] --> registry["50-core/registry"]
+  577_drift_detection["577-drift-detection"] --> hardening_profiles["50-core/hardening-profiles"]
   578_orphan_cleanup["578-orphan-cleanup"]
-  579_backup_ssh["579-backup-ssh"] --> registry["lib/registry"]
+  579_backup_ssh["579-backup-ssh"] --> registry["50-core/registry"]
 ```
 
 

@@ -70,9 +70,16 @@ Nur mit `nix` (CI nutzt die flake-gepinnten Tools, nicht die PATH-Versionen):
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `500-host-baseline` | [`500-host-baseline.nix`](500-host-baseline.nix) | active | 1/5 | - |
-| `501-decimal-engine` | [`501-decimal-engine.nix`](501-decimal-engine.nix) | active | 1/5 | - |
+| `501-decimal-engine` | [`501-decimal-engine.nix`](501-decimal-engine.nix) | active | 2/5 | - |
 | `502-host-settings` | [`502-host-settings.nix`](502-host-settings.nix) | active | 1/5 | - |
 | `503-host-integration` | [`503-host-integration.nix`](503-host-integration.nix) | active | 3/5 | - |
+| `derive` | [`derive.nix`](derive.nix) | active | 1/5 | - |
+| `hardening-profiles` | [`hardening-profiles.nix`](hardening-profiles.nix) | active | 2/5 | - |
+| `manifest` | [`manifest.nix`](manifest.nix) | active | 2/5 | - |
+| `memory-policy` | [`memory-policy.nix`](memory-policy.nix) | active | 2/5 | - |
+| `registry` | [`registry.nix`](registry.nix) | unknown | -/5 | - |
+| `service-contract` | [`service-contract.nix`](service-contract.nix) | active | 4/5 | - |
+| `service-factory` | [`service-factory.nix`](service-factory.nix) | active | 4/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -87,6 +94,13 @@ graph TD
   501_decimal_engine["501-decimal-engine"]
   502_host_settings["502-host-settings"]
   503_host_integration["503-host-integration"]
+  derive["derive"]
+  hardening_profiles["hardening-profiles"]
+  manifest["manifest"]
+  memory_policy["memory-policy"]
+  registry["registry"]
+  service_contract["service-contract"]
+  service_factory["service-factory"]
 ```
 
 

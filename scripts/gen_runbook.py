@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNBOOK = ROOT / "lib" / "runbook.json"
+RUNBOOK = ROOT / "packages" / "medinix-cli" / "runbook.json"
 DOC = ROOT / "docs" / "RUNBOOK.md"
 MARKER_START = "<!-- RUNBOOK-PLAYBOOKS START -->"
 MARKER_END = "<!-- RUNBOOK-PLAYBOOKS END -->"
@@ -39,7 +39,7 @@ def load() -> dict[str, dict[str, object]]:
 def render(data: dict[str, dict[str, object]]) -> str:
     out = [
         MARKER_START,
-        "**Generiert** aus [`lib/runbook.json`](../lib/runbook.json) (SSoT) — nicht von Hand",
+        "**Generiert** aus [`packages/medinix-cli/runbook.json`](../packages/medinix-cli/runbook.json) (SSoT) — nicht von Hand",
         "pflegen. Das CLI liest dieselbe Datei; neu erzeugen: `python3 scripts/gen_runbook.py`,",
         "pruefen: `--check` (laeuft in `order-lint`).",
         "",

@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-516
 # provides: ["crowdsec", "edge-bouncer"]
-# requires: ["51-ingress/ingress-access", "lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
+# requires: ["51-ingress/ingress-access", "50-core/service-factory", "50-core/registry", "51-ingress/511-caddy"]
 # ports: []
 # upstream_docs: ["https://docs.crowdsec.net/docs/data_sources/intro"]
 # forum_links: []
@@ -176,7 +176,7 @@ in
       # Hardening-Injektion (kein Account: den besitzt die Engine, s. Manifest).
       # Kein RestrictNetworkInterfaces: die Engine laedt Hub-Szenarien und
       # Konsens-Daten aus dem Internet.
-      systemd.services.crowdsec = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+      systemd.services.crowdsec = (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
         name = "crowdsec";
         profile = "network";
         ownsAccount = false;

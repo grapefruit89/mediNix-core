@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5043
 # provides: []
-# requires: ["lib/hardening-profiles"]
+# requires: ["50-core/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -37,7 +37,7 @@ let
   cfg = config.medinix.maintenance.updateNotifier;
   # ntfy topic from observability.ntfy (if ntfy is running)
   ntfyTopic = config.medinix.observability.ntfy.topic or "mediNix-updates";
-  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  ntfyPort = (import ../50-core/registry.nix { inherit lib; }).services.ntfy.port;
 in
 lib.mkIf cfg.enable {
   # Daily check: is a new mediNix-core version available?
@@ -53,7 +53,7 @@ lib.mkIf cfg.enable {
     description = "Check mediNix-core flake for updates (notify only, no auto-update)";
     serviceConfig = lib.mkMerge [
       # client profile: HTTP requests (flake metadata + ntfy), no port binding
-      (import ../lib/hardening-profiles.nix { inherit lib; }).client
+      (import ../50-core/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "media";

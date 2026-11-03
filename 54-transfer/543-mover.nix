@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-543, ADR-5000
 # provides: []
-# requires: ["lib/hardening-profiles"]
+# requires: ["50-core/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -197,7 +197,7 @@ lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
       StartLimitIntervalSec = "60";
     };
     serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      (import ../50-core/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "media";

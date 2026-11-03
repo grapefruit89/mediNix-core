@@ -42,7 +42,7 @@ let
   # instance uid, the registry uid and the uid of the user the unit actually
   # runs as must be the same number — otherwise the killswitch targets the
   # wrong process.
-  registry = import ../lib/registry.nix { inherit lib; };
+  registry = import ../50-core/registry.nix { inherit lib; };
   instUidOf = n: activeInstances.${n}.uid;
   regUidOf = n: (registry.services.${n} or { }).uid or null;
   unitUserOf = n: ((config.systemd.services.${n} or { }).serviceConfig or { }).User or n;

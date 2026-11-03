@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REGISTRY = ROOT / "lib/registry.nix"
+REGISTRY = ROOT / "50-core/registry.nix"
 ALLOWLIST = ROOT / "scripts/manifest-edge-allowlist.txt"
 ENTRY = re.compile(r"^\s{2,}([a-z][a-z0-9-]*)\s*=\s*mk([A-Za-z]+)\b", re.M)
 MANIFEST = re.compile(r"medinix\.manifest\.([a-zA-Z0-9_-]+)\s*=")

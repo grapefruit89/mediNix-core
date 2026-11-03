@@ -21,7 +21,7 @@
 }:
 
 let
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
 
   # Aktive Dienste mit Exportarr-Metriken filtern
   exportarrServices = lib.filterAttrs (

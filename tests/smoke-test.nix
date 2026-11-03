@@ -2,7 +2,7 @@
 # id: "smoke-test"
 # title: "Smoke-Test-Helfer (Navidrome-Unit, Port-Isomorphie)"
 # domain: 50
-# folder: "lib"
+# folder: "tests"
 # status: active
 # complexity: 2
 # last_reviewed: 2026-10-15
@@ -40,11 +40,11 @@ in
       # Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
       assertions = [
         {
-          assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
+          assertion = (import ../50-core/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
           message = "[SMOKE-TEST] Navidrome-Port in Registry != 5530 (Dezimalrahmen verletzt)";
         }
         {
-          assertion = (import ../lib/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
+          assertion = (import ../50-core/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
           message = "[SMOKE-TEST] Navidrome-UID in Registry != 5530 (Dezimalrahmen verletzt)";
         }
       ];

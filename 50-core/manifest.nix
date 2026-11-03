@@ -2,14 +2,14 @@
 # id: "manifest"
 # title: "Manifest-Schema & Service-Contract Helper (SSoT)"
 # domain: 50
-# folder: "lib"
+# folder: 50-core
 # status: active
 # complexity: 2
 # last_reviewed: 2026-10-26
 # links:
 #   adr: ADR-0010, ADR-0000
 # ---
-# lib/manifest.nix
+# 50-core/manifest.nix
 #
 # SSoT-Hilfsfunktionen und Schema-Vertrag fuer mediNix-Dienst-Manifeste (ADR-0010).
 # Formalisiert das Schema v1 und bietet den typisierten Generator mkManifestEntry.

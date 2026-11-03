@@ -2,7 +2,12 @@
 # id: "hardening-profiles"
 # title: "Systemd hardening profiles"
 # domain: 50
+# folder: 50-core
+# status: active
+# complexity: 2
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-5050
 # adr: ADR-5050
 # ---
 # Bind policy (SocketBind*) is independent from egress policy (IPAddress*).
@@ -65,7 +70,7 @@ rec {
     ProtectClock = true;
     ProtectHostname = true;
     RemoveIPC = true;
-    # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
+    # mkDefault: 50-core/memory-policy.nix is the SSoT for OOMScoreAdjust.
     OOMScoreAdjust = lib.mkDefault 500;
     RestrictAddressFamilies = [
       "AF_UNIX"
@@ -156,7 +161,7 @@ rec {
       PrivateUsers = lib.mkDefault false;
       AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
       CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
-      # mkDefault: lib/memory-policy.nix is the SSoT for OOMScoreAdjust.
+      # mkDefault: 50-core/memory-policy.nix is the SSoT for OOMScoreAdjust.
       OOMScoreAdjust = lib.mkDefault (-500);
     }
     // networkPolicy.proxy;

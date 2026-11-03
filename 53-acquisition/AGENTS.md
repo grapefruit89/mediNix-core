@@ -48,12 +48,12 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
+- [`50-core/memory-policy`](../50-core/memory-policy.nix)
+- [`50-core/registry`](../50-core/registry.nix)
+- [`50-core/service-factory`](../50-core/service-factory.nix)
 - [`51-ingress/ingress-access`](../51-ingress/ingress-access.nix)
 - [`53-acquisition/arr-settings`](../53-acquisition/arr-settings.nix)
-- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
-- [`lib/memory-policy`](../lib/memory-policy.nix)
-- [`lib/registry`](../lib/registry.nix)
-- [`lib/service-factory`](../lib/service-factory.nix)
 
 ## Dependency Graph
 
@@ -61,32 +61,32 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 graph TD
   532_sonarr["532-sonarr"] --> arr_settings["53-acquisition/arr-settings"]
   532_sonarr["532-sonarr"] --> ingress_access["51-ingress/ingress-access"]
-  532_sonarr["532-sonarr"] --> service_factory["lib/service-factory"]
-  532_sonarr["532-sonarr"] --> registry["lib/registry"]
-  532_sonarr["532-sonarr"] --> hardening_profiles["lib/hardening-profiles"]
-  532_sonarr["532-sonarr"] --> memory_policy["lib/memory-policy"]
+  532_sonarr["532-sonarr"] --> service_factory["50-core/service-factory"]
+  532_sonarr["532-sonarr"] --> registry["50-core/registry"]
+  532_sonarr["532-sonarr"] --> hardening_profiles["50-core/hardening-profiles"]
+  532_sonarr["532-sonarr"] --> memory_policy["50-core/memory-policy"]
   533_radarr["533-radarr"] --> arr_settings["53-acquisition/arr-settings"]
   533_radarr["533-radarr"] --> ingress_access["51-ingress/ingress-access"]
-  533_radarr["533-radarr"] --> service_factory["lib/service-factory"]
-  533_radarr["533-radarr"] --> registry["lib/registry"]
-  533_radarr["533-radarr"] --> hardening_profiles["lib/hardening-profiles"]
-  533_radarr["533-radarr"] --> memory_policy["lib/memory-policy"]
+  533_radarr["533-radarr"] --> service_factory["50-core/service-factory"]
+  533_radarr["533-radarr"] --> registry["50-core/registry"]
+  533_radarr["533-radarr"] --> hardening_profiles["50-core/hardening-profiles"]
+  533_radarr["533-radarr"] --> memory_policy["50-core/memory-policy"]
   534_readarr["534-readarr"] --> arr_settings["53-acquisition/arr-settings"]
-  534_readarr["534-readarr"] --> service_factory["lib/service-factory"]
-  534_readarr["534-readarr"] --> registry["lib/registry"]
-  534_readarr["534-readarr"] --> hardening_profiles["lib/hardening-profiles"]
-  534_readarr["534-readarr"] --> memory_policy["lib/memory-policy"]
+  534_readarr["534-readarr"] --> service_factory["50-core/service-factory"]
+  534_readarr["534-readarr"] --> registry["50-core/registry"]
+  534_readarr["534-readarr"] --> hardening_profiles["50-core/hardening-profiles"]
+  534_readarr["534-readarr"] --> memory_policy["50-core/memory-policy"]
   535_lidarr["535-lidarr"] --> arr_settings["53-acquisition/arr-settings"]
-  535_lidarr["535-lidarr"] --> service_factory["lib/service-factory"]
-  535_lidarr["535-lidarr"] --> registry["lib/registry"]
-  535_lidarr["535-lidarr"] --> hardening_profiles["lib/hardening-profiles"]
-  535_lidarr["535-lidarr"] --> memory_policy["lib/memory-policy"]
+  535_lidarr["535-lidarr"] --> service_factory["50-core/service-factory"]
+  535_lidarr["535-lidarr"] --> registry["50-core/registry"]
+  535_lidarr["535-lidarr"] --> hardening_profiles["50-core/hardening-profiles"]
+  535_lidarr["535-lidarr"] --> memory_policy["50-core/memory-policy"]
   536_prowlarr["536-prowlarr"] --> arr_settings["53-acquisition/arr-settings"]
   536_prowlarr["536-prowlarr"] --> ingress_access["51-ingress/ingress-access"]
-  536_prowlarr["536-prowlarr"] --> service_factory["lib/service-factory"]
-  536_prowlarr["536-prowlarr"] --> registry["lib/registry"]
-  536_prowlarr["536-prowlarr"] --> hardening_profiles["lib/hardening-profiles"]
-  536_prowlarr["536-prowlarr"] --> memory_policy["lib/memory-policy"]
+  536_prowlarr["536-prowlarr"] --> service_factory["50-core/service-factory"]
+  536_prowlarr["536-prowlarr"] --> registry["50-core/registry"]
+  536_prowlarr["536-prowlarr"] --> hardening_profiles["50-core/hardening-profiles"]
+  536_prowlarr["536-prowlarr"] --> memory_policy["50-core/memory-policy"]
   arr_settings["arr-settings"]
 ```
 

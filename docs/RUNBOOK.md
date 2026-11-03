@@ -81,7 +81,7 @@ Auf einer **frischen** Installation nicht nötig.
 ## 5. Symptom-Playbooks (maschinenlesbar)
 
 <!-- RUNBOOK-PLAYBOOKS START -->
-**Generiert** aus [`lib/runbook.json`](../lib/runbook.json) (SSoT) — nicht von Hand
+**Generiert** aus [`packages/medinix-cli/runbook.json`](../packages/medinix-cli/runbook.json) (SSoT) — nicht von Hand
 pflegen. Das CLI liest dieselbe Datei; neu erzeugen: `python3 scripts/gen_runbook.py`,
 pruefen: `--check` (laeuft in `order-lint`).
 

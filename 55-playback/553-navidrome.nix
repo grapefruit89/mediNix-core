@@ -7,7 +7,7 @@
 # complexity: 2
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
-# requires: ["52-security/creds", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["52-security/creds", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
 # adr: ADR-553
 # links:
 #   adr: ADR-553
@@ -22,15 +22,15 @@
 let
   cfg = config.medinix.navidrome;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.navidrome;
   meta = config.medinix.manifest.navidrome;
 
   inherit (meta) port stateDir;
   inherit (reg) sharedGid;
   creds = import ../52-security/creds.nix { inherit lib; };
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../50-core/memory-policy.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.navidrome;
 
@@ -121,7 +121,7 @@ in
       assertions = [
         {
           assertion = meta.num == reg.num;
-          message = "[mediNix/553-navidrome] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+          message = "[mediNix/553-navidrome] Manifest-Nummer (${toString meta.num}) stimmt nicht mit 50-core/registry.nix (${toString reg.num}) überein!";
         }
         {
           assertion = !exposedWan || adminCred != null || cfg.setupCompleted;
@@ -139,7 +139,7 @@ in
         }
       ];
 
-      # users.users.navidrome besitzt die Engine (lib/decimal-framework.nix, UPG).
+      # users.users.navidrome besitzt die Engine (50-core/501-decimal-engine.nix, UPG).
       users.groups.media.gid = sharedGid;
 
       systemd.tmpfiles.rules = [

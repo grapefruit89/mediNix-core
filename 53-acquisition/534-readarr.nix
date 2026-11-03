@@ -10,7 +10,7 @@
 # links:
 #   adr: ADR-532, ADR-5050
 # provides: []
-# requires: ["53-acquisition/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["53-acquisition/arr-settings", "50-core/service-factory", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
 # adr: ADR-532, ADR-5050
 # ---
 {
@@ -23,13 +23,13 @@
 let
   cfg = config.medinix.readarr;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.readarr;
   meta = config.medinix.manifest.readarr;
 
   inherit (meta) port uid stateDir;
   inherit (reg) sharedGid;
-  mkService = import ../lib/service-factory.nix { inherit lib config; };
+  mkService = import ../50-core/service-factory.nix { inherit lib config; };
   arrSettings = import ./arr-settings.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.readarr;
@@ -97,7 +97,7 @@ in
           assertions = [
             {
               assertion = meta.num == reg.num;
-              message = "[mediNix/534-readarr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit lib/registry.nix (${toString reg.num}) überein!";
+              message = "[mediNix/534-readarr] Manifest-Nummer (${toString meta.num}) stimmt nicht mit 50-core/registry.nix (${toString reg.num}) überein!";
             }
           ];
 

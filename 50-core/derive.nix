@@ -2,15 +2,15 @@
 # id: "derive"
 # title: "Decimal-Framework Ableitung (eine Formel fuer Registry UND Engine)"
 # domain: 50
-# folder: "lib"
+# folder: 50-core
 # status: active
 # complexity: 1
 # last_reviewed: 2026-10-16
 # links:
 #   adr: ADR-0000
 # ---
-# Einzige Quelle der Dezimalrahmen-Formel (ADR-0000 §4): `lib/registry.nix` UND
-# `lib/decimal-framework.nix` importieren sie, statt sie doppelt zu pflegen (DRY/SSOT).
+# Einzige Quelle der Dezimalrahmen-Formel (ADR-0000 §4): `50-core/registry.nix` UND
+# `50-core/501-decimal-engine.nix` importieren sie, statt sie doppelt zu pflegen (DRY/SSOT).
 rec {
   # Projektziffer (num / 100). Alle mediNix-Dienste liegen in 5xx (ADR-0000).
   projectDigit = 5;

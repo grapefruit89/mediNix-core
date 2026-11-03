@@ -47,25 +47,25 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
+- [`50-core/registry`](../50-core/registry.nix)
 - [`51-ingress/ingress-access`](../51-ingress/ingress-access.nix)
-- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
-- [`lib/registry`](../lib/registry.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
-  581_ntfy["581-ntfy"] --> hardening_profiles["lib/hardening-profiles"]
-  581_ntfy["581-ntfy"] --> registry["lib/registry"]
+  581_ntfy["581-ntfy"] --> hardening_profiles["50-core/hardening-profiles"]
+  581_ntfy["581-ntfy"] --> registry["50-core/registry"]
   581_ntfy["581-ntfy"] --> ingress_access["51-ingress/ingress-access"]
   582_gatus["582-gatus"]
-  583_runtime_guard["583-runtime-guard"] --> hardening_profiles["lib/hardening-profiles"]
-  583_runtime_guard["583-runtime-guard"] --> registry["lib/registry"]
-  584_post_boot_watchdog["584-post-boot-watchdog"] --> hardening_profiles["lib/hardening-profiles"]
-  584_post_boot_watchdog["584-post-boot-watchdog"] --> registry["lib/registry"]
+  583_runtime_guard["583-runtime-guard"] --> hardening_profiles["50-core/hardening-profiles"]
+  583_runtime_guard["583-runtime-guard"] --> registry["50-core/registry"]
+  584_post_boot_watchdog["584-post-boot-watchdog"] --> hardening_profiles["50-core/hardening-profiles"]
+  584_post_boot_watchdog["584-post-boot-watchdog"] --> registry["50-core/registry"]
   585_exporters["585-exporters"]
-  586_vpn_selftest["586-vpn-selftest"] --> registry["lib/registry"]
-  586_vpn_selftest["586-vpn-selftest"] --> hardening_profiles["lib/hardening-profiles"]
+  586_vpn_selftest["586-vpn-selftest"] --> registry["50-core/registry"]
+  586_vpn_selftest["586-vpn-selftest"] --> hardening_profiles["50-core/hardening-profiles"]
   587_disk_health["587-disk-health"]
 ```
 

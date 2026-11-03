@@ -20,8 +20,8 @@ let
   cfg = config.medinix;
   flagFile = "/var/lib/mediNix-state/provisioned";
   manifest = config.medinix.manifest or { };
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
-  arrProv = pkgs.callPackage ../lib/arr-provision { };
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
+  arrProv = pkgs.callPackage ../packages/arr-provision { };
   cred = name: src: "${name}:${src}";
   credPath = name: "/run/credentials/mediNix-provision.service/${name}";
 
@@ -141,7 +141,7 @@ lib.mkIf cfg.maintenance.provisioning.enable {
       if cfg.maintenance.provisioning.force then null else "!${flagFile}"
     );
     serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).client
+      (import ../50-core/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         TimeoutStartSec = "90s";

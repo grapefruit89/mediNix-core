@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REGISTRY = ROOT / "lib" / "registry.nix"
+REGISTRY = ROOT / "50-core" / "registry.nix"
 INDEX = ROOT / "docs" / "INDEX.md"
 MARKER_START = "<!-- SERVICE-MAP START -->"
 MARKER_END = "<!-- SERVICE-MAP END -->"
@@ -49,7 +49,7 @@ def parse_registry() -> list[dict[str, object]]:
             continue
         m = re.match(r"(?:[a-z0-9-]+)\s*=\s*([A-Za-z]+)\s+(.*);$", raw)
         if not m:
-            raise SystemExit(f"registry-parser: unbekanntes Muster in lib/registry.nix:{offset}: {raw!r}")
+            raise SystemExit(f"registry-parser: unbekanntes Muster in 50-core/registry.nix:{offset}: {raw!r}")
         call, args = m.group(1), m.group(2)
         known = dict(CALLS).get(call)
         if known is None:
@@ -88,7 +88,7 @@ def render(services: list[dict[str, object]]) -> str:
         MARKER_START,
         "## 🗺 Service Map",
         "",
-        "**Generiert** aus [`lib/registry.nix`](../lib/registry.nix) (SSoT) — nicht von Hand",
+        "**Generiert** aus [`50-core/registry.nix`](../50-core/registry.nix) (SSoT) — nicht von Hand",
         "pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`",
         "(läuft in `order-lint`).",
         "",

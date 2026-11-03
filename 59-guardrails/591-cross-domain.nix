@@ -9,15 +9,15 @@
 # links:
 #   adr: ADR-5043
 # provides: ["guardrails"]
-# requires: ["lib/registry", "526-vpn-killswitch", "511-caddy"]
+# requires: ["50-core/registry", "526-vpn-killswitch", "511-caddy"]
 # adr: ADR-5043
 # ---
 { config, lib, ... }:
 
 let
   cfg = config.medinix;
-  svcReg = import ../lib/registry.nix { inherit lib; };
-  df = import ../lib/derive.nix;
+  svcReg = import ../50-core/registry.nix { inherit lib; };
+  df = import ../50-core/derive.nix;
   ks = config.services.vpnKillSwitch or { instances = { }; };
   confined = name: (builtins.hasAttr name ks.instances) && ks.instances.${name}.enable;
 
@@ -80,7 +80,7 @@ let
   ];
 
   # Factory output check (ADR-5050): every unit actually created by
-  # lib/service-factory.nix must yield User=<unit>, Group=<unit>, StateDirectory (nur
+  # 50-core/service-factory.nix must yield User=<unit>, Group=<unit>, StateDirectory (nur
   # bei stateDir != null), and a system user with the factory uid. Keyed by the REAL unit name, so the
   # standalone reverse proxy (caddy-media) is verified as itself instead of the
   # registry key it does not use.

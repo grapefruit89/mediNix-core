@@ -44,29 +44,29 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
+- [`50-core/memory-policy`](../50-core/memory-policy.nix)
+- [`50-core/registry`](../50-core/registry.nix)
+- [`50-core/service-factory`](../50-core/service-factory.nix)
 - [`52-security/creds`](../52-security/creds.nix)
-- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
-- [`lib/memory-policy`](../lib/memory-policy.nix)
-- [`lib/registry`](../lib/registry.nix)
-- [`lib/service-factory`](../lib/service-factory.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
-  551_jellyfin["551-jellyfin"] --> registry["lib/registry"]
-  551_jellyfin["551-jellyfin"] --> service_factory["lib/service-factory"]
-  551_jellyfin["551-jellyfin"] --> hardening_profiles["lib/hardening-profiles"]
-  551_jellyfin["551-jellyfin"] --> memory_policy["lib/memory-policy"]
+  551_jellyfin["551-jellyfin"] --> registry["50-core/registry"]
+  551_jellyfin["551-jellyfin"] --> service_factory["50-core/service-factory"]
+  551_jellyfin["551-jellyfin"] --> hardening_profiles["50-core/hardening-profiles"]
+  551_jellyfin["551-jellyfin"] --> memory_policy["50-core/memory-policy"]
   551_jellyfin["551-jellyfin"] --> creds["52-security/creds"]
   552_audiobookshelf["552-audiobookshelf"] --> creds["52-security/creds"]
-  552_audiobookshelf["552-audiobookshelf"] --> registry["lib/registry"]
-  552_audiobookshelf["552-audiobookshelf"] --> hardening_profiles["lib/hardening-profiles"]
-  552_audiobookshelf["552-audiobookshelf"] --> memory_policy["lib/memory-policy"]
+  552_audiobookshelf["552-audiobookshelf"] --> registry["50-core/registry"]
+  552_audiobookshelf["552-audiobookshelf"] --> hardening_profiles["50-core/hardening-profiles"]
+  552_audiobookshelf["552-audiobookshelf"] --> memory_policy["50-core/memory-policy"]
   553_navidrome["553-navidrome"] --> creds["52-security/creds"]
-  553_navidrome["553-navidrome"] --> registry["lib/registry"]
-  553_navidrome["553-navidrome"] --> hardening_profiles["lib/hardening-profiles"]
-  553_navidrome["553-navidrome"] --> memory_policy["lib/memory-policy"]
+  553_navidrome["553-navidrome"] --> registry["50-core/registry"]
+  553_navidrome["553-navidrome"] --> hardening_profiles["50-core/hardening-profiles"]
+  553_navidrome["553-navidrome"] --> memory_policy["50-core/memory-policy"]
 ```
 
 

@@ -19,7 +19,7 @@ let
   cfg = config.medinix;
   self = args.self or null;
   # SSoT: UID nicht hartkodieren, sondern aus der Registry ableiten.
-  sab = (import ../lib/registry.nix { inherit lib; }).services.sabnzbd;
+  sab = (import ./registry.nix { inherit lib; }).services.sabnzbd;
 in
 {
   options.medinix.hostHygiene = {

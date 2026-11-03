@@ -2,7 +2,7 @@
 # id: "memory-policy"
 # title: "SSoT for systemd OOMScoreAdjust and cgroup memory policies"
 # domain: 50
-# folder: lib
+# folder: 50-core
 # status: active
 # last_reviewed: 2026-10-15
 # complexity: 2

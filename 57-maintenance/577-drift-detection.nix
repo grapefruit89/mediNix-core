@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-5043, ADR-5050
 # provides: []
-# requires: ["lib/hardening-profiles"]
+# requires: ["50-core/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -30,9 +30,9 @@
 
 let
   cfg = config.medinix;
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  df = import ../lib/derive.nix;
-  ntfyPort = (import ../lib/registry.nix { inherit lib; }).services.ntfy.port;
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  df = import ../50-core/derive.nix;
+  ntfyPort = (import ../50-core/registry.nix { inherit lib; }).services.ntfy.port;
   ntfy = "http://127.0.0.1:${toString ntfyPort}/mediNix-drift";
 
   script = pkgs.writeShellApplication {

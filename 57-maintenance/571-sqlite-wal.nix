@@ -8,7 +8,7 @@
 # last_reviewed: 2026-08-19
 # links:
 # provides: []
-# requires: ["lib/hardening-profiles", "lib/registry"]
+# requires: ["50-core/hardening-profiles", "50-core/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -30,7 +30,7 @@
 let
   cfg = config.medinix.maintenance.sqliteOptimize;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
 
   # Only grab active services that have a state directory and systemd unit
   activeServices = lib.filterAttrs (
@@ -144,7 +144,7 @@ lib.mkIf (svc.enable && cfg.enable) {
   systemd.services.mediNix-sqlite-passive = {
     description = "Periodic SQLite PASSIVE Checkpoint (45m)";
     serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      (import ../50-core/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "root"; # needs write to state dirs
@@ -168,7 +168,7 @@ lib.mkIf (svc.enable && cfg.enable) {
   systemd.services.mediNix-sqlite-truncate = {
     description = "Periodic SQLite TRUNCATE + optimize (Heavy)";
     serviceConfig = lib.mkMerge [
-      (import ../lib/hardening-profiles.nix { inherit lib; }).script
+      (import ../50-core/hardening-profiles.nix { inherit lib; }).script
       {
         Type = "oneshot";
         User = "root";

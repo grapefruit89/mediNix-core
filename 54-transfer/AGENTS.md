@@ -43,18 +43,18 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
+- [`50-core/memory-policy`](../50-core/memory-policy.nix)
 - [`52-security/creds`](../52-security/creds.nix)
-- [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
-- [`lib/memory-policy`](../lib/memory-policy.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
-  541_sabnzbd["541-sabnzbd"] --> hardening_profiles["lib/hardening-profiles"]
-  541_sabnzbd["541-sabnzbd"] --> memory_policy["lib/memory-policy"]
+  541_sabnzbd["541-sabnzbd"] --> hardening_profiles["50-core/hardening-profiles"]
+  541_sabnzbd["541-sabnzbd"] --> memory_policy["50-core/memory-policy"]
   541_sabnzbd["541-sabnzbd"] --> creds["52-security/creds"]
-  543_mover["543-mover"] --> hardening_profiles["lib/hardening-profiles"]
+  543_mover["543-mover"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 
 

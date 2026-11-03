@@ -8,7 +8,7 @@
 # last_reviewed: 2026-10-02
 # links:
 # provides: ["options.medinix"]
-# requires: ["lib/registry", "lib/service-factory"]
+# requires: ["50-core/registry", "50-core/service-factory"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -76,7 +76,7 @@ let
     ];
 in
 {
-  imports = moduleFiles ++ [ ./lib/service-contract.nix ];
+  imports = moduleFiles ++ [ ./50-core/service-contract.nix ];
 
   options.medinix = {
 
@@ -785,7 +785,7 @@ in
       default = { };
       internal = true;
       description = ''
-        Units actually created by lib/service-factory.nix, keyed by the real unit
+        Units actually created by 50-core/service-factory.nix, keyed by the real unit
         name. The ADR-5050 guardrail (591) verifies these — not the registry
         names, which would wrongly assume unit name == registry key (the
         standalone reverse proxy is `caddy-media`, not `caddy`).
@@ -958,7 +958,7 @@ in
         inherit default;
         description = "Port für ${name}. Abgeleitet: Num × 10 (ADR-5043).";
       }
-    ) (import ./lib/registry.nix { inherit lib; }).ports;
+    ) (import ./50-core/registry.nix { inherit lib; }).ports;
 
     # --- Hardware ---
     hardware = {
@@ -1302,9 +1302,9 @@ in
 
     # mediNix Health CLI (Build-Zeit aus Registry generiert)
     environment.systemPackages = lib.mkIf cfg.cli.enable [
-      (pkgs.callPackage ./lib/cli.nix {
+      (pkgs.callPackage ./packages/medinix-cli/cli.nix {
         inherit lib;
-        registryJson = builtins.toJSON (import ./lib/registry.nix { inherit lib; }).services;
+        registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit lib; }).services;
         mediaRoot = cfg.storage.mediaRoot;
         metadataDir = cfg.storage.metadataDir;
         mediaDomain = cfg.domain or "";

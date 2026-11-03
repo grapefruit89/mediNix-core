@@ -24,8 +24,8 @@ let
   meta = config.medinix.manifest.seerr;
 
   inherit (meta) port stateDir;
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../50-core/memory-policy.nix { inherit lib; };
   seerrPkg =
     if cfg.package != null then cfg.package else pkgs.seerr or (pkgs.jellyseerr or pkgs.overseerr);
 in

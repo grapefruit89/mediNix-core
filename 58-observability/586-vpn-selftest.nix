@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-526
 # provides: []
-# requires: ["lib/registry", "lib/hardening-profiles"]
+# requires: ["50-core/registry", "50-core/hardening-profiles"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -34,7 +34,7 @@
 let
   cfg = config.medinix.observability.vpnSelftest;
   vpnCfg = config.services.vpnKillSwitch;
-  reg = import ../lib/registry.nix { inherit lib; };
+  reg = import ../50-core/registry.nix { inherit lib; };
   ntfyPort = (reg.services.ntfy or { }).port or 5810;
   ntfyUrl = "http://127.0.0.1:${toString ntfyPort}/alerts";
 

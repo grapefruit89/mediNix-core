@@ -20,7 +20,7 @@
 let
   cfg = config.medinix.gatus;
   svc = config.medinix;
-  reg = (import ../lib/registry.nix { inherit lib; }).services.gatus;
+  reg = (import ../50-core/registry.nix { inherit lib; }).services.gatus;
 
   inherit (reg)
     num
@@ -79,7 +79,7 @@ let
   };
 
   # Unit ueber die Factory: Hardening-Profil + StateDirectory an einer Stelle.
-  conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
+  conn = import ../50-core/service-factory.nix { inherit lib config pkgs; };
 in
 {
   options.medinix.gatus = {

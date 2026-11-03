@@ -2,14 +2,14 @@
 # id: "service-contract"
 # title: "Manifest-Schema und Compliance-Assertions"
 # domain: 50
-# folder: "lib"
+# folder: 50-core
 # status: active
 # complexity: 4
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-0010
 # ---
-# lib/service-contract.nix
+# 50-core/service-contract.nix
 #
 # mediNix-core: Zentraler Metadaten-Vertrag (Manifest)
 # Definiert den typisierten Steckbrief für alle mediNix-Dienste.
@@ -109,7 +109,7 @@ in
               default = [ ];
               description = ''
                 Zusaetzliche Gruppen des Systembenutzers, z. B. [ "video" "render" ].
-                Die Service-Engine (lib/decimal-framework.nix) besitzt users.users.<name>
+                Die Service-Engine (50-core/501-decimal-engine.nix) besitzt users.users.<name>
                 und ergaenzt "media" (GID 5000) nach der Dekaden-Regel; hier steht nur,
                 was darueber hinaus noetig ist.
               '';
@@ -252,7 +252,7 @@ in
                   // {
                     description = ''
                       one of "Media", "Acquisition", "Transfer", "Observability", "Security"
-                      (neue Kategorie? in lib/service-contract.nix unter ui.group ergaenzen)'';
+                      (neue Kategorie? in 50-core/service-contract.nix unter ui.group ergaenzen)'';
                   };
                 default = "Media";
                 description = ''
@@ -282,7 +282,7 @@ in
                   // {
                     description = ''
                       one of "low", "medium", "high" (neue Stufe? in
-                      lib/service-contract.nix unter ops.priority ergaenzen)'';
+                      50-core/service-contract.nix unter ops.priority ergaenzen)'';
                   };
                 default = "medium";
                 description = "Betriebsprioritaet (Ankreuzbogen: low | medium | high).";
@@ -298,12 +298,12 @@ in
                 # "braucht 0 MB".
                 #
                 # ANZEIGE-/Planungswert. Die DURCHSETZUNG (cgroup MemoryMin/Low/
-                # High/Max) macht lib/memory-policy.nix (SSoT) — nicht dieses Feld.
+                # High/Max) macht 50-core/memory-policy.nix (SSoT) — nicht dieses Feld.
                 type = lib.types.strMatching "^([0-9]+(\\.[0-9]+)?[MG])?$" // {
                   description = ''
                     string matching the pattern ^([0-9]+(\.[0-9]+)?[MG])?$
                     (0M = kein eigener Prozess, leer = unbekannt; Format aus
-                    lib/service-contract.nix)'';
+                    50-core/service-contract.nix)'';
                 };
                 default = "";
                 description = "Erwartetes RAM-Budget, z. B. \"512M\", \"1.5G\" oder \"\" (unbekannt).";
@@ -370,7 +370,7 @@ in
               type = lib.types.path;
               internal = true;
               readOnly = true;
-              # ADR-0000 §9: kein Port-Suffix. Die Engine (lib/decimal-framework.nix)
+              # ADR-0000 §9: kein Port-Suffix. Die Engine (50-core/501-decimal-engine.nix)
               # leitet denselben Pfad ab; beide muessen identisch sein, sonst
               # kollidiert users.users.<name>.home.
               default = "/var/lib/${name}";
@@ -486,7 +486,7 @@ in
             && builtins.isString m.ops.priority
             && builtins.isString m.ops.ramBudget
           ) (lib.attrValues cfg.manifest);
-          message = "[mediNix/manifest] Ankreuzbogen verletzt: ui.group, ops.priority und ops.ramBudget muessen Zeichenketten aus der erlaubten Liste sein (siehe lib/service-contract.nix).";
+          message = "[mediNix/manifest] Ankreuzbogen verletzt: ui.group, ops.priority und ops.ramBudget muessen Zeichenketten aus der erlaubten Liste sein (siehe 50-core/service-contract.nix).";
         }
       ];
   };

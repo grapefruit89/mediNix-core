@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-02
 # links:
 #   adr: ADR-576
-# requires: ["lib/registry"]
+# requires: ["50-core/registry"]
 # adr: ADR-576
 # ---
 # Optional pull path next to 576 restic. Encryption is SSH, not a second restic.
@@ -22,7 +22,7 @@
 
 let
   cfg = config.medinix.security.backupSsh;
-  registry = import ../lib/registry.nix { inherit lib; };
+  registry = import ../50-core/registry.nix { inherit lib; };
   stateful = lib.filterAttrs (_: s: s.stateDir != null) registry.services;
   units = lib.mapAttrsToList (_: s: "${s.unitName}.service") stateful;
   unitList = lib.concatMapStringsSep ", " (u: "\"${u}\"") units;

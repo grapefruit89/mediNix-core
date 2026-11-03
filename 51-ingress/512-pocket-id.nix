@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-01
 # links:
 # provides: ["pocket-id", "oidc"]
-# requires: ["51-ingress/ingress-access", "lib/registry", "lib/service-factory"]
+# requires: ["51-ingress/ingress-access", "50-core/registry", "50-core/service-factory"]
 # ports: [5120]
 # upstream_docs: ["https://pocketid.org/docs/"]
 # forum_links: []
@@ -60,7 +60,7 @@
 let
   cfg = config.medinix;
   ing = cfg.ingress;
-  svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
+  svc = (import ../50-core/registry.nix { inherit lib; }).services."pocket-id";
   ia = import ./ingress-access.nix { inherit lib; };
 
   externalAuth = (cfg.authProxyPresent or false) && ((ing.auth.forwardAuthUpstream or "") != "");
@@ -224,7 +224,7 @@ in
       };
 
       # Hardening: network profile. Loopback-only — Caddy is the only WAN face.
-      systemd.services.pocket-id = (import ../lib/service-factory.nix { inherit lib config pkgs; }) {
+      systemd.services.pocket-id = (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
         name = "pocket-id";
         ownsAccount = false; # users.users.pocket-id besitzt die Engine (UPG)
         inherit (svc) stateDir;

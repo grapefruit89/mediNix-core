@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-02
 # links:
 #   adr: ADR-581
-# requires: ["lib/hardening-profiles", "lib/registry", "51-ingress/ingress-access"]
+# requires: ["50-core/hardening-profiles", "50-core/registry", "51-ingress/ingress-access"]
 # systemd_hardened: true
 # ---
 # Loopback only. accessGroup=internal. ntfy itself is read-write; Caddy is the wall.
@@ -22,12 +22,12 @@
 let
   cfg = config.medinix.observability.ntfy;
   svc = config.medinix;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.ntfy;
   inherit (reg) port;
   inherit (reg) uid;
   inherit (reg) stateDir;
-  conn = import ../lib/service-factory.nix { inherit lib config pkgs; };
+  conn = import ../50-core/service-factory.nix { inherit lib config pkgs; };
   # EIN Produzent (Vhost-Override gewinnt). Vorher stand hier das MANIFEST
   # zuerst — also die umgekehrte Prioritaet zum restlichen Ingress.
   ntfyGroup = (import ../51-ingress/ingress-access.nix { inherit lib; }).accessGroupOf svc "ntfy" (

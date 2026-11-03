@@ -2,7 +2,7 @@
 # id: "vm-smoke-test"
 # title: "QEMU-Smoke-Test — Unit-Start und Port-Isomorphie"
 # domain: 50
-# folder: "lib"
+# folder: "tests"
 # status: active
 # complexity: 3
 # last_reviewed: 2026-11-03

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-10-17
 # links:
 # provides: ["forward-auth-proxy"]
-# requires: ["lib/registry"]
+# requires: ["50-core/registry"]
 # ports: []
 # upstream_docs: ["https://oauth2-proxy.github.io/oauth2-proxy/"]
 # forum_links: []
@@ -43,7 +43,7 @@
 let
   cfg = config.medinix;
   oa = cfg.oauth2Proxy;
-  registry = (import ../lib/registry.nix { inherit lib; }).services;
+  registry = (import ../50-core/registry.nix { inherit lib; }).services;
   svc = registry.oauth2-proxy;
 in
 {

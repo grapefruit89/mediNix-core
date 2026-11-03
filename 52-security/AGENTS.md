@@ -22,14 +22,14 @@
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/registry`](../50-core/registry.nix)
 - [`52-security/creds`](../52-security/creds.nix)
-- [`lib/registry`](../lib/registry.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
-  520_core_security["520-core-security"] --> registry["lib/registry"]
+  520_core_security["520-core-security"] --> registry["50-core/registry"]
   521_creds["521-creds"] --> creds["52-security/creds"]
   525_vpn_interface["525-vpn-interface"]
   526_vpn_killswitch["526-vpn-killswitch"]

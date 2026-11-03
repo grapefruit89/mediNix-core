@@ -10,7 +10,7 @@
 # links:
 #   adr: ADR-551
 # provides: ["jellyfin"]
-# requires: ["lib/registry", "lib/service-factory", "lib/hardening-profiles", "lib/memory-policy", "52-security/creds"]
+# requires: ["50-core/registry", "50-core/service-factory", "50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds"]
 # ports: [5510]
 # upstream_docs: ["https://jellyfin.org/docs/"]
 # upstream_github: "https://github.com/jellyfin/jellyfin"
@@ -35,12 +35,12 @@ let
 
   # Kanonisch aus dem Manifest abgeleitet:
   inherit (meta) port stateDir uid;
-  gid = (import ../lib/derive.nix).sharedGid;
+  gid = (import ../50-core/derive.nix).sharedGid;
   package = if cfg.package != null then cfg.package else pkgs.jellyfin;
   creds = import ../52-security/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
-  profiles = import ../lib/hardening-profiles.nix { inherit lib; };
-  memoryPolicy = import ../lib/memory-policy.nix { inherit lib config; };
+  profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
+  memoryPolicy = import ../50-core/memory-policy.nix { inherit lib config; };
   adminCred =
     if cfg.adminPasswordFile != null then
       cfg.adminPasswordFile
@@ -205,7 +205,7 @@ in
         }
       ];
 
-      # users.users.jellyfin besitzt die Engine (lib/decimal-framework.nix, UPG).
+      # users.users.jellyfin besitzt die Engine (50-core/501-decimal-engine.nix, UPG).
       # video/render stehen im Manifest (extraGroups).
       users.groups.media.gid = gid;
 

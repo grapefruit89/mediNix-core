@@ -215,8 +215,8 @@ def sync_deps():
         with open(file_path, "r", encoding="utf-8") as f:
             code = f.read()
             
-        imports = re.findall(r'import\s+[^a-zA-Z0-9]*lib/([a-zA-Z0-9_-]+)\.nix', code)
-        reqs = list(set([f"lib/{imp}" for imp in imports]))
+        imports = re.findall(r'import\s+[^a-zA-Z0-9]*(?:lib|50-core)/([a-zA-Z0-9_-]+)\.nix', code)
+        reqs = list(set([f"50-core/{imp}" for imp in imports]))
         
         match = re.search(r'^(?:#\\s*)?---\\s*\n(.*?)\n(?:#\\s*)?---\\s*\n', code, re.MULTILINE | re.DOTALL)
         if not match: continue
@@ -319,6 +319,9 @@ def generate_docs(check_only=False):
         def _source_link(req: str) -> str:
             """Best effort: verlinkt eine Requires-Angabe auf ihre Quelldatei."""
             candidates = []
+            if req.startswith("50-core/"):
+                path = f"50-core/{req.removeprefix('50-core/')}.nix"
+                candidates.append((path, f"../{path}"))
             if req.startswith("lib/"):
                 path = f"lib/{req.removeprefix('lib/')}.nix"
                 candidates.append((path, f"../{path}"))

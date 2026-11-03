@@ -13,7 +13,7 @@ Bist du ein KI-Agent und sollst ein Modul bauen oder ändern? **Lies die entspre
 <!-- SERVICE-MAP START -->
 ## 🗺 Service Map
 
-**Generiert** aus [`lib/registry.nix`](../lib/registry.nix) (SSoT) — nicht von Hand
+**Generiert** aus [`50-core/registry.nix`](../50-core/registry.nix) (SSoT) — nicht von Hand
 pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 (läuft in `order-lint`).
 

@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-572
 # provides: []
-# requires: ["lib/registry"]
+# requires: ["50-core/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -28,8 +28,8 @@
 let
   cfg = config.medinix.maintenance.recyclarr;
   svc = config.medinix;
-  portRadarr = (import ../lib/registry.nix { inherit lib; }).services.radarr.port;
-  portSonarr = (import ../lib/registry.nix { inherit lib; }).services.sonarr.port;
+  portRadarr = (import ../50-core/registry.nix { inherit lib; }).services.radarr.port;
+  portSonarr = (import ../50-core/registry.nix { inherit lib; }).services.sonarr.port;
 
   germanProfile = {
     name = "German 1080p HEVC";

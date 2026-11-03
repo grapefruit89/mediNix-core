@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-09-02
 # provides: ["media-gid", "emergency-user", "recommended-sysctl"]
-# requires: ["lib/registry"]
+# requires: ["50-core/registry"]
 # ports: []
 # upstream_docs: []
 # forum_links: []
@@ -33,7 +33,7 @@ let
       enable = false;
       rootUuid = null;
     };
-  registry = import ../lib/registry.nix { inherit lib; };
+  registry = import ../50-core/registry.nix { inherit lib; };
 in
 {
   options.medinix.firewall.debug = lib.mkEnableOption "Firewall-Debug-Modus (reject + Logging statt stillem drop)";
@@ -55,7 +55,7 @@ in
   config = lib.mkMerge [
 
     (lib.mkIf cfg.enable {
-      users.groups.media.gid = (import ../lib/derive.nix).sharedGid;
+      users.groups.media.gid = (import ../50-core/derive.nix).sharedGid;
       users.users.media = {
         isSystemUser = true;
         group = "media";

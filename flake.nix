@@ -27,7 +27,7 @@
     let
       overlay = _: _: { }; # Zukünftige Pakete hier
       # Registry als JSON für Build-Zeit-Embedding (CLI-Tool)
-      registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs) lib; }).services;
+      registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit (nixpkgs) lib; }).services;
 
     in
     {
@@ -273,7 +273,7 @@
             cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
           };
           # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
-          # nicht die Inbetriebnahme (Muster wie lib/vm-smoke-test.nix).
+          # nicht die Inbetriebnahme (Muster wie tests/vm-smoke-test.nix).
           medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
           medinix.navidrome.setupCompleted = true;
           medinix.audiobookshelf.setupCompleted = true;
@@ -287,12 +287,12 @@
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
-        packages.medinix = pkgs.callPackage ./lib/cli.nix {
+        packages.medinix = pkgs.callPackage ./packages/medinix-cli/cli.nix {
           inherit lib registryJson;
         };
 
         # Declarative API provisioning for the media stack (from old repo)
-        packages.arr-provision = pkgs.callPackage ./lib/arr-provision/default.nix { };
+        packages.arr-provision = pkgs.callPackage ./packages/arr-provision/default.nix { };
 
         # ── Ratsche: evaluiert das gesamte Modul mit allen Optionen ─────────
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
@@ -348,7 +348,7 @@
 
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
-        checks.smoke-test = import ./lib/vm-smoke-test.nix {
+        checks.smoke-test = import ./tests/vm-smoke-test.nix {
           inherit pkgs;
           inputs = { inherit self; };
         };
@@ -356,7 +356,7 @@
         # ── Voll-Stack-Ratsche: aktiviert jeden Dienst gleichzeitig und erzwingt
         # den toplevel. Deckt Faelle auf, die Einzel-Checks verpassen, weil sie
         # users.users.* nie forcieren (z. B. paralleles Eigentum an
-        # users.users.<dienst> durch Service-Engine und lib/service-factory.nix).
+        # users.users.<dienst> durch Service-Engine und 50-core/service-factory.nix).
 
         checks.mediNix-stack-eval = stackNixos.config.system.build.toplevel;
 
@@ -1153,7 +1153,7 @@
                   medinix.sabnzbd.enable = true;
                 };
               }).config;
-            registry = (import ./lib/registry.nix { inherit lib; }).services;
+            registry = (import ./50-core/registry.nix { inherit lib; }).services;
             wantOf = u: if (u.stateDir or null) == null then null else lib.removePrefix "/var/lib/" u.stateDir;
             badFactory = lib.flatten (
               lib.mapAttrsToList (
@@ -1233,7 +1233,7 @@
             inherit system;
             modules = [
               self.nixosModules.default
-              ./lib/smoke-test.nix
+              ./tests/smoke-test.nix
               {
                 medinix.enable = true;
                 boot.loader.grub.enable = false;
@@ -1256,15 +1256,15 @@
         # gehoert in einen check, nicht in eine Assertion (Assertions laufen
         # waehrend der Config-Auswertung und lesen nur Quellen). Als Assertion
         # scheiterte jede Konfiguration mit synthetischem Manifest-Dienst.
-        # Legitim sind Konten aus der statischen SSoT (lib/registry.nix), der
+        # Legitim sind Konten aus der statischen SSoT (50-core/registry.nix), der
         # Fabrik-/Exporter-Absicht (medinix.factoryUnits/exporters) und den
         # Manifest-Deklarationen (medinix.manifest) - die Engine leitet sie ab.
         checks.mediNix-frameband-fremdkonten =
           let
-            bandDf = import ./lib/derive.nix;
+            bandDf = import ./50-core/derive.nix;
             bandLo = bandDf.projectDigit * 1000;
             bandHi = bandLo + 999;
-            ssot = import ./lib/registry.nix { inherit lib; };
+            ssot = import ./50-core/registry.nix { inherit lib; };
             foreignOf =
               c:
               let
