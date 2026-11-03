@@ -8,3 +8,4 @@ media-primaergruppe | 55-playback/553-navidrome.nix | wie 551: Schreibzugriff au
 media-primaergruppe | 57-maintenance/574-provisioning.nix | Provisioning legt Ablagestruktur an (SetGID-Erbe).
 media-primaergruppe | 57-maintenance/575-update-notifier.nix | schreibt Statusdateien in die geteilte Ablage.
 dynamicuser | 58-observability/581-ntfy.nix | alert-ntfy@ ist ein stateless oneshot-Notifier ohne Konto-Bedarf; Engine-Konto waere moeglich, aber der Dienst hat keinen Zustand. Entscheidung offen (AB-045).
+dynamicuser | 58-observability/588-speedport-maintenance.nix | Stateless Oneshot-Wartungsdienst fuer Speedport-Reconnect ohne Dateisystemzustand (wie alert-ntfy@).
