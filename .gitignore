@@ -56,3 +56,8 @@ Textdatei.txt
 agent/
 skills-lock.json
 
+# Scratch & Raw Chat-Inputs (T-28-14)
+todo/_input/
+todo/_chunks*/
+todo/_chunks_v3
+
