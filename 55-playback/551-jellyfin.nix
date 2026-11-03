@@ -10,7 +10,7 @@
 # links:
 #   adr: ADR-551
 # provides: ["jellyfin"]
-# requires: ["lib/registry", "lib/service-factory", "lib/hardening-profiles", "lib/memory-policy", "lib/creds"]
+# requires: ["lib/registry", "lib/service-factory", "lib/hardening-profiles", "lib/memory-policy", "52-security/creds"]
 # ports: [5510]
 # upstream_docs: ["https://jellyfin.org/docs/"]
 # upstream_github: "https://github.com/jellyfin/jellyfin"
@@ -37,7 +37,7 @@ let
   inherit (meta) port stateDir uid;
   gid = (import ../lib/derive.nix).sharedGid;
   package = if cfg.package != null then cfg.package else pkgs.jellyfin;
-  creds = import ../lib/creds.nix { inherit lib; };
+  creds = import ../52-security/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/jellyfin";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib config; };

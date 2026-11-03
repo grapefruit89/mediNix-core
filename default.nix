@@ -432,7 +432,7 @@ in
                 description = ''
                   Override the manifest's `accessGroup` for this vhost.
                   `null` (default) = the manifest decides. Resolved by
-                  `lib/ingress-access.nix` (511, 513, 515, 518).
+                  `51-ingress/ingress-access.nix` (511, 513, 515, 518).
                 '';
               };
               customConfig = lib.mkOption {

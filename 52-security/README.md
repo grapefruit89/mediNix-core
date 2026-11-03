@@ -36,7 +36,7 @@ LoadCredentialEncrypted
 service reads at runtime
 ```
 
-`lib/creds.nix` validates the path. `521` enforces it. Service modules declare their own `LoadCredentialEncrypted`.
+`52-security/creds.nix` validates the path. `521` enforces it. Service modules declare their own `LoadCredentialEncrypted`.
 
 Accepted names: `*.encrypted`, `*.cred`, `/etc/credstore.encrypted/…`.
 Rejected: `dns.ddns.tokenFile`, `passwordFile`, anything under `storage.mediaRoot`, `secrets.autoGenerate`.
@@ -158,7 +158,7 @@ Every assertion is a **build break**, not a warning.
 ## Agent rule
 
 1. No plaintext secret path.
-2. Validate with `lib/creds.nix`.
+2. Validate with `52-security/creds.nix`.
 3. Use `LoadCredentialEncrypted`.
 4. Do not silently widen 526 allow-rules into WAN.
 5. Keep 525 and 526 separate.

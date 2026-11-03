@@ -7,6 +7,7 @@
 # complexity: 2
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
+# requires: ["52-security/creds", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-552
 # links:
 #   adr: ADR-552
@@ -27,7 +28,7 @@ let
 
   inherit (meta) port stateDir;
   inherit (reg) sharedGid;
-  creds = import ../lib/creds.nix { inherit lib; };
+  creds = import ../52-security/creds.nix { inherit lib; };
   metadataDir = "${svc.storage.metadataDir}/audiobookshelf";
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };

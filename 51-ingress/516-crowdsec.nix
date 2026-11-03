@@ -9,7 +9,7 @@
 # links:
 #   adr: ADR-516
 # provides: ["crowdsec", "edge-bouncer"]
-# requires: ["lib/ingress-access", "lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
+# requires: ["51-ingress/ingress-access", "lib/service-factory", "lib/registry", "51-ingress/511-caddy"]
 # ports: []
 # upstream_docs: ["https://docs.crowdsec.net/docs/data_sources/intro"]
 # forum_links: []
@@ -48,7 +48,7 @@ let
   cfg = config.medinix;
   active = cfg.crowdsec.enable;
   managed = cfg.hostIntegration.nftables == "managed";
-  ia = import ../lib/ingress-access.nix { inherit lib; };
+  ia = import ./ingress-access.nix { inherit lib; };
 
   # Caddy schreibt den Access-Log (JSON, Header gestrippt) nach stdout →
   # journald. Die Acquisition liest genau diese Unit — kein zusaetzliches

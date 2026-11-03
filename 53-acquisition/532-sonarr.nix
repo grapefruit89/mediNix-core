@@ -9,7 +9,7 @@
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg
 # links:
 # provides: []
-# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["53-acquisition/arr-settings", "51-ingress/ingress-access", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-532, ADR-5050
 # links:
 #   adr: ADR-532
@@ -28,14 +28,14 @@ let
 
   inherit (meta) port uid stateDir;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+  arrSettings = import ./arr-settings.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.sonarr;
 
   # F2: Forward-auth detection follows the RESOLVED exposure — EIN Produzent
-  # (lib/ingress-access.nix) statt einer vierten Kopie der Regel.
+  # (51-ingress/ingress-access.nix) statt einer vierten Kopie der Regel.
   exposedPublic =
-    (import ../lib/ingress-access.nix { inherit lib; }).accessGroupOf svc "sonarr" meta == "public";
+    (import ../51-ingress/ingress-access.nix { inherit lib; }).accessGroupOf svc "sonarr" meta == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"

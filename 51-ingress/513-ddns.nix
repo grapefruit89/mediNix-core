@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-11-03
 # provides: ["ddns"]
-# requires: ["lib/service-factory"]
+# requires: ["lib/service-factory", "51-ingress/ingress-access"]
 # adr: ADR-513
 # links:
 #   adr: ADR-513
@@ -38,7 +38,7 @@ let
   domain = if cfg.host.domain != null then cfg.host.domain else cfg.domain;
   zone = if ddns.zone != null then ddns.zone else domain;
 
-  ia = import ../lib/ingress-access.nix { inherit lib; };
+  ia = import ./ingress-access.nix { inherit lib; };
   manifest = config.medinix.manifest or { };
 
   wanManifestLabels = lib.attrNames (

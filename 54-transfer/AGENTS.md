@@ -43,6 +43,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`52-security/creds`](../52-security/creds.nix)
 - [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
 - [`lib/memory-policy`](../lib/memory-policy.nix)
 
@@ -52,6 +53,7 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 graph TD
   541_sabnzbd["541-sabnzbd"] --> hardening_profiles["lib/hardening-profiles"]
   541_sabnzbd["541-sabnzbd"] --> memory_policy["lib/memory-policy"]
+  541_sabnzbd["541-sabnzbd"] --> creds["52-security/creds"]
   543_mover["543-mover"] --> hardening_profiles["lib/hardening-profiles"]
 ```
 

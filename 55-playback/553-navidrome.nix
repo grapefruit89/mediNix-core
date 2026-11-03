@@ -7,6 +7,7 @@
 # complexity: 2
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
+# requires: ["52-security/creds", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-553
 # links:
 #   adr: ADR-553
@@ -27,7 +28,7 @@ let
 
   inherit (meta) port stateDir;
   inherit (reg) sharedGid;
-  creds = import ../lib/creds.nix { inherit lib; };
+  creds = import ../52-security/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
 

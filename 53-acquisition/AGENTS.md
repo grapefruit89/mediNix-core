@@ -42,12 +42,14 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `534-readarr` | [`534-readarr.nix`](534-readarr.nix) | active | 3/5 | - |
 | `535-lidarr` | [`535-lidarr.nix`](535-lidarr.nix) | active | 3/5 | - |
 | `536-prowlarr` | [`536-prowlarr.nix`](536-prowlarr.nix) | active | 3/5 | - |
+| `arr-settings` | [`arr-settings.nix`](arr-settings.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- [`lib/arr-settings`](../lib/arr-settings.nix)
+- [`51-ingress/ingress-access`](../51-ingress/ingress-access.nix)
+- [`53-acquisition/arr-settings`](../53-acquisition/arr-settings.nix)
 - [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
 - [`lib/memory-policy`](../lib/memory-policy.nix)
 - [`lib/registry`](../lib/registry.nix)
@@ -57,31 +59,35 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 ```mermaid
 graph TD
-  532_sonarr["532-sonarr"] --> arr_settings["lib/arr-settings"]
+  532_sonarr["532-sonarr"] --> arr_settings["53-acquisition/arr-settings"]
+  532_sonarr["532-sonarr"] --> ingress_access["51-ingress/ingress-access"]
   532_sonarr["532-sonarr"] --> service_factory["lib/service-factory"]
   532_sonarr["532-sonarr"] --> registry["lib/registry"]
   532_sonarr["532-sonarr"] --> hardening_profiles["lib/hardening-profiles"]
   532_sonarr["532-sonarr"] --> memory_policy["lib/memory-policy"]
-  533_radarr["533-radarr"] --> arr_settings["lib/arr-settings"]
+  533_radarr["533-radarr"] --> arr_settings["53-acquisition/arr-settings"]
+  533_radarr["533-radarr"] --> ingress_access["51-ingress/ingress-access"]
   533_radarr["533-radarr"] --> service_factory["lib/service-factory"]
   533_radarr["533-radarr"] --> registry["lib/registry"]
   533_radarr["533-radarr"] --> hardening_profiles["lib/hardening-profiles"]
   533_radarr["533-radarr"] --> memory_policy["lib/memory-policy"]
-  534_readarr["534-readarr"] --> arr_settings["lib/arr-settings"]
+  534_readarr["534-readarr"] --> arr_settings["53-acquisition/arr-settings"]
   534_readarr["534-readarr"] --> service_factory["lib/service-factory"]
   534_readarr["534-readarr"] --> registry["lib/registry"]
   534_readarr["534-readarr"] --> hardening_profiles["lib/hardening-profiles"]
   534_readarr["534-readarr"] --> memory_policy["lib/memory-policy"]
-  535_lidarr["535-lidarr"] --> arr_settings["lib/arr-settings"]
+  535_lidarr["535-lidarr"] --> arr_settings["53-acquisition/arr-settings"]
   535_lidarr["535-lidarr"] --> service_factory["lib/service-factory"]
   535_lidarr["535-lidarr"] --> registry["lib/registry"]
   535_lidarr["535-lidarr"] --> hardening_profiles["lib/hardening-profiles"]
   535_lidarr["535-lidarr"] --> memory_policy["lib/memory-policy"]
-  536_prowlarr["536-prowlarr"] --> arr_settings["lib/arr-settings"]
+  536_prowlarr["536-prowlarr"] --> arr_settings["53-acquisition/arr-settings"]
+  536_prowlarr["536-prowlarr"] --> ingress_access["51-ingress/ingress-access"]
   536_prowlarr["536-prowlarr"] --> service_factory["lib/service-factory"]
   536_prowlarr["536-prowlarr"] --> registry["lib/registry"]
   536_prowlarr["536-prowlarr"] --> hardening_profiles["lib/hardening-profiles"]
   536_prowlarr["536-prowlarr"] --> memory_policy["lib/memory-policy"]
+  arr_settings["arr-settings"]
 ```
 
 

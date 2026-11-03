@@ -16,12 +16,13 @@
 | `521-creds` | [`521-creds.nix`](521-creds.nix) | active | 3/5 | - |
 | `525-vpn-interface` | [`525-vpn-interface.nix`](525-vpn-interface.nix) | active | 4/5 | - |
 | `526-vpn-killswitch` | [`526-vpn-killswitch.nix`](526-vpn-killswitch.nix) | active | 5/5 | - |
+| `creds` | [`creds.nix`](creds.nix) | active | 1/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- [`lib/creds`](../lib/creds.nix)
+- [`52-security/creds`](../52-security/creds.nix)
 - [`lib/registry`](../lib/registry.nix)
 
 ## Dependency Graph
@@ -29,9 +30,10 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 ```mermaid
 graph TD
   520_core_security["520-core-security"] --> registry["lib/registry"]
-  521_creds["521-creds"] --> creds["lib/creds"]
+  521_creds["521-creds"] --> creds["52-security/creds"]
   525_vpn_interface["525-vpn-interface"]
   526_vpn_killswitch["526-vpn-killswitch"]
+  creds["creds"]
 ```
 
 

@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-07
 # links:
 #   adr: ADR-526
-# requires: ["lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["lib/hardening-profiles", "lib/memory-policy", "52-security/creds"]
 # adr: ADR-526
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
@@ -26,7 +26,7 @@ let
   meta = config.medinix.manifest.sabnzbd;
 
   inherit (meta) port uid stateDir;
-  creds = import ../lib/creds.nix { inherit lib; };
+  creds = import ../52-security/creds.nix { inherit lib; };
   profiles = import ../lib/hardening-profiles.nix { inherit lib; };
   memoryPolicy = import ../lib/memory-policy.nix { inherit lib; };
   tempDir = "/run/sabnzbd-tmp";

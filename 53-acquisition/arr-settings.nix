@@ -1,15 +1,16 @@
 # ---
 # id: "arr-settings"
 # title: ".NET AppSettings → Environment Variables (declarative Arr config)"
-# domain: 50
-# folder: 50-media
+# domain: 53
+# folder: 53-acquisition
 # status: active
 # complexity: 2
-# last_reviewed: 2026-08-12
+# last_reviewed: 2026-11-03
 # links:
 #   adr: ADR-5050
 #   repo-harvest: mynixos (mkServarrSettingsEnvVars, vergessen), nixflix (gleiches Pattern)
 # note: "ASP.NET Configuration: {APP}__{SECTION}__{KEY}=value (doppelter Unterstrich trennt Ebenen)"
+# provides: ["arr-settings", "53-acquisition/arr-settings"]
 # requires: []
 # ---
 { lib }:

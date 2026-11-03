@@ -75,7 +75,7 @@ field is optional; an unset field lets the service manifest decide.
 
 | Field | Type | Effect | Read by |
 | --- | --- | --- | --- |
-| `accessGroup` | enum (`stream`/`public`/`idp`/`internal`/`none`) | the class above; `idp` is reserved for the IdP, `stream` needs the manifest's own declaration or `ingress.streamAck` | 511, 513, 515, 518 via `lib/ingress-access.nix` |
+| `accessGroup` | enum (`stream`/`public`/`idp`/`internal`/`none`) | the class above; `idp` is reserved for the IdP, `stream` needs the manifest's own declaration or `ingress.streamAck` | 511, 513, 515, 518 via `51-ingress/ingress-access.nix` |
 | `landing` | bool or `null` | `false` hides the tile for this host | 518 |
 | `iconId` | str | sprite id, beats `manifest.<name>.ui.icon` and the service name | 518 |
 | `iconSvg` | lines | inline SVG instead of the sprite (trusted operator input, not escaped) | 518 |

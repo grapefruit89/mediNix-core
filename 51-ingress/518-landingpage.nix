@@ -7,13 +7,13 @@
 # complexity: 2
 # last_reviewed: 2026-10-02
 # provides: ["landing-html"]
-# requires: ["511-caddy"]
+# requires: ["511-caddy", "51-ingress/ingress-access"]
 # adr: ADR-518
 # links:
 #   adr: ADR-518
 # ---
 # Renderer only. No program names. A vhost with accessGroup stream|public
-# becomes a tile (resolved via lib/ingress-access.nix, same as 511/513).
+# becomes a tile (resolved via 51-ingress/ingress-access.nix, same as 511/513).
 # Per-vhost overrides it declares and reads: landing (hide), iconId, iconSvg.
 # Sprite file: 50-core/icons.svg served as /icons.svg.
 {
@@ -32,7 +32,7 @@ let
     "public"
   ];
 
-  ia = import ../lib/ingress-access.nix { inherit lib; };
+  ia = import ./ingress-access.nix { inherit lib; };
   manifest = config.medinix.manifest or { };
 
   # Gleiche Aufloesung wie 511 (Rendering) und 513 (DNS): der Vhost-Override
@@ -59,7 +59,7 @@ let
 
   publicHost = n: (cfg.dns.hostnames or { }).${n} or n;
 
-  # Definition in lib/ingress-access.nix (Duplikat mit 511 aufgeloest).
+  # Definition in 51-ingress/ingress-access.nix (Duplikat mit 511 aufgeloest).
   tlsEnabled = ia.tlsEnabledOf cfg.ingress;
 
   # H19: the link scheme follows the actual TLS state, not just `domain != null`.

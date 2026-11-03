@@ -2,10 +2,12 @@
 # id: "ingress-access"
 # title: "Ein Produzent fuer die effektive vHost-Exposure (Vhost-Override gewinnt)"
 # domain: 51
-# folder: "lib"
+# folder: 51-ingress
 # status: active
 # complexity: 1
-# last_reviewed: 2026-10-17
+# last_reviewed: 2026-11-03
+# provides: ["ingress-access", "51-ingress/ingress-access"]
+# requires: []
 # links:
 #   adr: ADR-511
 # ---

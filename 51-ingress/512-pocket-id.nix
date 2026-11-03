@@ -8,7 +8,7 @@
 # last_reviewed: 2026-09-01
 # links:
 # provides: ["pocket-id", "oidc"]
-# requires: ["lib/ingress-access", "lib/registry", "lib/service-factory"]
+# requires: ["51-ingress/ingress-access", "lib/registry", "lib/service-factory"]
 # ports: [5120]
 # upstream_docs: ["https://pocketid.org/docs/"]
 # forum_links: []
@@ -61,12 +61,12 @@ let
   cfg = config.medinix;
   ing = cfg.ingress;
   svc = (import ../lib/registry.nix { inherit lib; }).services."pocket-id";
-  ia = import ../lib/ingress-access.nix { inherit lib; };
+  ia = import ./ingress-access.nix { inherit lib; };
 
   externalAuth = (cfg.authProxyPresent or false) && ((ing.auth.forwardAuthUpstream or "") != "");
 
   # Effektive Exposure von pocket-id. 511/513/515/518 loesen die Zugriffsgruppe
-  # ueber lib/ingress-access.nix auf (Vhost-Override gewinnt, sonst Manifest).
+  # ueber 51-ingress/ingress-access.nix auf (Vhost-Override gewinnt, sonst Manifest).
   # Die Guards unten MUESSEN dieselbe Groesse lesen: vorher prueften sie
   # `pocketId.exposure` (die deklarierte Policy) — ein Host-Override
   # `ingress.vhosts."pocket-id".accessGroup = "idp"` bei

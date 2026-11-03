@@ -7,7 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-09-02
 # provides: ["creds"]
-# requires: ["lib/creds"]
+# requires: ["52-security/creds"]
 # adr: ADR-5000
 # links:
 #   adr: ADR-521
@@ -16,7 +16,7 @@
 
 let
   cfg = config.medinix;
-  creds = import ../lib/creds.nix { inherit lib; };
+  creds = import ./creds.nix { inherit lib; };
   inherit (creds) check;
   notMedia = creds.checkNotUnderMedia (cfg.storage.mediaRoot or null);
   sealed = name: "${creds.storeDir}/${name}.encrypted";

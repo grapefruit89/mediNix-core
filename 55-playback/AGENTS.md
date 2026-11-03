@@ -44,7 +44,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
-- [`lib/creds`](../lib/creds.nix)
+- [`52-security/creds`](../52-security/creds.nix)
 - [`lib/hardening-profiles`](../lib/hardening-profiles.nix)
 - [`lib/memory-policy`](../lib/memory-policy.nix)
 - [`lib/registry`](../lib/registry.nix)
@@ -58,9 +58,15 @@ graph TD
   551_jellyfin["551-jellyfin"] --> service_factory["lib/service-factory"]
   551_jellyfin["551-jellyfin"] --> hardening_profiles["lib/hardening-profiles"]
   551_jellyfin["551-jellyfin"] --> memory_policy["lib/memory-policy"]
-  551_jellyfin["551-jellyfin"] --> creds["lib/creds"]
-  552_audiobookshelf["552-audiobookshelf"]
-  553_navidrome["553-navidrome"]
+  551_jellyfin["551-jellyfin"] --> creds["52-security/creds"]
+  552_audiobookshelf["552-audiobookshelf"] --> creds["52-security/creds"]
+  552_audiobookshelf["552-audiobookshelf"] --> registry["lib/registry"]
+  552_audiobookshelf["552-audiobookshelf"] --> hardening_profiles["lib/hardening-profiles"]
+  552_audiobookshelf["552-audiobookshelf"] --> memory_policy["lib/memory-policy"]
+  553_navidrome["553-navidrome"] --> creds["52-security/creds"]
+  553_navidrome["553-navidrome"] --> registry["lib/registry"]
+  553_navidrome["553-navidrome"] --> hardening_profiles["lib/hardening-profiles"]
+  553_navidrome["553-navidrome"] --> memory_policy["lib/memory-policy"]
 ```
 
 

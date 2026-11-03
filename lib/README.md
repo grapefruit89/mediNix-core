@@ -14,14 +14,21 @@ Zentraler Ordner für **Nix-Hilfsfunktionen und Engines**.
 | `hardening-profiles.nix` | `{ lib }` | systemd-Hardening-Profile (`base`/`network`/…) | **17** |
 | `service-factory.nix` | `{ lib, config }` | `mkService` — erzeugt User/Unit/tmpfiles | **10** |
 | `memory-policy.nix` | `{ lib, config }` | OOMScore/CPU-/IO-Weight je Dienst | **7** |
-| `arr-settings.nix` | `{ lib }` | *arr-Config → .NET-Env-Vars | **6** |
-| `creds.nix` | `{ lib }` | Pfadkonvention für Secrets | **5** |
+| `derive.nix` | – | UID/GID/Port Ableitung | 3 |
 | `cli.nix` | `{ pkgs, registryJson, … }` | `packages.medinix` CLI | 2 |
 | `decimal-framework.nix` | `{ lib, config }` | Decimal-Engine (ADR-0000) | 1 |
 | `manifest.nix` | `{ lib }` | **SSoT**: Manifest-Schema v1 Helper (`mkManifestEntry`) | 1 |
 | `service-contract.nix` | `{ config, lib }` | **NixOS-Modul**: `medinix.manifest`-Schema + Assertions | 1 |
 | `smoke-test.nix` | `{ config, lib }` | **NixOS-Modul**: Eval-Smoke-Test | 1 |
+| `vm-smoke-test.nix` | `{ config, lib }` | VM Smoke-Test Modul | 1 |
 | `arr-provision/` | (Python-Paket) | `packages.arr-provision` | – |
+
+## In Domänen umgezogen (Domänenspezifische Helfer)
+| Ehemalige Datei | Neuer Speicherort | Zweck |
+|---|---|---|
+| `lib/ingress-access.nix` | `51-ingress/ingress-access.nix` | SSOT für effektive vHost-Exposure & Access-Groups |
+| `lib/creds.nix` | `52-security/creds.nix` | Sealed-only systemd-creds Pfadprüfung |
+| `lib/arr-settings.nix` | `53-acquisition/arr-settings.nix` | *arr-Config → .NET-Env-Vars |
 
 ## Nie verdrahtet (0 Importeure) — Entscheidung 2026-10-15: markiert, nicht geloescht
 

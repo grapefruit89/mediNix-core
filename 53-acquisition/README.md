@@ -43,4 +43,4 @@ The services in this domain process external data (APIs, feeds) and interact wit
 ## ⚙️ Declarative Configuration (`arr-settings.nix`)
 
 Instead of configuring the *arr services on startup via fragile `curl` scripts, mediNix-core utilizes native `.NET` configuration injection via environment variables.
-The `lib/arr-settings.nix` file injects settings like ports, authentication methods (OIDC/Forms), and UI themes directly into the Systemd service upon startup. Service updates (`update.mechanism = "BuiltIn"`) are managed by NixOS, which is why the apps' internal updaters are disabled in the settings.
+The `53-acquisition/arr-settings.nix` file injects settings like ports, authentication methods (OIDC/Forms), and UI themes directly into the Systemd service upon startup. Service updates (`update.mechanism = "BuiltIn"`) are managed by NixOS, which is why the apps' internal updaters are disabled in the settings.

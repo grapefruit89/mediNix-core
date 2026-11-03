@@ -7,7 +7,7 @@
 # complexity: 5
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
-# requires: ["lib/derive", "lib/ingress-access", "lib/service-factory"]
+# requires: ["lib/derive", "51-ingress/ingress-access", "lib/service-factory"]
 # adr: ADR-511
 # links:
 #   adr: ADR-511
@@ -28,15 +28,15 @@ let
   ing = cfg.ingress;
   domain = cfg.host.domain;
   df = import ../lib/derive.nix;
-  ia = import ../lib/ingress-access.nix { inherit lib; };
+  ia = import ./ingress-access.nix { inherit lib; };
   registry = (import ../lib/registry.nix { inherit lib; }).services;
 
   # Global (Host-Caddy) oder standalone (caddy-media)? Die Logik lebt in
-  # lib/ingress-access.nix, weil 516 daraus die Journal-Unit ableitet.
+  # 51-ingress/ingress-access.nix, weil 516 daraus die Journal-Unit ableitet.
   useGlobal = ia.useGlobalOf ing.mode config.services.caddy.enable;
 
   # EIN Produzent für die Exposure — jetzt wirklich geteilt: die Aufloesung lebt
-  # in lib/ingress-access.nix und wird von 511 (Rendering), 513 (DNS) und 518
+  # in 51-ingress/ingress-access.nix und wird von 511 (Rendering), 513 (DNS) und 518
   # (Tiles) importiert. Vorher stand sie nur hier, waehrend 513/518 das Manifest
   # direkt lasen — der Override divergierte still (F2: LAN-Client spooft
   # Host-Header und kommt ohne Login rein; 513 publizierte sogar fuer
@@ -88,7 +88,7 @@ let
   inherit (ing) trustedCidrs;
   trustedCidrsStr = builtins.concatStringsSep " " trustedCidrs;
 
-  # Definition in lib/ingress-access.nix (Duplikat mit 518 aufgeloest).
+  # Definition in 51-ingress/ingress-access.nix (Duplikat mit 518 aufgeloest).
   tlsEnabled = ia.tlsEnabledOf ing;
 
   tlsDirective =
@@ -447,7 +447,7 @@ lib.mkMerge [
         # Prefix-Grenzen. Vorher pruefte nur ein Praefix-Match (`10\.` …) plus
         # `hasSuffix "/0"` — `10.0.0.0/1` kam damit durch, und `lanAbort`
         # (`not remote_ip …`) haette halb IPv4 in Richtung WAN geoeffnet.
-        # Ref: Review 2026-10-17, Finding 4; ausgelagert nach lib/ingress-access.nix (D-14-02).
+        # Ref: Review 2026-10-17, Finding 4; ausgelagert nach 51-ingress/ingress-access.nix (D-14-02).
         assertion = lib.all ia.isPrivateCidr trustedCidrs;
         message = "[mediNix/511] trustedCidrs enthält Nicht-Private-Netze oder einen zu weiten Prefix (z. B. /1) — Gefahr der WAN-Freischaltung.";
       }

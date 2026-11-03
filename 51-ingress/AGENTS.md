@@ -149,16 +149,17 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 | `517-oauth2-proxy` | [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) | active | 3/5 | - |
 | `518-landingpage` | [`518-landingpage.nix`](518-landingpage.nix) | active | 2/5 | - |
 | `519-ingress-guardrails` | [`519-ingress-guardrails.nix`](519-ingress-guardrails.nix) | active | 2/5 | - |
+| `ingress-access` | [`ingress-access.nix`](ingress-access.nix) | active | 1/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - [`51-ingress/511-caddy`](../51-ingress/511-caddy.nix)
+- [`51-ingress/ingress-access`](../51-ingress/ingress-access.nix)
 - [`511-caddy`](511-caddy.nix)
 - [`513-ddns`](513-ddns.nix)
 - [`lib/derive`](../lib/derive.nix)
-- [`lib/ingress-access`](../lib/ingress-access.nix)
 - [`lib/registry`](../lib/registry.nix)
 - [`lib/service-factory`](../lib/service-factory.nix)
 
@@ -167,23 +168,26 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 ```mermaid
 graph TD
   511_caddy["511-caddy"] --> derive["lib/derive"]
-  511_caddy["511-caddy"] --> ingress_access["lib/ingress-access"]
+  511_caddy["511-caddy"] --> ingress_access["51-ingress/ingress-access"]
   511_caddy["511-caddy"] --> service_factory["lib/service-factory"]
-  512_pocket_id["512-pocket-id"] --> ingress_access["lib/ingress-access"]
+  512_pocket_id["512-pocket-id"] --> ingress_access["51-ingress/ingress-access"]
   512_pocket_id["512-pocket-id"] --> registry["lib/registry"]
   512_pocket_id["512-pocket-id"] --> service_factory["lib/service-factory"]
   513_ddns["513-ddns"] --> service_factory["lib/service-factory"]
+  513_ddns["513-ddns"] --> ingress_access["51-ingress/ingress-access"]
   513_router_adapter_speedport["513-router-adapter-speedport"] --> 513_ddns["513-ddns"]
   514_acme["514-acme"]
   515_blocky["515-blocky"] --> registry["lib/registry"]
   515_blocky["515-blocky"] --> service_factory["lib/service-factory"]
-  516_crowdsec["516-crowdsec"] --> ingress_access["lib/ingress-access"]
+  516_crowdsec["516-crowdsec"] --> ingress_access["51-ingress/ingress-access"]
   516_crowdsec["516-crowdsec"] --> service_factory["lib/service-factory"]
   516_crowdsec["516-crowdsec"] --> registry["lib/registry"]
   516_crowdsec["516-crowdsec"] --> 511_caddy["51-ingress/511-caddy"]
   517_oauth2_proxy["517-oauth2-proxy"] --> registry["lib/registry"]
   518_landingpage["518-landingpage"] --> 511_caddy["511-caddy"]
+  518_landingpage["518-landingpage"] --> ingress_access["51-ingress/ingress-access"]
   519_ingress_guardrails["519-ingress-guardrails"] --> 511_caddy["511-caddy"]
+  ingress_access["ingress-access"]
 ```
 
 

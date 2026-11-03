@@ -10,7 +10,7 @@
 # links:
 #   adr: ADR-532, ADR-5050
 # provides: []
-# requires: ["lib/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
+# requires: ["53-acquisition/arr-settings", "lib/service-factory", "lib/registry", "lib/hardening-profiles", "lib/memory-policy"]
 # adr: ADR-532, ADR-5050
 # ---
 {
@@ -30,7 +30,7 @@ let
   inherit (meta) port uid stateDir;
   inherit (reg) sharedGid;
   mkService = import ../lib/service-factory.nix { inherit lib config; };
-  arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+  arrSettings = import ./arr-settings.nix { inherit lib; };
 
   package = if cfg.package != null then cfg.package else pkgs.readarr;
 in

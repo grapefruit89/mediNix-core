@@ -1,8 +1,15 @@
 # ---
 # id: "creds"
 # title: "systemd-creds path contract"
-# domain: 50
-# last_reviewed: 2026-09-02
+# domain: 52
+# folder: 52-security
+# status: active
+# complexity: 1
+# last_reviewed: 2026-11-03
+# provides: ["creds-helper", "52-security/creds"]
+# requires: []
+# links:
+#   adr: ADR-521
 # ---
 # LoadCredentialEncrypted only accepts a systemd-creds blob.
 # Eval cannot open the host file, so we require a sealed *name*:
