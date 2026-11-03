@@ -1,14 +1,14 @@
 # ---
-# id: "588-speedport-maintenance"
+# id: "513-speedport-reconnect"
 # title: "Speedport Smart 4 — Tägliche Zwangstrennung & Router-Maintenance"
-# domain: 58
-# folder: 58-observability
+# domain: 51
+# folder: 51-ingress
 # status: draft
 # complexity: 2
 # last_reviewed: 2026-11-03
 # links:
 #   adr: ADR-513
-# provides: ["speedport-maintenance"]
+# provides: ["speedport-reconnect"]
 # requires: ["513-cloudflare-dns"]
 # ports: []
 # upstream_docs: ["https://github.com/Andre0512/speedport-api"]
@@ -19,18 +19,18 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-# 58-observability/588-speedport-maintenance.nix
+# 51-ingress/513-speedport-reconnect.nix
 #
 # Zwangstrennung um 05:00 Uhr morgens via Speedport-API (Connect.json reconnect).
-# Reißt um 05:00 Uhr gezielt bestehende Sessions ab und setzt den 24h-Telekom-Timer zurueck,
-# um unkontrollierte Zwangstrennungen waehrend des Tages / Feierabends zu verhindern.
-# Triggert nach bestaetigter neuer Uptime rein deklarativ cloudflare-ddns.service.
+# Companion-Modul zu 513-cloudflare-dns: Setzt den 24h-Telekom-Timer kontrolliert
+# in den frühen Morgenstunden zurück, verhindert Verbindungsabbrüche tagsüber
+# und stößt nach erfolgreichem Reconnect direkt den Cloudflare-DDNS-Sync an.
 #
-# Lifecycle & Alarmierungs-Design:
-# - OnFailure: Feuert nach Ausschoepfung des Retrys (StartLimitBurst = 2, RestartSec = 6min).
-#   Wartet 6 Minuten zwischen Versuchen, damit die 5-minuetige Login-Sperre (pause_time) ablaeuft.
-# - Session-Ende: Speedport.__aexit__ ruft sp.close() auf und beendet die TCP-Verbindung sauber.
-# - Zeitzone: Explizit Europe/Berlin im systemd Calendar-Format.
+# Lifecycle & Puffer-Architektur:
+# - 15s Initial-Puffer nach Reconnect-Befehl (ungestörter Leitungs-Reset)
+# - 60s Polling-Puffer (12x alle 5s) auf Uptime-Sprung und valide IPv4
+# - Bei Störung: Retry nach 6 Minuten (übersteigt 5-minütige Router-Login-Sperre)
+# - Alarmierung: OnFailure feuert nach 2. Fehlversuch Handy-Alarm via ntfy
 {
   config,
   lib,
@@ -39,7 +39,7 @@
 }:
 
 let
-  cfg = config.medinix.observability.speedportMaintenance;
+  cfg = config.medinix.ingress.speedportReconnect;
   speedportPkg = pkgs.callPackage ../lib/speedport-api.nix { };
   pythonEnv = pkgs.python312.withPackages (_: [ speedportPkg ]);
 
@@ -55,7 +55,7 @@ let
       exit 1
     fi
 
-    echo "=== [Speedport Maintenance] Starte kontrollierte Zwangstrennung um $(date) ==="
+    echo "=== [Speedport Reconnect] Starte kontrollierte Zwangstrennung um $(date) ==="
 
     ${pythonEnv}/bin/python3 - "$ROUTER" "$PASSWORD_FILE" <<'PY'
 import asyncio, sys
@@ -122,11 +122,11 @@ async def main():
 asyncio.run(main())
 PY
 
-    echo "=== [Speedport Maintenance] Reconnect erfolgreich abgeschlossen ==="
+    echo "=== [Speedport Reconnect] Reconnect erfolgreich abgeschlossen ==="
   '';
 in
 {
-  options.medinix.observability.speedportMaintenance = {
+  options.medinix.ingress.speedportReconnect = {
     enable = lib.mkEnableOption "Tägliche proaktive Speedport-Zwangstrennung um 05:00 Uhr morgens";
     time = lib.mkOption {
       type = lib.types.str;
@@ -155,7 +155,7 @@ in
     assertions = [
       {
         assertion = cfg.passwordCredential != null || cfg.passwordFile != null;
-        message = "[mediNix/588-speedport-maintenance] speedportMaintenance ist aktiviert, aber weder passwordCredential noch passwordFile wurde gesetzt.";
+        message = "[mediNix/513-speedport-reconnect] speedportReconnect ist aktiviert, aber weder passwordCredential noch passwordFile wurde gesetzt.";
       }
     ];
 
