@@ -912,8 +912,8 @@ in
         wanIp = {
           routerIp = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
-            default = "192.168.2.1";
-            description = "Optionale LAN-IP des Routers (Default 192.168.2.1, null = Default-Gateway-Erkennung).";
+            default = null;
+            description = "Optionale LAN-IP des Routers (null = Default-Gateway-Erkennung oder SPEEDPORT_HOST).";
           };
           provider = lib.mkOption {
             type = lib.types.enum [

@@ -25,11 +25,13 @@
 # Login-Budget: 1 pro Aufruf.
 #
 # Reconnect-Ablauf (EIN Login):
-#   sp.login() → alte IP + Uptime lesen → sp.reconnect()
+#   sp.login() → alte IP + Uptime lesen → try: sp.reconnect()
 #   → 25s asyncio.sleep (15s Reset + 10s Puffer)
 #   → bis zu 3× Status-Read (gleiche Session, KEIN neuer Login)
-#   → Erfolg = Uptime hat sich geändert → neue IP auf stdout
-#   → Fehlschlag = exit 1 → OnFailure → ntfy
+#   → Erfolg = new_up > old_up und gültige IPv4 → neue IP auf stdout
+#   → new_up < old_up → FATAL
+#   → new_ip == old_ip bei new_up > old_up → WARN, trotzdem exit 0 mit IP
+#   → Fehlschlag = exit 1 → OnFailure → alert-ntfy
 {
   lib,
   pkgs,
@@ -41,7 +43,23 @@ let
   cfg = config.medinix;
   ddns = cfg.dns.ddns;
 
-  speedportPkg = pkgs.callPackage ../lib/speedport-api.nix { };
+  # speedport-api 0.6.0 komplett inline gebaut (kein externes lib/speedport-api.nix mehr)
+  speedportPkg = pkgs.python312Packages.buildPythonPackage rec {
+    pname = "speedport-api";
+    version = "0.6.0";
+    pyproject = true;
+    src = pkgs.fetchPypi {
+      inherit pname version;
+      hash = "sha256-QVewcFQeSfhSNHE++jEVI9ZWTew5hfl9Un47//oIx6c=";
+    };
+    build-system = [ pkgs.python312Packages.setuptools ];
+    propagatedBuildInputs = [
+      pkgs.python312Packages.aiohttp
+      pkgs.python312Packages.pycryptodome
+    ];
+    doCheck = false;
+  };
+
   pythonEnv = pkgs.python312.withPackages (_: [ speedportPkg ]);
 
   speedportClient = pkgs.writeText "speedport-client.py" ''
@@ -83,7 +101,7 @@ let
                     print(f"FATAL: empty or invalid WAN-IPv4 from Speedport: '{ip}'", file=sys.stderr)
                     sys.exit(1)
                 print(ip)
-                return
+                return 0
 
             if action == "reconnect":
                 old_ip = sp.public_ip_v4
@@ -91,7 +109,11 @@ let
                 print(f"Status vor Reconnect: WAN-IPv4={old_ip}, Uptime={old_up}", file=sys.stderr)
 
                 print("Sende Reconnect-Befehl (Connect.json)...", file=sys.stderr)
-                await sp.reconnect()
+                try:
+                    await sp.reconnect()
+                except Exception as e:
+                    print(f"FATAL: Reconnect-Befehl fehlgeschlagen: {e}", file=sys.stderr)
+                    sys.exit(1)
 
                 print("Warte 25s Puffer fuer Leitungs-Reset...", file=sys.stderr)
                 await asyncio.sleep(25)
@@ -102,16 +124,25 @@ let
                         await sp.update_status()
                         new_ip = sp.public_ip_v4
                         new_up = sp.inet_uptime
-                        if new_up != old_up and new_ip and not new_ip.startswith("0."):
-                            if new_ip == old_ip:
-                                print(f"WARN: Reconnect erfolgreich (Uptime geaendert), aber ISP vergab gleiche IP: {new_ip}", file=sys.stderr)
+
+                        if new_up > old_up:
+                            if not new_ip or new_ip.startswith("0."):
+                                print(f"Versuch {attempt}/3: Uptime erneuert ({new_up}), aber IP noch ungültig/leer ({new_ip}), warte 20s...", file=sys.stderr)
                             else:
-                                print(f"Reconnect erfolgreich bestaetigt: neue IP={new_ip}, Uptime={new_up} (vorher {old_up})", file=sys.stderr)
-                            print(new_ip)
-                            return
-                        print(f"Versuch {attempt}/3: Uptime noch unveraendert ({new_up}), warte 20s...", file=sys.stderr)
+                                if new_ip == old_ip:
+                                    print(f"WARN: Reconnect erfolgreich (Uptime geaendert {old_up} -> {new_up}), aber ISP vergab gleiche IP: {new_ip}", file=sys.stderr)
+                                else:
+                                    print(f"Reconnect erfolgreich bestaetigt: neue IP={new_ip}, Uptime={new_up} (vorher {old_up})", file=sys.stderr)
+                                print(new_ip)
+                                return 0
+                        elif new_up < old_up:
+                            print(f"FATAL: new_up < old_up ({new_up} < {old_up}) - Uptime Dateninkonsistenz!", file=sys.stderr)
+                            sys.exit(1)
+                        else:
+                            print(f"Versuch {attempt}/3: Uptime noch unveraendert ({new_up}), warte 20s...", file=sys.stderr)
                     except Exception as e:
                         print(f"Versuch {attempt}/3: Ausnahme beim Status-Lesen: {type(e).__name__}: {e}", file=sys.stderr)
+
                     if attempt < 3:
                         await asyncio.sleep(20)
 
@@ -149,7 +180,7 @@ in
       check = pkgs.writeShellScript "speedport-check" ''
         set -euo pipefail
         ${readPw}
-        ROUTER="''${SPEEDPORT_HOST:-${ddns.wanIp.routerIp or "192.168.2.1"}}"
+        ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
         if [ -z "$ROUTER" ]; then
           ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
         fi
@@ -160,7 +191,7 @@ in
       reconnect = pkgs.writeShellScript "speedport-reconnect" ''
         set -euo pipefail
         ${readPw}
-        ROUTER="''${SPEEDPORT_HOST:-${ddns.wanIp.routerIp or "192.168.2.1"}}"
+        ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
         if [ -z "$ROUTER" ]; then
           ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
         fi
