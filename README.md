@@ -26,7 +26,7 @@ A service describes itself. Ingress organs only consume that description.
 
 | Domain | Role | Modules |
 | --- | --- | --- |
-| `51-ingress` | Reverse proxy, TLS, DNS, Split-DNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-cloudflare-dns, 514-acme, 515-blocky, 518-landingpage |
+| `51-ingress` | Reverse proxy, TLS, DNS, Split-DNS, OIDC, landing page | 510 how-to, 511-caddy, 512-pocket-id, 513-ddns, 514-acme, 515-blocky, 518-landingpage |
 | `52-security` | Core security, Credentials, VPN | 520-core-security, 521-creds, 525-vpn-interface, 526-vpn-killswitch |
 | `53-acquisition` | *arr indexers | 532-sonarr, 533-radarr, 534-readarr, 535-lidarr, 536-prowlarr |
 | `55-playback` | Playback & Streaming | 551-jellyfin, 552-audiobookshelf, 553-navidrome |

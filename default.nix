@@ -902,7 +902,19 @@ in
             (self-healing). true = Legacy-Verhalten für bestehende Setups.
           '';
         };
+        reconnect = {
+          time = lib.mkOption {
+            type = lib.types.str;
+            default = "*-*-* 05:00:00 Europe/Berlin";
+            description = "systemd OnCalendar Zeitangabe für die tägliche Zwangstrennung (inkl. Zeitzone).";
+          };
+        };
         wanIp = {
+          routerIp = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = "192.168.2.1";
+            description = "Optionale LAN-IP des Routers (Default 192.168.2.1, null = Default-Gateway-Erkennung).";
+          };
           provider = lib.mkOption {
             type = lib.types.enum [
               "host"

@@ -58,7 +58,7 @@ No application-specific knowledge belongs in the generic ingress organs.
 In particular:
 
 * `511-caddy.nix` must not contain application-specific route knowledge.
-* `513-cloudflare-dns.nix` must not contain a second service inventory.
+* `513-ddns.nix` must not contain a second service inventory.
 * `515-blocky.nix` must not contain application-specific policy.
 * `518-landingpage.nix` must not maintain a preferred-service list or icon registry.
 * application-specific knowledge remains in the corresponding service module.
@@ -165,7 +165,7 @@ Current examples:
 | ------------------ | ------------------------------------- | ------------------------- |
 | 511-caddy          | `lib/service-factory`, `lib/registry` | routing / Caddy engine    |
 | 512-pocket-id      | `lib/service-factory`, `lib/registry` | Pocket-ID / OIDC          |
-| 513-cloudflare-dns | `lib/service-factory`                 | DDNS / Cloudflare         |
+| 513-ddns           | `lib/service-factory`                 | DDNS (Anchor & Router Adapter) |
 | 514-acme           | —                                     | ACME / TLS / certificates |
 | 515-blocky         | `lib/registry`                        | Split-DNS (Blocky)        |
 | 518-landingpage    | `511-caddy`                           | landing HTML              |
@@ -197,7 +197,7 @@ graph TD
 
   FAC["lib/service-factory"] --> C511
   FAC --> C512
-  FAC --> C513["513-cloudflare-dns"]
+  FAC --> C513["513-ddns"]
 
 
   VH --> C511
@@ -465,7 +465,7 @@ medinix.ingress.guardrails
 | **510** | `510-ingress-SERVICE.md`     | How-to documentation; not a Nix module      |
 | **511** | `511-caddy.nix`              | Chameleon Caddy edge engine                 |
 | **512** | `512-pocket-id.nix`          | Explicitly enabled Pocket-ID / OIDC service |
-| **513** | `513-cloudflare-dns.nix`     | Cloudflare DNS/DDNS anchor                  |
+| **513** | `513-ddns.nix`               | Dynamic DNS (Cloudflare & Router Adapter)   |
 | **514** | `514-acme.nix`               | Wildcard DNS-01 certificate management      |
 | **515** | `515-blocky.nix`             | Split-DNS resolver (Blocky, Port 53, UID 5150) |
 | **516** | `516-crowdsec.nix`           | Edge-IPS: CrowdSec engine + firewall-bouncer |

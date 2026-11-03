@@ -141,9 +141,8 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 |---|---|---|---|---|
 | `511-caddy` | [`511-caddy.nix`](511-caddy.nix) | active | 5/5 | - |
 | `512-pocket-id` | [`512-pocket-id.nix`](512-pocket-id.nix) | active | 4/5 |  |
-| `513-cloudflare-dns` | [`513-cloudflare-dns.nix`](513-cloudflare-dns.nix) | active | 3/5 | - |
-| `513-fritzbox-reconnect` | [`513-fritzbox-reconnect.nix`](513-fritzbox-reconnect.nix) | draft | 1/5 | - |
-| `513-speedport-reconnect` | [`513-speedport-reconnect.nix`](513-speedport-reconnect.nix) | draft | 2/5 | - |
+| `513-ddns` | [`513-ddns.nix`](513-ddns.nix) | active | 3/5 | - |
+| `513-router-adapter-speedport` | [`513-router-adapter-speedport.nix`](513-router-adapter-speedport.nix) | active | 2/5 | - |
 | `514-acme` | [`514-acme.nix`](514-acme.nix) | active | 2/5 | - |
 | `515-blocky` | [`515-blocky.nix`](515-blocky.nix) | active | 3/5 |  |
 | `516-crowdsec` | [`516-crowdsec.nix`](516-crowdsec.nix) | active | 3/5 | - |
@@ -157,7 +156,7 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 - [`51-ingress/511-caddy`](../51-ingress/511-caddy.nix)
 - [`511-caddy`](511-caddy.nix)
-- [`513-cloudflare-dns`](513-cloudflare-dns.nix)
+- [`513-ddns`](513-ddns.nix)
 - [`lib/derive`](../lib/derive.nix)
 - [`lib/ingress-access`](../lib/ingress-access.nix)
 - [`lib/registry`](../lib/registry.nix)
@@ -173,9 +172,8 @@ graph TD
   512_pocket_id["512-pocket-id"] --> ingress_access["lib/ingress-access"]
   512_pocket_id["512-pocket-id"] --> registry["lib/registry"]
   512_pocket_id["512-pocket-id"] --> service_factory["lib/service-factory"]
-  513_cloudflare_dns["513-cloudflare-dns"] --> service_factory["lib/service-factory"]
-  513_fritzbox_reconnect["513-fritzbox-reconnect"] --> 513_cloudflare_dns["513-cloudflare-dns"]
-  513_speedport_reconnect["513-speedport-reconnect"] --> 513_cloudflare_dns["513-cloudflare-dns"]
+  513_ddns["513-ddns"] --> service_factory["lib/service-factory"]
+  513_router_adapter_speedport["513-router-adapter-speedport"] --> 513_ddns["513-ddns"]
   514_acme["514-acme"]
   515_blocky["515-blocky"] --> registry["lib/registry"]
   515_blocky["515-blocky"] --> service_factory["lib/service-factory"]
