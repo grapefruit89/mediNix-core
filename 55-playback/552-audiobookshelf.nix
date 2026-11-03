@@ -4,6 +4,7 @@
 # domain: 55
 # folder: 55-playback
 # status: active
+# complexity: 2
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
 # adr: ADR-552

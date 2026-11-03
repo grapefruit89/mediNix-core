@@ -141,7 +141,7 @@ dump_folder_to_ki_md() {
   echo -e "\n---" >> "$target_md"
   echo -e "\n## 2. File Inventory" >> "$target_md"
   for file in "${valid_files[@]}"; do
-    local rel_path="${file#$REPO_ROOT/}"
+    local rel_path="${file#"$REPO_ROOT"/}"
     local anchor
     anchor=$(echo "$rel_path" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-|-$//g')
     echo "- [$rel_path](#file-$anchor) — \`$rel_path\`" >> "$target_md"
@@ -152,7 +152,7 @@ dump_folder_to_ki_md() {
   echo -e "\n## 3. File Contents\n" >> "$target_md"
 
   for file in "${valid_files[@]}"; do
-    local rel_path="${file#$REPO_ROOT/}"
+    local rel_path="${file#"$REPO_ROOT"/}"
     local anchor
     anchor=$(echo "$rel_path" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-|-$//g')
     local lang

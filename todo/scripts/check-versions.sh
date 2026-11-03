@@ -4,9 +4,6 @@ set -euo pipefail
 # Idempotentes Skript zur Versionsprüfung von mediNix-Programmen
 # Liest todo/programs.json und erzeugt todo/versions.json mit Deltas und Sicherheitsrelevanz.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TODO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
 python3 - << 'EOF'
 import json
 import pathlib

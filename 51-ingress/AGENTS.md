@@ -139,12 +139,12 @@ Einzeln baubare Ingress-Checks (Rest siehe `nix flake check`):
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `511-caddy` | [`511-caddy.nix`](511-caddy.nix) | active | -/5 | - |
+| `511-caddy` | [`511-caddy.nix`](511-caddy.nix) | active | 5/5 | - |
 | `512-pocket-id` | [`512-pocket-id.nix`](512-pocket-id.nix) | active | 4/5 |  |
-| `513-cloudflare-dns` | [`513-cloudflare-dns.nix`](513-cloudflare-dns.nix) | active | -/5 | - |
+| `513-cloudflare-dns` | [`513-cloudflare-dns.nix`](513-cloudflare-dns.nix) | active | 3/5 | - |
 | `513-fritzbox-reconnect` | [`513-fritzbox-reconnect.nix`](513-fritzbox-reconnect.nix) | draft | 1/5 | - |
 | `513-speedport-reconnect` | [`513-speedport-reconnect.nix`](513-speedport-reconnect.nix) | draft | 2/5 | - |
-| `514-acme` | [`514-acme.nix`](514-acme.nix) | active | -/5 | - |
+| `514-acme` | [`514-acme.nix`](514-acme.nix) | active | 2/5 | - |
 | `515-blocky` | [`515-blocky.nix`](515-blocky.nix) | active | 3/5 |  |
 | `516-crowdsec` | [`516-crowdsec.nix`](516-crowdsec.nix) | active | 3/5 | - |
 | `517-oauth2-proxy` | [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) | active | 3/5 | - |

@@ -6,7 +6,8 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-25
-# links: ""
+# links:
+#   adr: ADR-578
 # provides: ["systemd.timers.medinix-orphan-cleanup"]
 # requires: []
 # ports: []

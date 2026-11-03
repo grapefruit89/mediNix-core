@@ -4,6 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
+# complexity: 2
 # last_reviewed: 2026-09-02
 # links:
 #   adr: ADR-514

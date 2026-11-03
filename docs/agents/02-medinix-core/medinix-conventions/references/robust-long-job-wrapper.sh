@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Robust long-running job wrapper (e.g. FAISS index rebuild ~3.76h on CPU)
 # Lessons from grok_index_v2.py zombie failure on Unraid Tower.
 #
@@ -9,7 +10,6 @@
 #
 # PATTERN (use this):
 
-#!/usr/bin/env bash
 set -u
 SCRIPT_DIR="/mnt/user/data/hermes_knowledge/nixos_vectors"
 SCRIPT="$SCRIPT_DIR/grok_index_v2.py"

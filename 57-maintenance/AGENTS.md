@@ -40,12 +40,12 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 4/5 | - |
 | `571-sqlite-wal` | [`571-sqlite-wal.nix`](571-sqlite-wal.nix) | active | 3/5 | - |
 | `572-recyclarr` | [`572-recyclarr.nix`](572-recyclarr.nix) | active | 3/5 | - |
-| `574-provisioning` | [`574-provisioning.nix`](574-provisioning.nix) | active | -/5 | - |
+| `574-provisioning` | [`574-provisioning.nix`](574-provisioning.nix) | active | 3/5 | - |
 | `575-update-notifier` | [`575-update-notifier.nix`](575-update-notifier.nix) | active | 3/5 | - |
-| `576-backup` | [`576-backup.nix`](576-backup.nix) | active | -/5 | - |
+| `576-backup` | [`576-backup.nix`](576-backup.nix) | active | 3/5 | - |
 | `577-drift-detection` | [`577-drift-detection.nix`](577-drift-detection.nix) | active | 3/5 | - |
 | `578-orphan-cleanup` | [`578-orphan-cleanup.nix`](578-orphan-cleanup.nix) | active | 3/5 | - |
-| `579-backup-ssh` | [`579-backup-ssh.nix`](579-backup-ssh.nix) | active | -/5 | - |
+| `579-backup-ssh` | [`579-backup-ssh.nix`](579-backup-ssh.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 

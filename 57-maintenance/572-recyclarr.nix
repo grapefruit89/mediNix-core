@@ -7,6 +7,7 @@
 # complexity: 3
 # last_reviewed: 2026-08-19
 # links:
+#   adr: ADR-572
 # provides: []
 # requires: ["lib/registry"]
 # ports: []

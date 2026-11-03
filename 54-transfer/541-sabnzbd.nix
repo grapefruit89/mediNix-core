@@ -4,6 +4,7 @@
 # domain: 54
 # folder: 54-transfer
 # status: active
+# complexity: 2
 # last_reviewed: 2026-09-07
 # links:
 #   adr: ADR-526

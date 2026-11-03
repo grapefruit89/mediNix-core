@@ -31,7 +31,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `591-cross-domain` | [`591-cross-domain.nix`](591-cross-domain.nix) | active | -/5 | - |
+| `591-cross-domain` | [`591-cross-domain.nix`](591-cross-domain.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 

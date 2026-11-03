@@ -36,10 +36,10 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `581-ntfy` | [`581-ntfy.nix`](581-ntfy.nix) | active | 3/5 | - |
-| `582-gatus` | [`582-gatus.nix`](582-gatus.nix) | active | -/5 | - |
+| `582-gatus` | [`582-gatus.nix`](582-gatus.nix) | active | 2/5 | - |
 | `583-runtime-guard` | [`583-runtime-guard.nix`](583-runtime-guard.nix) | active | 3/5 | - |
 | `584-post-boot-watchdog` | [`584-post-boot-watchdog.nix`](584-post-boot-watchdog.nix) | active | 2/5 | - |
-| `585-exporters` | [`585-exporters.nix`](585-exporters.nix) | active | -/5 | - |
+| `585-exporters` | [`585-exporters.nix`](585-exporters.nix) | active | 2/5 | - |
 | `586-vpn-selftest` | [`586-vpn-selftest.nix`](586-vpn-selftest.nix) | active | 2/5 | - |
 | `587-disk-health` | [`587-disk-health.nix`](587-disk-health.nix) | active | 2/5 | - |
 

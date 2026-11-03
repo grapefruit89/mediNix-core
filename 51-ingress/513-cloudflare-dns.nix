@@ -4,6 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
+# complexity: 3
 # last_reviewed: 2026-10-02
 # provides: ["ddns", "cloudflare"]
 # requires: ["lib/service-factory"]

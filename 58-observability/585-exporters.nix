@@ -4,7 +4,10 @@
 # domain: 58
 # folder: 58-observability
 # status: active
+# complexity: 2
 # last_reviewed: 2026-10-16
+# links:
+#   adr: ADR-585
 # ---
 # Reiner Manifest-Konsument: Kennt keinen Dienst namentlich.
 # Iteriert über config.medinix.manifest und generiert für alle

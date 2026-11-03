@@ -5,6 +5,7 @@
 # folder: 58-observability
 # adr: ADR-582
 # status: active
+# complexity: 2
 # last_reviewed: 2026-10-15
 # links:
 #   adr: ADR-582

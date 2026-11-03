@@ -4,6 +4,7 @@
 # domain: 56
 # folder: 56-exposition
 # status: active
+# complexity: 2
 # last_reviewed: 2026-10-14
 # sprite: 50-core/icons.svg#seerr
 # provides: ["seerr"]

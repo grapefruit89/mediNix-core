@@ -4,7 +4,10 @@
 # domain: 57
 # folder: 57-maintenance
 # status: active
+# complexity: 3
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-574
 # ---
 {
   config,

@@ -36,7 +36,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `541-sabnzbd` | [`541-sabnzbd.nix`](541-sabnzbd.nix) | active | -/5 | - |
+| `541-sabnzbd` | [`541-sabnzbd.nix`](541-sabnzbd.nix) | active | 2/5 | - |
 | `543-mover` | [`543-mover.nix`](543-mover.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)

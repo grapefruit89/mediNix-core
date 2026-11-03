@@ -4,6 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
+# complexity: 5
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
 # requires: ["lib/derive", "lib/ingress-access", "lib/service-factory"]

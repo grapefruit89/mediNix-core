@@ -37,8 +37,8 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `551-jellyfin` | [`551-jellyfin.nix`](551-jellyfin.nix) | active | 3/5 |  |
-| `552-audiobookshelf` | [`552-audiobookshelf.nix`](552-audiobookshelf.nix) | active | -/5 | - |
-| `553-navidrome` | [`553-navidrome.nix`](553-navidrome.nix) | active | -/5 | - |
+| `552-audiobookshelf` | [`552-audiobookshelf.nix`](552-audiobookshelf.nix) | active | 2/5 | - |
+| `553-navidrome` | [`553-navidrome.nix`](553-navidrome.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 

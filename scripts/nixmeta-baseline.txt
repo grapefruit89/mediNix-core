@@ -1,19 +1,3 @@
 # nixmeta-Ratsche (Baustelle 7): Dienst-Module mit noch fehlenden Pflichtfeldern.
 # Liste darf nur schrumpfen - konform gewordene Eintraege entfernen.
-51-ingress/511-caddy.nix
-51-ingress/513-cloudflare-dns.nix
-51-ingress/514-acme.nix
-54-transfer/541-sabnzbd.nix
-55-playback/552-audiobookshelf.nix
-55-playback/553-navidrome.nix
-56-exposition/561-seerr.nix
-57-maintenance/572-recyclarr.nix
-57-maintenance/574-provisioning.nix
-57-maintenance/576-backup.nix
-57-maintenance/578-orphan-cleanup.nix
-57-maintenance/579-backup-ssh.nix
-58-observability/581-ntfy.nix
-58-observability/582-gatus.nix
-58-observability/583-runtime-guard.nix
-58-observability/585-exporters.nix
-59-guardrails/591-cross-domain.nix
+# Status 2026-11-03: Alle 72 Dienst-Module sind 100% konform (Backlog = 0).

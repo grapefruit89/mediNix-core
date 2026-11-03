@@ -6,6 +6,8 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
+# links:
+#   adr: ADR-581
 # requires: ["lib/hardening-profiles", "lib/registry"]
 # systemd_hardened: true
 # ---

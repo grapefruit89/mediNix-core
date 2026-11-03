@@ -12,7 +12,7 @@
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `561-seerr` | [`561-seerr.nix`](561-seerr.nix) | active | -/5 | - |
+| `561-seerr` | [`561-seerr.nix`](561-seerr.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 

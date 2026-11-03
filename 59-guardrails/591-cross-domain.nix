@@ -4,6 +4,7 @@
 # domain: 59
 # folder: 59-guardrails
 # status: active
+# complexity: 3
 # last_reviewed: 2026-09-02
 # links:
 #   adr: ADR-5043
