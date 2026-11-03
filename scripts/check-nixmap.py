@@ -37,9 +37,7 @@ SCAN_DIRS = [
 ]
 
 # Ausnahmen / Allowlist für legitime Konstrukte (z. B. pure Bibliotheksfunktionen in lib/)
-ALLOWLIST_WITH = {
-    "pkgs/speedport-api/default.nix",  # Standalone Package Derivation
-}
+ALLOWLIST_WITH = set()
 
 ALLOWLIST_ASSERT = {
     "lib/manifest.nix",          # Pure Helper Library Assertions

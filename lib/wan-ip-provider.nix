@@ -63,7 +63,7 @@ rec {
       ''
     else if provider == "speedport" then
       let
-        speedportApi = pkgs.callPackage ../pkgs/speedport-api { };
+        speedportApi = pkgs.callPackage ./speedport-api.nix { };
         pythonEnv = pkgs.python312.withPackages (_: [ speedportApi ]);
       in
       ''

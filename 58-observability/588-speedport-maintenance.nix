@@ -40,7 +40,7 @@
 
 let
   cfg = config.medinix.observability.speedportMaintenance;
-  speedportPkg = pkgs.callPackage ../pkgs/speedport-api { };
+  speedportPkg = pkgs.callPackage ../lib/speedport-api.nix { };
   pythonEnv = pkgs.python312.withPackages (_: [ speedportPkg ]);
 
   reconnectScript = pkgs.writeShellScript "speedport-reconnect" ''
