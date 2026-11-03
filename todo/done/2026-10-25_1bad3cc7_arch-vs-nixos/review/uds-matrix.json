@@ -1,0 +1,121 @@
+{
+  "generated_at": "2026-10-25T18:59:00+01:00",
+  "pocket_id_bug_1249": {
+    "installed_version": "2.18.0",
+    "fixed_in": "v2.18.0 (Gin PR #3359, 2026-09-25)",
+    "status": "unknown",
+    "evidence": "keine explizite Erwähnung in Release Notes (Gin v1.12.0 via Bump #1805 enthalten, PR #3359 upstream gemergt)"
+  },
+  "programs": [
+    {
+      "id": "517",
+      "name": "oauth2-proxy",
+      "uds_support": true,
+      "uds_method": "--http-address=unix:///path oder fd:3 (socket activation)",
+      "current_state": "TCP 127.0.0.1:5170",
+      "recommendation": "umstellen auf UDS (höchster Nutzen: Auth-Gatekeeper)",
+      "blocked_by": null,
+      "estimated_rounds": 1
+    },
+    {
+      "id": "512",
+      "name": "Pocket ID",
+      "uds_support": true,
+      "uds_method": "UNIX_SOCKET=/path, UNIX_SOCKET_MODE=0660",
+      "current_state": "TCP 127.0.0.1:5120",
+      "recommendation": "umstellen auf UDS (nach Bug-Check)",
+      "blocked_by": "host-test",
+      "estimated_rounds": 1
+    },
+    {
+      "id": "553",
+      "name": "Navidrome",
+      "uds_support": true,
+      "uds_method": "Address = unix:/path/to/socket",
+      "current_state": "TCP 127.0.0.1:4533",
+      "recommendation": "umstellen auf UDS",
+      "blocked_by": null,
+      "estimated_rounds": 1
+    },
+    {
+      "id": "552",
+      "name": "Audiobookshelf",
+      "uds_support": true,
+      "uds_method": "socket-path in config",
+      "current_state": "TCP 127.0.0.1:13378",
+      "recommendation": "umstellen auf UDS",
+      "blocked_by": null,
+      "estimated_rounds": 1
+    },
+    {
+      "id": "581",
+      "name": "ntfy",
+      "uds_support": true,
+      "uds_method": "listen-unix: /path",
+      "current_state": "TCP 127.0.0.1:2586",
+      "recommendation": "umstellen auf UDS (optional, ntfy ist intern)",
+      "blocked_by": null,
+      "estimated_rounds": 1
+    },
+    {
+      "id": "532–536",
+      "name": "Servarr (Sonarr/Radarr/Prowlarr/Lidarr/Readarr)",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:<port>",
+      "recommendation": "TCP-Loopback beibehalten (Kestrel unterstützt UDS, aber Config exponiert es nicht)",
+      "blocked_by": null,
+      "estimated_rounds": null
+    },
+    {
+      "id": "551",
+      "name": "Jellyfin",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:8096",
+      "recommendation": "TCP-Loopback beibehalten (Issue #553, nie implementiert)",
+      "blocked_by": null,
+      "estimated_rounds": null
+    },
+    {
+      "id": "561",
+      "name": "Seerr",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:5055",
+      "recommendation": "TCP-Loopback beibehalten (nur PORT/HOST)",
+      "blocked_by": null,
+      "estimated_rounds": null
+    },
+    {
+      "id": "541",
+      "name": "SABnzbd",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:8080",
+      "recommendation": "TCP-Loopback beibehalten (nur Port 8080)",
+      "blocked_by": null,
+      "estimated_rounds": null
+    },
+    {
+      "id": "582",
+      "name": "Gatus",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:8080",
+      "recommendation": "TCP-Loopback beibehalten",
+      "blocked_by": null,
+      "estimated_rounds": null
+    },
+    {
+      "id": "515",
+      "name": "Blocky",
+      "uds_support": false,
+      "uds_method": null,
+      "current_state": "TCP 127.0.0.1:5150 (HTTP), DNS :53",
+      "recommendation": "DNS bleibt TCP/UDP (Port 53); HTTP-Port könnte via UDS, aber kein Bedarf",
+      "blocked_by": null,
+      "estimated_rounds": null
+    }
+  ]
+}

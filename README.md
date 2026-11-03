@@ -94,7 +94,7 @@ Caddy never talks to Let's Encrypt (`auto_https off`). 511 reads
 ## Guardrails
 
 Misconfig fails the build (`config.assertions`, ADR-0000 fail-closed).
-Host decisions after import: [`ADMIN-HANDOFF.md`](ADMIN-HANDOFF.md).
+Host decisions after import: [`docs/ADMIN-HANDOFF.md`](docs/ADMIN-HANDOFF.md).
 
 ## Layout
 

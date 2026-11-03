@@ -1,0 +1,292 @@
+{
+  "generated_at": "2026-10-25T17:35:57.822144+00:00",
+  "done": [
+    "T-01",
+    "T-02",
+    "T-04",
+    "T-05",
+    "T-21",
+    "T-22",
+    "T-23",
+    "T-24"
+  ],
+  "open_count": 21,
+  "by_roi": {
+    "1_high": [
+      {
+        "id": "T-03",
+        "title": "CrowdSec: Ban-Dauer von 4h auf 168h verlängern",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/516-crowdsec.nix",
+        "roi_class": 1,
+        "roi_reason": "Direkter Sicherheitsgewinn für Ban-Kette: Hält scannende Bots 7 Tage fern statt 4h und entlastet Caddy-Logs ohne Host-Test.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-12",
+        "title": "Firewall: Deklarativer Debug-Reject-Modus mit Logging",
+        "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+        "roi_class": 1,
+        "roi_reason": "Sicherheits- und Diagnose-Vorteil: Ersetzt stumme DROP-Timeouts beim Debuggen durch REJECT mit Kernel-Log.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "medium",
+        "depends_on": []
+      },
+      {
+        "id": "T-18",
+        "title": "51-Baum: LAN-Publishing aus 513 entfernen & Provider-Lib auslagern",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": 1,
+        "roi_reason": "Sicherheits-Impact: Verhindert RFC1918-Private-IP-Leaks in öffentliche Cloudflare DNS-Zonen.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "low",
+        "depends_on": [
+          "T-10"
+        ]
+      }
+    ],
+    "2_medium_high": [
+      {
+        "id": "T-09",
+        "title": "Keine festen Router-IPs: Default-Gateway dynamisch ableiten",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": 2,
+        "roi_reason": "Portabilitätsgewinn: Entfernt fest verdrahtete Router-IP 192.168.2.1 zugunsten dynamischer Gateway-Ermittlung.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-10",
+        "title": "Modularer Provider-Dispatch für DDNS via types.enum",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": 2,
+        "roi_reason": "Funktionaler Architektur-Impact: Ermöglicht saubere deklarative Umschaltung der WAN-IP Provider (router, dns, external).",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-25",
+        "title": "speedport-api paketieren",
+        "file": "/home/moritz/repos/mediNix-core/pkgs/speedport-api/default.nix",
+        "roi_class": 2,
+        "roi_reason": "Paketierung & Abhängigkeit: Stellt speedport-api Python-Paket für lokale Router-Abfrage deklarativ bereit.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-26",
+        "title": "513-cloudflare-dns.nix: Provider speedport integrieren",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": 2,
+        "roi_reason": "Funktionaler Kern: Bindet Speedport Smart 4 WAN-IP Ermittlung mit 5-Min-Rate-Limit-Schutz deklarativ in DDNS ein.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "medium",
+        "depends_on": [
+          "T-25",
+          "T-09",
+          "T-10"
+        ]
+      }
+    ],
+    "3_medium": [
+      {
+        "id": "T-28",
+        "title": "backup.method in programs.json auf restic setzen (576-backup.nix nutzt Restic)",
+        "file": "/home/moritz/repos/mediNix-core/57-maintenance/576-backup.nix",
+        "roi_class": 3,
+        "roi_reason": "Metadaten-Harmonisierung: Synchronisiert backup.method in programs.json und concerns.json mit existierendem 576-Modul.",
+        "needs_programs_json_sync": true,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-11",
+        "title": "PQC-Hardening: Hybriden Schlüsselaustausch für SSH dokumentieren",
+        "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-52-ssh-port-policy.md",
+        "roi_class": 3,
+        "roi_reason": "ADR/Doku: Härtungsempfehlung für post-quanten KEX (mlkem768x25519) gegen HNDL dokumentieren.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-14",
+        "title": "Power-Management: schedutil und auto-cpufreq im Manifest verankern",
+        "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0003-architektur-manifest.md",
+        "roi_class": 3,
+        "roi_reason": "ADR/Doku: CPU-Governor und Stromsparmodus im Manifest verbindlich festhalten.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-15",
+        "title": "GPU-Transcoding: Intel GuC/HuC Kernel-Parameter in Jellyfin-ADR",
+        "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-551-jellyfin-media-playback.md",
+        "roi_class": 3,
+        "roi_reason": "ADR/Doku: Erforderliche GuC/HuC Firmware-Ladeanweisung für QuickSync in ADR-551 dokumentieren.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-19",
+        "title": "Dezimalrahmen: Fraktales Dateisystem-Ordnungsprinzip in ADR-0000 verankern",
+        "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+        "roi_class": 3,
+        "roi_reason": "ADR/Verfassungs-Doku: Erweitert den Dezimalrahmen über Daemon-Nummern hinaus auf Systempfade.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-20",
+        "title": "Dezimalrahmen: Secret-Pfade und Credentials-Speicherort in ADR-0000 ergänzen",
+        "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+        "roi_class": 3,
+        "roi_reason": "ADR/Verfassungs-Doku: Dokumentiert /var/lib/credstore.encrypted/ und sealed Secrets in der Verfassung.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-27",
+        "title": "513-cloudflare-dns.nix: Rate-Limit- und Laufzeitdokumentation",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": 3,
+        "roi_reason": "Doku: Dokumentiert 5-Minuten-Login-Lockout, Check-Intervall >= 15 Min und Python 3.12 Laufzeit.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": [
+          "T-26"
+        ]
+      }
+    ],
+    "4_low": [
+      {
+        "id": "T-07",
+        "title": "mDNS-Ausmusterung: 515-mdns.nix entfernen / deaktivieren",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+        "roi_class": 4,
+        "roi_reason": "Redundanz-Check: Bereits in Quickwin Task 3b (Commit d90ce5a) vollständig gelöscht und archiviert.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-16",
+        "title": "51-Baum: Slot 515 für 515-blocky.nix nachnutzen",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+        "roi_class": 4,
+        "roi_reason": "Redundanz-Check: Bereits in Quickwin Task 3a (Commit 51a5a44) vollständig angelegt und integriert.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-17",
+        "title": "51-Baum: Vollständige Ausmusterung von 515-mdns.nix",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/515-mdns.nix",
+        "roi_class": 4,
+        "roi_reason": "Redundanz-Check: Identisch mit T-07, bereits in Task 3b (Commit d90ce5a) erledigt.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      },
+      {
+        "id": "T-30",
+        "title": "Feishin entfernt (554-feishin.nix, registry, memory-policy, flake.nix)",
+        "file": "/home/moritz/repos/mediNix-core/lib/registry.nix",
+        "roi_class": 4,
+        "roi_reason": "Redundanz-Check: Bereits in Altlast-1 (Commit 5e72aaa) projektweit restlos entfernt.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 1,
+        "risk": "low",
+        "depends_on": []
+      }
+    ],
+    "blocked": [
+      {
+        "id": "T-06",
+        "title": "oauth2-proxy: Auf Unix Domain Socket umstellen",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/517-oauth2-proxy.nix",
+        "roi_class": "blocked",
+        "roi_reason": "Host-Test nötig: UDS-Socket-Berechtigungen und Access Control zwischen caddy und oauth2-proxy am Live-System erforderlich.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "medium",
+        "depends_on": []
+      },
+      {
+        "id": "T-08",
+        "title": "WAN-IP: Speedport-Adapter via Default-Gateway",
+        "file": "/home/moritz/repos/mediNix-core/51-ingress/513-cloudflare-dns.nix",
+        "roi_class": "blocked",
+        "roi_reason": "Host-Test nötig: Erfordert Live-Verbindung zum Telekom Speedport Smart 4 Router im physischen LAN.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "high",
+        "depends_on": [
+          "T-25",
+          "T-26",
+          "T-09"
+        ]
+      },
+      {
+        "id": "T-13",
+        "title": "Kernel-Hardening: Modul-Blacklist & lockKernelModules evaluieren",
+        "file": "/home/moritz/repos/mediNix-core/52-security/520-core-security.nix",
+        "roi_class": "blocked",
+        "roi_reason": "Host-Test nötig: lockKernelModules und Modul-Blacklist können physische Hardware/Treiber lahmlegen.",
+        "needs_programs_json_sync": false,
+        "estimated_rounds": 2,
+        "risk": "high",
+        "depends_on": []
+      }
+    ]
+  },
+  "execution_order": [
+    "T-03",
+    "T-12",
+    "T-18",
+    "T-09",
+    "T-10",
+    "T-25",
+    "T-26",
+    "T-28",
+    "T-11",
+    "T-14",
+    "T-15",
+    "T-19",
+    "T-20",
+    "T-27",
+    "T-07",
+    "T-16",
+    "T-17",
+    "T-30",
+    "T-06",
+    "T-08",
+    "T-13"
+  ]
+}

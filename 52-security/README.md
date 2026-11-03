@@ -113,7 +113,7 @@ Every assertion is a **build break**, not a warning.
 
 | Module | Assertion | Protects against |
 | --- | --- | --- |
-| 520 | `firewall = managed` ⟹ `firewall.enable \|\| nftables.enable` | managed claim without an active packet filter |
+| 520 | `firewall = managed` ⟹ `firewall.enable &#124;&#124; nftables.enable` | managed claim without an active packet filter |
 | 520 | `firewall = managed` **XOR** `nftables = managed` | two competing packet-filter owners |
 | 520 | `em.enable` ⟹ `em.allowedServices != []` | break-glass user that may restart nothing |
 | 520 | every `em.allowedServices` ∈ `registry.services` | typo in the break-glass list |

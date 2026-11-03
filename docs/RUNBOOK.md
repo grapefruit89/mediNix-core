@@ -16,7 +16,7 @@
 | `medinix ids <50..59>` | **DER eine Befehl**: Ist-IDs eines Bereichs (Unit · Port · UID:GID · stateDir · Rechte) |
 | `medinix show <service>` | Ein Dienst, volle Fakten + letzte 30 Log-Zeilen |
 | `medinix logs <service> [n]` | journale Abfrage (systemd-nativ) |
-| `medinix triage <bereich\|service\|symptom>` | **Knopf**: arbeitet die Playbook-Kette ab |
+| `medinix triage <bereich&#124;service&#124;symptom>` | **Knopf**: arbeitet die Playbook-Kette ab |
 | `medinix check` · `repair` · `status` | Sammel-Status / Restart / Tabelle |
 
 Typischer Ablauf einer KI: `medinix triage jellyfin-no-cover` → fertig.

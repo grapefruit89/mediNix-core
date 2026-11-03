@@ -3,7 +3,6 @@
 51-ingress/511-caddy.nix
 51-ingress/513-cloudflare-dns.nix
 51-ingress/514-acme.nix
-52-security/521-creds.nix
 54-transfer/541-sabnzbd.nix
 55-playback/552-audiobookshelf.nix
 55-playback/553-navidrome.nix
