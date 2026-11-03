@@ -923,6 +923,17 @@ in
             default = null;
             description = "Custom shell command, only when provider = command. Must set WAN_IP.";
           };
+          speedportPasswordCredential = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Pfad zum TPM-versiegelten Speedport-Passwort (.cred) für speedport-api.";
+          };
+          speedportPasswordFile = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            example = "/home/moritz/.secrets/speedport-password";
+            description = "Pfad zur lokalen Passwortdatei für den Speedport (Fallback/Entwicklung).";
+          };
         };
       };
     };

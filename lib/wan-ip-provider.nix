@@ -76,9 +76,14 @@ rec {
           echo "FATAL: Could not determine default gateway." >&2
           exit 1
         fi
-        PASSWORD_FILE="''${SPEEDPORT_PASSWORD_FILE:-/home/moritz/.secrets/speedport-password}"
-        if [ ! -r "$PASSWORD_FILE" ]; then
-          echo "FATAL: Speedport password file not readable: $PASSWORD_FILE" >&2
+        if [ -n "''${CREDENTIALS_DIRECTORY:-}" ] && [ -r "$CREDENTIALS_DIRECTORY/speedport-password" ]; then
+          PASSWORD_FILE="$CREDENTIALS_DIRECTORY/speedport-password"
+        elif [ -n "''${SPEEDPORT_PASSWORD_FILE:-}" ] && [ -r "$SPEEDPORT_PASSWORD_FILE" ]; then
+          PASSWORD_FILE="$SPEEDPORT_PASSWORD_FILE"
+        elif [ -r "/home/moritz/.secrets/speedport-password" ]; then
+          PASSWORD_FILE="/home/moritz/.secrets/speedport-password"
+        else
+          echo "FATAL: Speedport password file not found or not readable." >&2
           exit 1
         fi
         WAN_IP=$(${pythonEnv}/bin/python3 - "$ROUTER" "$PASSWORD_FILE" <<'PY'

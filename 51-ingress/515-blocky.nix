@@ -79,11 +79,14 @@ in
           customTTL = "1h";
           filterUnmappedTypes = true;
           mapping =
+            let
+              targetIp = cfg.host.lanIp or "127.0.0.1";
+            in
             {
-              "lan" = "127.0.0.1";
+              "lan" = targetIp;
             }
             // lib.optionalAttrs (domain != null) {
-              "${domain}" = "127.0.0.1";
+              "${domain}" = targetIp;
             };
         };
         blocking = {

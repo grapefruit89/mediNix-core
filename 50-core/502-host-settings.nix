@@ -63,6 +63,13 @@ in
       default = 16;
       description = "Physischer Arbeitsspeicher des Hosts in GB.";
     };
+
+    lanIp = lib.mkOption {
+      type = lib.types.str;
+      default = "127.0.0.1";
+      example = "192.168.2.73";
+      description = "Primäre LAN-IPv4 des Hosts für Ingress- und Split-DNS-Clients.";
+    };
   };
 
   config = lib.mkIf cfg.enable {

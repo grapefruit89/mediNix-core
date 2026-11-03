@@ -141,6 +141,9 @@ lib.mkIf (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable) {
       }
       // lib.optionalAttrs (credPath != null) {
         LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
+      }
+      // lib.optionalAttrs (ddns.wanIp.provider == "speedport" && ddns.wanIp.speedportPasswordCredential != null) {
+        LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
       };
     })
     {
