@@ -73,13 +73,13 @@
       "id": "5020",
       "file": "ADR-5020-knowledge-extraction-pipeline.md",
       "topic": "5020-knowledge-extraction-pipeline",
-      "status": "active"
+      "status": "deprecated"
     },
     {
       "id": "5030",
       "file": "ADR-5030-flake-module-patterns.md",
       "topic": "5030-flake-module-patterns",
-      "status": "active"
+      "status": "deprecated"
     },
     {
       "id": "5043",

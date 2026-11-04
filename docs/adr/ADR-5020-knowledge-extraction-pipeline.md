@@ -2,7 +2,7 @@
 id: "ADR-5020"
 title: "ADR 5020 knowledge extraction pipeline"
 domain: 50
-status: active
+status: deprecated
 complexity: 2
 last_reviewed: 2026-08-12
 tags:
@@ -13,7 +13,9 @@ links:
 ---
 # ADR-5020: Knowledge Database Extraction Pipeline (50-core)
 
-## Status: active
+> **Deprecated 2026-11-04.** Superseded by `50-core/BANNED_TECHNOLOGIES.md` §1 (LLM Vector-DBs / RAG Plugins verboten). Inhalt bleibt zur historischen Referenz; die Pipeline wird nicht mehr betrieben.
+
+## Status: deprecated
 ## Date: 2026-08-11
 ## Source: Grok raw "NixOS Wissensdatenbank: Datenextraktion Pipeline" (18 msgs, 90K chars)
 
