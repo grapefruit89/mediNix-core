@@ -371,7 +371,7 @@ in
               type = lib.types.path;
               internal = true;
               readOnly = true;
-              # ADR-0000 §9: kein Port-Suffix. Die Engine (50-core/501-decimal-engine.nix)
+              # ADR-0000 §4: kein Port-Suffix. Die Engine (50-core/501-decimal-engine.nix)
               # leitet denselben Pfad ab; beide muessen identisch sein, sonst
               # kollidiert users.users.<name>.home.
               default = "/var/lib/${name}";

@@ -24,7 +24,7 @@
 # 50-mediNix Master Boilerplate (SSoT)
 #
 # Portable module entrypoint. Auto-imports every XX-domain/NNN-*.nix module
-# (flat structure, ADR-0000 §9). No hardcoded import list.
+# (flat structure, ADR-0000 §1). No hardcoded import list.
 #
 # Options API ported from grapefruit89/mediNix (709-line default.nix), made
 # portable: no my.* references, all paths/domains via options (Regel 3).

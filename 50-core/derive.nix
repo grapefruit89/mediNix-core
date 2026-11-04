@@ -41,7 +41,7 @@ rec {
     port = num * 10;
     uid = num * 10;
     primaryGid = num * 10;
-    stateDir = "/var/lib/${name}"; # ADR-0000 §9: ohne Port-Suffix
+    stateDir = "/var/lib/${name}"; # ADR-0000 §4: ohne Port-Suffix
     inherit projectDigit sharedGid;
     decadeIndex = decadeOf num;
     decadeName = decadeNames.${toString (decadeOf num)} or "unknown";
