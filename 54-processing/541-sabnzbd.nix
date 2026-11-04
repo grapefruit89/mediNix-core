@@ -243,7 +243,12 @@ in
           fi
         '';
         serviceConfig = lib.mkMerge [
-          profiles.python
+          (
+            if svc.usenet-confinement.enable && vpnIf != "" then
+              profiles.python-confined
+            else
+              profiles.python
+          )
           memoryPolicy.sabnzbd
           {
             User = "sabnzbd";
@@ -268,9 +273,6 @@ in
               "lo"
               vpnIf
             ];
-            # Wildcard-Routing aus profiles.python entfernen; RestrictNetworkInterfaces & nftables steuern den Pfad
-            IPAddressDeny = lib.mkForce [ ];
-            IPAddressAllow = lib.mkForce [ ];
           })
           (lib.mkIf (svc.secrets.usenetEnvFile or null != null) {
             EnvironmentFile = [ svc.secrets.usenetEnvFile ];

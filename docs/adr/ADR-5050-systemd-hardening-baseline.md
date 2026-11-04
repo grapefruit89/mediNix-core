@@ -63,13 +63,11 @@ Es gibt **keinen** Zwang zur Factory. Beides ist konform:
 
 ```nix
 RestrictNetworkInterfaces = [ "lo" vpnIf ];
-IPAddressDeny  = lib.mkForce [ ];
-IPAddressAllow = lib.mkForce [ ];
 ```
 
 Das ist eine **Confined-Regel für einen Dienst** (VPN-Confinement, ADR-526), keine
-allgemeine Härtung: sie hebelt bewusst die `IPAddress*`-Filter aus `profiles.python` aus und
-ersetzt sie durch einen cgroup-BPF-Socketfilter im Kernel.
+allgemeine Härtung. 541 nutzt dafür das Profil `profiles.python-confined` (ohne
+`IPAddress*`-Filter); die Grenze zieht der cgroup-BPF-Socketfilter im Kernel.
 
 ## Consequences
 - ✅ Profilbasiert — eine Quelle (`hardening-profiles.nix`), zwei zulässige Anwendungspfade

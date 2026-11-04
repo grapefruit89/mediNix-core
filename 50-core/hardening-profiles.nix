@@ -48,6 +48,18 @@ rec {
     SocketBindAllow = [ "any" ];
   };
 
+  # Netzwerk-Achse OHNE IPAddress*-Filter. Die Grenze zieht der cgroup-BPF-
+  # Socketfilter via RestrictNetworkInterfaces (541 unter usenet-confinement,
+  # ADR-526). Ein leeres IPAddressDeny laesst sich wegen der Listen-Konkatena-
+  # tion im serviceConfig-Merge sonst nur per lib.mkForce durchsetzen - und
+  # mkForce ist laut BANNED §2 verboten.
+  networkPolicy.confined = {
+    SocketBindDeny = [ "any" ];
+    SocketBindAllow = [
+      "1024-65535"
+    ];
+  };
+
   base = {
     NoNewPrivileges = true;
     ProtectSystem = "strict";
@@ -137,6 +149,18 @@ rec {
       SystemCallErrorNumber = "EPERM";
     }
     // networkPolicy.internet;
+
+  # SABnzbd unter Usenet-Confinement (ADR-526): wie `python`, aber ohne
+  # IPAddress*-Filter - die Netzwerkgrenze zieht RestrictNetworkInterfaces.
+  # Siehe networkPolicy.confined.
+  python-confined =
+    base
+    // {
+      MemoryDenyWriteExecute = true;
+      PrivateDevices = true;
+      SystemCallErrorNumber = "EPERM";
+    }
+    // networkPolicy.confined;
 
   nodejs =
     base
