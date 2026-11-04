@@ -1,5 +1,34 @@
   # Agent-Anweisung: Chat-Konsolidierung mediNix-core
 
+  ## Aktueller Fokus (2026-11-04)
+
+  Der Dezimalrahmen ist fertig: ADR-0000 hat keine Widersprüche, keine toten
+  Pfade, §12 ist als Lücke dokumentiert; ADR-0002/0003/040 sind präzisiert;
+  `order-lint`, `nixmeta` und `nix flake check` sind grün.
+
+  Alle offenen Punkte sind in **thematische Backlog-Dateien** konsolidiert
+  (39 distinkte Punkte aus `ROADMAP.md`, `docs/TODO.md`, `todo/backlog/*` und
+  `docs/AUDIT-LEDGER.md`, dedupliziert).
+
+  ## Backlog (thematisch)
+
+  | Datei | Thema |
+  |---|---|
+  | `backlog/20-build-blocker-gates.md` | Build-Blocker (L-047) + Gates |
+  | `backlog/21-ssot-struktur.md` | SSOT-Verstöße, Aufgabe 8, Identity-Derivation |
+  | `backlog/22-observability-features.md` | Prometheus-Scraper, Loki-Stack, `gather` |
+  | `backlog/23-security-auth-features.md` | FIDO2/Passkey, Pocket-ID RBAC |
+  | `backlog/24-tooling-ci.md` | CI-Stufen, Flake-Lock, `systemd-facts.sh` |
+  | `backlog/25-doku-adrs.md` | ADR-Verweise, Skill-Trigger, Header |
+  | `backlog/26-kosmetik.md` | Kosmetik + bereits Erledigtes |
+
+  **Quellen bleiben:** `ROADMAP.md` und `docs/TODO.md` sind unverändert die
+  Herkunft; `docs/TODO.md` wird weiterhin von `scripts/gen_todo.py` aus
+  `ROADMAP.md` + Ledger erzeugt. Die thematischen Dateien sind eine
+  **Übersicht**, kein Ersatz.
+
+  ---
+
   ## Absolute Pfade (verbindlich)
 
   Alle Dateien werden über **absolute Pfade** referenziert. Keine relativen
