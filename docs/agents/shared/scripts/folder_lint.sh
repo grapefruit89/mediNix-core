@@ -14,7 +14,7 @@
 set -u
 
 base="$(realpath "${1:-.}")"
-allow='^(tests|scripts|references|templates|\.agents|\.git|__pycache__)$'
+allow='^(tests|scripts|references|templates|audit|\.agents|\.git|__pycache__)$'
 hits=0
 
 while IFS= read -r d; do
@@ -23,6 +23,9 @@ while IFS= read -r d; do
 
   [[ "$bn" =~ ^[0-9]{2}- ]] && continue
   [[ "$bn" =~ $allow ]] && continue
+  # docs/audit/<jahr-monat>/ ist Pflichtstruktur (CONVENTIONS §4) und ein Archiv,
+  # kein Spam. Der Ordnername ist das Datum, nicht "audit" - deshalb Pfad-Regel.
+  [[ "$d" == "$base"/docs/audit/* ]] && continue
   [[ "$d" == */.agents/* || "$d" == */.github/* || "$d" == */.git/* ]] && continue
   [ -f "$d/default.nix" ] && continue
   [ -f "$d/SKILL.md" ] && continue
