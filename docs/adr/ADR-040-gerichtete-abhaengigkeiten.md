@@ -45,10 +45,23 @@ Beide Änderungen einzeln waren grün (`822a0d2` = 50 ✅).
    auf eine Quelle **zurücklesen**, die es (oder ein Modul mit derselben Ableitung)
    selbst verbraucht.
 3. **Guardrails/Checks prüfen das Abgeleitete, lesen aber nur Quellen.**
-   `591` liest deshalb die statische SSoT (`svcReg.services`) und die Absicht
-   (`medinix.factoryUnits`) — nicht `config.medinix.manifest`.
+   `591` liest deshalb die statische SSoT (`svcReg.services`) und die Absichten
+   (`medinix.manifest`, `medinix.factoryUnits`) — nicht die daraus berechneten
+   Werte.
    Fehlt für eine Prüfung eine Absicht, wird sie als **Option** deklariert
    (z. B. `reservedAccounts`), nicht aus dem Ergebnis erraten.
+
+   **Ausnahme — Vollzugs-Prüfungen.** Ein Guardrail, der nicht die Quelle prüft,
+   sondern ob die Engine die Quelle korrekt **umgesetzt** hat, muss die Ableitung
+   lesen. Er prüft dann den Vollzug, nicht die Quelle. Beispiel: `591` prüft, ob
+   die Fabrik `User`/`Group`/`StateDirectory`/UID aus der Registry korrekt in die
+   Units schreibt — dafür liest sie `config.systemd.services.*` und
+   `config.users.users.*`, weil genau das der Prüfgegenstand ist.
+
+   Zulässig ist das unter drei Bedingungen: (a) die Prüfung **liest** nur,
+   (b) sie erzeugt keine neue Kante `Ableitung → Quelle`, (c) sie ist im Modul
+   als Vollzugs-Prüfung gekennzeichnet. Fehlt (c), ist der Befund nicht
+   nachprüfbar — und damit wieder ein Zyklus-Risiko.
 4. **Reihenfolge der Prüf-Leiter:** Nach jeder Änderung die **volle** Leiter fahren
    (auch die Checks bauen). Ein einzelner grüner Check beweist nichts über die
    Verträglichkeit zweier Änderungen.

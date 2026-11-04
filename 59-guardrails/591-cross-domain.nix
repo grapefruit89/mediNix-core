@@ -131,6 +131,12 @@ let
   );
 in
 lib.mkIf cfg.enable {
+  # Diese Assertions pruefen den VOLLZUG der Engine: sie lesen die abgeleiteten
+  # Werte (config.systemd.services, config.users.users, config.users.groups) und
+  # pruefen, ob die Fabrik sie korrekt aus der Registry gesetzt hat.
+  # Das ist die Ausnahme aus ADR-040 §3 (Vollzugs-Pruefung), nicht die Regel
+  # (Quelle -> Ableitung). Bedingung (c) jener Ausnahme ist genau dieser Kommentar.
+  # Die Quellen-Pruefungen daneben (registry, derive, manifest) bleiben die Regel.
   assertions = [
     {
       assertion = cfg.usenet-confinement.enable -> confined "sabnzbd";
