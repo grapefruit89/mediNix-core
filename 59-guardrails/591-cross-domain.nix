@@ -10,7 +10,6 @@
 #   adr: ADR-5043
 # provides: ["guardrails"]
 # requires: ["50-core/registry", "526-vpn-killswitch", "511-caddy"]
-# adr: ADR-5043
 # ---
 { config, lib, ... }:
 

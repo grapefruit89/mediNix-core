@@ -4,6 +4,10 @@
 # domain: 50
 # folder: 50-core
 # last_reviewed: 2026-09-02
+# status: active
+# complexity: 1
+# links:
+#   adr: ADR-0000
 # ---
 { lib, ... }:
 

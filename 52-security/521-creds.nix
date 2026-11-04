@@ -8,7 +8,6 @@
 # last_reviewed: 2026-09-02
 # provides: ["creds"]
 # requires: ["52-security/creds"]
-# adr: ADR-5000
 # links:
 #   adr: ADR-521
 # ---

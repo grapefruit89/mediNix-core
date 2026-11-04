@@ -8,7 +8,6 @@
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
 # requires: ["50-core/derive", "51-ingress/ingress-access", "50-core/service-factory"]
-# adr: ADR-511
 # links:
 #   adr: ADR-511
 # ---

@@ -15,9 +15,9 @@
 # nixpkgs_attr: ""
 # state_dir: ""
 # uds_socket: false
-# systemd_hardened: true
+# systemd_hardened: false
 # links:
-#   adr: ADR-5030
+#   adr: ADR-0003
 # ---
 { lib, config, ... }:
 

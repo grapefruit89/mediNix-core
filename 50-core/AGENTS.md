@@ -13,6 +13,7 @@ Agentenorientierte Arbeitskarte. Menschliche Doku: [`BANNED_TECHNOLOGIES.md`](BA
 - Dezimalrahmen-Engine + globale Identitäts-Injektion (501, ADR-0000)
 - Host-Settings und Domain-Baseline (502)
 - `hostIntegration` — `firewall` / `nftables` / `reverseProxy` je `managed|external` (503)
+- `repl.nix` — Foundation-Tooling (Nix-REPL mit gepinnten nixpkgs, kein Modul im Auto-Import)
 - Verbotsliste `BANNED_TECHNOLOGIES.md` (maschinell: `scripts/check_banned_technologies.py`)
 - Generator **aller** Ordner-`AGENTS.md`: `medinix-meta.py generate-docs` / `check-docs`
 
@@ -77,7 +78,8 @@ Nur mit `nix` (CI nutzt die flake-gepinnten Tools, nicht die PATH-Versionen):
 | `hardening-profiles` | [`hardening-profiles.nix`](hardening-profiles.nix) | active | 2/5 | - |
 | `manifest` | [`manifest.nix`](manifest.nix) | active | 2/5 | - |
 | `memory-policy` | [`memory-policy.nix`](memory-policy.nix) | active | 2/5 | - |
-| `registry` | [`registry.nix`](registry.nix) | unknown | -/5 | - |
+| `registry` | [`registry.nix`](registry.nix) | active | 1/5 | - |
+| `repl` | [`repl.nix`](repl.nix) | active | 1/5 | - |
 | `service-contract` | [`service-contract.nix`](service-contract.nix) | active | 4/5 | - |
 | `service-factory` | [`service-factory.nix`](service-factory.nix) | active | 4/5 | - |
 
@@ -99,6 +101,7 @@ graph TD
   manifest["manifest"]
   memory_policy["memory-policy"]
   registry["registry"]
+  repl["repl"]
   service_contract["service-contract"]
   service_factory["service-factory"]
 ```

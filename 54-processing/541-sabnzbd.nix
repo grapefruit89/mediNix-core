@@ -9,7 +9,6 @@
 # links:
 #   adr: ADR-526
 # requires: ["50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds"]
-# adr: ADR-526
 # ---
 # Writes: state + mediaRoot/downloads + tmpfs. Not the library tree.
 # Secrets are LoadCredentialEncrypted, never files under mediaRoot.

@@ -7,6 +7,7 @@
 # complexity: 5
 # last_reviewed: 2026-10-02
 # links:
+#   adr: ADR-0000
 # provides: ["options.medinix"]
 # requires: ["50-core/registry", "50-core/service-factory"]
 # ports: []
