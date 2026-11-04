@@ -270,7 +270,7 @@ erst der Konsumweg entscheidet, welche Pflichtfelder gelten.
 | **Root-Config** | `flake.nix`, `default.nix` (Repo-Wurzel) | — | `root-config` |
 | **Tooling-Einstieg** | `50-core/repl.nix` (einzige Ausnahme) | — | `tooling` |
 
-Ist-Stand 2026-11-04 (68 `.nix`-Dateien):
+Ist-Stand 2026-11-04 (69 `.nix`-Dateien):
 
 - **Modul (45):** alle `NNN-*.nix` in `51-*`…`59-*` sowie `50-core/500`, `502`, `503`
 - **Library (9):** `50-core/derive.nix`, `50-core/hardening-profiles.nix`,
@@ -278,13 +278,18 @@ Ist-Stand 2026-11-04 (68 `.nix`-Dateien):
   `50-core/service-factory.nix`, `51-ingress/ingress-access.nix`,
   `52-security/creds.nix`, `53-acquisition/arr-settings.nix`
 - **Engine (2):** `50-core/501-decimal-engine.nix`, `50-core/service-contract.nix`
-- **Package (2):** `packages/arr-provision/default.nix`, `packages/medinix-cli/cli.nix`
+- **Package (3):** `packages/arr-provision/default.nix`, `packages/medinix-cli/default.nix`,
+  `packages/medinix-cli/cli.nix`
 - **Test (2):** `tests/smoke-test.nix`, `tests/vm-smoke-test.nix`
 - **Root-Config (2):** `flake.nix`, `default.nix`
 - **Tooling-Einstieg (1):** `50-core/repl.nix`
 - **Zonen (5, keine Kategorie — siehe §14.2):** 4 × `docs/examples/`, 1 × `docs/agents/**/templates/`
 
-Summe: 45 + 9 + 2 + 2 + 2 + 2 + 1 + 5 = 68.
+Summe: 45 + 9 + 2 + 3 + 2 + 2 + 1 + 5 = 69.
+
+`packages/<name>/default.nix` ist der `callPackage`-Einstiegspunkt des Pakets
+(`pkgs.callPackage ./packages/<name> { … }` löst darauf auf). Die Implementierung
+daneben (`cli.nix`) trägt einen eigenen Header und zählt deshalb als eigene Datei.
 
 **Tooling-Einstieg** ist der einzige Fall im Repo, in dem eine `.nix`-Datei direkt
 aufgerufen und **nie importiert** wird: `nix repl --file 50-core/repl.nix`. Sie als
