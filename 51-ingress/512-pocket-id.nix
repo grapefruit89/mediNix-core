@@ -232,8 +232,10 @@ in
         extraConfig = {
           RuntimeDirectory = "pocket-id";
           RuntimeDirectoryMode = "0770";
+          # mkForce noetig gegen das UPSTREAM-Modul (nixpkgs pocket-id setzt
+          # UMask = "0077" plain), nicht gegen unser Profil. Siehe Todo 17.
           UMask = lib.mkForce "0007";
-          StateDirectoryMode = lib.mkForce "0700";
+          StateDirectoryMode = "0700";
           RestrictNetworkInterfaces = [ "lo" ];
           ReadWritePaths = [ svc.stateDir ];
         };

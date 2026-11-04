@@ -28,6 +28,16 @@ let
   registry = (import ./registry.nix { inherit lib; }).services;
   memoryPolicy = import ./memory-policy.nix { inherit lib; };
 
+  # L1c: Profil-Attribute als Default ausliefern, damit eine Modul-Definition
+  # ohne lib.mkForce gewinnt (BANNED §2, additive Config). Bereits gewrappte
+  # Werte bleiben unangetastet: ein zweites mkDefault um einen Override-Attrset
+  # wuerde den Inhalt (den eigentlichen Wert) zerstoeren.
+  # Grenze: fuer Listen aendert mkDefault nichts - sie werden weiterhin
+  # konkateniert. Wer eine Liste ersetzen will, braucht ein eigenes Profil
+  # (Vorbild: python-confined in 541).
+  asDefault =
+    v: if lib.isAttrs v && (v._type or "") == "override" then v else lib.mkDefault v;
+
   # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
   # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.
   mkPeerIsolation =
@@ -84,11 +94,11 @@ if hardeningOnly then
         StandardError = "journal";
         SystemCallErrorNumber = "EPERM";
       }
-      (profiles.${profile} or profiles.base)
+      (lib.mapAttrs (_: asDefault) (profiles.${profile} or profiles.base))
       (memoryPolicy.${name} or memoryPolicy.default)
       (lib.optionalAttrs (stateDir != null) {
         StateDirectory = lib.removePrefix "/var/lib/" stateDir;
-        StateDirectoryMode = "0750";
+        StateDirectoryMode = lib.mkDefault "0750";
       })
       (
         let
@@ -132,7 +142,7 @@ else
           SystemCallErrorNumber = "EPERM";
         }
         # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
-        (profiles.${profile} or profiles.base)
+        (lib.mapAttrs (_: asDefault) (profiles.${profile} or profiles.base))
         # 1b) Zentrale Memory- & OOM-Policy (50-core/memory-policy.nix)
         (memoryPolicy.${name} or memoryPolicy.default)
         # 2) Service-spezifische Basis (User/Exec/State)
