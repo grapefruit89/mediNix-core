@@ -24,7 +24,6 @@ let
   svc = config.medinix;
   registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.ntfy;
-  inherit (reg) port;
   inherit (reg) uid;
   inherit (reg) stateDir;
   conn = import ../50-core/service-factory.nix { inherit lib config pkgs; };

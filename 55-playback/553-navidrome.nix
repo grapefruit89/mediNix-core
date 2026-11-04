@@ -26,7 +26,7 @@ let
   reg = registry.navidrome;
   meta = config.medinix.manifest.navidrome;
 
-  inherit (meta) port stateDir;
+  inherit (meta) stateDir;
   inherit (reg) sharedGid;
   creds = import ../52-security/creds.nix { inherit lib; };
   profiles = import ../50-core/hardening-profiles.nix { inherit lib; };

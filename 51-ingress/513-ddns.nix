@@ -305,7 +305,7 @@ in
         message = "[mediNix/513] wanIp.provider = \"command\" requires wanIp.command != null.";
       }
       {
-        assertion = !(ddns.wanIp.provider == "speedport") || hasReconnect;
+        assertion = ddns.wanIp.provider != "speedport" || hasReconnect;
         message = ''
           [mediNix/513] wanIp.provider = "speedport", aber kein Router-Adapter
           aktiv. Bitte 513-router-adapter-speedport.nix importieren.

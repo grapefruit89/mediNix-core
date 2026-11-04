@@ -45,10 +45,6 @@ let
     hardeningProfile = profile;
     inherit caddyClass;
   };
-  mkNoPort =
-    name: number: profile: caddyClass:
-    mkNoPortWithUnit name number profile caddyClass null;
-
   mkUdsService =
     name: number: profile: caddyClass: unitName:
     (mkServiceWithUnit name number profile caddyClass unitName)
