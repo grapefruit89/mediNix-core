@@ -26,6 +26,9 @@ while IFS= read -r d; do
   # docs/audit/<jahr-monat>/ ist Pflichtstruktur (CONVENTIONS §4) und ein Archiv,
   # kein Spam. Der Ordnername ist das Datum, nicht "audit" - deshalb Pfad-Regel.
   [[ "$d" == "$base"/docs/audit/* ]] && continue
+  # todo/done/<datum>/ ist abgeschlossene Arbeit, also Archivstruktur wie oben.
+  # Auch hier ist der Ordnername das Datum, nicht "done" - Pfad-Regel, nicht Basename.
+  [[ "$d" == "$base"/todo/done/* ]] && continue
   [[ "$d" == */.agents/* || "$d" == */.github/* || "$d" == */.git/* ]] && continue
   [ -f "$d/default.nix" ] && continue
   [ -f "$d/SKILL.md" ] && continue

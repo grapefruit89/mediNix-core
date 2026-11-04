@@ -143,7 +143,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Fuer Secrets/Benutzer ist mutableUsers bequem - deshalb muss die Doku die Alternative nennen (L-047).
 - **Status:** Anti-Anker; im Repo Engine-Default `mutableUsers = false`, Host-Ausweg dokumentiert.
 - **Quelle:** Dolstra 2006 (Kap. 2); NixOS Manual.
-- **Durchsetzung:** `lib/decimal-framework.nix` (mkDefault false) · `medinix.security.loginKeys` · `docs/ADMIN-HANDOFF.md`
+- **Durchsetzung:** `50-core/501-decimal-engine.nix` (mkDefault false) · `medinix.security.loginKeys` · `docs/ADMIN-HANDOFF.md`
 
 ### 13. Non-Atomic Upgrades
 - **Details:** Upgrade in Teilschritten, die einzeln fehlschlagen koennen.
@@ -265,7 +265,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Mehr Schichten = mehr Fehlerquellen; jede muss begruendet sein.
 - **Status:** etabliert (Hardening-Baseline).
 - **Quelle:** NSA 1999 ("Defense in Depth"); vendorter Anker `docs/anchors/defense-in-depth.md`.
-- **Durchsetzung:** AB-009 · ADR-5050 · `lib/hardening-profiles.nix`
+- **Durchsetzung:** AB-009 · ADR-5050 · `50-core/hardening-profiles.nix`
 
 ### 25. Separation of Concerns
 - **Details:** Ein Modul tut **eine** Sache; Abhaengigkeiten zeigen in eine Richtung.
