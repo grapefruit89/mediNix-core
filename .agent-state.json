@@ -314,8 +314,8 @@
         "Beispiele: Logs=journald (nicht VictoriaLogs/VictoriaMetrics) | Ban=nftables+CrowdSec | Ressourcen-Metriken=cgroup v2 | KEIN Aequivalent: App-Metriken (exportarr), S.M.A.R.T. (smartd)"
       ],
       "haertung": [
-        "lib/hardening-profiles.nix ist die EINZIGE Hardening-Quelle",
-        "lib/memory-policy.nix fuer Memory/OOM",
+        "50-core/hardening-profiles.nix ist die EINZIGE Hardening-Quelle",
+        "50-core/memory-policy.nix fuer Memory/OOM",
         "SystemCallErrorNumber = EPERM",
         "SystemCallArchitectures = native",
         "ProtectSystem = strict, NoNewPrivileges, PrivateTmp"
@@ -946,7 +946,7 @@
         "id": "AB-051",
         "topic": "Manifest §5 - Dendritic Modularity & SSoT (Drop & Forget)",
         "was": "Ports/UIDs/GIDs hartkodieren oder Host-Zustand ausserhalb des Moduls liegen lassen; eine geloeschte Datei muss Rueckstaende hinterlassen.",
-        "warum": "Nur die Registry (`lib/registry.nix`) ist Wahrheit (Port = UID = Nummer x 10); Reste nach dem Entfernen eines Moduls sind Leaks.",
+        "warum": "Nur die Registry (`50-core/registry.nix`) ist Wahrheit (Port = UID = Nummer x 10); Reste nach dem Entfernen eines Moduls sind Leaks.",
         "evidence": "ADR-0003 §5; 591 `dfracViolations` + `check_corridor.py` (hartkodierte uid), `medinix.knownStateDirs`.",
         "status": "aktiv",
         "revive_if": "Nur mit ADR-Aenderung (ADR-0003) - die fuenf Prinzipien sind bindend.",

@@ -586,7 +586,7 @@
     },
     "hardening": {
       "description": "systemd-Hardening-Profile",
-      "source": "lib/hardening-profiles.nix",
+      "source": "50-core/hardening-profiles.nix",
       "programs_by_profile": {
         "network": [
           "511",
@@ -635,7 +635,7 @@
     },
     "performance": {
       "description": "OOM/CPU/IO-Gewichtung und Memory-Limits",
-      "source": "lib/memory-policy.nix",
+      "source": "50-core/memory-policy.nix",
       "programs_with_limits": [],
       "program_count": 0
     },
