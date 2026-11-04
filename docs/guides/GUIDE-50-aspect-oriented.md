@@ -30,7 +30,7 @@ Ein Aspekt ist ein Querschnittsthema, das **neben** den Diensten lebt statt in j
 
 - `59-guardrails/591-cross-domain.nix` — domänenübergreifende Assertions.
 - `58-observability/585-exporters.nix` — Prometheus-Exporter aus dem Manifest.
-- `lib/*` — Engine, Registry, Contract, Hardening-Profile.
+- `50-core/*` — Engine, Registry, Contract, Hardening-Profile.
 
 Faustregel: Der Dienst erklärt **sich selbst** (Manifest + `medinix.ingress.vhosts`),
 der Aspekt konsumiert diese Beschreibung. Kein Dienstcode wird für ein

@@ -156,28 +156,7 @@ Bei Start jeder Arbeit an mediNix-core:
 
 ## 10. Exploration — Finden statt Suchen
 
-### R1 — Lesen statt Suchen, wenn der Pfad bekannt ist
-Wenn du weißt, WO etwas liegt: `cat`/`head`/`sed -n '<a>,<b>p'` auf die konkrete Datei. KEIN `grep -rn`, KEIN `find`, KEIN `rg`.
-Wenn du NICHT weißt, wo etwas liegt: schlage in dieser Karte nach. Erst wenn die Karte es nicht listet: gezieltes `grep`.
-NIE `grep -rn "X" /` über das ganze Repo.
-
-### R2 — Ein Tool-Call pro Frage
-Für eine konkrete Frage reicht EIN Tool-Call. Wenn nach 1 Call die Antwort nicht klar ist, ist die Frage falsch gestellt oder die Anweisung mehrdeutig → weiter mit R3.
-
-### R3 — Ambiguity → STOP
-Wenn du zwei verschiedene Interpretationen der Anweisung aufschreiben kannst: **SOFORT STOPPEN.** Frage nach, statt spekulativ zu raten.
-
-### R4 — Tool-Kategorien (nur die billigste Stufe verwenden)
-- **LESEN (billig):** `cat`, `head`, `sed -n`, `grep <file>`
-- **SUCHEN (teuer):** `grep -rn`, `rg`, `find`, `git log -S` → nur wenn R1 erschöpft ist, max. 1× pro Frage
-- **TESTEN (teuer):** `nix eval`, `nix-instantiate`, `nix build` → nur NACH einem Fix, nicht zum Erkunden von Werten
-- **VERIFIZIEREN (sehr teuer):** `nix flake check`, `nixmeta_check` → nur am Ende einer Welle, nicht zwischen Fixes
-
-### R5 — Budget pro Sub-Task: 3 Tool-Calls
-Nach 3 Calls ohne Ergebnis: **STOP.** Melde, was du gefunden hast und was du brauchst. Kein spekulatives Weitertesten.
-
-### R6 — Dead Signals: sofort stoppen
-- `nix-instantiate` scheitert → Hypothese widerlegt, NICHT mit Variationen retryen.
-- `grep -rn "X"` liefert > 20 Treffer → Suchbegriff zu breit, Karte nutzen.
-- `git log -S` für einen aktuellen Bug → falsches Werkzeug, aktuelle Datei direkt lesen.
-- 2 Tool-Calls in Folge ohne Fortschritt → **STOP**, melden.
+Die Regeln R1–R6 (lesen statt suchen, ein Tool-Call pro Frage, Ambiguität → STOP,
+Tool-Kosten-Hierarchie, 3-Call-Budget, Dead Signals) stehen in der Repo-Verfassung:
+**`AGENTS.md` §Regel 11**. Dort ist die einzige Quelle — diese Datei führt sie nicht
+doppelt (Zeiger-Regel, `docs/CONVENTIONS.md` §4).

@@ -34,7 +34,7 @@ Shared reference files (read directly, do not duplicate) live in
 - NEVER write to `/opt/data/knowledge/` (external docs, read-only).
 - NEVER write to `/opt/data/github_repos/` unasked.
 - Own files: `/opt/data/docs/{ADR,OPS,nix}/`, `/opt/data/50-mediNix/`
-  (boilerplate SSoT in `lib/`).
+  (boilerplate SSoT in `50-core/`).
 - mediahost configs land via scp under `/home/mediahost/mediNix/` ON THE SERVER.
 
 ## Dezimalrahmen (Verfassung ADR-0000 — einzige Wahrheit)

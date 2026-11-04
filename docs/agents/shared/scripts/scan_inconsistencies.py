@@ -7,8 +7,10 @@ Default ROOT = /opt/data/50-mediNix
 Checks every NNN-*.nix: filename number is a valid mediNix Dienstnummer
 (500-599) or 2-digit domain block (50-59); header `ports:` are all = file-num*10
 (or 0/empty); 4-digit ports are rejected. Reports real violations. Known
-false-positives (default.nix, flake.nix, lib/*, firewall ports 22/80/443/2222)
-are intentionally NOT flagged as framework violations.
+false-positives (default.nix, flake.nix, 50-core/*, firewall ports 22/80/443/2222)
+are intentionally NOT flagged as framework violations. Die §14-Kategorien ohne
+Nummer (library, package, test, zones) werden von der Dateinamen-Regel weiterhin
+gemeldet — dieses Skript ist aelter als ADR-0000 §14 und nicht Teil eines Gates.
 """
 import os, re, sys
 
@@ -17,7 +19,7 @@ ALLOW_NO_NUMBER = {"default.nix", "flake.nix"}
 issues = []
 
 for dirpath, dirs, files in os.walk(ROOT):
-    if "/.git" in dirpath or dirpath.endswith("/docs") or "/lib/" in dirpath:
+    if "/.git" in dirpath or dirpath.endswith("/docs"):
         continue
     for f in files:
         if not f.endswith(".nix"):

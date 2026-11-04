@@ -28,14 +28,14 @@ Each module is configured according to the mediNix Dezimalrahmen convention:
 
 Die Module in diesem Ordner greifen auf folgende zentrale System-Bibliotheken zurück:
 
-- `lib/hardening-profiles` (Python- und Skript-Hardening)
-- `lib/registry` (SSoT für Port 5410, UID 5410, StateDir)
+- `50-core/hardening-profiles` (Python- und Skript-Hardening)
+- `50-core/registry` (SSoT für Port 5410, UID 5410, StateDir)
 
 ```mermaid
 graph TD
-  541_sabnzbd["541-sabnzbd"] --> hardening_profiles["lib/hardening-profiles"]
-  541_sabnzbd["541-sabnzbd"] --> registry["lib/registry"]
-  543_mover["543-mover"] --> hardening_profiles["lib/hardening-profiles"]
+  541_sabnzbd["541-sabnzbd"] --> hardening_profiles["50-core/hardening-profiles"]
+  541_sabnzbd["541-sabnzbd"] --> registry["50-core/registry"]
+  543_mover["543-mover"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 
 ## 🛡️ Key Architecture Decisions

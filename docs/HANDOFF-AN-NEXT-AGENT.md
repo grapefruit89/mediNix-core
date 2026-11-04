@@ -111,7 +111,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 - **Erledigt (2026-10-15):** P0-Verfassungs-Verstöße (`b9a146f`), Ankreuzbogen Schicht 2 (`24f5ee5`),
   Root-Audit (`967585f`), Ratsche auf 18 Dienste (`9d4d0a4`), Port-Riegel (`e6f910d`),
   `refactor/decades-conformance` gelöscht.
-- **P1:** 516 CrowdSec, `lib/gpu.nix`, `network-cidrs.nix`, `noExec` auch für 514
+- **P1:** 516 CrowdSec, `50-core/gpu.nix`, `network-cidrs.nix`, `noExec` auch für 514
   (erst nach Laufzeittest im QEMU).
 - **P2:** 4 unverdrahtete `lib`-Module entscheiden, `AGENT_SOURCES.md` mit `UPSTREAM-SOURCES.md`
   zusammenlegen, jellyfin zusätzlich über den *gerenderten* XML-Inhalt prüfen.

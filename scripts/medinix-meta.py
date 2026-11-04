@@ -322,9 +322,12 @@ def generate_docs(check_only=False):
             if req.startswith("50-core/"):
                 path = f"50-core/{req.removeprefix('50-core/')}.nix"
                 candidates.append((path, f"../{path}"))
-            if req.startswith("lib/"):
-                path = f"lib/{req.removeprefix('lib/')}.nix"
-                candidates.append((path, f"../{path}"))
+            # `lib/` gibt es seit dem 2026-11-04 abgeschlossenen Umzug nicht mehr
+            # (ADR-0000 §14.7: lib/decimal-framework.nix -> 50-core/501-decimal-engine.nix
+            # + 50-core/derive.nix, alle anderen lib/* -> 50-core/*). Der frueher hier
+            # stehende lib/-Zweig war damit unerreichbar und deckungsgleich mit dem
+            # 50-core/-Zweig darueber. Alte `requires: ["lib/..."]` stehen nur noch in
+            # docs/audit/** und werden von nixmeta nicht mehr gegated.
             if re.match(r"^[0-9]{2}-[a-z]+/", req):
                 path = f"{req}.nix"
                 candidates.append((path, f"../{path}"))

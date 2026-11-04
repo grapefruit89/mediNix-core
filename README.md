@@ -100,7 +100,7 @@ Host decisions after import: [`docs/ADMIN-HANDOFF.md`](docs/ADMIN-HANDOFF.md).
 ## Layout
 
 - `default.nix` — `medinix.*` options
-- `lib/` — registry, service-factory
+- `50-core/` — registry, service-factory
 - `51-ingress/` — organs + [`510-ingress-SERVICE.md`](51-ingress/510-ingress-SERVICE.md)
 - `docs/` — ADRs, [`docs/INDEX.md`](docs/INDEX.md)
 - `flake.nix` — `nixosModules.default`

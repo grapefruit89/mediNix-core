@@ -29,8 +29,8 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 
 ```mermaid
 graph TD
-  561_seerr["561-seerr (Port/UID 5610)"] --> hardening_profiles["lib/hardening-profiles (nodejs)"]
-  561_seerr["561-seerr"] --> registry["lib/registry"]
+  561_seerr["561-seerr (Port/UID 5610)"] --> hardening_profiles["50-core/hardening-profiles (nodejs)"]
+  561_seerr["561-seerr"] --> registry["50-core/registry"]
   561_seerr["561-seerr"] -.-> caddy["511-caddy (Public Ingress / SSO)"]
   561_seerr["561-seerr"] -.-> sonarr["532-sonarr (API Sync)"]
   561_seerr["561-seerr"] -.-> radarr["533-radarr (API Sync)"]

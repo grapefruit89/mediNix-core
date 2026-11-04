@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Erzeugt die Playbook-Zone (Paragraf 5) in docs/RUNBOOK.md aus lib/runbook.json (SSoT).
+"""Erzeugt die Playbook-Zone (Paragraf 5) in docs/RUNBOOK.md aus packages/medinix-cli/runbook.json (SSoT).
 
 Warum: eine zweite, handgepflegte Playbook-Liste driftet (Beleg: dieselben
-Symptome standen doppelt in lib/cli.nix UND in docs/RUNBOOK.md). Quelle bleibt
-lib/runbook.json; cli.nix liest sie via builtins.readFile, diese Doku wird daraus
+Symptome standen doppelt in packages/medinix-cli/cli.nix UND in docs/RUNBOOK.md). Quelle bleibt
+packages/medinix-cli/runbook.json; cli.nix liest sie via builtins.readFile, diese Doku wird daraus
 generiert. Eine Information = eine Quelle.
 
 Aufruf:  python3 scripts/gen_runbook.py           (schreibt docs/RUNBOOK.md)

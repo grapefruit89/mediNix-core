@@ -71,7 +71,7 @@ own ADR with the full UID/GID/Port/ADR-prefix row above.
 1. `../../shared/../../shared/scripts/scan_inconsistencies.py` — walks the repo, checks every `NNN-*.nix`
    against its header `ports:` and flags 4-digit ports, ports ≠ file-num×10,
    out-of-range domain blocks. Only known false-positives (`default.nix`,
-   `flake.nix`, `lib/*`, firewall ports 22/80/443/2222 which are not service
+   `flake.nix`, `50-core/*`, firewall ports 22/80/443/2222 which are not service
    ports) may remain.
 2. `../../shared/../../shared/scripts/scan_duplicates.py` — full duplicate probe: same filename in different
    paths, content-identical files (sha256), SAME Dienstnummer in multiple files,

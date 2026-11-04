@@ -17,7 +17,7 @@
 # Fuer echte Aenderungen immer 53-acquisition/arr-settings.nix bearbeiten.
 # ─────────────────────────────────────────────────────────────────────────────
 # 53-acquisition/arr-settings.nix — .NET AppSettings → Environment Variables
-# Drop into lib/ and import from each Arr module:
+# Drop into 50-core/ and import from each Arr module:
 #   arrSettings = import ../53-acquisition/arr-settings.nix { inherit lib; };
 #   environment = arrSettings.mkSonarr { server.port = 5320; ... };
 #

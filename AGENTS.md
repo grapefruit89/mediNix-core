@@ -43,12 +43,12 @@
    - **L1 (Interaktive lokale Schleife):** `nix flake check --no-build` (prüft Eval, Assertions, Nixfmt, Statix, Deadnix) – muss vor jedem Commit 100% grün sein (~5–10s).
    - **L2 (Asynchrone CI-Gates):** Vollständige Derivations-Builds und schwere QEMU-VM-Smoke-Tests laufen in der GitHub Actions CI (`flake-check.yml`), nicht in der synchronen lokalen Agenten-Schleife, um Timeouts und Tokenverbrennung zu verhindern.
 11. **Exploration — Finden statt Suchen (Disziplin R1–R6):**
-   - **R1 — Lesen statt Suchen:** Wenn der Pfad bekannt ist $\rightarrow$ `cat`/`head`/`sed -n`. KEIN `grep -rn`, KEIN `find`, KEIN `rg`. Bei unbekanntem Ort zuerst in `medinix-project.md` nachschlagen. NIE `grep -rn "X" /` über das ganze Repo.
-   - **R2 — Ein Tool-Call pro Frage:** Für eine konkrete Frage reicht EIN Tool-Call. Antwort unklar $\rightarrow$ weiter mit R3.
-   - **R3 — Ambiguity → STOP:** Zwei verschiedene Interpretationen einer Anweisung $\rightarrow$ **SOFORT STOPPEN**, nachfragen statt raten.
-   - **R4 — Tool-Kategorien (Kosten-Hierarchie):** LESEN (billig: `cat`, `head`, `sed -n`) < SUCHEN (teuer: `grep -rn`, `rg`, `find`, max. 1× pro Frage) < TESTEN (teuer: `nix eval`, `nix-instantiate`, nur nach Fix) < VERIFIZIEREN (sehr teuer: `nix flake check`, nur am Ende einer Welle).
-   - **R5 — Budget pro Sub-Task:** Max. 3 Tool-Calls ohne Ergebnis $\rightarrow$ **STOP**, melden was fehlt. Kein spekulatives Weitertesten.
-   - **R6 — Dead Signals:** `nix-instantiate` scheitert $\rightarrow$ Hypothese widerlegt, nicht retryen; `grep` > 20 Treffer $\rightarrow$ Begriff zu breit; 2 Calls in Folge ohne Fortschritt $\rightarrow$ **STOP**, melden.
+   - **R1 — Lesen statt Suchen:** Wenn der Pfad bekannt ist → `cat`/`head`/`sed -n`, oder `grep <datei>`. KEIN `grep -rn`, KEIN `find`, KEIN `rg`. Bei unbekanntem Ort zuerst in `medinix-project.md` nachschlagen. NIE `grep -rn "X" /` über das ganze Repo.
+   - **R2 — Ein Tool-Call pro Frage:** Für eine konkrete Frage reicht EIN Tool-Call. Antwort unklar → weiter mit R3.
+   - **R3 — Ambiguity → STOP:** Zwei verschiedene Interpretationen einer Anweisung → **SOFORT STOPPEN**, nachfragen statt raten.
+   - **R4 — Tool-Kategorien (Kosten-Hierarchie):** LESEN (billig: `cat`, `head`, `sed -n`, `grep <datei>`) < SUCHEN (teuer: `grep -rn`, `rg`, `find`, `git log -S`, max. 1× pro Frage) < TESTEN (teuer: `nix eval`, `nix-instantiate`, `nix build`, nur nach Fix) < VERIFIZIEREN (sehr teuer: `nix flake check`, `nixmeta_check`, nur am Ende einer Welle).
+   - **R5 — Budget pro Sub-Task:** Max. 3 Tool-Calls ohne Ergebnis → **STOP**, melden was fehlt. Kein spekulatives Weitertesten.
+   - **R6 — Dead Signals:** `nix-instantiate` scheitert → Hypothese widerlegt, nicht retryen; `grep` > 20 Treffer → Begriff zu breit; `git log -S` für einen aktuellen Bug → falsches Werkzeug, die Datei direkt lesen; 2 Calls in Folge ohne Fortschritt → **STOP**, melden.
 
 ---
 

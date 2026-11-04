@@ -9,7 +9,7 @@ entscheidbar. Maschinell entscheidbar ist dagegen:
      Missverstaendnisse, Kritik, Status, Quelle, Durchsetzung),
   2. die Quelle ist identifizierbar (Jahr, Version, ADR-Bezug oder "o. J."),
   3. die Durchsetzungs-Angabe zeigt auf etwas EXISTIERENDES: eine Datei unter
-     scripts/|lib/|docs/, eine Korridor-Regel AB-xxx (oder ausdruecklich "manuell"),
+     scripts/|50-core/|docs/, eine Korridor-Regel AB-xxx (oder ausdruecklich "manuell"),
   4. die drei Gruppen (A/B/C) und mindestens 25 Anker sind vorhanden.
 
 Exit 1 = Katalog verfallen.
@@ -39,7 +39,7 @@ AB_ID = re.compile(r"AB-\d{3}")
 SCRIPT_REF = re.compile(r"scripts/[A-Za-z0-9_.-]+\.(?:py|sh)")
 # Quelle muss identifizierbar sein: Jahr, Version (z. B. 26.11) oder ADR-Bezug.
 SOURCE_ID = re.compile(r"\b(?:19|20)\d{2}\b|\b\d+\.\d+\b|ADR-\d{3,4}|o\.\s?J\.")
-# Durchsetzung darf auf existierende Dateien (scripts/|lib/|docs/) zeigen.
+# Durchsetzung darf auf existierende Dateien (scripts/|50-core/|docs/) zeigen.
 FILE_REF = re.compile(r"(?:scripts|lib|docs)/[A-Za-z0-9_./-]+\.(?:py|sh|nix|md)")
 MIN_ANCHORS = 25
 
@@ -89,7 +89,7 @@ def main() -> int:
         refs = AB_ID.findall(value) + FILE_REF.findall(value)
         if not refs:
             errors.append(
-                f"Anker '{label}': Durchsetzung nennt weder eine Datei (scripts/|lib/|docs/) "
+                f"Anker '{label}': Durchsetzung nennt weder eine Datei (scripts/|50-core/|docs/) "
                 f"noch eine AB-Regel noch 'manuell' -> '{value[:60]}'"
             )
         for ab in AB_ID.findall(value):

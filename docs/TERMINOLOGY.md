@@ -71,7 +71,7 @@
 | WireGuard-Interface flake-verwaltet | [Defense in Depth](anchors/defense-in-depth.md) | `525-vpn-interface.nix` |
 | VPN-Killswitch (`meta skuid` + Route-Hook, fail-closed) | [Poka-Yoke](anchors/poka-yoke.md) + [Defense in Depth](anchors/defense-in-depth.md) | `526-vpn-killswitch.nix` |
 
-## lib/ (Hilfsbibliotheken)
+## 50-core/ (Hilfsbibliotheken)
 
 | Modul / Konstrukt | Etablierter Anker |
 |---|---|
@@ -89,7 +89,7 @@
 | 4 nie verdrahtete Module am 2026-10-16 archiviert (`docs/audit/`) | [YAGNI](anchors/yagni.md) + [Chesterton's Fence](anchors/chestertons-fence.md) |
 
 ## Rollout
-- **Start:** 51-ingress + 52-security + lib/ (diese Datei).
+- **Start:** 51-ingress + 52-security + 50-core/ (diese Datei).
 - **Nächste Ordner** (nach Bedarf): 58-observability · 53–56.
 - **Quelle der Namen:** <https://llm-coding.github.io/Semantic-Anchors/llms-index.txt> —
   bei Zweifel dort prüfen, nicht aus dem Gedächtnis zitieren.

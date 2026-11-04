@@ -33,7 +33,7 @@ in { imports = allModules; ... }
 `541-mover.nix` collided with SABnzbd `541-sabnzbd-isolation.nix` → moved mover to
 `543-mover.nix`, free slot in 54-transfer), content-identical files (sha256 dupes),
 same NIXMETA `# id:` in multiple files.
-False-positives (legit, ignore): `default.nix`/`flake.nix`/`lib/*.nix` (no number by
+False-positives (legit, ignore): `default.nix`/`flake.nix`/`50-core/*.nix` (no number by
 design), 57-maintenance provisioning sub-modules, SSH/Firewall ports (22/443/2222 are
 NOT service ports).
 

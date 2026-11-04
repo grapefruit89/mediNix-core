@@ -102,7 +102,7 @@ final level.
 - MAY remove unused **let-bindings** and `_`-prefix unused **lambda args**.
 - MUST NOT remove a **function argument** of a non-module function (no `...` in the
   pattern) — that can be public API. `50-core/service-factory.nix` `port ? null` and
-  `lib/cli.nix` `lib` were passed by callers; removing them ⇒
+  `packages/medinix-cli/cli.nix` `lib` were passed by callers; removing them ⇒
   `error: function called with unexpected argument 'lib'`.
 - NixOS modules `{ config, lib, pkgs, ... }:` carry `...` → dropping an unused named arg
   is safe because the caller's arg is absorbed.

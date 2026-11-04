@@ -20,7 +20,7 @@ python3 ../../shared/scripts/scan_inconsistencies.py
 Flags: wrong Dienstnummer in filename (e.g. 513-Caddy vs 511), wrong `ports:`
 in header (must = filename×10), non-zero-ending 4-digit ports, folder/file
 numbers outside 500–599. Legitimate false-positives: `default.nix`,
-`flake.nix`, `lib/*.nix`, provisioning modules in 57-maintenance (no own
+`flake.nix`, `50-core/*.nix`, provisioning modules in 57-maintenance (no own
 port), SSH/firewall ports (22/443/2222).
 
 ## 2. Duplicate / collision scan

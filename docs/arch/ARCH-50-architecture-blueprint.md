@@ -66,7 +66,7 @@ QuickSync).
 mediNix-core/
 ├── flake.nix            # Inputs: nixpkgs + flake-utils
 ├── default.nix          # Optionen + Engine
-├── lib/                 # derive · registry · service-factory · hardening-profiles · creds
+├── 50-core/                 # derive · registry · service-factory · hardening-profiles · creds
 ├── 50-core/ … 59-guardrails/   # NN-domain/NNN-dienst.nix (Dezimalrahmen, ADR-0000)
 └── docs/                # ADRs · Konzepte · Guides · Patterns
 ```
@@ -90,6 +90,6 @@ Auto-Import der Domänen über `builtins.readDir` (kein `import-tree`).
     imperativen `ip netns`-Skripte (ADR-0011).
 
 ---
-*Quellen: Repo-Code (Stand 2026-10-17) — `flake.nix`, `lib/`, `51-ingress/`,
+*Quellen: Repo-Code (Stand 2026-10-17) — `flake.nix`, `50-core/`, `51-ingress/`,
 `52-security/`, `55-playback/551`, `58-observability/587`;
 ADR-0000, ADR-0002, ADR-0011, ADR-521, ADR-570.*
