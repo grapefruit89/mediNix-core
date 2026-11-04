@@ -18,7 +18,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5043
 # skill: nixos-context7-gate
 # note: "NO auto-update. Only notifies. User decides when to rebuild."
 # context7:

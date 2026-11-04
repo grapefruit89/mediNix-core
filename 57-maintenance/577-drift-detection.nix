@@ -18,7 +18,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5043, ADR-5050
 # repo-harvest: Nix-Grok (drift-detection pattern)
 # ---
 {

@@ -8,7 +8,6 @@
 # last_reviewed: 2026-09-02
 # provides: ["backup"]
 # requires: ["50-core/hardening-profiles", "50-core/registry"]
-# adr: ADR-576
 # links:
 #   adr: ADR-576
 # ---

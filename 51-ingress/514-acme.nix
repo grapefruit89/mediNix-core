@@ -9,7 +9,6 @@
 # links:
 #   adr: ADR-514
 # provides: ["acme", "tls"]
-# adr: ADR-514
 # ---
 # ACME uses its OWN Cloudflare token (never the DDNS token). No tokenFile.
 #   ingress.tls.acmeCredential

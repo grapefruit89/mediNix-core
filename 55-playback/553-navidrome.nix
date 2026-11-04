@@ -8,7 +8,6 @@
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#navidrome
 # requires: ["52-security/creds", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
-# adr: ADR-553
 # links:
 #   adr: ADR-553
 # ---

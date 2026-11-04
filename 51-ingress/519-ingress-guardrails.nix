@@ -10,7 +10,6 @@
 # complexity: 2
 # provides: ["ingress-guardrails"]
 # requires: ["511-caddy"]
-# adr: ADR-0000
 # ---
 # Local invariants of the ingress domain — the `_9` anchor at domain level.
 #

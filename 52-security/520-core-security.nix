@@ -16,7 +16,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-5200
 # links:
 #   adr: ADR-5200
 # ---

@@ -18,7 +18,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-0000, ADR-5043
 # repo-harvest: NixmitGROK (post-boot-watchdog pattern)
 # ---
 {

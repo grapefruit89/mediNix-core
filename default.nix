@@ -19,7 +19,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: false
-# adr: ADR-5043
 # ---
 
 # 50-mediNix Master Boilerplate (SSoT)

@@ -3,7 +3,6 @@
 # title: "Gatus — Health Dashboard (Manifest-Konsument, Service 582)"
 # domain: 58
 # folder: 58-observability
-# adr: ADR-582
 # status: active
 # complexity: 2
 # last_reviewed: 2026-10-15

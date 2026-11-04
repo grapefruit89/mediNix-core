@@ -9,7 +9,6 @@
 # links:
 #   adr: ADR-576
 # requires: ["50-core/registry"]
-# adr: ADR-576
 # ---
 # Optional pull path next to 576 restic. Encryption is SSH, not a second restic.
 # Never write an unencrypted tree under /tmp.

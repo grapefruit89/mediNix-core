@@ -63,7 +63,7 @@ So `532` reads as: `5` (namespace: project mediNix) · `3` (decade: Ingestion / 
 
 ### §1.3 Fraktales Ordnungsprinzip (Universelle Grammatik)
 
-Der Dezimalrahmen fungiert nicht nur als Verfassung für NixOS-Dienstmodule, sondern als universelle, fraktale Grammatik für die gesamte Dateisystem- und Repository-Ordnung. Dieselbe dekadische Systematik ordnet reine Hilfsfunktionen (`lib/`), Architektur-Dokumente (`docs/adr/`), Skripte und Credentials (`/var/lib/medinix/secrets/`) entlang der funktionalen Pipeline von Foundation (`_0`) bis Guardrails (`_9`). Die strengen Modul- und Runtime-Invarianten (keine Daemons in `_0`/`_9`, $\text{Port} = \text{UID} = \text{num} \times 10$) gelten dabei ausschließlich für ausführbare Dienstmodule und binden Nicht-Modul-Artefakte nicht. Dadurch bleibt das gesamte System über alle Abstraktionsebenen hinweg intuitiv navigierbar und frei von unstrukturierten Sonderordnern. (Quelle: Chat 1 Block 12 D-12-01).
+Der Dezimalrahmen fungiert nicht nur als Verfassung für NixOS-Dienstmodule, sondern als universelle, fraktale Grammatik für die gesamte Dateisystem- und Repository-Ordnung. Dieselbe dekadische Systematik ordnet reine Hilfsfunktionen (`50-core/`), Architektur-Dokumente (`docs/adr/`), Skripte und Credentials (`/var/lib/medinix/secrets/`) entlang der funktionalen Pipeline von Foundation (`_0`) bis Guardrails (`_9`). Die strengen Modul- und Runtime-Invarianten (keine Daemons in `_0`/`_9`, $\text{Port} = \text{UID} = \text{num} \times 10$) gelten dabei ausschließlich für ausführbare Dienstmodule und binden Nicht-Modul-Artefakte nicht. Dadurch bleibt das gesamte System über alle Abstraktionsebenen hinweg intuitiv navigierbar und frei von unstrukturierten Sonderordnern. (Quelle: Chat 1 Block 12 D-12-01).
 
 ---
 
@@ -105,6 +105,8 @@ The decimal framework recognizes exclusively **functional roles, never software 
 
 Unoccupied slots remain empty reserves; they are never repurposed for unrelated functions.
 
+**Rollenname ≠ Ordnername:** Der Ordner heißt `53-acquisition`, die Rolle heißt `ingestion` — Synonym. Bindend ist die Rolle in der Tabelle, nicht der Verzeichnisname.
+
 ---
 
 ## 4. Derivations & User Private Groups (UPG)
@@ -132,6 +134,8 @@ Unoccupied slots remain empty reserves; they are never repurposed for unrelated 
 3. **I3 (No Foundation Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 0$ (`_0` never spawns daemons).
 4. **I4 (No Guardrail Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 9$ (`_9` is build-time evaluation only).
 
+**I1 gilt projektbezogen (`5xx`):** Die `num`-Werte `500`, `502` und `503` sind Foundation-Module der Dekade `_0`, keine Dienste. Sie tragen keine Unit, keinen Port und keine eigene UPG.
+
 ### Role Declaration (Recommended, Never Prescriptive)
 Declaring an optional `role` string in the service manifest (e.g. `role = "media-server"`) is recommended as best practice to document the functional intent beyond the numeric slot. The field is purely descriptive and has **no impact on Port, UID, or GID derivations**. If declared, it must not be an empty string (`assertion = role != ""`).
 
@@ -147,6 +151,8 @@ TPM-versiegelte Geheimnisse (`.cred`-Dateien) liegen standardmäßig im persiste
 ---
 
 ## 5. The Structural Proofs
+
+Die Beweise in §5.1 rechnen **projektbezogen** (`H = 5`). Die universellen Grenzen in §5.2 gelten für den **Gesamtraum** (`H ∈ [1..9]`).
 
 ### 5.1 Shared GID (`H000`) and Service UIDs/UPGs Never Collide
 The shared project group is $H000$. By Invariants I2 and I3, neither decade `0` ($\lfloor\text{num}/10\rfloor \bmod 10 = 0$) nor leaf `0` ($\text{num} \bmod 10 = 0$) can register a daemon. Thus the minimum valid service number in project $H$ is $H11$:
@@ -304,6 +310,9 @@ Beispiele und Vorlagen sind modul- oder libraryförmig, gehören aber nicht zum 
 und werden nie importiert. Sie werden über **Zone + `status:`** identifiziert, nicht über
 `kind:` — eine Aussage, eine Stelle.
 
+**Beispiele sind Blaupausen:** Beim Kopieren in `5X-*/` werden relative Import-Pfade gegen
+den **Zielordner** aufgelöst, nicht gegen `docs/examples/`.
+
 ### 14.3 Header-Felder pro Kategorie
 
 Basis-Pflichtfelder (ADR-00-nixmeta-v3): `id`, `title`, `domain`, `folder`, `status`,
@@ -348,6 +357,31 @@ Zusätzlich:
 - Keine Aussage über die innere Struktur von `packages/medinix-cli/` (separate Aufgabe).
 - Keine Aussage über `docs/audit/` und `docs/archive/` — dort liegt Ausgemustertes, es
   wird nicht gegated.
+
+---
+
+### 14.6 Auslegungsregeln
+
+- **§1 `HD1`–`HD9` = services/tasks gilt für die Dekaden `_1`–`_8`.** In `_0` bedeuten
+  `HD1`–`HD9` Foundation-Slots (Engine, Host-Module), nie Daemons (I3).
+- **§5 rechnet projektbezogen** (`H = 5` → min UID `5110`, min Port `5110`). Die
+  universellen Grenzen (Port `1110`–`9890`, `> 1023`, `< 32768`) gelten für den
+  Gesamtraum.
+
+### 14.7 Pfad-Konkordanz (`lib/` → `50-core/`)
+
+| Alt (`lib/`) | Neu |
+|---|---|
+| `lib/decimal-framework.nix` | `50-core/501-decimal-engine.nix` (Engine) + `50-core/derive.nix` (Formel) |
+| `lib/derive.nix` | `50-core/derive.nix` |
+| `lib/registry.nix` | `50-core/registry.nix` |
+| `lib/service-factory.nix` | `50-core/service-factory.nix` |
+| `lib/service-contract.nix` | `50-core/service-contract.nix` |
+| `lib/hardening-profiles.nix` | `50-core/hardening-profiles.nix` |
+| `lib/memory-policy.nix` | `50-core/memory-policy.nix` |
+| `lib/arr-provision/` | `packages/arr-provision/` |
+
+Wo §1.3, §2 oder §4 `lib/…` nennen, gilt diese Konkordanz.
 
 ---
 

@@ -17,7 +17,6 @@
 # state_dir: "/var/lib/oauth2-proxy"
 # uds_socket: true
 # systemd_hardened: true
-# adr: ADR-517
 # links:
 #   adr: ADR-517
 # ---

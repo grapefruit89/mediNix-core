@@ -8,7 +8,6 @@
 # last_reviewed: 2026-10-02
 # sprite: 50-core/icons.svg#audiobookshelf
 # requires: ["52-security/creds", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
-# adr: ADR-552
 # links:
 #   adr: ADR-552
 # ---

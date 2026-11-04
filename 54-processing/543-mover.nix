@@ -18,7 +18,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-543 (cold-archive tiering), ADR-5000 (event/timer-driven, no legacy cron)
 # skill: medinix-implement-discipline
 # note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---

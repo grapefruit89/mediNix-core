@@ -8,7 +8,6 @@
 # last_reviewed: 2026-10-02
 # provides: ["landing-html"]
 # requires: ["511-caddy", "51-ingress/ingress-access"]
-# adr: ADR-518
 # links:
 #   adr: ADR-518
 # ---

@@ -9,7 +9,6 @@
 # provides: ["router-adapter-speedport"]
 # requires: ["513-ddns"]
 # upstream_docs: ["https://github.com/Andre0512/speedport-api"]
-# adr: ADR-513
 # links:
 #   adr: ADR-513
 # ---

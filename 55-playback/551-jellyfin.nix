@@ -18,7 +18,6 @@
 # state_dir: "/var/lib/jellyfin"
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-551
 # ---
 # WAN stream + app login. 518 tiles this because accessGroup = stream.
 {

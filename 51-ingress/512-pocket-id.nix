@@ -17,7 +17,6 @@
 # state_dir: "/var/lib/pocket-id"
 # uds_socket: true
 # systemd_hardened: true
-# adr: ADR-512
 # links:
 #   adr: ADR-512
 # ---

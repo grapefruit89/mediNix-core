@@ -8,7 +8,6 @@
 # last_reviewed: 2026-11-03
 # provides: ["ddns"]
 # requires: ["50-core/service-factory", "51-ingress/ingress-access"]
-# adr: ADR-513
 # links:
 #   adr: ADR-513
 # ---

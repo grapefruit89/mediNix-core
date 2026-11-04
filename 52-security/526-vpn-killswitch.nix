@@ -16,7 +16,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-526
 # links:
 #   adr: ADR-526
 # context7:

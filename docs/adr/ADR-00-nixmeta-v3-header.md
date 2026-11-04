@@ -85,6 +85,7 @@ This example shows the maximum format. It is used for libraries (like the regist
 - `complexity:` 1 (very simple) to 5 (highly complex system architecture).
 - `last_reviewed:` ISO date (YYYY-MM-DD) of the last Red-Team Audit.
 - `links.adr:` Reference to the primary design decision (e.g., `ADR-0000`).
+  Ein **top-level** `adr:`-Feld ist NICHT erlaubt. Jede ADR-Referenz gehört unter `links.adr:`.
 
 ### 🛠️ Extended Fields (For complex modules)
 - `provides:` List of features/contexts this module provides to others.

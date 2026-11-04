@@ -11,7 +11,6 @@
 #   adr: ADR-532, ADR-5050
 # provides: []
 # requires: ["53-acquisition/arr-settings", "50-core/service-factory", "50-core/registry", "50-core/hardening-profiles", "50-core/memory-policy"]
-# adr: ADR-532, ADR-5050
 # ---
 {
   config,

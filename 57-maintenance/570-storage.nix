@@ -18,7 +18,6 @@
 # state_dir: ""
 # uds_socket: false
 # systemd_hardened: true
-# adr: ADR-570
 # ---
 # Creates the logical directory structure (systemd.tmpfiles) and optionally
 # MergerFS pools (if storage.backends is set).
