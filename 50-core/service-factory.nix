@@ -17,7 +17,10 @@
 #
 # 50-core/service-factory.nix — Systemd-native Service Factory
 # Generates a systemd service from a descriptor attrset. No docker, no netns.
-# Hardening comes from 50-core/hardening-profiles.nix (profile is passed explicitly by the caller, not read from registry. The registry's hardeningProfile field is the SOLL-Wert; the caller must pass it).
+# Hardening comes from 50-core/hardening-profiles.nix. The profile defaults to
+# `registry.services.<name>.hardeningProfile` (SSoT); the caller may override it
+# with an explicit `profile =` argument (541 needs that for the conditional
+# python/python-confined split).
 { lib, config, ... }:
 
 let
@@ -53,7 +56,7 @@ in
   uid ? null, # UID from registry
   execStart ? null, # the start command as string
   stateDir ? null, # z. B. "/var/lib/jellyfin" (ADR-0000 §9: ohne Port-Suffix)
-  profile ? "base", # hardening profile name (from registry.hardeningProfile)
+  profile ? (registry.${name}.hardeningProfile or "base"), # SSoT: registry; override nur wo bedingt (541)
   allowedPeers ? [ ], # service names whose stateDir is reachable (e.g. ["sabnzbd" "prowlarr"])
   extraConfig ? { }, # additional serviceConfig fields (service-specific deviations)
   hardeningOnly ? false, # return only serviceConfig for NixOS upstream modules

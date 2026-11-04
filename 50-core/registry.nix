@@ -58,9 +58,17 @@ rec {
   services = {
     caddy = mkService "caddy" 511 "network" "none";
     pocket-id = mkUdsService "pocket-id" 512 "network" "public" "pocket-id";
-    cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "script" "none" "cloudflare-ddns";
+    # L1a: "network", nicht "script". `script` setzt PrivateNetwork = true und
+    # RestrictAddressFamilies = [ "AF_UNIX" ] — ein DDNS-Client ohne Netz ist
+    # nutzlos. Das Modul uebergibt "network"; die Registry war falsch.
+    cloudflare-dns = mkNoPortWithUnit "cloudflare-dns" 513 "network" "none" "cloudflare-ddns";
+    # Die Zweit-Unit `cloudflare-ddns-reconnect` (513-ddns.nix) steht bewusst
+    # NICHT in dieser Registry: sie hat keinen eigenen Account, keinen Port und
+    # teilt uid/stateDir mit cloudflare-dns. Sie uebergibt ihr Profil explizit.
     blocky = mkNoPortWithUnit "blocky" 515 "network" "none" "blocky";
     crowdsec = mkNoPortWithUnit "crowdsec" 516 "network" "none" "crowdsec";
+    # L1b-Folge: 517 handbaut seine serviceConfig (517-oauth2-proxy.nix) und
+    # nutzt das Profil noch nicht. Der Wert hier ist der SOLL-Zustand.
     oauth2-proxy = mkUdsService "oauth2-proxy" 517 "network" "none" "oauth2-proxy";
 
     sonarr = mkService "sonarr" 532 "dotnet" "internal";
@@ -76,7 +84,11 @@ rec {
     navidrome = mkUdsService "navidrome" 553 "nodejs" "stream" "navidrome";
     seerr = mkService "seerr" 561 "nodejs" "public";
 
-    gatus = mkService "gatus" 582 "network" "internal";
+    # L1a: "base", nicht "network". 582 uebergibt "base" bewusst (der Dienst
+    # pollt HTTP-Endpunkte; `network` braechte IPAddressDeny/SocketBind* und
+    # PrivateDevices — ungeprueft). Die Registry war der SOLL-Wert, das Modul
+    # der Ist-Zustand; jetzt steht beides gleich.
+    gatus = mkService "gatus" 582 "base" "internal";
 
     # caddyClass "internal" (RT-5/Doc-Konsistenz): 581 veröffentlicht den
     # ntfy-vHost als internal (Assertion verbietet public/stream) — die
