@@ -28,7 +28,7 @@ Als Assertion verankert: `50-core/500-host-baseline.nix` verbietet
 
 ## 🧩 Folge für Module
 Ein Dienst ist ein `NN-domain/NNN-<name>.nix` (native systemd-Unit über
-`lib/service-factory.nix`), kein Compose-Stack. Es gibt **kein** `arion.enable` und
+`50-core/service-factory.nix`), kein Compose-Stack. Es gibt **kein** `arion.enable` und
 **kein** `mynixos.services.arion`.
 
 ## 🔭 Ausnahme (Zukunft)

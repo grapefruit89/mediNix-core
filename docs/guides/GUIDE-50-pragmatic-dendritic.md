@@ -19,7 +19,7 @@ Ordner dienen der Orientierung, Dateien der Vollständigkeit.
 Ein Dienstmodul erklärt **alles** selbst:
 
 1. **Core:** `medinix.<name>.enable = true;`
-2. **Runtime-Identität:** Eintrag in `lib/registry.nix` (Port = UID = num × 10).
+2. **Runtime-Identität:** Eintrag in `50-core/registry.nix` (Port = UID = num × 10).
 3. **Ingress:** `medinix.ingress.vhosts."<name>".accessGroup = "...";`
 4. **Secrets:** eigener `LoadCredentialEncrypted`-Pfad (versiegelt).
 

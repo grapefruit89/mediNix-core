@@ -33,7 +33,7 @@ This is the project's SSoT for decisions and is reviewable months later.
   `ADR-5700-sqlite-wal-tuning.md`, `ADR-5520-audiobookshelf-port-framework.md`.
 
 ## Decimal framework = SSoT in registry + factory (NO redundant modules)
-Ports/UIDs/services are defined ONCE in `lib/registry.nix` and instantiated by a
+Ports/UIDs/services are defined ONCE in `50-core/registry.nix` and instantiated by a
 factory (e.g. `53-acquisition/default.nix` `mkArrService`).
 - **Do NOT create per-service modules that duplicate what the factory already
   generates** (e.g. 532-sonarr/533-radarr/... as standalone files when the

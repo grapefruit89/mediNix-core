@@ -79,7 +79,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 
 1. **`config.*` niemals aus einer Funktion lesen, die während der Config-Auswertung läuft** → Endlosrekursion
    (ein Lauf brachte 12 statt 43 grüne Checks). Werte explizit als Parameter übergeben (so macht es
-   `lib/service-factory.nix` mit `ownsAccount`).
+   `50-core/service-factory.nix` mit `ownsAccount`).
 2. **Ein NixOS-Modul darf nur `imports`/`options`/`config` auf oberster Ebene haben** (`lib/modules.nix:670`).
    Helfer über `options` oder `_module.args` exponieren.
 3. **Upstream-Module vor der Delegation prüfen:** `services.gatus` und `services.ntfy-sh` setzen
@@ -92,7 +92,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 
 | Thema | Entscheidung |
 |---|---|
-| `users.users.<dienst>` | **Genau ein Eigentümer:** die Engine (`lib/decimal-framework.nix`). Die Factory nur für Units **ohne** Manifest-Eintrag (`caddy-media`, `cloudflare-ddns`) — Parameter `ownsAccount` |
+| `users.users.<dienst>` | **Genau ein Eigentümer:** die Engine (`50-core/501-decimal-engine.nix`). Die Factory nur für Units **ohne** Manifest-Eintrag (`caddy-media`, `cloudflare-ddns`) — Parameter `ownsAccount` |
 | Gruppenmodell | **UPG**: Primärgruppe = Dienstname (= UID = Port), `media` (GID 5000) nur als Zusatzgruppe |
 | Geteilte Ablagen | `2775 root:media` (**SetGID**) — neue Dateien erben `media` |
 | `stateDir` | `/var/lib/<name>` **ohne** Port-Suffix (ADR-0000 §9), in Contract, Registry und Engine identisch |
@@ -177,7 +177,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
 - **Stand:** `3fc4d54` (19 Commits seit `822a0d2`), lokal per fast-forward uebernommen,
   **kein Verlust** (`822a0d2` ist Vorfahr).
 - **Neu und gut:** AB-033..AB-038 (Friedhof + Zwei-Versuche-Stop), `scripts/agent-state-edit.py`
-  (AB-037), `lib/derive.nix`, UID-Hartkodierungen entfernt, `docs/anchors/` (32 Dateien,
+  (AB-037), `50-core/derive.nix`, UID-Hartkodierungen entfernt, `docs/anchors/` (32 Dateien,
   Apache-2.0, in CONVENTIONS §4 als Fremdmaterial), `docs/RUNBOOK.md` + `medinix logs`,
   `scripts/nixos_idiom_audit.py` (0 P0-Signale), Roadmap-Plan 79-83.
 - **ROT (hoechste Prioritaet):** `nix flake check` = **13/50**, CI `Flake Check` failure
@@ -247,7 +247,7 @@ Kein `infinite recursion`, keine Root-Assertion. Behoben:
 **Wichtig - die CI ist trotzdem noch rot** (`flake-check.yml` laeuft `nix flake check`
 **ohne** `--no-build`, baut also alles). Zwei vorbestehende Build-Gate-Funde in **fremden**
 Dateien (identisch mit `origin/audit-2026-10-15`, aus `4a6d51e` bzw. `9597cc4`):
-- `statix-check`: `/home/moritz/repos/mediNix-core/lib/registry.nix:37`
+- `statix-check`: `/home/moritz/repos/mediNix-core/50-core/registry.nix:37`
   "Assignment instead of inherit from" (`sharedGid = (df.derive …).sharedGid`).
 - `deadnix-check`: `/home/moritz/repos/mediNix-core/lib/cli.nix:17` unbenutztes Lambda-Muster `lib`.
 `nixfmt-check`, `nixmeta-check`, `mediNix-unit-scripts` sind gruen. **Kein Push**, bis diese zwei
@@ -262,7 +262,7 @@ Discovery-Skill `nixos-service-discovery` + CI-Schicht 0a.
 `58-observability/585-exporters.nix` deklariert nur noch die **Absicht**:
 `medinix.exporters."exportarr-<dienst>" = { uid = 8000 + num; }` (Option neu in `default.nix`) und
 `medinix.factoryUnits."<unit>" = { uid; stateDir = null; }` (591 prueft die Unit weiterhin).
-Die Engine (`lib/decimal-framework.nix`, `exporterIntent`) leitet daraus `users.groups`/`users.users`
+Die Engine (`50-core/501-decimal-engine.nix`, `exporterIntent`) leitet daraus `users.groups`/`users.users`
 ab - **585 schreibt kein `users.*` mehr** (kein Fixpunkt-Kreuz, L-046).
 
 **Nachweis (eval):** `exportarr-sonarr` uid = gid = **8532** (= 8000 + 532), `User/Group =

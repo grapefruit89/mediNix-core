@@ -73,12 +73,12 @@ Um Service-Metadaten (UIDs/Ports/State-Dirs) zur Build-Zeit in ein Script zu
 einbetten (z.B. Health-CLI `medinix`):
 ```nix
 # flake.nix (outputs-let):
-registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs.lib) lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit (nixpkgs.lib) lib; }).services;
 # default.nix config-Block:
 environment.systemPackages = lib.mkIf cfg.cli.enable [
   (pkgs.callPackage ./packages/mediNix-cli {
     inherit lib;
-    registryJson = builtins.toJSON (import ./lib/registry.nix { inherit lib; }).services;
+    registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit lib; }).services;
   })
 ];
 # packages/mediNix-cli/default.nix:

@@ -14,7 +14,7 @@ models produced audit findings needing triage before fix/commit.
 
 ## Core workflow
 1. Collect findings from EVERY model. Each produces real AND phantom bugs — trust none alone.
-2. VERIFY each finding against the actual source file (`default.nix`, `lib/registry.nix`,
+2. VERIFY each finding against the actual source file (`default.nix`, `50-core/registry.nix`,
    the module) — never the model's quoted line number. Confirm the option/attribute path
    exists and means what the model claims.
 3. Classify REAL vs PHANTOM (model misread, e.g. `cfg.dns` vs `vpn.dns`).

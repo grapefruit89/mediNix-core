@@ -137,7 +137,7 @@ inside each directory. Use the file-walking version above.
 ## Pitfalls (flake.nix syntax — tested bugs this session)
 - **`inherit (nixpkgs.lib) lib` is WRONG.** It produces `lib = nixpkgs.lib.lib`
   which does not exist → eval error. Correct form:
-  `registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;`
+  `registryJson = builtins.toJSON (import ./50-core/registry.nix { lib = nixpkgs.lib; }).services;`
 - **`formatter.${system}` / `devShells.${system}.default` inside
   `eachDefaultSystem` is WRONG (double-nesting).** `eachDefaultSystem` already
   iterates `system`, so the attrset it returns is per-system. Write

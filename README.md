@@ -9,7 +9,7 @@ A service describes itself. Ingress organs only consume that description.
 
 * **Zero-Container Bare-Metal:** Native systemd-Units statt Docker-Overhead.
 * **Manifest Pub/Sub (`schemaVersion = 1`):** Vollständige Entkopplung. Caddy, Gatus und Exporter generieren sich autonom aus dem Dienst-Manifest.
-* **Dezimalrahmen (SSoT):** Deterministische Zuweisung von Port und UID über `lib/registry.nix` (`Port = UID = Modul-ID × 10`).
+* **Dezimalrahmen (SSoT):** Deterministische Zuweisung von Port und UID über `50-core/registry.nix` (`Port = UID = Modul-ID × 10`).
 * **Kernel-Level VPN-Confinement:** SABnzbd läuft nativ unter UID 5410 mit nftables-Killswitch und getrennter DNS-Auflösung – ohne fragile Network Namespaces (`netns`).
 * **Fail-Closed Assertions:** Compile-Time-Wächter verhindern Host-Anti-Patterns (`logrotate`, unkontrollierte Auto-Reboots, Namespace-Bypässe).
 

@@ -71,9 +71,9 @@ GUIDE-58-seven-quality-gates (mynixos-knowledge-base), adopted 2026-08-12.
 1. **Community-Goldstandard** — Abgleich mit nixpkgs/modules. Nutzen wir beste bekannte Patterns?
 2. **API-Accuracy** — Jede neue NixOS-Option via Context7 verifiziert (medinix-build-gate).
    Keine Deprecations, keine halluzinierten Optionen.
-3. **SSoT-Compliance** — Strikte Bindung an lib/registry.nix (Port/UID/GID) + default.nix (Optionen).
+3. **SSoT-Compliance** — Strikte Bindung an 50-core/registry.nix (Port/UID/GID) + default.nix (Optionen).
    Keine Hardcoded-Werte (Portabilitäts-K.O.-Kriterium).
-4. **SRE-Hardening** — systemd-unit maximal isoliert (lib/hardening-profiles.nix).
+4. **SRE-Hardening** — systemd-unit maximal isoliert (50-core/hardening-profiles.nix).
    systemd-analyze security < 4.0 Ziel (soweit pragmatisch).
 5. **Dendritic Integrity** — "One Service, One File". Keine Zirkelbezüge, keine verschachtelten Ordner.
 6. **Hygiene & Purity** — Kein toter Code, keine Meta-Options, keine ungenutzten Imports.

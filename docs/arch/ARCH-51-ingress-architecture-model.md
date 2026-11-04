@@ -83,7 +83,7 @@ A service registers **once**; multiple edge organs consume that one intent.
 
 ## 2. Registry is the identity SSoT
 
-`lib/registry.nix` defines the technical identity (`port`, `uid`, `gid`) with the
+`50-core/registry.nix` defines the technical identity (`port`, `uid`, `gid`) with the
 deliberate contract:
 
 ```text
@@ -100,7 +100,7 @@ registry.uid == instance.uid == users.<unit-user>.uid
 
 ## 3. Service factory
 
-The factory (`lib/service-factory.nix`) produces recurring systemd/NixOS
+The factory (`50-core/service-factory.nix`) produces recurring systemd/NixOS
 structures so hardening is applied centrally. Its arguments are an **API**: a
 parameter can be API-relevant even when the body does not use it (the `deadnix`
 incident → H17, see the change pipeline).

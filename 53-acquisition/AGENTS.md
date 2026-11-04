@@ -20,7 +20,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - WAN-Zugang und Auth → `51-ingress`; die Registry führt diese Dienste als `internal`
 
 **Source of truth:**
-- Port/UID/Dienstnummer → `lib/registry.nix` (Dezimalrahmen, ADR-0000)
+- Port/UID/Dienstnummer → `50-core/registry.nix` (Dezimalrahmen, ADR-0000)
 - Kategorie je Dienst → `50-core/service-contract.nix` (`arr.category`), provisioniert in `53-acquisition/538-provisioning.nix`
 - WAN-Freigabe heißt `ingress.vhosts.<name>.accessGroup = "public"` setzen — nicht das Modul ändern
 

@@ -5,7 +5,7 @@
 > Eine KI liest **nur diese Datei** und kann jeden Fall in 1–2 Befehlen abarbeiten —
 > ohne zu suchen, wer/was/wohin gehört.
 >
-> **Quelle der Wahrheit:** IDs/Ports/UIDs/stateDirs kommen aus `lib/registry.nix`;
+> **Quelle der Wahrheit:** IDs/Ports/UIDs/stateDirs kommen aus `50-core/registry.nix`;
 > die Playbooks aus **`lib/runbook.json`** (das CLI liest dieselbe Datei).
 > §5 wird daraus **generiert** (`scripts/gen_runbook.py`), nicht von Hand gepflegt.
 

@@ -2,7 +2,7 @@
 
 How-to for domain **51-ingress**. File id `510` is the service-attachment layer for the ingress modules in this domain.
 
-511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `lib/registry.nix` entry.
+511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `50-core/registry.nix` entry.
 
 Template: [`5xx-service.example.nix`](../docs/examples/5xx-service.example.nix)
 
@@ -40,7 +40,7 @@ firewall stay on; fail2ban is now Legacy — RT-3 aufgelöst, CrowdSec 516 ist d
 Edge-Bouncer). Escape hatch: `medinix.ingress.guardrails`.
 ## Checklist
 
-1. Add the service to `lib/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).
+1. Add the service to `50-core/registry.nix` (`port`, `uid`, `stateDir`, `caddyClass`).
 2. Copy a service module; add `enable` in the options module if it does not exist yet.
 3. Inside `lib.mkIf cfg.enable`:
    - bind the process to `127.0.0.1:<port>`

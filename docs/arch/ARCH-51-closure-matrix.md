@@ -140,7 +140,7 @@ Notes:
   - Endstatus target: `FIXED` (zone-scoped reservation assertion).
 
 - **H21 — credential content format** `OPEN`
-  - Dateien: `513:124-130`, `514:106-114`, `52-security/521-creds.nix`, `lib/creds.nix`.
+  - Dateien: `513:124-130`, `514:106-114`, `52-security/521-creds.nix`, `52-security/creds.nix`.
   - Evidence: transport is pinned (`LoadCredentialEncrypted`); the **content**
     contract (token vs JSON vs key/value) producer↔consumer is not asserted.
   - Endstatus target: `DESIGN-DECIDED` + assertion/test.

@@ -36,10 +36,10 @@ Beide Änderungen einzeln waren grün (`822a0d2` = 50 ✅).
 ## Entscheidung
 
 1. **Zwei Klassen von Werten:**
-   - **Quellen** (Absicht/Deklaration): `lib/registry.nix` (statisch), `medinix.manifest`
+   - **Quellen** (Absicht/Deklaration): `50-core/registry.nix` (statisch), `medinix.manifest`
      (Deklaration der Dienste), Absichts-Optionen (`medinix.<bereich>.<dienst>.*`,
      `medinix.factoryUnits` als deklarierte Fabrik-Absicht).
-   - **Ableitungen** (berechnet): `lib/derive.nix`-Werte, `users.users`/`users.groups`,
+   - **Ableitungen** (berechnet): `50-core/derive.nix`-Werte, `users.users`/`users.groups`,
      `systemd.services`, `medinix.knownStateDirs`.
 2. **Kanten zeigen nur `Quelle → Ableitung`.** Kein Modul darf von einer Ableitung
    auf eine Quelle **zurücklesen**, die es (oder ein Modul mit derselben Ableitung)
@@ -61,7 +61,7 @@ Beide Änderungen einzeln waren grün (`822a0d2` = 50 ✅).
   `scripts/nixos_idiom_audit.py` als Signal geführt.
 - **Endform (Roadmap):** Identitäten **einmal** ableiten. Wer heute in einem Modul
   eine Quelle liest, um daraus Accounts zu schreiben (Ordner `58`), verlagert das
-  langfristig in die Engine (`lib/derive.nix` + Manifest-Absicht) — dann baut das
+  langfristig in die Engine (`50-core/derive.nix` + Manifest-Absicht) — dann baut das
   Modul nur noch `systemd.services`.
 
 ## Import-Konventionen (lib/ vs. Modulbaum)
@@ -69,7 +69,7 @@ Beide Änderungen einzeln waren grün (`822a0d2` = 50 ✅).
 *Quelle: `todo/done/2026-10-25_1bad3cc7_arch-vs-nixos/blocks/13-lib-vs-50-core.json` (D-13-01, D-13-02)*
 
 1. **Expliziter Import von Bibliotheksfunktionen:**
-   - Module importieren Funktionen aus `lib/` stets direkt und explizit (z. B. `let df = import ../lib/derive.nix { inherit lib; }; in ...`), niemals über unbestimmte Pfade wie `<nixpkgs/lib>` oder implizite Glob-Lookups.
+   - Module importieren Funktionen aus `lib/` stets direkt und explizit (z. B. `let df = import ../50-core/derive.nix { inherit lib; }; in ...`), niemals über unbestimmte Pfade wie `<nixpkgs/lib>` oder implizite Glob-Lookups.
 2. **`lib/` ist querschnittliche Infrastruktur:**
    - Dateien in `lib/` sind pure Hilfsfunktionen oder statische SSoT-Daten und besitzen keine NixOS-Modul-Signatur (`{ config, lib, pkgs, ... }`). Sie stellen keine eigene Domäne dar und werden daher in `default.nix` nicht automatisch importiert.
 3. **Verbot von `with lib;` in Moduldefinitionen:**

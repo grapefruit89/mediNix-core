@@ -87,7 +87,7 @@ Ein portables Modul läuft auf dem ZIEL-HOST (mediahost), NICHT im Hermes-Contai
 ### AI-Audit Cross-Validation (HART — Phantom-Bugs)
 Audit-Tools (DeepSeek/Grok/Antigravity) liefern Phantom-Bugs. VOR jeder
 Audit-Übernahme: grep die zitierte Zeile, öffne die PRIMÄRQUELLE
-(`default.nix`, `lib/registry.nix`, `lib/hardening-profiles.nix`), bestätige
+(`default.nix`, `50-core/registry.nix`, `50-core/hardening-profiles.nix`), bestätige
 dass die Option/der Attribut-Name wörtlich existiert. Existiert er nicht →
 Phantom, ignorieren. Beispiele aus 2026-08-12:
 - ECHT (P0): `512-pocket-id.nix` nutzt `.pocketId` — registry heißt

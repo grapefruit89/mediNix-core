@@ -3,7 +3,7 @@
 > ⚠️ **VERALTET** (Stand 2026-08-12, **vor** dem UPG-Refactor vom 2026-10-15).
 > Heute gilt: Unit-Name = `<name>` (**nicht** `<name>-<num>.service`); `stateDir` =
 > `/var/lib/<name>` **ohne** Port-Suffix (ADR-0000 §9). Verbindlich sind
-> `lib/registry.nix` (SSoT) + `docs/RUNBOOK.md`. Die Abschnitte unten sind **ALTSTAND**.
+> `50-core/registry.nix` (SSoT) + `docs/RUNBOOK.md`. Die Abschnitte unten sind **ALTSTAND**.
 
 These are project-specific learnings that belong in the protected
 `nixos-medinix-authoring` hub but could not be written there (user-owned).

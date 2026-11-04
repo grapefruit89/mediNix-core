@@ -25,7 +25,7 @@ Invariante prüft Messbares - heute direkt am Ort, z.B. so (Muster aus
 ```nix
 {
   assertion =
-    let r = import ../lib/registry.nix { inherit lib; };
+    let r = import ../50-core/registry.nix { inherit lib; };
     in lib.all (svc: svc.port == null || svc.port == svc.num * 10) (lib.attrValues r.services);
   message = ''
     [mediNix/591] Ein Registry-Port verletzt Port = Num * 10.

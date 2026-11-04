@@ -23,7 +23,7 @@ Zwei Ebenen: **physisch** (der Host mountet die Platten, `fileSystems."/mnt/ssd"
   - **Tiered** (`backends.hot`/`backends.cold` gesetzt): **MergerFS**-Mounts je Medientyp -
     ein Pfad, mehrere Platten.
 - Verzeichnisse: Modus **2775** (`SetGID`) mit Gruppe `media` (GID 5000, SSoT aus
-  `lib/registry.nix`) - neue Dateien **und** neue Unterordner erben die Gruppe.
+  `50-core/registry.nix`) - neue Dateien **und** neue Unterordner erben die Gruppe.
 
 ## Begruendung
 - Seit der UPG-Umstellung (ADR-0000 §4) ist die **Primaergruppe** der Dienste ihr eigener Name.

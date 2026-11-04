@@ -22,13 +22,13 @@ Agentenorientierte Arbeitskarte. Menschliche Doku: [`BANNED_TECHNOLOGIES.md`](BA
 - Edge/Ingress → `51-ingress` · Host-Security-Dienste → `52-security`
 
 **Source of truth:**
-- Nummer, UID, Port, GID → `lib/derive.nix` (`derive`, `sharedGid`) + ADR-0000
+- Nummer, UID, Port, GID → `50-core/derive.nix` (`derive`, `sharedGid`) + ADR-0000
 - Domain: `medinix.domain` ist ein **Alias** von `medinix.host.domain` (`502-host-settings.nix:23`)
 - Erlaubt/verboten → `50-core/BANNED_TECHNOLOGIES.md`
 - Was der Host selbst besitzt → `hostIntegration` in `503-host-integration.nix`
 
 **Arbeitsregel:**
-- Jede Zahl (Nummer, UID, Port, GID) kommt aus `lib/derive.nix` — **keine Literale**.
+- Jede Zahl (Nummer, UID, Port, GID) kommt aus `50-core/derive.nix` — **keine Literale**.
 - `hostIntegration = "external"` heißt: die Ressource gehört dem Host — nicht überschreiben.
 
 ## Was hier leicht schiefgeht (hart erarbeitet)
@@ -37,7 +37,7 @@ Agentenorientierte Arbeitskarte. Menschliche Doku: [`BANNED_TECHNOLOGIES.md`](BA
   wahr und damit wirkungslos (war der tote Guard in `519`). Richtig:
   `networking.firewall.backend == "iptables"` bzw. `networking.nftables.enable`.
 - **`systemd_hardened:` im NIXMETA-Header prüft kein Skript** — es ist eine Behauptung.
-  Wer `true` schreibt, muss die Härtung im Modul zeigen (`lib/hardening-profiles.nix`).
+  Wer `true` schreibt, muss die Härtung im Modul zeigen (`50-core/hardening-profiles.nix`).
 - **Zwei Ratschen, beide nur schrumpfend:** `nixmeta_check.py` +
   `scripts/nixmeta-baseline.txt` und `scripts/check_sources.py` +
   `scripts/sources-baseline.txt` (AB-053). Neue Abweichungen sind rot.

@@ -173,7 +173,7 @@ gesetzt, Durchsetzungs-Angabe zeigt auf eine existierende Datei oder Korridor-Re
 - **Kritik:** Closure-Groesse ist der Preis.
 - **Status:** Anti-Anker.
 - **Quelle:** Dolstra 2006 (Kap. 1, Motivation).
-- **Durchsetzung:** manuell · `lib/registry.nix` (eine Quelle fuer Versionen)
+- **Durchsetzung:** manuell · `50-core/registry.nix` (eine Quelle fuer Versionen)
 
 ### 16. Configuration Drift
 - **Details:** Produktion weicht unbemerkt von der Beschreibung ab.

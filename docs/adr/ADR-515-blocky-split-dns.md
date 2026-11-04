@@ -41,7 +41,7 @@ links:
 - `dig @<host> <service>.<domain>` und `dig @<host> example.org` (Mapping vs. Forward).
 - `ss -lunp | grep :5353` → kein Avahi-Listener.
 - `curl -s http://127.0.0.1:5150/api/blocking/status` (Blocky-HTTP-API erreichbar).
-- Registry: `grep -n "blocky =" /home/moritz/repos/mediNix-core/lib/registry.nix`.
+- Registry: `grep -n "blocky =" /home/moritz/repos/mediNix-core/50-core/registry.nix`.
 
 ## Related
 - ADR-511 (Caddy Ingress), ADR-513 (Cloudflare DNS), ADR-514 (ACME)

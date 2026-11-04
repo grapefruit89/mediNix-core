@@ -2,10 +2,10 @@
 
 **Problem:** Jeder Dienst schrieb seinen `serviceConfig`-Hardening-Block selbst →
 inkonsistent (mal `ProtectSystem=strict`, mal nicht, mal vergessen `NoNewPrivileges`).
-**Lösung:** Eine zentrale `lib/hardening-profiles.nix` mit benannten Profilen, die
+**Lösung:** Eine zentrale `50-core/hardening-profiles.nix` mit benannten Profilen, die
 jeder Dienst via `mkMerge [ profiles.<profil> { service-spezifisch } ]` einbindet.
 
-## Profile (lib/hardening-profiles.nix)
+## Profile (50-core/hardening-profiles.nix)
 ```nix
 { lib }:
 let base = {
@@ -39,7 +39,7 @@ in {
 }
 ```
 
-## Registry-Zuordnung (lib/registry.nix)
+## Registry-Zuordnung (50-core/registry.nix)
 `mkService` bekommt 4. Arg `profile`:
 - `network` → caddy, pocket-id, ntfy
 - `dotnet` → sonarr, radarr, readarr, lidarr, prowlarr, seerr
@@ -52,7 +52,7 @@ in {
 ## Service-Modul Pattern
 ```nix
 serviceConfig = lib.mkMerge [
-  (import ../lib/hardening-profiles.nix { inherit lib; }).dotnet
+  (import ../50-core/hardening-profiles.nix { inherit lib; }).dotnet
   { ExecStart = "..."; User = "sonarr"; Group = "media";
     StateDirectory = "sonarr-5320"; UMask = "002";
     ReadWritePaths = [ stateDir config.medinix.storage.mediaRoot ]; }
@@ -61,7 +61,7 @@ serviceConfig = lib.mkMerge [
 Nie wieder `ProtectSystem=strict` etc. im Modul hart reinschreiben — kommt aus dem Profil.
 
 ## Peer-Isolation (Factory, defence-in-depth)
-`lib/service-factory.nix` `mkPeerIsolation selfName allowedPeers` generiert
+`50-core/service-factory.nix` `mkPeerIsolation selfName allowedPeers` generiert
 `InaccessiblePaths` für ALLE fremden State-Dirs aus der Registry, AUSSER
 `allowedPeers`. Arr-Module (532-536) nutzen `allowedPeers = [ "sabnzbd" "prowlarr" ]`,
 SABnzbd (541) `allowedPeers = []`. Module die `profiles.<profil>` direkt nutzen

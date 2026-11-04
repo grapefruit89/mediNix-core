@@ -19,7 +19,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - Backup → `57-maintenance` (Restic)
 
 **Source of truth:**
-- Port/UID → `lib/registry.nix`
+- Port/UID → `50-core/registry.nix`
 - Kategoriename je Auftrag → `50-core/service-contract.nix` (`arr.category`), Provisioning in `53-acquisition/538-provisioning.nix`
 - Tiering-Pfade und Schwellen → das Mover-Modul selbst
 

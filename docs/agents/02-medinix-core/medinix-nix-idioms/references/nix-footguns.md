@@ -3,10 +3,10 @@
 ## Footgun 2 — inherit (nixpkgs.lib) lib
 ```nix
 # WRONG (flake.nix):
-registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs.lib) lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit (nixpkgs.lib) lib; }).services;
 # Error: lib.lib does not exist → attribute error at eval
 # RIGHT:
-registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { lib = nixpkgs.lib; }).services;
 ```
 
 ## Footgun 3 — eachDefaultSystem double-nesting

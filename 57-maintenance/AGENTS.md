@@ -20,7 +20,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 **Source of truth:**
 - Provisioning-Vertrag → `manifest` (Dienste) + `53-acquisition/538-provisioning.nix`
-- zu schützender Zustand → `lib/registry.nix` (`stateDir`)
+- zu schützender Zustand → `50-core/registry.nix` (`stateDir`)
 - Ignorier-Listen (z. B. Orphan-Cleanup) leben im jeweiligen Modul
 
 **Bekannte Klemmen:**

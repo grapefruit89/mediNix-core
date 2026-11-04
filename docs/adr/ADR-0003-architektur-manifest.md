@@ -20,7 +20,7 @@ The core must never assume it owns the bare-metal host. We integrate politely.
 * **DON'T:** Never blindly override host components (`networking.nftables.enable = true` unconditionally is forbidden). 
 
 ### Host-Empfehlung CPU-Governor
-Für den Headless-Betrieb des mediNix-Hosts wird die Verwendung des `schedutil`-Governors in Verbindung mit dem dynamischen Daemon `auto-cpufreq` als Host-Voraussetzung empfohlen. `schedutil` reagiert über den Kernel-Scheduler ohne Userspace-Polling direkt auf Laständerungen (z. B. CPU-intensives SABnzbd-Entpacken oder GPU-assistiertes Transcoding), während `auto-cpufreq` im Leerlauf maximale C-States und geringe Leistungsaufnahme sicherstellt. Laptop-orientierte Tools wie TLP dürfen wegen gegenseitiger Signalblockaden nicht parallel betrieben werden. Diese dynamische Ressourcensteuerung ergänzt die OOM- und Speicher-Policies aus `lib/memory-policy.nix` auf Betriebssystemebene. (Quelle: `lib/memory-policy.nix`, Chat 1 Block 10 D-10-01).
+Für den Headless-Betrieb des mediNix-Hosts wird die Verwendung des `schedutil`-Governors in Verbindung mit dem dynamischen Daemon `auto-cpufreq` als Host-Voraussetzung empfohlen. `schedutil` reagiert über den Kernel-Scheduler ohne Userspace-Polling direkt auf Laständerungen (z. B. CPU-intensives SABnzbd-Entpacken oder GPU-assistiertes Transcoding), während `auto-cpufreq` im Leerlauf maximale C-States und geringe Leistungsaufnahme sicherstellt. Laptop-orientierte Tools wie TLP dürfen wegen gegenseitiger Signalblockaden nicht parallel betrieben werden. Diese dynamische Ressourcensteuerung ergänzt die OOM- und Speicher-Policies aus `50-core/memory-policy.nix` auf Betriebssystemebene. (Quelle: `50-core/memory-policy.nix`, Chat 1 Block 10 D-10-01).
 
 ## 2. Priority Discipline & Additive Configuration
 * **DO:** Use standard Nix list additions (e.g. `[ "@system-service" ]` instead of strings) so that `systemd` configurations can merge elegantly with upstream or host configurations.
@@ -41,7 +41,7 @@ Security mechanisms must crash the system rather than leaving it exposed.
 
 ## 5. Dendritic Modularity & SSoT (Drop & Forget)
 * **DO:** Keep every service self-contained (`NNN-service.nix`). If a file is deleted, the service and its firewall/proxy configurations must vanish completely without leaving dead configuration.
-* **DO:** Derive all Ports, UIDs, GIDs, and profiles from `lib/registry.nix` (Isomorphism: `Port = UID = Service-Number * 10`).
+* **DO:** Derive all Ports, UIDs, GIDs, and profiles from `50-core/registry.nix` (Isomorphism: `Port = UID = Service-Number * 10`).
 * **DON'T:** Never hardcode UIDs, GIDs, or ports in the domain modules. The registry is the absolute and only truth.
 
 ## Verankerung (Korridor)

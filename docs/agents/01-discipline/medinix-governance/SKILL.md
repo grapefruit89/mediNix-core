@@ -40,7 +40,7 @@ not memory:
 This caught a real Unit-naming bug that a second AI reviewer mis-diagnosed (see Pitfall 1).
 
 ## Rule 3 — Pitfall: StateDirectory ≠ systemd Unit-Name
-- **Factory** (`lib/service-factory.nix` line ~47): `systemd.services."${name}" = { ... }` where
+- **Factory** (`50-core/service-factory.nix` line ~47): `systemd.services."${name}" = { ... }` where
   `name` is the **plain kebab service name** (e.g. `"sonarr"`). → Unit = `sonarr.service`.
 - The **port** (5320) lives ONLY in `StateDirectory` (`/var/lib/sonarr-5320`) and socket
   `listenStreams` — NEVER in the Unit name.
@@ -52,7 +52,7 @@ This caught a real Unit-naming bug that a second AI reviewer mis-diagnosed (see 
 - **VALIDATED MIS-DIAGNOSIS (this session):** a second AI reviewer claimed the Factory produces
   `sonarr-5320.service` and told us to "fix" `after =` to plain names — that reviewer had the
   truth BACKWARDS (it conflated StateDirectory with Unit). We had `after = [ "sonarr-5320.service" ]`
-  WRONG, and plain `sonarr.service` CORRECT. Always read `lib/service-factory.nix` line 47 + the
+  WRONG, and plain `sonarr.service` CORRECT. Always read `50-core/service-factory.nix` line 47 + the
   actual `53x-*.nix` module before trusting any reviewer's Unit-name claim. The canonical proof:
   `532-sonarr.nix` builds `systemd.services.sonarr` (Factory `name="sonarr"`).
 

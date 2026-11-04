@@ -16,7 +16,7 @@ relevant ist — bevor du tippst.
 | Falle | Symptom | Prüffrage | Beweis/Fix |
 |---|---|---|---|
 | **Faul (lazy)** | Guardrail „ist da", greift aber nicht | *Liest jemand diesen Wert?* | Assertion, die das Feld explizit anfasst; Negativtest mit Grund |
-| **Zyklische Ableitung** | `error: infinite recursion encountered` | *Lese ich eine Quelle, aus der ich (oder ein Modul mit meiner Ableitung) Ableitungen schreibe?* | **ADR-040**: Kanten nur Quelle → Ableitung; Guardrails lesen statische SSoT (`lib/registry.nix`) oder Absichts-Optionen, nie `manifest`, wenn sie das Abgeleitete prüfen |
+| **Zyklische Ableitung** | `error: infinite recursion encountered` | *Lese ich eine Quelle, aus der ich (oder ein Modul mit meiner Ableitung) Ableitungen schreibe?* | **ADR-040**: Kanten nur Quelle → Ableitung; Guardrails lesen statische SSoT (`50-core/registry.nix`) oder Absichts-Optionen, nie `manifest`, wenn sie das Abgeleitete prüfen |
 | **Hermetisch** | Datei geschrieben, Build sieht sie nicht | *Ist die Datei getrackt?* | `git add -N <datei>` **vor** jeder Messung (AB-032) |
 | **Zweistufig (Eval ≠ Build)** | lokal grün, CI rot | *Baue ich die Checks auch?* | `nix build .#checks.x86_64-linux.<check>` explizit; nie nur `--no-build` (L-036) |
 

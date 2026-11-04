@@ -13,7 +13,7 @@ Dieses Skill kombiniert die Erstellung neuer Module und die Integration aus Refe
 - **Hard Focus Rule:** Schreibe NUR nach `51-ingress` bis `59-guardrails`. Nutze niemals Docker oder netns; mediNix ist strikt systemd-nativ.
 
 ## 2. Die Dienstnummer (3 Digits, 500–599)
-- **Vergabe:** Muss FREI sein (prüfe `lib/registry.nix`). Zwei Files mit demselben 3-Digit-Prefix = Kollision (illegal).
+- **Vergabe:** Muss FREI sein (prüfe `50-core/registry.nix`). Zwei Files mit demselben 3-Digit-Prefix = Kollision (illegal).
 - **Ableitung:**
   - Port = Nummer × 10
   - UID = Port
@@ -28,7 +28,7 @@ Dieses Skill kombiniert die Erstellung neuer Module und die Integration aus Refe
 
 ## 4. Hardening (Sicherheitsprofile)
 - **Regel:** Kopiere niemals isolierte Security-Settings. Nutze *immer* das Profil-System!
-- Lade das passende Profil aus `lib/hardening-profiles.nix` (z.B. `network`, `dotnet`, `dotnet-gpu`, `python`, `nodejs`, `script`).
+- Lade das passende Profil aus `50-core/hardening-profiles.nix` (z.B. `network`, `dotnet`, `dotnet-gpu`, `python`, `nodejs`, `script`).
 - **Pattern:** `serviceConfig = lib.mkMerge [ profiles.<profil> { service-specific } ]`
 - **Isolierung:** Container-Isolation in Systemd MUSS eine Liste sein (z.B. `lib.mkMerge [ [ isolation ] {…} ]`).
 

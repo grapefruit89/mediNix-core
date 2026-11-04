@@ -171,7 +171,7 @@ verworfen.
    jemand das Modul weiter ändert oder löscht.
 2. **Automatisierte Restore-Tests** fehlen (s. Teil 2, Punkt 6).
 3. **`mediaServices`-Liste ist dupliziert** zwischen `576-backup.nix` und
-   `579-backup-ssh.nix` (Polkit-Whitelist). Ein gemeinsamer Ort (`lib/registry.nix`) wäre
+   `579-backup-ssh.nix` (Polkit-Whitelist). Ein gemeinsamer Ort (`50-core/registry.nix`) wäre
    sauberer, wurde hier aber nicht angefasst, um den Diff auf das Notwendige zu begrenzen.
 4. **Keine echte Nix-Evaluation möglich:** weder im Cloud-Workspace noch auf dem
    Zielgerät war `nix`/`nix-instantiate` verfügbar. Verifiziert wurde stattdessen: (a)

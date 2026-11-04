@@ -40,8 +40,8 @@ Zentrales Verzeichnis aller Upstream-Repositories, Bibliotheken, Standards und D
 
 Übernommen aus `docs/AGENT_SOURCES.md` (2026-10-15 zusammengelegt — **eine** Quellenliste).
 Zweck: deterministische Anker gegen Halluzination von NixOS-Optionen, systemd-Direktiven
-und API-Strukturen. Vollständige Liste: `lib/registry.nix`, `lib/service-contract.nix`,
-`lib/hardening-profiles.nix`, `lib/memory-policy.nix`, Vorbild-Modul `55-playback/551-jellyfin.nix`.
+und API-Strukturen. Vollständige Liste: `50-core/registry.nix`, `50-core/service-contract.nix`,
+`50-core/hardening-profiles.nix`, `50-core/memory-policy.nix`, Vorbild-Modul `55-playback/551-jellyfin.nix`.
 
 Dieses Dokument dient LLM-Agenten als deterministischer Quellenanker, um Halluzinationen von NixOS-Optionen, systemd-Direktiven und API-Strukturen zu verhindern.
 
@@ -108,8 +108,8 @@ Dieses Dokument dient LLM-Agenten als deterministischer Quellenanker, um Halluzi
 
 ## 6. Lokale SSoT-Anker in mediNix-core
 
-* **Dezimalrahmen & Identität:** [`/home/moritz/repos/mediNix-core/lib/registry.nix`](file:///home/moritz/repos/mediNix-core/lib/registry.nix) (`num`, `port`, `uid`, `gid`, `caddyClass`)
-* **Dienst-Vertrag & Manifest-Schema:** [`/home/moritz/repos/mediNix-core/lib/service-contract.nix`](file:///home/moritz/repos/mediNix-core/lib/service-contract.nix) (`ui`, `monitoring`, `ops`, `sources`)
+* **Dezimalrahmen & Identität:** [`/home/moritz/repos/mediNix-core/50-core/registry.nix`](file:///home/moritz/repos/mediNix-core/50-core/registry.nix) (`num`, `port`, `uid`, `gid`, `caddyClass`)
+* **Dienst-Vertrag & Manifest-Schema:** [`/home/moritz/repos/mediNix-core/50-core/service-contract.nix`](file:///home/moritz/repos/mediNix-core/50-core/service-contract.nix) (`ui`, `monitoring`, `ops`, `sources`)
 * **Service-Schablone (Dendritischer Goldstandard):** [`/home/moritz/repos/mediNix-core/55-playback/551-jellyfin.nix`](file:///home/moritz/repos/mediNix-core/55-playback/551-jellyfin.nix)
-* **Zentrales Härtungsprofil:** [`/home/moritz/repos/mediNix-core/lib/hardening-profiles.nix`](file:///home/moritz/repos/mediNix-core/lib/hardening-profiles.nix)
-* **Zentrale Memory- & OOM-Policy:** [`/home/moritz/repos/mediNix-core/lib/memory-policy.nix`](file:///home/moritz/repos/mediNix-core/lib/memory-policy.nix)
+* **Zentrales Härtungsprofil:** [`/home/moritz/repos/mediNix-core/50-core/hardening-profiles.nix`](file:///home/moritz/repos/mediNix-core/50-core/hardening-profiles.nix)
+* **Zentrale Memory- & OOM-Policy:** [`/home/moritz/repos/mediNix-core/50-core/memory-policy.nix`](file:///home/moritz/repos/mediNix-core/50-core/memory-policy.nix)

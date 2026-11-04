@@ -285,7 +285,7 @@ with open(CHAT1_DONE_DIR / "concerns.json", "r", encoding="utf-8") as f:
 
 new_concerns_map = {
     "manifest": {
-        "description": "SSoT Service Contract Schema (lib/manifest.nix)",
+        "description": "SSoT Service Contract Schema (50-core/manifest.nix)",
         "source": "17-manifest-service-contract",
         "fields": [
             "id",

@@ -56,7 +56,7 @@ QuickSync).
     **`netns`/`PrivateNetwork` ist verboten** (ADR-0011) — kein Maroka-chan,
     kein Tailscale.
 *   **Secrets:** **versiegelte systemd-Credentials** (`LoadCredentialEncrypted`),
-    **kein** `sops-nix`/`agenix` (`lib/creds.nix`, ADR-521). Erzeugung/Rotation
+    **kein** `sops-nix`/`agenix` (`52-security/creds.nix`, ADR-521). Erzeugung/Rotation
     sind Host-Sache.
 *   **Container:** **keine** (Zero-Container; Assertion gegen
     `virtualisation.docker.enable`, ADR-0002 §5).

@@ -5,7 +5,7 @@ EISERNE REGEL (docs/UPSTREAM-SOURCES.md): Wer Code, Logik oder Architektur aus
 einem externen Repo / NixOS-Modul / einer Doku uebernimmt, muss die Quelle
 nennen. Mechanisch pruefbar ist das Manifest-Feld `sources`: verlangt werden
 `sources.upstream` (offizielle Doku) UND `sources.repo` (Quellcode-Repo), beide
-nicht-null (`lib/service-contract.nix`).
+nicht-null (`50-core/service-contract.nix`).
 
 Geprueft werden **Dienst-Module**: `NNN-*.nix`, die einen Manifest-Eintrag
 registrieren (`medinix.manifest.<name> = {`). Reine Infrastruktur-Dateien ohne

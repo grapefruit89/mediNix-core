@@ -19,9 +19,9 @@ license: MIT
 ### Bug A — `inherit (x) lib` wrong scope
 ```nix
 # WRONG: lib = nixpkgs.lib.lib  (does not exist → eval error)
-registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs.lib) lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit (nixpkgs.lib) lib; }).services;
 # RIGHT: pass the whole lib
-registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { lib = nixpkgs.lib; }).services;
 ```
 Rule: when a file does `import ./x.nix { lib = ... }`, pass `lib = nixpkgs.lib` (the attrset), NOT `inherit (nixpkgs.lib) lib` (which expands to `lib = nixpkgs.lib.lib`).
 

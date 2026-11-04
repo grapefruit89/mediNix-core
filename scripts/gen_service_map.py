@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Erzeugt die Service Map in docs/INDEX.md aus lib/registry.nix (SSoT).
+"""Erzeugt die Service Map in docs/INDEX.md aus 50-core/registry.nix (SSoT).
 
 Warum: eine handgepflegte Tabelle driftet (Beleg: die alte Map in docs/README.md
 zeigte noch die flat GID 5000 als Primaergruppe — ADR-0000 §5 verwirft das — und
-listete 15 von 16 Registry-Diensten). Quelle bleibt lib/registry.nix; hier wird
+listete 15 von 16 Registry-Diensten). Quelle bleibt 50-core/registry.nix; hier wird
 nichts gepflegt, nur abgeleitet.
 
 Ableitung (ADR-0000 §4): Port = UID = Primaer-GID = Nummer x 10.

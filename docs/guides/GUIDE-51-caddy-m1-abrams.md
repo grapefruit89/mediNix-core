@@ -25,7 +25,7 @@ Caddy ist die **eine** WAN-Tür. Backends binden ausschließlich
   (`/run/caddy-media/admin.sock`) — **nicht** auf `127.0.0.1:2019` (RT-1).
 - **Zugriff:** über den `accessGroup`-Vertrag (`stream/public/internal/idp/none`)
   statt handgeschriebener vHosts.
-- **Härtung:** aus `lib/hardening-profiles.nix` (`ProtectSystem=strict`,
+- **Härtung:** aus `50-core/hardening-profiles.nix` (`ProtectSystem=strict`,
   `PrivateTmp`, `NoNewPrivileges`, `SystemCallFilter`).
 - **Secrets:** DDNS-/ACME-Token sind **versiegelte** systemd-Credentials
   (getrennte Token, nie in `argv`).

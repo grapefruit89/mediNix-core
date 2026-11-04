@@ -1,7 +1,7 @@
 # Factory Unit Names — Worked Example
 
 ## The SSoT
-`lib/service-factory.nix` line 47 (verified 2026-08-12):
+`50-core/service-factory.nix` line 47 (verified 2026-08-12):
 ```nix
 systemd.services."${name}" = { ... };
 ```
@@ -30,6 +30,6 @@ after = [ "network.target" "sabnzbd.service" "prowlarr.service"
 
 ## How to verify in any session
 ```bash
-grep -n 'systemd.services."${name}"' lib/service-factory.nix
+grep -n 'systemd.services."${name}"' 50-core/service-factory.nix
 ```
 That line is the authority. Never infer unit names from `StateDirectory` paths.

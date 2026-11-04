@@ -27,7 +27,7 @@ Bevor du Änderungen vornimmst oder neue Dienste anlegst, musst du die folgenden
 1. **Zero Containers:** 
    Wir nutzen weder Docker, Podman noch Container-Bridges. Dienste laufen als native systemd-Services mit strikten Härtungsprofilen (`ProtectSystem=strict`, `DynamicUser` oder dezimale UIDs, systemd-Sandboxing).
 2. **Dezimalrahmen (Single Source of Truth):**
-   Jeder Dienst besitzt eine deterministische Modul-ID `5xx` aus `lib/registry.nix`:
+   Jeder Dienst besitzt eine deterministische Modul-ID `5xx` aus `50-core/registry.nix`:
    - `Port = UID = Modul-ID × 10` (z. B. Sonarr: ID 532 -> UID 5320 -> Port 5320).
    - Manuelle, willkürliche Portvergaben sind strikt verboten.
 3. **Drop-a-File (Pub/Sub via Manifest):**

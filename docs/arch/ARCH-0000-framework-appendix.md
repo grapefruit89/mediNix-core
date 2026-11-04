@@ -52,7 +52,7 @@ chapter structure, while **C4** provides deterministic levels of diagram abstrac
 ### C4 Diagram Abstractions (`C4-PlantUML`)
 - **Context:** Host (`mediahost`) · WAN / Cloudflare · Client — plus the `_1`/`_2` ingress and boundary controls.
 - **Container:** NixOS host · systemd service daemons · Caddy ingress · `systemd-creds`.
-- **Component:** `lib/service-factory.nix`, `lib/registry.nix`, `51-ingress`, `59-guardrails`.
+- **Component:** `50-core/service-factory.nix`, `50-core/registry.nix`, `51-ingress`, `59-guardrails`.
 - **Code:** Used surgically only where complex logic warrants it (e.g. assertion chains in `591-cross-domain.nix`).
 
 ---
@@ -160,7 +160,7 @@ The mediNix documentation tree separates documentation by user intent according 
 ## A6. Architectural Open Decisions & Roadmap
 
 1. **Diagram Pipeline:** Evaluate rendering C4-PlantUML diagrams via GitHub Actions workflow or embedding SVG artifacts directly.
-2. **Property Test Implementation:** Benchmark evaluating property checks in pure Nix evaluation (`lib/registry.nix`) versus an automated test script (`tests/verify_properties.py`).
+2. **Property Test Implementation:** Benchmark evaluating property checks in pure Nix evaluation (`50-core/registry.nix`) versus an automated test script (`tests/verify_properties.py`).
 
 ---
 

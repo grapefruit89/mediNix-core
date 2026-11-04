@@ -15,7 +15,7 @@ links:
 # ⛓️ Sandboxing: systemd-Hardening statt bubblewrap-Jail
 
 Kein `jail.nix`, kein `bubblewrap`. Isolation kommt aus **einer** Quelle:
-`lib/hardening-profiles.nix` (SSoT).
+`50-core/hardening-profiles.nix` (SSoT).
 
 ## 🛡️ base-Profil (für jeden Dienst)
 `NoNewPrivileges`, `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`,
@@ -38,5 +38,5 @@ dupliziert.
 Lesende Mediendienste binden die Bibliothek über `BindReadOnlyPaths` **read-only**;
 jeder Dienst schreibt nur in sein eigenes `stateDir` und ggf. den Media-Root.
 
-Quellen: `lib/hardening-profiles.nix`, `docs/NO-CONTAINERS.md`,
+Quellen: `50-core/hardening-profiles.nix`, `docs/NO-CONTAINERS.md`,
 `53-acquisition/README.md`, `docs/TERMINOLOGY.md`.

@@ -65,12 +65,12 @@ Jellyfin Storage Tiers
 
 ## Host-Voraussetzung: Intel-GPU (GuC/HuC & Power-Management)
 
-Für Hardware-beschleunigtes QuickSync-Transcoding auf Intel-CPUs der 9. Generation (Coffee Lake / UHD Graphics 630) sollte der Host die GuC- und HuC-Firmware via Kernel-Parameter `boot.kernelParams = [ "i915.enable_guc=3" ]` laden. Dies entlastet die Host-CPU bei Video-Decoding/Encoding und schaltet erweiterte GPU-Energiesparmodi frei. Display-spezifische Energiesparparameter wie Panel Self Refresh (PSR) oder Framebuffer Compression (FBC) dürfen auf dem Headless-Server nicht manuell erzwungen werden, da sie ohne aktives Display zu Instabilitäten führen können. Die Zuordnung des `video`- und `render`-Gruppenzugriffs erfolgt über das `profiles.dotnet-gpu`-Hardeningprofil. (Quelle: `lib/hardening-profiles.nix`, Chat 1 Block 10 D-10-02, Intel i915 Kernel-Doku).
+Für Hardware-beschleunigtes QuickSync-Transcoding auf Intel-CPUs der 9. Generation (Coffee Lake / UHD Graphics 630) sollte der Host die GuC- und HuC-Firmware via Kernel-Parameter `boot.kernelParams = [ "i915.enable_guc=3" ]` laden. Dies entlastet die Host-CPU bei Video-Decoding/Encoding und schaltet erweiterte GPU-Energiesparmodi frei. Display-spezifische Energiesparparameter wie Panel Self Refresh (PSR) oder Framebuffer Compression (FBC) dürfen auf dem Headless-Server nicht manuell erzwungen werden, da sie ohne aktives Display zu Instabilitäten führen können. Die Zuordnung des `video`- und `render`-Gruppenzugriffs erfolgt über das `profiles.dotnet-gpu`-Hardeningprofil. (Quelle: `50-core/hardening-profiles.nix`, Chat 1 Block 10 D-10-02, Intel i915 Kernel-Doku).
 
 ## Not decided here
 
 - Intro-skipper and other plugins stay out of 551 until they have their own id.
-- `SystemCallErrorNumber=EPERM` lives in `lib/hardening-profiles.nix` (dotnet-gpu), not copied into 551.
+- `SystemCallErrorNumber=EPERM` lives in `50-core/hardening-profiles.nix` (dotnet-gpu), not copied into 551.
 
 ## Consequences
 

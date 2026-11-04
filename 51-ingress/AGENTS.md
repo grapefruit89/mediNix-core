@@ -28,9 +28,9 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 
 **Source of truth:**
 - Service-/Vhost-Intent → `ingress.vhosts`
-- Effektive Zugriffsgruppe + Caddy-Modus → `lib/ingress-access.nix`
+- Effektive Zugriffsgruppe + Caddy-Modus → `51-ingress/ingress-access.nix`
   (`accessGroupOf`, `isWan` = `public|stream|idp`, `caddyUnitOf`)
-- Runtime-Identitäten → `lib/registry.nix`
+- Runtime-Identitäten → `50-core/registry.nix`
 - Modulbeziehungen → NIXMETA-Header
 - Caddy-Implementierung → `511-caddy.nix`
 - Domain: `medinix.domain` ist ein **Alias** von `medinix.host.domain`
@@ -44,7 +44,7 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 ## Was hier leicht schiefgeht (hart erarbeitet)
 
 - **`accessGroup` hat EINEN Produzenten.** Die Auflösung lebt in
-  `lib/ingress-access.nix` (`accessGroupOf cfg n m`: Vhost-Override gewinnt,
+  `51-ingress/ingress-access.nix` (`accessGroupOf cfg n m`: Vhost-Override gewinnt,
   sonst das Manifest) und wird von `511` (Rendering), `513` (DNS), `515` (mDNS)
   und `518` (Tiles) importiert — nicht in 511 selbst. Nie beide Stellen
   pflegen; die Divergenz war ein stiller Auth-Bypass (F1/F2,

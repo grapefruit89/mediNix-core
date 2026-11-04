@@ -16,12 +16,12 @@ links:
 # 🛡️ Sealed Secrets: systemd-creds statt sops/age
 
 Keine Geheimnisse im Klartext — und **kein** `sops-nix`, **kein** `agenix`
-(`lib/creds.nix`: „No sops-nix, no agenix.").
+(`52-security/creds.nix`: „No sops-nix, no agenix.").
 
 Transport: **`LoadCredentialEncrypted`** (nicht das unverschlüsselte
 `LoadCredential`).
 
-## 📜 Der Contract (`lib/creds.nix`, durchgesetzt von `52-security/521-creds.nix`)
+## 📜 Der Contract (`52-security/creds.nix`, durchgesetzt von `52-security/521-creds.nix`)
 - Erwartet einen **systemd-creds-Blob**: `*.encrypted`, `*.cred`,
   `/etc/credstore.encrypted/…`.
 - Default-Ablage: `/var/lib/medinix/secrets`.
@@ -46,5 +46,5 @@ TPM2 (`--with-key=tpm2+host`) ist eine **Host-Fähigkeit**, keine mediNix-Garant
 `LoadCredentialEncrypted` ist ein **Transport**, kein vollständiges
 Secrets-Management (Erzeugung/Rotation bleiben Host-Sache).
 
-Quellen: `lib/creds.nix`, `52-security/521-creds.nix`, `52-security/README.md`,
+Quellen: `52-security/creds.nix`, `52-security/521-creds.nix`, `52-security/README.md`,
 `docs/concepts/secrets-systemd.md`.

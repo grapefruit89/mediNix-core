@@ -19,7 +19,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 **Source of truth:**
 - was überwacht wird → `manifest`: Gatus und die Exporters sind **Manifest-Konsumenten**, kein Dienst erscheint dort von selbst
-- Endpunkte/Ports → `lib/registry.nix`
+- Endpunkte/Ports → `50-core/registry.nix`
 
 **Bekannte Klemmen:**
 - Der Runtime-Guard prüft die *laufende* Maschine (nftables/`0.0.0.0`/VPN) und braucht dafür `CAP_NET_ADMIN` (`583`).

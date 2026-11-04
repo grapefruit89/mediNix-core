@@ -41,7 +41,7 @@ Read the assertion message — it names the invariant (ADR-0000) and the fix.
 - **Infinite recursion via config read**: reading `cfg.services.X.enable`
   inside the module that defines it recurses — use the option's own value, not
   a re-read.
-- **Build-time embedding pattern**: embed `registryJson` from `lib/registry.nix`
+- **Build-time embedding pattern**: embed `registryJson` from `50-core/registry.nix`
   at build time, don't re-evaluate the module graph.
 
 ## 4. Anti-lockout order (mandatory)

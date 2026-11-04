@@ -5,9 +5,9 @@ Zum Abhaken bei jeder Dienst-Aufnahme. Kopieren, ausfuellen, in den PR/Commit-Ve
 ## Phase 1 - Quellen (read-only)
 
 - [ ] **Repo:** gibt es ein Geschwister in derselben Dekade? Welche Nummer ist frei
-      (`lib/registry.nix`)? Welches ADR gilt (`docs/adr/llm-index.json`)?
-- [ ] **Repo:** `lib/service-contract.nix` (Manifest-Felder), `lib/hardening-profiles.nix`
-      (Profil), `lib/memory-policy.nix`, `lib/creds.nix`.
+      (`50-core/registry.nix`)? Welches ADR gilt (`docs/adr/llm-index.json`)?
+- [ ] **Repo:** `50-core/service-contract.nix` (Manifest-Felder), `50-core/hardening-profiles.nix`
+      (Profil), `50-core/memory-policy.nix`, `52-security/creds.nix`.
 - [ ] **nixpkgs:** welches Modul/Attribut? Optionen pruefen, **nicht erinnern**:
       `nix eval --raw nixpkgs#path` bzw. `grep -rn "options.services.<dienst>"
       /nix/store/*-source/nixos/modules/services/ | head` bzw. nix-MCP.
@@ -20,11 +20,11 @@ Zum Abhaken bei jeder Dienst-Aufnahme. Kopieren, ausfuellen, in den PR/Commit-Ve
 | Information | Wert | Quelle | Kanonisch? |
 |---|---|---|---|
 | NixOS-Option | `services.<x>.<y>` | Modul-Code (Store) | ☐ |
-| Nummer/Port/UID | z. B. `551 / 5510 / 5510` | `lib/registry.nix` (ADR-0000) | ☐ |
+| Nummer/Port/UID | z. B. `551 / 5510 / 5510` | `50-core/registry.nix` (ADR-0000) | ☐ |
 | StateDir | `/var/lib/<name>` | ADR-0000 §4 | ☐ |
 | Shared Group | `media` **nur** `extraGroups` | ADR-0000 §5 | ☐ |
 | Env-Vars | `FOO=bar` | Upstream-Doku | ☐ |
-| Hardening | `profile = "<x>"` | `lib/hardening-profiles.nix` | ☐ |
+| Hardening | `profile = "<x>"` | `50-core/hardening-profiles.nix` | ☐ |
 | Upstream-Quelle | URL | Phase 1 | ☐ |
 
 Regel: widersprechen sich zwei Quellen -> die **repo-interne** gewinnt; ohne repo-interne
@@ -34,7 +34,7 @@ Quelle gewinnt der **Modul-Code**, nicht die Doku.
 
 - [ ] `XX-domain/NNN-<dienst>.nix` mit V3-Header (id/title/domain/folder/status/complexity/
       last_reviewed/links.adr + Upstream-Angabe; geprueft von `scripts/nixmeta_check.py`)
-- [ ] `medinix.manifest.<dienst>` gesetzt; `num` stimmt gegen `lib/registry.nix`
+- [ ] `medinix.manifest.<dienst>` gesetzt; `num` stimmt gegen `50-core/registry.nix`
 - [ ] Kein `users.users.*` im Modul (Engine), kein `DynamicUser`, kein media als Primaergruppe
 - [ ] Provisioning nur, wenn noetig: idempotent, `requests`, Fehler explizit geloggt
 - [ ] Neue Quelle in `docs/UPSTREAM-SOURCES.md` eingetragen

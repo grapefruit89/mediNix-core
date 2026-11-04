@@ -115,7 +115,7 @@ precision.
   missing path (`/run/secrets`, or a foreign `/var/lib/<svc>` before its first
   run) aborts the unit with `226/NAMESPACE` at mount-namespace setup. Every
   mediNix-owned `InaccessiblePaths` entry is now `-`-prefixed (ignore-if-missing)
-  in `lib/hardening-profiles.nix`, `lib/service-factory.nix` and 541/551/552/553.
+  in `50-core/hardening-profiles.nix`, `50-core/service-factory.nix` and 541/551/552/553.
   Enforced by `checks.mediNix-inaccessible-paths-optional`.
 
 - **H29** (found at **runtime** on mediahost, fixed in `ebe0d28`): the factory's peer

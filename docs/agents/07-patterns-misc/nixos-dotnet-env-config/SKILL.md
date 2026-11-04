@@ -35,7 +35,7 @@ This is idempotent, race-free, and replaces API-provisioning calls. Set via
 Convert a nested Nix attrset into the env-var set. See templates/arr-settings.nix
 for the full, correct file. Usage:
 
-    let arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+    let arrSettings = import ../53-acquisition/arr-settings.nix { inherit lib; };
     in environment = arrSettings.mkSonarr {
       server = { port = 5320; bindAddress = "127.0.0.1"; urlBase = ""; };
       auth   = { method = "External"; required = "Enabled"; };

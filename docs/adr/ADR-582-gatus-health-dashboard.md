@@ -29,7 +29,7 @@ ohne Handpflege und ohne Zusatzprogramme (systemd-first, ADR-0002).
 - Das Upstream-Modul `services.gatus` setzt `DynamicUser = true` (verletzt die locked_invariants
   `DynamicUser = false`) und bindet standardmaessig Port **8080** statt **5820** - beides
   inakzeptabel.
-- Generierte Checks statt gepflegter Liste: eine Quelle (`lib/registry.nix` + Manifest), kein Drift.
+- Generierte Checks statt gepflegter Liste: eine Quelle (`50-core/registry.nix` + Manifest), kein Drift.
 
 ## Konsequenzen
 - Neue Dienste sind ohne Zutun sichtbar; Dienste ohne Port erscheinen nicht als HTTP-Check.

@@ -11,8 +11,8 @@ Ziel: nicht raten, keine Quelle erfinden und keine Werte abschreiben, die das Re
 
 ## Rangfolge der Quellen (verbindlich)
 
-1. **Repo-SSoT zuerst.** `lib/registry.nix` (Nummer, Port, UID, StateDir), `lib/service-contract.nix`
-   (Manifest-Schema), `lib/hardening-profiles.nix`, `docs/adr/` (`docs/adr/llm-index.json` lesen!),
+1. **Repo-SSoT zuerst.** `50-core/registry.nix` (Nummer, Port, UID, StateDir), `50-core/service-contract.nix`
+   (Manifest-Schema), `50-core/hardening-profiles.nix`, `docs/adr/` (`docs/adr/llm-index.json` lesen!),
    existierende **Geschwisterdateien** derselben Dekade.
 2. **nixpkgs-Modul-Code = Wahrheit fuer NixOS.** Der Code, der im System laeuft:
    `nix eval --raw .#…` zum Zustand, `grep -r "options.services.<dienst>" /nix/store/*-source/nixos/modules/`
@@ -31,10 +31,10 @@ Ziel: nicht raten, keine Quelle erfinden und keine Werte abschreiben, die das Re
 |---|---|---|
 | `options.medinix.<x>` | repo-eigen | hier definieren |
 | `services.<dienst>.<x>` | nixpkgs-Modul | Modul-Code pruefen (Schicht 2) |
-| `medinix.manifest.<dienst>` | Manifest-Schema | Pflichteintrag, `lib/service-contract.nix` |
-| `num`, `port`, `uid`, `stateDir` | `lib/registry.nix` / ADR-0000 | **ableiten**, nicht abschreiben |
+| `medinix.manifest.<dienst>` | Manifest-Schema | Pflichteintrag, `50-core/service-contract.nix` |
+| `num`, `port`, `uid`, `stateDir` | `50-core/registry.nix` / ADR-0000 | **ableiten**, nicht abschreiben |
 | `JELLYFIN_*`/`FOO_*`-Env-Vars | Upstream-Doku | Schicht 3 |
-| Hardening | `lib/hardening-profiles.nix` | nie lokal erfinden |
+| Hardening | `50-core/hardening-profiles.nix` | nie lokal erfinden |
 
 ## Ablauf (6 Phasen)
 
@@ -42,7 +42,7 @@ Ziel: nicht raten, keine Quelle erfinden und keine Werte abschreiben, die das Re
 2. **Kanonische Tabelle:** Information · Wert · Quelle · kanonisch? (Vorlage in
    `references/discovery-checkliste.md`). Widerspruch Repo vs. Upstream -> Repo gewinnt.
 3. **Nix-Modul:** Struktur von der Geschwisterdatei uebernehmen; `medinix.manifest` setzen;
-   Registry-Werte **gegen** `lib/registry.nix` pruefen (nicht kopieren).
+   Registry-Werte **gegen** `50-core/registry.nix` pruefen (nicht kopieren).
 4. **Provisioning-Skript** nur, wenn nach dem Start echte API-Calls noetig sind
    (Admin-User, Libraries). Dann: `requests` (kein `curl`), idempotent, Fehler explizit loggen.
 5. **Pruef-Leiter** (`docs/CONVENTIONS.md`, alle Schritte lokal):

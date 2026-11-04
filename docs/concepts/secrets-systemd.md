@@ -23,7 +23,7 @@ mediNix-interne Eigenschaft.
   `LoadCredentialEncrypted` — **nicht** das unverschlüsselte `LoadCredential`.
   Der Contract verlangt einen *systemd-creds-Blob* (`*.encrypted` / `*.cred`
   bzw. `credstore.encrypted`), Default-Ablage `/var/lib/medinix/secrets`
-  (`lib/creds.nix`, Modul `52-security/521-creds.nix`). Klartext-Pfade werden
+  (`52-security/creds.nix`, Modul `52-security/521-creds.nix`). Klartext-Pfade werden
   per Assertion abgewiesen: `secrets.autoGenerate` ist fest aus, ein
   `dns.ddns.tokenFile` oder `maintenance.backup.passwordFile` bricht den Build.
   Blobs dürfen nicht unter `storage.mediaRoot` liegen (GID 5000 schreibbar).
@@ -41,7 +41,7 @@ mediNix-interne Eigenschaft.
   Host-Fähigkeit, keine mediNix-Garantie — „TPM2 wird verwendet" wäre eine
   stärkere Aussage als „die Architektur sieht es vor".
 - **Kein sops** — ENTSCHEIDUNG: Weder `sops-nix` noch `agenix`
-  (`lib/creds.nix`: „No sops-nix, no agenix."; ADR-521). systemd-Credentials
+  (`52-security/creds.nix`: „No sops-nix, no agenix."; ADR-521). systemd-Credentials
   sind der native, TPM-fähige Weg für einen Single-Node-Homelab.
 
 ## Concept → Contract → Invariant → Implementation → Test

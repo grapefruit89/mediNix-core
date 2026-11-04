@@ -18,8 +18,8 @@ deklariert.
 
 ## 📁 State-Verzeichnisse
 - Jeder Dienst bekommt sein eigenes `stateDir` (siehe Service Map in
-  `docs/INDEX.md`), erzeugt von `lib/service-factory.nix` + `systemd.tmpfiles`
-  aus `lib/registry.nix`.
+  `docs/INDEX.md`), erzeugt von `50-core/service-factory.nix` + `systemd.tmpfiles`
+  aus `50-core/registry.nix`.
 - `57-maintenance/570-storage.nix` legt die Storage-Struktur per tmpfiles an
   (Modus **2775**, SetGID, Gruppe `media`) — Nachbardienste können schreiben.
 

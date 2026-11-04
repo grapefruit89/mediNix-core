@@ -27,7 +27,7 @@ im selben Modul lesen. Beleg: `58-observability/585-exporters.nix` (`2254f8c`) s
   `checks.mediNix-frameband-fremdkonten` (L-048), negativ getestet mit `users.users.eindringling`.
 
 ## 4. Engine-Defaults vs. nixpkgs-Assertions
-`users.mutableUsers = lib.mkDefault false` (Engine, `lib/decimal-framework.nix`) aktiviert die
+`users.mutableUsers = lib.mkDefault false` (Engine, `50-core/501-decimal-engine.nix`) aktiviert die
 nixpkgs-Assertion "Neither the root account nor any wheel user has a password or SSH authorized
 key" (Bedingung: `!mutableUsers && !allowNoPasswordLogin`). Jede Konfiguration, deren
 `system.build.toplevel` gebaut wird, braucht ein privilegiertes Konto. Pruefkonfigurationen:

@@ -12,13 +12,13 @@
 
 # ─────────────────────────────────────────────────────────────────────────────
 # BEISPIEL-SNAPSHOT — NICHT weiterentwickeln (Korridor AB-027).
-# Kanonische Quelle: /home/moritz/repos/mediNix-core/lib/arr-settings.nix
+# Kanonische Quelle: /home/moritz/repos/mediNix-core/53-acquisition/arr-settings.nix
 # Dieses Template driftet zwangslaeufig (gemessen 2026-10-15: 38 vs 50 Zeilen).
-# Fuer echte Aenderungen immer lib/arr-settings.nix bearbeiten.
+# Fuer echte Aenderungen immer 53-acquisition/arr-settings.nix bearbeiten.
 # ─────────────────────────────────────────────────────────────────────────────
-# lib/arr-settings.nix — .NET AppSettings → Environment Variables
+# 53-acquisition/arr-settings.nix — .NET AppSettings → Environment Variables
 # Drop into lib/ and import from each Arr module:
-#   arrSettings = import ../lib/arr-settings.nix { inherit lib; };
+#   arrSettings = import ../53-acquisition/arr-settings.nix { inherit lib; };
 #   environment = arrSettings.mkSonarr { server.port = 5320; ... };
 #
 # CORRECT (no double-prefix bug): leaf builds full key incl. prefix.

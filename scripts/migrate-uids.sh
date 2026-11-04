@@ -17,7 +17,7 @@
 #   migrate-uids.sh check    zeigt Ist vs. Soll, ändert NICHTS
 #   migrate-uids.sh apply    führt die Migration aus (braucht root/sudo)
 #
-# Quelle der Soll-Werte: lib/registry.nix (UID = Nummer × 10, GID 5000).
+# Quelle der Soll-Werte: 50-core/registry.nix (UID = Nummer × 10, GID 5000).
 # Der `dezimalrahmen`-Check pinnt die Registry-Konsistenz.
 # seerr ist ausgenommen — läuft als unprivilegierter Dienst / DynamicUser.
 set -uo pipefail

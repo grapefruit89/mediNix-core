@@ -17,7 +17,7 @@
 |---|---|
 | Eine `num` leitet Port, UID, UPG-GID, shared GID ab (§4) | [SSOT](anchors/ssot-principle.md) |
 | Ableiten statt wiederholen (Port/UID/GID/stateDir) | [DRY](anchors/dry.md) |
-| Engine-Invarianten I1–I4 (`lib/decimal-framework.nix`, §4) | [Design by Contract](anchors/design-by-contract.md) |
+| Engine-Invarianten I1–I4 (`50-core/501-decimal-engine.nix`, §4) | [Design by Contract](anchors/design-by-contract.md) |
 | Falsche Kombination soll unmöglich sein | [Poka-Yoke](anchors/poka-yoke.md) |
 | 10-Slot-Taxonomie `_0`..`_9` (§3) | [MECE](anchors/mece.md) |
 | UPG vs. Zusatzgruppe `media` (§4) | [Principle of Least Privilege](anchors/least-privilege.md) |
@@ -45,9 +45,9 @@
 
 | Unser Konstrukt | Etablierter Anker |
 |---|---|
-| `lib/registry.nix` = einzige Quelle für Port/UID/caddyClass | [SSOT](anchors/ssot-principle.md) |
-| `lib/service-factory.nix` erzeugt Units aus einem Deskriptor | [GoF-Factory Method](anchors/gof-factory-method-pattern.md) |
-| Härtung **nur** aus `lib/hardening-profiles.nix` | [SSOT](anchors/ssot-principle.md) + [DRY](anchors/dry.md) |
+| `50-core/registry.nix` = einzige Quelle für Port/UID/caddyClass | [SSOT](anchors/ssot-principle.md) |
+| `50-core/service-factory.nix` erzeugt Units aus einem Deskriptor | [GoF-Factory Method](anchors/gof-factory-method-pattern.md) |
+| Härtung **nur** aus `50-core/hardening-profiles.nix` | [SSOT](anchors/ssot-principle.md) + [DRY](anchors/dry.md) |
 | Assertions brechen den Build ab (fail-closed) | [Design by Contract](anchors/design-by-contract.md) + [Poka-Yoke](anchors/poka-yoke.md) + [Andon](anchors/andon.md) |
 | „messen → verstehen → Diff → Go" | [Genchi Genbutsu](anchors/genchi-genbutsu.md) + [PDCA](anchors/pdca.md) |
 | Nach 2 Fehlversuchen am selben Punkt **STOPP** | [Andon](anchors/andon.md) |

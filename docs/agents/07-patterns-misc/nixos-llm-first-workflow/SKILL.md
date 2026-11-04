@@ -134,7 +134,7 @@ Leichte Warnungen (kein Abbruch):
 - **Caddy-Only Ingress:** Nur Caddy braucht Zugriff von außen (LAN), alle anderen Dienste nur Loopback.
 - **Richtig:** `RestrictNetworkInterfaces = [ "lo" ]` (beschränkt auf Loopback), ohne `IPAddressDeny`.
 - **Falsch:** `IPAddressAllow = [ "127.0.0.1" ]` + `IPAddressDeny = [ "any" ]` (blockiert Dienste komplett).
-- **Zentralisierung in `lib/service-factory.nix`:** `containerIsolation` Funktion nutzen, nur `RestrictNetworkInterfaces` setzen, keine IP-basierte Filterung.
+- **Zentralisierung in `50-core/service-factory.nix`:** `containerIsolation` Funktion nutzen, nur `RestrictNetworkInterfaces` setzen, keine IP-basierte Filterung.
 
 ### Debugging: Warum `RestrictNetworkInterfaces` nicht greift
 

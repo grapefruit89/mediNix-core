@@ -3,14 +3,14 @@
 ## Why this exists
 Multiple AI audits (DeepSeek, Grok, Antigravity) were run on the 50-mediNix
 codebase. Cross-validation against PRIMARY SOURCES (`default.nix`,
-`lib/registry.nix`, `lib/hardening-profiles.nix`) showed audits contain
+`50-core/registry.nix`, `50-core/hardening-profiles.nix`) showed audits contain
 PHANTOM BUGS — suggestions wrong because the auditor misread the code.
 Verify against the primary source before applying any audit finding.
 
 ## Verified real P0 bugs (apply these fixes)
 1. **512-pocket-id.nix registry key mismatch** (Antigravity, P0)
-   - Bug: `svc = (import ../lib/registry.nix { inherit lib; }).pocketId;`
-   - Reality: `lib/registry.nix` defines `services."pocket-id"` (hyphen), NOT
+   - Bug: `svc = (import ../50-core/registry.nix { inherit lib; }).pocketId;`
+   - Reality: `50-core/registry.nix` defines `services."pocket-id"` (hyphen), NOT
      `pocketId` (camelCase).
    - Effect: `attribute 'pocketId' missing` → `nix flake check` aborts instantly.
    - Fix: `.services."pocket-id"`.

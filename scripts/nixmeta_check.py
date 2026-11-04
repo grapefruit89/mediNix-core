@@ -167,7 +167,7 @@ def check(path):
     # Dezimalrahmen macht sie eindeutig). Bei anderen Dateien (default.nix,
     # flake.nix, Beispiele) gibt es keinen eindeutigen Dateinamen - dort ist die
     # id ein sprechender Bezeichner (z. B. "arr-provision" fuer
-    # lib/arr-provision/default.nix), nur nicht leer.
+    # packages/arr-provision/default.nix), nur nicht leer.
     if re.match(r"^\d{3}-", stem):
         if data.get("id") not in (None, "") and str(data["id"]) != stem:
             bad.append(f"`id: {data['id']}` != Dateiname `{stem}`")

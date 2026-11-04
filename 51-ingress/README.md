@@ -640,7 +640,7 @@ may be intentionally supplied by callers.
 
 Therefore `deadnix --edit` must not blindly remove such parameters.
 
-This rule exists because a repository-wide automated cleanup previously removed API parameters from `lib/cli.nix` and `lib/service-factory.nix`, causing Nix evaluation to fail with unexpected arguments.
+This rule exists because a repository-wide automated cleanup previously removed API parameters from `lib/cli.nix` and `50-core/service-factory.nix`, causing Nix evaluation to fail with unexpected arguments.
 
 The incident is now documented as a concrete case study in the change pipeline.
 

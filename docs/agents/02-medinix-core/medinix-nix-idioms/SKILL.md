@@ -14,15 +14,15 @@ real debugging time. Encode them so the next session starts knowing.
 
 ## TRIGGER
 - Editing/creating a `.nix` file under `50-mediNix/` or `mediNix-core`
-- Reviewing a diff that touches `flake.nix`, `lib/service-factory.nix`, `default.nix`, or any
+- Reviewing a diff that touches `flake.nix`, `50-core/service-factory.nix`, `default.nix`, or any
   `systemd.services.*` / `after =` block
 - A user pastes a review from another AI about mediNIX Nix code — VERIFY against these rules,
   do NOT trust the review blindly (see Pitfall #6)
 
 ## ARCHITECTURE RULE 1 — Factory Unit Names are PLAIN, not Port-Suffixed
-**This is the #1 repeated bug.** mediNIX uses `lib/service-factory.nix`:
+**This is the #1 repeated bug.** mediNIX uses `50-core/service-factory.nix`:
 ```nix
-# lib/service-factory.nix line 47:
+# 50-core/service-factory.nix line 47:
 systemd.services."${name}" = { ... };   # name = "sonarr" → Unit = sonarr.service
 ```
 - `name` is the **kebab-case service name** ("sonarr", "sabnzbd", "prowlarr")
@@ -39,10 +39,10 @@ systemd.services."${name}" = { ... };   # name = "sonarr" → Unit = sonarr.serv
 ## FOOTGUN 2 — `inherit (nixpkgs.lib) lib` is WRONG in flake.nix
 ```nix
 # WRONG:
-registryJson = builtins.toJSON (import ./lib/registry.nix { inherit (nixpkgs.lib) lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit (nixpkgs.lib) lib; }).services;
 # → lib.lib does NOT exist → build breaks
 # RIGHT:
-registryJson = builtins.toJSON (import ./lib/registry.nix { lib = nixpkgs.lib; }).services;
+registryJson = builtins.toJSON (import ./50-core/registry.nix { lib = nixpkgs.lib; }).services;
 ```
 
 ## FOOTGUN 3 — `eachDefaultSystem` double-nesting

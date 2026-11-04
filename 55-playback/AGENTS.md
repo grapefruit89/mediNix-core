@@ -19,7 +19,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - Speicherpfade/Tiering → `57-maintenance`
 
 **Source of truth:**
-- Port/UID/Rolle → `lib/registry.nix` (`jellyfin`/`audiobookshelf`/`navidrome` = `stream`)
+- Port/UID/Rolle → `50-core/registry.nix` (`jellyfin`/`audiobookshelf`/`navidrome` = `stream`)
 - Kachel-Darstellung → `51-ingress/518-landingpage.nix` plus `ingress.vhosts.<name>.landing`/`iconId`/`iconSvg`
 
 **Bekannte Klemmen:**

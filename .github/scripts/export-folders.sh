@@ -57,7 +57,7 @@ get_purpose_block() {
     "51-ingress")
       echo -e "> **Purpose:** Caddy Reverse Proxy, Ingress-Steuerung, Split-Horizon.\n> **Constraint:** .lan ist unverschlüsselt; WAN-Exposition nur für public/stream.\n> **Dependency:** Konsumiert direkt das Manifest." ;;
     "52-security")
-      echo -e "> **Purpose:** Host-Härtung, systemd-creds (Sealed-only), VPN-Killswitch.\n> **Constraint:** Keine Klartext-Secrets; Credentials nie unter mediaRoot.\n> **Dependency:** Basiert auf lib/creds.nix." ;;
+      echo -e "> **Purpose:** Host-Härtung, systemd-creds (Sealed-only), VPN-Killswitch.\n> **Constraint:** Keine Klartext-Secrets; Credentials nie unter mediaRoot.\n> **Dependency:** Basiert auf 52-security/creds.nix." ;;
     "53-acquisition")
       echo -e "> **Purpose:** Prowlarr und Indexer-Infrastruktur.\n> **Constraint:** Ausschließlich interne LAN-Erreichbarkeit (accessGroup = internal).\n> **Dependency:** Nutzt Dezimalrahmen." ;;
     "54-processing")
