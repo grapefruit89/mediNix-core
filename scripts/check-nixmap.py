@@ -31,8 +31,10 @@ SCAN_DIRS = [
     "53-acquisition",
     "54-processing",
     "55-playback",
+    "56-exposition",
     "57-maintenance",
     "58-observability",
+    "59-guardrails",
 ]
 
 # Ausnahmen / Allowlist für legitime Konstrukte (z. B. pure Bibliotheksfunktionen in 50-core/)

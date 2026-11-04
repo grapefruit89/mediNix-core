@@ -16,7 +16,7 @@
 #
 # 50-core/service-factory.nix — Systemd-native Service Factory
 # Generates a systemd service from a descriptor attrset. No docker, no netns.
-# Hardening comes from 50-core/hardening-profiles.nix (profile selected in registry).
+# Hardening comes from 50-core/hardening-profiles.nix (profile is passed explicitly by the caller, not read from registry. The registry's hardeningProfile field is the SOLL-Wert; the caller must pass it).
 { lib, config, ... }:
 
 let
@@ -135,10 +135,12 @@ else
         {
           User = "${name}";
           ExecStart = execStart;
-          StateDirectory = lib.removePrefix "/var/lib/" stateDir;
-          StateDirectoryMode = "0750"; # owner rw, group r, world nichts (NIXH-40-MED)
           RuntimeDirectory = name;
         }
+        (lib.optionalAttrs (stateDir != null) {
+          StateDirectory = lib.removePrefix "/var/lib/" stateDir;
+          StateDirectoryMode = "0750"; # owner rw, group r, world nichts (NIXH-40-MED)
+        })
         # Group: UPG (ADR-0000 §4) - Primaergruppe = Unit-Name, GID = uid.
         # Fuer Manifest-Dienste setzt die Engine sie, fuer Fabrik-eigene Units
         # (caddy-media) setzen wir sie hier.

@@ -6,7 +6,7 @@ folder: 50-core
 status: active
 complexity: 1
 last_reviewed: 2026-10-16
-links: ""
+links: {}
 ---
 
 # Banned Technologies & Paradigms
@@ -124,10 +124,10 @@ weniger": kein Hash-Pinning, einheitliches Muster, klare Zuständigkeitstrennung
 
 | Banned Paradigm | Replacement / Nix-Way Alternative | Rationale |
 | :--- | :--- | :--- |
-| **`lib.mkForce`** | Additive Config & Tri-State Boundary | Forcing overrides breaks composability. If a host needs a different setting, we use the `managed &#124; external &#124; off` Tri-State Boundary and let the host decide. |
+| **`lib.mkForce`** | Additive Config & Tri-State Boundary | Forcing overrides breaks composability. If a host needs a different setting, we use the `managed &#124; external &#124; off` Tri-State Boundary and let the host decide. `lib.mkForce` ist verboten — mit einer Ausnahme: in Prüfkonfigurationen (tests/, flake.nix-Checks), um bewusst einen fehlerhaften Zustand für einen Negativtest zu erzeugen. |
 | **Fail-Open Defaults** | Fail-Closed Assertions | e.g., silently falling back to unencrypted DNS if the VPN DNS fails, or starting a service with an empty password. If a critical secret or config is missing, the system MUST crash or refuse to build. |
 | **Silent State (Drop & Forget bypass)** | `medinix.knownStateDirs` | Leaving data on the host when a module is removed is a leak. All modules must register their state directories so the Orphan Cleanup script can detect drift. |
-| **Hardcoded UIDs / GIDs** | `DynamicUser = true` or `lib/registry.nix` | Never hardcode User/Group IDs in modules unless defined centrally in our Service Registry Decimal Framework (Port = UID = Service-Nummer × 10). |
+| **Hardcoded UIDs / GIDs** | UPG (ADR-0000 §4) / `50-core/registry.nix` | Never hardcode User/Group IDs in modules unless defined centrally in our Service Registry Decimal Framework (Port = UID = Service-Nummer × 10). DynamicUser = true ist nur für zustandslose Oneshot-Units geeignet. Dienste mit persistenter /var/lib/<name>-Ablage nutzen UPG (ADR-0000 §4). |
 
 > **Instruction to AI Agents (Claude, Antigravity, etc.):**
 > If the user asks you to implement a feature using any of the Banned Technologies, you must refuse, reference this document, and provide the native Nix/systemd alternative. Do not suggest containers, cron, or sops-nix under any circumstances.
