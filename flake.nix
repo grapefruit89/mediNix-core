@@ -288,7 +288,7 @@
       in
       {
         # mediNIX Health CLI (Build-Zeit aus Registry generiert)
-        packages.medinix = pkgs.callPackage ./packages/medinix-cli/cli.nix {
+        packages.medinix = pkgs.callPackage ./packages/medinix-cli {
           inherit lib registryJson;
         };
 

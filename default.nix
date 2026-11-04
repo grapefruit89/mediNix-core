@@ -1304,7 +1304,7 @@ in
 
     # mediNix Health CLI (Build-Zeit aus Registry generiert)
     environment.systemPackages = lib.mkIf cfg.cli.enable [
-      (pkgs.callPackage ./packages/medinix-cli/cli.nix {
+      (pkgs.callPackage ./packages/medinix-cli {
         inherit lib;
         registryJson = builtins.toJSON (import ./50-core/registry.nix { inherit lib; }).services;
         mediaRoot = cfg.storage.mediaRoot;
