@@ -1,10 +1,10 @@
 {
   "meta": {
-    "generated_at": "2026-10-26T15:08:41.784375+00:00",
-    "total_blocks": 28,
-    "total_decisions": 67,
+    "generated_at": "2026-11-04T21:04:26.976422+00:00",
+    "total_blocks": 29,
+    "total_decisions": 69,
     "status_counts": {
-      "decided": 64,
+      "decided": 66,
       "rejected": 3
     },
     "theme_counts": {
@@ -21,7 +21,7 @@
       "systemd": 4,
       "observability": 3,
       "caddy-plugins": 7,
-      "other": 0
+      "other": 2
     }
   },
   "by_theme": {
@@ -654,7 +654,26 @@
         "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab."
       }
     ],
-    "other": []
+    "other": [
+      {
+        "id": "D-29-01",
+        "block_id": "29-meta-dezimalrahmen-nacharbeit",
+        "theme": "other",
+        "statement": "ADR-0000 §14 (Datei-Klassifikation) wird NICHT neu geschrieben - sie existiert vollstaendig in /home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md:259-401 (§14.1-§14.7) und scripts/nixmeta_check.py:41-93 implementiert sie bereits.",
+        "status": "decided",
+        "verdict": "neutral",
+        "rationale": "Batch A hat gemessen, dass der Checker der Verfassung voraus war, nicht hinterher. Ein Neuschreiben haette 143 Zeilen gegen 53 Zeilen Code produziert, die schon uebereinstimmen."
+      },
+      {
+        "id": "D-29-02",
+        "block_id": "29-meta-dezimalrahmen-nacharbeit",
+        "theme": "other",
+        "statement": "Die R1-R6-Explorationsregeln haben genau eine Quelle: /home/moritz/repos/mediNix-core/AGENTS.md Regel 11. medinix-project.md fuehrt sie nicht mehr doppelt, sondern verweist.",
+        "status": "decided",
+        "verdict": "better",
+        "rationale": "Zeiger-Regel aus docs/CONVENTIONS.md §4. Vor dem Kuerzen wurden die vier Detail-Unterschiede in AGENTS.md uebernommen (grep <datei>, git log -S in SUCHEN und in R6, nixmeta_check in VERIFIZIEREN) plus nix build in TESTEN, damit kein Inhalt verloren geht."
+      }
+    ]
   },
   "items": [
     {
@@ -1259,6 +1278,24 @@
       "status": "rejected",
       "verdict": "worse",
       "rationale": "Honeypot-Logik auf Webserver-Ebene ist komplex und fehleranfällig; CrowdSec deckt Angreifer-Erkennung effizienter ab."
+    },
+    {
+      "id": "D-29-01",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "theme": "other",
+      "statement": "ADR-0000 §14 (Datei-Klassifikation) wird NICHT neu geschrieben - sie existiert vollstaendig in /home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md:259-401 (§14.1-§14.7) und scripts/nixmeta_check.py:41-93 implementiert sie bereits.",
+      "status": "decided",
+      "verdict": "neutral",
+      "rationale": "Batch A hat gemessen, dass der Checker der Verfassung voraus war, nicht hinterher. Ein Neuschreiben haette 143 Zeilen gegen 53 Zeilen Code produziert, die schon uebereinstimmen."
+    },
+    {
+      "id": "D-29-02",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "theme": "other",
+      "statement": "Die R1-R6-Explorationsregeln haben genau eine Quelle: /home/moritz/repos/mediNix-core/AGENTS.md Regel 11. medinix-project.md fuehrt sie nicht mehr doppelt, sondern verweist.",
+      "status": "decided",
+      "verdict": "better",
+      "rationale": "Zeiger-Regel aus docs/CONVENTIONS.md §4. Vor dem Kuerzen wurden die vier Detail-Unterschiede in AGENTS.md uebernommen (grep <datei>, git log -S in SUCHEN und in R6, nixmeta_check in VERIFIZIEREN) plus nix build in TESTEN, damit kein Inhalt verloren geht."
     }
   ]
 }

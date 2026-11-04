@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Aggregiert plan.json, decisions.json, antipatterns.md und concerns.json
-aus allen 27 Blöcken (Chat 1 Blöcke 01-14 + neue Blöcke 15-27).
+aus allen 29 Blöcken (Chat 1 Blöcke 01-14 + neue Blöcke 15-29).
 """
 
 from pathlib import Path
@@ -18,7 +18,7 @@ chat1_blocks = sorted(CHAT1_BLOCKS_DIR.glob("*.json"))
 new_blocks = sorted(NEW_BLOCKS_DIR.glob("*.json"))
 all_block_files = chat1_blocks + new_blocks
 
-assert len(all_block_files) == 28, f"Expected 27 blocks, got {len(all_block_files)}"
+assert len(all_block_files) == 29, f"Expected 29 blocks, got {len(all_block_files)}"
 
 loaded_blocks = []
 for p in all_block_files:

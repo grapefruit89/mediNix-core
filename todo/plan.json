@@ -1,7 +1,7 @@
 {
   "meta": {
-    "generated_at": "2026-10-26T15:08:41.783793+00:00",
-    "total_blocks": 28,
+    "generated_at": "2026-11-04T21:04:26.975751+00:00",
+    "total_blocks": 29,
     "blocks_processed": [
       "01-arch-vs-nixos",
       "02-caddy-catch-all",
@@ -30,16 +30,17 @@
       "25-docs-trias",
       "26-guardrail-591",
       "27-caddy-plugin-replacements",
-      "28-verify-open-points"
+      "28-verify-open-points",
+      "29-meta-dezimalrahmen-nacharbeit"
     ],
-    "total_next_steps": 56,
-    "open_count": 52,
+    "total_next_steps": 63,
+    "open_count": 59,
     "done_count": 4,
     "priority_summary": {
       "open": {
-        "high": 14,
-        "medium": 20,
-        "low": 18
+        "high": 16,
+        "medium": 22,
+        "low": 21
       },
       "done": {
         "high": 4,
@@ -47,9 +48,9 @@
         "low": 0
       },
       "total": {
-        "high": 18,
-        "medium": 20,
-        "low": 18
+        "high": 20,
+        "medium": 22,
+        "low": 21
       }
     }
   },
@@ -514,6 +515,64 @@
       "id": "T-28-15",
       "block_id": "28-verify-open-points",
       "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (lib/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-01",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "todo/README.md:56 und :141 nennen '/home/moritz/repos/mediNix-core/lib/*.nix'. Beide auf '50-core/*.nix' umstellen. Das ist aktive Anleitung, keine Historie - beim Sweep uebersehen, weil 'todo/' pauschal als Gruppe 3 (historisch) behandelt wurde.",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-02",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "Volle lokale Pruef-Leiter als ein Skript festschreiben (Vorschlag: /home/moritz/repos/mediNix-core/scripts/verify.sh) mit: nix fmt -- --check $(find . -name '*.nix' -not -path './.git/*'), nix flake check OHNE --no-build, sowie gen_service_map.py --check, gen_runbook.py --check, nixos-resources.py --check, nixmeta_check.py, check_skills.py, check_adrs.py, medinix-meta.py check-docs, check-nixmap.py, check_manifest_edge.py, check_sources.py, check_corridor.py, check_nixos_anchors.py, check_banned_technologies.py, nixos_idiom_audit.py --p0-only. Grund: zwei CI-Rots in Folge (4d7d8c2, 85b9a4c) entstanden, weil die lokale Leiter kleiner war als die CI-Leiter - 'nix flake check --no-build' baut check-nixfmt nicht, und gen_service_map.py --check stand gar nicht in der Leiter.",
+      "priority": "high",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-03",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateiliste auf Determinate Nix 3.23.2 / Nix 2.35.3 wirkungslos ist: nixfmt bekommt dann keine Dateien und liest stdin (Exit 1 aus dem falschen Grund).",
+      "priority": "medium",
+      "depends_on": [
+        "N-29-02"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "N-29-04",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "/home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht und meldet seit dem Entfernen des /lib/-Skips acht 50-core-Bibliotheken als 'NO NUMBER in filename' (derive, hardening-profiles, manifest, memory-policy, registry, repl, service-contract, service-factory). Eine §14-bewusste Allowlist ergaenzen (kind: library/package/test und die beiden Zonen) oder das Skript als ausgemustert markieren. Kein Gate - weder in der Leiter noch in CI.",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-05",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/repos/mediNix-core/.claude/skills. Beide sind leer und damit Git-unsichtbar (CI gruen). Entweder rmdir oder in die Basename-Allowlist von docs/agents/shared/scripts/folder_lint.sh aufnehmen.",
+      "priority": "low",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-06",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": "Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-flake-patterns+nixos-flake-ci, medinix-audit-suite+medinix-pre-commit, medinix-conventions+nixos-medinix-authoring. Danach scripts/skills-exclude.txt bereinigen.",
+      "priority": "medium",
+      "depends_on": [],
+      "status": "open"
+    },
+    {
+      "id": "N-29-07",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "action": ".agent-state.json enthaelt vier historische Eintraege mit lib/-Pfaden (Zeilen 335, 399, 400, 452-455). Pruefen, ob sie als Historie bleiben oder auf 50-core/ nachgezogen werden. Bewusst nicht im Sweep angefasst (Maschinenzustand, kein Doku-Text).",
       "priority": "low",
       "depends_on": [],
       "status": "open"

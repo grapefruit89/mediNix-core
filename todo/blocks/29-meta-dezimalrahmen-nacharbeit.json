@@ -1,0 +1,163 @@
+{
+  "block_id": "29-meta-dezimalrahmen-nacharbeit",
+  "title": "Offene Punkte aus dem Meta-Batch (Dezimalrahmen-Nacharbeit 2026-11-04)",
+  "topics": [
+    "meta",
+    "doku",
+    "skills",
+    "ci",
+    "adr-0000",
+    "todo-system"
+  ],
+  "message_ids": [],
+  "summary": "Nacharbeit nach dem Meta-Batch (Commits 85b9a4c, e64671c, 1b701f2): lib/-Sweep, R1-R6-Dedup und §14-Abgleich sind abgeschlossen. Offen bleiben acht Punkte, die bewusst nicht im selben Zug entschieden wurden - eine uebersehene aktive Datei, die unvollstaendige lokale Pruef-Leiter, vier Skill-Kurationsfragen und drei Doku-Grenzfaelle. Vorarbeit und Begruendungen: /home/moritz/repos/mediNix-core/todo/handoff-dezimalrahmen-2026-11-04.md.",
+  "decisions": [
+    {
+      "id": "D-29-01",
+      "statement": "ADR-0000 §14 (Datei-Klassifikation) wird NICHT neu geschrieben - sie existiert vollstaendig in /home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md:259-401 (§14.1-§14.7) und scripts/nixmeta_check.py:41-93 implementiert sie bereits.",
+      "status": "decided",
+      "rationale": "Batch A hat gemessen, dass der Checker der Verfassung voraus war, nicht hinterher. Ein Neuschreiben haette 143 Zeilen gegen 53 Zeilen Code produziert, die schon uebereinstimmen.",
+      "verdict": "neutral",
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/adr/ADR-0000-dezimalrahmen-verfassung.md",
+          "status": "exists",
+          "current_state": "§14.1-§14.7 vorhanden, 143 Zeilen"
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/scripts/nixmeta_check.py",
+          "status": "exists",
+          "current_state": "classify(), ROOT_FILES, ENGINE_FILES, TOOLING_FILES, MODULE_RE, LIBRARY_RE, PACKAGE_RE, TEST_RE, KIND_OF, Zonenregeln"
+        }
+      ]
+    },
+    {
+      "id": "D-29-02",
+      "statement": "Die R1-R6-Explorationsregeln haben genau eine Quelle: /home/moritz/repos/mediNix-core/AGENTS.md Regel 11. medinix-project.md fuehrt sie nicht mehr doppelt, sondern verweist.",
+      "status": "decided",
+      "rationale": "Zeiger-Regel aus docs/CONVENTIONS.md §4. Vor dem Kuerzen wurden die vier Detail-Unterschiede in AGENTS.md uebernommen (grep <datei>, git log -S in SUCHEN und in R6, nixmeta_check in VERIFIZIEREN) plus nix build in TESTEN, damit kein Inhalt verloren geht.",
+      "verdict": "better",
+      "code_refs": [
+        {
+          "file": "/home/moritz/repos/mediNix-core/AGENTS.md",
+          "status": "exists",
+          "current_state": "Regel 11, 7 Zeilen, vollstaendig"
+        },
+        {
+          "file": "/home/moritz/repos/mediNix-core/docs/agents/07-patterns-misc/nixos-ecosystem/references/medinix-project.md",
+          "status": "exists",
+          "current_state": "Block 10, 6-Zeilen-Zeiger, Datei 183 -> 162 Zeilen"
+        }
+      ]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-29-01",
+      "question": "ROADMAP.md:118 nennt in einer Entscheidungstabelle 'Inline-Hardening statt lib/hardening-profiles.nix' (Korridor AB-009). Das ist weder ein [x]-Eintrag noch Planung, sondern eine verworfene Alternative. Auf 50-core/hardening-profiles.nix umstellen oder als historische Alternative mit Altpfad behalten?",
+      "why_open": "Der Sweep hat nur Stellen geaendert, die den aktuellen oder kuenftigen Zustand beschreiben. Diese Zeile beschreibt eine Ablehnung - Umbenennen wuerde die Entscheidung stillschweigend umschreiben.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-02",
+      "question": "Historische lib/-Nennungen bleiben stehen: /home/moritz/repos/mediNix-core/docs/AUDIT-LEDGER.md (21 Stellen), /home/moritz/repos/mediNix-core/docs/UPGRADE-MATRIX-uebernehmen-vs-aussenvor.md (6), /home/moritz/repos/mediNix-core/docs/HANDOFF-AN-NEXT-AGENT.md:146 und :252. Bleiben sie ohne Zusatz, oder bekommen sie einen Klammerzusatz '(heute 50-core/...)'?",
+      "why_open": "Ein Ledger-Eintrag mit damaligem Pfad ist ein Beleg, kein Fehler. Ein Zusatz macht ihn lesbarer, verfaelscht aber den Wortlaut des Funds.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-03",
+      "question": "Der R1-R6-Zeiger in medinix-project.md zeigt auf AGENTS.md Regel 11 - eine Datei, die nur im mediNix-Repo existiert. Der Skill nixos-ecosystem ist laut description aber repo-uebergreifend (nix-darwin, Nix-on-Droid). Genuegt der Zeiger, oder braucht die Skill-Referenz eine einzeilige Fallback-Fassung fuer fremde Repos?",
+      "why_open": "Die Entscheidung fuer den Zeiger ist gefallen (D-29-02), die Folge fuer die Portabilitaet des Skills ist nicht bewertet.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-04",
+      "question": "scripts/skills-exclude.txt fuehrt seit Wochen vier Merge-Kandidaten als Kommentar: medinix-nix-idioms (doppelt zu nixos-idiom-audit), nixos-flake-patterns (doppelt zu nixos-flake-ci), medinix-audit-suite (doppelt zu medinix-pre-commit), medinix-conventions (doppelt zu nixos-medinix-authoring). Mergen oder weiter parallel verlinken?",
+      "why_open": "Merge heisst Inhalte zusammenfuehren und einen Skill archivieren - das braucht eine Entscheidung pro Paar, keine pauschale Regel.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-05",
+      "question": "Soll ein Front-Matter-Feld 'scope: medinix|generic' eingefuehrt werden (31 SKILL.md-Dateien + eine Regel in scripts/check_skills.py)?",
+      "why_open": "Die Klassifikation existiert bereits als Sichtbarkeitsregel (scripts/skills-exclude.txt). Ein zweites Feld waere eine zweite Quelle fuer dieselbe Eigenschaft - nur sinnvoll, wenn 'scope: medinix' zusaetzlich einen ADR-0000-Verweis erzwingt (heute haben 10 von 17 mediNix-Skills keinen).",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-06",
+      "question": "Die 9 in scripts/skills-exclude.txt ausgeschlossenen Skills (kanban-orchestrator, kanban-worker, hermes-session-checkpoint, webhook-subscriptions, unraid-ssh-access, nixos-llm-first-workflow, medinix-knowledge-extraction, medinix-knowledge-pipeline, nixos-chat-export-mining) physisch nach docs/agents/_archive/ verschieben, oder nur per Sichtbarkeitsregel unsichtbar lassen?",
+      "why_open": "Die Entscheidung 'nicht verlinken' ist gefallen, die Entscheidung 'nicht im aktiven Baum liegen' nicht. Ein physisches Archiv ist sichtbarer, kostet aber Pfadanpassungen in link-skills.sh und check_skills.py.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-07",
+      "question": "Zwei Kategorien ohne Skill: /home/moritz/repos/mediNix-core/docs/agents/08-mcp-second-brain (nur CONCEPT.md) und /home/moritz/repos/mediNix-core/docs/agents/shared (references/ + scripts/, kein SKILL.md). Kategorie auflösen, in eine bestehende Kategorie ueberfuehren, oder als Struktur behalten?",
+      "why_open": "folder_lint meldet sie nicht, weil sie Dateien enthalten. Ob die Kategorie-Achse sie braucht, ist eine Taxonomiefrage.",
+      "blocking": false
+    },
+    {
+      "id": "Q-29-08",
+      "question": "ADR-0000 §11 und /home/moritz/repos/mediNix-core/docs/TERMINOLOGY.md beschreiben beide Semantic Anchors. Welche Datei ist die Quelle, welche wird Zeiger?",
+      "why_open": "Zweimal dieselbe Information widerspricht der Zeiger-Regel (docs/CONVENTIONS.md §4). Beim Meta-Batch aufgefallen, nicht entschieden.",
+      "blocking": false
+    }
+  ],
+  "corrections": [],
+  "rejected": [],
+  "next_steps": [
+    {
+      "id": "N-29-01",
+      "action": "todo/README.md:56 und :141 nennen '/home/moritz/repos/mediNix-core/lib/*.nix'. Beide auf '50-core/*.nix' umstellen. Das ist aktive Anleitung, keine Historie - beim Sweep uebersehen, weil 'todo/' pauschal als Gruppe 3 (historisch) behandelt wurde.",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "N-29-02",
+      "action": "Volle lokale Pruef-Leiter als ein Skript festschreiben (Vorschlag: /home/moritz/repos/mediNix-core/scripts/verify.sh) mit: nix fmt -- --check $(find . -name '*.nix' -not -path './.git/*'), nix flake check OHNE --no-build, sowie gen_service_map.py --check, gen_runbook.py --check, nixos-resources.py --check, nixmeta_check.py, check_skills.py, check_adrs.py, medinix-meta.py check-docs, check-nixmap.py, check_manifest_edge.py, check_sources.py, check_corridor.py, check_nixos_anchors.py, check_banned_technologies.py, nixos_idiom_audit.py --p0-only. Grund: zwei CI-Rots in Folge (4d7d8c2, 85b9a4c) entstanden, weil die lokale Leiter kleiner war als die CI-Leiter - 'nix flake check --no-build' baut check-nixfmt nicht, und gen_service_map.py --check stand gar nicht in der Leiter.",
+      "priority": "high",
+      "depends_on": []
+    },
+    {
+      "id": "N-29-03",
+      "action": "scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateiliste auf Determinate Nix 3.23.2 / Nix 2.35.3 wirkungslos ist: nixfmt bekommt dann keine Dateien und liest stdin (Exit 1 aus dem falschen Grund).",
+      "priority": "medium",
+      "depends_on": [
+        "N-29-02"
+      ]
+    },
+    {
+      "id": "N-29-04",
+      "action": "/home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht und meldet seit dem Entfernen des /lib/-Skips acht 50-core-Bibliotheken als 'NO NUMBER in filename' (derive, hardening-profiles, manifest, memory-policy, registry, repl, service-contract, service-factory). Eine §14-bewusste Allowlist ergaenzen (kind: library/package/test und die beiden Zonen) oder das Skript als ausgemustert markieren. Kein Gate - weder in der Leiter noch in CI.",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "N-29-05",
+      "action": "folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/repos/mediNix-core/.claude/skills. Beide sind leer und damit Git-unsichtbar (CI gruen). Entweder rmdir oder in die Basename-Allowlist von docs/agents/shared/scripts/folder_lint.sh aufnehmen.",
+      "priority": "low",
+      "depends_on": []
+    },
+    {
+      "id": "N-29-06",
+      "action": "Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-flake-patterns+nixos-flake-ci, medinix-audit-suite+medinix-pre-commit, medinix-conventions+nixos-medinix-authoring. Danach scripts/skills-exclude.txt bereinigen.",
+      "priority": "medium",
+      "depends_on": []
+    },
+    {
+      "id": "N-29-07",
+      "action": ".agent-state.json enthaelt vier historische Eintraege mit lib/-Pfaden (Zeilen 335, 399, 400, 452-455). Pruefen, ob sie als Historie bleiben oder auf 50-core/ nachgezogen werden. Bewusst nicht im Sweep angefasst (Maschinenzustand, kein Doku-Text).",
+      "priority": "low",
+      "depends_on": []
+    }
+  ],
+  "secret_mentions": false,
+  "_meta": {
+    "source": "Batch A/B/C Meta-Dezimalrahmen, 2026-11-04",
+    "handoff": "/home/moritz/repos/mediNix-core/todo/handoff-dezimalrahmen-2026-11-04.md",
+    "commits": [
+      "85b9a4c",
+      "e64671c",
+      "1b701f2"
+    ],
+    "measured_against": "HEAD 1b701f2, CI 5/5 success"
+  }
+}
