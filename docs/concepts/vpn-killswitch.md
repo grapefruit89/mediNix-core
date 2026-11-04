@@ -20,7 +20,7 @@ VPN-required service
 
 - **RestrictNetworkInterfaces** — POLICY (eine Seite des Contracts): cgroup-BPF-
   Socketfilter im Kernel. Dienste, die übers VPN müssen (SABnzbd), werden hart an
-  `[ "lo", "<vpnIf>" ]` gebunden — die Assertion in `54-transfer/541-sabnzbd.nix`
+  `[ "lo", "<vpnIf>" ]` gebunden — die Assertion in `54-processing/541-sabnzbd.nix`
   verbietet jedes weitere Interface. `[ "lo" ]` allein (z.B. Pocket-ID,
   `51-ingress/512-pocket-id.nix`) ist die ganz andere Aussage „local-only".
 - **Policy-Routing + Killswitch** — IMPLEMENTATION: `services.vpnKillSwitch`
@@ -54,5 +54,5 @@ nur Runtime.
 
 - `52-security/526-vpn-killswitch.nix` — skuid-Policy-Routing + Killswitch-Ketten
 - `52-security/525-vpn-interface.nix` — flake-verwaltetes WireGuard (TPM-Sealed-Key)
-- `54-transfer/541-sabnzbd.nix` — RestrictNetworkInterfaces + nftables (dual)
+- `54-processing/541-sabnzbd.nix` — RestrictNetworkInterfaces + nftables (dual)
 - `docs/adr/ADR-526-vpn-killswitch.md` — Entscheidung (kein netns)

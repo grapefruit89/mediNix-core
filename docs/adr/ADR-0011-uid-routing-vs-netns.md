@@ -64,7 +64,7 @@ Wir etablieren natives, bare-metal **Policy Routing** mit einer 3-stufigen Defen
 * **`checkReversePath = "loose"`:** Der Linux-Kernel verwirft asymmetrische Routing-Pfade bei WireGuard, wenn strict Reverse-Path-Filtering aktiv ist (`checkReversePath = true`). Daher setzt mediNix `checkReversePath = lib.mkDefault "loose";` und `logReversePathDrops = true`, gesichert durch Assertions in `525-vpn-interface.nix` und `526-vpn-killswitch.nix`.
 * **DNS-Leak-Schutz:** `medinix.vpn.dns` darf nicht leer sein. Die confinierten Dienste erhalten via `BindReadOnlyPaths` eine eigene `resolv.conf`, die ausschließlich auf die VPN-DNS-Server zeigt.
 
-### Ebene 3: Service-Confinement (`54-transfer/541-sabnzbd.nix`)
+### Ebene 3: Service-Confinement (`54-processing/541-sabnzbd.nix`)
 * **Verbot von `PrivateNetwork`:** Assertion stellt sicher, dass `PrivateNetwork = false` bleibt, damit `127.0.0.1` frei für *arr-Verbindungen ist.
 * **cgroup-BPF Socket-Filter:** `RestrictNetworkInterfaces = [ "lo" vpnIf ]` blockiert alle anderen Netzwerkinterfaces direkt im Linux-Kernel.
 * **UID-Verankerung:** Assertion stellt sicher, dass SABnzbd im Killswitch exakt an UID 5410 gebunden ist.

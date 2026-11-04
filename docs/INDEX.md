@@ -108,7 +108,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ADR 5710 sqlite mcp server](adr/ADR-571-sqlite-mcp.md)
 - [ADR 5700 sqlite vs postgres](adr/ADR-571-sqlite-vs-postgres.md)
 - [ADR 5700 sqlite wal tuning](adr/ADR-571-sqlite-wal.md)
-- [Recyclarr — TRaSH-Guides Sync (declarative)](adr/ADR-572-recyclarr-trash-sync.md)
+- [Recyclarr — TRaSH-Guides Sync (declarative)](adr/ADR-537-recyclarr-trash-sync.md)
 - [Arr API provisioning (oneshot)](adr/ADR-574-arr-provisioning.md)
 - [ADR 5721 backup data classification and applied strategy](adr/ADR-576-backup-classification.md)
 - [Restic A2-only backup](adr/ADR-576-backup.md)

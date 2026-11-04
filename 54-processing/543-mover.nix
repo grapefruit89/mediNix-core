@@ -2,7 +2,7 @@
 # id: "543-mover"
 # title: "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)"
 # domain: 54
-# folder: 54-transfer
+# folder: 54-processing
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-13

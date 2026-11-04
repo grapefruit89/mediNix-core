@@ -29,10 +29,10 @@ noch Loopback, RFC1918/ULA und das VPN-Interface erreichen; alles andere ist Dro
 Was fail-closed ist, ist **WAN ohne Tunnel**.
 
 ## 🚀 Konkreter Fall
-SABnzbd (`54-transfer/541-sabnzbd.nix`, UID 5410) ist doppelt geschützt:
+SABnzbd (`54-processing/541-sabnzbd.nix`, UID 5410) ist doppelt geschützt:
 nftables-Policy-Routing **und** Kernel-Level
 `RestrictNetworkInterfaces = [ "lo" vpnIf ]`. Kein netns
 (siehe `docs/NO-CONTAINERS.md`).
 
 Quellen: `52-security/README.md`, `docs/concepts/vpn-killswitch.md`,
-`54-transfer/README.md`, `docs/TERMINOLOGY.md`.
+`54-processing/README.md`, `docs/TERMINOLOGY.md`.

@@ -34,5 +34,5 @@ Ausschluss von totem Code. Nie verdrahtete Module werden markiert bzw. nach
 `docs/audit/<jahr-monat>/` archiviert (Chesterton's Fence) — nichts wird
 stillschweigend gelöscht.
 
-Quellen: `57-maintenance/README.md`, `54-transfer/README.md`,
+Quellen: `57-maintenance/README.md`, `54-processing/README.md`,
 `docs/CONVENTIONS.md`, `docs/TERMINOLOGY.md`.

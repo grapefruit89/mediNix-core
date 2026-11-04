@@ -1,14 +1,14 @@
 ---
-id: 54-transfer
-title: Transfer & Storage Maintenance Domain
+id: 54-processing
+title: Processing & Storage Maintenance Domain
 description: Manages media downloading and storage tiering (SSD to HDD).
-aliases: [Transfer, SABnzbd, Mover]
+aliases: [Processing, SABnzbd, Mover]
 tags: [architecture, medinix, download, sabnzbd, tiering]
 ---
 
-# 54-transfer: Transfer & Storage Maintenance
+# 54-processing: Processing & Storage Maintenance
 
-The **Transfer & Storage Maintenance Domain** (Domain 54) handles the heavy lifting of moving data. It is responsible for downloading media securely via Usenet and managing the flow of data across different storage tiers (from high-speed SSD staging to high-capacity HDD cold storage).
+The **Processing & Storage Maintenance Domain** (Domain 54) handles the heavy lifting of moving data. It is responsible for downloading media securely via Usenet and managing the flow of data across different storage tiers (from high-speed SSD staging to high-capacity HDD cold storage).
 
 ## 🎯 Core Responsibilities
 

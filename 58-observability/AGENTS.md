@@ -42,6 +42,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `585-exporters` | [`585-exporters.nix`](585-exporters.nix) | active | 2/5 | - |
 | `586-vpn-selftest` | [`586-vpn-selftest.nix`](586-vpn-selftest.nix) | active | 2/5 | - |
 | `587-disk-health` | [`587-disk-health.nix`](587-disk-health.nix) | active | 2/5 | - |
+| `588-update-notifier` | [`588-update-notifier.nix`](588-update-notifier.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -67,6 +68,7 @@ graph TD
   586_vpn_selftest["586-vpn-selftest"] --> registry["50-core/registry"]
   586_vpn_selftest["586-vpn-selftest"] --> hardening_profiles["50-core/hardening-profiles"]
   587_disk_health["587-disk-health"]
+  588_update_notifier["588-update-notifier"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 
 

@@ -78,7 +78,7 @@ Notes:
 
 - **H30 — SABnzbd StateDirectory conflict** `FIXED`
   - Frage: who owns the service state path?
-  - Dateien: `54-transfer/541-sabnzbd.nix` vs nixpkgs `services.sabnzbd`.
+  - Dateien: `54-processing/541-sabnzbd.nix` vs nixpkgs `services.sabnzbd`.
   - Evidence: `"sabnzbd"` (nixpkgs) vs `"sabnzbd-5410"` (mediNix) → eval error the
     moment the service is enabled (latent for Gate-4 base).
   - Entscheidung: **registry `stateDir` is canonical**; propagate via the nixpkgs

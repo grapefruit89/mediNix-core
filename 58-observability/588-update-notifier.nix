@@ -1,8 +1,8 @@
 # ---
-# id: "575-update-notifier"
+# id: "588-update-notifier"
 # title: "Update Notifier — checks mediNix-core flake for new version, notifies via ntfy"
-# domain: 57
-# folder: 57-maintenance
+# domain: 58
+# folder: 58-observability
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11

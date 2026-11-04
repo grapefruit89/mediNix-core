@@ -1,13 +1,13 @@
 # ---
-# id: "572-recyclarr"
+# id: "537-recyclarr"
 # title: "Recyclarr - TRaSH-Guides Sync (Declarative)"
-# domain: 57
-# folder: 57-maintenance
+# domain: 53
+# folder: 53-acquisition
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-19
 # links:
-#   adr: ADR-572
+#   adr: ADR-537
 # provides: []
 # requires: ["50-core/registry"]
 # ports: []

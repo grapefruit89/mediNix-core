@@ -32,7 +32,7 @@ ADR-570). mediNix-core bringt nur den logischen Contract **und** den Mover mit.
 ## 🗄️ Tiering
 - **Tier-B (SSD):** Staging / App-Daten.
 - **Tier-C (HDD):** Medien-Archiv.
-- **Mover (`54-transfer/543-mover.nix`):** event-getrieben (`systemd.path`) statt
+- **Mover (`54-processing/543-mover.nix`):** event-getrieben (`systemd.path`) statt
   Cron, damit die HDDs schlafen; nur Whitelist-Endungen, > 50 MB, älter 5 min, mit
   `lsof`-Sperre, atomar über `.staging_mover` und `flock`-Überlappungsschutz.
 
@@ -43,4 +43,4 @@ HDDs weckt (`docs/arch/ARCH-50-architecture-blueprint.md` — als Historie, nich
 Sollstand).
 
 Quellen: `docs/concepts/storage-mover.md`, `57-maintenance/README.md`,
-`54-transfer/README.md`, `docs/ADMIN-HANDOFF.md` §3a/§3b.
+`54-processing/README.md`, `docs/ADMIN-HANDOFF.md` §3a/§3b.

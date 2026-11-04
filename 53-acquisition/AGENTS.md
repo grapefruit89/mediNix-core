@@ -15,13 +15,13 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - Download-Kategorien (`tv`/`movies`/`books`/`music`) als Vertrag mit dem Downloader
 
 **Nicht verantwortlich für:**
-- Download selbst → `54-transfer` (541 SABnzbd)
+- Download selbst → `54-processing` (541 SABnzbd)
 - Playback/Medienserver → `55-playback`
 - WAN-Zugang und Auth → `51-ingress`; die Registry führt diese Dienste als `internal`
 
 **Source of truth:**
 - Port/UID/Dienstnummer → `lib/registry.nix` (Dezimalrahmen, ADR-0000)
-- Kategorie je Dienst → `lib/service-contract.nix` (`arr.category`), provisioniert in `57-maintenance/574-provisioning.nix`
+- Kategorie je Dienst → `50-core/service-contract.nix` (`arr.category`), provisioniert in `53-acquisition/538-provisioning.nix`
 - WAN-Freigabe heißt `ingress.vhosts.<name>.accessGroup = "public"` setzen — nicht das Modul ändern
 
 **Bekannte Klemmen:**
@@ -42,6 +42,8 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `534-readarr` | [`534-readarr.nix`](534-readarr.nix) | active | 3/5 | - |
 | `535-lidarr` | [`535-lidarr.nix`](535-lidarr.nix) | active | 3/5 | - |
 | `536-prowlarr` | [`536-prowlarr.nix`](536-prowlarr.nix) | active | 3/5 | - |
+| `537-recyclarr` | [`537-recyclarr.nix`](537-recyclarr.nix) | active | 3/5 | - |
+| `538-provisioning` | [`538-provisioning.nix`](538-provisioning.nix) | active | 3/5 | - |
 | `arr-settings` | [`arr-settings.nix`](arr-settings.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
@@ -87,6 +89,8 @@ graph TD
   536_prowlarr["536-prowlarr"] --> registry["50-core/registry"]
   536_prowlarr["536-prowlarr"] --> hardening_profiles["50-core/hardening-profiles"]
   536_prowlarr["536-prowlarr"] --> memory_policy["50-core/memory-policy"]
+  537_recyclarr["537-recyclarr"] --> registry["50-core/registry"]
+  538_provisioning["538-provisioning"]
   arr_settings["arr-settings"]
 ```
 

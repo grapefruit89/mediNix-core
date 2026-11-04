@@ -2,7 +2,7 @@
 # id: "541-sabnzbd"
 # title: "SABnzbd — Usenet Downloader (Optimized with RestrictNetworkInterfaces)"
 # domain: 54
-# folder: 54-transfer
+# folder: 54-processing
 # status: active
 # complexity: 2
 # last_reviewed: 2026-09-07

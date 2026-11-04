@@ -1,13 +1,13 @@
 # ---
-# id: "574-provisioning"
+# id: "538-provisioning"
 # title: "Arr API provisioning oneshot"
-# domain: 57
-# folder: 57-maintenance
+# domain: 53
+# folder: 53-acquisition
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
 # links:
-#   adr: ADR-574
+#   adr: ADR-538
 # ---
 {
   config,

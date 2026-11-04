@@ -26,6 +26,9 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - `stream` ist WAN-offen ohne Ingress-Auth. 511 lässt es nur zu, wenn der Manifest-Eintrag `stream` deklariert **oder** der Dienst in `medinix.ingress.streamAck` steht (Review 2026-10-17, Finding 20) — ein Vhost-Override auf `stream` ist kein Freibrief.
 - `idp` ist per Assertion dem IdP selbst vorbehalten.
 
+**Kern vs. Zulieferer:**
+Die drei Dienste in `55-playback` (Jellyfin, Audiobookshelf, Navidrome) bilden den eigentlichen Kern des Systems. Alle anderen Dekaden existieren primär, um diesen Kern mit Inhalten, Sicherheit, Infrastruktur und Wartung zu versorgen. Das erklärt das bewusste architektonische Verhältnis: Der Kern bleibt kompakt und fokussiert, während die Zulieferer- und Wartungsdomänen breiter aufgestellt sind.
+
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 

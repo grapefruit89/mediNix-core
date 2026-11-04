@@ -226,7 +226,7 @@ Aufruf je Knopf: `medinix triage <id>` (oder `medinix triage <bereich|service>`)
 | 51-ingress | Caddy · Pocket-ID · DDNS · ACME · mDNS · CrowdSec | `medinix triage 51` |
 | 52-security | Core-Security · Creds · WireGuard · Killswitch | `medinix triage 52` |
 | 53-acquisition | Sonarr · Radarr · Readarr · Lidarr · Prowlarr | `medinix triage 53` |
-| 54-transfer | SABnzbd · Mover | `medinix triage 54` |
+| 54-processing | SABnzbd · Mover | `medinix triage 54` |
 | 55-playback | Jellyfin · Audiobookshelf · Navidrome | `medinix triage 55` |
 | 56-exposition | Seerr | `medinix triage 56` |
 | 57-maintenance | Storage · SQLite-WAL · Recyclarr · Backup · Drift | `medinix triage 57` |

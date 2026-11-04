@@ -29,16 +29,16 @@
 
 ---
 
-## Aktueller Fokus: Aufgabe 09 (Modul-Umsortierung nach ADR-0000)
+## Aktueller Fokus: Aufgabe 08 (Skills flach machen und projekt-anpassen)
 
 > [!CAUTION]
 > **STATUS: ENTWURF / GEPLANT — NICHT AUTOMATISCH OHNE FREIGABE AUSFÜHREN!**
 > Aufgaben im Backlog dienen als strukturierte Arbeitsgrundlage und dürfen von KI-Agenten niemals unaufgefordert ohne Review und Freigabe ausgeführt werden.
 
-- **Aktive Aufgabe:** [`todo/backlog/09-modul-umsortierung-nach-adr-0000.md`](/home/moritz/repos/mediNix-core/todo/backlog/09-modul-umsortierung-nach-adr-0000.md)
-  - **Inhalt:** `54-transfer` $\rightarrow$ `54-processing`, `572-recyclarr` $\rightarrow$ `537-recyclarr`, `574-provisioning` $\rightarrow$ `538-provisioning`, `575-update-notifier` $\rightarrow$ `588-update-notifier`.
-- **Folgeaufgabe:** [`todo/backlog/08-skills-flach-machen-und-projekt-anpassen.md`](/home/moritz/repos/mediNix-core/todo/backlog/08-skills-flach-machen-und-projekt-anpassen.md)
-  - **Inhalt:** `agent/skills/` $\rightarrow$ `skills/`, Archivierung von `nix-packaging` und `cross-platform.md`, Neuanlage von `medinix-project.md`, `.claude/skills/`-Symlinks anpassen.
+- **Erledigte Aufgabe:** [`todo/done/09-modul-umsortierung-nach-adr-0000.md`](/home/moritz/repos/mediNix-core/todo/done/09-modul-umsortierung-nach-adr-0000.md)
+  - **Inhalt:** `54-transfer` $\rightarrow$ `54-processing`, `572-recyclarr` $\rightarrow$ `537-recyclarr`, `574-provisioning` $\rightarrow$ `538-provisioning`, `575-update-notifier` $\rightarrow$ `588-update-notifier`. Abgeschlossen und verifiziert.
+- **Aktive Aufgabe:** [`todo/backlog/08-skills-flach-machen-und-projekt-anpassen.md`](/home/moritz/repos/mediNix-core/todo/backlog/08-skills-flach-machen-und-projekt-anpassen.md)
+  - **Inhalt:** `agent/skills/` $\rightarrow$ `skills/`, `.gitignore` anpassen (`agent/` $\rightarrow$ `skills/`), Archivierung von `nix-packaging` und `cross-platform.md`, Neuanlage und Erweiterung von `medinix-project.md` (inkl. Block 8 & 9), `.claude/skills/`-Symlinks anpassen.
 - **Abschluss:**
   - **Aufgabe 10 (Finale Validierung):** Alle Checks grün, `find`-Suche nach übriggebliebenen Artefakten, `git status` sauber, keine toten Symlinks.
 

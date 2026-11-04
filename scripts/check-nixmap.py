@@ -29,7 +29,7 @@ SCAN_DIRS = [
     "51-ingress",
     "52-security",
     "53-acquisition",
-    "54-transfer",
+    "54-processing",
     "55-playback",
     "57-maintenance",
     "58-observability",

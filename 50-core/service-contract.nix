@@ -191,7 +191,7 @@ in
               };
             };
 
-            # --- ARR STACK & PROVISIONING (574) ---
+            # --- ARR STACK & PROVISIONING (538) ---
             arr = {
               role = lib.mkOption {
                 type = lib.types.enum [

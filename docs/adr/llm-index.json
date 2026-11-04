@@ -260,14 +260,14 @@
       "status": "active"
     },
     {
-      "id": "572",
-      "file": "ADR-572-recyclarr-trash-sync.md",
+      "id": "537",
+      "file": "ADR-537-recyclarr-trash-sync.md",
       "topic": "declarative TRaSH-Guides sync for the arr stack",
       "status": "active"
     },
     {
-      "id": "574",
-      "file": "ADR-574-arr-provisioning.md",
+      "id": "538",
+      "file": "ADR-538-arr-provisioning.md",
       "topic": "idempotent arr API provisioning oneshot",
       "status": "active"
     },

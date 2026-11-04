@@ -60,7 +60,7 @@ get_purpose_block() {
       echo -e "> **Purpose:** Host-Härtung, systemd-creds (Sealed-only), VPN-Killswitch.\n> **Constraint:** Keine Klartext-Secrets; Credentials nie unter mediaRoot.\n> **Dependency:** Basiert auf lib/creds.nix." ;;
     "53-acquisition")
       echo -e "> **Purpose:** Prowlarr und Indexer-Infrastruktur.\n> **Constraint:** Ausschließlich interne LAN-Erreichbarkeit (accessGroup = internal).\n> **Dependency:** Nutzt Dezimalrahmen." ;;
-    "54-transfer")
+    "54-processing")
       echo -e "> **Purpose:** SABnzbd Usenet-Downloader, Confinement.\n> **Constraint:** Muss zwingend auf SSD/Cache laufen, Spindelwächter blockiert HDDs.\n> **Dependency:** Gekoppelt an VPN-Killswitch (526)." ;;
     "55-playback")
       echo -e "> **Purpose:** Jellyfin Medienserver, Audiobookshelf, Transcoding.\n> **Constraint:** Transcoding MUSS im RAM liegen (/transcode); HDD Read-Only.\n> **Dependency:** Bindet Hardware-Beschleunigung (QSV) ein." ;;
@@ -181,7 +181,7 @@ echo "→ 1. Erstelle _index.md (Navigation Hub)..."
   echo "- \`51-ingress\` — Caddy Reverse Proxy, Split-Horizon"
   echo "- \`52-security\` — Credentials, VPN-Killswitch"
   echo "- \`53-acquisition\` — Prowlarr Indexer"
-  echo "- \`54-transfer\` — SABnzbd Downloader, Spindel-Wächter"
+  echo "- \`54-processing\` — SABnzbd Downloader, Spindel-Wächter"
   echo "- \`55-playback\` — Jellyfin, Audiobookshelf, RAM-Transcode"
   echo "- \`56-exposition\` — Exposition & Request Management (Seerr)"
   echo "- \`57-maintenance\` — Backups, Secret Sealing"

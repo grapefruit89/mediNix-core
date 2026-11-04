@@ -127,6 +127,10 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 
 ## Repo-Landkarte (damit niemand neu explorieren muss)
 
+Bevor du bei mediNix-Arbeit explorativ suchst (grep, find, journalctl):
+lies `agent/skills/nixos-ecosystem/references/medinix-project.md`.
+Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
+
 **Struktur = Dezimalrahmen (ADR-0000):** `XX-domain/NNN-dienst.nix` — `XX` = Dekade, `NNN` = Dienstnummer; daraus folgen Port, UID und Primär-GID (`NNN × 10`, UPG).
 
 | Dekade | Rolle (ADR-0000 §3) | Inhalt |
@@ -134,13 +138,15 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 | `50-core` | Foundation | Host-Baseline, Engine-Anbindung, Host-Integration |
 | `51-ingress` | Access | Caddy (511) · Pocket-ID (512) · Cloudflare-DDNS (513) · ACME (514) · mDNS (515) · Landingpage (518) · Ingress-Guardrails (519) |
 | `52-security` | Security | nftables-Baseline (520) · sealed Credentials (521) · WireGuard (525) · VPN-Killswitch (526) |
-| `53-acquisition` | Ingestion | Sonarr · Radarr · Readarr · Lidarr · Prowlarr |
-| `54-transfer` | Processing | SABnzbd (541) · Mover (543) |
+| `53-acquisition` | Ingestion | Sonarr · Radarr · Readarr · Lidarr · Prowlarr · Recyclarr (537) · Provisioning (538) |
+| `54-processing` | Processing | SABnzbd (541) · Mover (543) |
 | `55-playback` | Core UI/App | Jellyfin (551) · Audiobookshelf (552) · Navidrome (553) |
 | `56-exposition` | Exposition | Seerr (561) |
-| `57-maintenance` | Maintenance | Storage/SetGID (570) · SQLite-WAL (571) · Recyclarr (572) · Provisioning (574) · Update-Notifier (575) · Backup/restic (576) · Drift (577) · Orphan-Cleanup (578) · Backup-SSH (579) |
-| `58-observability` | Observability | ntfy (581) · Gatus (582) · Runtime-Guard (583) · Boot-Watchdog (584) · Exporter (585) · Disk-Health/smartd (587) |
+| `57-maintenance` | Maintenance | Storage/SetGID (570) · SQLite-WAL (571) · Backup/restic (576) · Drift (577) · Orphan-Cleanup (578) · Backup-SSH (579) |
+| `58-observability` | Observability | ntfy (581) · Gatus (582) · Runtime-Guard (583) · Boot-Watchdog (584) · Exporter (585) · Disk-Health/smartd (587) · Update-Notifier (588) |
 | `59-guardrails` | Guardrails | Cross-Domain-Assertions (591) |
+
+> 💡 **Kern vs. Zulieferer:** Die drei Dienste in `55-playback` (Jellyfin, Audiobookshelf, Navidrome) sind der funktionale Kern des Systems. Alle anderen Dekaden existieren, um diesen Kern mit Content, Netzwerk, Sicherheit und Wartung zu versorgen. Deshalb ist der Kern kompakt gehalten, während die Zulieferer- und Wartungsdomänen breiter aufgestellt sind.
 
 | Ort | Was |
 |---|---|

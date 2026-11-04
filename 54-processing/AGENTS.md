@@ -1,13 +1,13 @@
-# LLM Wiki: `54-transfer`
+# LLM Wiki: `54-processing`
 
-> **Zweck:** Transport — Usenet-Download und das Verschieben von Medien zwischen Speicher-Tiers.
+> **Zweck:** Processing — Usenet-Download und das Verschieben von Medien zwischen Speicher-Tiers.
 
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String
 nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
-**Rolle:** Transfer-/Logistikdomäne (54x).
+**Rolle:** Processing-/Logistikdomäne (54x).
 
 **Verantwortung:**
 - `541` SABnzbd — Usenet-Downloader (`internal`, mit `RestrictNetworkInterfaces`)
@@ -20,7 +20,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 **Source of truth:**
 - Port/UID → `lib/registry.nix`
-- Kategoriename je Auftrag → `lib/service-contract.nix` (`arr.category`), Provisioning in `57-maintenance/574-provisioning.nix`
+- Kategoriename je Auftrag → `50-core/service-contract.nix` (`arr.category`), Provisioning in `53-acquisition/538-provisioning.nix`
 - Tiering-Pfade und Schwellen → das Mover-Modul selbst
 
 **Bekannte Klemmen:**

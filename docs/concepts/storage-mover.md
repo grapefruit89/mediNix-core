@@ -28,7 +28,7 @@ mediNix-core
   `57-maintenance/570-storage.nix` legt die Verzeichnisstruktur per
   `systemd.tmpfiles` an (Modus **2775**, SetGID, Gruppe `media`), damit
   Nachbardienste schreiben können.
-- **Mover** — REAL (im Repo, **nicht** host-seitig): `54-transfer/543-mover.nix`
+- **Mover** — REAL (im Repo, **nicht** host-seitig): `54-processing/543-mover.nix`
   (`mediNix-mover.service`). Trigger ist `systemd.path` (`PathChanged` auf
   `stagingDir`) plus Sicherheits-Timer `OnUnitInactiveSec = 8h` — **kein
   Calendar-Takt**, damit die HDDs schlafen. Verschiebt nur Whitelist-Endungen
@@ -50,6 +50,6 @@ mediNix-core
 ## Referenzen
 
 - `57-maintenance/570-storage.nix` — tmpfiles-Struktur / optionale MergerFS-Pools
-- `54-transfer/543-mover.nix` — der Mover (Trigger, Bremse, Sicherungen)
+- `54-processing/543-mover.nix` — der Mover (Trigger, Bremse, Sicherungen)
 - `docs/adr/ADR-570-storage-tiering-mergerfs.md` — physisch (Host) vs. logisch (Flake)
 - `docs/ADMIN-HANDOFF.md` §3a/§3b — Mover-Handoff + mergerfs-Beispiel (host-seitig)

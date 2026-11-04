@@ -1,26 +1,26 @@
 ---
-id: "ADR-574"
+id: "ADR-538"
 title: "Arr API provisioning (oneshot)"
-domain: 57
+domain: 53
 status: active
 last_reviewed: 2026-10-16
 tags:
-  - maintenance
+  - acquisition
   - arr-stack
   - provisioning
 links:
   adr: ""
   repo-harvest: ""
 ---
-# ADR-574: Arr API Provisioning — Oneshot (57-maintenance, Dienst 574)
+# ADR-538: Arr API Provisioning — Oneshot (53-acquisition, Dienst 538)
 
 ## Status: active
 ## Date: 2026-10-16
-## Source: 57-maintenance/574-provisioning.nix + lib/arr-provision
+## Source: 53-acquisition/538-provisioning.nix + packages/arr-provision
 ## Related: ADR-0010 (API vs. Filesystem), ADR-040 (gerichtete Abhängigkeiten), ADR-521 (Secrets)
 
 ## Decimalrahmen (ADR-0000 §4)
-- Dienstnummer: **574** (57-maintenance, Slot 4)
+- Dienstnummer: **538** (53-acquisition, Slot 8)
 - Kein eigener Listener: **oneshot** `mediNix-provision.service`
 - Ausführung als `User = media`, `StateDirectory = mediNix-state` (0750)
 

@@ -19,7 +19,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 - Ingress/Auth → `51-ingress`; Monitoring → `58-observability`
 
 **Source of truth:**
-- Provisioning-Vertrag → `manifest` (Dienste) + `57-maintenance/574-provisioning.nix`
+- Provisioning-Vertrag → `manifest` (Dienste) + `53-acquisition/538-provisioning.nix`
 - zu schützender Zustand → `lib/registry.nix` (`stateDir`)
 - Ignorier-Listen (z. B. Orphan-Cleanup) leben im jeweiligen Modul
 
@@ -39,9 +39,6 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 |---|---|---|---|---|
 | `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 4/5 | - |
 | `571-sqlite-wal` | [`571-sqlite-wal.nix`](571-sqlite-wal.nix) | active | 3/5 | - |
-| `572-recyclarr` | [`572-recyclarr.nix`](572-recyclarr.nix) | active | 3/5 | - |
-| `574-provisioning` | [`574-provisioning.nix`](574-provisioning.nix) | active | 3/5 | - |
-| `575-update-notifier` | [`575-update-notifier.nix`](575-update-notifier.nix) | active | 3/5 | - |
 | `576-backup` | [`576-backup.nix`](576-backup.nix) | active | 3/5 | - |
 | `577-drift-detection` | [`577-drift-detection.nix`](577-drift-detection.nix) | active | 3/5 | - |
 | `578-orphan-cleanup` | [`578-orphan-cleanup.nix`](578-orphan-cleanup.nix) | active | 3/5 | - |
@@ -61,9 +58,6 @@ graph TD
   570_storage["570-storage"]
   571_sqlite_wal["571-sqlite-wal"] --> hardening_profiles["50-core/hardening-profiles"]
   571_sqlite_wal["571-sqlite-wal"] --> registry["50-core/registry"]
-  572_recyclarr["572-recyclarr"] --> registry["50-core/registry"]
-  574_provisioning["574-provisioning"]
-  575_update_notifier["575-update-notifier"] --> hardening_profiles["50-core/hardening-profiles"]
   576_backup["576-backup"] --> hardening_profiles["50-core/hardening-profiles"]
   576_backup["576-backup"] --> registry["50-core/registry"]
   577_drift_detection["577-drift-detection"] --> hardening_profiles["50-core/hardening-profiles"]

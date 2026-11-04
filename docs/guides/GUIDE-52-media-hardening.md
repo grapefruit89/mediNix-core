@@ -16,7 +16,7 @@ links:
 # 🎬 Media-Stack: VPN-Confinement & QuickSync
 
 ## 🛡️ VPN-Confinement (kein netns)
-SABnzbd (`54-transfer/541-sabnzbd.nix`, UID 5410) ist doppelt gebunden:
+SABnzbd (`54-processing/541-sabnzbd.nix`, UID 5410) ist doppelt gebunden:
 
 - **nftables Policy-Routing** über `52-security/526-vpn-killswitch.nix`:
   `meta skuid`-Markierung → Routing-Tabelle → hard drop; fehlt die VPN-Route,
@@ -37,5 +37,5 @@ systemweit aufzuweichen. Das Transcode-Verzeichnis liegt auf einem
 Medien werden **read-only** gemountet (`BindReadOnlyPaths`) — die Player können die
 Bibliothek lesen, aber nie ändern oder löschen.
 
-Quellen: `54-transfer/README.md`, `55-playback/README.md`, Root-`README.md`,
+Quellen: `54-processing/README.md`, `55-playback/README.md`, Root-`README.md`,
 `docs/concepts/vpn-killswitch.md`.
