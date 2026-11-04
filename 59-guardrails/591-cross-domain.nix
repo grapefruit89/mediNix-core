@@ -21,7 +21,7 @@ let
   ks = config.services.vpnKillSwitch or { instances = { }; };
   confined = name: (builtins.hasAttr name ks.instances) && ks.instances.${name}.enable;
 
-  enabledOf = n: if n == "pocket-id" then cfg.pocketId.enable or false else cfg.${n}.enable or false;
+  enabledOf = n: (config.medinix.manifest.${n}.enable or false);
 
   enabledPortable = lib.filterAttrs (n: svc: svc.port != null && enabledOf n) svcReg.services;
 
@@ -189,6 +189,10 @@ lib.mkIf cfg.enable {
         [mediNix] Service-Factory (ADR-5050) verletzt:
         ${lib.concatStringsSep "\n        " factoryViolations}
       '';
+    }
+    {
+      assertion = lib.all (m: (m ? enable) && m.enable != null) (lib.attrValues (config.medinix.manifest or { }));
+      message = "[mediNix] enabledOf liest aus dem Manifest: jeder Eintrag in medinix.manifest muss `enable` definieren.";
     }
   ];
 }

@@ -32,7 +32,7 @@ CORE = ("id", "title", "domain", "last_reviewed")
 BASELINE_FILE = "scripts/nixmeta-baseline.txt"
 UPSTREAM_KEYS = ("upstream_github", "upstream_docs", "nixpkgs_attr")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-STATUS = {"active", "deprecated", "draft"}
+STATUS = {"active", "deprecated", "draft", "example", "template"}
 FENCE = "# ---"
 
 
@@ -92,9 +92,9 @@ def check(path):
         data = yaml.safe_load("\n".join(block))
     except yaml.YAMLError as exc:
         first = str(exc).splitlines()[0]
-        return [f"Header ist kein gueltiges YAML: {first}"]
+        return [f"Header ist kein gueltiges YAML: {first}"], [], []
     if not isinstance(data, dict):
-        return ["Header ist kein YAML-Mapping (Schluessel: Wert)"]
+        return ["Header ist kein YAML-Mapping (Schluessel: Wert)"], [], []
 
     for key in CORE:
         if data.get(key) in (None, ""):
@@ -117,6 +117,14 @@ def check(path):
     status = data.get("status")
     if status is not None and str(status) not in STATUS:
         bad.append(f"`status: {status}` nicht in {sorted(STATUS)}")
+
+    norm_path = path.replace("\\", "/")
+    if norm_path.startswith("docs/examples/"):
+        if status != "example":
+            bad.append(f"`status: {status}` != `example` (Zonenregel docs/examples/**)")
+    elif norm_path.startswith("docs/") and "/templates/" in norm_path:
+        if status != "template":
+            bad.append(f"`status: {status}` != `template` (Zonenregel docs/**/templates/**)")
 
     if data.get("complexity") is not None:
         complexity = as_int(data["complexity"])
