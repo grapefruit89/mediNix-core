@@ -188,34 +188,32 @@ let
 
 in
 {
-  config = lib.mkIf (
-    cfg.enable
-    && cfg.dns.mode == "standalone"
-    && ddns.enable
-    && ddns.wanIp.provider == "speedport"
-  ) {
-    medinix._internal.ddns.routerScripts = {
-      check = pkgs.writeShellScript "speedport-check" ''
-        set -euo pipefail
-        ${readPw}
-        ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
-        if [ -z "$ROUTER" ]; then
-          ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
-        fi
-        [ -n "$ROUTER" ] || { echo "FATAL: no router IP or default route" >&2; exit 1; }
-        exec ${pythonEnv}/bin/python3 ${speedportClient} check "$ROUTER" "$PW_FILE"
-      '';
+  config =
+    lib.mkIf
+      (cfg.enable && cfg.dns.mode == "standalone" && ddns.enable && ddns.wanIp.provider == "speedport")
+      {
+        medinix._internal.ddns.routerScripts = {
+          check = pkgs.writeShellScript "speedport-check" ''
+            set -euo pipefail
+            ${readPw}
+            ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
+            if [ -z "$ROUTER" ]; then
+              ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
+            fi
+            [ -n "$ROUTER" ] || { echo "FATAL: no router IP or default route" >&2; exit 1; }
+            exec ${pythonEnv}/bin/python3 ${speedportClient} check "$ROUTER" "$PW_FILE"
+          '';
 
-      reconnect = pkgs.writeShellScript "speedport-reconnect" ''
-        set -euo pipefail
-        ${readPw}
-        ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
-        if [ -z "$ROUTER" ]; then
-          ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
-        fi
-        [ -n "$ROUTER" ] || { echo "FATAL: no router IP or default route" >&2; exit 1; }
-        exec ${pythonEnv}/bin/python3 ${speedportClient} reconnect "$ROUTER" "$PW_FILE"
-      '';
-    };
-  };
+          reconnect = pkgs.writeShellScript "speedport-reconnect" ''
+            set -euo pipefail
+            ${readPw}
+            ROUTER="''${SPEEDPORT_HOST:-${if ddns.wanIp.routerIp != null then ddns.wanIp.routerIp else ""}}"
+            if [ -z "$ROUTER" ]; then
+              ROUTER=$(ip -4 route show default 2>/dev/null | awk 'NR==1 {print $3}')
+            fi
+            [ -n "$ROUTER" ] || { echo "FATAL: no router IP or default route" >&2; exit 1; }
+            exec ${pythonEnv}/bin/python3 ${speedportClient} reconnect "$ROUTER" "$PW_FILE"
+          '';
+        };
+      };
 }

@@ -243,12 +243,7 @@ in
           fi
         '';
         serviceConfig = lib.mkMerge [
-          (
-            if svc.usenet-confinement.enable && vpnIf != "" then
-              profiles.python-confined
-            else
-              profiles.python
-          )
+          (if svc.usenet-confinement.enable && vpnIf != "" then profiles.python-confined else profiles.python)
           memoryPolicy.sabnzbd
           {
             User = "sabnzbd";

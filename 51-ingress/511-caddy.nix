@@ -225,10 +225,7 @@ let
       customConfig = m.customConfig or "";
       svc = registry.${name} or { };
       upstream =
-        if (svc.uds_socket or false) then
-          "unix/${svc.uds_path}"
-        else
-          "http://127.0.0.1:${toString m.port}";
+        if (svc.uds_socket or false) then "unix/${svc.uds_path}" else "http://127.0.0.1:${toString m.port}";
     in
     ''
       ${lib.optionalString (!isStream) "encode zstd gzip"}

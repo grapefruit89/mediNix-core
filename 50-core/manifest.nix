@@ -87,17 +87,15 @@ let
       needsMediaGroup ? null,
     }:
     assert (
-      lib.assertMsg (
-        num >= 500 && num <= 599
-      ) "mkManifestEntry [${name}]: num muss zwischen 500 und 599 liegen (ADR-0000), gegeben: ${toString num}"
+      lib.assertMsg (num >= 500 && num <= 599)
+        "mkManifestEntry [${name}]: num muss zwischen 500 und 599 liegen (ADR-0000), gegeben: ${toString num}"
     );
     assert (
       lib.assertMsg ((num - (num / 10) * 10) != 0 || !hasDaemon)
         "mkManifestEntry [${name}]: Slot 0 (num=${toString num}) ist fuer Ordner/Engines reserviert und darf keinen Daemon tragen (ADR-0000 §2)"
     );
     assert (
-      lib.assertMsg (lib.elem accessGroup accessGroups)
-        "mkManifestEntry [${name}]: ungueltige accessGroup '${accessGroup}'! Erlaubt: ${lib.concatStringsSep ", " accessGroups}"
+      lib.assertMsg (lib.elem accessGroup accessGroups) "mkManifestEntry [${name}]: ungueltige accessGroup '${accessGroup}'! Erlaubt: ${lib.concatStringsSep ", " accessGroups}"
     );
     {
       inherit
@@ -122,31 +120,36 @@ let
         icon = name;
         group = "Media";
         showOnLanding = true;
-      } // ui;
+      }
+      // ui;
 
       monitoring = {
         inherit enable;
         type = "http";
         healthPath = null;
         expectedStatus = 200;
-      } // monitoring;
+      }
+      // monitoring;
 
       metrics = {
         inherit enable;
         type = "none";
-      } // metrics;
+      }
+      // metrics;
 
       ops = {
         priority = "medium";
         ramBudget = "";
         notes = "";
-      } // ops;
+      }
+      // ops;
 
       arr = {
         role = "none";
         category = name;
         apiVersion = "v3";
-      } // arr;
+      }
+      // arr;
 
       sources = {
         upstream = null;
@@ -154,7 +157,8 @@ let
         nixos = null;
         nixpkgsTest = null;
         api = null;
-      } // sources;
+      }
+      // sources;
     };
 in
 {

@@ -117,17 +117,19 @@ in
     })
 
     # D-27-03: Kernel-nahes Rate-Limiting auf Port 80 (Ersatz fuer caddy-ratelimit)
-    (lib.mkIf (cfg.enable && cfg.firewall.rateLimitPort80 && cfg.hostIntegration.nftables == "managed") {
-      networking.nftables.tables.medinix_ratelimit = {
-        family = "inet";
-        content = ''
-          chain ingress_limit {
-            type filter hook input priority filter - 1; policy accept;
-            tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets } drop
-          }
-        '';
-      };
-    })
+    (lib.mkIf (cfg.enable && cfg.firewall.rateLimitPort80 && cfg.hostIntegration.nftables == "managed")
+      {
+        networking.nftables.tables.medinix_ratelimit = {
+          family = "inet";
+          content = ''
+            chain ingress_limit {
+              type filter hook input priority filter - 1; policy accept;
+              tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets } drop
+            }
+          '';
+        };
+      }
+    )
 
     # Login-Credential (L-047): Root-SSH-Keys kommen vom Host. Ohne sie - und ohne
     # users.mutableUsers = true - bricht die nixpkgs-Assertion den Build ab

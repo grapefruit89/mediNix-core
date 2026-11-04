@@ -21,7 +21,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 |---|---|---|---|---|---|---|---|
 | `caddy` | `–` | 511 | 5110 | 5110 | **5110** | `network` | `none` |
 | `pocket-id` | `–` | 512 | 5120 | 5120 | **5120** | `network` | `public` |
-| `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `script` | `none` |
+| `cloudflare-dns` | `cloudflare-ddns` | 513 | – | 5130 | **5130** | `network` | `none` |
 | `blocky` | `–` | 515 | – | 5150 | **5150** | `network` | `none` |
 | `crowdsec` | `–` | 516 | – | 5160 | **5160** | `network` | `none` |
 | `oauth2-proxy` | `–` | 517 | 5170 | 5170 | **5170** | `network` | `none` |
@@ -36,7 +36,7 @@ pflegen. Neu erzeugen: `python3 scripts/gen_service_map.py`, prüfen: `--check`
 | `navidrome` | `–` | 553 | 5530 | 5530 | **5530** | `nodejs` | `stream` |
 | `seerr` | `–` | 561 | 5610 | 5610 | **5610** | `nodejs` | `public` |
 | `ntfy` | `–` | 581 | 5810 | 5810 | **5810** | `network` | `internal` |
-| `gatus` | `–` | 582 | 5820 | 5820 | **5820** | `network` | `internal` |
+| `gatus` | `–` | 582 | 5820 | 5820 | **5820** | `base` | `internal` |
 
 > **UPG (ADR-0000 §4):** `Port = UID = Primär-GID = Nummer × 10`. Die geteilte Gruppe
 > `media` (GID 5000) ist **ausschließlich** supplementary (`extraGroups`) — nie Primärgruppe.

@@ -384,8 +384,8 @@
         #      services.sabnzbd) — nicht die Defaults ungenutzter Module
         #      (sonst meldet z. B. services.sonarr den nixpkgs-Default 8989,
         #      obwohl 53-acquisition/532-sonarr.nix eine eigene Unit baut).
-        # Dienste ohne eval-sichtbaren Traeger (Datei-basiert: gatus, ntfy,
-        # jellyfin) werden im Ergebnis AUSGEWIESEN, damit
+        # Dienste ohne eval-sichtbaren Traeger (Datei-basiert: gatus, jellyfin;
+        # Socket-basiert: ntfy) werden im Ergebnis AUSGEWIESEN, damit
         # die Luecke sichtbar ist statt still.
         checks.mediNix-ports-verdrahtet =
           let
@@ -409,13 +409,24 @@
             mismatch = builtins.filter (
               name: builtins.any (v: lib.toInt (toString v) != portOf name) (wiredOf name)
             ) names;
-            # Datei-basierte Traeger: gatus/ntfy legen ihren Port in einer
+            # Datei-basierte Traeger: gatus legt seinen Port in einer
             # gerenderten YAML ab (environment.etc). Der Store-Pfad ist im Build
             # greifbar, also wird der Port dort wirklich gesucht.
+            #
+            # ntfy gehoert NICHT hierher: seit fb42166 ("feat(ingress): ntfy on
+            # unix socket") laeuft der Dienst auf einem Unix-Socket
+            # (58-observability/581-ntfy.nix: listen-http = "-",
+            # listen-unix = reg.uds_path). Ein Port-grep auf 5810 kann dort nie
+            # greifen. Der Check prueft fuer ntfy stattdessen die
+            # Socket-Verdrahtung (Block weiter unten) und weist ntfy damit
+            # korrekt als "nicht per Port-Eval pruefbar" aus.
             filePorts = lib.filterAttrs (_: v: v != null) {
               gatus = c.environment.etc."gatus/config.yaml".source or null;
-              ntfy = c.environment.etc."ntfy/server.yml".source or null;
             };
+            # UDS-Dienst: Pfad aus der Registry (SSoT), nicht als Literal gepflegt.
+            # mkUdsService setzt uds_path = "/run/<name>/<name>.sock".
+            ntfyUds = (import ./50-core/registry.nix { inherit lib; }).services.ntfy.uds_path;
+            ntfyConfig = c.environment.etc."ntfy/server.yml".source or null;
             uncovered = builtins.filter (name: wiredOf name == [ ] && !(filePorts ? ${name})) names;
             covered = builtins.filter (name: wiredOf name != [ ]) names;
           in
@@ -451,6 +462,25 @@
                   toString c.medinix.manifest.${name}.port
                 } in der gerenderten Config"
               '') (builtins.attrNames filePorts)}
+
+              # ntfy: UDS-Dienst (fb42166, 581-ntfy.nix). Kein TCP-Port in der
+              # Datei — geprueft wird der Socket, gegen den Caddy proxyt.
+              ${
+                if ntfyConfig == null then
+                  ''echo "FAIL: ntfy: /etc/ntfy/server.yml wird nicht gerendert"; exit 1;''
+                else
+                  ''
+                    grep -q ${lib.escapeShellArg "listen-unix: ${ntfyUds}"} ${ntfyConfig} || {
+                      echo ${lib.escapeShellArg "FAIL: ntfy: listen-unix: ${ntfyUds} fehlt in ${ntfyConfig}"};
+                      exit 1;
+                    }
+                    grep -q "listen-http: '-'" ${ntfyConfig} || {
+                      echo "FAIL: ntfy: listen-http muss '-' sein (UDS only)";
+                      exit 1;
+                    }
+                    echo ${lib.escapeShellArg "ok(socket): ntfy: listen-unix ${ntfyUds}, kein TCP-Listener"}
+                  ''
+              }
 
               # jellyfin: der Port steckt im Seed-Template (@JELLYFIN_PORT@).
               grep -q '@JELLYFIN_PORT@' ${self}/55-playback/data/jellyfin-network.xml || {

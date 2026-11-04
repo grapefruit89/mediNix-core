@@ -41,11 +41,13 @@ in
       # Port-Konsistenz: Registry-Port == erwarteter Navidrome-Port
       assertions = [
         {
-          assertion = (import ../50-core/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
+          assertion =
+            (import ../50-core/registry.nix { inherit lib; }).services.navidrome.port == navidromePort;
           message = "[SMOKE-TEST] Navidrome-Port in Registry != 5530 (Dezimalrahmen verletzt)";
         }
         {
-          assertion = (import ../50-core/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
+          assertion =
+            (import ../50-core/registry.nix { inherit lib; }).services.navidrome.uid == navidromePort;
           message = "[SMOKE-TEST] Navidrome-UID in Registry != 5530 (Dezimalrahmen verletzt)";
         }
       ];

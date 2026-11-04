@@ -36,7 +36,8 @@ let
   # F2: Forward-auth detection follows the RESOLVED exposure — EIN Produzent
   # (51-ingress/ingress-access.nix) statt einer vierten Kopie der Regel.
   exposedPublic =
-    (import ../51-ingress/ingress-access.nix { inherit lib; }).accessGroupOf svc "radarr" meta == "public";
+    (import ../51-ingress/ingress-access.nix { inherit lib; }).accessGroupOf svc "radarr" meta
+    == "public";
   authMethod =
     if (config.medinix.ingress.auth.mode == "forward-auth" && exposedPublic) then
       "External"

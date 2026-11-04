@@ -84,42 +84,54 @@ let
 
     # ── 1. IP vom Adapter holen ────────────────────────────────────────────
     if [ "$ACTION" = "reconnect" ]; then
-      ${if hasReconnect then ''
-        if ! WAN_IP=$("${routerScripts.reconnect}"); then
-          echo "FATAL: router-adapter reconnect failed" >&2
-          exit 1
-        fi
-      '' else ''
-        echo "FATAL: reconnect requested but no router adapter configured" >&2
-        exit 1
-      ''}
+      ${
+        if hasReconnect then
+          ''
+            if ! WAN_IP=$("${routerScripts.reconnect}"); then
+              echo "FATAL: router-adapter reconnect failed" >&2
+              exit 1
+            fi
+          ''
+        else
+          ''
+            echo "FATAL: reconnect requested but no router adapter configured" >&2
+            exit 1
+          ''
+      }
     else
-      ${if routerScripts ? check then ''
-        if ! WAN_IP=$("${routerScripts.check}"); then
-          echo "FATAL: router-adapter check failed" >&2
-          exit 1
-        fi
-      '' else if ddns.wanIp.provider == "command" then ''
-        ${ddns.wanIp.command or ""}
-        if [ -z "''${WAN_IP:-}" ]; then
-          echo "FATAL: custom command did not set WAN_IP" >&2
-          exit 1
-        fi
-      '' else ''
-        # Fallback: externe IP-Ermittlung
-        WAN_IP=""
-        for url in https://ifconfig.me https://api.ipify.org; do
-          candidate=$(curl -s4 --fail-with-body "$url" || true)
-          if printf '%s' "$candidate" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
-            WAN_IP="$candidate"
-            break
-          fi
-        done
-        if [ -z "$WAN_IP" ]; then
-          echo "FATAL: no WAN IP from external providers" >&2
-          exit 1
-        fi
-      ''}
+      ${
+        if routerScripts ? check then
+          ''
+            if ! WAN_IP=$("${routerScripts.check}"); then
+              echo "FATAL: router-adapter check failed" >&2
+              exit 1
+            fi
+          ''
+        else if ddns.wanIp.provider == "command" then
+          ''
+            ${ddns.wanIp.command or ""}
+            if [ -z "''${WAN_IP:-}" ]; then
+              echo "FATAL: custom command did not set WAN_IP" >&2
+              exit 1
+            fi
+          ''
+        else
+          ''
+            # Fallback: externe IP-Ermittlung
+            WAN_IP=""
+            for url in https://ifconfig.me https://api.ipify.org; do
+              candidate=$(curl -s4 --fail-with-body "$url" || true)
+              if printf '%s' "$candidate" | grep -Eq '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+                WAN_IP="$candidate"
+                break
+              fi
+            done
+            if [ -z "$WAN_IP" ]; then
+              echo "FATAL: no WAN IP from external providers" >&2
+              exit 1
+            fi
+          ''
+      }
     fi
 
     # ── 2. IP validieren (doppelt — Adapter hat schon validiert) ────────────
@@ -330,11 +342,16 @@ in
           LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
         }
         // lib.optionalAttrs (ddns.wanIp.provider == "speedport") (
-          if ddns.wanIp.speedportPasswordCredential != null then {
-            LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
-          } else if ddns.wanIp.speedportPasswordFile != null then {
-            LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
-          } else { }
+          if ddns.wanIp.speedportPasswordCredential != null then
+            {
+              LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
+            }
+          else if ddns.wanIp.speedportPasswordFile != null then
+            {
+              LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
+            }
+          else
+            { }
         );
       })
       {
@@ -366,60 +383,67 @@ in
     ];
 
     # ── Zwangstrennung (05:00, nur mit Router-Adapter) ────────────────────
-    systemd.services.cloudflare-ddns-reconnect = lib.mkIf hasReconnect (lib.mkMerge [
-      ((import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
-        name = "cloudflare-ddns-reconnect";
-        uid = cfUid;
-        profile = "network";
-        stateDir = cfStateDir;
-        hardeningOnly = true;
-        extraConfig = {
-          Type = "oneshot";
-          RuntimeDirectoryMode = "0700";
-          NoExecPaths = [ "/" ];
-          ExecPaths = [ "/nix/store" ];
-          # Kein Parallel-Check — sonst zwei CF-Calls mit evtl. verschiedenen IPs.
-          Conflicts = [ "cloudflare-ddns.service" ];
+    systemd.services.cloudflare-ddns-reconnect = lib.mkIf hasReconnect (
+      lib.mkMerge [
+        ((import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
+          name = "cloudflare-ddns-reconnect";
+          uid = cfUid;
+          profile = "network";
+          stateDir = cfStateDir;
+          hardeningOnly = true;
+          extraConfig = {
+            Type = "oneshot";
+            RuntimeDirectoryMode = "0700";
+            NoExecPaths = [ "/" ];
+            ExecPaths = [ "/nix/store" ];
+            # Kein Parallel-Check — sonst zwei CF-Calls mit evtl. verschiedenen IPs.
+            Conflicts = [ "cloudflare-ddns.service" ];
+          }
+          // lib.optionalAttrs (credPath != null) {
+            LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
+          }
+          // (
+            if ddns.wanIp.speedportPasswordCredential != null then
+              {
+                LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
+              }
+            else if ddns.wanIp.speedportPasswordFile != null then
+              {
+                LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
+              }
+            else
+              { }
+          );
+        })
+        {
+          description = "mediNix 513 DDNS — forced reconnect at 05:00";
+          wantedBy = [ ]; # nur per Timer
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+
+          path = [
+            pkgs.curl
+            pkgs.jq
+            pkgs.iproute2
+            pkgs.gawk
+            pkgs.gnugrep
+          ];
+
+          script = mkDdnsScript "reconnect";
+
+          unitConfig = {
+            OnFailure = [ "alert-ntfy@%n.service" ];
+          };
+
+          serviceConfig = {
+            # BEWUSST kein Restart: verhindert Doppel-Reconnect bei CF-Fehler.
+            # Fehlschlag → ntfy (OnFailure). 4h-Check zieht IP später nach.
+            Restart = "no";
+            TimeoutStartSec = "180s";
+          };
         }
-        // lib.optionalAttrs (credPath != null) {
-          LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
-        }
-        // (
-          if ddns.wanIp.speedportPasswordCredential != null then {
-            LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
-          } else if ddns.wanIp.speedportPasswordFile != null then {
-            LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
-          } else { }
-        );
-      })
-      {
-        description = "mediNix 513 DDNS — forced reconnect at 05:00";
-        wantedBy = [ ]; # nur per Timer
-        after = [ "network-online.target" ];
-        wants = [ "network-online.target" ];
-
-        path = [
-          pkgs.curl
-          pkgs.jq
-          pkgs.iproute2
-          pkgs.gawk
-          pkgs.gnugrep
-        ];
-
-        script = mkDdnsScript "reconnect";
-
-        unitConfig = {
-          OnFailure = [ "alert-ntfy@%n.service" ];
-        };
-
-        serviceConfig = {
-          # BEWUSST kein Restart: verhindert Doppel-Reconnect bei CF-Fehler.
-          # Fehlschlag → ntfy (OnFailure). 4h-Check zieht IP später nach.
-          Restart = "no";
-          TimeoutStartSec = "180s";
-        };
-      }
-    ]);
+      ]
+    );
 
     # ── Timer ─────────────────────────────────────────────────────────────
     systemd.timers.cloudflare-ddns = {

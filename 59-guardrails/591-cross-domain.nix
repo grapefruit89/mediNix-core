@@ -115,18 +115,23 @@ let
   # (UPG). Gilt AUCH fuer handgebaute Units (551, 552), die nicht ueber die Factory
   # laufen und deshalb in `factoryUnits` fehlen (Vollcheck 2026-11-04, F6).
   # Group = null ist konform (systemd nimmt dann die Primaergruppe des Users).
-  manifestDaemons = lib.filterAttrs (
-    _: m: (m.enable or false) && (m.hasDaemon or true)
-  ) (config.medinix.manifest or { });
+  manifestDaemons = lib.filterAttrs (_: m: (m.enable or false) && (m.hasDaemon or true)) (
+    config.medinix.manifest or { }
+  );
   daemonGroupViolations = lib.flatten (
     lib.mapAttrsToList (n: _: [
       (lib.optional ((svcCfgOf n).User or null != n) "${n}: systemd User != ${n} (ADR-0000 §4)")
-      (lib.optional (
-        let
-          g = (svcCfgOf n).Group or null;
-        in
-        g != null && g != n
-      ) "${n}: systemd Group = ${toString ((svcCfgOf n).Group or "")} != ${n} (UPG, ADR-0000 §4; media nur supplementary)")
+      (lib.optional
+        (
+          let
+            g = (svcCfgOf n).Group or null;
+          in
+          g != null && g != n
+        )
+        "${n}: systemd Group = ${
+          toString ((svcCfgOf n).Group or "")
+        } != ${n} (UPG, ADR-0000 §4; media nur supplementary)"
+      )
     ]) manifestDaemons
   );
 in
@@ -222,7 +227,9 @@ lib.mkIf cfg.enable {
       '';
     }
     {
-      assertion = lib.all (m: (m ? enable) && m.enable != null) (lib.attrValues (config.medinix.manifest or { }));
+      assertion = lib.all (m: (m ? enable) && m.enable != null) (
+        lib.attrValues (config.medinix.manifest or { })
+      );
       message = "[mediNix] enabledOf liest aus dem Manifest: jeder Eintrag in medinix.manifest muss `enable` definieren.";
     }
   ];

@@ -35,8 +35,7 @@ let
   # Grenze: fuer Listen aendert mkDefault nichts - sie werden weiterhin
   # konkateniert. Wer eine Liste ersetzen will, braucht ein eigenes Profil
   # (Vorbild: python-confined in 541).
-  asDefault =
-    v: if lib.isAttrs v && (v._type or "") == "override" then v else lib.mkDefault v;
+  asDefault = v: if lib.isAttrs v && (v._type or "") == "override" then v else lib.mkDefault v;
 
   # Generiere InaccessiblePaths für fremde State-Dirs (außer allowedPeers).
   # Jeder Dienst sieht nur seine eigenen + erlaubte Peer-State-Dirs.

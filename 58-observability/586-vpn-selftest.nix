@@ -67,10 +67,14 @@ let
 
       # 2. Routing-Check: Routet Traffic unter mark/table korrekt ueber das VPN-Interface?
       if [ "$FAILED" -eq 0 ]; then
-        ROUTE_DEV="$(ip route show table ${toString (vpnCfg.routingTable or 5260)} default 2>/dev/null | grep -o 'dev [^ ]*' | cut -d' ' -f2 || true)"
+        ROUTE_DEV="$(ip route show table ${
+          toString (vpnCfg.routingTable or 5260)
+        } default 2>/dev/null | grep -o 'dev [^ ]*' | cut -d' ' -f2 || true)"
         if [ "$ROUTE_DEV" != "$VPN_IF" ]; then
           FAILED=1
-          ERR_MSG="Routing-Table ${toString (vpnCfg.routingTable or 5260)} routet Default nicht ueber $VPN_IF (Gefunden: '$ROUTE_DEV')!"
+          ERR_MSG="Routing-Table ${
+            toString (vpnCfg.routingTable or 5260)
+          } routet Default nicht ueber $VPN_IF (Gefunden: '$ROUTE_DEV')!"
         fi
       fi
 
