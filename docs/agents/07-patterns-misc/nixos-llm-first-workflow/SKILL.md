@@ -5,6 +5,8 @@ description: >
   Deckt Patch-Erstellung, Validator-Design, Closed-Loop-Hooks und Projektkonventionen ab.
   Trigger: NixOS-Flakes, DB-SSoT (nixos_docs.db), Windows-Git-Bash + PowerShell,
   LLM-first ohne Menschenlesbarkeit.
+mcp:
+  - nixos
 ---
 
 # NixOS LLM-First Workflow
@@ -179,12 +181,10 @@ grep 'RestrictNetworkInterfaces' /nix/store/.../etc/systemd/system/sonarr.servic
 
 ## NixOS MCP-Server (Live-Debugging)
 
-- **nixos-mcp** ist der offizielle NixOS MCP-Server für Live-Abfragen von Optionen, Services, etc.
-- **Installation auf mediahost:** `ssh mediahost@192.168.0.10` dann `nix-env -iA nixpkgs.nixos-mcp` (falls in nixpkgs verfügbar)
-- **Alternative:** `nix search nixpkgs ^nixos-mcp^` um Paket zu finden
-- **Nutzen:** Hilft beim Debuggen, warum `RestrictNetworkInterfaces` nicht greift (Live-Inspektion von `systemd.services.*.serviceConfig`)
-- **Ohne MCP:** `nixos-rebuild build` + `grep` in `/nix/store/.../etc/systemd/system/` Configs
-- **Hinweis:** MCP-Server kann nicht im Hermes-Container installiert werden (kein Nix im PATH). Muss auf mediahost installiert werden.
+- **`nixos` MCP-Server** (statt lokal installiertem `nixos-mcp`): liefert nixpkgs-Pakete, NixOS-/home-manager-Optionen, Flake-Inputs und Cache-Status über `tools.nixos.*`.
+- **Konfiguration:** SSoT der erlaubten Server ist `scripts/mcp-servers.txt` (versioniert, CI-sichtbar); die Live-Konfiguration liegt maschinenlokal in `~/.config/opencode/opencode.jsonc`. **Kein `nix-env -iA`** — imperative Installation ist in diesem Repo verboten (siehe `ROADMAP.md`, CONVENTIONS §Audit).
+- **Nutzen:** Hilft beim Debuggen, warum `RestrictNetworkInterfaces` nicht greift (Live-Inspektion von `systemd.services.*.serviceConfig`).
+- **Ohne MCP:** `nixos-option` bzw. `nix eval` gegen `options.json`; für gebaute Units `nixos-rebuild build` + `grep` in `/nix/store/.../etc/systemd/system/` Configs.
 
 ## 10/10 Review-Prozess
 

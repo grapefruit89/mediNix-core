@@ -238,8 +238,6 @@ Partitioning of top-level system directories across multiple independent applian
 > **Anker = komprimiertes Vorwissen:** Die verlinkten Definitionen liegen (englisch, Apache-2.0)
 > unter [`docs/anchors/`](../anchors/README.md) — ein Begriff statt 1000 Worte Umschreibung.
 
-> **Protocol over Product:** Der Slot wird anhand der Rolle vergeben, nicht anhand der Software.
-
 ---
 
 > **Nummerierung:** §12 bleibt frei. Die Sektion war bis `edb04f3` der Appendix und
