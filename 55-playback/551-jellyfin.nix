@@ -282,11 +282,12 @@ in
             # Wert würde ihn überschreiben (und zeigte ins Leere).
             ExecStart = "${package}/bin/jellyfin --datadir ${stateDir} --cachedir /var/cache/jellyfin-cache";
             User = "jellyfin";
-            Group = "media";
+            Group = "jellyfin"; # UPG (ADR-0000 §4): media nur als Supplementary
             UMask = "0002";
             SupplementaryGroups = [
               "video"
               "render"
+              "media"
             ];
             DeviceAllow = lib.mkIf (renderDevice != null) [ "${renderDevice} rwm" ];
             CacheDirectory = "jellyfin-cache";

@@ -151,8 +151,9 @@ in
           {
             ExecStart = "${package}/bin/audiobookshelf";
             User = "audiobookshelf";
-            Group = "media";
+            Group = "audiobookshelf"; # UPG (ADR-0000 §4): media nur als Supplementary
             UMask = "0002";
+            SupplementaryGroups = [ "media" ];
             ReadWritePaths = [
               stateDir
               metadataDir

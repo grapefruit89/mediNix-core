@@ -518,6 +518,18 @@
           medinix.dns.ddns.enable = true;
           medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/same.cred";
         };
+        # F6 (Vollcheck 2026-11-04): UPG — `media` darf nie Primaergruppe sein.
+        # Bewusst eine HANDGEBAUTE Unit (551-jellyfin), nicht eine Factory-Unit:
+        # nur so greift ausschliesslich die neue Manifest-Daemon-Assertion und
+        # nicht schon die bestehende factoryViolations-Pruefung.
+        checks.mediNix-negative-media-as-primary =
+          expectAssertion "media-as-primary" "UPG-Verletzung in Manifest-Daemons"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.jellyfin.enable = true;
+              medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
+              systemd.services.jellyfin.serviceConfig.Group = lib.mkForce "media";
+            };
         # F3: tls.acmeHost must EVALUATE (regression: the former
         # certs.<name>.environment option does not exist in nixpkgs).
         checks.mediNix-acme-positive =

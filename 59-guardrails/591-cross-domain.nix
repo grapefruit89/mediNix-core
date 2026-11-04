@@ -110,6 +110,25 @@ let
       ) "${n}: UPG-Gruppe ${n} fehlt oder gid != ${toString u.uid}")
     ]) factoryUnits
   );
+
+  # ADR-0000 §4: jede mediNix-Daemon-Unit muss User == Group == Service-Name sein
+  # (UPG). Gilt AUCH fuer handgebaute Units (551, 552), die nicht ueber die Factory
+  # laufen und deshalb in `factoryUnits` fehlen (Vollcheck 2026-11-04, F6).
+  # Group = null ist konform (systemd nimmt dann die Primaergruppe des Users).
+  manifestDaemons = lib.filterAttrs (
+    _: m: (m.enable or false) && (m.hasDaemon or true)
+  ) (config.medinix.manifest or { });
+  daemonGroupViolations = lib.flatten (
+    lib.mapAttrsToList (n: _: [
+      (lib.optional ((svcCfgOf n).User or null != n) "${n}: systemd User != ${n} (ADR-0000 §4)")
+      (lib.optional (
+        let
+          g = (svcCfgOf n).Group or null;
+        in
+        g != null && g != n
+      ) "${n}: systemd Group = ${toString ((svcCfgOf n).Group or "")} != ${n} (UPG, ADR-0000 §4; media nur supplementary)")
+    ]) manifestDaemons
+  );
 in
 lib.mkIf cfg.enable {
   assertions = [
@@ -187,6 +206,13 @@ lib.mkIf cfg.enable {
       message = ''
         [mediNix] Service-Factory (ADR-5050) verletzt:
         ${lib.concatStringsSep "\n        " factoryViolations}
+      '';
+    }
+    {
+      assertion = daemonGroupViolations == [ ];
+      message = ''
+        [mediNix/591] UPG-Verletzung in Manifest-Daemons (ADR-0000 §4):
+        ${lib.concatStringsSep "\n        " daemonGroupViolations}
       '';
     }
     {
