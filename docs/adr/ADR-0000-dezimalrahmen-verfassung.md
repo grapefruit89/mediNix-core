@@ -4,7 +4,7 @@ title: "Decimal Framework — the Constitution of the Numbering Scheme"
 domain: 00
 status: active
 complexity: 2
-last_reviewed: 2026-10-14
+last_reviewed: 2026-11-04
 tags:
   - constitution
   - decimal-framework
@@ -17,7 +17,7 @@ links:
 > # ⚠ CONSTITUTION — this document must not be lost
 > **It governs the numbering scheme of every project in this cosmos** — Nix-Grok,
 > mediNix, devNIX and everything to come. The **rules** are enforced at build time
-> by `decimalFrameworkCheck` and `lib/decimal-framework.nix`; this document carries the rationale.
+> by `decimalFrameworkCheck` and `50-core/501-decimal-engine.nix`; this document carries the rationale.
 > Text changes are corrections, not loss — every version remains retrievable in the
 > Git history and in `CHANGELOG.md`.
 >
@@ -73,7 +73,7 @@ Four boundary slots frame every project and system root identically:
 
 | Slot | Role | Question | Content & Daemon Invariant |
 |---|---|---|---|
-| **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `lib/decimal-framework.nix`, `registry` — **strictly structure & engine, NEVER daemons** |
+| **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `50-core/501-decimal-engine.nix`, `registry` — **strictly structure & engine, NEVER daemons** |
 | **`_1`** | **Access** | How do you get in? | Reverse proxy, DNS, ACME, identity provider, mDNS, edge defenses |
 | **`_2`** | **Security** | How is it protected? | Host firewall (`nftables`), VPN killswitch, `systemd-creds` |
 | **`_9`** | **Guardrails** | What must everything comply with? | Compile-time assertions (`config.assertions`), global invariants — **NEVER daemons** |
@@ -126,7 +126,7 @@ Unoccupied slots remain empty reserves; they are never repurposed for unrelated 
 - **Shared Group `H000` (`5000 media`) as Supplementary Group:** Assigned exclusively via `extraGroups = [ "media" ]` to services that require Tier C media access (`needsSharedGroup` / `needsMediaGroup`). Edge ingress (`511`) and identity (`512`) never receive GID `5000`.
 - **SetGID Requirement on Shared Media Storage (`chmod g+s`):** Shared storage directories (Tier C, e.g. `/data/media/*`) **must have the SetGID bit set** (`chmod 2775 /data/media/*`). This ensures that files created by daemons running with their own primary UPG automatically inherit the parent directory's group ownership (`media`), enabling frictionless multi-service read/write access (e.g. Sonarr, Radarr, SABnzbd, Jellyfin) under `UMask 0002` without violating UPG isolation in private state directories.
 
-### Hard Engine Invariants (`lib/decimal-framework.nix`)
+### Hard Engine Invariants (`50-core/501-decimal-engine.nix`)
 1. **I1 (Three-Digit Range):** $100 \le \text{num} \le 999$.
 2. **I2 (No Decade Zero-Slot Daemons):** $\text{num} \bmod 10 \neq 0$ (`HD0` is reserved for block IDs).
 3. **I3 (No Foundation Daemons):** $\lfloor\text{num} / 10\rfloor \bmod 10 \neq 0$ (`_0` never spawns daemons).
@@ -217,7 +217,7 @@ Partitioning of top-level system directories across multiple independent applian
 |---|---|
 | One `num` derives Port, UID, UPG-GID, shared GID (§4) | [**SSOT** — Single Source of Truth](../anchors/ssot-principle.md) |
 | Derive instead of repeat (Port/UID/GID/stateDir) | [**DRY** — Don't Repeat Yourself](../anchors/dry.md) |
-| Engine invariants I1–I4 in `lib/decimal-framework.nix` (§4) | [**Design by Contract** (Meyer)](../anchors/design-by-contract.md) |
+| Engine invariants I1–I4 in `50-core/501-decimal-engine.nix` (§4) | [**Design by Contract** (Meyer)](../anchors/design-by-contract.md) |
 | A wrong combination must be unrepresentable | [**Poka-Yoke**](../anchors/poka-yoke.md) — vgl. die Lehre von der *tautologischen* Assertion (§4) |
 | Universal 10-slot taxonomy `_0`..`_9` (§3) | [**MECE**](../anchors/mece.md) — Mutually Exclusive, Collectively Exhaustive |
 | Slot assigned by functional role, not software product (§3) | **Protocol over Product** (role abstraction) — kein Katalog-Anker |
@@ -234,13 +234,6 @@ Partitioning of top-level system directories across multiple independent applian
 
 ---
 
-## 12. Appendix & Architecture Decoupling
-
-The methodological and cross-cutting architectural specifications (Stages 2 & 3) live in:
-- **[ARCH-0000 — Decimal Framework Appendix](file:///home/moritz/repos/mediNix-core/docs/arch/ARCH-0000-framework-appendix.md)**
-
----
-
 ## 13. Documentation Triad (Dokumentationstrias: Lastenheft, Pflichtenheft, ADRs)
 
 *Quelle: `todo/blocks/25-docs-trias.json` (D-25-01)*
@@ -249,3 +242,116 @@ Zur Vermeidung von Missverständnissen und Diskrepanzen zwischen Spezifikation, 
 1. **Lastenheft (Das „Was“):** Fachliche Anforderungen und Zielkriterien aus Auftraggebersicht (z. B. `ROADMAP.md`, `docs/TODO.md`).
 2. **Pflichtenheft (Das „Wie“):** Konkrete technische Umsetzungsspezifikation, Modulsignaturen, Typen und Schnittstellen (z. B. Guides, Modulkommentare, `docs/arch/`).
 3. **ADRs (Das „Warum“):** Unveränderliche Architekturentscheidungen an Weggabelungen (MADR-Format in `docs/adr/`), inklusive expliziter Begründung und Ausschlusslog verworfener Alternativen.
+
+---
+
+## 14. Datei-Klassifikation
+
+Jede `.nix`-Datei des Repos gehört genau einer von sieben Kategorien an. Die Kategorie
+folgt aus der **Konsumform** — wer die Datei liest und wie —, nicht aus dem Dateiinhalt.
+Derselbe Nix-Ausdruck kann als Modul, als Bibliothek oder als Testkonsument auftreten;
+erst der Konsumweg entscheidet, welche Pflichtfelder gelten.
+
+### 14.1 Die sieben Kategorien
+
+| Kategorie | Pfad-Muster | Beispiel | YAML `kind:` |
+|---|---|---|---|
+| **Modul** | `5X-*/NNN-*.nix` | `51-ingress/511-caddy.nix` | implizit (Pfad) |
+| **Library** | `5X-*/<name>.nix` (ohne `NNN-`) | `50-core/registry.nix` | `library` |
+| **Engine** | `50-core/501-decimal-engine.nix`, `50-core/service-contract.nix` | — | `engine` |
+| **Package** | `packages/<name>/*.nix` | `packages/arr-provision/default.nix` | `package` |
+| **Test** | `tests/*.nix` | `tests/smoke-test.nix` | `test` |
+| **Root-Config** | `flake.nix`, `default.nix` (Repo-Wurzel) | — | `root-config` |
+| **Tooling-Einstieg** | `50-core/repl.nix` (einzige Ausnahme) | — | `tooling` |
+
+Ist-Stand 2026-11-04 (68 `.nix`-Dateien):
+
+- **Modul (45):** alle `NNN-*.nix` in `51-*`…`59-*` sowie `50-core/500`, `502`, `503`
+- **Library (9):** `50-core/derive.nix`, `50-core/hardening-profiles.nix`,
+  `50-core/manifest.nix`, `50-core/memory-policy.nix`, `50-core/registry.nix`,
+  `50-core/service-factory.nix`, `51-ingress/ingress-access.nix`,
+  `52-security/creds.nix`, `53-acquisition/arr-settings.nix`
+- **Engine (2):** `50-core/501-decimal-engine.nix`, `50-core/service-contract.nix`
+- **Package (2):** `packages/arr-provision/default.nix`, `packages/medinix-cli/cli.nix`
+- **Test (2):** `tests/smoke-test.nix`, `tests/vm-smoke-test.nix`
+- **Root-Config (2):** `flake.nix`, `default.nix`
+- **Tooling-Einstieg (1):** `50-core/repl.nix`
+- **Zonen (5, keine Kategorie — siehe §14.2):** 4 × `docs/examples/`, 1 × `docs/agents/**/templates/`
+
+Summe: 45 + 9 + 2 + 2 + 2 + 2 + 1 + 5 = 68.
+
+**Tooling-Einstieg** ist der einzige Fall im Repo, in dem eine `.nix`-Datei direkt
+aufgerufen und **nie importiert** wird: `nix repl --file 50-core/repl.nix`. Sie als
+Library zu führen wäre falsch (Libraries werden importiert), als Root-Config ebenfalls
+(sie liegt in `50-core/`). Sie trägt kein `provides:`/`requires:` — es gibt keinen
+Konsumenten, für den diese Angaben etwas aussagen würden.
+
+Libraries in `5X-*/` werden **nicht** auto-importiert. `default.nix` zieht ausschließlich
+Dateien, die `^[0-9]{3}-.*\.nix$` in Ordnern `^[0-9]{2}-.*` erfüllen (Zeilen 58 und 67);
+alles andere wird explizit eingebunden. `50-core/service-contract.nix` ist die einzige
+Engine, die diesem Muster nicht folgt und deshalb hart in `default.nix` Zeile 80 steht.
+`50-core/501-decimal-engine.nix` ist dagegen modulförmig **und** auto-importiert — Engine
+zu sein ist keine Import-Aussage, sondern eine Rollenaussage.
+
+### 14.2 Zonen für Beispiele und Vorlagen
+
+| Zone | `status:` | Geprüft von |
+|---|---|---|
+| `docs/examples/**/*.nix` | `example` | `nixmeta_check.py` (Zonenregel) |
+| `docs/agents/**/templates/**/*.nix` | `template` | `nixmeta_check.py` (Zonenregel) |
+
+Beispiele und Vorlagen sind modul- oder libraryförmig, gehören aber nicht zum Modulbaum
+und werden nie importiert. Sie werden über **Zone + `status:`** identifiziert, nicht über
+`kind:` — eine Aussage, eine Stelle.
+
+### 14.3 Header-Felder pro Kategorie
+
+Basis-Pflichtfelder (ADR-00-nixmeta-v3): `id`, `title`, `domain`, `folder`, `status`,
+`complexity`, `last_reviewed`, `links.adr`.
+
+Zusätzlich:
+
+- `kind:` — Pflicht für Library, Engine, Package, Test, Root-Config und
+  Tooling-Einstieg. Bei Modul **verboten** (der `NNN-`-Präfix ist die Aussage; ein
+  zweites Feld wäre eine zweite Wahrheit). In Zonen (§14.2) ebenfalls verboten.
+- `provides:` — **empfohlen** (Hinweis, wie `upstream_*` in ADR-00), nicht Pflicht.
+  Für Library und Engine sinnvoll, für Tooling-Einstieg gegenstandslos.
+- `requires:` — **empfohlen** für Engine (Hinweis), nicht Pflicht. Für Library nicht
+  vorgesehen.
+- `folder:` — Verzeichnis relativ zur Repo-Wurzel, `.` für die Wurzel.
+- `status:` — Lebenszyklus, **orthogonal** zur Kategorie: `active | deprecated | draft |
+  example | template`. `kind: test` + `status: active` heißt „das ist ein Test, und er
+  läuft" — zwei Dimensionen, zwei Felder.
+
+### 14.4 Prüfung durch `nixmeta_check.py` (Ratsche 3)
+
+1. `classify(path)` wertet in fester Reihenfolge aus: Root-Liste → Engine-Liste →
+   Tooling-Liste (`50-core/repl.nix`) → Modul
+   (`^[0-9]{2}-[^/]+/[0-9]{3}-.*\.nix$`) → Library
+   (`^[0-9]{2}-[^/]+/[^/]+\.nix$`) → `packages/` → `tests/` → Zonen. Die expliziten
+   Listen stehen **vor** den Mustern: `50-core/501-decimal-engine.nix` erfüllt sowohl
+   die Engine- als auch die Modul-Form, `50-core/repl.nix` sowohl die Tooling- als auch
+   die Library-Form. Kein Treffer ergibt `unklassifiziert` — das ist ein Verstoß.
+2. Zonen-Treffer beenden die Kategorie-Prüfung: kein `kind:`, `status:` muss zur Zone
+   passen (§14.2).
+3. Für die sieben Kategorien: fehlt `kind:`, ist das nur bei Modul zulässig. Ein gesetztes
+   `kind:` muss dem Ergebnis von `classify()` entsprechen.
+4. `folder:` == Verzeichnis relativ zur Wurzel — für **alle** Dateien, nicht nur für
+   `NNN-*`.
+5. `status:` stammt aus dem erlaubten Set; `example` und `template` sind ausschließlich in
+   ihren Zonen zulässig.
+
+### 14.5 Was §14 nicht regelt
+
+- Keine Umverteilung von Modulnummern (dafür gelten §3 und §4).
+- Keine Pfad-Umbenennungen.
+- Keine Aussage über die innere Struktur von `packages/medinix-cli/` (separate Aufgabe).
+- Keine Aussage über `docs/audit/` und `docs/archive/` — dort liegt Ausgemustertes, es
+  wird nicht gegated.
+
+---
+
+## 15. Appendix & Architecture Decoupling
+
+The methodological and cross-cutting architectural specifications (Stages 2 & 3) live in:
+- **[ARCH-0000 — Decimal Framework Appendix](file:///home/moritz/repos/mediNix-core/docs/arch/ARCH-0000-framework-appendix.md)**
