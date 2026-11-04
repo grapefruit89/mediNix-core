@@ -50,7 +50,7 @@ Zusätzlich: `.claude/skills/` enthält zwei nicht getrackte Symlinks auf `agent
 
 - `skills/nixos-ecosystem/references/cross-platform.md` per `git mv` nach `docs/audit/2026-11-03/agent-skills-archive/cross-platform.md`.
 
-### Neu anlegen — `skills/nixos-ecosystem/references/medinix-project.md`:
+### Neu anlegen / erweitern — `skills/nixos-ecosystem/references/medinix-project.md`:
 
 Inhalt (auf Basis der Vorgaben strukturiert):
 
@@ -63,13 +63,17 @@ Inhalt (auf Basis der Vorgaben strukturiert):
 - Kebab-case-Pflicht: keine Großbuchstaben, keine Unterstriche in Moduldateinamen. Ausnahme: keine.
 - Die Dekaden-Semantik: `0 foundation`, `1 access`, `2 security`, `3 ingestion`, `4 processing`, `5 core-app`, `6 exposition`, `7 maintenance`, `8 observability`, `9 guardrails`. 55 (playback) ist der Kern, alle anderen versorgen ihn.
 - Kern vs. Zulieferer: Jellyfin, Audiobookshelf, Navidrome sind der Grund, warum das System existiert. Arr, SABnzbd, Seerr existieren, damit der Kern Content hat.
+- **Block 8: NixOS-Geist (Philosophie & Architektur-Invarianten):** Deklarativ vor Imperativ, Reproduzierbarkeit & Pure Functions, Systemd-First & Isolation (`service-factory.nix`), Minimale Overlays & Upstream-Treue.
+- **Block 9: Anti-Patterns (Was strikt verboten ist):** Keine Ad-hoc-Container / Docker-Bypässe, keine Store-Mutationen (`/nix/store` ist read-only), keine Hardcoded-Ports/UIDs außerhalb von Registry/Derive, keine Vermischung von Code und Daten (`/var/lib/<name>`, `/mnt/media`).
+*(Hinweis: Vorab als Entwurf in `agent/skills/nixos-ecosystem/references/medinix-project.md` angelegt, zieht beim Flattening nach `skills/` mit).*
 
 ### `SKILL.md` ergänzen:
 
 - In der Routing-Tabelle von `skills/nixos-ecosystem/SKILL.md` einen Eintrag ergänzen: medinix-spezifische Arbeit → `references/medinix-project.md`.
 
-### Referenzdateien anpassen:
+### Referenzdateien & `.gitignore` anpassen:
 
+- `.gitignore`: Die Zeile `agent/` entfernen (oder auf `skills/` anpassen), damit der Zielordner `skills/` und die Referenzkarte `medinix-project.md` in Git versionierbar und trackbar werden.
 - `skills-lock.json`: Einträge auf `skills/` umstellen, `nix-packaging`-Einträge entfernen.
 - `scripts/link-skills.sh`: Quell-Pfade auf `skills/` umstellen.
 - `scripts/check_skills.py`: Suchpfad auf `skills/` umstellen, falls `nix-packaging` erwartet wurde: Erwartung entfernen.
@@ -106,10 +110,11 @@ Inhalt (auf Basis der Vorgaben strukturiert):
 ## Akzeptanzkriterien
 
 - `skills/` existiert als Top-Level, `agent/` weg.
+- `.gitignore`: `agent/` angepasst, `skills/` trackbar.
 - Nur `nixos-ecosystem/` in `skills/`.
 - `nix-packaging` in `docs/audit/2026-11-03/agent-skills-archive/nix-packaging/`, vollständig erhalten.
 - `cross-platform.md` in `docs/audit/2026-11-03/agent-skills-archive/`.
-- `medinix-project.md` in `skills/nixos-ecosystem/references/`, mit allen oben genannten Stichpunkten.
+- `medinix-project.md` in `skills/nixos-ecosystem/references/`, mit allen oben genannten Punkten (inkl. Block 8 & 9).
 - `SKILL.md`-Routing-Tabelle ergänzt.
 - Alle vier Referenzdateien konsistent.
 - `.claude/skills/`-Symlinks zeigen auf existierende Ziele.
@@ -124,9 +129,10 @@ Inhalt (auf Basis der Vorgaben strukturiert):
 refactor(skills): flatten agent/skills to skills/, archive unused skills
 
 - agent/skills → skills (drop agent/ wrapper)
+- .gitignore updated: agent/ removed to track skills/
 - nix-packaging archived (project builds modules, not packages)
 - cross-platform.md archived (single Linux host)
-- new reference medinix-project.md: 5xx frame, YAML rules, validation gates
+- new reference medinix-project.md: 5xx frame, YAML rules, NixOS philosophy & anti-patterns
 - SKILL.md routing updated
 - skills-lock.json, link-skills.sh, check_skills.py, skills-exclude.txt updated
 - .claude/skills symlinks retargeted
