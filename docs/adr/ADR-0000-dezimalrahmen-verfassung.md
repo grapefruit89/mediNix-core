@@ -242,6 +242,11 @@ Partitioning of top-level system directories across multiple independent applian
 
 ---
 
+> **Nummerierung:** §12 bleibt frei. Die Sektion war bis `edb04f3` der Appendix und
+> wurde bei der Einführung von §14 (Datei-Klassifikation) zu §15. Die Nummer 12 wird
+> nicht nachbesetzt, damit bestehende „§14"-Verweise (u. a. in `scripts/nixmeta_check.py`)
+> gültig bleiben.
+
 ## 13. Documentation Triad (Dokumentationstrias: Lastenheft, Pflichtenheft, ADRs)
 
 *Quelle: `todo/blocks/25-docs-trias.json` (D-25-01)*
