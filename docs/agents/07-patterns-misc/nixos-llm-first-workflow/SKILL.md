@@ -112,21 +112,24 @@ Leichte Warnungen (kein Abbruch):
 - **Ed25519 bevorzugen.** RSA < 4096, DSA, ECDSA sind unsicher (nicht quantensicher genug).
 - **SSH-Keys in 590-assertions prüfen.** mediNix hat `592-ssh-hardening.nix` — das verhindert unsichere Key-Typen per Build-Assertion.
 
-## Infrastruktur-Unterscheidung (WICHTIG!)
+## Infrastruktur (WICHTIG!)
 
-**Hermes Agent läuft auf Unraid (192.168.0.250:53844) in einem Docker Container.**
-- **Unraid = Host-System** (Hermes Container läuft hier)
-- **mediahost (192.168.0.10:22) = Remote NixOS Target** (Deployment-Ziel, User: mediahost)
-- **SSH-Zugriff:** Von Hermes-Container zu mediahost funktioniert (Key: `/tmp/mediahost_key`)
-- **Kein SSH-Zugriff:** Von Hermes-Container zu Unraid (Key wird nicht akzeptiert)
-- **MCP-Server:** Auf mediahost installieren (via `nix-env`), nicht im Hermes-Container
-- **Bei Hard-Reset von mediahost:** User muss physisch Strom ziehen (kein IPMI/IDRAC). Backup-SSH (Port 2222) wurde in alten Repos (`mynixos-v5`) erwähnt, aber auf jungfräulichem mediahost nicht konfiguriert.
+**Dieses Repo läuft ausschließlich lokal.** `AGENTS.md`: „REINE LOKALE AUSFÜHRUNG — es
+existieren keine externen Remote-Hosts. Jeglicher SSH- oder rsync-Zugriff auf externe
+Test-Hosts ist strikt untersagt."
+
+- **Prüfungen laufen im Repo-Root** (`nix flake check`, `scripts/*.py`) — kein Remote-Ziel.
+- **MCP-Server werden lokal konfiguriert:** SSoT der erlaubten Server ist
+  `scripts/mcp-servers.txt` (versioniert, CI-sichtbar), die Live-Konfiguration liegt
+  maschinenlokal in `~/.config/opencode/opencode.jsonc`. Kein `nix-env -iA`.
+- **Deployment ist nicht Teil dieses Repos.** Ein Host, der mediNix einsetzt, betreibt
+  seinen eigenen Deploy-Pfad; hier wird nur gebaut und geprüft.
 
 **Konsequenz:**
-- NixOS Deployments laufen auf mediahost (via SSH)
-- Unraid ist nur der Host für den Hermes Agent
-- Dateien für mediahost: Per `scp` vom Hermes-Container auf mediahost übertragen
-- Config-Tests: Auf mediahost mit `nixos-rebuild dry-run --flake .#check`
+- `nixos-rebuild dry-run --flake .#check` läuft **lokal**, nicht über SSH.
+- Dateien werden nicht per `scp` übertragen — es gibt kein Ziel.
+- Der Hermes-Agent (Unraid-Container) ist die Laufzeitumgebung des *Agenten*, nicht
+  dieses Repos. Er deployt hier nichts.
 
 ## Container-Isolation (systemd-native, kein netns!)
 
@@ -164,17 +167,13 @@ systemd.services.${name}.serviceConfig = lib.mkMerge (
 - `nixos-rebuild dry-run --flake .#check` läuft durch
 - Aber: Systemd-Optionen tauchen in gebauter Config nicht auf, wenn Injection fehlt
 
-**Live-Debugging auf mediahost:**
+**Live-Debugging (lokal, kein Remote-SSH):**
 ```bash
-# Auf mediahost einloggen
-ssh mediahost@192.168.0.10
-
-# Config bauen
-cd /home/mediahost/mediNix
+# Im Repo-Root bauen
 nixos-rebuild build --flake .#check
 
-# Systemd-Unit prüfen
-grep 'RestrictNetworkInterfaces' /nix/store/.../etc/systemd/system/sonarr.service
+# Systemd-Unit aus dem Build lesen (result/ ist der Symlink auf den Build)
+grep 'RestrictNetworkInterfaces' result/etc/systemd/system/sonarr.service
 
 # Wenn leer: Config-Problem, nicht Deployment-Problem
 ```
@@ -228,7 +227,7 @@ Siehe `references/knowledge-base-layout.md` für detaillierte Struktur.
 - SSH-Passwort-Login aus Agenten-Umgebung scheitert meist (`/dev/tty` fehlt). Agent hat **keinen SSH-Client** für externe Hosts. Feste Regel: Nutzer lokal am Remote-Host die Vorbereitung ausführen lassen, Agent liefert nur Kommandos. Nutzer widerspricht manchmal ("Ich weiss das du dich per ssh verbindne kannst") — einmal klären, dann direkt zum Befehl wechseln.
 - `nix` nach Installer-Lauf nicht im PATH: Dann `. /root/.nix-profile/etc/profile.d/nix.sh` ausführen oder eine neue SSH-Session öffnen.
 - Validator-Pfade sind an die **tatsächliche Projektstruktur** gebunden: Realer ADR-Ordner kann `/ADR`, `/docs/adr` oder anders heißen. Vor dem Patch prüfen, ob `ADR/` existiert, sonst Pfad anpassen oder Warnung ausgeben.
-- `nixos-anywhere` braucht einen **echten Hostnamen** aus der `flake.nix` (z. B. `.#mediahost`), kein Placeholder wie `<HOSTNAME>`.
+- `nixos-anywhere` braucht einen **echten Hostnamen** aus der `flake.nix` (z. B. `.#<host>`), kein Placeholder wie `<HOSTNAME>`. Beispiel-Hostname, kein Bezug zu einem existierenden Host.
 - Neue Maschinen werden **unter `<project-root>/hosts/<hostname>/` angelegt** (aktuell: `Nix Files/hosts/<hostname>/`, siehe `references/project-structure.md`). Name muss eindeutig sein, idealerweise hostname-basiert.
 - Curl-Installer-Abbruch: Wenn der Nutzer `^C` drückt, ist Nix nur teilweise installiert und danach nicht im PATH. Bessere Diagnose: `ls /nix`, dann gezielt nachinstallieren statt Installer blind zu wiederholen.
 
