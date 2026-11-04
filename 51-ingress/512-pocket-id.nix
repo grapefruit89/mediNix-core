@@ -234,6 +234,9 @@ in
           RuntimeDirectoryMode = "0770";
           # mkForce noetig gegen das UPSTREAM-Modul (nixpkgs pocket-id setzt
           # UMask = "0077" plain), nicht gegen unser Profil. Siehe Todo 17.
+          # Wenn deployed: auf "0077" pruefen (strenger; Gruppen-Schreibzugriff
+          # ist bei UPG kein Funktionsgewinn). Start-Test noetig, weil die
+          # Dateirechte der SQLite-DB sich aendern.
           UMask = lib.mkForce "0007";
           StateDirectoryMode = "0700";
           RestrictNetworkInterfaces = [ "lo" ];

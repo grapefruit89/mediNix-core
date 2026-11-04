@@ -1,11 +1,15 @@
 # Restliche `lib.mkForce`-Stellen im Modulcode
 
-Stand: 2026-11-04 (Commit `392eb07`)
+Stand: 2026-11-04 (Commit `392eb07`, Kommentare ergänzt)
 
+> **STATUS: DOKUMENTIERT** — nicht „erledigt". Die verbleibenden zwei `mkForce`
+> sind bewusst offen: sie sind Upstream-Konflikte, und die Code-Änderung an 512
+> braucht einen Start-Test auf einem laufenden Host, nicht nur `nix flake check`.
+>
 > **Von 6 Stellen sind 4 erledigt.** Die 2 verbleibenden sind
 > **Upstream-Konflikte** (nixpkgs-Module setzen den Wert plain), keine
-> Fabrik- oder Modul-Schlamperei. Sie sind bewusste Ausnahmen und brauchen
-> einen Kommentar an der Stelle, keinen Fix.
+> Fabrik- oder Modul-Schlamperei. Beide tragen ihren Grund jetzt als Kommentar
+> an der Stelle.
 
 **Verbot:** `50-core/BANNED_TECHNOLOGIES.md:127` — „`lib.mkForce` ist verboten —
 mit einer Ausnahme: in Prüfkonfigurationen (`tests/`, `flake.nix`-Checks)."
@@ -65,6 +69,10 @@ Owner-Schreibzugriff, also **kein Funktionsgewinn**, nur weniger strikt.
 Verhaltensänderung an einem laufenden Sicherheitsdienst (Dateirechte der
 SQLite-DB). Er braucht einen Start-Test, nicht nur `nix flake check`. Offen.
 
+**Wenn deployed:** auf `"0077"` prüfen. `nix build` genügt dafür **nicht** — der
+Test ist: pocket-id mit `"0077"` starten, DB beschreibbar?, Login funktioniert?
+Schlägt er fehl, bleibt `mkForce` mit genau dieser Begründung.
+
 ### 2. `51-ingress/515-blocky.nix:107` — `DynamicUser = lib.mkForce false`
 
 **Fakt:** das nixpkgs-Modul für blocky setzt `DynamicUser = true` (plain).
@@ -74,8 +82,10 @@ leitet UID = Port = Primär-GID aus der Dienstnummer ab, und die Peer-Isolation
 (`InaccessiblePaths`) sowie die UPG-Grenze hängen daran. `DynamicUser = true`
 nimmt eine zufällige UID und würde beides aushebeln.
 
-**Das ist keine Schuld, sondern eine Architektur-Aussage.** Der Kommentar an der
-Stelle trägt die Begründung (Phase 4 dieses Auftrags).
+**Das ist keine Schuld, sondern eine Architektur-Aussage.** Die feste UID 5150
+ist Vorgabe, kein Bug: ohne sie gibt es keine Peer-Isolation und keine
+UPG-Grenze. Der Kommentar an der Stelle (`515-blocky.nix:107`) trägt die
+Begründung. **Kein Fix geplant.**
 
 ---
 
