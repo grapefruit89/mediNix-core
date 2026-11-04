@@ -36,6 +36,14 @@ excluded() {
 
 linked=0; unchanged=0; pruned=0; conflicts=0; off=0
 
+# Relative Symlink-Ziele: ein absoluter Pfad (/home/moritz/repos/...) ist auf
+# einem zweiten Geraet ungueltig (Termux-Home ist /data/data/com.termux/files/home).
+# Ein relatives Ziel loest auf beiden Seiten auf, solange .agents/ und repos/
+# unter demselben Home liegen - das tun sie.
+# readlink -f loest auch relative Ziele wieder zu absoluten auf, deshalb
+# funktionieren die Vergleiche oben (unchanged, prune) unveraendert.
+rel() { realpath --relative-to="$TARGET_DIR" -- "$1"; }
+
 # 1) Verwaiste Symlinks aufraeumen (zeigen ins Repo, Skill existiert nicht mehr).
 for link in "$TARGET_DIR"/*; do
   [ -L "$link" ] || continue
@@ -71,7 +79,7 @@ while IFS= read -r skill; do
       continue
     fi
     echo "  aktualisiert: $name"
-    [ "$DRY_RUN" -eq 1 ] || ln -sfn -- "$dir" "$link"
+    [ "$DRY_RUN" -eq 1 ] || ln -sfn -- "$(rel "$dir")" "$link"
     linked=$((linked + 1))
     continue
   fi
@@ -81,7 +89,7 @@ while IFS= read -r skill; do
     continue
   fi
   echo "  verlinkt: $name"
-  [ "$DRY_RUN" -eq 1 ] || ln -s -- "$dir" "$link"
+  [ "$DRY_RUN" -eq 1 ] || ln -s -- "$(rel "$dir")" "$link"
   linked=$((linked + 1))
 done < <(find "$REPO_ROOT/docs/agents" -mindepth 3 -maxdepth 3 -name SKILL.md | sort)
 

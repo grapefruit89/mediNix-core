@@ -55,7 +55,6 @@ Textdatei.txt
 # Agent Skills (project-scope, lokal)
 .agents/
 .claude/
-agent/
 skills-lock.json
 
 # Scratch & Raw Chat-Inputs (T-28-14)
