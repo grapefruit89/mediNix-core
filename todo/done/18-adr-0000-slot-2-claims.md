@@ -1,4 +1,4 @@
-# Aufgabe 16 — ADR-0000 §2: Foundation-Slot-Claims
+# Aufgabe 18 — ADR-0000 §2: Foundation-Slot-Claims
 
 > [!CAUTION]
 > **STATUS: ERLEDIGT** — §2 beschreibt `_0` jetzt als Rolle, nicht als Ordner-Liste
