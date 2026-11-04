@@ -81,7 +81,7 @@ This example shows the maximum format. It is used for libraries (like the regist
 - `title:` A short, concise, human-readable title.
 - `domain:` The 2-digit domain number (e.g., `59` for Guardrails).
 - `folder:` The exact folder name where the file resides (e.g., `59-guardrails`).
-- `status:` Lifecycle status (Allowed: `active`, `deprecated`, `draft`).
+- `status:` Lifecycle status (Allowed: `active`, `deprecated`, `draft`, `example`, `template`). Zonenregeln: `docs/examples/**` erfordert `example`, `docs/**/templates/**` erfordert `template`.
 - `complexity:` 1 (very simple) to 5 (highly complex system architecture).
 - `last_reviewed:` ISO date (YYYY-MM-DD) of the last Red-Team Audit.
 - `links.adr:` Reference to the primary design decision (e.g., `ADR-0000`).

@@ -3,7 +3,7 @@
 # title: "Minimale mediNix-Host-Konfiguration (Beispiel)"
 # domain: 50
 # folder: "docs/examples"
-# status: active
+# status: example
 # complexity: 1
 # last_reviewed: 2026-10-15
 # links:

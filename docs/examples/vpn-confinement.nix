@@ -3,7 +3,7 @@
 # title: "Usenet-VPN-Confinement (Beispiel)"
 # domain: 52
 # folder: "docs/examples"
-# status: active
+# status: example
 # complexity: 2
 # last_reviewed: 2026-10-15
 # links:

@@ -8,7 +8,6 @@
 # last_reviewed: 2026-09-02
 # links:
 #   adr: ADR-5050
-# adr: ADR-5050
 # ---
 # Bind policy (SocketBind*) is independent from egress policy (IPAddress*).
 # 526 marks packets by UID and drops anything not leaving via the VPN iface.

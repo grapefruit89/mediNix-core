@@ -3,7 +3,7 @@
 # title: "Agent Blueprint — Kopiere diese Vorlage fuer jeden neuen Dienst"
 # domain: 55
 # folder: "docs/examples"
-# status: active
+# status: example
 # complexity: 1
 # last_reviewed: 2026-10-15
 # contract: schemaVersion = 1 (ADR-0010)
@@ -14,10 +14,10 @@
 #
 #   Eigentuemer                            | Was
 #   ---------------------------------------|-----------------------------------
-#   lib/decimal-framework.nix (Engine)     | users.users.<name>, UPG-Gruppe,
+#   50-core/501-decimal-engine.nix         | users.users.<name>, UPG-Gruppe,
 #                                          | StateDirectory/-Mode, UMask, WorkingDirectory
-#   lib/service-factory.nix                | Unit-Geruest, Hardening-Profil, tmpfiles
-#   lib/service-contract.nix               | Manifest-Schema, Pflichtfelder, Assertions
+#   50-core/service-factory.nix            | Unit-Geruest, Hardening-Profil, tmpfiles
+#   50-core/service-contract.nix           | Manifest-Schema, Pflichtfelder, Assertions
 #   DIESES MODUL                           | Manifest-Daten + notfalls Unit-Feinheiten
 #
 # Deshalb gilt hier bewusst NICHT: kein users.users, kein Group, kein
@@ -103,12 +103,12 @@ in
     #    NICHT einem Attribut wie systemd.services.<name> zugewiesen.
     # ════════════════════════════════════════════════════════════════════════
     (lib.mkIf cfg.enable (
-      import ../lib/service-factory.nix { inherit lib config pkgs; } {
+      import ../50-core/service-factory.nix { inherit lib config pkgs; } {
         name = serviceName;
         ownsAccount = false; # users.users.<name> besitzt die Engine (UPG)
         inherit uid stateDir; # uid fuer Guardrail 591, stateDir fuer StateDirectory
         execStart = "${cfg.package}/bin/${serviceName}";
-        profile = "base"; # lib/hardening-profiles.nix: base|network|script|python|dotnet|…
+        profile = "base"; # 50-core/hardening-profiles.nix: base|network|script|python|dotnet|…
         extraConfig = {
           # Nur dienstspezifische Feinheiten. Beispiele:
           # Environment = [ "PORT=${toString meta.port}" ];

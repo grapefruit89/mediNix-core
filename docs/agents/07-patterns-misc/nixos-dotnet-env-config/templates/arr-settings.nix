@@ -3,7 +3,7 @@
 # title: "arr-Settings als .NET-Env-Variablen (Template)"
 # domain: 50
 # folder: "docs/agents/07-patterns-misc/nixos-dotnet-env-config/templates"
-# status: active
+# status: template
 # complexity: 2
 # last_reviewed: 2026-10-15
 # links:

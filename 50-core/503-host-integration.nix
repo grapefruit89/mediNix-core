@@ -6,7 +6,6 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-25
-# links:
 # provides: []
 # requires: []
 # ports: []

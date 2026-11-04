@@ -27,10 +27,12 @@ services. These must be a baseline, not per-service ad-hoc.
 ProtectSystem = "strict";
 PrivateTmp = true;
 NoNewPrivileges = true;
-RestrictNetworkInterfaces = [ "lo" ];   # + VPN if needed (ADR-5410)
+RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
 ReadWritePaths = [ stateDir ];          # minimal, Tier B
 # LoadCredential for secrets (ADR-5000), never inline
 ```
+
+Historisch war hier RestrictNetworkInterfaces geplant. Die aktuelle Baseline nutzt RestrictAddressFamilies — AF_NETLINK ist nötig für nftables/resolve/wg.
 
 ## Consequences
 - ✅ Uniform hardening (no service left soft)

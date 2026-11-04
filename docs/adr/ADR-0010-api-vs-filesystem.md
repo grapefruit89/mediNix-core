@@ -47,7 +47,7 @@ Direkte Datei-Injektionen über NixOS (`StateDirectory`, `environment.etc`, XML/
 * **Storage & Verzeichnisse:** Bereitstellung von `StateDirectory`, `CacheDirectory` und Berechtigungen (`UMask = "0002"`, `media:media`).
 
 ### 2.2 REST-API (Verbindlich für alle Fachdomänen)
-Sämtliche fachlichen Entitäten und Anwendungszustände werden **ausnahmslos über die offizielle REST-API** der laufenden Dienste provisioniert (z. B. via Python-Provisioner in `lib/arr-provision/`):
+Sämtliche fachlichen Entitäten und Anwendungszustände werden **ausnahmslos über die offizielle REST-API** der laufenden Dienste provisioniert (z. B. via Python-Provisioner in `packages/arr-provision/`):
 * Medienbibliotheken und Scan-Pfade (Jellyfin Libraries)
 * Root-Folders (Sonarr, Radarr, Readarr, Lidarr)
 * Quality-Profiles und Release-Profile

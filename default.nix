@@ -2,7 +2,7 @@
 # id: "50-core-default"
 # title: "mediNix Master Boilerplate (SSoT, auto-imports all decades)"
 # domain: 50
-# folder: 50-core
+# folder: "."
 # status: active
 # complexity: 5
 # last_reviewed: 2026-10-02

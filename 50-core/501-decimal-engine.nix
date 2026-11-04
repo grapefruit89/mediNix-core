@@ -8,7 +8,6 @@
 # last_reviewed: 2026-10-14
 # links:
 #   adr: ADR-0000
-# adr: ADR-0000
 # ---
 {
   config ? { },
