@@ -1,71 +1,86 @@
 # Restliche `lib.mkForce`-Stellen im Modulcode
 
-Stand: 2026-11-04 (Commit `ffea59e`)
+Stand: 2026-11-04 (Commit `392eb07`)
 
-> **Quellenlage:** Der Claude-Audit behauptet, `mkForce` stehe „nur in 541".
-> Das ist **falsch**. Gemessen mit `grep -rn "mkForce" --include='*.nix' 5*-*/`
-> stehen sechs weitere Stellen im Modulcode.
->
-> M3 (`ffea59e`) hat nur die 541-Stellen entfernt — dort war es eine
-> **Listen-Leerung** (`IPAddressDeny/Allow = mkForce [ ]`), weil
-> `serviceConfig`-Listen konkateniert werden und ein plain `[ ]` nichts löscht.
-> Die hier verbliebenen sechs sind eine **andere Klasse**: Wert-Überschreibung.
+> **Von 6 Stellen sind 4 erledigt.** Die 2 verbleibenden sind
+> **Upstream-Konflikte** (nixpkgs-Module setzen den Wert plain), keine
+> Fabrik- oder Modul-Schlamperei. Sie sind bewusste Ausnahmen und brauchen
+> einen Kommentar an der Stelle, keinen Fix.
 
 **Verbot:** `50-core/BANNED_TECHNOLOGIES.md:127` — „`lib.mkForce` ist verboten —
 mit einer Ausnahme: in Prüfkonfigurationen (`tests/`, `flake.nix`-Checks)."
 `scripts/check_banned_technologies.py` prüft das **nicht** mechanisch (exit 0
-trotz dieser sechs Treffer) — die Regel ist bis heute unerzwungen.
+trotz der verbleibenden Treffer) — die Regel ist bis heute unerzwungen.
 
 ---
 
-## Befunde
+## Erledigt in `392eb07` (L1c)
 
-| Datei:Zeile | Option | Wert | Kollidiert mit |
+`50-core/service-factory.nix` liefert das Profil jetzt per `lib.mkDefault` aus
+(`asDefault`-Helper, der bereits gewrappte Werte unangetastet lässt), und
+`StateDirectoryMode` ist ebenfalls `mkDefault`. Damit gewinnt eine plain
+Modul-Definition, ohne `mkForce`:
+
+| Stelle | Option | vorher | jetzt |
 |---|---|---|---|
-| `51-ingress/512-pocket-id.nix:235` | `UMask` | `"0007"` | `base.UMask = lib.mkDefault "0002"` — `mkDefault` verliert gegen plain, `mkForce` wäre hier **vermutlich unnötig** (ungeprüft) |
-| `51-ingress/512-pocket-id.nix:236` | `StateDirectoryMode` | `"0700"` | `service-factory.nix:88` setzt `StateDirectoryMode = "0750"` **plain** → Override braucht `mkForce` |
-| `51-ingress/515-blocky.nix:107` | `DynamicUser` | `false` | nicht die Fabrik; vermutlich das nixpkgs-`blocky`-Modul (ungeprüft) |
-| `51-ingress/516-crowdsec.nix:186` | `ProtectControlGroups` | `"strict"` | `base.ProtectControlGroups = true` **plain** |
-| `51-ingress/516-crowdsec.nix:187` | `ProtectHostname` | `"true:${name}"` | `base.ProtectHostname = true` **plain** |
-| `51-ingress/516-crowdsec.nix:188` | `ProtectKernelLogs` | `false` | `base.ProtectKernelLogs = true` **plain** |
+| `51-ingress/512-pocket-id.nix` | `StateDirectoryMode = "0700"` | `mkForce` gegen `service-factory.nix:88` (`"0750"` plain) | plain ✅ |
+| `51-ingress/516-crowdsec.nix:186` | `ProtectControlGroups = "strict"` | `mkForce` gegen `base` plain `true` | plain ✅ |
+| `51-ingress/516-crowdsec.nix:187` | `ProtectHostname = "true:…"` | `mkForce` gegen `base` plain `true` | plain ✅ |
+| `51-ingress/516-crowdsec.nix:188` | `ProtectKernelLogs = false` | `mkForce` gegen `base` plain `true` | plain ✅ |
 
-## Ursache — zwei verschiedene Wurzeln
+**Grenze der Umstellung:** für **Listen** ändert `mkDefault` nichts — sie werden
+weiterhin konkateniert. Wer eine Liste ersetzen will, braucht ein eigenes Profil
+(Vorbild: `python-confined` in `541`, Commit `ffea59e`).
 
-**(a) Die Fabrik legt das Profil als *plain* Definition auf.**
-`50-core/service-factory.nix:84` und `:132`:
+---
 
-```nix
-(profiles.${profile} or profiles.base)     # plain, nicht mkDefault
+## Verbleibend — 2 Stellen, beide Upstream
+
+### 1. `51-ingress/512-pocket-id.nix` — `UMask = lib.mkForce "0007"`
+
+**Fakt (gemessen, nicht vermutet):** `nixos/modules/services/security/pocket-id.nix`
+setzt `UMask = "0077"` als **plain** Definition. Mit plain `"0007"` bricht der
+Build:
+
+```
+error: The option `systemd.services.pocket-id.serviceConfig.UMask'
+has conflicting definition values:
+  - nixpkgs pocket-id.nix:  "0077"
+  - 512-pocket-id.nix:      "0007"
 ```
 
-Damit gewinnt das Profil gegen jede Modul-Definition, und das Modul muss
-`mkForce` benutzen. Das betrifft `516` (3×) und `512:236`.
+**Semantischer Unterschied:**
 
-**(b) Ein Upstream-Modul setzt den Wert plain.** Dann hilft auch `mkDefault`
-in der Fabrik nicht — der Override muss gegen nixpkgs gewinnen. Betrifft
-vermutlich `515` (ungeprüft).
+| UMask | Dateien | Verzeichnisse |
+|---|---|---|
+| `"0077"` (Upstream) | `0600` — nur Owner rw | `0700` |
+| `"0007"` (mediNix) | `0660` — Owner rw, **Gruppe rw** | `0770` |
 
-## Mögliche Fixes (Reihenfolge = Aufwand)
+**Offene Frage:** pocket-id läuft als `pocket-id:pocket-id` (UPG — Gruppe ==
+eigene Gruppe). Gruppen-Schreibzugriff ist damit rechnerisch derselbe wie
+Owner-Schreibzugriff, also **kein Funktionsgewinn**, nur weniger strikt.
+`"0077"` wäre die strengere Wahl.
 
-1. **Fabrik auf `mkDefault` pro Attribut umstellen** — `lib.mapAttrs (k: v: lib.mkDefault v) profiles.${profile}`.
-   Damit gewinnt jede plain Modul-Definition ohne `mkForce`; die Fabrik bleibt
-   der Default. **Achtung:** Für Listen-Attribute (`ReadWritePaths`,
-   `InaccessiblePaths`, `SystemCallFilter`) ändert `mkDefault` das
-   Merge-Verhalten nicht — dort bleibt Konkatenation. Muss gegen die 15
-   Fabrik-Nutzer getestet werden.
-2. **`512:235` prüfen und ggf. auf plain `UMask` umstellen** — `base.UMask` ist
-   schon `mkDefault`, `mkForce` wäre dann nur Altlast. Ein Testlauf entscheidet.
-3. **`515` gegen das nixpkgs-Modul prüfen** — wenn nixpkgs `DynamicUser = true`
-   plain setzt, ist `mkForce` hier **nicht** vermeidbar; dann braucht es eine
-   dokumentierte Ausnahme in `BANNED_TECHNOLOGIES.md` statt eines Fixes.
+**Warum nicht sofort geändert:** ein Wechsel auf `"0077"` ist eine
+Verhaltensänderung an einem laufenden Sicherheitsdienst (Dateirechte der
+SQLite-DB). Er braucht einen Start-Test, nicht nur `nix flake check`. Offen.
+
+### 2. `51-ingress/515-blocky.nix:107` — `DynamicUser = lib.mkForce false`
+
+**Fakt:** das nixpkgs-Modul für blocky setzt `DynamicUser = true` (plain).
+
+**Warum mediNix abweicht:** mediNix braucht die **feste UID 5150** — ADR-0000 §4
+leitet UID = Port = Primär-GID aus der Dienstnummer ab, und die Peer-Isolation
+(`InaccessiblePaths`) sowie die UPG-Grenze hängen daran. `DynamicUser = true`
+nimmt eine zufällige UID und würde beides aushebeln.
+
+**Das ist keine Schuld, sondern eine Architektur-Aussage.** Der Kommentar an der
+Stelle trägt die Begründung (Phase 4 dieses Auftrags).
+
+---
 
 ## Nicht Teil dieses Eintrags
 
 - `mkForce` in `flake.nix` (Negativtest-Fixtures) — durch die BANNED-Ausnahme
   gedeckt, kein Befund.
-- M3 / `541` — erledigt in `ffea59e`.
-
-## Welle
-
-Welle 4. Nicht in Batch 2b (dort: M4 591-Options-Pfad, L1 `hardeningProfile`,
-M7/M8 Doku).
+- `541` — erledigt in `ffea59e` (Listen-Leerung durch eigenes Profil ersetzt).
