@@ -69,11 +69,13 @@ Der Dezimalrahmen fungiert nicht nur als Verfassung für NixOS-Dienstmodule, son
 
 ## 2. The Structural Boundary Slots (`_0`, `_1`, `_2`, `_9`)
 
-Four boundary slots frame every project and system root identically:
+Four boundary slots frame every project and system root identically. Die Slots sind
+**Rollen**, keine Ordner — welche Datei welche Rolle trägt, regelt §14
+(Datei-Klassifikation).
 
 | Slot | Role | Question | Content & Daemon Invariant |
 |---|---|---|---|
-| **`_0`** | **Foundation** | What do we work with? | `CLAUDE.md`, options `default.nix`, `50-core/501-decimal-engine.nix`, `registry` — **strictly structure & engine, NEVER daemons** |
+| **`_0`** | **Foundation** | What do we work with? | Engine, Registry, Options-Schema. Dateien: `50-core/*` (Foundation), `50-core/501-decimal-engine.nix` (Engine), `50-core/registry.nix` (SSoT). Root-Doku (`CLAUDE.md`, `default.nix`) ist **Root-Config** (§14), nicht Teil von `_0`. **Strictly structure & engine, NEVER daemons.** |
 | **`_1`** | **Access** | How do you get in? | Reverse proxy, DNS, ACME, identity provider, mDNS, edge defenses |
 | **`_2`** | **Security** | How is it protected? | Host firewall (`nftables`), VPN killswitch, `systemd-creds` |
 | **`_9`** | **Guardrails** | What must everything comply with? | Compile-time assertions (`config.assertions`), global invariants — **NEVER daemons** |
