@@ -19,6 +19,13 @@ Fuenf Eigenschaften sind Regeln, keine Empfehlungen:
 
 1. **Deklarativ.** Jeder Zustand entsteht aus einer Option. Keine imperativen Schritte, keine
    "einmal ausgefuehrten" Befehle, kein Zustand ausserhalb der Konfiguration.
+
+   **`users.mutableUsers = lib.mkDefault false`.** mediNix verwaltet Dienst-Konten
+   vollständig deklarativ aus der Registry. Für Dienst-Konten ist Passwort-Login gesperrt
+   (`isSystemUser = true`, `nologin`-Shell). Der Host kann per `users.mutableUsers = true`
+   überschreiben, wenn er Benutzer lokal pflegt (dokumentiert in
+   `medinix.security.loginKeys`). Der Default ist `false`, weil „deklarativ" heißt: kein
+   Zustand außerhalb der Konfiguration.
 2. **Deterministisch und reproduzierbar.** Gleicher Input -> gleicher Output. Keine Zeit, kein
    Zufall, kein Host-Zustand, keine ungemessenen Umgebungsvariablen im Eval. Netzwerkzugriff nur
    zur Build-Zeit ueber Pins (Flake-Lock), nie zur Laufzeit-Auswertung.

@@ -19,6 +19,13 @@ The core must never assume it owns the bare-metal host. We integrate politely.
 * **DO:** Use the `hostIntegration` tri-state (`managed`, `external`, `off`) to dictate if the core applies these recommendations additively, or if they are handed off to the host admin via `ADMIN-HANDOFF.md`.
 * **DON'T:** Never blindly override host components (`networking.nftables.enable = true` unconditionally is forbidden). 
 
+**Upstream-Koexistenz (`services.<svc>` vs `medinix.<svc>`).** mediNix überschreibt
+nixpkgs-Module nicht, sondern ergänzt sie. Für einen aktiven Dienst setzt mediNix `User`,
+`Group`, `StateDirectory` und `UMask` direkt (via Fabrik oder Komposition);
+`services.<svc>.*` bleibt für die Fachkonfiguration zuständig. NixOS-Wiki-Beispiele sind
+deshalb nicht 1:1 übertragbar — sie beschreiben nur den `services.<svc>.*`-Teil. Wer den
+Dienst aktiviert, übergibt die Kontrolle über Identität und State an mediNix.
+
 ### Host-Empfehlung CPU-Governor
 Für den Headless-Betrieb des mediNix-Hosts wird die Verwendung des `schedutil`-Governors in Verbindung mit dem dynamischen Daemon `auto-cpufreq` als Host-Voraussetzung empfohlen. `schedutil` reagiert über den Kernel-Scheduler ohne Userspace-Polling direkt auf Laständerungen (z. B. CPU-intensives SABnzbd-Entpacken oder GPU-assistiertes Transcoding), während `auto-cpufreq` im Leerlauf maximale C-States und geringe Leistungsaufnahme sicherstellt. Laptop-orientierte Tools wie TLP dürfen wegen gegenseitiger Signalblockaden nicht parallel betrieben werden. Diese dynamische Ressourcensteuerung ergänzt die OOM- und Speicher-Policies aus `50-core/memory-policy.nix` auf Betriebssystemebene. (Quelle: `50-core/memory-policy.nix`, Chat 1 Block 10 D-10-01).
 
@@ -26,6 +33,12 @@ Für den Headless-Betrieb des mediNix-Hosts wird die Verwendung des `schedutil`-
 * **DO:** Use standard Nix list additions (e.g. `[ "@system-service" ]` instead of strings) so that `systemd` configurations can merge elegantly with upstream or host configurations.
 * **DON'T:** **`mkForce` is strictly forbidden.** If you have to use `mkForce`, the architecture is wrong and needs to be refactored.
 * **DON'T:** Do not override `User`, `Group`, or `StateDirectory` in `serviceConfig` if an upstream `nixpkgs` module already manages them natively (e.g. SABnzbd).
+
+**Ausnahme: Upstream-Konflikte.** Wenn ein nixpkgs-Modul den Wert **plain** setzt und mediNix
+ihn zwingend überschreiben muss, ist `mkForce` die einzige saubere Option — mit Begründung an
+der Stelle und Beleg im Backlog. Aktuell zwei Stellen: `512-pocket-id` `UMask` (gegen nixpkgs
+`"0077"`), `515-blocky` `DynamicUser` (gegen nixpkgs `true`). Beide sind dokumentiert
+(`todo/backlog/17-mkforce-restliche-module.md`), nicht versteckt.
 
 ## 3. Fail-Closed Security & Decentralized Guardrails
 Security mechanisms must crash the system rather than leaving it exposed.
@@ -35,9 +48,15 @@ Security mechanisms must crash the system rather than leaving it exposed.
 * **DON'T:** No central assertion registries (no `INV-01` obfuscation). Errors must be human- and AI-readable at the source.
 
 ## 4. Nix-Native & Zero-Container
-* **DO:** Isolate services purely using native `systemd` hardening (RootDirectory, BindPaths, DynamicUser) and strict policy routing (fwmark/nftables).
+* **DO:** Isolate services purely using native `systemd` hardening (RootDirectory, BindPaths) and strict policy routing (fwmark/nftables).
 * **DO:** Handle secrets exclusively via TPM-sealed credentials (`LoadCredentialEncrypted`). No secrets in the Nix store.
 * **DON'T:** Docker, Podman, Compose, and any OCI runtimes are strictly forbidden. 
+
+**Warum kein `DynamicUser` (Standardfall).** mediNix braucht für jeden Dienst eine feste,
+deterministische UID (ADR-0000 §4: `UID = Port = Primär-GID = num × 10`). `DynamicUser = true`
+würde eine zufällige UID nehmen und damit die UPG-Grenze und die Peer-Isolation
+(`InaccessiblePaths`) aushebeln. Ausnahme bleiben zustandslose Oneshot-Units ohne eigene
+State-Ablage (z. B. `alert-ntfy@`) — siehe `50-core/BANNED_TECHNOLOGIES.md`.
 
 ## 5. Dendritic Modularity & SSoT (Drop & Forget)
 * **DO:** Keep every service self-contained (`NNN-service.nix`). If a file is deleted, the service and its firewall/proxy configurations must vanish completely without leaving dead configuration.
