@@ -4,6 +4,7 @@
 # domain: 50
 # folder: 50-core
 # status: active
+# kind: library
 # complexity: 1
 # last_reviewed: 2026-10-16
 # links:

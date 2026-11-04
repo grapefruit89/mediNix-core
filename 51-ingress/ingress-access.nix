@@ -4,6 +4,7 @@
 # domain: 51
 # folder: 51-ingress
 # status: active
+# kind: library
 # complexity: 1
 # last_reviewed: 2026-11-03
 # provides: ["ingress-access", "51-ingress/ingress-access"]

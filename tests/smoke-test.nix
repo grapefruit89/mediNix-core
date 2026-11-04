@@ -4,6 +4,7 @@
 # domain: 50
 # folder: "tests"
 # status: active
+# kind: test
 # complexity: 2
 # last_reviewed: 2026-10-15
 # links:

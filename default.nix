@@ -4,6 +4,7 @@
 # domain: 50
 # folder: "."
 # status: active
+# kind: root-config
 # complexity: 5
 # last_reviewed: 2026-10-02
 # links:

@@ -4,6 +4,7 @@
 # domain: 50
 # folder: "packages/arr-provision"
 # status: active
+# kind: package
 # complexity: 3
 # last_reviewed: 2026-10-15
 # links:

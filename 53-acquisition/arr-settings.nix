@@ -4,6 +4,7 @@
 # domain: 53
 # folder: 53-acquisition
 # status: active
+# kind: library
 # complexity: 2
 # last_reviewed: 2026-11-03
 # links:

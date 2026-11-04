@@ -18,6 +18,14 @@ RATSCHE 2 (2026-10-16, ADR-00-nixmeta-v3 + Baustelle 7): fuer Dienst-Module
   Upstream-Angaben (`upstream_github` | `upstream_docs` | `nixpkgs_attr`) sind laut
   ADR-00 **Extended Fields** ("For complex modules") und daher NICHT Pflicht - der
   Check meldet sie nur als Hinweis-Zeile.
+
+RATSCHE 3 (2026-11-04, ADR-0000 §14 "Datei-Klassifikation"): jede Datei wird per
+`classify()` genau einer Kategorie zugeordnet (Modul, Library, Engine, Package, Test,
+Root-Config, Tooling-Einstieg) oder einer Zone (`docs/examples/**`, `docs/**/templates/**`).
+`kind:` ist Pflicht ausser bei Modul (NNN-Praefix) und in Zonen (dort verboten), und muss
+dem Ergebnis von `classify()` entsprechen. `folder:` muss bei JEDER Datei dem Verzeichnis
+relativ zur Wurzel entsprechen.
+
 stehen in `scripts/nixmeta-baseline.txt` — die Liste darf nur schrumpfen: ist ein
 Eintrag konform geworden, meldet der Check das als Hinweis. Neu erzeugen mit
 `python3 scripts/nixmeta_check.py --write-baseline`.
@@ -34,6 +42,53 @@ UPSTREAM_KEYS = ("upstream_github", "upstream_docs", "nixpkgs_attr")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 STATUS = {"active", "deprecated", "draft", "example", "template"}
 FENCE = "# ---"
+
+# --- ADR-0000 §14 Datei-Klassifikation (Ratsche 3) ---------------------------
+# Reihenfolge ist bindend: explizite Listen VOR den Mustern, weil
+# `50-core/501-decimal-engine.nix` Engine- UND Modulform erfuellt und
+# `50-core/repl.nix` Tooling- UND Libraryform (ADR-0000 §14.4.1).
+ROOT_FILES = {"flake.nix", "default.nix"}
+ENGINE_FILES = {"50-core/501-decimal-engine.nix", "50-core/service-contract.nix"}
+TOOLING_FILES = {"50-core/repl.nix"}
+MODULE_RE = re.compile(r"^[0-9]{2}-[^/]+/[0-9]{3}-.*\.nix$")
+LIBRARY_RE = re.compile(r"^[0-9]{2}-[^/]+/[^/]+\.nix$")
+PACKAGE_RE = re.compile(r"^packages/[^/]+/[^/]+\.nix$")
+TEST_RE = re.compile(r"^tests/[^/]+\.nix$")
+
+# Kategorie -> erwarteter `kind:`-Wert. Kategorien, die hier NICHT stehen, tragen
+# kein `kind:`: `module` (der NNN-Praefix ist die Aussage) und die beiden Zonen.
+KIND_OF = {
+    "library": "library",
+    "engine": "engine",
+    "package": "package",
+    "test": "test",
+    "root-config": "root-config",
+    "tooling": "tooling",
+}
+
+
+def classify(path):
+    """Liefert die §14-Kategorie: eine von sieben, `zone:<status>` oder `unklassifiziert`."""
+    p = path.replace("\\", "/")
+    if p in ROOT_FILES:
+        return "root-config"
+    if p in ENGINE_FILES:
+        return "engine"
+    if p in TOOLING_FILES:
+        return "tooling"
+    if MODULE_RE.match(p):
+        return "module"
+    if LIBRARY_RE.match(p):
+        return "library"
+    if PACKAGE_RE.match(p):
+        return "package"
+    if TEST_RE.match(p):
+        return "test"
+    if p.startswith("docs/examples/"):
+        return "zone:example"
+    if p.startswith("docs/") and "/templates/" in p:
+        return "zone:template"
+    return "unklassifiziert"
 
 
 def nix_files():
@@ -100,6 +155,13 @@ def check(path):
         if data.get(key) in (None, ""):
             bad.append(f"Pflichtfeld `{key}:` fehlt")
 
+    # ADR-0000 §14: Datei-Klassifikation (Ratsche 3)
+    category = classify(path)
+    kind = data.get("kind")
+    kind_str = str(kind).strip() if kind not in (None, "") else None
+    if category == "unklassifiziert":
+        bad.append("§14: Datei passt in keine Kategorie (ADR-0000 §14.1)")
+
     stem = os.path.basename(path)[:-4]
     # Regel: bei `NNN-service.nix` MUSS die id dem Dateinamen entsprechen (der
     # Dezimalrahmen macht sie eindeutig). Bei anderen Dateien (default.nix,
@@ -122,9 +184,32 @@ def check(path):
     if norm_path.startswith("docs/examples/"):
         if status != "example":
             bad.append(f"`status: {status}` != `example` (Zonenregel docs/examples/**)")
+        if kind_str is not None:
+            bad.append(
+                f"§14.2: `kind: {kind_str}` ist in der Zone docs/examples/** verboten "
+                "(die Zone ist die Aussage)"
+            )
     elif norm_path.startswith("docs/") and "/templates/" in norm_path:
         if status != "template":
             bad.append(f"`status: {status}` != `template` (Zonenregel docs/**/templates/**)")
+        if kind_str is not None:
+            bad.append(
+                f"§14.2: `kind: {kind_str}` ist in der Zone docs/**/templates/** verboten "
+                "(die Zone ist die Aussage)"
+            )
+    elif kind_str is not None and category == "module":
+        bad.append(
+            f"§14.3: `kind: {kind_str}` ist bei Modul verboten "
+            "(der NNN-Praefix traegt die Aussage)"
+        )
+
+    # ADR-0000 §14.3: `kind:` ist Pflicht ausser bei Modul und in Zonen.
+    if category in KIND_OF:
+        expected = KIND_OF[category]
+        if kind_str is None:
+            bad.append(f"§14.3: Pflichtfeld `kind:` fehlt (Kategorie {category} -> `{expected}`)")
+        elif kind_str != expected:
+            bad.append(f"§14.3: `kind: {kind_str}` != `{expected}` (Kategorie {category})")
 
     if data.get("complexity") is not None:
         complexity = as_int(data["complexity"])
@@ -149,6 +234,17 @@ def check(path):
         # Pflicht. Sie werden als Hinweis gemeldet, nicht als Verstoss.
         if not any(data.get(k) for k in UPSTREAM_KEYS):
             optional.append("ohne Upstream-Spur (optional laut ADR-00)")
+
+    # ADR-0000 §14.4.4: `folder:` == Verzeichnis relativ zur Wurzel — fuer ALLE
+    # Dateien. NNN-Module sind oben schon geprueft (dort genuegt der Ordnername,
+    # weil sie immer auf Ebene 1 liegen); hier die uebrigen.
+    if not re.match(r"^\d{3}-", stem):
+        folder = data.get("folder")
+        rel_dir = os.path.dirname(path) or "."
+        if folder in (None, ""):
+            bad.append("§14.4: Pflichtfeld `folder:` fehlt")
+        elif str(folder).strip() != rel_dir:
+            bad.append(f"§14.4: `folder: {folder}` != Verzeichnis `{rel_dir}`")
 
     domain = data.get("domain")
     if domain is not None:

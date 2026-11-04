@@ -4,6 +4,7 @@
 # domain: 52
 # folder: 52-security
 # status: active
+# kind: library
 # complexity: 1
 # last_reviewed: 2026-11-03
 # provides: ["creds-helper", "52-security/creds"]

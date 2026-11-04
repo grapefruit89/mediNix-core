@@ -5,6 +5,7 @@
 # folder: 50-core
 # last_reviewed: 2026-09-02
 # status: active
+# kind: library
 # complexity: 1
 # links:
 #   adr: ADR-0000
