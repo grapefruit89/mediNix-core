@@ -29,9 +29,9 @@
       "id": "N-16-01",
       "title": "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/16-agent-error-taxonomy.json#N-16-01",
@@ -44,8 +44,13 @@
       "steps_open": [
         "Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 16-agent-error-taxonomy. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "AGENTS.md Regel 8 'Agenten-Fehler-Taxonomie & Selbstkorrektur'"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 16-agent-error-taxonomy. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - 5 Unterpunkte, inkl. Gate/Spekulation/Pipes",
       "depends_on": [],
       "links": []
     },
@@ -53,9 +58,9 @@
       "id": "N-17-01",
       "title": "Manifest-Schema als 50-core/manifest.nix formalisieren",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/17-manifest-service-contract.json#N-17-01",
@@ -68,8 +73,13 @@
       "steps_open": [
         "Manifest-Schema als 50-core/manifest.nix formalisieren"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 17-manifest-service-contract. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "50-core/manifest.nix existiert mit Schema-Versionierung und mkManifestEntry"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 17-manifest-service-contract. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - check_manifest_edge gruen",
       "depends_on": [],
       "links": []
     },
@@ -77,9 +87,9 @@
       "id": "N-27-03",
       "title": "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-03",
@@ -92,8 +102,13 @@
       "steps_open": [
         "Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus)"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "50-core/BANNED_TECHNOLOGIES.md nennt Tarpit/Defender/Cerberus"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - 3 Treffer",
       "depends_on": [],
       "links": []
     },
@@ -290,9 +305,9 @@
       "id": "T-28-01",
       "title": "Q-28-01 fixen und `nix flake check --no-build` gruen nachweisen",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-01",
@@ -305,8 +320,13 @@
       "steps_open": [
         "Q-28-01 fixen und `nix flake check --no-build` gruen nachweisen"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "586 nutzt nicht mehr vpnCfg.enable; nix flake check gruen (62/62)"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - seit 85b9a4c nachgewiesen",
       "depends_on": [],
       "links": []
     },
@@ -314,9 +334,9 @@
       "id": "T-28-04",
       "title": "nixmeta-Check rot: pkgs/speedport-api/default.nix hat keinen NIXMETA-Header (Zeile 1 muss '# ---' sein) - Head…",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-04",
@@ -329,8 +349,13 @@
       "steps_open": [
         "nixmeta-Check rot: pkgs/speedport-api/default.nix hat keinen NIXMETA-Header (Zeile 1 muss '# ---' sein) - Header ergaenzen"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "nixmeta 69/69 gruen, pkgs/speedport-api hat Header"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - seit 85b9a4c",
       "depends_on": [],
       "links": []
     },
@@ -338,9 +363,9 @@
       "id": "T-28-05",
       "title": "check_adrs rot: ADR-019-community-flakes-benchmark.md fehlt in docs/adr/llm-index.json; 51-ingress/515-blocky.…",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-05",
@@ -353,8 +378,13 @@
       "steps_open": [
         "check_adrs rot: ADR-019-community-flakes-benchmark.md fehlt in docs/adr/llm-index.json; 51-ingress/515-blocky.nix verweist auf nicht existierende ADR-515-mdns-avahi-aliases - Index ergaenzen bzw. ADR anlegen/Allowlist"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "check_adrs gruen, ADR-019 im llm-index"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - seit 85b9a4c",
       "depends_on": [],
       "links": []
     },
@@ -364,7 +394,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-11",
@@ -378,7 +408,7 @@
         "Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/done/chats-2-5/*.json, todo/done/2026-10-25_*/{plan,profile,snippets,todo,NOTtodo,antipatterns,decisions}.{json,md}, review/domain-matrix.*, blocks/05+06, todo/backlog-Notiz. Destillierte blocks/*.json bleiben. Dateien vorher in ein privates Archiv verschieben (Korridor AB-036: archivieren statt loeschen)."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: todo/done/ enthaelt weiterhin Roh-Exporte; scripts/check_infra_leaks.py fehlt.",
       "depends_on": [],
       "links": []
     },
@@ -388,7 +418,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-13",
@@ -402,7 +432,7 @@
         "Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4 ausserhalb RFC 5737 (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24) sowie example.com/net/org; Einbindung in order-lint und in die lokale Gate-Kette (Korridor AB-044: Kante braucht einen Check)."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: scripts/check_infra_leaks.py existiert nicht.",
       "depends_on": [],
       "links": []
     },
@@ -412,7 +442,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/22-cloudflare-dns-bash-bug.json#N-22-01",
@@ -442,7 +472,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/23-systemd-hardening-syntax-bugs.json#N-23-01",
@@ -472,7 +502,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/23-systemd-hardening-syntax-bugs.json#N-23-02",
@@ -502,7 +532,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/24-mkforce-500-host-baseline.json#N-24-01",
@@ -532,7 +562,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-01",
@@ -562,7 +592,7 @@
       "kind": "feature",
       "status": "done",
       "priority": "high",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-02",
@@ -724,9 +754,9 @@
       "id": "N-15-01",
       "title": "Lint-Matrix als scripts/check-nixmap.py implementieren",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/15-nixmap-ast-audit.json#N-15-01",
@@ -739,8 +769,13 @@
       "steps_open": [
         "Lint-Matrix als scripts/check-nixmap.py implementieren"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 15-nixmap-ast-audit. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "scripts/check-nixmap.py existiert und laeuft in der Leiter"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 15-nixmap-ast-audit. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - 57 Dateien, 0 Befunde",
       "depends_on": [],
       "links": []
     },
@@ -748,9 +783,9 @@
       "id": "N-18-01",
       "title": "CI-Check-Bündelung + QEMU-Entkopplung",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/18-flake-architecture-ci.json#N-18-01",
@@ -763,8 +798,13 @@
       "steps_open": [
         "CI-Check-Bündelung + QEMU-Entkopplung"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 18-flake-architecture-ci. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "AGENTS.md Regel 10 L1/L2: lokale Schleife vs. CI-Gates"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 18-flake-architecture-ci. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - L1 = verify.sh, L2 = CI-Builds + QEMU",
       "depends_on": [],
       "links": []
     },
@@ -772,9 +812,9 @@
       "id": "N-20-01",
       "title": "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/20-machine-readable-systemd-nixos.json#N-20-01",
@@ -787,8 +827,13 @@
       "steps_open": [
         "Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 20-machine-readable-systemd-nixos. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "AGENTS.md Regel 9 'Maschinenlesbare Quellen vor Spekulation'"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 20-machine-readable-systemd-nixos. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - systemd/busctl + nixos-option verankert",
       "depends_on": [],
       "links": []
     },
@@ -796,9 +841,9 @@
       "id": "N-21-01",
       "title": "Gatus-Healthcheck-Generierung aus Manifest implementieren",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/21-observability-automation.json#N-21-01",
@@ -811,8 +856,13 @@
       "steps_open": [
         "Gatus-Healthcheck-Generierung aus Manifest implementieren"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 21-observability-automation. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "58-observability/582-gatus.nix:35 liest config.medinix.manifest"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 21-observability-automation. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - Healthchecks werden aus dem Manifest erzeugt",
       "depends_on": [],
       "links": []
     },
@@ -820,9 +870,9 @@
       "id": "N-21-02",
       "title": "586-vpn-selftest.nix anlegen",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/21-observability-automation.json#N-21-02",
@@ -835,8 +885,13 @@
       "steps_open": [
         "586-vpn-selftest.nix anlegen"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 21-observability-automation. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "58-observability/586-vpn-selftest.nix existiert"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 21-observability-automation. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - in der Voll-Stack-Belegung enthalten",
       "depends_on": [],
       "links": []
     },
@@ -846,7 +901,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/25-docs-trias.json#N-25-01",
@@ -860,7 +915,7 @@
         "Dokumentationstrias in ADR-0000 oder docs/ verankern"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 25-docs-trias. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 25-docs-trias. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 'Trias' ist weder in ADR-0000 noch in CONVENTIONS.md verankert.",
       "depends_on": [],
       "links": []
     },
@@ -870,7 +925,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-01",
@@ -884,7 +939,7 @@
         "nftables GeoIP-Sets evaluieren"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: GeoIP-Sets wurden nie evaluiert.",
       "depends_on": [],
       "links": []
     },
@@ -892,9 +947,9 @@
       "id": "N-29-03",
       "title": "scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateili…",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-03",
@@ -907,8 +962,13 @@
       "steps_open": [
         "scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateiliste auf Determinate Nix 3.23.2 / Nix 2.35.3 wirkungslos ist: nixfmt bekommt dann keine Dateien und liest stdin (Exit 1 aus dem falschen Grund)."
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "scripts/verify.sh dokumentiert die nixfmt-Falle im Kopf"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - Stufe 1 uebergibt die Dateiliste explizit",
       "depends_on": [
         "N-29-02"
       ],
@@ -920,7 +980,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-06",
@@ -934,7 +994,7 @@
         "Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-flake-patterns+nixos-flake-ci, medinix-audit-suite+medinix-pre-commit, medinix-conventions+nixos-medinix-authoring. Danach scripts/skills-exclude.txt bereinigen."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: vier Merge-Paare, Entscheidung Q-29-04 steht aus.",
       "depends_on": [],
       "links": []
     },
@@ -1699,9 +1759,9 @@
       "id": "T-28-06",
       "title": "check_banned_technologies rot: todo/scripts/aggregate.py:342 enthaelt 'caddy-security' (Antipattern-Text) - pr…",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-06",
@@ -1714,8 +1774,13 @@
       "steps_open": [
         "check_banned_technologies rot: todo/scripts/aggregate.py:342 enthaelt 'caddy-security' (Antipattern-Text) - pruefen, ob die Pruefung das Antipattern-Register ausschliessen muss"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "aggregate.py archiviert, check_banned_technologies gruen"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - Antipattern-Text nicht mehr im Scan-Pfad",
       "depends_on": [],
       "links": []
     },
@@ -1725,7 +1790,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-07",
@@ -1739,7 +1804,7 @@
         "Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients messen)"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 515-blocky.nix setzt customDNS weiter auf 127.0.0.1 - Verhalten ungemessen.",
       "depends_on": [],
       "links": []
     },
@@ -1749,7 +1814,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-08",
@@ -1763,7 +1828,7 @@
         "Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json/corridor als bewusste Ausnahme zu AB-036 eintragen"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: Entscheidung zu ARCHIVE-ADR-554 steht aus.",
       "depends_on": [],
       "links": []
     },
@@ -1773,7 +1838,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "medium",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-12",
@@ -1787,7 +1852,7 @@
         "Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipatterns.md, todo/blocks/28-verify-open-points.json) auf example.com bzw. RFC-5737-Netze umschreiben (Scrub-Skript + aggregate.py)."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: todo/plan.json ist entfallen; Ziele sind jetzt todo/decisions.json, todo/antipatterns.md und docs/audit/2026-11-05/todo-blocks/.",
       "depends_on": [],
       "links": []
     },
@@ -1957,9 +2022,9 @@
       "id": "N-19-01",
       "title": "Community-Muster in docs/adr/ dokumentieren",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/19-community-flakes-benchmark.json#N-19-01",
@@ -1972,8 +2037,13 @@
       "steps_open": [
         "Community-Muster in docs/adr/ dokumentieren"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 19-community-flakes-benchmark. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "docs/adr/ADR-019-community-flakes-benchmark.md existiert"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 19-community-flakes-benchmark. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - check_adrs gruen",
       "depends_on": [],
       "links": []
     },
@@ -1983,7 +2053,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-02",
@@ -1997,7 +2067,7 @@
         "caddy-ratelimit durch nftables ersetzen"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: caddy-ratelimit laeuft (v0.1.0), Ersatz durch nftables nicht bewertet.",
       "depends_on": [],
       "links": []
     },
@@ -2007,7 +2077,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-04",
@@ -2021,7 +2091,7 @@
         "/home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht und meldet seit dem Entfernen des /lib/-Skips acht 50-core-Bibliotheken als 'NO NUMBER in filename' (derive, hardening-profiles, manifest, memory-policy, registry, repl, service-contract, service-factory). Eine §14-bewusste Allowlist ergaenzen (kind: library/package/test und die beiden Zonen) oder das Skript als ausgemustert markieren. Kein Gate - weder in der Leiter noch in CI."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: scan_inconsistencies.py kennt §14 nicht.",
       "depends_on": [],
       "links": []
     },
@@ -2031,7 +2101,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-05",
@@ -2045,7 +2115,7 @@
         "folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/repos/mediNix-core/.claude/skills. Beide sind leer und damit Git-unsichtbar (CI gruen). Entweder rmdir oder in die Basename-Allowlist von docs/agents/shared/scripts/folder_lint.sh aufnehmen."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Teil erledigt 2026-11-05: todo/_index entfernt. .claude/skills ist weiterhin leer.",
       "depends_on": [],
       "links": []
     },
@@ -2053,9 +2123,9 @@
       "id": "N-29-07",
       "title": "`.agent-state.json` enthaelt 18 lib/-Treffer: 2 `component`-Felder in datierten `dead_ends_and_failures`-Eintr…",
       "kind": "feature",
-      "status": "open",
+      "status": "rejected",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-07",
@@ -2069,7 +2139,7 @@
         "`.agent-state.json` enthaelt 18 lib/-Treffer: 2 `component`-Felder in datierten `dead_ends_and_failures`-Eintraegen, 4 `corridor`-Eintraege mit `status: parked` und 12 Beleg-/Log-Zeilen. Bleibt als Zeitprotokoll unveraendert (ein umgeschriebener Fehlerbericht verliert seinen Beweiswert). Nur pruefen, ob ein kuenftiger Eintrag versehentlich einen Altpfad als AKTUELLEN Zustand nennt - solche Eintraege korrigieren."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: geschlossen - Entschieden: .agent-state.json bleibt Zeitprotokoll, Altpfade in datierten dead_ends/refactorings werden nicht umgeschrieben (ein umgeschriebener Fehlerbericht verliert seinen Beweiswert). Nur NEUE Eintraege muessen aktuell sein.",
       "depends_on": [],
       "links": []
     },
@@ -2077,9 +2147,9 @@
       "id": "T-28-02",
       "title": "Q-28-02 pruefen: aeusseren pkgs-Default entfernen oder im Funktionskopf nutzen",
       "kind": "feature",
-      "status": "open",
+      "status": "rejected",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-02",
@@ -2093,7 +2163,7 @@
         "Q-28-02 pruefen: aeusseren pkgs-Default entfernen oder im Funktionskopf nutzen"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: geschlossen - 50-core/wan-ip-provider.nix existiert nicht und wurde nie gebaut - der aeussere pkgs-Default ist damit gegenstandslos.",
       "depends_on": [],
       "links": []
     },
@@ -2103,7 +2173,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-03",
@@ -2117,7 +2187,7 @@
         "Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: nftables-Regel nie mit 'nft -c' gegen das generierte Ruleset geprueft.",
       "depends_on": [],
       "links": []
     },
@@ -2125,9 +2195,9 @@
       "id": "T-28-09",
       "title": "Q-28-06 umsetzen: 52-security/521-creds.nix aus scripts/nixmeta-baseline.txt entfernen (Baseline schrumpfen)",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-09",
@@ -2140,8 +2210,13 @@
       "steps_open": [
         "Q-28-06 umsetzen: 52-security/521-creds.nix aus scripts/nixmeta-baseline.txt entfernen (Baseline schrumpfen)"
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "521-creds.nix steht nicht mehr in nixmeta-baseline.txt"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - Ratsche geschrumpft",
       "depends_on": [],
       "links": []
     },
@@ -2151,7 +2226,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-10",
@@ -2165,7 +2240,7 @@
         "Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise)"
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 35 ADR-Dateien mit Slug-IDs vorhanden.",
       "depends_on": [],
       "links": []
     },
@@ -2173,9 +2248,9 @@
       "id": "T-28-14",
       "title": "`.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren)",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-14",
@@ -2188,8 +2263,13 @@
       "steps_open": [
         "`.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren)."
       ],
-      "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": ".gitignore deckt todo/_input und _chunks ab"
+        }
+      ],
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Triage 2026-11-05: erledigt - 3 Regeln vorhanden",
       "depends_on": [],
       "links": []
     },
@@ -2199,7 +2279,7 @@
       "kind": "feature",
       "status": "open",
       "priority": "low",
-      "legacy": true,
+      "legacy": false,
       "source": {
         "type": "chat-block",
         "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-15",
@@ -2213,7 +2293,7 @@
         "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten."
       ],
       "steps_done": [],
-      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04).",
+      "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 1.1.1.1 steht weiterhin hartkodiert in 515-blocky.nix; der Route-Probe-Teil entfaellt (Modul existiert nicht).",
       "depends_on": [],
       "links": []
     }

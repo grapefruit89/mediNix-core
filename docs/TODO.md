@@ -6,16 +6,13 @@
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
-## 1. Offene Arbeit — `todo/tasks.json` (82)
+## 1. Offene Arbeit — `todo/tasks.json` (64)
 
 _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
-### hoch (17)
+### hoch (11)
 
 - [ ] `B8` Aufgabe 8: `agent/skills/` → `skills/`
-- [ ] `N-16-01` Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren _(Status ungeprüft)_
-- [ ] `N-17-01` Manifest-Schema als 50-core/manifest.nix formalisieren _(Status ungeprüft)_
-- [ ] `N-27-03` Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus) _(Status ungeprüft)_
 - [ ] `Q-28-01` 586-vpn-selftest.nix:42 nutzt vpnCfg.enable, aber services.vpnKillSwitch hat kein Top-Level-enable (nur instan…
 - [ ] `R24` FIDO2 / Passkey-only Authentifizierung
 - [ ] `R47` L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen…
@@ -24,13 +21,10 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `R74` Pocket-ID Auto-Enrollment + Multi-User/RBAC über versiegelte Credentials
 - [ ] `R80` Vector + Loki + Grafana
 - [ ] `R82` Label-basiertes Automounting/MergerFS
-- [ ] `T-28-01` Q-28-01 fixen und `nix flake check --no-build` gruen nachweisen _(Status ungeprüft)_
-- [ ] `T-28-04` nixmeta-Check rot: pkgs/speedport-api/default.nix hat keinen NIXMETA-Header (Zeile 1 muss '# ---' sein) - Head… _(Status ungeprüft)_
-- [ ] `T-28-05` check_adrs rot: ADR-019-community-flakes-benchmark.md fehlt in docs/adr/llm-index.json; 51-ingress/515-blocky.… _(Status ungeprüft)_
-- [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do… _(Status ungeprüft)_
-- [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4… _(Status ungeprüft)_
+- [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
+- [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4…
 
-### mittel (54)
+### mittel (47)
 
 - [ ] `B-CA` `caddyClass` vs. `accessGroup`
 - [ ] `B-M4` 591 Options-Pfad-Assertion
@@ -38,15 +32,9 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `B-S410` ADR-0000 §4 (UPG) und §10 (Consequences) beschreiben teils dasselbe
 - [ ] `L15` `complexity:` fehlt bei 15 von 44 Modulen → Index zeigt `-/5`
 - [ ] `L18` Single-Entry `medinixLib` fehlt
-- [ ] `N-15-01` Lint-Matrix als scripts/check-nixmap.py implementieren _(Status ungeprüft)_
-- [ ] `N-18-01` CI-Check-Bündelung + QEMU-Entkopplung _(Status ungeprüft)_
-- [ ] `N-20-01` Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern _(Status ungeprüft)_
-- [ ] `N-21-01` Gatus-Healthcheck-Generierung aus Manifest implementieren _(Status ungeprüft)_
-- [ ] `N-21-02` 586-vpn-selftest.nix anlegen _(Status ungeprüft)_
-- [ ] `N-25-01` Dokumentationstrias in ADR-0000 oder docs/ verankern _(Status ungeprüft)_
-- [ ] `N-27-01` nftables GeoIP-Sets evaluieren _(Status ungeprüft)_
-- [ ] `N-29-03` scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateili… _(Status ungeprüft)_
-- [ ] `N-29-06` Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-fl… _(Status ungeprüft)_
+- [ ] `N-25-01` Dokumentationstrias in ADR-0000 oder docs/ verankern
+- [ ] `N-27-01` nftables GeoIP-Sets evaluieren
+- [ ] `N-29-06` Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-fl…
 - [ ] `Q-15-01` Welche konkreten Prüfkriterien umfassen die restlichen der 44 Nixmap-Auditregeln im vollständigen Regelsatz?
 - [ ] `Q-28-02` Das nie gebaute Modul (geplant als lib/wan-ip-provider.nix, heute 50-core/) deklariert { lib, pkgs ? null }, n…
 - [ ] `Q-28-03` Ist die nftables-Regel 'tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets }…
@@ -79,27 +67,21 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `R97` `docs/HOST-INTERFACE.md`: eine Seite „Host-Schnittstelle"
 - [ ] `R98` `arr-provision` bündeln: 8 Einzel-CLIs (`arr-sync-*`) → ein `arr-provision <subcommand>` (weniger Entry-Points…
 - [ ] `R99` `medinix gather <symptom>`
-- [ ] `T-28-06` check_banned_technologies rot: todo/scripts/aggregate.py:342 enthaelt 'caddy-security' (Antipattern-Text) - pr… _(Status ungeprüft)_
-- [ ] `T-28-07` Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients… _(Status ungeprüft)_
-- [ ] `T-28-08` Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json… _(Status ungeprüft)_
-- [ ] `T-28-12` Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipattern… _(Status ungeprüft)_
+- [ ] `T-28-07` Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients…
+- [ ] `T-28-08` Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json…
+- [ ] `T-28-12` Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipattern…
 - [ ] `T12` QEMU-Smoke-Test lokal freischalten (Stufe 3 der Prüf-Leiter)
 - [ ] `T14` 515 mDNS-Refresh umbauen. ⚠️ Der Punkt sagt selbst: `.path`-Trigger ist bereits systemd-nativ, „Umbau = latera…
 - [ ] `T9` Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`, `opencode…
 
-### niedrig (11)
+### niedrig (6)
 
-- [ ] `N-19-01` Community-Muster in docs/adr/ dokumentieren _(Status ungeprüft)_
-- [ ] `N-27-02` caddy-ratelimit durch nftables ersetzen _(Status ungeprüft)_
-- [ ] `N-29-04` /home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht un… _(Status ungeprüft)_
-- [ ] `N-29-05` folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/rep… _(Status ungeprüft)_
-- [ ] `N-29-07` `.agent-state.json` enthaelt 18 lib/-Treffer: 2 `component`-Felder in datierten `dead_ends_and_failures`-Eintr… _(Status ungeprüft)_
-- [ ] `T-28-02` Q-28-02 pruefen: aeusseren pkgs-Default entfernen oder im Funktionskopf nutzen _(Status ungeprüft)_
-- [ ] `T-28-03` Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren _(Status ungeprüft)_
-- [ ] `T-28-09` Q-28-06 umsetzen: 52-security/521-creds.nix aus scripts/nixmeta-baseline.txt entfernen (Baseline schrumpfen) _(Status ungeprüft)_
-- [ ] `T-28-10` Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise) _(Status ungeprüft)_
-- [ ] `T-28-14` `.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren) _(Status ungeprüft)_
-- [ ] `T-28-15` Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) uebe… _(Status ungeprüft)_
+- [ ] `N-27-02` caddy-ratelimit durch nftables ersetzen
+- [ ] `N-29-04` /home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht un…
+- [ ] `N-29-05` folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/rep…
+- [ ] `T-28-03` Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren
+- [ ] `T-28-10` Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise)
+- [ ] `T-28-15` Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) uebe…
 
 ## 2. Ledger — Befunde ohne Abschluss
 
