@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-11-05T09:45:53.275812+00:00",
+    "generated_at": "2026-11-05T09:46:24.498621+00:00",
     "total_blocks": 29,
     "blocks_processed": [
       "01-arch-vs-nixos",
@@ -34,16 +34,16 @@
       "29-meta-dezimalrahmen-nacharbeit"
     ],
     "total_next_steps": 63,
-    "open_count": 59,
-    "done_count": 4,
+    "open_count": 57,
+    "done_count": 6,
     "priority_summary": {
       "open": {
-        "high": 16,
+        "high": 14,
         "medium": 22,
         "low": 21
       },
       "done": {
-        "high": 4,
+        "high": 6,
         "medium": 0,
         "low": 0
       },
@@ -525,7 +525,8 @@
       "action": "todo/README.md:56 und :141 nennen '/home/moritz/repos/mediNix-core/lib/*.nix'. Beide auf '50-core/*.nix' umstellen. Das ist aktive Anleitung, keine Historie - beim Sweep uebersehen, weil 'todo/' pauschal als Gruppe 3 (historisch) behandelt wurde.",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit_hash": "6d82119"
     },
     {
       "id": "N-29-02",
@@ -533,7 +534,8 @@
       "action": "Volle lokale Pruef-Leiter als ein Skript festschreiben (Vorschlag: /home/moritz/repos/mediNix-core/scripts/verify.sh) mit: nix fmt -- --check $(find . -name '*.nix' -not -path './.git/*'), nix flake check OHNE --no-build, sowie gen_service_map.py --check, gen_runbook.py --check, nixos-resources.py --check, nixmeta_check.py, check_skills.py, check_adrs.py, medinix-meta.py check-docs, check-nixmap.py, check_manifest_edge.py, check_sources.py, check_corridor.py, check_nixos_anchors.py, check_banned_technologies.py, nixos_idiom_audit.py --p0-only. Grund: zwei CI-Rots in Folge (4d7d8c2, 85b9a4c) entstanden, weil die lokale Leiter kleiner war als die CI-Leiter - 'nix flake check --no-build' baut check-nixfmt nicht, und gen_service_map.py --check stand gar nicht in der Leiter.",
       "priority": "high",
       "depends_on": [],
-      "status": "open"
+      "status": "done",
+      "commit_hash": "6d82119"
     },
     {
       "id": "N-29-03",
