@@ -49,6 +49,10 @@ ID_RE = re.compile(r"^[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$")
 STATUS = {"open", "in_progress", "blocked", "done", "rejected"}
 PRIORITY = {"high", "medium", "low"}
 KIND = {"bug", "feature", "docs", "refactor", "security", "decision", "chore"}
+EFFORT = {"S", "M", "L"}
+WAVES = {0, 1, 2, 3, 4, 5}
+RESEARCH_TYPES = {"internal", "resource", "upstream", "prior-art"}
+ACTIVE = {"open", "in_progress", "blocked"}
 REF_RE = re.compile(r"^(?P<path>[^:#]+?)(?::(?P<line>\d+))?(?:#[^#]*)?$")
 
 
@@ -72,6 +76,10 @@ def main() -> int:
 
     ids: dict[str, dict] = {}
     refs: dict[str, str] = {}
+    res_path = ROOT / "docs" / "NIXOS-RESOURCES.json"
+    res_data = json.loads(res_path.read_text(encoding="utf-8"))
+    entries = res_data["entries"] if isinstance(res_data, dict) and "entries" in res_data else res_data
+    resource_ids = {e.get("id") or e.get("name") for e in entries}
 
     for t in tasks:
         tid = t.get("id", "<ohne id>")
@@ -121,8 +129,40 @@ def main() -> int:
         if t.get("status") == "done" and not (t.get("steps_done") or []):
             errors.append(f"{where}: status done, aber steps_done leer")
 
+        if t.get("status") in ACTIVE:
+            if t.get("effort") not in EFFORT:
+                errors.append(f"{where}: effort '{t.get('effort')}' nicht in {sorted(EFFORT)}")
+            if t.get("wave") not in WAVES:
+                errors.append(f"{where}: wave '{t.get('wave')}' nicht in {sorted(WAVES)}")
+
+            # Definition of Ready: Welle 0 und 1 werden als naechstes gebaut und
+            # brauchen Abnahmekriterien und belegte Quellen. Ab Welle 2 gilt das
+            # beim Hochziehen auf in_progress.
+            if t.get("wave") in (0, 1):
+                if not (t.get("acceptance") or []):
+                    errors.append(f"{where}: Welle {t['wave']} ohne acceptance (Abnahmekriterien)")
+                if not (t.get("research") or []):
+                    errors.append(f"{where}: Welle {t['wave']} ohne research (Quellen)")
+
+            for r in t.get("research") or []:
+                rtype = r.get("type")
+                if rtype not in RESEARCH_TYPES:
+                    errors.append(f"{where}: research.type '{rtype}' nicht in {sorted(RESEARCH_TYPES)}")
+                ref = (r.get("ref") or "").strip()
+                url = (r.get("url") or "").strip()
+                if not ref and not url:
+                    errors.append(f"{where}: research-Eintrag ohne ref und ohne url")
+                if rtype == "internal" and ref:
+                    path = re.split(r"[:#]", ref)[0]
+                    if not (ROOT / path).exists():
+                        errors.append(f"{where}: research.ref '{ref}' zeigt auf fehlenden Pfad")
+                if rtype == "resource" and ref:
+                    if ref not in resource_ids:
+                        errors.append(f"{where}: research.ref '{ref}' ist keine ID aus "
+                                      f"docs/NIXOS-RESOURCES.json")
+
         if t.get("legacy"):
-            hints.append(f"{where}: legacy — Status ungeprueft")
+            hints.append(f"{where}: legacy - Status ungeprueft")
 
     # depends_on + Zyklen
     for tid, t in ids.items():
@@ -159,9 +199,10 @@ def main() -> int:
         print(f"\nROT: {len(errors)} Fehler in {len(tasks)} Tasks ({len(hints)} Hinweise).")
         return 1
 
+    ready = sum(1 for t in ids.values() if t.get("status") in ACTIVE and t.get("acceptance"))
     print(f"OK: {len(tasks)} Tasks valide "
           f"({sum(1 for t in ids.values() if t.get('status') == 'done')} erledigt, "
-          f"{len(hints)} legacy/Hinweise).")
+          f"{len(hints)} Hinweise, {ready} mit Abnahmekriterien).")
     return 0
 
 

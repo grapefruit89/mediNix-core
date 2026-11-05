@@ -7,7 +7,7 @@
       "id": "B8",
       "title": "Aufgabe 8: `agent/skills/` → `skills/`",
       "kind": "refactor",
-      "status": "open",
+      "status": "done",
       "priority": "high",
       "legacy": false,
       "source": {
@@ -20,7 +20,12 @@
       },
       "why": "**Aufgabe 8: `agent/skills/` → `skills/`.** Wrapper-Ordner auflösen (`agent/` hat nur ein Kind). Dazu: `nix-packaging` archivieren (600+ Zeilen Package-Bau, für ein NixOS-Modul-Repo irrelevant), `cross-platform.md` archivieren, **`medinix-project.md` anlegen** (5xx-Regeln, YAML-Header, Validierungs-Gates — die Lücke, die der Agent heute raten muss), `skills-lock.json`/`link-skills.sh`/`check_skills.py` anpassen, `.claude/skills/` retargeten.",
       "steps_open": [],
-      "steps_done": [],
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": ".claude/skills ist untracked (nur lokal); agent/ weg, nix-packaging archiviert, medinix-project.md + skills-lock.json vorhanden"
+        }
+      ],
       "notes": " · Aufwand: GROSS (~1 h) · Charakter: **Struktur**",
       "depends_on": [],
       "links": []
@@ -116,7 +121,7 @@
       "id": "Q-28-01",
       "title": "586-vpn-selftest.nix:42 nutzt vpnCfg.enable, aber services.vpnKillSwitch hat kein Top-Level-enable (nur instan…",
       "kind": "decision",
-      "status": "open",
+      "status": "done",
       "priority": "high",
       "legacy": false,
       "source": {
@@ -131,7 +136,12 @@
       "steps_open": [
         "586-vpn-selftest.nix:42 nutzt vpnCfg.enable, aber services.vpnKillSwitch hat kein Top-Level-enable (nur instances.<name>.enable). Fix wie 526: hasVpnInstances = activeInstances != {} ?"
       ],
-      "steps_done": [],
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "586-vpn-selftest.nix:41-44 nutzt activeInstances/hasVpnInstances statt vpnCfg.enable"
+        }
+      ],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points. BLOCKING.",
       "depends_on": [],
       "links": []
@@ -159,7 +169,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Security-Feature",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "R47",
@@ -183,7 +195,36 @@
       "steps_done": [],
       "notes": " · Aufwand: offen (messen) · Charakter: **Build-Blocker (P0)**",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 1,
+      "effort": "M",
+      "acceptance": [
+        "Host-Build ohne testHostAccess-Stub moeglich",
+        "users.mutableUsers = false mit realem Login-Pfad belegt",
+        "nix flake check gruen, kein mkForce als Abkuerzung"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/AUDIT-LEDGER.md",
+          "note": "L-047: Build-Blocker"
+        },
+        {
+          "type": "internal",
+          "ref": "docs/adr/ADR-0002-nixos-grundfunktionen.md",
+          "note": "mutableUsers-Entscheidung"
+        },
+        {
+          "type": "resource",
+          "ref": "nixos-manual",
+          "note": "users.mutableUsers, initialPassword, hashedPassword"
+        },
+        {
+          "type": "resource",
+          "ref": "nix-community-sops-nix",
+          "note": "Alternative Credential-Quelle"
+        }
+      ]
     },
     {
       "id": "R55",
@@ -207,7 +248,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Struktur",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "L"
     },
     {
       "id": "R56",
@@ -230,7 +273,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Struktur",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "L"
     },
     {
       "id": "R74",
@@ -253,7 +298,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Security-Feature",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "R80",
@@ -276,7 +323,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Observability",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "R82",
@@ -299,7 +348,9 @@
       "steps_done": [],
       "notes": " · Aufwand: GROSS · Charakter: Feature",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "T-28-01",
@@ -410,7 +461,26 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: todo/done/ enthaelt weiterhin Roh-Exporte; scripts/check_infra_leaks.py fehlt.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 1,
+      "effort": "L",
+      "acceptance": [
+        "keine Roh-Exporte mit Infra-Metadaten mehr in todo/done/",
+        "entfernte Dateien vorher in ein privates Archiv verschoben (AB-036)",
+        "`git log -S` nach der echten WAN-Domain liefert ab diesem Commit 0 Treffer"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/AUDIT-LEDGER.md",
+          "note": "L-044: Kante braucht einen Check"
+        },
+        {
+          "type": "internal",
+          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
+          "note": "Fundstelle T-28-11"
+        }
+      ]
     },
     {
       "id": "T-28-13",
@@ -434,7 +504,26 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: scripts/check_infra_leaks.py existiert nicht.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 1,
+      "effort": "M",
+      "acceptance": [
+        "scripts/check_infra_leaks.py existiert und findet 0 Treffer im Baum",
+        "erkennt die bekannten Exporte, wenn man sie zurueckspielt",
+        "eingebunden in .github/workflows/order-lint.yml und scripts/verify.sh"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/AUDIT-LEDGER.md",
+          "note": "L-044: jede Kante braucht einen Check"
+        },
+        {
+          "type": "resource",
+          "ref": "nix-dev",
+          "note": "Muster fuer kleine Guard-Skripte"
+        }
+      ]
     },
     {
       "id": "N-22-01",
@@ -636,7 +725,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL (~30 min) · Charakter: **Struktur / SSOT**",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "M"
     },
     {
       "id": "B-M4",
@@ -658,7 +749,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL (~30 min) · Charakter: Gate",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "B-S11K",
@@ -680,7 +773,9 @@
       "steps_done": [],
       "notes": "Offen (MITTEL) · Aufwand: MITTEL · Charakter: Kosmetik",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "S"
     },
     {
       "id": "B-S410",
@@ -702,7 +797,9 @@
       "steps_done": [],
       "notes": "Offen (MITTEL) · Aufwand: MITTEL · Charakter: Kosmetik",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "S"
     },
     {
       "id": "L15",
@@ -725,7 +822,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "S"
     },
     {
       "id": "L18",
@@ -748,7 +847,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Struktur",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "M"
     },
     {
       "id": "N-15-01",
@@ -917,7 +1018,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 25-docs-trias. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 'Trias' ist weder in ADR-0000 noch in CONVENTIONS.md verankert.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "S"
     },
     {
       "id": "N-27-01",
@@ -941,7 +1044,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: GeoIP-Sets wurden nie evaluiert.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "N-29-03",
@@ -996,7 +1101,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: vier Merge-Paare, Entscheidung Q-29-04 steht aus.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "M"
     },
     {
       "id": "Q-15-01",
@@ -1020,7 +1127,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 15-nixmap-ast-audit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-02",
@@ -1044,7 +1153,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-03",
@@ -1068,7 +1179,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-04",
@@ -1092,7 +1205,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-05",
@@ -1116,13 +1231,15 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-06",
       "title": "nixmeta meldet, dass 52-security/521-creds.nix inzwischen konform ist und aus scripts/nixmeta-baseline.txt ent…",
       "kind": "decision",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
       "legacy": false,
       "source": {
@@ -1137,7 +1254,12 @@
       "steps_open": [
         "nixmeta meldet, dass 52-security/521-creds.nix inzwischen konform ist und aus scripts/nixmeta-baseline.txt entfernt werden darf - Zeile entfernen?"
       ],
-      "steps_done": [],
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "521-creds steht nicht mehr in scripts/nixmeta-baseline.txt (0 Treffer)"
+        }
+      ],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
       "links": []
@@ -1164,7 +1286,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-28-08",
@@ -1188,13 +1312,26 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 1,
+      "effort": "S",
+      "acceptance": [
+        "Entscheidung im Task dokumentiert (behalten + begruenden ODER entfernen + Archiv)",
+        "Konsequenz fuer T-28-11 und T-28-13 notiert"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
+          "note": "Q-28-08: 19 committete Dateien"
+        }
+      ]
     },
     {
       "id": "Q-28-09",
       "title": "Host-Anschluss bestaetigt: 502-host-settings (host.domain/adminEmail/hostname/fqdn/ramGb + Alias medinix.domai…",
       "kind": "decision",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
       "legacy": false,
       "source": {
@@ -1209,7 +1346,12 @@
       "steps_open": [
         "Host-Anschluss bestaetigt: 502-host-settings (host.domain/adminEmail/hostname/fqdn/ramGb + Alias medinix.domain), 503-host-integration (managed|external|off), default.nix host.credentials. Soll diese Verkabelung in docs/ (z. B. docs/HOST-WIRING.md) sichtbar dokumentiert werden?"
       ],
-      "steps_done": [],
+      "steps_done": [
+        {
+          "date": "2026-11-05",
+          "what": "502-host-settings.nix verdrahtet host.domain/hostname"
+        }
+      ],
       "notes": "Offene Frage aus Chat-Block 28-verify-open-points.",
       "depends_on": [],
       "links": []
@@ -1236,7 +1378,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 29-meta-dezimalrahmen-nacharbeit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-29-05",
@@ -1260,7 +1404,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 29-meta-dezimalrahmen-nacharbeit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-29-06",
@@ -1284,7 +1430,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 29-meta-dezimalrahmen-nacharbeit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-29-07",
@@ -1308,7 +1456,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 29-meta-dezimalrahmen-nacharbeit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "Q-29-08",
@@ -1332,7 +1482,9 @@
       "steps_done": [],
       "notes": "Offene Frage aus Chat-Block 29-meta-dezimalrahmen-nacharbeit.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "R100",
@@ -1356,7 +1508,9 @@
       "steps_done": [],
       "notes": "Nur in ROADMAP.md gefuehrt, kein Backlog-Eintrag.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "R161",
@@ -1379,7 +1533,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku / ADRs",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 3,
+      "effort": "M"
     },
     {
       "id": "R163",
@@ -1402,7 +1558,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku / Skills",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "R37",
@@ -1429,7 +1587,9 @@
       "options": [
         "ja",
         "spaeter"
-      ]
+      ],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "R66",
@@ -1452,7 +1612,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Gate",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "R72",
@@ -1476,7 +1638,9 @@
       "steps_done": [],
       "notes": "Nur in ROADMAP.md gefuehrt, kein Backlog-Eintrag.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "M"
     },
     {
       "id": "R73",
@@ -1499,7 +1663,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Sicherheit",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "M"
     },
     {
       "id": "R75",
@@ -1522,7 +1688,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: **Observability / toter Code**",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "M"
     },
     {
       "id": "R76",
@@ -1545,7 +1713,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: CI",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "R81",
@@ -1568,7 +1738,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Feature/Tooling",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "M"
     },
     {
       "id": "R88",
@@ -1592,7 +1764,9 @@
       "steps_done": [],
       "notes": "Nur in ROADMAP.md gefuehrt, kein Backlog-Eintrag.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "R93",
@@ -1615,7 +1789,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Tooling",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "R94",
@@ -1638,7 +1814,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "S"
     },
     {
       "id": "R95",
@@ -1661,7 +1839,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "S"
     },
     {
       "id": "R96",
@@ -1684,7 +1864,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: CI",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "S"
     },
     {
       "id": "R97",
@@ -1707,7 +1889,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Doku",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "R98",
@@ -1730,7 +1914,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Tooling",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "L"
     },
     {
       "id": "R99",
@@ -1753,7 +1939,9 @@
       "steps_done": [],
       "notes": " · Aufwand: MITTEL · Charakter: Tooling / Observability",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 4,
+      "effort": "L"
     },
     {
       "id": "T-28-06",
@@ -1806,7 +1994,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 515-blocky.nix setzt customDNS weiter auf 127.0.0.1 - Verhalten ungemessen.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "M"
     },
     {
       "id": "T-28-08",
@@ -1830,7 +2020,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: Entscheidung zu ARCHIVE-ADR-554 steht aus.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "M"
     },
     {
       "id": "T-28-12",
@@ -1854,7 +2046,26 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: todo/plan.json ist entfallen; Ziele sind jetzt todo/decisions.json, todo/antipatterns.md und docs/audit/2026-11-05/todo-blocks/.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 1,
+      "effort": "M",
+      "acceptance": [
+        "Infra-Strings in todo/decisions.json, todo/antipatterns.md und den archivierten Blocks gescrubbt",
+        "Ersatz durch example.com und RFC-5737-Netze",
+        "check_infra_leaks.py meldet 0"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
+          "note": "Fundstelle"
+        },
+        {
+          "type": "resource",
+          "ref": "nix-security-tracker",
+          "note": "Umgang mit sensiblen Host-Daten"
+        }
+      ]
     },
     {
       "id": "T12",
@@ -1880,7 +2091,9 @@
       "options": [
         "einmal laufen lassen",
         "nur CI"
-      ]
+      ],
+      "wave": 4,
+      "effort": "M"
     },
     {
       "id": "T14",
@@ -1908,7 +2121,9 @@
         "A: reload statt restart",
         "B: Poll, 1 Unit",
         "C: self-watch (ip monitor)"
-      ]
+      ],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "T9",
@@ -1935,7 +2150,9 @@
         "Kategorie B verschieben",
         "nur dokumentieren",
         "unangetastet"
-      ]
+      ],
+      "wave": 3,
+      "effort": "M"
     },
     {
       "id": "B-MF",
@@ -2069,7 +2286,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 27-caddy-plugin-replacements. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: caddy-ratelimit laeuft (v0.1.0), Ersatz durch nftables nicht bewertet.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "N-29-04",
@@ -2093,7 +2312,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: scan_inconsistencies.py kennt §14 nicht.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 5,
+      "effort": "S"
     },
     {
       "id": "N-29-05",
@@ -2117,7 +2338,20 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 29-meta-dezimalrahmen-nacharbeit. Status ungeprueft (vor 2026-11-04). | Teil erledigt 2026-11-05: todo/_index entfernt. .claude/skills ist weiterhin leer.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 0,
+      "effort": "S",
+      "acceptance": [
+        "folder_lint meldet 0 Ordner mit weniger als 3 Dateien",
+        "`.claude/skills` ist entfernt oder in der Allowlist begruendet"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/agents/shared/scripts/folder_lint.sh",
+          "note": "Allowlist Zeile 17: tests|scripts|references|templates|evals|audit"
+        }
+      ]
     },
     {
       "id": "N-29-07",
@@ -2189,7 +2423,25 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Unveraendert offen: nftables-Regel nie mit 'nft -c' gegen das generierte Ruleset geprueft.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 0,
+      "effort": "S",
+      "acceptance": [
+        "generiertes nftables-Ruleset mit `nft -c -f` geprueft, Exit 0",
+        "Pruefausgabe im Commit dokumentiert"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "52-security/520-core-security.nix",
+          "note": "Quelle der Regeln"
+        },
+        {
+          "type": "resource",
+          "ref": "nixos-manual",
+          "note": "networking.nftables-Syntax und Regelsatz"
+        }
+      ]
     },
     {
       "id": "T-28-09",
@@ -2242,7 +2494,9 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 35 ADR-Dateien mit Slug-IDs vorhanden.",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 2,
+      "effort": "S"
     },
     {
       "id": "T-28-14",
@@ -2295,7 +2549,26 @@
       "steps_done": [],
       "notes": "Legacy-Extrakt aus Chat-Block 28-verify-open-points. Status ungeprueft (vor 2026-11-04). | Geprueft 2026-11-05: 1.1.1.1 steht weiterhin hartkodiert in 515-blocky.nix; der Route-Probe-Teil entfaellt (Modul existiert nicht).",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "wave": 0,
+      "effort": "S",
+      "acceptance": [
+        "1.1.1.1 nicht mehr hartkodiert in 51-ingress/515-blocky.nix",
+        "Option fuer den DoH-Upstream mit Default 1.1.1.1",
+        "check_nixos_anchors und nixmeta gruen"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "51-ingress/515-blocky.nix",
+          "note": "heutiger DoH-Upstream"
+        },
+        {
+          "type": "resource",
+          "ref": "nixos-wiki",
+          "note": "services.blocky Optionen"
+        }
+      ]
     }
   ]
 }
