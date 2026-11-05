@@ -90,6 +90,7 @@ run "gen_service_map --check"  python3 scripts/gen_service_map.py --check
 run "gen_runbook --check"      python3 scripts/gen_runbook.py --check
 run "nixos-resources --check"  python3 scripts/nixos-resources.py --check
 run "gen_plan --check"        python3 scripts/gen_plan.py --check
+run "gen_todo --check"        python3 scripts/gen_todo.py --check
 
 echo
 if [ "$fail" -eq 0 ]; then
