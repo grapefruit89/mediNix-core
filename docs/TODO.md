@@ -1,8 +1,9 @@
 # TODO — mediNix-core
 
-> **Generiert** aus Korridor + Roadmap + Ledger am 2026-11-05.
+> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-05.
 > Nicht von Hand pflegen — Inhalte gehören in die Quellen:
-> `.agent-state.json` (Entscheidungen), `ROADMAP.md` (Planung), `docs/AUDIT-LEDGER.md` (Befunde).
+> `todo/tasks.json` (offene Arbeit, validiert durch `scripts/check_tasks.py`),
+> `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
 ## 1. Offene Entscheidungen (Korridor)
@@ -13,36 +14,100 @@
 - [ ] Stufe 3 (QEMU-Smoke-Test) lokal freischalten?
 - [ ] 515 mDNS-Refresh umbauen? (.path-Trigger ist bereits systemd-nativ; Umbau = lateral)
 
-## 2. Roadmap — offene Punkte
+## 2. Offene Arbeit — `todo/tasks.json` (82)
 
-_Abschnitte: Backlog, Herkunft und Archiv · Blacklist-Regeln im Korridor: 53_
+_Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
-- [ ] Backlog: **FIDO2 / Passkey-only Authentifizierung:** Geplante Auth-Ergänzung für IdP und Reverse-Proxy. Passkey-only-Flow für Pocket ID (Chat 1, Block 01) und hardwaregestütztes WebAuthn via Caddy / oauth2-proxy als zweiter Faktor. Status: `proposed`. Quellen: ADR-512 (Pocket ID) und Chat-1-Block 01 (`01-arch-vs-nixos`).
-- [ ] Backlog: Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
-- [ ] Backlog: **P0 (offen, produktiv) — L-047:** `users.mutableUsers = mkDefault false` (Engine, `e803ba8`) braucht eine **echte** Credential-Quelle fuer root oder einen wheel-User (Heute: nur `testHostAccess`-Stub in Praefkonfigurationen). Sonst ist jedes Host-Build von der nixpkgs-Assertion blockiert.
-- [ ] Backlog: **Identitaeten einmal ableiten (ADR-040, Endform):** Exportarr-/Fabrik-Konten heute in `58-observability/585-exporters.nix` (liest `manifest`, schreibt `users.users`+`factoryUnits`) in die Engine verlagern (`50-core/derive.nix` + Manifest-Absicht) — dann baut `585` nur noch `systemd.services` und alle Kanten sind gerichtet.
-- [ ] Backlog: **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
-- [ ] Backlog: **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
-- [ ] Backlog: `50-core/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `50-core/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
-- [ ] Backlog: `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
-- [ ] Backlog: Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
-- [ ] Backlog: Prometheus Node-Exporter + Caddy-Metrics **und ein Scraper** (B6): `532–536` setzen `metrics.type = "exportarr"`, `585` erzeugt die Exporter, aber es fehlt der **Konsument** (Prometheus / VictoriaMetrics / vmagent). Bis dahin entweder Store ergänzen oder Exporter abschalten (YAGNI). (Teilweise vorhanden: `585-exporters`, `582-gatus`.)
-- [ ] Backlog: Flake-Lock-Auto-Update (wöchentlicher Workflow mit `nix flake check`).
-- [ ] Backlog: Vector + Loki + Grafana: Journal + Caddy-JSON-Logs, 7 Tage Retention, Storage auf Tier B, Grafana hinter Caddy am Unix-Socket.
-- [ ] Backlog: HDD-freundliche Deferred-Deletion-Queue (`hdparm -C`-Check, Force nach `maxAgeDays = 7`).
-- [ ] Backlog: Label-basiertes Automounting/MergerFS (teilweise: `570-storage.nix` kann MergerFS-Pools, das Einhängen macht der Host).
-- [ ] Backlog: `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
-- [ ] Backlog: **Plan (Momentaufnahme):** `docs/audit/2026-10-16/PLAN-offene-punkte.md` — ausgearbeiteter **Stand/Lücke/Ziel** je offenem Punkt (F/A/C/B/H/I/G/N + D-06). Quellen bleiben: `ROADMAP.md` + `.agent-state.json` → `docs/TODO.md`.
-- [ ] Backlog: **`scripts/systemd-facts.sh`** (F): host-seitiges JSON-Bundle („was systemd hier kann") aus `systemctl list-units --output=json`, `list-unit-files --output=json`, `show -p …`, `systemd-analyze security --json=short`, `busctl introspect … --json=short`; **redigiert + Token-gekappt**; Runbook-Eintrag. (Läuft nur auf der Nix-Maschine.)
-- [ ] Backlog: **`docs/AUDIT-NIXOS-IDIOMS.md`** (A): Methodik (drei Schichten, „**Signal ≠ Fund**"), Signal-Tabelle P0/P1/P2, datierter Lauf von `scripts/nixos_idiom_audit.py`, plus der **harte Beweis** = Schicht 3 (`nix flake check` **ohne** `--impure`, host/CI).
-- [ ] Backlog: **CONVENTIONS §Audit** (C): drei Schichten + Prüf-Leiter **Stufe 0a** (`nixos_idiom_audit.py --p0-only`) und **Stufe 1a** (`nix flake check` ohne `--impure`); Korridor-Blacklist `AB-0xx` für die harten Reflexe (`--impure` im Code, `nix-env -i`/`nix-channel`, Schreibzugriff `/nix/store/`, `/usr/`-Pfade).
-- [ ] Backlog: **CI Stufe 0a** (B): `nixos_idiom_audit.py --p0-only` in `.github/workflows/order-lint.yml` (fail-closed).
-- [ ] Backlog: **`docs/HOST-INTERFACE.md`** (H): **eine** Seite „Host-Schnittstelle" — `medinix.host.*`, `hostIntegration.*` (`managed|external|off`), `secrets.*`, `recommended.*`, `storage.*` — plus „was gehört **nicht** in den Flake".
-- [ ] Backlog: **arr-provision bündeln** (I): 8 Einzel-CLIs (`arr-sync-*`) → **ein** `arr-provision <subcommand>` (weniger Entry-Points, ein `--help`).
-- [ ] Backlog: **`medinix gather <symptom>`** (G): die 7 geordneten Abschnitte (WAS · WER · IST · LOGS · PFADE · DIFF · FIX) aus Registry + systemd, redigiert + Token-gekappt.
-- [ ] Backlog: **Doc-Nit** (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixpkgs.nixos-mcp` auf `mediahost@192.168.0.10`) → auf den lokalen `nixos`-MCP umstellen.
-- [ ] Herkunft und Archiv: **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554, 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
-- [ ] Herkunft und Archiv: **Skill-Trigger nachschaerfen (Kante Skills -> Sichtbarkeit):** 18 der 30 Projekt-Skills haben eine `description` unter 80 Zeichen (der Check listet sie als Hinweis) - die Beschreibung ist das Einzige, was die Session ohne Laden sieht. Ausserdem: `nixos-llm-audit`/`medinix-nix-idioms`/`nixos-flake-patterns` als Merge-Kandidaten pruefen (`scripts/skills-exclude.txt` nennt sie).
+### hoch (17)
+
+- [ ] `B8` Aufgabe 8: `agent/skills/` → `skills/`
+- [ ] `N-16-01` Gegenmaßnahmen in todo/README.md und/oder AGENTS.md integrieren _(Status ungeprüft)_
+- [ ] `N-17-01` Manifest-Schema als 50-core/manifest.nix formalisieren _(Status ungeprüft)_
+- [ ] `N-27-03` Caddy-Plugins in BANNED_TECHNOLOGIES.md aufnehmen (Tarpit/Defender/Cerberus) _(Status ungeprüft)_
+- [ ] `Q-28-01` 586-vpn-selftest.nix:42 nutzt vpnCfg.enable, aber services.vpnKillSwitch hat kein Top-Level-enable (nur instan…
+- [ ] `R24` FIDO2 / Passkey-only Authentifizierung
+- [ ] `R47` L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen…
+- [ ] `R55` Identitäten einmal ableiten (ADR-040 Endform)
+- [ ] `R56` NIXMETA-Header vollständig nachziehen
+- [ ] `R74` Pocket-ID Auto-Enrollment + Multi-User/RBAC über versiegelte Credentials
+- [ ] `R80` Vector + Loki + Grafana
+- [ ] `R82` Label-basiertes Automounting/MergerFS
+- [ ] `T-28-01` Q-28-01 fixen und `nix flake check --no-build` gruen nachweisen _(Status ungeprüft)_
+- [ ] `T-28-04` nixmeta-Check rot: pkgs/speedport-api/default.nix hat keinen NIXMETA-Header (Zeile 1 muss '# ---' sein) - Head… _(Status ungeprüft)_
+- [ ] `T-28-05` check_adrs rot: ADR-019-community-flakes-benchmark.md fehlt in docs/adr/llm-index.json; 51-ingress/515-blocky.… _(Status ungeprüft)_
+- [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do… _(Status ungeprüft)_
+- [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4… _(Status ungeprüft)_
+
+### mittel (54)
+
+- [ ] `B-CA` `caddyClass` vs. `accessGroup`
+- [ ] `B-M4` 591 Options-Pfad-Assertion
+- [ ] `B-S11K` ADR-0000 §11 vs. `docs/TERMINOLOGY.md`
+- [ ] `B-S410` ADR-0000 §4 (UPG) und §10 (Consequences) beschreiben teils dasselbe
+- [ ] `L15` `complexity:` fehlt bei 15 von 44 Modulen → Index zeigt `-/5`
+- [ ] `L18` Single-Entry `medinixLib` fehlt
+- [ ] `N-15-01` Lint-Matrix als scripts/check-nixmap.py implementieren _(Status ungeprüft)_
+- [ ] `N-18-01` CI-Check-Bündelung + QEMU-Entkopplung _(Status ungeprüft)_
+- [ ] `N-20-01` Agent-Prompt-Anleitung für maschinenlesbare Quellen in AGENTS.md verankern _(Status ungeprüft)_
+- [ ] `N-21-01` Gatus-Healthcheck-Generierung aus Manifest implementieren _(Status ungeprüft)_
+- [ ] `N-21-02` 586-vpn-selftest.nix anlegen _(Status ungeprüft)_
+- [ ] `N-25-01` Dokumentationstrias in ADR-0000 oder docs/ verankern _(Status ungeprüft)_
+- [ ] `N-27-01` nftables GeoIP-Sets evaluieren _(Status ungeprüft)_
+- [ ] `N-29-03` scripts/verify.sh (N-29-02) muss auch die Einschraenkung dokumentieren, dass 'nix fmt -- --check' ohne Dateili… _(Status ungeprüft)_
+- [ ] `N-29-06` Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-fl… _(Status ungeprüft)_
+- [ ] `Q-15-01` Welche konkreten Prüfkriterien umfassen die restlichen der 44 Nixmap-Auditregeln im vollständigen Regelsatz?
+- [ ] `Q-28-02` Das nie gebaute Modul (geplant als lib/wan-ip-provider.nix, heute 50-core/) deklariert { lib, pkgs ? null }, n…
+- [ ] `Q-28-03` Ist die nftables-Regel 'tcp dport 80 meter flood-http { ip saddr limit rate over 25/minute burst 50 packets }…
+- [ ] `Q-28-04` 515-blocky.nix setzt customDNS.mapping fuer 'lan' und '<domain>' auf 127.0.0.1
+- [ ] `Q-28-05` Korridor AB-036 ('Ausgemustertes archivieren statt loeschen') vs. geloeschte docs/archive/ARCHIVE-ADR-554-feis…
+- [ ] `Q-28-06` nixmeta meldet, dass 52-security/521-creds.nix inzwischen konform ist und aus scripts/nixmeta-baseline.txt ent…
+- [ ] `Q-28-07` check_adrs listet 8 Legacy-Slug-IDs (ADR-571-sqlite-wal, ADR-576-backup-classification, ...) statt numerischer…
+- [ ] `Q-28-08` 19 committete Dateien (Roh-Chat-Exporte in todo/done/, Destillate in todo/*.json) enthalten Infra-Metadaten (e…
+- [ ] `Q-28-09` Host-Anschluss bestaetigt: 502-host-settings (host.domain/adminEmail/hostname/fqdn/ramGb + Alias medinix.domai…
+- [ ] `Q-29-04` scripts/skills-exclude.txt fuehrt seit Wochen vier Merge-Kandidaten als Kommentar: medinix-nix-idioms (doppelt…
+- [ ] `Q-29-05` Soll ein Front-Matter-Feld 'scope: medinix|generic' eingefuehrt werden (31 SKILL.md-Dateien + eine Regel in sc…
+- [ ] `Q-29-06` Die 9 in scripts/skills-exclude.txt ausgeschlossenen Skills (kanban-orchestrator, kanban-worker, hermes-sessio…
+- [ ] `Q-29-07` Zwei Kategorien ohne Skill: /home/moritz/repos/mediNix-core/docs/agents/08-mcp-second-brain (nur CONCEPT.md) u…
+- [ ] `Q-29-08` ADR-0000 §11 und /home/moritz/repos/mediNix-core/docs/TERMINOLOGY.md beschreiben beide Semantic Anchors
+- [ ] `R100` Doc-Nit (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixp…
+- [ ] `R161` ADR-Verweis-Rest (Kette Code → ADR). 7 Allowlist-Einträge in `scripts/adr-refs-allowlist.txt` abarbeiten
+- [ ] `R163` Skill-Trigger nachschärfen. 18 von 30 Projekt-Skills haben eine `description` unter 80 Zeichen
+- [ ] `R37` Generator `medinix-meta.py new-service` („Ankreuzbogen Schicht 3"): fragt 8 Felder, prüft Paketexistenz live ü…
+- [ ] `R66` Datei-basierte Ports härter prüfen
+- [ ] `R72` `50-core/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `50-core/network-cidrs.nix`, `rebuild-guard.nix`
+- [ ] `R73` `vpn-killswitch-test.sh`
+- [ ] `R75` Prometheus-Scraper fehlt
+- [ ] `R76` Flake-Lock-Auto-Update: wöchentlicher Workflow mit `nix flake check`
+- [ ] `R81` Deferred-Deletion-Queue:
+- [ ] `R88` `git branch -d refactor/decades-conformance` lokal und remote
+- [ ] `R93` `scripts/systemd-facts.sh`: host-seitiges JSON-Bundle („was systemd hier kann") aus `systemctl list-units --ou…
+- [ ] `R94` `docs/AUDIT-NIXOS-IDIOMS.md`:
+- [ ] `R95` CONVENTIONS §Audit: drei Schichten + Prüf-Leiter Stufe 0a (`idiom_audit --p0-only`) und Stufe 1a (`nix flake c…
+- [ ] `R96` CI Stufe 0a: `nixos_idiom_audit.py --p0-only` in `.github/workflows/order-lint.yml` (fail-closed)
+- [ ] `R97` `docs/HOST-INTERFACE.md`: eine Seite „Host-Schnittstelle"
+- [ ] `R98` `arr-provision` bündeln: 8 Einzel-CLIs (`arr-sync-*`) → ein `arr-provision <subcommand>` (weniger Entry-Points…
+- [ ] `R99` `medinix gather <symptom>`
+- [ ] `T-28-06` check_banned_technologies rot: todo/scripts/aggregate.py:342 enthaelt 'caddy-security' (Antipattern-Text) - pr… _(Status ungeprüft)_
+- [ ] `T-28-07` Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients… _(Status ungeprüft)_
+- [ ] `T-28-08` Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json… _(Status ungeprüft)_
+- [ ] `T-28-12` Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipattern… _(Status ungeprüft)_
+- [ ] `T12` QEMU-Smoke-Test lokal freischalten (Stufe 3 der Prüf-Leiter)
+- [ ] `T14` 515 mDNS-Refresh umbauen. ⚠️ Der Punkt sagt selbst: `.path`-Trigger ist bereits systemd-nativ, „Umbau = latera…
+- [ ] `T9` Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`, `opencode…
+
+### niedrig (11)
+
+- [ ] `N-19-01` Community-Muster in docs/adr/ dokumentieren _(Status ungeprüft)_
+- [ ] `N-27-02` caddy-ratelimit durch nftables ersetzen _(Status ungeprüft)_
+- [ ] `N-29-04` /home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht un… _(Status ungeprüft)_
+- [ ] `N-29-05` folder_lint meldet zwei Ordner mit 0 Dateien: /home/moritz/repos/mediNix-core/todo/_index und /home/moritz/rep… _(Status ungeprüft)_
+- [ ] `N-29-07` `.agent-state.json` enthaelt 18 lib/-Treffer: 2 `component`-Felder in datierten `dead_ends_and_failures`-Eintr… _(Status ungeprüft)_
+- [ ] `T-28-02` Q-28-02 pruefen: aeusseren pkgs-Default entfernen oder im Funktionskopf nutzen _(Status ungeprüft)_
+- [ ] `T-28-03` Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren _(Status ungeprüft)_
+- [ ] `T-28-09` Q-28-06 umsetzen: 52-security/521-creds.nix aus scripts/nixmeta-baseline.txt entfernen (Baseline schrumpfen) _(Status ungeprüft)_
+- [ ] `T-28-10` Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise) _(Status ungeprüft)_
+- [ ] `T-28-14` `.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren) _(Status ungeprüft)_
+- [ ] `T-28-15` Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) uebe… _(Status ungeprüft)_
 
 ## 3. Ledger — Befunde ohne Abschluss
 

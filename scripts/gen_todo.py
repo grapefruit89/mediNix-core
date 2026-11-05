@@ -23,23 +23,15 @@ ROOT = Path(__file__).resolve().parent.parent
 TODO = ROOT / "docs" / "TODO.md"
 
 
-def roadmap_items() -> tuple[list[str], list[str]]:
-    """(blockname, offene punkte) je Roadmap-Abschnitt."""
-    text = (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
-    sections: list[tuple[str, list[str]]] = []
-    current = ("(ohne Abschnitt)", [])
-    for line in text.splitlines():
-        if line.startswith("## "):
-            if current[1]:
-                sections.append(current)
-            current = (line[3:].strip(), [])
-        elif line.startswith("- [ ] "):
-            current[1].append(line[6:].strip())
-    if current[1]:
-        sections.append(current)
-    if not sections:
-        return [], []
-    return [s[0] for s in sections], [f"{name}: {item}" for name, items in sections for item in items]
+def tasks_open() -> dict[str, list[dict]]:
+    """Offene Arbeit aus todo/tasks.json — der einzigen Handquelle (2026-11-05)."""
+    data = json.loads((ROOT / "todo" / "tasks.json").read_text(encoding="utf-8"))
+    by_priority: dict[str, list[dict]] = {"high": [], "medium": [], "low": []}
+    for t in data["tasks"]:
+        if t.get("status") not in ("open", "in_progress", "blocked"):
+            continue
+        by_priority.setdefault(t.get("priority", "medium"), []).append(t)
+    return by_priority
 
 
 def corridor_items() -> tuple[list[str], int]:
@@ -70,27 +62,38 @@ def ledger_open() -> list[str]:
 
 
 def render() -> str:
-    blocks, backlog = roadmap_items()
+    by_priority = tasks_open()
     decisions, n_blacklist = corridor_items()
     open_ledger = ledger_open()
+    n_open = sum(len(v) for v in by_priority.values())
 
     L = [
         "# TODO — mediNix-core",
         "",
-        f"> **Generiert** aus Korridor + Roadmap + Ledger am {date.today().isoformat()}.",
+        f"> **Generiert** aus tasks.json + Korridor + Ledger am {date.today().isoformat()}.",
         "> Nicht von Hand pflegen — Inhalte gehören in die Quellen:",
-        "> `.agent-state.json` (Entscheidungen), `ROADMAP.md` (Planung), `docs/AUDIT-LEDGER.md` (Befunde).",
+        "> `todo/tasks.json` (offene Arbeit, validiert durch `scripts/check_tasks.py`),",
+        "> `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).",
         f"> Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.",
         "",
         "## 1. Offene Entscheidungen (Korridor)",
         "",
     ]
     L += [f"- [ ] {d}" for d in decisions] or ["- (keine)"]
-    L += ["", "## 2. Roadmap — offene Punkte", ""]
-    if blocks:
-        L.append(f"_Abschnitte: {', '.join(blocks)} · Blacklist-Regeln im Korridor: {n_blacklist}_")
-        L.append("")
-    L += [f"- [ ] {b}" for b in backlog] or ["- (keine)"]
+    L += ["", f"## 2. Offene Arbeit — `todo/tasks.json` ({n_open})", ""]
+    L.append(f"_Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · "
+             f"Blacklist-Regeln im Korridor: {n_blacklist}_")
+    label = {"high": "hoch", "medium": "mittel", "low": "niedrig"}
+    for pri in ("high", "medium", "low"):
+        entries = by_priority.get(pri) or []
+        if not entries:
+            continue
+        L += ["", f"### {label[pri]} ({len(entries)})", ""]
+        for t in entries:
+            legacy = " _(Status ungeprüft)_" if t.get("legacy") else ""
+            L.append(f"- [ ] `{t['id']}` {t['title']}{legacy}")
+    if n_open == 0:
+        L.append("- (keine)")
     L += ["", "## 3. Ledger — Befunde ohne Abschluss", ""]
     L += [f"- [ ] {e}" for e in open_ledger] or ["- (keine)"]
     L += ["", "## 4. Pflicht bei jeder Änderung", "",

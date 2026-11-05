@@ -74,6 +74,7 @@ fi
 echo "== Stufe 3: Repo-Gates ==============================================="
 run "nixmeta_check"            python3 scripts/nixmeta_check.py
 run "check_skills"             python3 scripts/check_skills.py
+run "check_tasks"              python3 scripts/check_tasks.py
 run "check_adrs"               python3 scripts/check_adrs.py
 run "medinix-meta check-docs"  python3 scripts/medinix-meta.py check-docs
 run "check-nixmap"             python3 scripts/check-nixmap.py

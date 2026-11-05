@@ -62,10 +62,17 @@ jobs:
       - name: "NixOS-Idiome ok? (scripts/nixos_idiom_audit.py --p0-only)"
         run: python3 scripts/nixos_idiom_audit.py --p0-only
 
-      # docs/TODO.md ist eine ABLEITUNG (Korridor + ROADMAP.md + AUDIT-LEDGER.md),
+      # todo/tasks.json ist die EINZIGE Handquelle fuer offene Arbeit (2026-11-05,
+      # zusammengefuehrt aus ROADMAP, backlog/*.md, blocks/*.json). Der Validator
+      # prueft u. a. source.ref auf existierende Datei:Zeile - genau dieser Test
+      # haette die lib/-Leichen gefunden.
+      - name: "Offene Arbeit valide? (todo/tasks.json)"
+        run: python3 scripts/check_tasks.py
+
+      # docs/TODO.md ist eine ABLEITUNG (tasks.json + Korridor + AUDIT-LEDGER.md),
       # damit es keine zweite Planungsquelle gibt. Aendert sich eine Quelle, muss
       # die Liste neu erzeugt werden - sonst driftet sie still.
-      - name: "TODO-Liste aktuell? (docs/TODO.md = Korridor + Roadmap + Ledger)"
+      - name: "TODO-Liste aktuell? (docs/TODO.md = tasks.json + Korridor + Ledger)"
         run: python3 scripts/gen_todo.py --check
 
       # Die Service Map in docs/INDEX.md ist aus 50-core/registry.nix (SSoT) abgeleitet.
