@@ -48,10 +48,10 @@ Legende: `✅ erledigt` · `○ offen` · `⚠ teilweise / unklar`
 | M2 | ADR-5050 profilbasiert neu fassen | ✅ | Commit `d16a03d` — `domain: 50`, `links.adr: ADR-5000`, Decision auf `base` + `networkPolicy.*` umgestellt, `RestrictNetworkInterfaces` als 541-Confined-Regel dokumentiert |
 | M3 | python-confined Profil, 541 umstellen | ✅ | Commit `ffea59e` — `networkPolicy.confined` + `python-confined`, 541 wählt bedingt, `mkForce` weg. Eval-Beweis: confined ⇒ kein `IPAddress*`, `RestrictNetworkInterfaces = [ "lo" "wg-medinix" ]` |
 | M4 | 591 Assertion Options-Pfad-Auflösung | ○ offen | `59-guardrails/591-cross-domain.nix:95-110` prüft `(svcCfgOf n).User` direkt; keine Options-Pfad-Auflösung |
-| M5 | Stale-`lib/` Sweep | ○ offen | **62 Dateien** (ohne `docs/adr/`, `docs/audit/`, `docs/archive/`, `todo/`, `.agents/`) mit stale `lib/`-Pfaden; davon nur **1** `.nix` (Template `docs/agents/07-patterns-misc/nixos-dotnet-env-config/templates/arr-settings.nix`). Vor `d16a03d` waren es 63 — ADR-0000 ist frei |
+| M5 | Stale-`lib/` Sweep | ✅ | `1b701f2` (36 aktive Ersetzungen) + `85b9a4c`; danach Kopfzeilen-Politik in CHANGELOG/AUDIT-LEDGER/UPGRADE-MATRIX. Historie bleibt als Beleg. Ursprungsbefund: **62 Dateien** (ohne `docs/adr/`, `docs/audit/`, `docs/archive/`, `todo/`, `.agents/`) mit stale `lib/`-Pfaden; davon nur **1** `.nix` (Template `docs/agents/07-patterns-misc/nixos-dotnet-env-config/templates/arr-settings.nix`). Vor `d16a03d` waren es 63 — ADR-0000 ist frei |
 | M6 | §14 in ADR-0000 | ✅ | Commit `edb04f3` (7 Kategorien, 2 Zonen, `classify()`-Regeln) + `d16a03d` (§14.6, §14.7) |
 | M7 | Doku Konvention 4+7 (DynamicUser, Wrapper) | ⚠ unklar | `docs/CONVENTIONS.md` hat §1–§6 + Zusatzabschnitte, **kein §7**; „Wrapper" kommt nicht vor. Ziel ohne Review-Text nicht bestimmbar |
-| M8 | ADR-040 §3 Klarstellung | ⚠ unklar | `docs/adr/ADR-040-*.md` hat keine §3-Nummerierung (`Kontext`/`Entscheidung`/`Konsequenzen`/`Import-Konventionen`); stale `lib/`-Referenzen dort weiterhin vorhanden |
+| M8 | ADR-040 §3 Klarstellung | ⚠ unklar | `docs/adr/ADR-040-*.md` hat keine §3-Nummerierung (`Kontext`/`Entscheidung`/`Konsequenzen`/`Import-Konventionen`); die 4 `lib/`-Referenzen sind auf `50-core/` umgestellt |
 
 **M-Bilanz: 4 ✅ · 2 ○ · 2 ⚠**
 
@@ -71,7 +71,7 @@ Legende: `✅ erledigt` · `○ offen` · `⚠ teilweise / unklar`
 
 | # | Befund | Ist-Stand | Beleg |
 |---|---|---|---|
-| K1 | Lücke 12 (`lib/` in Normen) | ⚠ teilweise | ADR-0000 ist **frei** (0 Treffer `lib/decimal-framework`, §14.7 dokumentiert die Konkordanz), aber 62 Dateien außerhalb ADR/Audit/Archiv/Todo tragen stale Pfade (identisch mit M5) |
+| K1 | Lücke 12 (`lib/` in Normen) | ✅ | ADR-0000 ist **frei** (0 Treffer `lib/decimal-framework`, §14.7 dokumentiert die Konkordanz), aber 62 Dateien außerhalb ADR/Audit/Archiv/Todo tragen stale Pfade (identisch mit M5) |
 | K2 | Lücke 11 (ADR-5020 vs. BANNED) | ✅ | `ADR-5020:5` → `status: deprecated` (Commit `9627aae`) |
 | K3 | Lücke 9 (ADR-5050) | ✅ | identisch mit M2, erledigt in `d16a03d` |
 | X1 | 591 `enabledOf` fail-open | ⚠ teilweise | `591:23` `…enable or false` (fail-open im Ausdruck) bleibt; Assertion `591:193` verlangt `enable` für jeden Eintrag in `config.medinix.manifest` — Einträge außerhalb dieses Attributs bleiben ungeprüft |

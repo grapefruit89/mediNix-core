@@ -40,7 +40,8 @@
    - **Systemd & D-Bus:** Zur Unit-Inspektion und Validierung von Direktiven immer maschinenlesbare Schnittstellen bevorzugen (`busctl call org.freedesktop.systemd1 ...`, `systemctl show -p ...`, `systemd-analyze security <unit>`) statt unzuverlässigem Log-/Text-Parsing.
    - **NixOS-Optionen:** Vor dem Einbringen neuer Optionen/Pakete die Existenz in nixpkgs via `nix eval --json` oder `nixos-option` bzw. `options.json` validieren. Niemals nicht-existierende Attribute oder Optionen raten.
 10. **CI-Check-Hierarchie & QEMU-Entkopplung (Quelle: `todo/blocks/18-flake-architecture-ci.json`):**
-   - **L1 (Interaktive lokale Schleife):** `nix flake check --no-build` (prüft Eval, Assertions, Nixfmt, Statix, Deadnix) – muss vor jedem Commit 100% grün sein (~5–10s).
+   - **L1 (Interaktive lokale Schleife):** `bash scripts/verify.sh` — die vollständige Leiter: nixfmt (mit Dateiliste), `nix flake check` **mit** Builds, 14 Repo-Gates, 3 Generator-Checks. Muss vor jedem Commit grün sein (~5–10 min). `--fast` überspringt die Builds und ist **nicht** commit-fähig.
+   - **Warum nicht `nix flake check --no-build`:** `--no-build` baut die Check-Derivations nicht — `check-nixfmt`, `statix`, `deadnix` und die VM-Tests laufen dann nicht. Genau daran sind am 2026-11-04 zwei CI-Läufe gescheitert, obwohl lokal „grün" gemeldet war.
    - **L2 (Asynchrone CI-Gates):** Vollständige Derivations-Builds und schwere QEMU-VM-Smoke-Tests laufen in der GitHub Actions CI (`flake-check.yml`), nicht in der synchronen lokalen Agenten-Schleife, um Timeouts und Tokenverbrennung zu verhindern.
 11. **Exploration — Finden statt Suchen (Disziplin R1–R6):**
    - **R1 — Lesen statt Suchen:** Wenn der Pfad bekannt ist → `cat`/`head`/`sed -n`, oder `grep <datei>`. KEIN `grep -rn`, KEIN `find`, KEIN `rg`. Bei unbekanntem Ort zuerst in `medinix-project.md` nachschlagen. NIE `grep -rn "X" /` über das ganze Repo.
@@ -157,7 +158,7 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 
 | Ort | Was |
 |---|---|
-| `lib/` | **Engine** `decimal-framework.nix` (besitzt `users.users.<dienst>`, StateDirectory, UPG) · `service-factory.nix` / `service-contract.nix` (Unit-Gerüst + Manifest-Schema) · `hardening-profiles.nix` (**einzige** Hardening-Quelle) · `registry.nix` (SSoT) · `creds` · `memory-policy` · `arr-settings` |
+| `50-core/` | **Engine** `501-decimal-engine.nix` / `derive.nix` (besitzt `users.users.<dienst>`, StateDirectory, UPG) · `service-factory.nix` / `service-contract.nix` (Unit-Gerüst + Manifest-Schema) · `hardening-profiles.nix` (**einzige** Hardening-Quelle) · `registry.nix` (SSoT) · `creds` · `memory-policy` · `arr-settings` |
 | `docs/adr/` | 47 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
 | `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |

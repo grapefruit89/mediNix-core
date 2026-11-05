@@ -77,13 +77,13 @@ Beide Änderungen einzeln waren grün (`822a0d2` = 50 ✅).
   langfristig in die Engine (`50-core/derive.nix` + Manifest-Absicht) — dann baut das
   Modul nur noch `systemd.services`.
 
-## Import-Konventionen (lib/ vs. Modulbaum)
+## Import-Konventionen (50-core/ vs. Modulbaum)
 
 *Quelle: `todo/done/2026-10-25_1bad3cc7_arch-vs-nixos/blocks/13-lib-vs-50-core.json` (D-13-01, D-13-02)*
 
 1. **Expliziter Import von Bibliotheksfunktionen:**
-   - Module importieren Funktionen aus `lib/` stets direkt und explizit (z. B. `let df = import ../50-core/derive.nix { inherit lib; }; in ...`), niemals über unbestimmte Pfade wie `<nixpkgs/lib>` oder implizite Glob-Lookups.
-2. **`lib/` ist querschnittliche Infrastruktur:**
-   - Dateien in `lib/` sind pure Hilfsfunktionen oder statische SSoT-Daten und besitzen keine NixOS-Modul-Signatur (`{ config, lib, pkgs, ... }`). Sie stellen keine eigene Domäne dar und werden daher in `default.nix` nicht automatisch importiert.
+   - Module importieren Funktionen aus `50-core/` stets direkt und explizit (z. B. `let df = import ../50-core/derive.nix { inherit lib; }; in ...`), niemals über unbestimmte Pfade wie `<nixpkgs/lib>` oder implizite Glob-Lookups.
+2. **`50-core/` ist querschnittliche Infrastruktur:**
+   - Dateien in `50-core/` sind pure Hilfsfunktionen oder statische SSoT-Daten und besitzen keine NixOS-Modul-Signatur (`{ config, lib, pkgs, ... }`). Sie stellen keine eigene Domäne dar und werden daher in `default.nix` nicht automatisch importiert.
 3. **Verbot von `with lib;` in Moduldefinitionen:**
    - Zur Wahrung von deterministischem Scoping und zur Vermeidung von Shadowing-Konflikten ist `with lib;` im gesamten Modulbaum untersagt. Alle Funktionen werden explizit als `lib.<fn>` aufgerufen.

@@ -391,7 +391,8 @@ Zusätzlich:
 | `lib/memory-policy.nix` | `50-core/memory-policy.nix` |
 | `lib/arr-provision/` | `packages/arr-provision/` |
 
-Wo §1.3, §2 oder §4 `lib/…` nennen, gilt diese Konkordanz.
+Die Tabelle ist ein **historischer Beleg** des Umzugs vom 2026-11-04. Die Verfassung
+verwendet ausschließlich `50-core/…`; §1.3, §2 und §4 nennen den Altordner nicht mehr.
 
 ---
 

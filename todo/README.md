@@ -53,7 +53,7 @@
   - `/home/moritz/repos/mediNix-core/50-core/*.nix`
   - `/home/moritz/repos/mediNix-core/51-ingress/*.nix`
   - `/home/moritz/repos/mediNix-core/52-security/*.nix`
-  - `/home/moritz/repos/mediNix-core/lib/*.nix`
+  - `/home/moritz/repos/mediNix-core/50-core/*.nix`
   - `/home/moritz/repos/mediNix-core/docs/**`
 
 ---
@@ -138,7 +138,7 @@ korrigiert (`[72..79]` statt `[73..80]`).
      `/home/moritz/repos/mediNix-core/todo/`. Kein
      `/home/moritz/repos/mediNix-core/51-ingress/*.nix`, kein
      `/home/moritz/repos/mediNix-core/50-core/*.nix`, kein
-     `/home/moritz/repos/mediNix-core/lib/*`.
+     `/home/moritz/repos/mediNix-core/50-core/*`.
 
   2. **Erst lesen, dann verstehen, dann prüfen.** Für jede Code-Referenz
      im Chat: die tatsächliche Datei unter dem absoluten Pfad lesen. Wenn

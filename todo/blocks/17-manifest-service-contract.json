@@ -10,11 +10,11 @@
     64,
     65
   ],
-  "summary": "Etabliert ein zentrales SSoT-Servicemanifest in lib/manifest.nix mit formaler Schema-Versionierung zur Vermeidung von Breaking Changes zwischen mediNix-Core und Host-Konfigurationen. Jeder Dienst deklariert standardisierte Attribute wie Name, Port/UID-Nummer, AccessGroup (stream, internal, public, idp, none), HealthPath, Backup-Pfade und VPN-Killswitch-Bedarf. Aus diesem typisierten Manifest leiten Ingress (Caddy), Observability (Gatus) und Backup (Restic) ihre Konfigurationen vollautomatisch und fehlertolerant ab.",
+  "summary": "Etabliert ein zentrales SSoT-Servicemanifest in 50-core/manifest.nix mit formaler Schema-Versionierung zur Vermeidung von Breaking Changes zwischen mediNix-Core und Host-Konfigurationen. Jeder Dienst deklariert standardisierte Attribute wie Name, Port/UID-Nummer, AccessGroup (stream, internal, public, idp, none), HealthPath, Backup-Pfade und VPN-Killswitch-Bedarf. Aus diesem typisierten Manifest leiten Ingress (Caddy), Observability (Gatus) und Backup (Restic) ihre Konfigurationen vollautomatisch und fehlertolerant ab.",
   "decisions": [
     {
       "id": "D-17-01",
-      "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
+      "statement": "Zentrales SSoT-Manifest (50-core/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
       "status": "decided",
       "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet.",
       "verdict": "better",
@@ -32,7 +32,7 @@
           "file": "/home/moritz/repos/mediNix-core/lib/manifest.nix",
           "status": "missing",
           "current_state": "Manifest existiert als ad-hoc Attributset in 511-caddy.nix",
-          "proposed_change": "Formales Schema mit Schema-Versionierung in lib/manifest.nix anlegen"
+          "proposed_change": "Formales Schema mit Schema-Versionierung in 50-core/manifest.nix anlegen"
         }
       ],
       "source_message_ids": [
@@ -89,7 +89,7 @@
   "next_steps": [
     {
       "id": "N-17-01",
-      "action": "Manifest-Schema als lib/manifest.nix formalisieren",
+      "action": "Manifest-Schema als 50-core/manifest.nix formalisieren",
       "priority": "high",
       "depends_on": []
     }

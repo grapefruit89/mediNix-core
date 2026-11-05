@@ -4,6 +4,9 @@
 **Regel pro Zeile:** Backup → **eine** Änderung → messen → Rollback bereithalten.
 **Quelle** = die *Messung* (Befehl/Tool), nicht die Vermutung.
 
+> **Pfade in diesem Dokument sind Stand des jeweiligen Funds.** Der Ordner `lib/` wurde
+> am 2026-11-04 aufgelöst — die Zuordnung Alt → Neu steht in ADR-0000 §14.7.
+
 Legende Spur: `BUG` · `BERG` (Bergung Alt→Neu) · `ARCH` · `SEC` · `OPT`
 Status: `OPEN` · `WIP` · `DONE` · `WONTFIX` · `BLOCKED`
 

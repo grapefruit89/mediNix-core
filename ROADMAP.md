@@ -115,7 +115,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 | Zwei Service-Engines / doppeltes Eigentum | harter Eval-Abbruch; jetzt: genau ein Eigentümer pro Option | AB-002 |
 | Port-suffizierte `stateDir`s (`/var/lib/<name>-<port>`) | ADR-0000 §9 | AB-006 |
 | `mkForce` als Problemlöser | MANIFEST §2 | AB-008 |
-| Inline-Hardening statt `lib/hardening-profiles.nix` | ein Ort für die Härtungspolitik | AB-009 |
+| Inline-Hardening statt `50-core/hardening-profiles.nix` | ein Ort für die Härtungspolitik | AB-009 |
 | Upstream-Module mit `DynamicUser` übernehmen | stiller ADR-Bruch (Gatus-/ntfy-Fall) | AB-019 |
 | Einzel-Check ohne erzwungenen `toplevel` | verdeckt Voll-Stack-Fehler über Tage | AB-020 |
 | Audiobookshelf QuickSync/VA-API | reiner Audioserver — kein Codec-Nutzen, schwächt die Sandbox | docs/ROADMAP §4 (alt) |

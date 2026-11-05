@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-11-04T21:04:26.978237+00:00",
+    "generated_at": "2026-11-05T09:45:53.278332+00:00",
     "total_concerns": 18,
     "chat1_concerns_count": 8,
     "new_concerns_count": 10,
@@ -725,7 +725,7 @@
       "source": "18-flake-architecture-ci",
       "components": [
         "fast-eval gate (<3s)",
-        "nix-unit für lib/",
+        "nix-unit fuer 50-core/",
         "flake check --no-build",
         "periodischer vollständiger VM/QEMU-Testlauf"
       ],

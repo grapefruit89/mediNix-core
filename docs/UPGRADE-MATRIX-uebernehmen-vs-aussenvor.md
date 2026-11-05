@@ -6,6 +6,9 @@
 > `mediNix-core`-Clone.
 > **Ergänzt** das Dokument `docs/audit/2026-10-15/ROADMAP-DEZIMALRAHMEN-MIGRATION.md` (dort: der interne
 > Engine-Konflikt). Dieses Dokument beantwortet: *Was holen wir rüber, was lassen wir weg?*
+>
+> **Pfade in diesem Dokument sind Stand der jeweiligen Analyse.** Der Ordner `lib/` wurde
+> am 2026-11-04 aufgelöst — die Zuordnung Alt → Neu steht in ADR-0000 §14.7.
 
 ---
 
@@ -30,7 +33,7 @@ der eigentliche Rückschritt — und die Leitlinie für diese Matrix: **mediNix'
 | A3 | `SystemCallErrorNumber = "EPERM"` als **Servernorm** | `lib-audit`/`52` → Factory `node`-Profil, L4 | Verhindert stillen **SIGSYS-Tod** bei seccomp-Filter | P0 |
 | A4 | `memory-policy.nix`: **OOM-/Weight-Leiter**, `CPUWeight` (nicht `CPUQuota`), `high75`, `forceOom` für postgres(−800)/pocketId(−900), skaliert aus `ramGB` | `lib-audit` → `lib/memory-policy.nix:34-211` | Eine Zahl skaliert alles; CPUQuota verschenkt Leerlauf | P0 |
 | A5 | **Peer-Isolation** (`InaccessiblePaths` fremder State-Dirs, `-`-Präfix) + **MediaCover-Offload** (`BindPaths`, state≠cache) | `lib-audit`/`53` → factory | Fremde State-Dirs unsichtbar; Artwork aufs schnelle Pool | P0 |
-| A6 | `lib/gpu.nix` **Vendor-Abstraktion** (intel/amd/nvidia/none) mit ehrlicher Grenze „Nix kann HW zur Bauzeit nicht abfragen" | `lib-audit` → `lib/gpu.nix:22-151` | Eine Option → Geräte, Pakete, Gruppen, ffmpeg-Methode; kein stiller CPU-Fallback | P0 |
+| A6 | `50-core/gpu.nix` **Vendor-Abstraktion** (intel/amd/nvidia/none) mit ehrlicher Grenze „Nix kann HW zur Bauzeit nicht abfragen" | `lib-audit` → `lib/gpu.nix:22-151` | Eine Option → Geräte, Pakete, Gruppen, ffmpeg-Methode; kein stiller CPU-Fallback | P0 |
 | A7 | `rebuild-guard.nix` (Sentinel `/run/nixos/rebuild-in-progress` + `ConditionPathExists = "!…"`) | `lib-audit` → `rebuild-guard.nix:10-14` | Verhindert Path-Unit-Trigger (Transcode-Cleanup/VPN-Verify) **während** `nixos-rebuild` | P1 |
 | A8 | `network-cidrs.nix` (loopback+RFC1918) als eine Quelle für `IPAddressAllow` | `lib-audit` → `network-cidrs.nix:15-27` | Kein CIDR-Wissen mehrfach schreiben | P1 |
 | A9 | `dns.nix` als **reine Funktion, ohne IPs/Domain/Provider**; `nameOf` erlaubt Hostname ≠ Servicename | `lib-audit` → `dns.nix:21-57` | Trennt Namensmodell (Core) von konkreter Domain (Host) | P2 |

@@ -113,7 +113,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   `refactor/decades-conformance` gelöscht.
 - **P1:** 516 CrowdSec, `50-core/gpu.nix`, `network-cidrs.nix`, `noExec` auch für 514
   (erst nach Laufzeittest im QEMU).
-- **P2:** 4 unverdrahtete `lib`-Module entscheiden, `AGENT_SOURCES.md` mit `UPSTREAM-SOURCES.md`
+- **P2:** 4 unverdrahtete Module des damaligen Altordners entscheiden, `AGENT_SOURCES.md` mit `UPSTREAM-SOURCES.md`
   zusammenlegen, jellyfin zusätzlich über den *gerenderten* XML-Inhalt prüfen.
 
 ---
@@ -143,7 +143,7 @@ bash docs/agents/shared/scripts/folder_lint.sh .
   heute `Group == Unit-Name`, Primärgruppe == Unit-Name und `users.groups.<n>.gid == uid`
   (er hat beim Verschärfen sofort einen vergessenen Rest gefunden).
 - **DDNS-Token nicht mehr in `argv`** (L-039): `curl --variable token@$RUNTIME_DIRECTORY/cf-token`
-  + `--expand-header` (curl 8.21.0); `lib/mk-secure-curl.nix` ist damit `deprecated`.
+  + `--expand-header` (curl 8.21.0); der damalige `lib/mk-secure-curl.nix` (heute archiviert) ist damit `deprecated`.
 - **Repo aufgeräumt** (L-040/L-041): Fremdregelwerke (`.agents/`, `docs/GEMINI.md`),
   flache Zweitfassungen (`docs/SKILL-*.md`, `docs/CHANGELOG.md`), Code-Dump
   (`59-guardrails-export.md`) archiviert → `docs/audit/2026-10-15/repo-cleanup/<original-pfad>/`;
@@ -249,7 +249,7 @@ Kein `infinite recursion`, keine Root-Assertion. Behoben:
 Dateien (identisch mit `origin/audit-2026-10-15`, aus `4a6d51e` bzw. `9597cc4`):
 - `statix-check`: `/home/moritz/repos/mediNix-core/50-core/registry.nix:37`
   "Assignment instead of inherit from" (`sharedGid = (df.derive …).sharedGid`).
-- `deadnix-check`: `/home/moritz/repos/mediNix-core/lib/cli.nix:17` unbenutztes Lambda-Muster `lib`.
+- `deadnix-check`: `/home/moritz/repos/mediNix-core/packages/medinix-cli/cli.nix:17` unbenutztes Lambda-Muster `lib`.
 `nixfmt-check`, `nixmeta-check`, `mediNix-unit-scripts` sind gruen. **Kein Push**, bis diese zwei
 Funde entschieden sind.
 

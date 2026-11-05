@@ -7,7 +7,7 @@
     "lib-cleanup"
   ],
   "message_ids": [],
-  "summary": "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix, nftables-Syntax der Port-80-Ratelimit-Regel).",
+  "summary": "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-Syntax der Port-80-Ratelimit-Regel).",
   "decisions": [],
   "open_questions": [
     {
@@ -18,7 +18,7 @@
     },
     {
       "id": "Q-28-02",
-      "question": "lib/wan-ip-provider.nix deklariert { lib, pkgs ? null }, nutzt in mkWanIpProvider aber pkgs ? pkgs - ist der aeussere Default toter Parameter?",
+      "question": "Das nie gebaute Modul (geplant als lib/wan-ip-provider.nix, heute 50-core/) deklariert { lib, pkgs ? null }, nutzt in mkWanIpProvider aber pkgs ? pkgs - ist der aeussere Default toter Parameter?",
       "why_open": "Verdacht aus dem Review; nicht gemessen.",
       "blocking": false
     },
@@ -154,7 +154,7 @@
     },
     {
       "id": "T-28-15",
-      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (lib/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
+      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
       "priority": "low",
       "depends_on": []
     }

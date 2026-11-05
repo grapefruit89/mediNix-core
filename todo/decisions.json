@@ -1,10 +1,10 @@
 {
   "meta": {
-    "generated_at": "2026-11-04T21:04:26.976422+00:00",
+    "generated_at": "2026-11-05T09:45:53.276504+00:00",
     "total_blocks": 29,
-    "total_decisions": 69,
+    "total_decisions": 72,
     "status_counts": {
-      "decided": 66,
+      "decided": 69,
       "rejected": 3
     },
     "theme_counts": {
@@ -21,7 +21,7 @@
       "systemd": 4,
       "observability": 3,
       "caddy-plugins": 7,
-      "other": 2
+      "other": 5
     }
   },
   "by_theme": {
@@ -442,7 +442,7 @@
         "id": "D-17-01",
         "block_id": "17-manifest-service-contract",
         "theme": "manifest",
-        "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
+        "statement": "Zentrales SSoT-Manifest (50-core/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
         "status": "decided",
         "verdict": "better",
         "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet."
@@ -672,6 +672,33 @@
         "status": "decided",
         "verdict": "better",
         "rationale": "Zeiger-Regel aus docs/CONVENTIONS.md §4. Vor dem Kuerzen wurden die vier Detail-Unterschiede in AGENTS.md uebernommen (grep <datei>, git log -S in SUCHEN und in R6, nixmeta_check in VERIFIZIEREN) plus nix build in TESTEN, damit kein Inhalt verloren geht."
+      },
+      {
+        "id": "D-29-03",
+        "block_id": "29-meta-dezimalrahmen-nacharbeit",
+        "theme": "other",
+        "statement": "Ein `lib/`-Pfad wird nur dort ersetzt, wo er den aktuellen oder kuenftigen Zustand beschreibt. Datierte Belege (AUDIT-LEDGER, CHANGELOG, UPGRADE-MATRIX) behalten ihren Wortlaut und bekommen EINE Kopfzeile: 'Pfade in diesem Dokument sind Stand des jeweiligen Funds; lib/ -> ADR-0000 §14.7'.",
+        "status": "decided",
+        "verdict": "better",
+        "rationale": "Ein Audit-Fund mit nachtraeglich umgeschriebenem Pfad waere ein falscher Beleg. Die Kopfzeile entschaerft die Falle (ein Agent greppt lib/registry.nix und landet in einem datierten Dokument) mit drei Zeilen statt 43 Einzeleingriffen."
+      },
+      {
+        "id": "D-29-04",
+        "block_id": "29-meta-dezimalrahmen-nacharbeit",
+        "theme": "other",
+        "statement": "Die Skill-Referenz medinix-project.md behaelt den Zeiger auf AGENTS.md Regel 11 und erhaelt eine Fallback-Zeile, damit R1-R6 auch ausserhalb von mediNix benutzbar bleiben.",
+        "status": "decided",
+        "verdict": "better",
+        "rationale": "Der Skill nixos-ecosystem ist laut description repo-uebergreifend (nix-darwin, Nix-on-Droid), die Verfassung gibt es nur hier. Eine Zeile loest den Widerspruch, ohne die Regeln erneut zu duplizieren."
+      },
+      {
+        "id": "D-29-05",
+        "block_id": "29-meta-dezimalrahmen-nacharbeit",
+        "theme": "other",
+        "statement": "Kategorie ROADMAP.md:118 ('Inline-Hardening statt lib/hardening-profiles.nix') wird auf 50-core/ umgestellt - sie beschreibt eine weiterhin existierende Alternative, nicht ein vergangenes Ereignis.",
+        "status": "decided",
+        "verdict": "neutral",
+        "rationale": "Abgrenzung zu D-29-03: Beleg = datiertes Ereignis; Beratung = aktuell gueltige Option. Nur Ereignisse behalten den Altpfad."
       }
     ]
   },
@@ -1040,7 +1067,7 @@
       "id": "D-17-01",
       "block_id": "17-manifest-service-contract",
       "theme": "manifest",
-      "statement": "Zentrales SSoT-Manifest (lib/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
+      "statement": "Zentrales SSoT-Manifest (50-core/manifest.nix) mit festem Attributschema für alle mediNix-Dienste einführen.",
       "status": "decided",
       "verdict": "better",
       "rationale": "Beseitigt verstreute Konfigurationsredundanzen; Ingress, Monitoring, Backup und VPN-Routing werden aus einer einzigen deklarativen Quelle abgeleitet."
@@ -1296,6 +1323,33 @@
       "status": "decided",
       "verdict": "better",
       "rationale": "Zeiger-Regel aus docs/CONVENTIONS.md §4. Vor dem Kuerzen wurden die vier Detail-Unterschiede in AGENTS.md uebernommen (grep <datei>, git log -S in SUCHEN und in R6, nixmeta_check in VERIFIZIEREN) plus nix build in TESTEN, damit kein Inhalt verloren geht."
+    },
+    {
+      "id": "D-29-03",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "theme": "other",
+      "statement": "Ein `lib/`-Pfad wird nur dort ersetzt, wo er den aktuellen oder kuenftigen Zustand beschreibt. Datierte Belege (AUDIT-LEDGER, CHANGELOG, UPGRADE-MATRIX) behalten ihren Wortlaut und bekommen EINE Kopfzeile: 'Pfade in diesem Dokument sind Stand des jeweiligen Funds; lib/ -> ADR-0000 §14.7'.",
+      "status": "decided",
+      "verdict": "better",
+      "rationale": "Ein Audit-Fund mit nachtraeglich umgeschriebenem Pfad waere ein falscher Beleg. Die Kopfzeile entschaerft die Falle (ein Agent greppt lib/registry.nix und landet in einem datierten Dokument) mit drei Zeilen statt 43 Einzeleingriffen."
+    },
+    {
+      "id": "D-29-04",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "theme": "other",
+      "statement": "Die Skill-Referenz medinix-project.md behaelt den Zeiger auf AGENTS.md Regel 11 und erhaelt eine Fallback-Zeile, damit R1-R6 auch ausserhalb von mediNix benutzbar bleiben.",
+      "status": "decided",
+      "verdict": "better",
+      "rationale": "Der Skill nixos-ecosystem ist laut description repo-uebergreifend (nix-darwin, Nix-on-Droid), die Verfassung gibt es nur hier. Eine Zeile loest den Widerspruch, ohne die Regeln erneut zu duplizieren."
+    },
+    {
+      "id": "D-29-05",
+      "block_id": "29-meta-dezimalrahmen-nacharbeit",
+      "theme": "other",
+      "statement": "Kategorie ROADMAP.md:118 ('Inline-Hardening statt lib/hardening-profiles.nix') wird auf 50-core/ umgestellt - sie beschreibt eine weiterhin existierende Alternative, nicht ein vergangenes Ereignis.",
+      "status": "decided",
+      "verdict": "neutral",
+      "rationale": "Abgrenzung zu D-29-03: Beleg = datiertes Ereignis; Beratung = aktuell gueltige Option. Nur Ereignisse behalten den Altpfad."
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-11-04T21:04:26.975751+00:00",
+    "generated_at": "2026-11-05T09:45:53.275812+00:00",
     "total_blocks": 29,
     "blocks_processed": [
       "01-arch-vs-nixos",
@@ -278,7 +278,7 @@
     {
       "id": "N-17-01",
       "block_id": "17-manifest-service-contract",
-      "action": "Manifest-Schema als lib/manifest.nix formalisieren",
+      "action": "Manifest-Schema als 50-core/manifest.nix formalisieren",
       "priority": "high",
       "depends_on": [],
       "status": "open"
@@ -514,7 +514,7 @@
     {
       "id": "T-28-15",
       "block_id": "28-verify-open-points",
-      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (lib/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
+      "action": "Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) ueber eine Option konfigurierbar machen (kein Leak, aber generischer Flake) - Default beibehalten.",
       "priority": "low",
       "depends_on": [],
       "status": "open"
@@ -572,7 +572,7 @@
     {
       "id": "N-29-07",
       "block_id": "29-meta-dezimalrahmen-nacharbeit",
-      "action": ".agent-state.json enthaelt vier historische Eintraege mit lib/-Pfaden (Zeilen 335, 399, 400, 452-455). Pruefen, ob sie als Historie bleiben oder auf 50-core/ nachgezogen werden. Bewusst nicht im Sweep angefasst (Maschinenzustand, kein Doku-Text).",
+      "action": "`.agent-state.json` enthaelt 18 lib/-Treffer: 2 `component`-Felder in datierten `dead_ends_and_failures`-Eintraegen, 4 `corridor`-Eintraege mit `status: parked` und 12 Beleg-/Log-Zeilen. Bleibt als Zeitprotokoll unveraendert (ein umgeschriebener Fehlerbericht verliert seinen Beweiswert). Nur pruefen, ob ein kuenftiger Eintrag versehentlich einen Altpfad als AKTUELLEN Zustand nennt - solche Eintraege korrigieren.",
       "priority": "low",
       "depends_on": [],
       "status": "open"

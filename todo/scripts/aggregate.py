@@ -305,7 +305,7 @@ new_concerns_map = {
         "source": "18-flake-architecture-ci",
         "components": [
             "fast-eval gate (<3s)",
-            "nix-unit für lib/",
+            "nix-unit fuer 50-core/",
             "flake check --no-build",
             "periodischer vollständiger VM/QEMU-Testlauf"
         ],

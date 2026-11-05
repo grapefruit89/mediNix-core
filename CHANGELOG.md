@@ -3,6 +3,9 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
 
+> **Pfade in diesem Dokument sind Stand des jeweiligen Eintrags.** Der Ordner `lib/`
+> wurde am 2026-11-04 aufgelöst — die Zuordnung Alt → Neu steht in ADR-0000 §14.7.
+
 ## 2026-10-17 — 51-ingress-Review: 26 Findings verifiziert, 12 gefixt
 
 Vollständiger Report: `docs/audit/2026-10-17/51-ingress-review/REVIEW-51-ingress.md`.

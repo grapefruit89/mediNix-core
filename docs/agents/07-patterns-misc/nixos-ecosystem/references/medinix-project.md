@@ -160,3 +160,6 @@ Die Regeln R1–R6 (lesen statt suchen, ein Tool-Call pro Frage, Ambiguität →
 Tool-Kosten-Hierarchie, 3-Call-Budget, Dead Signals) stehen in der Repo-Verfassung:
 **`AGENTS.md` §Regel 11**. Dort ist die einzige Quelle — diese Datei führt sie nicht
 doppelt (Zeiger-Regel, `docs/CONVENTIONS.md` §4).
+
+Außerhalb von mediNix gelten R1–R6 unverändert: lesen vor suchen, 1 Call pro Frage,
+Ambiguität → STOP, 3-Call-Budget, Dead Signals.

@@ -52,7 +52,7 @@
 | „messen → verstehen → Diff → Go" | [Genchi Genbutsu](anchors/genchi-genbutsu.md) + [PDCA](anchors/pdca.md) |
 | Nach 2 Fehlversuchen am selben Punkt **STOPP** | [Andon](anchors/andon.md) |
 | Backup → **eine** Änderung → messen → Rollback | [PDCA](anchors/pdca.md) |
-| „markiert statt gelöscht" (nie verdrahtete `lib`-Module) | [Chesterton's Fence](anchors/chestertons-fence.md) |
+| „markiert statt gelöscht" (nie verdrahtete Module des damaligen Altordners) | [Chesterton's Fence](anchors/chestertons-fence.md) |
 | Keine Container/netns, systemd-native | [Unix Philosophy](anchors/unix-philosophy.md) + [Principle of Least Privilege](anchors/least-privilege.md) |
 | Architektur-Entscheidungen (`docs/adr/`) | [ADR according to Nygard](anchors/adr-according-to-nygard.md) (+ [MADR](anchors/madr.md)) |
 | `arr-settings` = Konfig per `SONARR__…`-Env-Vars | [Twelve-Factor App](anchors/twelve-factor-app.md) |

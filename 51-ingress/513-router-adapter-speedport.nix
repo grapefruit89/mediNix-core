@@ -42,7 +42,7 @@ let
   cfg = config.medinix;
   ddns = cfg.dns.ddns;
 
-  # speedport-api 0.6.0 komplett inline gebaut (kein externes lib/speedport-api.nix mehr)
+  # speedport-api 0.6.0 komplett inline gebaut (kein separates Helfer-Modul mehr)
   speedportPkg = pkgs.python312Packages.buildPythonPackage rec {
     pname = "speedport-api";
     version = "0.6.0";
