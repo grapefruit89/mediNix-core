@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parent.parent
 HISTORICAL_PREFIXES = (
     'docs/audit/', 'docs/archive/', 'docs/learn/', 'docs/patterns/',
     'docs/agents/', 'todo/_archive/', 'todo/_input/', 'todo/done/',
-    'todo/blocks/',
+    'docs/audit/2026-11-05/todo-blocks/',
 )
 HIDE_FROM_DETAIL = (
     'todo/_input/', 'todo/_archive/', 'todo/done/',

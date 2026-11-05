@@ -23,7 +23,7 @@
 #
 # Prueft periodisch zur Laufzeit, ob der VPN-Killswitch (526) und das UID-basierte
 # Policy-Routing greifen und kein Traffic aus VPN-gebundenen Diensten unverschluesselt leckt.
-# Quelle: todo/blocks/21-observability-automation.json (D-21-03)
+# Quelle: docs/audit/2026-11-05/todo-blocks/21-observability-automation.json (D-21-03)
 {
   config,
   lib,

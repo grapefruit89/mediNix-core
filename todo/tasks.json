@@ -34,7 +34,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/16-agent-error-taxonomy.json#N-16-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/16-agent-error-taxonomy.json#N-16-01",
         "date": "2026-11-05",
         "evidence": [
           "Systematische Erfassung und Taxonomie wiederkehrender Fehler von Coding-Agenten bei der Bearbeitung des mediNix-Flakes. Unterscheidet Tool-Aufruf-Fehler (ungültige Attributpfade, Trailing Commas, mask"
@@ -58,7 +58,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/17-manifest-service-contract.json#N-17-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/17-manifest-service-contract.json#N-17-01",
         "date": "2026-11-05",
         "evidence": [
           "Etabliert ein zentrales SSoT-Servicemanifest in 50-core/manifest.nix mit formaler Schema-Versionierung zur Vermeidung von Breaking Changes zwischen mediNix-Core und Host-Konfigurationen. Jeder Dienst "
@@ -82,7 +82,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/27-caddy-plugin-replacements.json#N-27-03",
+        "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-03",
         "date": "2026-11-05",
         "evidence": [
           "Systematische Bewertung von Caddy-Plugins auf Basis des mediNix-Prinzips 'Kernel-Nähe vor User-Space-Overhead'. Vier Caddy-Plugins (GeoIP, Cloudflare-DNS, Rate-Limiting, Dynamic-DNS) werden durch nati"
@@ -106,7 +106,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-01",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -133,7 +133,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/23-security-auth-features.md:11",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:24`",
+          "`ROADMAP.md:24 (Stand 2026-11-04)`",
           "`docs/TODO.md:20`",
           "ADR-512",
           "ADR-517"
@@ -158,7 +158,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/20-build-blocker-gates.md:11",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:47`",
+          "`ROADMAP.md:47 (Stand 2026-11-04)`",
           "`docs/TODO.md:22`",
           "ADR-0002 Punkt 1"
         ]
@@ -182,7 +182,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/21-ssot-struktur.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:55`",
+          "`ROADMAP.md:55 (Stand 2026-11-04)`",
           "`docs/TODO.md:23`",
           "ADR-040 Konsequenzen"
         ]
@@ -206,7 +206,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/21-ssot-struktur.md:14",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:56`",
+          "`ROADMAP.md:56 (Stand 2026-11-04)`",
           "`docs/TODO.md:24`"
         ]
       },
@@ -229,7 +229,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/23-security-auth-features.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:74`",
+          "`ROADMAP.md:74 (Stand 2026-11-04)`",
           "`docs/TODO.md:28`"
         ]
       },
@@ -252,7 +252,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/22-observability-features.md:11",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:80`",
+          "`ROADMAP.md:80 (Stand 2026-11-04)`",
           "`docs/TODO.md:31`"
         ]
       },
@@ -275,7 +275,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:17",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:82`",
+          "`ROADMAP.md:82 (Stand 2026-11-04)`",
           "`docs/TODO.md:33`"
         ]
       },
@@ -295,7 +295,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-01",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -319,7 +319,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-04",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-04",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -343,7 +343,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-05",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-05",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -367,7 +367,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-11",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-11",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -391,7 +391,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-13",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-13",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -415,7 +415,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/22-cloudflare-dns-bash-bug.json#N-22-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/22-cloudflare-dns-bash-bug.json#N-22-01",
         "date": "2026-11-05",
         "evidence": [
           "Im Prune-Pfad von 513-cloudflare-dns.nix wurde ein subtiler Bash-Interpolationsfehler identifiziert: if [ '${foreign:-0}' != '0' ] wurde als Nix-Interpolation von foreign:-0 interpretiert. Dadurch ste"
@@ -445,7 +445,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/23-systemd-hardening-syntax-bugs.json#N-23-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/23-systemd-hardening-syntax-bugs.json#N-23-01",
         "date": "2026-11-05",
         "evidence": [
           "Systematisches Review deckte zwei gravierende Direktivenfehler im Systemd-Hardening auf. Erstens erwartet SocketBindAllow laut systemd.resource-control(5) zwingend Port-Syntax ([protocol:]port), keine"
@@ -475,7 +475,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/23-systemd-hardening-syntax-bugs.json#N-23-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/23-systemd-hardening-syntax-bugs.json#N-23-02",
         "date": "2026-11-05",
         "evidence": [
           "Systematisches Review deckte zwei gravierende Direktivenfehler im Systemd-Hardening auf. Erstens erwartet SocketBindAllow laut systemd.resource-control(5) zwingend Port-Syntax ([protocol:]port), keine"
@@ -505,7 +505,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/24-mkforce-500-host-baseline.json#N-24-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/24-mkforce-500-host-baseline.json#N-24-01",
         "date": "2026-11-05",
         "evidence": [
           "In 500-host-baseline.nix wird system.nixos.label mittels lib.mkForce überschrieben, um die Git-Revision einzubinden. Dies stellt einen direkten Verstoß gegen BANNED_TECHNOLOGIES und ADR-0003 §2 dar, d"
@@ -535,7 +535,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-01",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -565,7 +565,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-02",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -729,7 +729,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/15-nixmap-ast-audit.json#N-15-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/15-nixmap-ast-audit.json#N-15-01",
         "date": "2026-11-05",
         "evidence": [
           "Definiert eine 44-Regeln-Auditmatrix (Nixmap) für deklarativen, fehlertoleranten NixOS-Code. Kernregeln umfassen das Verbot des //-Operators zugunsten von lib.recursiveUpdate, das Verbot imperativer K"
@@ -753,7 +753,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/18-flake-architecture-ci.json#N-18-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/18-flake-architecture-ci.json#N-18-01",
         "date": "2026-11-05",
         "evidence": [
           "Strukturiert die Flake-Outputs und die CI-Pipeline zur Beschleunigung der Entwicklungszyklen. Führt treefmt.nix für eine konsistente, reproduzierbare Formatierung ein und entkoppelt langwierige QEMU-V"
@@ -777,7 +777,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/20-machine-readable-systemd-nixos.json#N-20-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/20-machine-readable-systemd-nixos.json#N-20-01",
         "date": "2026-11-05",
         "evidence": [
           "Identifiziert und kuratiert maschinenlesbare Schnittstellen für Systemd und NixOS zur Elimination von LLM-Halluzinationen. Durch die Abfrage von D-Bus (org.freedesktop.systemd1), nixpkgs options.json "
@@ -801,7 +801,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/21-observability-automation.json#N-21-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/21-observability-automation.json#N-21-01",
         "date": "2026-11-05",
         "evidence": [
           "Konzipiert die automatisierte Observability-Pipeline in Domain 58. Generiert Gatus-Healthchecks (582) vollautomatisch aus den im Manifest deklarierten Vhosts und Endpunkten. Etabliert feste, kollision"
@@ -825,7 +825,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/21-observability-automation.json#N-21-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/21-observability-automation.json#N-21-02",
         "date": "2026-11-05",
         "evidence": [
           "Konzipiert die automatisierte Observability-Pipeline in Domain 58. Generiert Gatus-Healthchecks (582) vollautomatisch aus den im Manifest deklarierten Vhosts und Endpunkten. Etabliert feste, kollision"
@@ -849,7 +849,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/25-docs-trias.json#N-25-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/25-docs-trias.json#N-25-01",
         "date": "2026-11-05",
         "evidence": [
           "Definiert eine dreistufige Dokumentationshierarchie für mediNix zur konsistenten Führung von KI-Coding-Agenten. Das Lastenheft definiert das 'Was' aus Auftraggebersicht (fachliche Anforderungen), das "
@@ -873,7 +873,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/27-caddy-plugin-replacements.json#N-27-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-01",
         "date": "2026-11-05",
         "evidence": [
           "Systematische Bewertung von Caddy-Plugins auf Basis des mediNix-Prinzips 'Kernel-Nähe vor User-Space-Overhead'. Vier Caddy-Plugins (GeoIP, Cloudflare-DNS, Rate-Limiting, Dynamic-DNS) werden durch nati"
@@ -897,7 +897,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-03",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-03",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -923,7 +923,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-06",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-06",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -947,7 +947,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/15-nixmap-ast-audit.json#Q-15-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/15-nixmap-ast-audit.json#Q-15-01",
         "date": "2026-11-05",
         "evidence": [
           "Definiert eine 44-Regeln-Auditmatrix (Nixmap) für deklarativen, fehlertoleranten NixOS-Code. Kernregeln umfassen das Verbot des //-Operators zugunsten von lib.recursiveUpdate, das Verbot imperativer K"
@@ -971,7 +971,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-02",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -995,7 +995,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-03",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-03",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1019,7 +1019,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-04",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-04",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1043,7 +1043,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-05",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-05",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1067,7 +1067,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-06",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-06",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1091,7 +1091,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-07",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-07",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1115,7 +1115,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-08",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-08",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1139,7 +1139,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/28-verify-open-points.json#Q-28-09",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#Q-28-09",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1163,7 +1163,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-04",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-04",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -1187,7 +1187,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-05",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-05",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -1211,7 +1211,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-06",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-06",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -1235,7 +1235,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-07",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-07",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -1259,7 +1259,7 @@
       "legacy": false,
       "source": {
         "type": "chat-question",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-08",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#Q-29-08",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -1310,7 +1310,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/25-doku-adrs.md:10",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:161`",
+          "`ROADMAP.md:161 (Stand 2026-11-04)`",
           "`docs/TODO.md:44`"
         ]
       },
@@ -1333,7 +1333,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/25-doku-adrs.md:11",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:163`",
+          "`ROADMAP.md:163 (Stand 2026-11-04)`",
           "`docs/TODO.md:45`"
         ]
       },
@@ -1356,16 +1356,20 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:14",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:37`",
+          "`ROADMAP.md:37 (Stand 2026-11-04)`",
           "`docs/TODO.md:11`"
         ]
       },
       "why": "**Generator `medinix-meta.py new-service`** („Ankreuzbogen Schicht 3\"): fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP.",
       "steps_open": [],
       "steps_done": [],
-      "notes": " · Aufwand: MITTEL · Charakter: Tooling",
+      "notes": " · Aufwand: MITTEL · Charakter: Tooling Optionen (Korridor D-04): ja | spaeter",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "options": [
+        "ja",
+        "spaeter"
+      ]
     },
     {
       "id": "R66",
@@ -1379,7 +1383,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/20-build-blocker-gates.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:66`",
+          "`ROADMAP.md:66 (Stand 2026-11-04)`",
           "`docs/TODO.md:25`"
         ]
       },
@@ -1426,7 +1430,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/20-build-blocker-gates.md:13",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:73`",
+          "`ROADMAP.md:73 (Stand 2026-11-04)`",
           "`docs/TODO.md:27`"
         ]
       },
@@ -1449,7 +1453,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/22-observability-features.md:10",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:75`",
+          "`ROADMAP.md:75 (Stand 2026-11-04)`",
           "`docs/TODO.md:29`"
         ]
       },
@@ -1472,7 +1476,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:11",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:76`",
+          "`ROADMAP.md:76 (Stand 2026-11-04)`",
           "`docs/TODO.md:30`"
         ]
       },
@@ -1495,7 +1499,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:16",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:81`",
+          "`ROADMAP.md:81 (Stand 2026-11-04)`",
           "`docs/TODO.md:32`"
         ]
       },
@@ -1542,7 +1546,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:93`",
+          "`ROADMAP.md:93 (Stand 2026-11-04)`",
           "`docs/TODO.md:36`"
         ]
       },
@@ -1565,7 +1569,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/25-doku-adrs.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:94`",
+          "`ROADMAP.md:94 (Stand 2026-11-04)`",
           "`docs/TODO.md:37`"
         ]
       },
@@ -1588,7 +1592,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/25-doku-adrs.md:13",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:95`",
+          "`ROADMAP.md:95 (Stand 2026-11-04)`",
           "`docs/TODO.md:38`"
         ]
       },
@@ -1611,7 +1615,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:10",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:96`",
+          "`ROADMAP.md:96 (Stand 2026-11-04)`",
           "`docs/TODO.md:39`"
         ]
       },
@@ -1634,7 +1638,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/25-doku-adrs.md:14",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:97`",
+          "`ROADMAP.md:97 (Stand 2026-11-04)`",
           "`docs/TODO.md:40`"
         ]
       },
@@ -1657,7 +1661,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/24-tooling-ci.md:13",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:98`",
+          "`ROADMAP.md:98 (Stand 2026-11-04)`",
           "`docs/TODO.md:41`"
         ]
       },
@@ -1680,7 +1684,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/22-observability-features.md:12",
         "date": "2026-11-05",
         "evidence": [
-          "`ROADMAP.md:99`",
+          "`ROADMAP.md:99 (Stand 2026-11-04)`",
           "`docs/TODO.md:42`"
         ]
       },
@@ -1700,7 +1704,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-06",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-06",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1724,7 +1728,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-07",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-07",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1748,7 +1752,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-08",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-08",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1772,7 +1776,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-12",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-12",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -1805,9 +1809,13 @@
       "why": "**QEMU-Smoke-Test lokal freischalten** (Stufe 3 der Prüf-Leiter). Heute nur in CI.",
       "steps_open": [],
       "steps_done": [],
-      "notes": " · Aufwand: MITTEL · Charakter: CI",
+      "notes": "· Aufwand: MITTEL · Charakter: CI Optionen (Korridor D-05): einmal laufen lassen | nur CI",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "options": [
+        "einmal laufen lassen",
+        "nur CI"
+      ]
     },
     {
       "id": "T14",
@@ -1827,9 +1835,15 @@
       "why": "**515 mDNS-Refresh umbauen.** ⚠️ Der Punkt sagt selbst: `.path`-Trigger ist bereits systemd-nativ, „Umbau = lateral\". **Kein Nutzen erkennbar — Kandidat zum Verwerfen.**",
       "steps_open": [],
       "steps_done": [],
-      "notes": " · Aufwand: MITTEL · Charakter: Struktur (fraglich)",
+      "notes": "· Aufwand: MITTEL · Charakter: Struktur (fraglich) Optionen (Korridor D-06): so lassen (empfohlen) | A: reload statt restart | B: Poll, 1 Unit | C: self-watch (ip monitor)",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "options": [
+        "so lassen (empfohlen)",
+        "A: reload statt restart",
+        "B: Poll, 1 Unit",
+        "C: self-watch (ip monitor)"
+      ]
     },
     {
       "id": "T9",
@@ -1849,9 +1863,14 @@
       "why": "**Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren** (`ADMIN-HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`, `opencode.json`, `ROADMAP.md`, `UPSTREAM-SOURCES.md`).",
       "steps_open": [],
       "steps_done": [],
-      "notes": " · Aufwand: MITTEL · Charakter: Struktur",
+      "notes": "· Aufwand: MITTEL · Charakter: Struktur Optionen (Korridor D-01): Kategorie B verschieben | nur dokumentieren | unangetastet",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "options": [
+        "Kategorie B verschieben",
+        "nur dokumentieren",
+        "unangetastet"
+      ]
     },
     {
       "id": "B-MF",
@@ -1890,7 +1909,7 @@
         "ref": "docs/audit/2026-11-05/todo-backlog/26-kosmetik.md:20",
         "date": "2026-11-05",
         "evidence": [
-          "ROADMAP.md:92: **Plan (Momentaufnahme):** `docs/audit/2026-10-16/PLAN-offene-punkte.md` — ausgearbeiteter **Stand/Lücke/Ziel** je offenem Punkt (F/A/C/B/H/I/G/N + D-06). Quell"
+          "ROADMAP.md:92 (Stand 2026-11-04): **Plan (Momentaufnahme):** `docs/audit/2026-10-16/PLAN-offene-punkte.md` — ausgearbeiteter **Stand/Lücke/Ziel** je offenem Punkt (F/A/C/B/H/I/G/N + D-06). Quell"
         ]
       },
       "why": "„Plan (Momentaufnahme): `PLAN-offene-punkte.md`\"",
@@ -1926,9 +1945,13 @@
           "what": "in todo/backlog als erledigt gefuehrt"
         }
       ],
-      "notes": "Bereits erledigt — nur die Quelle aufräumen · Aufwand: `grep -rn avahi` → **0 Treffer**. avahi wurde durch Blocky ersetzt (ADR-515). Die übrigen fünf stehen längst in `stackConfig` (`flake.nix:231-261`). Der Punkt ist **veraltet** und müsste aus `ROADMAP.md` entfernt werden — nicht aus `docs/TODO.md` (generiert). · Charakter: ",
+      "notes": "Bereits erledigt — nur die Quelle aufräumen · Aufwand: `grep -rn avahi` → **0 Treffer**. avahi wurde durch Blocky ersetzt (ADR-515). Die übrigen fünf stehen längst in `stackConfig` (`flake.nix:231-261`). Der Punkt ist **veraltet** und müsste aus `ROADMAP.md` entfernt werden — nicht aus `docs/TODO.md` (generiert). · Charakter:  Optionen (Korridor D-03): erweitern | so lassen",
       "depends_on": [],
-      "links": []
+      "links": [],
+      "options": [
+        "erweitern",
+        "so lassen"
+      ]
     },
     {
       "id": "N-19-01",
@@ -1939,7 +1962,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/19-community-flakes-benchmark.json#N-19-01",
+        "ref": "docs/audit/2026-11-05/todo-blocks/19-community-flakes-benchmark.json#N-19-01",
         "date": "2026-11-05",
         "evidence": [
           "Detaillierter architektonischer Benchmark von mediNix gegen prominente Community-Homelab-Flakes (Nixarr, Nixflix, jellarr, phenax/homeserver, lukethacoder). Bestätigt die Überlegenheit des mediNix-Zer"
@@ -1963,7 +1986,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/27-caddy-plugin-replacements.json#N-27-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/27-caddy-plugin-replacements.json#N-27-02",
         "date": "2026-11-05",
         "evidence": [
           "Systematische Bewertung von Caddy-Plugins auf Basis des mediNix-Prinzips 'Kernel-Nähe vor User-Space-Overhead'. Vier Caddy-Plugins (GeoIP, Cloudflare-DNS, Rate-Limiting, Dynamic-DNS) werden durch nati"
@@ -1987,7 +2010,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-04",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-04",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -2011,7 +2034,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-05",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-05",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -2035,7 +2058,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-07",
+        "ref": "docs/audit/2026-11-05/todo-blocks/29-meta-dezimalrahmen-nacharbeit.json#N-29-07",
         "date": "2026-11-05",
         "evidence": [
           "Nacharbeit nach dem Meta-Batch. Der lib/-Sweep ist abgeschlossen: 36 aktive Ersetzungen (1b701f2), danach 14 weitere aktive Stellen (AGENTS.md, ADR-040, ADR-0000 §14.7-Einleitung, ROADMAP, HANDOFF-AN-"
@@ -2059,7 +2082,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-02",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-02",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -2083,7 +2106,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-03",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-03",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -2107,7 +2130,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-09",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-09",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -2131,7 +2154,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-10",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-10",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -2155,7 +2178,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-14",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-14",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"
@@ -2179,7 +2202,7 @@
       "legacy": true,
       "source": {
         "type": "chat-block",
-        "ref": "todo/blocks/28-verify-open-points.json#T-28-15",
+        "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json#T-28-15",
         "date": "2026-11-05",
         "evidence": [
           "Drei Befunde aus dem Review 2026-10-26: harter Eval-Fehler in 586-vpn-selftest sowie zwei zu verifizierende Details (toter Parameter in lib/wan-ip-provider.nix (nie gebaut, heute 50-core/), nftables-S"

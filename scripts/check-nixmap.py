@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Nixmap AST & Syntax Audit-Matrix für deklarative NixOS-Module.
 
-Quelle: todo/blocks/15-nixmap-ast-audit.json (D-15-01 bis D-15-06)
+Quelle: docs/audit/2026-11-05/todo-blocks/15-nixmap-ast-audit.json (D-15-01 bis D-15-06)
 Prüft zentrale Regeln für robuste, idiomatisierte NixOS-Konfigurationen:
   1. Vermeidung von Scope-Verschmutzung durch 'with' (with lib;, with pkgs; in Modulen)
   2. Prüfung auf rohes 'assert' in Modulen (bevorzuge 'assertions = [ ... ]')

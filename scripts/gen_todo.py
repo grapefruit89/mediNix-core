@@ -34,10 +34,11 @@ def tasks_open() -> dict[str, list[dict]]:
     return by_priority
 
 
-def corridor_items() -> tuple[list[str], int]:
+def corridor_items() -> int:
+    """Nur noch die Regelzahl. Offene Entscheidungen stehen seit 2026-11-05 in
+    todo/tasks.json (Kind `decision`) - der Korridor fuehrt sie nicht mehr doppelt."""
     data = json.loads((ROOT / ".agent-state.json").read_text(encoding="utf-8"))
-    c = data["corridor"]
-    return [d.get("frage", str(d)) for d in c["open_decisions"]], len(c["blacklist"])
+    return len(data["corridor"]["blacklist"])
 
 
 def _cells(line: str) -> list[str]:
@@ -63,7 +64,7 @@ def ledger_open() -> list[str]:
 
 def render() -> str:
     by_priority = tasks_open()
-    decisions, n_blacklist = corridor_items()
+    n_blacklist = corridor_items()
     open_ledger = ledger_open()
     n_open = sum(len(v) for v in by_priority.values())
 
@@ -76,11 +77,9 @@ def render() -> str:
         "> `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).",
         f"> Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.",
         "",
-        "## 1. Offene Entscheidungen (Korridor)",
+        f"## 1. Offene Arbeit — `todo/tasks.json` ({n_open})",
         "",
     ]
-    L += [f"- [ ] {d}" for d in decisions] or ["- (keine)"]
-    L += ["", f"## 2. Offene Arbeit — `todo/tasks.json` ({n_open})", ""]
     L.append(f"_Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · "
              f"Blacklist-Regeln im Korridor: {n_blacklist}_")
     label = {"high": "hoch", "medium": "mittel", "low": "niedrig"}
@@ -94,9 +93,9 @@ def render() -> str:
             L.append(f"- [ ] `{t['id']}` {t['title']}{legacy}")
     if n_open == 0:
         L.append("- (keine)")
-    L += ["", "## 3. Ledger — Befunde ohne Abschluss", ""]
+    L += ["", "## 2. Ledger — Befunde ohne Abschluss", ""]
     L += [f"- [ ] {e}" for e in open_ledger] or ["- (keine)"]
-    L += ["", "## 4. Pflicht bei jeder Änderung", "",
+    L += ["", "## 3. Pflicht bei jeder Änderung", "",
           "- [ ] Diff vorlegen, Go abwarten (AGENTS.md).",
           "- [ ] Volle Prüf-Leiter: nixfmt-Sweep, 5 Checks **bauen**, `nix flake check`, docs-Paket.",
           "- [ ] Erst lokal messen, dann **ein** Push (Korridor-Regel).",

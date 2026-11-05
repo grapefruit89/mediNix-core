@@ -21,7 +21,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 ### Security Roadmap (geplante Auth-Ergänzungen)
 
-- [ ] **FIDO2 / Passkey-only Authentifizierung:** Geplante Auth-Ergänzung für IdP und Reverse-Proxy. Passkey-only-Flow für Pocket ID (Chat 1, Block 01) und hardwaregestütztes WebAuthn via Caddy / oauth2-proxy als zweiter Faktor. Status: `proposed`. Quellen: ADR-512 (Pocket ID) und Chat-1-Block 01 (`01-arch-vs-nixos`).
+- _Offene Arbeit wird nicht mehr hier geführt — siehe `todo/tasks.json` (91 Tasks, validiert von `scripts/check_tasks.py`, Sicht in `docs/TODO.md`)._
 
 ### P0 — Verfassungs-Verstöße in Guardrails und Vorlagen
 
@@ -34,7 +34,6 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 
 - [x] Auswahlfelder als `types.enum` (behoben `24f5ee5`; `ui.group` und `ops.priority` sind Enums, `ramBudget` ist ein Format-Pattern — die Werte stammen aus den 14 bestehenden Einträgen). **Dabei gelernt:** NixOS-Typen sind **lazy** — ein Enum auf einem Feld, das niemand liest, feuert nie. Deshalb liest eine neue Assertion die drei Felder für jeden Eintrag: `ui.group`, `ops.priority`, `ramBudget` (heute freie Strings). Die erlaubten Werte **aus den bestehenden Manifest-Einträgen ableiten**, nicht raten. `accessGroup`, `monitoring.type`, `metrics.type`, `arr.role` sind bereits Enums.
 - [x] `docs/examples/SERVICE-TEMPLATE.nix` verfassungskonform (behoben `b9a146f`; Eigentümer-Tabelle + korrektes `mkMerge`-Muster inklusive): kein `users.users`, kein `Group`, kein `stateDir`-Port-Suffix, keine OCI-Zeile — nur Manifest + optional `execStart`.
-- [ ] Optional Schicht 3: Generator `medinix-meta.py new-service` (fragt 8 Felder, prüft Paketexistenz live über den NixOS-MCP).
 
 ### P1 — Ratsche vervollständigen
 
@@ -44,7 +43,6 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - [x] **Ratsche-Volldeckung** (2026-10-15): die Belegung erzeugt jetzt **43 fachliche Units** (vorher ~30) - `cloudflare-ddns`, drei `acme-*`, sieben `mediNix-*`-Maintenance-Units. Dabei fiel ein echter Bug auf: ein Kommentar in 513 interpolierte `${cfg.domain}` und brach den Unit-Build, wenn nur `ddns.zone` gesetzt war (L-033)
 - [x] **nixmeta-Header-Check** (2026-10-15): `checks.nixmeta-check` (Python + PyYAML) erzwingt Header, YAML-Gültigkeit, `id/title/domain/last_reviewed` und `domain == Ordnerpräfix`; 24 Dateien repariert → **67/67 konform**. Zwei Negativtests belegen, dass er feuert
 - [x] **ERLEDIGT (L-048) — Band-Pruefung ist ein `check`, keine Assertion:** `checks.mediNix-frameband-fremdkonten` prueft das abgeleitete `users.users` gegen die legitimen Quellen (Registry + `factoryUnits`/`exporters` + `manifest`); die Assertion in `591` ist entfernt (AB-040: Assertions lesen nur Quellen). Negativtest belegt, dass ein Fremd-Konto im Band erkannt wird. Leiter (Eval-Ebene): 51 ✅ / 0 ❌.
-- [ ] **P0 (offen, produktiv) — L-047:** `users.mutableUsers = mkDefault false` (Engine, `e803ba8`) braucht eine **echte** Credential-Quelle fuer root oder einen wheel-User (Heute: nur `testHostAccess`-Stub in Praefkonfigurationen). Sonst ist jedes Host-Build von der nixpkgs-Assertion blockiert.
 - [x] **ERLEDIGT (T3) — Exporter-Identitaet zentral abgeleitet (L-046):** `585` deklariert nur die ABSICHT (`medinix.exporters` + `medinix.factoryUnits`), die Engine legt die Konten an. Nachweis: `exportarr-sonarr` uid = gid = **8532** (8000+532), `User/Group = exportarr-sonarr`, stateless - statt vorher `media` (verstiess gegen ADR-0000 §4). 591 prueft die Units mit (`factoryUnits`), keine Assertion schlaegt an. `585` gibt kuenftig KEINE `users.*` zurueck (Fixpunkt-Kreuz), sondern nur die ABSICHT. 5 Stellen:
       1. `default.nix` neben `factoryUnits` (~`:690`): Option `medinix.exporters` (`attrsOf submodule { uid = int; }`, `internal = true`)
       2. `lib/decimal-framework.nix` (`:57`): `exporterIntent = config.medinix.exporters or { };`
@@ -52,8 +50,6 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
       4. `lib/decimal-framework.nix` `users.users` (`:153`): `// lib.mapAttrs (n: e: { uid = e.uid; group = n; isSystemUser = true; }) exporterIntent`
       5. `58-observability/585-exporters.nix`: `users.groups/users.users` -> `medinix.exporters."${unit}" = { uid = uid; };`
       **Ziel:** jeder Check ohne ❌ (40 Checks; `nix flake check` zaehlt auch apps/devShells/packages mit, ">= 50 ✅" ist keine Check-Zahl). Kein Push ohne gruene Leiter.
-- [ ] **Identitaeten einmal ableiten (ADR-040, Endform):** Exportarr-/Fabrik-Konten heute in `58-observability/585-exporters.nix` (liest `manifest`, schreibt `users.users`+`factoryUnits`) in die Engine verlagern (`50-core/derive.nix` + Manifest-Absicht) — dann baut `585` nur noch `systemd.services` und alle Kanten sind gerichtet.
-- [ ] **NIXMETA-Header vollständig nachziehen:** der Check ist eine *Ratsche* — offen bleiben `folder` (42/67), `status` (43/67), `complexity` (32/67) und `links.adr` (17/67). Dabei die **zwei Dialekte** zusammenführen (`sprite:` + flaches `adr:` in 55/56-playback vs. `links.adr`). Braucht Urteilsvermögen je Modul (complexity 1–5, primärer ADR) — deshalb bewusst nicht automatisiert
 - [x] **Unit-Skripte als Check bauen** (L-037): `checks.mediNix-unit-scripts` baut die Skript-Derivationen der Voll-Stack-Belegung (50 Werte, Sekunden) und fängt SC2050 & Co. lokal und in der CI. Ursprungsbefund L-036
 - ~~**Unit-Skripte als Check bauen**~~ erledigt (siehe oben), offene Variante: `writeShellApplication` laesst shellcheck laufen, aber nur beim *Bauen* — `--no-build` ist blind dafuer. Ein Check `mediNix-unit-scripts`, der die `.drv`-Pfade aus dem String-Kontext der Unit-Skripte baut (77 Derivationen, Sekunden statt Minuten), schliesst diese Klasse lokal UND in der CI
 - [x] **513: Token aus `argv` geholt** (L-039) — nativ per `curl --variable token@$RUNTIME_DIRECTORY/cf-token --expand-header` (0600-Datei, `unset TOKEN`); `lib/mk-secure-curl.nix` damit `deprecated`
@@ -63,41 +59,22 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - [x] **Registry-Felder richtiggestellt:** `gid` -> `sharedGid` (Klarheit: H000-Ablage, nicht Primärgruppe), `mkNoPortWithUnit` setzt `uid = number * 10` (513 läuft real mit 5130), Guardrail 591 prüft `sharedGid`, `571` verhaltensgleich auf `sharedGid` umgestellt (Service Map zeigt 513 jetzt mit UID 5130).
 
 - [x] **Zwei semantische Fälle entschieden** (571/581 auf UPG, ADR-0000 §4): `571-sqlite-wal.nix` setzt `owner = uid:uid`, `581-ntfy.nix` das tmpfs auf `gid = uid`. Ursprungs-Text:  (a) `57-maintenance/571-sqlite-wal.nix:42` setzt den Owner der privaten SQLite-DB auf `uid:5000` (shared) — nach ADR-0000 §4 gehörte sie der UPG (`uid:uid`); (b) `58-observability/581-ntfy.nix:78` setzt ein privates tmpfs auf `gid=5000`. Beide waren vorher identisch (Registry-`gid`), jetzt nur noch benannt. Ursprungs-Text:  `lib/registry.nix` setzt `gid = 5000` (flat GID) und bei `mkNoPortWithUnit` `uid = null`, obwohl 513 real `uid = 5130` läuft; Guardrail `591:68` verlangt sogar `s.gid == 5000`. Widerspruch zu ADR-0000 §4/§5 (UPG) — Entscheidung nötig, ob die Felder auf `number * 10` umgestellt werden.
-- [ ] **Datei-basierte Ports härter prüfen:** für jellyfin den gerenderten XML-Inhalt greppen (heute nur Seed-Platzhalter + Substitution im Quelltext)
 - [x] Negativtest „eine kaputte Konfiguration muss brechen" (`9d4d0a4`: drei dauerhafte Checks — `negative-slot0-daemon`, `negative-identity-wired`, `negative-ankreuzbogen` (Paar-Vergleich). Der Dekaden-Check lässt sich nicht als nixosSystem prüfen (er liest Ordner); er wurde per gestagter Probe bewiesen — teilweise erledigt: die vier neuen Gates wurden 2026-10-15 per gestagter Probe-Datei als feuernd **bewiesen**; ein *dauerhafter* Check dafür fehlt noch (die Assertions selbst testen). Quelle: B4.
 
 ### P1 — Dienste und Betrieb
 
 - [x] **516 CrowdSec** (L-044): Engine nativ (`services.crowdsec`, Hub `crowdsecurity/caddy`, journald-Acquisition, Minimal-Profil Ban, Account UPG 5160 + `systemd-journal`), Firewall-Bouncer nur bei `hostIntegration.nftables == "managed"` (fail-closed-Assertion + Negativtest), ADR-516-crowdsec, RT-3 aufgelöst (fail2ban Legacy).
-- [ ] `50-core/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `50-core/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8.
-- [ ] `vpn-killswitch-test.sh` (echter Egress-Leak-Test), `on-demand-http.nix` (Socket-Activation für Lidarr/Readarr). Quellen: E5/D8.
-- [ ] Pocket-ID Auto-Enrollment Helper; Multi-User/RBAC über versiegelte Credentials.
-- [ ] Prometheus Node-Exporter + Caddy-Metrics **und ein Scraper** (B6): `532–536` setzen `metrics.type = "exportarr"`, `585` erzeugt die Exporter, aber es fehlt der **Konsument** (Prometheus / VictoriaMetrics / vmagent). Bis dahin entweder Store ergänzen oder Exporter abschalten (YAGNI). (Teilweise vorhanden: `585-exporters`, `582-gatus`.)
-- [ ] Flake-Lock-Auto-Update (wöchentlicher Workflow mit `nix flake check`).
 
 ### P2 — Observability/Logging-Ausbau
 
-- [ ] Vector + Loki + Grafana: Journal + Caddy-JSON-Logs, 7 Tage Retention, Storage auf Tier B, Grafana hinter Caddy am Unix-Socket.
-- [ ] HDD-freundliche Deferred-Deletion-Queue (`hdparm -C`-Check, Force nach `maxAgeDays = 7`).
-- [ ] Label-basiertes Automounting/MergerFS (teilweise: `570-storage.nix` kann MergerFS-Pools, das Einhängen macht der Host).
 
 ### P2 — Aufräumen
 
 - [x] Die 4 nie verdrahteten `lib`-Module (`abc-tiering`/`_helpers`/`wait-for-api`/`mk-secure-curl`) am 2026-10-16 **archiviert** (`docs/audit/2026-10-16/repo-cleanup/lib/`). Aufgaben heute über `storage.backends.*`, `513`-nativ, `wait_for_url`, `mkMerge` gelöst. Zwischenschritt war „markiert statt geloescht" (971203c).
 - [x] `docs/AGENT_SOURCES.md` und `docs/UPSTREAM-SOURCES.md` zusammengelegt (L-041): eine Liste, Abschnitt 2 in `docs/UPSTREAM-SOURCES.md`; die alte Datei ist Zeiger.
-- [ ] `git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt.
 
 ### P2 — Audit & Host-Schnittstelle
 
-- [ ] **Plan (Momentaufnahme):** `docs/audit/2026-10-16/PLAN-offene-punkte.md` — ausgearbeiteter **Stand/Lücke/Ziel** je offenem Punkt (F/A/C/B/H/I/G/N + D-06). Quellen bleiben: `ROADMAP.md` + `.agent-state.json` → `docs/TODO.md`.
-- [ ] **`scripts/systemd-facts.sh`** (F): host-seitiges JSON-Bundle („was systemd hier kann") aus `systemctl list-units --output=json`, `list-unit-files --output=json`, `show -p …`, `systemd-analyze security --json=short`, `busctl introspect … --json=short`; **redigiert + Token-gekappt**; Runbook-Eintrag. (Läuft nur auf der Nix-Maschine.)
-- [ ] **`docs/AUDIT-NIXOS-IDIOMS.md`** (A): Methodik (drei Schichten, „**Signal ≠ Fund**"), Signal-Tabelle P0/P1/P2, datierter Lauf von `scripts/nixos_idiom_audit.py`, plus der **harte Beweis** = Schicht 3 (`nix flake check` **ohne** `--impure`, host/CI).
-- [ ] **CONVENTIONS §Audit** (C): drei Schichten + Prüf-Leiter **Stufe 0a** (`nixos_idiom_audit.py --p0-only`) und **Stufe 1a** (`nix flake check` ohne `--impure`); Korridor-Blacklist `AB-0xx` für die harten Reflexe (`--impure` im Code, `nix-env -i`/`nix-channel`, Schreibzugriff `/nix/store/`, `/usr/`-Pfade).
-- [ ] **CI Stufe 0a** (B): `nixos_idiom_audit.py --p0-only` in `.github/workflows/order-lint.yml` (fail-closed).
-- [ ] **`docs/HOST-INTERFACE.md`** (H): **eine** Seite „Host-Schnittstelle" — `medinix.host.*`, `hostIntegration.*` (`managed|external|off`), `secrets.*`, `recommended.*`, `storage.*` — plus „was gehört **nicht** in den Flake".
-- [ ] **arr-provision bündeln** (I): 8 Einzel-CLIs (`arr-sync-*`) → **ein** `arr-provision <subcommand>` (weniger Entry-Points, ein `--help`).
-- [ ] **`medinix gather <symptom>`** (G): die 7 geordneten Abschnitte (WAS · WER · IST · LOGS · PFADE · DIFF · FIX) aus Registry + systemd, redigiert + Token-gekappt.
-- [ ] **Doc-Nit** (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixpkgs.nixos-mcp` auf `mediahost@192.168.0.10`) → auf den lokalen `nixos`-MCP umstellen.
 
 ---
 
@@ -158,9 +135,7 @@ Zentrale Sammelstelle für laufende Aufgaben, geplante Features, verworfene Ans�
 - `docs/AUDIT-LEDGER.md` — Befund-Gedächtnis mit Quelle und Rollback je Zeile.
 - `.agent-state.json` — Korridor: Invarianten, Whitelist, Blacklist, offene Entscheidungen.
 
-- [ ] **ADR-Verweis-Rest (Kette Code -> ADR):** 7 Allowlist-Eintraege in `scripts/adr-refs-allowlist.txt` abarbeiten - fuer 514 (ACME), 554, 582 (Gatus), 543 (Mover), 570 (Storage), 587 (Disk-Health), 525 (VPN-Interface) fehlen ADRs; entscheiden: anlegen oder Verweis auf ADR-0000/den zustaendigen Beschluss. Ausserdem die Sonderfaelle `ADR-571-*` (3 Dateien, eine Nummer) und `ADR-52-ssh-port-policy` (Ueberschrift `ADR-21`) aufloesen.
 
-- [ ] **Skill-Trigger nachschaerfen (Kante Skills -> Sichtbarkeit):** 18 der 30 Projekt-Skills haben eine `description` unter 80 Zeichen (der Check listet sie als Hinweis) - die Beschreibung ist das Einzige, was die Session ohne Laden sieht. Ausserdem: `nixos-llm-audit`/`medinix-nix-idioms`/`nixos-flake-patterns` als Merge-Kandidaten pruefen (`scripts/skills-exclude.txt` nennt sie).
 
 ---
 

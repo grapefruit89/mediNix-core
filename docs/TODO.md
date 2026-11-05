@@ -6,15 +6,7 @@
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
-## 1. Offene Entscheidungen (Korridor)
-
-- [ ] Root-Dateien nach docs/CONVENTIONS.md konsolidieren (ADMIN-HANDOFF.md, AGENTS.md, CLAUDE.md, opencode.json, ROADMAP.md, UPSTREAM-SOURCES.md)?
-- [ ] Voll-Stack-Check erweitern um pocket-id, cloudflare-ddns, avahi, recyclarr, smartd?
-- [ ] Ankreuzbogen Schicht 3 (Generator medinix-meta.py new-service) bauen?
-- [ ] Stufe 3 (QEMU-Smoke-Test) lokal freischalten?
-- [ ] 515 mDNS-Refresh umbauen? (.path-Trigger ist bereits systemd-nativ; Umbau = lateral)
-
-## 2. Offene Arbeit — `todo/tasks.json` (82)
+## 1. Offene Arbeit — `todo/tasks.json` (82)
 
 _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
@@ -109,12 +101,12 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T-28-14` `.gitignore` ergaenzen: todo/_input/ und todo/_chunks*/ (33 MB Chat-Inputs = Scratch, nicht versionieren) _(Status ungeprüft)_
 - [ ] `T-28-15` Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) uebe… _(Status ungeprüft)_
 
-## 3. Ledger — Befunde ohne Abschluss
+## 2. Ledger — Befunde ohne Abschluss
 
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **15** von 44 (`status:` inzwischen überall gesetzt) → Index zeigt `-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
 
-## 4. Pflicht bei jeder Änderung
+## 3. Pflicht bei jeder Änderung
 
 - [ ] Diff vorlegen, Go abwarten (AGENTS.md).
 - [ ] Volle Prüf-Leiter: nixfmt-Sweep, 5 Checks **bauen**, `nix flake check`, docs-Paket.
