@@ -1,5 +1,33 @@
 # mediNix-core — AGENTS.md
 
+> [!CAUTION]
+> ## 🔴 WOCHENPLAN & AUFGABEN — LIES DAS ZUERST
+>
+> **Es gibt genau EINE Handquelle für offene Arbeit: `/home/moritz/repos/mediNix-core/todo/tasks.json`.**
+> Nichts anderes ist eine Aufgabenliste. Wer eine zweite anlegt, baut den Fehler wieder auf,
+> der am 2026-11-05 mit fünf parallelen Listen (26 / 36 / 20 / 63 / 39+18 Punkte) beendet wurde.
+>
+> | Was | Wo | Regel |
+> |---|---|---|
+> | **Offene Arbeit (Quelle)** | `/home/moritz/repos/mediNix-core/todo/tasks.json` | hier eintragen, hier ändern |
+> | Aufgabenliste (Sicht) | `/home/moritz/repos/mediNix-core/docs/TODO.md` | **generiert** — nie von Hand editieren |
+> | Fahrplan (Sicht) | `/home/moritz/repos/mediNix-core/docs/PLAN.md` | **generiert** — Wellen 0–5, Aufwand, Abnahme, Quellen |
+> | Validator | `/home/moritz/repos/mediNix-core/scripts/check_tasks.py` | läuft in `order-lint` und `verify.sh` |
+> | Befunde (kein Todo) | `/home/moritz/repos/mediNix-core/docs/AUDIT-LEDGER.md` | datiertes Fundprotokoll |
+> | Agenten-Gedächtnis | `/home/moritz/repos/mediNix-core/.agent-state.json` | Sackgassen, keine Aufgaben |
+>
+> **Ablauf für einen neuen Punkt:** Task-Objekt in `tasks.json` anlegen mit `id`, `title`, `kind`,
+> `status`, `priority`, `effort` (S/M/L), `wave` (0–5), `source.ref` und `why` **oder** `steps_open`.
+> Ab Welle 0/1 zusätzlich `acceptance` (wann ist es fertig) und `research` (Quellen: `internal` =
+> Pfad im Repo, `resource` = ID aus `docs/NIXOS-RESOURCES.json`). Danach
+> `python3 /home/moritz/repos/mediNix-core/scripts/gen_todo.py` und `.../scripts/gen_plan.py`.
+>
+> **Vor jedem Commit:** `bash /home/moritz/repos/mediNix-core/scripts/verify.sh` — 19 Prüfungen,
+> inklusive `nix flake check` **mit** Builds. `--fast` ist nicht commit-fähig.
+>
+> **Reihenfolge:** Welle 0 → 1 → 2 → 3 → 4. Welle 5 ist ausdrücklich **nicht freigegeben**
+> (YAGNI-Prüfung pro Punkt). Details: `docs/PLAN.md`.
+
 > [!IMPORTANT]
 > **REINE LOKALE AUSFÜHRUNG:** Es existieren keine externen Remote-Hosts. Jeglicher SSH- oder rsync-Zugriff auf externe Test-Hosts ist strikt untersagt. Alle Builds, AST-Checks und Flake-Prüfungen finden ausschließlich lokal statt.
 

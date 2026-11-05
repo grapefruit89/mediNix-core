@@ -1,5 +1,27 @@
 # todo/ — eine Quelle für offene Arbeit
 
+> [!CAUTION]
+> ## 🔴 ORDERSTRUKTUR — LEITFADEN FÜR AGENTEN
+>
+> **Eine Handquelle, zwei generierte Sichten, keine dritte Liste.**
+>
+> | Ebene | Datei | Wer schreibt |
+> |---|---|---|
+> | **1 · Quelle** | `/home/moritz/repos/mediNix-core/todo/tasks.json` | Mensch/Agent — die einzige erlaubte Stelle |
+> | 2 · Liste | `/home/moritz/repos/mediNix-core/docs/TODO.md` | `scripts/gen_todo.py` (nie von Hand) |
+> | 2 · Fahrplan | `/home/moritz/repos/mediNix-core/docs/PLAN.md` | `scripts/gen_plan.py` (nie von Hand) |
+> | 3 · Gate | `/home/moritz/repos/mediNix-core/scripts/check_tasks.py` | CI + `scripts/verify.sh` |
+> | 4 · Historie | `/home/moritz/repos/mediNix-core/docs/audit/2026-11-05/` | niemand — Archiv |
+>
+> **Lesen in dieser Reihenfolge:** `docs/PLAN.md` (was steht als Nächstes an, mit Abnahme und
+> Quellen) → `todo/tasks.json` (Details, `depends_on`, Belege) → `docs/TODO.md` (nur die Liste).
+>
+> **Schreiben:** ausschließlich in `tasks.json`. Pflichtfelder und das Ablaufrezept stehen im
+> Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
+>
+> **Nicht anfassen:** `docs/TODO.md`, `docs/PLAN.md` (generiert), `docs/audit/**` (Archiv),
+> `todo/blocks/*` und `todo/decisions.json` (eingefrorene Provenienz).
+
 **Seit 2026-11-05 gibt es genau eine Handquelle: `/home/moritz/repos/mediNix-core/todo/tasks.json`.**
 
 Vorher lagen fünf Oberflächen mit fünf verschiedenen Zahlen nebeneinander (ROADMAP 26,

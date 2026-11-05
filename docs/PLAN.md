@@ -1,5 +1,11 @@
 # PLAN — Fahrplan aus `todo/tasks.json`
 
+> [!CAUTION]
+> **Diese Datei ist generiert und darf nicht von Hand geändert werden.**
+> Quelle: `/home/moritz/repos/mediNix-core/todo/tasks.json`. Neu erzeugen:
+> `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.
+> Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
+
 > **Generiert** am 2026-11-05 aus `todo/tasks.json` (91 Tasks, 60 offen).
 > Nicht von Hand pflegen. Quelle: `todo/tasks.json`. Prüfen: `python3 scripts/gen_plan.py --check`.
 

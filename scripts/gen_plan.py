@@ -70,6 +70,12 @@ def render() -> str:
     L = [
         "# PLAN — Fahrplan aus `todo/tasks.json`",
         "",
+        "> [!CAUTION]",
+        "> **Diese Datei ist generiert und darf nicht von Hand geändert werden.**",
+        "> Quelle: `/home/moritz/repos/mediNix-core/todo/tasks.json`. Neu erzeugen:",
+        "> `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.",
+        "> Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.",
+        "",
         f"> **Generiert** am {date.today().isoformat()} aus `todo/tasks.json` "
         f"({len(tasks)} Tasks, {len(open_tasks)} offen).",
         "> Nicht von Hand pflegen. Quelle: `todo/tasks.json`. "
