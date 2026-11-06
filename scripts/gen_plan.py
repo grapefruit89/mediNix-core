@@ -27,6 +27,7 @@ Aufruf:  python3 scripts/gen_plan.py           (schreibt docs/PLAN.md)
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -133,7 +134,9 @@ def render() -> str:
 
 
 def _undated(text: str) -> str:
-    return text.replace(f"am {date.today().isoformat()}", "am <DATUM>")
+    """Datum rausneutralisieren. WICHTIG: nicht nur das heutige Datum ersetzen -
+    sonst wird der Check beim naechsten Tageswechsel falsch rot (2026-11-06 passiert)."""
+    return re.sub(r"am \d{4}-\d{2}-\d{2}", "am <DATUM>", text)
 
 
 def main() -> int:

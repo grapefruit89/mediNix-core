@@ -25,8 +25,12 @@
 > **Vor jedem Commit:** `bash /home/moritz/repos/mediNix-core/scripts/verify.sh` — 19 Prüfungen,
 > inklusive `nix flake check` **mit** Builds. `--fast` ist nicht commit-fähig.
 >
-> **Reihenfolge:** Welle 0 → 1 → 2 → 3 → 4. Welle 5 ist ausdrücklich **nicht freigegeben**
-> (YAGNI-Prüfung pro Punkt). Details: `docs/PLAN.md`.
+> **Reihenfolge der Lektüre:** diese Box → Regel 1–2 (`.agent-state.json`, `docs/adr/llm-index.json`)
+> → `todo/tasks.json`. Die Box beantwortet »wo steht Arbeit«, Regel 1–2 beantworten »was ist
+> zuletzt passiert«, `tasks.json` beantwortet »was ist als Nächstes dran«.
+>
+> **Reihenfolge der Arbeit:** Welle 0 → 1 → 2 → 3 → 4. Welle 5 ist ausdrücklich **nicht
+> freigegeben** (YAGNI-Prüfung pro Punkt). Details: `docs/PLAN.md`.
 
 > [!IMPORTANT]
 > **REINE LOKALE AUSFÜHRUNG:** Es existieren keine externen Remote-Hosts. Jeglicher SSH- oder rsync-Zugriff auf externe Test-Hosts ist strikt untersagt. Alle Builds, AST-Checks und Flake-Prüfungen finden ausschließlich lokal statt.
@@ -42,8 +46,9 @@
    - Dokumentiere jeden Fix, Refactor oder Invarianten-Schutz in [`.agent-state.json`](./.agent-state.json) unter `recent_refactorings`.
    - Trage genutzte GitHub-Repositories, Doku-Quellen oder Upstream-Muster in [`docs/UPSTREAM-SOURCES.md`](./docs/UPSTREAM-SOURCES.md) ein.
 3. **Ideen-Verwaltung (Zero Code-Drift):**
-   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in die [`ROADMAP.md`](./ROADMAP.md) (Abschnitt `Backlog`), niemals unaufgefordert oder spekulativ in den Code.
-   - **Fundstellen sofort erfassen (2026-10-26):** Jeder Befund aus Review, Analyse, Gate-Lauf oder Debugging wird **im selben Turn** als Todo-Eintrag angelegt — `next_steps` in `todo/blocks/NN-*.json` (Prio + Evidenz `datei:zeile`) und, wenn eine Entscheidung fehlt, zusätzlich als `open_questions`. Kein Befund bleibt nur im Chat. Danach `python3 todo/scripts/aggregate.py` laufen lassen (`plan.json`).
+   - Neue Projekt-Ideen, Erweiterungen oder Refactoring-Gedanken gehören **ausschließlich** in `/home/moritz/repos/mediNix-core/todo/tasks.json` (Feld `why`), niemals unaufgefordert oder spekulativ in den Code.
+   - **Fundstellen sofort erfassen (2026-10-26):** Jeder Befund aus Review, Analyse, Gate-Lauf oder Debugging wird **im selben Turn** als Task angelegt — `id`, `title`, `kind`, `status`, `priority`, `effort`, `wave`, `source.ref` (Evidenz `datei:zeile`) plus `why` **oder** `steps_open`. Kein Befund bleibt nur im Chat. Danach `python3 /home/moritz/repos/mediNix-core/scripts/gen_todo.py` und `.../scripts/gen_plan.py`; `.../scripts/check_tasks.py` prüft.
+   - Die früheren Ablagen `todo/blocks/*.json`, `todo/plan.json` und `todo/backlog/*.md` sind **historisch** (Archiv `/home/moritz/repos/mediNix-core/docs/audit/2026-11-05/`) und werden nicht fortgeschrieben.
 4. **Verfassungs-Zwang (ADR-0000):**
    - Jede Code-Änderung muss die Kern-Invarianten einhalten und wird per `nix flake check` lokal verifiziert.
 5. **systemd-first (kernel-nah):**
@@ -58,16 +63,16 @@
    - **CI-Beweis statt -Behauptung:** „grün" nur nach Zählung **aller** Workflows des Head-SHA (`gh run list --limit 12 --json name,conclusion,headSha`).
    - **Deklariert ≠ wirkt:** jede Option/jedes Feld braucht einen **Leser** (`grep -rn "<name>" --include=*.nix .`).
    - **Absicht vor Konsistenz:** ein Review-/Subagent-Befund ist Rohmaterial, kein Auftrag — der Fix darf **kein laufendes Feature abschalten** (Default umlegen, Paket-Flag überschreiben).
-8. **Agenten-Fehler-Taxonomie & Selbstkorrektur (Quelle: `todo/blocks/16-agent-error-taxonomy.json`):**
+8. **Agenten-Fehler-Taxonomie & Selbstkorrektur (Quelle: `docs/audit/2026-11-05/todo-blocks/16-agent-error-taxonomy.json`):**
    - **Gate berechnet ≠ Gate erzwungen:** Kein Git-Commit bei rotem Eval oder fehlschlagendem Gate — ausnahmslos, auch wenn „nur Doku" geändert wurde.
    - **Keine Spekulation bei Tool-Aufrufen:** Attributpfade, Optionen und Typen vorab gegen `nix eval` oder `options.json` validieren, niemals aus dem Modellgedächtnis raten.
    - **Pipes & Exit-Codes absichern:** In Shell-Pipes `set -o pipefail` erzwingen; Exit-Codes vor Folgeaktionen explizit prüfen. Trailing-Commas in JSON/Nix ausschließen.
    - **Scheiben-Messen vermeiden:** Mehrere unabhängige Statusabfragen in einem Lauf bündeln (`sys-triage`, multi-path Checks), nicht sequenziell in Einzel-Calls tröpfeln.
    - **Plan vor Code-Änderung:** Vor Code-Änderungen Plan zeigen (Freshness Gate, erwartete Konflikte, saubere Stoppbedingungen).
-9. **Maschinenlesbare Quellen vor Spekulation (Quelle: `todo/blocks/20-machine-readable-systemd-nixos.json`):**
+9. **Maschinenlesbare Quellen vor Spekulation (Quelle: `docs/audit/2026-11-05/todo-blocks/20-machine-readable-systemd-nixos.json`):**
    - **Systemd & D-Bus:** Zur Unit-Inspektion und Validierung von Direktiven immer maschinenlesbare Schnittstellen bevorzugen (`busctl call org.freedesktop.systemd1 ...`, `systemctl show -p ...`, `systemd-analyze security <unit>`) statt unzuverlässigem Log-/Text-Parsing.
    - **NixOS-Optionen:** Vor dem Einbringen neuer Optionen/Pakete die Existenz in nixpkgs via `nix eval --json` oder `nixos-option` bzw. `options.json` validieren. Niemals nicht-existierende Attribute oder Optionen raten.
-10. **CI-Check-Hierarchie & QEMU-Entkopplung (Quelle: `todo/blocks/18-flake-architecture-ci.json`):**
+10. **CI-Check-Hierarchie & QEMU-Entkopplung (Quelle: `docs/audit/2026-11-05/todo-blocks/18-flake-architecture-ci.json`):**
    - **L1 (Interaktive lokale Schleife):** `bash scripts/verify.sh` — die vollständige Leiter: nixfmt (mit Dateiliste), `nix flake check` **mit** Builds, 14 Repo-Gates, 3 Generator-Checks. Muss vor jedem Commit grün sein (~5–10 min). `--fast` überspringt die Builds und ist **nicht** commit-fähig.
    - **Warum nicht `nix flake check --no-build`:** `--no-build` baut die Check-Derivations nicht — `check-nixfmt`, `statix`, `deadnix` und die VM-Tests laufen dann nicht. Genau daran sind am 2026-11-04 zwei CI-Läufe gescheitert, obwohl lokal „grün" gemeldet war.
    - **L2 (Asynchrone CI-Gates):** Vollständige Derivations-Builds und schwere QEMU-VM-Smoke-Tests laufen in der GitHub Actions CI (`flake-check.yml`), nicht in der synchronen lokalen Agenten-Schleife, um Timeouts und Tokenverbrennung zu verhindern.
@@ -164,7 +169,7 @@ ADR-Formregel + Index: `docs/adr/llm-index.json`, geprueft von `scripts/check_ad
 ## Repo-Landkarte (damit niemand neu explorieren muss)
 
 Bevor du bei mediNix-Arbeit explorativ suchst (grep, find, journalctl):
-lies `agent/skills/nixos-ecosystem/references/medinix-project.md`.
+lies `/home/moritz/repos/mediNix-core/docs/agents/07-patterns-misc/nixos-ecosystem/references/medinix-project.md`.
 Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 
 **Struktur = Dezimalrahmen (ADR-0000):** `XX-domain/NNN-dienst.nix` — `XX` = Dekade, `NNN` = Dienstnummer; daraus folgen Port, UID und Primär-GID (`NNN × 10`, UPG).
@@ -192,12 +197,13 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
 | `docs/{arch,patterns,guides,concepts,learn,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`) |
 | `.agent-state.json` | **Korridor**: Whitelist, 53 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
-| `ROADMAP.md` | die einzige Roadmap (Backlog priorisiert · Verworfen · Done mit Hashes) |
+| `todo/` | **`tasks.json`** = einzige Handquelle für offene Arbeit · `docs/TODO.md` + `docs/PLAN.md` sind **generiert** · `blocks/` + `decisions.json` = eingefrorene Provenienz · Altquellen im Archiv `docs/audit/2026-11-05/` |
+| `ROADMAP.md` | Erzählung: Vision, Meilensteine, erledigte Punkte mit Hashes. **Keine offene Arbeit mehr** — die steht in `todo/tasks.json` |
 | `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
 | `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
-| `scripts/` | `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_service_map.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
+| `scripts/` | **`verify.sh`** (die eine lokale Leiter, 19 Prüfungen) · `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · **`check_tasks.py`** (Task-Validator) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_plan.py`/`gen_service_map.py`/`gen_runbook.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
 | `flake.nix` | Outputs + **41 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
 
 **Einstieg in 4 Schritten:** 1. `.agent-state.json` (Korridor) → 2. `ROADMAP.md` (was als Nächstes) → 3. `docs/AUDIT-LEDGER.md` (was schon gefunden wurde) → 4. `docs/CONVENTIONS.md` (Regeln).
