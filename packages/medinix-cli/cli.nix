@@ -56,7 +56,22 @@ pkgs.writeShellApplication {
     echo "0" > "$PROBLEMS_FILE"
     add_problem() { echo $(($(cat "$PROBLEMS_FILE") + 1)) > "$PROBLEMS_FILE"; }
 
-    unit_of() { echo "$SERVICES_JSON" | jq -r --arg k "$1" '.[$k].unitName // $1'; }
+    unit_of() { echo "$SERVICES_JSON" | jq -r --arg k "$1" '.[$k].unitName // $k'; }
+
+    # Zustand: "nicht aktiviert" ist NICHT "failed". Vorher galt jede nicht
+    # laufende Unit als failed - auch die zwoelf Dienste, die auf diesem Host
+    # gar nicht eingeschaltet sind. Damit war status/check unbrauchbar.
+    state_of() {
+      local load
+      load=$(systemctl show -p LoadState --value "$1.service" 2>/dev/null || echo not-found)
+      if [ "$load" = "not-found" ]; then
+        echo "disabled"
+      elif systemctl is-active --quiet "$1.service" 2>/dev/null; then
+        echo "running"
+      else
+        echo "failed"
+      fi
+    }
 
     # Bereich (50..59) ODER Servicename -> Registry-Keys (eine pro Zeile)
     keys_for() {
@@ -156,12 +171,14 @@ pkgs.writeShellApplication {
     cmd_check() {
       echo "[CHECK] Services"
       echo "$SERVICES_JSON" | jq -r 'to_entries[] | select(.value.uid != null) | .value.unitName // .key' | while read -r unit; do
-        if systemctl is-active --quiet "$unit.service" 2>/dev/null; then
-          echo "  ok $unit.service"
-        else
-          echo "  FAIL $unit.service"
-          add_problem
-        fi
+        case "$(state_of "$unit")" in
+          running) echo "  ok   $unit.service" ;;
+          disabled) echo "  --   $unit.service (nicht aktiviert)" ;;
+          *)
+            echo "  FAIL $unit.service"
+            add_problem
+            ;;
+        esac
       done
       echo ""
       echo "[CHECK] Secrets"
@@ -192,11 +209,7 @@ pkgs.writeShellApplication {
 
     cmd_status() {
       echo "$SERVICES_JSON" | jq -r 'to_entries[] | select(.value.uid != null) | "\(.key) \(.value.unitName // .key) \(.value.port) \(.value.caddyClass)"' | while read -r name unit port cls; do
-        if systemctl is-active --quiet "$unit.service" 2>/dev/null; then
-          state="running"
-        else
-          state="failed"
-        fi
+        state=$(state_of "$unit")
         case "$cls" in
           stream|public|idp)
             if [ -n "$DOMAIN" ]; then url="https://$name.$DOMAIN"; else url="http://$name.local"; fi ;;
