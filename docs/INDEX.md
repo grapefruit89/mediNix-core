@@ -4,11 +4,23 @@ Diese Dokumentation dient als Single Source of Truth (SSoT) für das mediNix-cor
 
 ## 🧭 Agent Routing (START HERE)
 
-Bist du ein KI-Agent und sollst ein Modul bauen oder ändern? **Lies die entsprechenden Konzept-Seiten, bevor du Code schreibst:**
+**Eine Frage, ein Ort.** Wenn du nicht weißt, wo du lesen sollst: hier nachsehen.
 
-- **Storage & Laufwerke**: Lies [Storage & Mover](concepts/storage-mover.md)
-- **Netzwerk & VPN (z.B. SABnzbd)**: Lies [VPN & Killswitch](concepts/vpn-killswitch.md)
-- **Passwörter & API-Keys**: Lies [Secrets Management](concepts/secrets-systemd.md)
+| Frage | Ort | Gepflegt von |
+|---|---|---|
+| Darf ich das überhaupt? Was ist verboten? | [`../AGENTS.md`](../AGENTS.md), [`CONVENTIONS.md`](CONVENTIONS.md) | Mensch |
+| Warum ist etwas so entschieden? | [`adr/`](adr/) — `ADR-<id>-<slug>.md` | Mensch, unveränderlich |
+| Wie greifen die Schichten 50–59 ineinander? | [`arch/`](arch/) — `ARCH-51-*.md`, `ARCH-0000-framework-appendix.md` | Mensch |
+| Was muss der Host liefern, was erzwingt das Modul? | [`concepts/`](concepts/) | Mensch |
+| Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (generiert) | `scripts/gen_service_map.py` |
+| Wie baue ich ein Modul / eine Unit? | `../50-core/service-factory.nix` | Code |
+| Wie debugge ich einen Dienst? | [`RUNBOOK.md`](RUNBOOK.md) §5 + `medinix triage <symptom>` | generiert aus `runbook.json` |
+| Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
+| Wie mache ich X mit Nix? (Fremdwissen) | [`patterns/`](patterns/) — **nicht repo-spezifisch** | extern, ungepflegt |
+| Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
+
+**Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/` und die
+10 `ARCH-50-*`-Dateien (alte Wissensbank, wird in Stufe 2 archiviert).
 
 <!-- SERVICE-MAP START -->
 ## 🗺 Service Map
