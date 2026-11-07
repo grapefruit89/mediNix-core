@@ -134,17 +134,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 ### Architecture Blueprints
 
 - [Decimal Framework — Framework Appendix (arc42, ISO 25010, STRIDE, Quality Gates)](arch/ARCH-0000-framework-appendix.md)
-- [ARCH 5000 3 stage boot pipeline](arch/ARCH-50-3-stage-boot-pipeline.md)
 - [ARCH 50 — Architecture Blueprint](arch/ARCH-50-architecture-blueprint.md)
-- [ARCH 5000 architecture principles](arch/ARCH-50-architecture-principles.md)
-- [ARCH 5000 base configuration](arch/ARCH-50-base-configuration.md)
-- [ARCH 5000 deep dive knowledge gems](arch/ARCH-50-deep-dive-knowledge-gems.md)
-- [ARCH 5000 master index](arch/ARCH-50-master-index.md)
-- [ARCH 5000 master sources](arch/ARCH-50-master-sources.md)
-- [ARCH 5000 mcp integrations](arch/ARCH-50-mcp-integrations.md)
-- [ARCH 5000 nixhome layer](arch/ARCH-50-nixhome-layer.md)
-- [ARCH 5000 service manifest](arch/ARCH-50-service-manifest.md)
-- [ARCH 5000 status dashboard](arch/ARCH-50-status-dashboard.md)
 - [ARCH 51 — Closure Matrix (OPEN + Edge Security)](arch/ARCH-51-closure-matrix.md)
 - [ARCH 5100 cloudflare zero trust](arch/ARCH-51-cloudflare-zero-trust.md)
 - [ARCH-51-dns-and-ingress-strategy.md](arch/ARCH-51-dns-and-ingress-strategy.md)
