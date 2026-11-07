@@ -146,6 +146,36 @@
             touch $out
           '';
 
+        # Baut ein vollstaendiges Host-Beispiel aus docs/examples/ in einer
+        # NixOS-Eval. Ohne diesen Check verrottet ein Beispiel still: am
+        # 2026-11-07 scheiterte simple.nix an zwei Assertions, die erst nach
+        # dem letzten Beispiel-Update entstanden waren, und niemand merkte es.
+        # mergerfs-tiering.nix und 5xx-service.example.nix sind bewusst nicht
+        # dabei: das eine ist host-seitig, das andere eine Vorlage.
+        mkExampleCheck =
+          path:
+          (lib.nixosSystem {
+            inherit system;
+            specialArgs = {
+              inputs = {
+                mediNix-core = self;
+              };
+            };
+            modules = [
+              path
+              {
+                boot.loader.grub.enable = false;
+                fileSystems."/" = {
+                  device = "none";
+                  fsType = "tmpfs";
+                };
+                system.stateVersion = "24.11";
+                nixpkgs.config.allowUnfree = true;
+              }
+              testHostAccess
+            ];
+          }).config.system.build.toplevel;
+
         # Test-Credential fuer die Pruefkonfigurationen. Nutzt bewusst den
         # SUPPORTED Weg `medinix.security.loginKeys` (L-047) statt direkt
         # users.users.root zu schreiben: die Option ist im eigenen Flake damit
@@ -353,6 +383,10 @@
           inherit pkgs;
           inputs = { inherit self; };
         };
+
+        # Beispiel-Ratsche: beide vollstaendigen Host-Beispiele muessen bauen.
+        checks."mediNix-example-simple" = mkExampleCheck ./docs/examples/simple.nix;
+        checks."mediNix-example-vpn" = mkExampleCheck ./docs/examples/vpn-confinement.nix;
 
         # ── Voll-Stack-Ratsche: aktiviert jeden Dienst gleichzeitig und erzwingt
         # den toplevel. Deckt Faelle auf, die Einzel-Checks verpassen, weil sie

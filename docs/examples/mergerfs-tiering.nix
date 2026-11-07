@@ -9,6 +9,8 @@
 # links:
 #   adr: ADR-0000
 # ---
+# Bewusst NICHT in checks.mediNix-example-*: rein host-seitig (MergerFS-
+# Mounts), enthaelt kein mediNix-Modul und ist deshalb nicht evaluierbar.
 # docs/examples/mergerfs-tiering.nix — mediNix-core with MergerFS ABC-Tiering
 #
 # Use case: Host-side MergerFS union mount for stable library paths.

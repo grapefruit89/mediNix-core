@@ -8,6 +8,9 @@
 # last_reviewed: 2026-10-15
 # contract: schemaVersion = 1 (ADR-0010)
 # ---
+# Bewusst NICHT in checks.mediNix-example-*: Vorlage mit Platzhaltern,
+# kein vollstaendiger Host. Der Ratschen-Check deckt simple.nix und
+# vpn-confinement.nix ab.
 # Diese Vorlage ist ABSICHTLICH minimal. Sie enthaelt nur, was ein Dienst
 # wirklich selbst beitragen MUSS — alles andere ist abgeleitet oder gehoert
 # jemand anderem:

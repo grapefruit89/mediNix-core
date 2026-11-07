@@ -5,7 +5,7 @@
 # folder: "docs/examples"
 # status: example
 # complexity: 2
-# last_reviewed: 2026-10-15
+# last_reviewed: 2026-11-07
 # links:
 #   adr: ADR-0000
 # ---
@@ -37,6 +37,14 @@
     fsType = "ext4";
   };
 
+  # ── Host-Voraussetzungen fuer den VPN-Killswitch (ADR-526) ─────────────
+  # Der Killswitch setzt nftables-Tabellen voraus; ohne nftables werden sie
+  # deklariert, aber nie geladen - die eingeheerten UIDs entwichen dann.
+  networking.nftables.enable = true;
+  # Kein IPv6 auf diesem Host, deshalb kein IPv6-Killswitch noetig.
+  # Alternative: services.vpnKillSwitch.ipv6 = true;
+  networking.enableIPv6 = false;
+
   # ── mediNix-core ────────────────────────────────────────────────────────
   medinix = {
     enable = true;
@@ -52,7 +60,11 @@
     };
 
     # Services
-    jellyfin.enable = true;
+    jellyfin = {
+      enable = true;
+      # Kein Default-Admin: Jellyfin verlangt ein Passwort als systemd-creds-Blob.
+      adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin-admin.cred";
+    };
     sonarr.enable = true;
     radarr.enable = true;
     sabnzbd = {
@@ -86,12 +98,18 @@
     # Usenet sandbox — SABnzbd + Prowlarr under UID kill-switch
     usenet-confinement.enable = true;
 
-    # TLS — ACME wildcard via Cloudflare DNS-01 (no port 80/443 WAN needed)
-    ingress.tls = {
-      mode = "acme";
-      acmeHost = "example.com";
-      # TPM-sealed Cloudflare token (CF_DNS_API_TOKEN=<token>)
-      acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+    # TLS — ACME wildcard via Cloudflare DNS-01 (no port 80/443 WAN needed).
+    # mode = "off" + acmeHost: 514 besorgt das Zertifikat, 511 haengt es an die
+    # vHosts. "acme" als mode gibt es nicht mehr (off | internal | custom).
+    ingress = {
+      # Kein implizites Vertrauen auf RFC1918: das LAN muss explizit stehen.
+      trustedCidrs = [ "192.168.1.0/24" ];
+      tls = {
+        mode = "off";
+        acmeHost = "example.com";
+        # TPM-sealed Cloudflare token (CF_DNS_API_TOKEN=<token>)
+        acmeCredential = "/var/lib/credstore.encrypted/cf-acme.cred";
+      };
     };
 
     # DDNS — keep dynamic IP in sync with Cloudflare.

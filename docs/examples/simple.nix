@@ -5,7 +5,7 @@
 # folder: "docs/examples"
 # status: example
 # complexity: 1
-# last_reviewed: 2026-10-15
+# last_reviewed: 2026-11-07
 # links:
 #   adr: ADR-0000
 # ---
@@ -54,7 +54,12 @@
     };
 
     # Services — enable what you need
-    jellyfin.enable = true;
+    jellyfin = {
+      enable = true;
+      # Kein Default-Admin: Jellyfin verlangt ein Passwort als
+      # systemd-creds-Blob. systemd-creds encrypt --with-key=tpm2+host …
+      adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin-admin.cred";
+    };
     sonarr.enable = true;
     radarr.enable = true;
     prowlarr.enable = true;
@@ -63,7 +68,10 @@
     # Ingress — Caddy, no TLS (LAN-only without ACME)
     ingress = {
       enable = true;
-      tls.mode = "off"; # TLS-003 assertion: not for jellyfin! use "acme" for WAN.
+      # Kein implizites Vertrauen auf RFC1918: das LAN muss explizit stehen,
+      # sonst bricht die Assertion den Build.
+      trustedCidrs = [ "192.168.1.0/24" ];
+      tls.mode = "off"; # HTTPS erst mit tls.acmeHost (WAN) oder "internal".
     };
   };
 }
