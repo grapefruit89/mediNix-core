@@ -274,7 +274,7 @@
             cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
           };
           # First-Run-Acks: dieser Check prueft das Eigentum an users.users.<dienst>,
-          # nicht die Inbetriebnahme (Muster wie tests/vm-smoke-test.nix).
+          # nicht die Inbetriebnahme (Muster wie 50-core/vm-smoke-test.nix).
           medinix.jellyfin.adminPasswordCredential = "/var/lib/credstore.encrypted/jellyfin.cred";
           medinix.navidrome.setupCompleted = true;
           medinix.audiobookshelf.setupCompleted = true;
@@ -349,7 +349,7 @@
 
         checks.nixos-check = nixosConfigurations.check.config.system.build.toplevel;
         checks."hosts/check" = nixosConfigurations.check.config.system.build.toplevel;
-        checks.smoke-test = import ./tests/vm-smoke-test.nix {
+        checks.smoke-test = import ./50-core/vm-smoke-test.nix {
           inherit pkgs;
           inputs = { inherit self; };
         };
@@ -1276,7 +1276,7 @@
             inherit system;
             modules = [
               self.nixosModules.default
-              ./tests/smoke-test.nix
+              ./50-core/smoke-test.nix
               {
                 medinix.enable = true;
                 boot.loader.grub.enable = false;

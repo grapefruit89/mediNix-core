@@ -271,7 +271,7 @@ erst der Konsumweg entscheidet, welche Pflichtfelder gelten.
 | **Library** | `5X-*/<name>.nix` (ohne `NNN-`) | `50-core/registry.nix` | `library` |
 | **Engine** | `50-core/501-decimal-engine.nix`, `50-core/service-contract.nix` | — | `engine` |
 | **Package** | `packages/<name>/*.nix` | `packages/arr-provision/default.nix` | `package` |
-| **Test** | `tests/*.nix` | `tests/smoke-test.nix` | `test` |
+| **Test** | `50-core/*-test.nix` (explizite Liste in `TEST_FILES`) | `50-core/smoke-test.nix` | `test` |
 | **Root-Config** | `flake.nix`, `default.nix` (Repo-Wurzel) | — | `root-config` |
 | **Tooling-Einstieg** | `50-core/repl.nix` (einzige Ausnahme) | — | `tooling` |
 
@@ -285,7 +285,7 @@ Ist-Stand 2026-11-04 (69 `.nix`-Dateien):
 - **Engine (2):** `50-core/501-decimal-engine.nix`, `50-core/service-contract.nix`
 - **Package (3):** `packages/arr-provision/default.nix`, `packages/medinix-cli/default.nix`,
   `packages/medinix-cli/cli.nix`
-- **Test (2):** `tests/smoke-test.nix`, `tests/vm-smoke-test.nix`
+- **Test (2):** `50-core/smoke-test.nix`, `50-core/vm-smoke-test.nix`
 - **Root-Config (2):** `flake.nix`, `default.nix`
 - **Tooling-Einstieg (1):** `50-core/repl.nix`
 - **Zonen (5, keine Kategorie — siehe §14.2):** 4 × `docs/examples/`, 1 × `docs/agents/**/templates/`
@@ -347,10 +347,11 @@ Zusätzlich:
 1. `classify(path)` wertet in fester Reihenfolge aus: Root-Liste → Engine-Liste →
    Tooling-Liste (`50-core/repl.nix`) → Modul
    (`^[0-9]{2}-[^/]+/[0-9]{3}-.*\.nix$`) → Library
-   (`^[0-9]{2}-[^/]+/[^/]+\.nix$`) → `packages/` → `tests/` → Zonen. Die expliziten
+   (`^[0-9]{2}-[^/]+/[^/]+\.nix$`) → `packages/` → Zonen. Die expliziten
    Listen stehen **vor** den Mustern: `50-core/501-decimal-engine.nix` erfüllt sowohl
    die Engine- als auch die Modul-Form, `50-core/repl.nix` sowohl die Tooling- als auch
-   die Library-Form. Kein Treffer ergibt `unklassifiziert` — das ist ein Verstoß.
+   die Library-Form, `50-core/smoke-test.nix` sowohl die Test- als auch die
+   Library-Form. Kein Treffer ergibt `unklassifiziert` — das ist ein Verstoß.
 2. Zonen-Treffer beenden die Kategorie-Prüfung: kein `kind:`, `status:` muss zur Zone
    passen (§14.2).
 3. Für die sieben Kategorien: fehlt `kind:`, ist das nur bei Modul zulässig. Ein gesetztes

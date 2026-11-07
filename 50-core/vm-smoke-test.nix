@@ -2,7 +2,7 @@
 # id: "vm-smoke-test"
 # title: "QEMU-Smoke-Test — Unit-Start und Port-Isomorphie"
 # domain: 50
-# folder: "tests"
+# folder: "50-core"
 # status: active
 # kind: test
 # complexity: 3

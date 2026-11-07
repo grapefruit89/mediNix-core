@@ -53,7 +53,13 @@ TOOLING_FILES = {"50-core/repl.nix"}
 MODULE_RE = re.compile(r"^[0-9]{2}-[^/]+/[0-9]{3}-.*\.nix$")
 LIBRARY_RE = re.compile(r"^[0-9]{2}-[^/]+/[^/]+\.nix$")
 PACKAGE_RE = re.compile(r"^packages/[^/]+/[^/]+\.nix$")
-TEST_RE = re.compile(r"^tests/[^/]+\.nix$")
+# Tests liegen neben dem Vertrag, den sie pruefen (50-core/registry.nix).
+# Sie passen auf LIBRARY_RE, deshalb explizit VOR den Mustern - wie
+# ENGINE_FILES/TOOLING_FILES oben.
+TEST_FILES = {
+    "50-core/smoke-test.nix",
+    "50-core/vm-smoke-test.nix",
+}
 
 # Kategorie -> erwarteter `kind:`-Wert. Kategorien, die hier NICHT stehen, tragen
 # kein `kind:`: `module` (der NNN-Praefix ist die Aussage) und die beiden Zonen.
@@ -76,14 +82,14 @@ def classify(path):
         return "engine"
     if p in TOOLING_FILES:
         return "tooling"
+    if p in TEST_FILES:
+        return "test"
     if MODULE_RE.match(p):
         return "module"
     if LIBRARY_RE.match(p):
         return "library"
     if PACKAGE_RE.match(p):
         return "package"
-    if TEST_RE.match(p):
-        return "test"
     if p.startswith("docs/examples/"):
         return "zone:example"
     if p.startswith("docs/") and "/templates/" in p:

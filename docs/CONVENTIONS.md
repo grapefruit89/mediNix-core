@@ -65,9 +65,8 @@ ist für mehrere Werkzeuge gedacht) oder entfernt.
 | Pfad | Zweck | Pflicht |
 |---|---|---|
 | `5X-domain/NNN-dienst.nix` + generierte `AGENTS.md`/`README.md` | Module nach ADR-0000 | ja |
-| `50-core/` (Engine, Factory, Contract, Profiles, Registry, memory-policy, creds, repl.nix) | geteilte Logik, Foundation & REPL | ja |
+| `50-core/` (Engine, Factory, Contract, Profiles, Registry, memory-policy, creds, repl.nix, **smoke-test.nix**, **vm-smoke-test.nix**) | geteilte Logik, Foundation & REPL. **Tests liegen hier**, neben dem Vertrag, den sie prüfen (Dezimalrahmen) — es gibt keinen eigenen `tests/`-Ordner mehr. | ja |
 | `packages/<name>/` | Nix-Derivationen und mitgelieferte Python-Pakete (Paket-Layout mit `default.nix`); ein Ordner mit `default.nix` ist von der 4-Dateien-Regel ausgenommen | ja |
-| `tests/` | NixOS-Testmodule und `runNixOSTest`-Funktionen (Flake-Checks, `kind: test`) | ja |
 | `docs/adr/` `arch/` `patterns/` `guides/` `concepts/` `examples/` | Wissensbasis | ja |
 | `docs/agents/<kategorie>/<skill>/` (`SKILL.md` + `references/`/`templates/`/`scripts/`) | Agenten-Skills | ja |
 | `docs/audit/<jahr-monat>/` (+ `repo-cleanup/<original-pfad>/`) | **einziges** Archiv für Ausgemustertes | ja |

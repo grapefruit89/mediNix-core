@@ -82,6 +82,8 @@ Nur mit `nix` (CI nutzt die flake-gepinnten Tools, nicht die PATH-Versionen):
 | `repl` | [`repl.nix`](repl.nix) | active | 1/5 | - |
 | `service-contract` | [`service-contract.nix`](service-contract.nix) | active | 4/5 | - |
 | `service-factory` | [`service-factory.nix`](service-factory.nix) | active | 4/5 | - |
+| `smoke-test` | [`smoke-test.nix`](smoke-test.nix) | active | 2/5 | - |
+| `vm-smoke-test` | [`vm-smoke-test.nix`](vm-smoke-test.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -104,6 +106,8 @@ graph TD
   repl["repl"]
   service_contract["service-contract"]
   service_factory["service-factory"]
+  smoke_test["smoke-test"]
+  vm_smoke_test["vm-smoke-test"]
 ```
 
 

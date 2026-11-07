@@ -111,7 +111,7 @@ Architecture rules in mediNix are not passive guidelines; they operate as execut
 enforced through **Design by Contract**:
 - **Preconditions:** Option schemas in `default.nix` validating caller input types and constraints.
 - **Invariants:** `config.assertions` in `591-cross-domain.nix` evaluated at Nix instantiation time (e.g., UPG isolation, unprivileged port theorem, secret boundaries).
-- **Postconditions:** Verification checks in `flake.nix` (`decimalFrameworkCheck`, `nixosConfigurations.check`) and integration tests in `tests/smoke-test.nix`.
+- **Postconditions:** Verification checks in `flake.nix` (`decimalFrameworkCheck`, `nixosConfigurations.check`) and integration tests in `50-core/smoke-test.nix`.
 
 ### Property-Based Testing Specification
 

@@ -2,7 +2,7 @@
 # id: "smoke-test"
 # title: "Smoke-Test-Helfer (Navidrome-Unit, Port-Isomorphie)"
 # domain: 50
-# folder: "tests"
+# folder: "50-core"
 # status: active
 # kind: test
 # complexity: 2
@@ -10,7 +10,7 @@
 # links:
 #   adr: ADR-0000
 # ---
-# tests/smoke-test.nix
+# 50-core/smoke-test.nix
 # Smoke-Test für mediNix-core — läuft in `nix flake check` via flake.nix checks.mediNix-smoke
 # Minimaler Test: Navidrome-Port/-UID in der Registry == Dezimalrahmen (5530).
 {
