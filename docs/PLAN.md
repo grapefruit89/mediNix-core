@@ -6,10 +6,10 @@
 > `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.
 > Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
 
-> **Generiert** am 2026-11-07 aus `todo/tasks.json` (93 Tasks, 61 offen).
+> **Generiert** am 2026-11-07 aus `todo/tasks.json` (93 Tasks, 60 offen).
 > Nicht von Hand pflegen. Quelle: `todo/tasks.json`. Prüfen: `python3 scripts/gen_plan.py --check`.
 
-**Richtwert Aufwand:** 197 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
+**Richtwert Aufwand:** 193 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
 
 ## W0 — Abschluss & Hygiene (3 Punkte, ~3 h)
 
@@ -51,7 +51,7 @@ _Kleine Aufraeumarbeiten. Danach ist die Liste ehrlich kurz._
 - `internal` · 51-ingress/515-blocky.nix — heutiger DoH-Upstream
 - `resource` · nixos-wiki — services.blocky Optionen
 
-## W1 — Deploy-Blocker & Datenlecks (6 Punkte, ~25 h)
+## W1 — Deploy-Blocker & Datenlecks (5 Punkte, ~21 h)
 
 _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 
@@ -61,7 +61,6 @@ _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 | `R47` | M | bug | L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen… | 3 | 4 |
 | `T-28-12` | M | feature | Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipattern… | 3 | 2 |
 | `T-28-13` | M | feature | Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4… | 3 | 2 |
-| `T-29-02` | M | bug | Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert | 3 | 2 |
 | `T-28-11` | L | feature | Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do… | 3 | 2 |
 
 ### `Q-28-08` — 19 committete Dateien (Roh-Chat-Exporte in todo/done/, Destillate in todo/*.json) enthalten Infra-Metadaten (e…
@@ -107,17 +106,6 @@ _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 **Quellen:**
 - `internal` · docs/AUDIT-LEDGER.md — L-044: jede Kante braucht einen Check
 - `resource` · nix-dev — Muster fuer kleine Guard-Skripte
-
-### `T-29-02` — Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert
-
-**Abnahme:**
-- config.xml des Arr-Dienstes enthaelt den versiegelten Key
-- exportarr liefert HTTP 200 statt 401
-- kein Klartext-Key in der Unit-Umgebung, der in /proc sichtbar waere
-
-**Quellen:**
-- `internal` · 53-acquisition/532-sonarr.nix — setzt SONARR_API_KEY_FILE
-- `internal` · 58-observability/585-exporters.nix — exportarr --api-key-file
 
 ### `T-28-11` — Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
 

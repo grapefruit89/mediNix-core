@@ -28,6 +28,10 @@
 let
   cfg = config.medinix.prowlarr;
   svc = config.medinix;
+  keySync = import ./arr-key-sync.nix {
+    inherit pkgs;
+    name = "prowlarr";
+  };
   registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.prowlarr;
   meta = config.medinix.manifest.prowlarr;
@@ -140,13 +144,6 @@ in
             wantedBy = [ "multi-user.target" ];
             onFailure = [ "alert-ntfy@%n.service" ];
             environment = lib.mkMerge [
-              (lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
-                # Pfad IM Unit-Namespace: systemd legt die entschluesselte Credential
-                # unter /run/credentials ab. Der frueher gesetzte Host-Pfad zeigte auf
-                # den .encrypted-Blob - den kann die App nicht lesen, sie erzeugt dann
-                # einen eigenen Key und der Exporter laeuft mit 401 ins Leere.
-                PROWLARR_API_KEY_FILE = "/run/credentials/prowlarr.service/prowlarr-api-key";
-              })
               (arrSettings.mkProwlarr {
                 server = {
                   inherit port;
@@ -176,7 +173,12 @@ in
         }
         {
           systemd.services."prowlarr" = lib.mkIf (svc.secrets.prowlarrApiKeyFile or null != null) {
-            serviceConfig.LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+            serviceConfig = {
+              LoadCredentialEncrypted = [ "prowlarr-api-key:${svc.secrets.prowlarrApiKeyFile}" ];
+              # Die App ignoriert Env-Overrides fuer ApiKey; der versiegelte
+              # Wert wird deshalb vor dem Start in config.xml geschrieben.
+              ExecStartPre = [ "${keySync}/bin/arr-api-key-sync-prowlarr" ];
+            };
           };
         }
       ]

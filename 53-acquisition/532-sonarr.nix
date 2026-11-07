@@ -23,6 +23,10 @@
 let
   cfg = config.medinix.sonarr;
   svc = config.medinix;
+  keySync = import ./arr-key-sync.nix {
+    inherit pkgs;
+    name = "sonarr";
+  };
   meta = config.medinix.manifest.sonarr;
 
   inherit (meta) port uid stateDir;
@@ -144,13 +148,6 @@ in
             wantedBy = [ "multi-user.target" ];
             onFailure = [ "alert-ntfy@%n.service" ];
             environment = lib.mkMerge [
-              (lib.mkIf (svc.secrets.sonarrApiKeyFile or null != null) {
-                # Pfad IM Unit-Namespace: systemd legt die entschluesselte Credential
-                # unter /run/credentials ab. Der frueher gesetzte Host-Pfad zeigte auf
-                # den .encrypted-Blob - den kann die App nicht lesen, sie erzeugt dann
-                # einen eigenen Key und der Exporter laeuft mit 401 ins Leere.
-                SONARR_API_KEY_FILE = "/run/credentials/sonarr.service/sonarr-api-key";
-              })
               (arrSettings.mkSonarr {
                 server = {
                   inherit port;
@@ -180,7 +177,12 @@ in
         }
         {
           systemd.services."sonarr" = lib.mkIf (svc.secrets.sonarrApiKeyFile != null) {
-            serviceConfig.LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];
+            serviceConfig = {
+              LoadCredentialEncrypted = [ "sonarr-api-key:${svc.secrets.sonarrApiKeyFile}" ];
+              # Die App ignoriert Env-Overrides fuer ApiKey; der versiegelte
+              # Wert wird deshalb vor dem Start in config.xml geschrieben.
+              ExecStartPre = [ "${keySync}/bin/arr-api-key-sync-sonarr" ];
+            };
           };
         }
       ]

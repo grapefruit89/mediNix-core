@@ -44,6 +44,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `536-prowlarr` | [`536-prowlarr.nix`](536-prowlarr.nix) | active | 3/5 | - |
 | `537-recyclarr` | [`537-recyclarr.nix`](537-recyclarr.nix) | active | 3/5 | - |
 | `538-provisioning` | [`538-provisioning.nix`](538-provisioning.nix) | active | 3/5 | - |
+| `arr-key-sync` | [`arr-key-sync.nix`](arr-key-sync.nix) | active | 2/5 | - |
 | `arr-settings` | [`arr-settings.nix`](arr-settings.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
@@ -91,6 +92,7 @@ graph TD
   536_prowlarr["536-prowlarr"] --> memory_policy["50-core/memory-policy"]
   537_recyclarr["537-recyclarr"] --> registry["50-core/registry"]
   538_provisioning["538-provisioning"]
+  arr_key_sync["arr-key-sync"]
   arr_settings["arr-settings"]
 ```
 

@@ -22,6 +22,10 @@
 let
   cfg = config.medinix.radarr;
   svc = config.medinix;
+  keySync = import ./arr-key-sync.nix {
+    inherit pkgs;
+    name = "radarr";
+  };
   registry = (import ../50-core/registry.nix { inherit lib; }).services;
   reg = registry.radarr;
   meta = config.medinix.manifest.radarr;
@@ -156,13 +160,6 @@ in
             wantedBy = [ "multi-user.target" ];
             onFailure = [ "alert-ntfy@%n.service" ];
             environment = lib.mkMerge [
-              (lib.mkIf (svc.secrets.radarrApiKeyFile or null != null) {
-                # Pfad IM Unit-Namespace: systemd legt die entschluesselte Credential
-                # unter /run/credentials ab. Der frueher gesetzte Host-Pfad zeigte auf
-                # den .encrypted-Blob - den kann die App nicht lesen, sie erzeugt dann
-                # einen eigenen Key und der Exporter laeuft mit 401 ins Leere.
-                RADARR_API_KEY_FILE = "/run/credentials/radarr.service/radarr-api-key";
-              })
               (arrSettings.mkRadarr {
                 server = {
                   inherit port;
@@ -192,7 +189,12 @@ in
         }
         {
           systemd.services."radarr" = lib.mkIf (svc.secrets.radarrApiKeyFile != null) {
-            serviceConfig.LoadCredentialEncrypted = [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ];
+            serviceConfig = {
+              LoadCredentialEncrypted = [ "radarr-api-key:${svc.secrets.radarrApiKeyFile}" ];
+              # Die App ignoriert Env-Overrides fuer ApiKey; der versiegelte
+              # Wert wird deshalb vor dem Start in config.xml geschrieben.
+              ExecStartPre = [ "${keySync}/bin/arr-api-key-sync-radarr" ];
+            };
           };
         }
       ]

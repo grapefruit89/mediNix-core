@@ -2625,7 +2625,7 @@
       "id": "T-29-02",
       "title": "Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert",
       "kind": "bug",
-      "status": "open",
+      "status": "done",
       "priority": "high",
       "legacy": false,
       "source": {
@@ -2640,18 +2640,18 @@
         ]
       },
       "why": "Die API-Key-Plumbing funktioniert nur in Docker-Images (deren Entrypoint *_FILE auswertet). Auf NixOS laeuft das Sonarr-Binary direkt, also wird SONARR_API_KEY_FILE ignoriert: Sonarr erzeugt einen eigenen Key, exportarr scrapt mit dem versiegelten Key und bekommt 401. Der Exporter laeuft, liefert aber keine Metriken - ein stiller Ausfall.",
-      "steps_open": [
-        "Key-Uebergabe an das Binary festlegen: SONARR__CONFIG__APIKEY (Umgebungsvariable, sichtbar in /proc) oder EnvironmentFile aus der entschluesselten Credential",
-        "Falls EnvironmentFile: versiegeltes Secret muss KEY=VALUE enthalten, nicht nur den Rohwert",
-        "Regression: nach dem Start muss config.xml/ApiKey dem versiegelten Wert entsprechen und exportarr 200 liefern"
-      ],
+      "steps_open": [],
       "steps_done": [
         {
           "date": "2026-11-07",
           "what": "Pfad auf /run/credentials/... umgestellt (vorher zeigte er auf den .encrypted-Blob); dadurch erst sichtbar, dass der Variablenname selbst nicht greift"
+        },
+        {
+          "date": "2026-11-07",
+          "what": "Env-Weg widerlegt (SONARR__CONFIG__APIKEY greift weder bei Erstinitialisierung noch auf bestehender config.xml; SONARR__AUTH__APIKEY schreibt keinen Key). Umgesetzt als ExecStartPre: 53-acquisition/arr-key-sync.nix schreibt den versiegelten Key in config.xml (Seed, falls Datei fehlt; sonst Tag ersetzen/einfuegen), verdrahtet in 532-536. *_API_KEY_FILE entfernt (Binary ignoriert es). Gemessen auf q958: API mit versiegeltem Key 200, exportarr /metrics 200 (vorher 500), Key ueberlebt zwei Neustarts, Journal 'arr-key-sync: ApiKey bereits aktuell'."
         }
       ],
-      "notes": "Gefunden auf q958, nachdem exportarr aktiv war aber 401 lieferte. Siehe AUDIT-LEDGER L-051.",
+      "notes": "Gefunden auf q958, nachdem exportarr aktiv war aber 401 lieferte. Siehe AUDIT-LEDGER L-051. | Behoben 2026-11-07: ExecStartPre statt Env; Deployment-Gate prueft jetzt exportarr /metrics auf 200.",
       "depends_on": [],
       "links": [],
       "wave": 1,
