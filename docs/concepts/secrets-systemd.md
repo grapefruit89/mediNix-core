@@ -53,3 +53,24 @@ mediNix-interne Eigenschaft.
 - **Test** — beweist einen *Teil* davon.
 
 Eine Markdown-Datei ist nicht dadurch SSoT, dass sie sich so nennt.
+
+## Contract, Fluss, Grenzen (aus der Praxis)
+
+Transport ist **`LoadCredentialEncrypted`**, nicht das unverschlüsselte `LoadCredential` (`52-security/creds.nix`: „No sops-nix, no agenix").
+
+- Erwartet einen **systemd-creds-Blob**: `*.encrypted`, `*.cred`, `/etc/credstore.encrypted/…`.
+- Default-Ablage: `/var/lib/medinix/secrets`.
+- Klartext-Pfade werden zur **Eval-Zeit** abgewiesen: `dns.ddns.tokenFile`, `maintenance.backup.passwordFile`, `secrets.autoGenerate`.
+- Blobs dürfen **nicht** unter `storage.mediaRoot` liegen (GID 5000 schreibbar).
+
+```
+versiegelter Blob → LoadCredentialEncrypted → /run/credentials/<unit>/ → Dienst liest
+```
+
+```bash
+echo -n SECRET | sudo systemd-creds encrypt --name=<unit> - \
+  /var/lib/medinix/secrets/<name>.encrypted
+# oder: scripts/medinix-seal-secret.sh <name>
+```
+
+**Grenzen:** TPM2 (`--with-key=tpm2+host`) ist eine Host-Fähigkeit, keine mediNix-Garantie. `LoadCredentialEncrypted` ist ein Transport, kein vollständiges Secrets-Management — Erzeugung und Rotation bleiben Host-Sache.

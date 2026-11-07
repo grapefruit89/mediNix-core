@@ -50,6 +50,20 @@ Concept → Contract → Nix-Assertion / generierte Config → Test → Runtime-
 Konfiguration und Tests beweisen einen *Teil*; die DNS-/Egress-Behauptung beweist
 nur Runtime.
 
+## VPN-Confinement ohne netns (UID 5410)
+
+SABnzbd (`54-processing/541-sabnzbd.nix`) ist doppelt gebunden:
+
+- **nftables Policy-Routing** (`52-security/526-vpn-killswitch.nix`): `meta skuid`-Markierung → Routing-Tabelle → hard drop; fehlt die VPN-Route, greift `unreachable`.
+- **Kernel-Level** `RestrictNetworkInterfaces = [ "lo" vpnIf ]` (cgroup-eBPF).
+
+Kein Network-Namespace — die frühere netns-Lösung ist ersetzt. Downloads laufen über ein tmpfs (`/run/sabnzbd-tmp`), damit Reparieren/Entpacken die SSD schont.
+
+## Media-Stack: Transcoding und Daten-Sicherheit
+
+- **Intel QuickSync:** Jellyfin (`55-playback/551-jellyfin.nix`) nutzt das Härtungsprofil `dotnet-gpu` — gezielte `DeviceAllow`-Freigabe für `/dev/dri`, ohne `PrivateDevices=false` systemweit aufzuweichen. Transcode-Verzeichnis auf `TemporaryFileSystem` (tmpfs).
+- **Daten-Sicherheit:** Medien werden **read-only** gemountet (`BindReadOnlyPaths`) — die Player lesen die Bibliothek, ändern sie nie.
+
 ## Referenzen
 
 - `52-security/526-vpn-killswitch.nix` — skuid-Policy-Routing + Killswitch-Ketten

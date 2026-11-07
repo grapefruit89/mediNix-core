@@ -47,6 +47,18 @@ mediNix-core
   `0`: `FREE_KB >= 0` ist immer wahr → der Mover wird nie aktiv (No-op). Bei
   `mode = "off"` ist er ganz inaktiv.
 
+## Storage-Contract und Tiering (PMS-Prinzipien, ohne ZFS)
+
+mergerfs und das **Mounten** der Platten gehören dem **Host** (Composition Boundary, ADR-570); mediNix bringt den logischen Contract und den Mover.
+
+- `storage.mediaRoot`, `storage.metadataDir`, `storage.downloadDir`, optional `storage.backends.hot` / `.cold`.
+- `57-maintenance/570-storage.nix` legt die Struktur per `systemd.tmpfiles` an (Modus **2775**, SetGID, Gruppe `media`).
+- `medinix.mover.minFreeGb` (Default 20) gilt global für das `stagingDir → archiveDir`-Paar und wird zur **Laufzeit** im Skript erzwungen (nicht per Eval-Assertion).
+
+**Tiering:** Tier-B (SSD) = Staging/App-Daten, Tier-C (HDD) = Medien-Archiv. Der Mover (`54-processing/543-mover.nix`) ist event-getrieben (`systemd.path`) statt Cron, damit die HDDs schlafen: nur Whitelist-Endungen, > 50 MB, älter 5 min, mit `lsof`-Sperre, atomar über `.staging_mover` und `flock`-Überlappungsschutz.
+
+**mergerfs** ist optional und host-seitig, nur im Tiered-Modus (`storage.backends.hot`/`.cold`); im Simple-Modus kein Pool. Historisch verworfen, weil ein Verzeichnis-Listing alle HDDs weckt (`docs/arch/ARCH-50-architecture-blueprint.md` — Historie, nicht Sollstand).
+
 ## Referenzen
 
 - `57-maintenance/570-storage.nix` — tmpfiles-Struktur / optionale MergerFS-Pools

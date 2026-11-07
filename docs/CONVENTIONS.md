@@ -206,3 +206,22 @@ versioniert, Prosa allein genuegt nicht.
 Regel bei jedem Fund: entweder **fixen** oder eine **Ausnahme mit Begruendung** in die jeweilige
 Allowlist/den Korridor eintragen. Allowlist-Eintraege ohne Wirkung melden die Checks selbst
 („stale") - die Listen duerfen nur schrumpfen.
+
+## Die Kette — Checks statt Handarbeit
+
+Qualität ist im Repo nicht Prosa, sondern **CI**. `order-lint` (`.github/workflows/order-lint.yml`) erzwingt:
+
+- `folder_lint.sh` — Ordnerregel ≥ 3 Dateien (Ausnahmen: §1)
+- `check_skills.py` — Skill-Form + MCP-Deklaration
+- `check_adrs.py` — ADR-Formregel + `docs/adr/llm-index.json`
+- `check_manifest_edge.py` — Registry → Manifest
+- `check_sources.py` — jedes Modul nennt Upstream-Quellen
+- `check_corridor.py` — Korridor-Muster (AB-Regeln)
+- `check_nixos_anchors.py`, `check_banned_technologies.py`, `nixos_idiom_audit.py --p0-only`
+- Generator-Frische: `gen_todo.py --check`, `gen_service_map.py --check`, `gen_plan.py --check`
+
+Dazu `flake-check.yml` (`nix flake check`) und `docs-index.yml` (INDEX aktuell).
+
+**Fail-closed:** Alle Guardrails sind `config.assertions` — eine Fehlkonfiguration bricht den **Build**, nicht den Betrieb.
+
+**Stand (verifiziert in `flake.nix`):** Die Flake-Inputs sind nur `nixpkgs` und `flake-utils`. Kein FlakeHub, kein Magic-Nix-Cache, kein flake-checker.

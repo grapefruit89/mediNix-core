@@ -66,3 +66,14 @@ Um Hardware-Transcoding (Intel QuickSync) zu ermöglichen, müssen die Sicherhei
 **Sources:**
 *   `/home/Knowledge-Pipeline/raw/_duplikate/SRE_AUDIT_NMS_v2.3.md`
 *   `/home/Knowledge-Pipeline/raw/_duplikate/Gemini-NixOS Projektprüfung_ Bugs und Verbesserungen.md`
+
+## 4. Werkzeuge des Audits
+
+Transparenz entsteht aus **Checks** und dem **generierten Modul-Graph**.
+
+- **Eval-Checks:** `nix flake check` evaluiert alle Assertions und Negativtests (Port-Riegel, Token-Trennung, vHost-Auflösung, UID-Kette …).
+- **NIXMETA-Header:** jedes Modul trägt Metadaten; `medinix-meta.py` erzeugt daraus die `AGENTS.md` je Domäne inkl. Module Map, Requires und Mermaid-Abhängigkeitsgraph. Prüfen: `python3 scripts/medinix-meta.py check-docs`.
+- **Ordnungs-/Kanten-Checks:** `order-lint` (`docs/CONVENTIONS.md` §Die Kette).
+- **Optionaler Graph:** `/home/moritz/repos/Nix OS resteküche/patterns/PATTERN-58-sre-nixoscope.md` beschreibt NixoScope zur Visualisierung der Modul-Abhängigkeiten.
+
+**Regel:** `*/AGENTS.md` ist **generiert** — nur oberhalb des `AUTO-GENERATED`-Markers von Hand editieren; neu erzeugen mit `medinix-meta.py generate-docs`.
