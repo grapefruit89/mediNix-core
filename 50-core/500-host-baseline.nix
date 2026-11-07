@@ -38,9 +38,27 @@ in
             !((config.system.autoUpgrade.enable or false) && (config.system.autoUpgrade.allowReboot or false));
           message = "[mediNix/hostHygiene] 'system.autoUpgrade.allowReboot = true' ist verboten! Unkontrollierte Reboots gefährden laufende Datenbank- und Transcode-Jobs.";
         }
+        # Bewusst KEINE Pruefung auf `services.logrotate.enable`: nixpkgs setzt in
+        # nixos/modules/system/boot/systemd.nix selbst Eintraege fuer
+        # /var/log/wtmp und /var/log/btmp. Dadurch ist der Default von `enable`
+        # bereits true, ohne dass der Host etwas tut. Die alte Fassung schlug
+        # deshalb je nach nixpkgs-Stand zufaellig fehl (Host e554fab: true,
+        # mediNix-CI 3ec6363: false) - Versions-Skew, kein Architekturverstoss.
+        # Geprueft wird jetzt das eigentliche Ziel: der Host bringt keine EIGENEN
+        # logrotate-Settings mit, sondern ueberlaesst das journald.
         {
-          assertion = !(config.services.logrotate.enable or false);
-          message = "[mediNix/hostHygiene] 'services.logrotate.enable = true' erkannt! mediNix nutzt natives systemd-journald mit SystemMaxUse.";
+          assertion =
+            let
+              upstreamDefaults = [
+                "/var/log/wtmp"
+                "/var/log/btmp"
+              ];
+              ownSettings = builtins.filter (name: !(builtins.elem name upstreamDefaults)) (
+                builtins.attrNames (config.services.logrotate.settings or { })
+              );
+            in
+            ownSettings == [ ];
+          message = "[mediNix/hostHygiene] Eigene logrotate-Settings erkannt! mediNix nutzt natives systemd-journald mit SystemMaxUse - Host-Logrotation ist unnoetig.";
         }
         {
           assertion = !(config.networking.wireguard.useNetworkNamespace or false);
