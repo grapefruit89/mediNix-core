@@ -41,6 +41,12 @@ let
     let
       unit = unitOf name;
       exporterPort = 8000 + m.num;
+
+      # Exportarr braucht einen API-Key, sonst beendet es sich mit der
+      # Usage-Meldung (status=1). Der Key kommt aus demselben versiegelten
+      # Blob wie beim Dienst selbst (medinix.secrets.<name>ApiKeyFile).
+      apiKeyFile = config.medinix.secrets."${name}ApiKeyFile" or null;
+      credentialName = "${name}-api-key";
     in
     {
       name = unit;
@@ -57,13 +63,20 @@ let
           # network-Profile: Go binary, port binding via CAP_NET_BIND_SERVICE
           profiles.network
           {
-            ExecStart = "${pkgs.exportarr}/bin/exportarr ${name} --port ${toString exporterPort} --url http://127.0.0.1:${toString m.port}";
+            ExecStart =
+              "${pkgs.exportarr}/bin/exportarr ${name} --interface 127.0.0.1 --port ${toString exporterPort} --url http://127.0.0.1:${toString m.port}"
+              + lib.optionalString (
+                apiKeyFile != null
+              ) " --api-key-file /run/credentials/${unit}.service/${credentialName}";
             User = unit;
             Group = unit;
             UMask = "0002";
             Restart = "on-failure";
             RestartSec = "10s";
           }
+          (lib.optionalAttrs (apiKeyFile != null) {
+            LoadCredentialEncrypted = [ "${credentialName}:${apiKeyFile}" ];
+          })
         ];
       };
     };

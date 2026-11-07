@@ -2569,6 +2569,109 @@
           "note": "services.blocky Optionen"
         }
       ]
+    },
+    {
+      "id": "T-29-01",
+      "title": "medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key)",
+      "kind": "bug",
+      "status": "open",
+      "priority": "high",
+      "legacy": false,
+      "source": {
+        "type": "host-build",
+        "ref": "scripts/medinix-seal-secret.sh",
+        "date": "2026-11-07",
+        "evidence": [
+          "sonarr.service: LoadCredentialEncrypted=sonarr-api-key:/var/lib/medinix/secrets/sonarr-apikey.encrypted",
+          "Failed to set up credentials: Name in credential doesn't match expectations (status=243/CREDENTIALS)",
+          "Seal-Skript setzt --name=\"$name\" (= sonarr-apikey), die Units erwarten sonarr-api-key"
+        ]
+      },
+      "why": "Das Skript und die Units benutzen unterschiedliche Credential-Namen. Wer dem Skript folgt, bekommt einen Dienst, der mit 243/CREDENTIALS nicht startet. Der Fehler ist nur durch manuelles Nachversiegeln mit dem Unit-Namen zu umgehen.",
+      "steps_open": [
+        "Namen im Skript an die Units angleichen (z. B. NAME-api-key) oder Units auf NAME-apikey umstellen",
+        "Regression: Skript gegen eine Test-Unit laufen lassen und LoadCredentialEncrypted pruefen"
+      ],
+      "steps_done": [
+        {
+          "date": "2026-11-07",
+          "what": "Auf q958 manuell umgangen: systemd-creds encrypt --name=sonarr-api-key; sonarr.service laeuft (127.0.0.1:5320)"
+        }
+      ],
+      "notes": "Gefunden beim ersten echten Host-Build/Deploy (q958). Siehe AUDIT-LEDGER L-050.",
+      "depends_on": [],
+      "links": [],
+      "wave": 1,
+      "effort": "S",
+      "acceptance": [
+        "Skript und Units verwenden denselben Credential-Namen",
+        "Ein mit dem Skript versiegeltes Secret startet den zugehoerigen Dienst ohne Nacharbeit"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "scripts/medinix-seal-secret.sh",
+          "note": "erzeugt --name=$name"
+        },
+        {
+          "type": "internal",
+          "ref": "53-acquisition/532-sonarr.nix",
+          "note": "erwartet sonarr-api-key"
+        }
+      ]
+    },
+    {
+      "id": "T-29-02",
+      "title": "Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert",
+      "kind": "bug",
+      "status": "open",
+      "priority": "high",
+      "legacy": false,
+      "source": {
+        "type": "host-build",
+        "ref": "53-acquisition/532-sonarr.nix",
+        "date": "2026-11-07",
+        "evidence": [
+          "Unit setzt SONARR_API_KEY_FILE=/run/credentials/sonarr.service/sonarr-api-key",
+          "Sonarr config.xml: <Config><ApiKey>569a9146...</ApiKey></Config> - also der selbst erzeugte Key",
+          "Versiegelter Key: 7b6fbde0... - API-Test damit gegen 127.0.0.1:5320 -> HTTP 401",
+          "Sonarr liest Konfiguration ueber SONARR__<SECTION>__<KEY> (.NET), nicht ueber *_FILE (Docker-Entrypoint-Konvention)"
+        ]
+      },
+      "why": "Die API-Key-Plumbing funktioniert nur in Docker-Images (deren Entrypoint *_FILE auswertet). Auf NixOS laeuft das Sonarr-Binary direkt, also wird SONARR_API_KEY_FILE ignoriert: Sonarr erzeugt einen eigenen Key, exportarr scrapt mit dem versiegelten Key und bekommt 401. Der Exporter laeuft, liefert aber keine Metriken - ein stiller Ausfall.",
+      "steps_open": [
+        "Key-Uebergabe an das Binary festlegen: SONARR__CONFIG__APIKEY (Umgebungsvariable, sichtbar in /proc) oder EnvironmentFile aus der entschluesselten Credential",
+        "Falls EnvironmentFile: versiegeltes Secret muss KEY=VALUE enthalten, nicht nur den Rohwert",
+        "Regression: nach dem Start muss config.xml/ApiKey dem versiegelten Wert entsprechen und exportarr 200 liefern"
+      ],
+      "steps_done": [
+        {
+          "date": "2026-11-07",
+          "what": "Pfad auf /run/credentials/... umgestellt (vorher zeigte er auf den .encrypted-Blob); dadurch erst sichtbar, dass der Variablenname selbst nicht greift"
+        }
+      ],
+      "notes": "Gefunden auf q958, nachdem exportarr aktiv war aber 401 lieferte. Siehe AUDIT-LEDGER L-051.",
+      "depends_on": [],
+      "links": [],
+      "wave": 1,
+      "effort": "M",
+      "acceptance": [
+        "config.xml des Arr-Dienstes enthaelt den versiegelten Key",
+        "exportarr liefert HTTP 200 statt 401",
+        "kein Klartext-Key in der Unit-Umgebung, der in /proc sichtbar waere"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "53-acquisition/532-sonarr.nix",
+          "note": "setzt SONARR_API_KEY_FILE"
+        },
+        {
+          "type": "internal",
+          "ref": "58-observability/585-exporters.nix",
+          "note": "exportarr --api-key-file"
+        }
+      ]
     }
   ]
 }

@@ -1,16 +1,16 @@
 # TODO — mediNix-core
 
-> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-05.
+> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-07.
 > Nicht von Hand pflegen — Inhalte gehören in die Quellen:
 > `todo/tasks.json` (offene Arbeit, validiert durch `scripts/check_tasks.py`),
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
-## 1. Offene Arbeit — `todo/tasks.json` (60)
+## 1. Offene Arbeit — `todo/tasks.json` (62)
 
 _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
-### hoch (9)
+### hoch (11)
 
 - [ ] `R24` FIDO2 / Passkey-only Authentifizierung
 - [ ] `R47` L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen…
@@ -21,6 +21,8 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `R82` Label-basiertes Automounting/MergerFS
 - [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
 - [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4…
+- [ ] `T-29-01` medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key)
+- [ ] `T-29-02` Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert
 
 ### mittel (45)
 
@@ -83,6 +85,8 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **15** von 44 (`status:` inzwischen überall gesetzt) → Index zeigt `-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
+- [ ] L-050 (BUG) Erster echter Host-Build (q958, nixpkgs `e554fab`) deckte drei Integrationsfehler auf, die in der synthetischen Pruefkonfiguration unsichtbar sind: (1 — Status: "external"`; external setzt weder `enable` noch `ports` und haengt nur `customDNS` an (Attrset mergt). Default bleibt `managed`, Pruefkonfig baut unveraendert. (2) Notifier-Template hinter `lib.mkIf cfg.enable`. (3) Exporter laedt `LoadCredentialEncrypted = NAME-api-key:<sealed>` und uebergibt `--api-key-file /run/credentials/<unit>/...`. Deploy auf q958: Generation 9, sonarr `127.0.0.1:5320` aktiv, 0 failed Units.
+- [ ] L-051 (BUG) Der versiegelte Arr-API-Key kommt beim Dienst **nie an**. Gemessen auf q958: Unit setzt `SONARR_API_KEY_FILE=/run/credentials/sonarr.service/sonarr-ap — Status: **WIP** (2 offen)
 
 ## 3. Pflicht bei jeder Änderung
 

@@ -27,6 +27,27 @@ let
   cfg = config.medinix;
   domain = cfg.host.domain;
   active = cfg.enable && (cfg.blocky.enable or true);
+
+  # Chameleon wie in 511-caddy: mediNix entscheidet, ob es den DNS-Listener
+  # BESITZT oder sich an einen bereits laufenden Blocky ANHAENGT. Der Host
+  # sagt das ueber `medinix.blocky.mode`. Auto-Erkennung ueber
+  # `services.blocky.enable` waere hier eine Rekursion, weil mediNix diese
+  # Option selbst setzt - anders als Caddy, wo 511 `services.caddy.enable`
+  # nie schreibt.
+  #
+  #   "managed"  = mediNix besitzt Blocky: Port, Upstreams, Blocklisten.
+  #   "external" = Der Host betreibt Blocky bereits. mediNix fasst weder
+  #                `enable` noch `ports` an und haengt nur customDNS an.
+  managed = active && cfg.blocky.mode == "managed";
+  external = active && cfg.blocky.mode == "external";
+
+  targetIp = cfg.host.lanIp or "127.0.0.1";
+  customMapping = {
+    "lan" = targetIp;
+  }
+  // lib.optionalAttrs (domain != null) {
+    "${domain}" = targetIp;
+  };
 in
 {
   options.medinix.blocky = {
@@ -34,6 +55,27 @@ in
       type = lib.types.bool;
       default = true;
       description = "Blocky Split-DNS für LAN (ersetzt mDNS/Avahi).";
+    };
+    mode = lib.mkOption {
+      type = lib.types.enum [
+        "managed"
+        "external"
+      ];
+      default = "managed";
+      description = ''
+        Wer besitzt den DNS-Listener?
+
+        "managed"  = mediNix konfiguriert Blocky vollstaendig (enable,
+                     ports.dns = 0.0.0.0:53, Upstreams, Blocklisten).
+        "external" = Ein Host-Blocky laeuft bereits (eigener Port, eigene
+                     Upstreams, eigene Blocklisten). mediNix setzt weder
+                     `enable` noch `ports` und haengt nur `customDNS` an -
+                     ein Attrset, das sich Schluessel fuer Schluessel mergen
+                     laesst.
+
+        Auto-Erkennung gibt es bewusst nicht: mediNix setzt
+        `services.blocky.enable` selbst, ein Test darauf waere eine Rekursion.
+      '';
     };
   };
 
@@ -67,48 +109,56 @@ in
       };
     };
 
-    services.blocky = {
-      enable = true;
-      settings = {
-        ports = {
-          dns = "0.0.0.0:53";
-          http = "127.0.0.1:5150";
+    services.blocky = lib.mkMerge [
+      (lib.mkIf managed {
+        enable = true;
+        settings = {
+          ports = {
+            dns = "0.0.0.0:53";
+            http = "127.0.0.1:5150";
+          };
+          upstreams.groups.default = [ "https://1.1.1.1/dns-query" ];
+          customDNS = {
+            customTTL = "1h";
+            filterUnmappedTypes = true;
+            mapping = customMapping;
+          };
+          blocking = {
+            denylists = { };
+            clientGroupsBlock = { };
+          };
         };
-        upstreams.groups.default = [ "https://1.1.1.1/dns-query" ];
-        customDNS = {
+      })
+
+      # Chameleon-Anhang: Der Host besitzt den Listener. mediNix steuert nur
+      # bei, was sich additiv mergen laesst - `customDNS` ist ein Attrset, also
+      # Schluessel fuer Schluessel. Port, Upstreams und Blocklisten bleiben
+      # unangetastet, weil sie Skalare bzw. konkurrierende Listen sind.
+      (lib.mkIf external {
+        settings.customDNS = {
           customTTL = "1h";
           filterUnmappedTypes = true;
-          mapping =
-            let
-              targetIp = cfg.host.lanIp or "127.0.0.1";
-            in
-            {
-              "lan" = targetIp;
-            }
-            // lib.optionalAttrs (domain != null) {
-              "${domain}" = targetIp;
-            };
+          mapping = customMapping;
         };
-        blocking = {
-          denylists = { };
-          clientGroupsBlock = { };
-        };
-      };
-    };
+      })
+    ];
 
-    systemd.services.blocky = (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
-      name = "blocky";
-      profile = "network";
-      ownsAccount = false;
-      hardeningOnly = true;
-      extraConfig = {
-        User = "blocky";
-        Group = "blocky";
-        # Upstream (nixpkgs blocky) setzt DynamicUser = true plain. mediNix
-        # braucht die feste UID 5150 (ADR-0000 §4: UID = Port = Primär-GID,
-        # UPG + Peer-Isolation), deshalb mkForce false. Siehe Todo 17.
-        DynamicUser = lib.mkForce false;
-      };
-    };
+    systemd.services.blocky = lib.mkIf managed (
+      (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
+        name = "blocky";
+        profile = "network";
+        ownsAccount = false;
+        hardeningOnly = true;
+        extraConfig = {
+          User = "blocky";
+          Group = "blocky";
+          # Upstream (nixpkgs blocky) setzt DynamicUser = true plain. mediNix
+          # braucht die feste UID 5150 (ADR-0000 §4: UID = Port = Primär-GID,
+          # UPG + Peer-Isolation), deshalb mkForce false. Siehe Todo 17.
+          DynamicUser = lib.mkForce false;
+        };
+      }
+    );
+
   };
 }

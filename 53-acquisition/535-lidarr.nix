@@ -135,7 +135,11 @@ in
             onFailure = [ "alert-ntfy@%n.service" ];
             environment = lib.mkMerge [
               (lib.mkIf (svc.secrets.lidarrApiKeyFile or null != null) {
-                LIDARR_API_KEY_FILE = svc.secrets.lidarrApiKeyFile;
+                # Pfad IM Unit-Namespace: systemd legt die entschluesselte Credential
+                # unter /run/credentials ab. Der frueher gesetzte Host-Pfad zeigte auf
+                # den .encrypted-Blob - den kann die App nicht lesen, sie erzeugt dann
+                # einen eigenen Key und der Exporter laeuft mit 401 ins Leere.
+                LIDARR_API_KEY_FILE = "/run/credentials/lidarr.service/lidarr-api-key";
               })
               (arrSettings.mkLidarr {
                 server = {

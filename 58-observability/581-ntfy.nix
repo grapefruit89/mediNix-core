@@ -46,7 +46,11 @@ let
 in
 lib.mkMerge [
   # Systemd OnFailure crash notifier template (alert-ntfy@)
-  {
+  # Nur wenn ntfy laeuft: die Unit braucht die Gruppe "ntfy" und den UDS aus
+  # diesem Modul. Ohne ntfy scheiterte sie mit "Failed to determine
+  # supplementary groups: No such process" (DynamicUser + fehlende Gruppe) und
+  # hinterliess bei JEDEM Dienstausfall eine zusaetzliche failed Unit.
+  (lib.mkIf cfg.enable {
     systemd.services."alert-ntfy@" = {
       description = "mediNix Failure Notifier für %i";
       serviceConfig = {
@@ -57,7 +61,7 @@ lib.mkMerge [
         PrivateTmp = true;
       };
     };
-  }
+  })
 
   (lib.mkIf cfg.enable {
     assertions = [
