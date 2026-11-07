@@ -11,7 +11,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 
 HISTORICAL_PREFIXES = (
-    'docs/audit/', 'docs/archive/', 'docs/learn/', 'docs/patterns/',
+    'docs/audit/', 'docs/archive/', 'docs/learn/',
     'docs/agents/', 'todo/_archive/', 'todo/_input/', 'todo/done/',
     'docs/audit/2026-11-05/todo-blocks/',
 )

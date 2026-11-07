@@ -16,7 +16,7 @@ Diese Dokumentation dient als Single Source of Truth (SSoT) für das mediNix-cor
 | Wie baue ich ein Modul / eine Unit? | `../50-core/service-factory.nix` | Code |
 | Wie debugge ich einen Dienst? | [`RUNBOOK.md`](RUNBOOK.md) §5 + `medinix triage <symptom>` | generiert aus `runbook.json` |
 | Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
-| Wie mache ich X mit Nix? (Fremdwissen) | [`patterns/`](patterns/) — **nicht repo-spezifisch** | extern, ungepflegt |
+| Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
 | Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
 
 **Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/` und die
@@ -62,7 +62,7 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - **[Concepts (`concepts/`)](concepts/)**: Die wichtigsten Architektur-Synthesen (Agenten-Fokus).
 - **[Architecture Decision Records (`adr/`)](adr/)**: Historische und verbindliche Design-Entscheidungen.
 - **[Guides (`guides/`)](guides/)**: Anleitungen und Best-Practices.
-- **[Patterns (`patterns/`)](patterns/)**: Wiederkehrende Code-Lösungen und Nix-Idiome.
+- **[Patterns]**: ausgelagert nach `/home/moritz/repos/Nix OS resteküche/patterns/` (Fremdwissen, nicht repo-spezifisch).
 - **[Architecture (`arch/`)](arch/)**: Tiefe Architekturdokumentation des Systems.
 
 *Tipp für Agenten: Die `ADR-5020` (Knowledge Extraction Pipeline) beschreibt, wie dieses Wiki aus Chats extrahiert wird.*
@@ -157,60 +157,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ARCH 5700 impermanence storage](arch/ARCH-57-impermanence-storage.md)
 - [ARCH 5800 sre quality](arch/ARCH-58-sre-quality.md)
 
-### Patterns & Idioms
-
-- [PATTERN-00-medinix-core.md](patterns/PATTERN-00-medinix-core.md)
-- [PATTERN 5000 adios flake](patterns/PATTERN-50-adios-flake.md)
-- [PATTERN 5000 alejandra](patterns/PATTERN-50-alejandra.md)
-- [PATTERN 5000 arch devenv](patterns/PATTERN-50-arch-devenv.md)
-- [PATTERN 5000 arch direnv](patterns/PATTERN-50-arch-direnv.md)
-- [PATTERN 5000 arch nix serve](patterns/PATTERN-50-arch-nix-serve.md)
-- [PATTERN 5000 attic](patterns/PATTERN-50-attic.md)
-- [PATTERN 5000 files](patterns/PATTERN-50-files.md)
-- [PATTERN 5000 hercules ci](patterns/PATTERN-50-hercules-ci.md)
-- [PATTERN 5000 infra](patterns/PATTERN-50-infra.md)
-- [PATTERN 5000 input branches](patterns/PATTERN-50-input-branches.md)
-- [PATTERN 5000 kiri dotnix](patterns/PATTERN-50-kiri-dotnix.md)
-- [PATTERN 5000 micadv dotfiles](patterns/PATTERN-50-micadv-dotfiles.md)
-- [PATTERN 5000 micadv shell](patterns/PATTERN-50-micadv-shell.md)
-- [PATTERN 5000 micfork nixcfg](patterns/PATTERN-50-micfork-nixcfg.md)
-- [PATTERN 5000 microvm](patterns/PATTERN-50-microvm.md)
-- [PATTERN 5000 mist config](patterns/PATTERN-50-mist-config.md)
-- [PATTERN 5000 nix colors](patterns/PATTERN-50-nix-colors.md)
-- [PATTERN 5000 nix unit](patterns/PATTERN-50-nix-unit.md)
-- [PATTERN 5000 nixnative cli](patterns/PATTERN-50-nixnative-cli.md)
-- [PATTERN 5000 nixnative haumea](patterns/PATTERN-50-nixnative-haumea.md)
-- [PATTERN 5000 nixnative srvos](patterns/PATTERN-50-nixnative-srvos.md)
-- [PATTERN 5000 nixos generators](patterns/PATTERN-50-nixos-generators.md)
-- [PATTERN 5000 nixosorg hydra](patterns/PATTERN-50-nixosorg-hydra.md)
-- [PATTERN 5000 nixosorg rfcs](patterns/PATTERN-50-nixosorg-rfcs.md)
-- [PATTERN 5000 not os](patterns/PATTERN-50-not-os.md)
-- [PATTERN 5000 num blueprint](patterns/PATTERN-50-num-blueprint.md)
-- [PATTERN 5000 num filter](patterns/PATTERN-50-num-filter.md)
-- [PATTERN 5000 num system manager](patterns/PATTERN-50-num-system-manager.md)
-- [PATTERN 5000 num treefmt](patterns/PATTERN-50-num-treefmt.md)
-- [PATTERN 5000 refjump](patterns/PATTERN-50-refjump.md)
-- [PATTERN 5000 starter configs](patterns/PATTERN-50-starter-configs.md)
-- [PATTERN 5000 velhrh config](patterns/PATTERN-50-velhrh-config.md)
-- [PATTERN 5000 zero to nix](patterns/PATTERN-50-zero-to-nix.md)
-- [PATTERN 5110 caddy](patterns/PATTERN-51-caddy.md)
-- [PATTERN 5110 certmagic](patterns/PATTERN-51-certmagic.md)
-- [PATTERN 5110 forwardproxy](patterns/PATTERN-51-forwardproxy.md)
-- [PATTERN 5100 matrix dendrite](patterns/PATTERN-51-matrix-dendrite.md)
-- [PATTERN 5100 matrix hook](patterns/PATTERN-51-matrix-hook.md)
-- [PATTERN 5100 matrix spec](patterns/PATTERN-51-matrix-spec.md)
-- [PATTERN 5000 micadv retiolum](patterns/PATTERN-51-micadv-retiolum.md)
-- [PATTERN 5100 nixnative dns](patterns/PATTERN-51-nixnative-dns.md)
-- [PATTERN 5100 tailscale patterns](patterns/PATTERN-51-tailscale-patterns.md)
-- [PATTERN 5110 xcaddy](patterns/PATTERN-51-xcaddy.md)
-- [PATTERN 5000 cntr](patterns/PATTERN-52-cntr.md)
-- [PATTERN 5200 sre jailed agents](patterns/PATTERN-52-sre-jailed-agents.md)
-- [PATTERN 5000 nixarr](patterns/PATTERN-53-nixarr.md)
-- [PATTERN 5000 nixflix](patterns/PATTERN-55-nixflix.md)
-- [PATTERN 5000 quicksync calc](patterns/PATTERN-55-quicksync-calc.md)
-- [PATTERN 5700 micadv impermanence](patterns/PATTERN-57-micadv-impermanence.md)
-- [PATTERN 5800 sre nixoscope](patterns/PATTERN-58-sre-nixoscope.md)
-
 ### Guides & Best Practices
 
 - [GUIDE 50 — Aspect-Oriented: Auto-Import & Querschnitts-Aspekte](guides/GUIDE-50-aspect-oriented.md)
@@ -219,7 +165,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [GUIDE 50 — Dendritische Modularisierung: die flache Dezimal-Struktur](guides/GUIDE-50-dendritic-modularization.md)
 - [GUIDE 50 — Enterprise-Standards: order-lint & fail-closed Checks](guides/GUIDE-50-enterprise-standards.md)
 - [GUIDE 50 — Knowledge Traceability: Quellen, ADRs, Ledger](guides/GUIDE-50-knowledge-traceability.md)
-- [GUIDE 50 — Pattern Mining: aus Upstream lernen](guides/GUIDE-50-pattern-mining.md)
 - [GUIDE 50 — Pragmatische Dendritik: eine Datei pro Dienst](guides/GUIDE-50-pragmatic-dendritic.md)
 - [GUIDE 50 — Deployment: nixos-rebuild & flake checks](guides/GUIDE-50-stick-ready-deployment.md)
 - [GUIDE 51 — Caddy (511): der Edge-Standard](guides/GUIDE-51-caddy-m1-abrams.md)

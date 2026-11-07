@@ -23,7 +23,7 @@ Transparenz entsteht aus **Checks** und dem **generierten Modul-Graph**.
   die `AGENTS.md` je Domäne inkl. Module Map, Requires und Mermaid-Abhängigkeits-
   graph. Prüfen: `python scripts/medinix-meta.py check-docs`.
 - **Ordnungs-/Kanten-Checks:** `order-lint` (`docs/CONVENTIONS.md` §Die Kette).
-- **Optionaler Graph:** `docs/patterns/PATTERN-58-sre-nixoscope.md` beschreibt den
+- **Optionaler Graph:** `/home/moritz/repos/Nix OS resteküche/patterns/PATTERN-58-sre-nixoscope.md` beschreibt den
   Einsatz von NixoScope zur Visualisierung der Modul-Abhängigkeiten.
 
 ## 📌 Regel
@@ -31,4 +31,4 @@ Transparenz entsteht aus **Checks** und dem **generierten Modul-Graph**.
 editieren; neu erzeugen mit `medinix-meta.py generate-docs`.
 
 Quellen: `docs/CONVENTIONS.md`, `51-ingress/AGENTS.md` (generierter Graph),
-`docs/patterns/PATTERN-58-sre-nixoscope.md`.
+`/home/moritz/repos/Nix OS resteküche/patterns/PATTERN-58-sre-nixoscope.md`.

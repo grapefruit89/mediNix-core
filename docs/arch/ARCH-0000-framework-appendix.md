@@ -150,7 +150,7 @@ The mediNix documentation tree separates documentation by user intent according 
 |---|---|---|
 | **Tutorial** | "How do I get started?" | `docs/learn/` |
 | **How-to Guide** | "How do I solve a specific operational task?" | `docs/guides/` |
-| **Reference** | "What are the exact facts and schemas?" | `docs/patterns/`, `docs/adr/`, `docs/repository.yaml` |
+| **Reference** | "What are the exact facts and schemas?" | `/home/moritz/repos/Nix OS resteküche/patterns/`, `docs/adr/`, `docs/repository.yaml` |
 | **Explanation** | "Why is the system designed this way?" | `docs/concepts/`, `docs/arch/` |
 
 **Demarkation Rule:** **arc42** structures the formal system architecture, while **Diátaxis** organizes user- and developer-facing documentation folders.

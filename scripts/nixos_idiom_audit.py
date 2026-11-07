@@ -31,7 +31,6 @@ EXTS = (".nix", ".sh", ".md", ".yml", ".yaml", ".py")
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".direnv", ".devenv"}
 # Importierte Wissensbasis (Fremd-Patterns) + Archiv: NICHT unser Code -> kein Signalrauschen.
 SKIP_PATH_PREFIXES = (
-    "docs/patterns",
     "docs/learn",
     "docs/concepts",
     "docs/arch",

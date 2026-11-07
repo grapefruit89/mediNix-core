@@ -18,7 +18,7 @@ SKIP_ALWAYS = {
     '.mypy_cache', '.pytest_cache', '.agents', '.claude', '.direnv',
 }
 SKIP_HISTORICAL = {
-    'docs/audit', 'docs/archive', 'docs/learn', 'docs/patterns',
+    'docs/audit', 'docs/archive', 'docs/learn',
     'docs/agents', 'todo',
 }
 SKIP_EXT = {
