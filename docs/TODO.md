@@ -6,11 +6,11 @@
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
-## 1. Offene Arbeit — `todo/tasks.json` (62)
+## 1. Offene Arbeit — `todo/tasks.json` (61)
 
 _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
-### hoch (11)
+### hoch (10)
 
 - [ ] `R24` FIDO2 / Passkey-only Authentifizierung
 - [ ] `R47` L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen…
@@ -21,7 +21,6 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `R82` Label-basiertes Automounting/MergerFS
 - [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
 - [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4…
-- [ ] `T-29-01` medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key)
 - [ ] `T-29-02` Arr-API-Keys kommen nicht an: SONARR_API_KEY_FILE ist Docker-Konvention, die das Binary ignoriert
 
 ### mittel (45)

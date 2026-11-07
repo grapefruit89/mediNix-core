@@ -2574,7 +2574,7 @@
       "id": "T-29-01",
       "title": "medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key)",
       "kind": "bug",
-      "status": "open",
+      "status": "done",
       "priority": "high",
       "legacy": false,
       "source": {
@@ -2588,17 +2588,18 @@
         ]
       },
       "why": "Das Skript und die Units benutzen unterschiedliche Credential-Namen. Wer dem Skript folgt, bekommt einen Dienst, der mit 243/CREDENTIALS nicht startet. Der Fehler ist nur durch manuelles Nachversiegeln mit dem Unit-Namen zu umgehen.",
-      "steps_open": [
-        "Namen im Skript an die Units angleichen (z. B. NAME-api-key) oder Units auf NAME-apikey umstellen",
-        "Regression: Skript gegen eine Test-Unit laufen lassen und LoadCredentialEncrypted pruefen"
-      ],
+      "steps_open": [],
       "steps_done": [
         {
           "date": "2026-11-07",
           "what": "Auf q958 manuell umgangen: systemd-creds encrypt --name=sonarr-api-key; sonarr.service laeuft (127.0.0.1:5320)"
+        },
+        {
+          "date": "2026-11-07",
+          "what": "scripts/medinix-seal-secret.sh (+ .ps1 fuer Paritaet): Suffix-Mapping -apikey -> -api-key, andere Namen unveraendert; Konvention im Skript-Kopf dokumentiert; SECRETS_DIR-Override fuer testbares Versiegeln. Verifiziert auf q958 in /tmp: sonarr-apikey -> Credential sonarr-api-key (decrypt ok), falscher Name wird abgelehnt (Embedded credential name does not match), zz-test-token bleibt unveraendert. Echtes Secret /var/lib/medinix/secrets/sonarr-apikey.encrypted unberuehrt."
         }
       ],
-      "notes": "Gefunden beim ersten echten Host-Build/Deploy (q958). Siehe AUDIT-LEDGER L-050.",
+      "notes": "Gefunden beim ersten echten Host-Build/Deploy (q958). Siehe AUDIT-LEDGER L-050. | Behoben 2026-11-07: Mapping im Skript, Units unveraendert, kein Nachversiegeln noetig.",
       "depends_on": [],
       "links": [],
       "wave": 1,

@@ -6,10 +6,10 @@
 > `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.
 > Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
 
-> **Generiert** am 2026-11-07 aus `todo/tasks.json` (93 Tasks, 62 offen).
+> **Generiert** am 2026-11-07 aus `todo/tasks.json` (93 Tasks, 61 offen).
 > Nicht von Hand pflegen. Quelle: `todo/tasks.json`. Prüfen: `python3 scripts/gen_plan.py --check`.
 
-**Richtwert Aufwand:** 198 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
+**Richtwert Aufwand:** 197 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
 
 ## W0 — Abschluss & Hygiene (3 Punkte, ~3 h)
 
@@ -51,14 +51,13 @@ _Kleine Aufraeumarbeiten. Danach ist die Liste ehrlich kurz._
 - `internal` · 51-ingress/515-blocky.nix — heutiger DoH-Upstream
 - `resource` · nixos-wiki — services.blocky Optionen
 
-## W1 — Deploy-Blocker & Datenlecks (7 Punkte, ~26 h)
+## W1 — Deploy-Blocker & Datenlecks (6 Punkte, ~25 h)
 
 _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 
 | ID | Aufwand | Art | Punkt | Abnahme | Quellen |
 |---|---|---|---|---:|---:|
 | `Q-28-08` | S | decision | 19 committete Dateien (Roh-Chat-Exporte in todo/done/, Destillate in todo/*.json) enthalten Infra-Metadaten (e… | 2 | 1 |
-| `T-29-01` | S | bug | medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key) | 2 | 2 |
 | `R47` | M | bug | L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen… | 3 | 4 |
 | `T-28-12` | M | feature | Restliche Infra-Strings in den destillierten Todo-Daten (todo/plan.json, todo/decisions.json, todo/antipattern… | 3 | 2 |
 | `T-28-13` | M | feature | Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4… | 3 | 2 |
@@ -73,16 +72,6 @@ _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 
 **Quellen:**
 - `internal` · docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json — Q-28-08: 19 committete Dateien
-
-### `T-29-01` — medinix-seal-secret.sh versiegelt unter falschem Credential-Namen (NAME-apikey statt NAME-api-key)
-
-**Abnahme:**
-- Skript und Units verwenden denselben Credential-Namen
-- Ein mit dem Skript versiegeltes Secret startet den zugehoerigen Dienst ohne Nacharbeit
-
-**Quellen:**
-- `internal` · scripts/medinix-seal-secret.sh — erzeugt --name=$name
-- `internal` · 53-acquisition/532-sonarr.nix — erwartet sonarr-api-key
 
 ### `R47` — L-047: echte Credential-Quelle für root/wheel. `users.mutableUsers = lib.mkDefault false` braucht einen realen…
 
