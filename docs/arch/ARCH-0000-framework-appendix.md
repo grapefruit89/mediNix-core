@@ -36,7 +36,7 @@ chapter structure, while **C4** provides deterministic levels of diagram abstrac
 
 | arc42 Chapter | mediNix Document | Content & Purpose |
 |---|---|---|
-| **1. Introduction & Goals** | `docs/INDEX.md`, `50-core/MANIFEST.md`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-architecture-principles.md` | Requirements, quality goals, stakeholder overview |
+| **1. Introduction & Goals** | `docs/INDEX.md`, `docs/adr/ADR-0000-dezimalrahmen-verfassung.md`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-architecture-principles.md` | Requirements, quality goals, stakeholder overview |
 | **2. Constraints** | `AGENTS.md`, `docs/NO-CONTAINERS.md` | Non-negotiable technical, organizational, and operational constraints |
 | **3. Context & Scope** | `docs/arch/ARCH-50-architecture-blueprint.md`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-service-manifest.md` | Business and technical context, external interfaces, boundaries |
 | **4. Solution Strategy** | `docs/audit/2026-11-07/legacy-arch/ARCH-50-master-index.md`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-architecture-principles.md` | Key technical decisions, decomposition strategy |

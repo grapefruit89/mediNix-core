@@ -2,7 +2,7 @@
 id: "ARCH-57-golden-handbook"
 title: "ARCH 5000 golden handbook"
 domain: 57
-status: active
+status: deprecated
 complexity: 2
 last_reviewed: 2026-08-12
 tags:
@@ -12,6 +12,12 @@ links:
   repo-harvest: ""
 ---
 # 👑 Das Goldene Handbuch
+
+> ⚠️ **Historisch, nicht aktuell (2026-11-13).** Dieses Handbuch stammt aus dem geernteten
+> Fremd-Repository `mynixos-knowledge-base`. Die 96 Links darin zeigen auf Dateien, die es
+> in mediNix-core nie gab (`00_STATUS_DASHBOARD.md`, `guides/GUIDE-*.md`, `adr/ADR-006-…`).
+> Es bleibt als Zeitdokument stehen, ist aber **kein** Einstiegspunkt.
+> Aktuell: `docs/INDEX.md` und `docs/NAVIGATION.md`.
 
 1. [Status Dashboard](./00_STATUS_DASHBOARD.md)
 2. [Dendritische Architektur](../adr/den-framework-foundation.md)

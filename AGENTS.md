@@ -192,7 +192,7 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | Ort | Was |
 |---|---|
 | `50-core/` | **Engine** `501-decimal-engine.nix` / `derive.nix` (besitzt `users.users.<dienst>`, StateDirectory, UPG) · `service-factory.nix` / `service-contract.nix` (Unit-Gerüst + Manifest-Schema) · `hardening-profiles.nix` (**einzige** Hardening-Quelle) · `registry.nix` (SSoT) · `creds` · `memory-policy` · `arr-settings` |
-| `docs/adr/` | 47 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
+| `docs/adr/` | 48 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
 | `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
 | `docs/{arch,guides,concepts,modules,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`); `modules/` = Semantik je Dienst |
@@ -205,7 +205,7 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
 | `scripts/` | **`verify.sh`** (die eine lokale Leiter, 19 Prüfungen) · `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · **`check_tasks.py`** (Task-Validator) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_plan.py`/`gen_service_map.py`/`gen_runbook.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
-| `flake.nix` | Outputs + **41 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
+| `flake.nix` | Outputs + **54 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
 
 **Modulseiten:** `docs/modules/<id>-<dienst>.md` beantwortet „warum so gebaut, welche Fallstricke" — Vorlage: `docs/modules/_TEMPLATE.md`.
 Der Eintrag dafür in `docs/INDEX.md` wird von `docs/generate_index.py` erzeugt, nicht von Hand gepflegt.

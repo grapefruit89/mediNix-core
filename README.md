@@ -17,7 +17,7 @@ A service describes itself. Ingress organs only consume that description.
 
 ## Architecture (decimal framework, ADR-0000)
 
-**[Architecture manifesto (constitution v2.0)](50-core/MANIFEST.md)**
+**[Decimal Framework — die Verfassung (ADR-0000)](docs/adr/ADR-0000-dezimalrahmen-verfassung.md)**
 
 1. **Tri-state boundary.** mediNix does not take over the host (`mkForce` is banned). The host admin chooses `managed`, `external`, or `off`.
 2. **Fail-closed.** No unsafe fallbacks (DNS leaks, silent auth, dead virtual hosts).
