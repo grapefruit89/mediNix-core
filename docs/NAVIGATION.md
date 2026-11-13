@@ -44,6 +44,9 @@ Dekade hat, steht in ADR-0000 §3 und in der Repo-Landkarte der `AGENTS.md`.
 | Keine eigene Caddy-Datei anlegen. Der Ingress liest den Manifest-Eintrag. | `51-ingress/ingress-access.nix:30` — `accessGroupOf` = Vhost-Override, sonst Manifest |
 | `num` 500–599 wird nur geprüft, wenn ein Manifest-Eintrag existiert. | `50-core/service-contract.nix:427-432` |
 | Zwei fast gleiche Enums: `caddyClass` (Registry) hat 4 Werte, `accessGroup` (Manifest) hat 5. `idp` gibt es **nur** in `accessGroup`. | `50-core/registry.nix` (`none/internal/public/stream`) vs. `50-core/manifest.nix:22-28` (`stream/internal/public/idp/none`) |
+| Der Registry-Key ist der **nackte** Dienstname, nicht die Datei-ID: `test = mkService "test" 589 …`, Datei `589-test.nix`. In allen 18 Einträgen ist Key = erstes Argument. | `50-core/registry.nix` — 18/18 geprüft |
+| `accessGroup = "internal"` erzeugt einen vHost. Ein vHost mit **leerem** `trustedCidrs` ist ein Build-Fehler — es gibt keinen impliziten LAN-Vertrauensbereich. | `default.nix:412-416` |
+| `monitoring.enable` ist per Default `true`, `monitoring.type` per Default `"http"`. Ein Manifest-Eintrag ohne `healthPath` bricht deshalb den Build. | `50-core/service-contract.nix:140` (enable), `:152` (type), `:163-169` (healthPath) |
 | Die neue Datei wird automatisch geladen — aber nur, wenn sie `XX-domain/NNN-*.nix` heißt. | `default.nix:26-27` — „Auto-imports every XX-domain/NNN-*.nix module … No hardcoded import list" |
 | Eine Modulseite (`docs/modules/<id>-<dienst>.md`) ist **nicht** Pflicht — kein Check verlangt sie. | kein Treffer für `docs/modules` in `scripts/` und `.github/` |
 

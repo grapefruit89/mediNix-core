@@ -10,10 +10,14 @@ Inhalt liegt unverändert in
 
 Nützliche Einstiege:
 
+**`docs/` IST die Wissensbasis. Es gibt kein separates `wiki/`.**
+
 | Zweck | Datei |
 |---|---|
+| Einstieg (welche Frage → welcher Ort) | [`INDEX.md`](INDEX.md) |
+| Aufgabe → Lese-Reihenfolge | [`NAVIGATION.md`](NAVIGATION.md) |
+| Modul-Semantik (nur wo das *Warum* fehlt) | [`modules/`](modules/) |
 | Agenten-Verfassung, Arbeitsregeln | [`../AGENTS.md`](../AGENTS.md) |
-| Wissensbasis-Index | [`INDEX.md`](INDEX.md) |
 | Ordnungsregeln (Ordner, Root-Dateien) | [`CONVENTIONS.md`](CONVENTIONS.md) |
 | Befund-Gedächtnis (Quelle + Rollback je Zeile) | [`AUDIT-LEDGER.md`](AUDIT-LEDGER.md) |
 | Entscheidungs-Korridor (Whitelist/Blacklist) | [`../.agent-state.json`](../.agent-state.json) |

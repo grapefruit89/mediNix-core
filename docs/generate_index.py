@@ -36,7 +36,12 @@ def generate_index(docs_dir):
             
         generated_content += f"### {cat_name}\n\n"
         
-        files = [f for f in os.listdir(cat_path) if f.endswith('.md') and not f.startswith('_')]
+        # log.md ist ein Chronik-Eintrag, kein Dokument der Kategorie.
+        files = [
+            f
+            for f in os.listdir(cat_path)
+            if f.endswith('.md') and not f.startswith('_') and f != 'log.md'
+        ]
         files.sort()
         
         if not files:

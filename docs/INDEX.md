@@ -5,21 +5,35 @@ Diese Dokumentation dient als Single Source of Truth (SSoT) für das mediNix-cor
 ## 🧭 Agent Routing (START HERE)
 
 **Eine Frage, ein Ort.** Wenn du nicht weißt, wo du lesen sollst: hier nachsehen.
+Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
+**Referenz** (nachschlagen, generiert oder extern).
+
+### Einstieg
+
+| Frage | Ort | Gepflegt von |
+|---|---|---|
+| Wie lege ich einen Dienst / Ingress / Credential an? | [`NAVIGATION.md`](NAVIGATION.md) — Aufgabe → Lese-Reihenfolge | Mensch |
+| Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
+| Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (generiert) | `scripts/gen_service_map.py` |
+| Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
+
+### Regeln
 
 | Frage | Ort | Gepflegt von |
 |---|---|---|
 | Darf ich das überhaupt? Was ist verboten? | [`../AGENTS.md`](../AGENTS.md), [`CONVENTIONS.md`](CONVENTIONS.md) | Mensch |
 | Warum ist etwas so entschieden? | [`adr/`](adr/) — `ADR-<id>-<slug>.md` | Mensch, unveränderlich |
+
+### Referenz (nachschlagen, generiert oder extern)
+
+| Frage | Ort | Gepflegt von |
+|---|---|---|
 | Wie greifen die Schichten 50–59 ineinander? | [`arch/`](arch/) — `ARCH-51-*.md`, `ARCH-0000-framework-appendix.md` | Mensch |
 | Was muss der Host liefern, was erzwingt das Modul? | [`concepts/`](concepts/) | Mensch |
-| Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (generiert) | `scripts/gen_service_map.py` |
+| Warum ist Dienst X so gebaut und nicht anders? | [`modules/`](modules/) — eine Seite je Dienst | Mensch |
 | Wie baue ich ein Modul / eine Unit? | `../50-core/service-factory.nix` | Code |
 | Wie debugge ich einen Dienst? | [`RUNBOOK.md`](RUNBOOK.md) §5 + `medinix triage <symptom>` | generiert aus `runbook.json` |
-| Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
 | Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
-| Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
-| Warum ist Dienst X so gebaut und nicht anders? | [`modules/`](modules/) — eine Seite je Dienst | Mensch |
-| Wie lege ich einen Dienst / Ingress / Credential an? | [`NAVIGATION.md`](NAVIGATION.md) — Aufgabe → Lese-Reihenfolge | Mensch |
 
 **Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/`.
 Die alte Wissensbank (`ARCH-50-*`) liegt vollständig in `docs/audit/2026-11-07/legacy-arch/`.
