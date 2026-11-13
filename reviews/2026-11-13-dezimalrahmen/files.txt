@@ -1,0 +1,5 @@
+# Scheibe 1: Kette Registry -> Engine -> Factory -> Modul
+/home/moritz/repos/mediNix-core/50-core/registry.nix
+/home/moritz/repos/mediNix-core/50-core/501-decimal-engine.nix
+/home/moritz/repos/mediNix-core/50-core/service-factory.nix
+/home/moritz/repos/mediNix-core/53-acquisition/532-sonarr.nix
