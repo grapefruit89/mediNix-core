@@ -16,7 +16,7 @@ links:
 > ⚠️ **Historisch, nicht aktuell (2026-11-13).** Dieses Handbuch stammt aus dem geernteten
 > Fremd-Repository `mynixos-knowledge-base`. Die 96 Links darin zeigen auf Dateien, die es
 > in mediNix-core nie gab (`00_STATUS_DASHBOARD.md`, `guides/GUIDE-*.md`, `adr/ADR-006-…`).
-> Es bleibt als Zeitdokument stehen, ist aber **kein** Einstiegspunkt.
+> Es liegt als Zeitdokument im Archiv (`docs/audit/2026-11-13/legacy-arch/`) und ist **kein** Einstiegspunkt.
 > Aktuell: `docs/INDEX.md` und `docs/NAVIGATION.md`.
 
 1. [Status Dashboard](./00_STATUS_DASHBOARD.md)

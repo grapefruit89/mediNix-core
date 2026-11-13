@@ -164,7 +164,6 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [ARCH 5200 flake checker](arch/ARCH-52-flake-checker.md)
 - [ARCH 5200 vault sidecar](arch/ARCH-52-vault-sidecar.md)
 - [ARCH 5700 disaster recovery](arch/ARCH-57-disaster-recovery.md)
-- [ARCH 5000 golden handbook](arch/ARCH-57-golden-handbook.md)
 - [ARCH 5700 impermanence storage](arch/ARCH-57-impermanence-storage.md)
 - [ARCH 5800 sre quality](arch/ARCH-58-sre-quality.md)
 

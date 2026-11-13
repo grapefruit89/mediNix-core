@@ -4,7 +4,7 @@ title: <ID> — <Dienst> (eine Zeile, was er tut)
 
 # <ID> — <Dienst>
 
-**Datei:** [`<pfad>.nix`](../<pfad>.nix) · **Nummer:** <NNN> → Port/UID <NNN>0 · **ADR:** [ADR-<NNN>](../adr/ADR-<NNN>-<slug>.md)
+**Datei:** `<pfad>.nix` · **Nummer:** <NNN> → Port/UID <NNN>0 · **ADR:** `ADR-<NNN>-<slug>.md`
 
 ## 1. Zweck
 
