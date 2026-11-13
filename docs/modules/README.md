@@ -26,6 +26,10 @@ Nicht für jede Datei. Eine Seite lohnt, wenn mindestens eines zutrifft:
 - eine Reihenfolge ist nicht egal (Manifest vor Endpunkt),
 - ein Fehler ist still — der Build bleibt grün, aber der Dienst fehlt im Dashboard.
 
+**Der Musterfall ist [`582-gatus.md`](582-gatus.md).** 46 Module und 1 Seite ist der
+richtige Anfang — nicht 46. Eine neue Seite entsteht erst, wenn ein Agent an dieser
+Stelle nachweislich falsch abbiegt.
+
 ## Aufbau
 
 [`_TEMPLATE.md`](_TEMPLATE.md) kopieren, sieben Abschnitte füllen, Datei nach der

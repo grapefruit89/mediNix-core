@@ -2678,7 +2678,7 @@
       "id": "T-30-01",
       "title": "Task-Navigation fehlt: 17 Dateien und 3 Fehlgriffe fuer 'neuen Dienst anlegen'",
       "kind": "docs",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
       "legacy": false,
       "source": {
@@ -2692,16 +2692,15 @@
         ]
       },
       "why": "Der Einstieg beantwortet 'welche Frage -> welcher Ort', aber nicht 'welche Aufgabe -> welche Reihenfolge'. Der Test zeigt den Preis: 17 Dateien, 1 grep, 3 Sackgassen, 6 Stellen mit Ratemoment. Eine Tabelle mit 4-5 Aufgaben (neuer Dienst, Ingress-Eintrag, Credential, Debugging) wuerde die Zahl senken und die Reihenfolge explizit machen.",
-      "steps_open": [
-        "Die 6 Ratestellen aus dem Testprotokoll am Code verifizieren (nicht uebernehmen)",
-        "docs/NAVIGATION.md mit Aufgabe -> Lese-Reihenfolge anlegen",
-        "In docs/INDEX.md aus der Routing-Tabelle darauf verweisen",
-        "Navigationstest mit derselben Aufgabe wiederholen und Dateizahl vergleichen"
-      ],
+      "steps_open": [],
       "steps_done": [
-        "Messung erhoben: 17 Dateien, 3 Fehlgriffe, 6 Ratestellen"
+        "Messung erhoben: 17 Dateien, 3 Fehlgriffe, 6 Ratestellen",
+        "6 Ratestellen am Code verifiziert: mkManifestEntry ohne Aufrufer (manifest.nix:67/173); 583/584/586/587/588 ohne Manifest und ohne Registry; gen_service_map.py:50-60 bricht bei abweichender Zeilenform; Ingress manifest-getrieben (ingress-access.nix:30); num-Range nur mit Manifest-Eintrag (service-contract.nix:427-432); kein Check fuer docs/modules",
+        "docs/NAVIGATION.md mit 4 Aufgaben angelegt (neuer Dienst, Ingress, Credential, Debugging), Fallen je mit Beleg",
+        "Gegenversuch mit demselben Prompt: 13 Dateien (vorher 17), 0 Fehlgriffe (vorher 3), 0 grep (vorher 1)",
+        "Zwei im Gegenversuch gefundene Luecken nachgetragen: default.nix als Auto-Import, caddyClass vs accessGroup (4 vs 5 Werte)"
       ],
-      "notes": "Aufwand S. Vorbild: android/map.md im Obsidian-Vault (Aufgabe -> Ort).",
+      "notes": "Aufwand S. Abnahme erfuellt: 13 < 17 Dateien, 0 < 3 Fehlgriffe. Vorbild: android/map.md im Obsidian-Vault.",
       "depends_on": [],
       "links": [
         "docs/modules/README.md"
@@ -2721,6 +2720,53 @@
         {
           "type": "internal",
           "ref": "docs/modules/README.md"
+        }
+      ]
+    },
+    {
+      "id": "T-30-02",
+      "title": "mkManifestEntry ist definiert und exportiert, aber nirgends aufgerufen - nutzen oder entfernen?",
+      "kind": "decision",
+      "status": "open",
+      "priority": "low",
+      "legacy": false,
+      "source": {
+        "type": "review",
+        "ref": "50-core/manifest.nix:67",
+        "date": "2026-11-13",
+        "evidence": [
+          "`grep -rn mkManifestEntry --include=*.nix` liefert nur Treffer innerhalb von 50-core/manifest.nix (Kommentar :16, Definition :67, Assertions :91/:95/:98, Export :173)",
+          "Praxis in allen Modulen: flaches Attrset `medinix.manifest.<name> = { ... }` (z. B. 58-observability/582-gatus.nix:91)",
+          "Der Helper traegt die Pruefungen, die im flachen Attrset nur teilweise greifen (num 500-599, Slot 0, accessGroup-Enum)"
+        ]
+      },
+      "why": "Zwei Wege existieren parallel: der typisierte Generator und das flache Attrset. Kein Modul nutzt den Generator, also laufen seine Pruefungen ins Leere - die num-Range wird nur ueber die Manifest-Assertion in service-contract.nix:427-432 geprueft. Entweder die Module auf den Helper umstellen (dann greifen die Pruefungen beim Schreiben) oder den Helper entfernen (dann ist die API ehrlich). Beides ist eine Entscheidung, keine Reparatur.",
+      "steps_open": [
+        "Entscheiden: umstellen oder entfernen",
+        "bei Entfernen: Export in manifest.nix:173 und die Assertions mitnehmen",
+        "bei Umstellen: ein Modul als Muster (581-ntfy) und ADR-Notiz"
+      ],
+      "steps_done": [],
+      "notes": "Aufwand S. Kein Build-Impact heute: der Helper ist unbenutzt, aber exportiert.",
+      "depends_on": [],
+      "links": [
+        "50-core/manifest.nix",
+        "docs/NAVIGATION.md"
+      ],
+      "wave": 3,
+      "effort": "S",
+      "acceptance": [
+        "entweder nutzt mindestens ein Modul mkManifestEntry, oder der Export ist entfernt",
+        "verify.sh gruen"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "50-core/manifest.nix"
+        },
+        {
+          "type": "internal",
+          "ref": "50-core/service-contract.nix"
         }
       ]
     }

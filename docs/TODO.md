@@ -22,7 +22,7 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
 - [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4…
 
-### mittel (46)
+### mittel (45)
 
 - [ ] `B-CA` `caddyClass` vs. `accessGroup`
 - [ ] `B-M4` 591 Options-Pfad-Assertion
@@ -69,9 +69,8 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T12` QEMU-Smoke-Test lokal freischalten (Stufe 3 der Prüf-Leiter)
 - [ ] `T14` 515 mDNS-Refresh umbauen. ⚠️ Der Punkt sagt selbst: `.path`-Trigger ist bereits systemd-nativ, „Umbau = latera…
 - [ ] `T9` Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`, `opencode…
-- [ ] `T-30-01` Task-Navigation fehlt: 17 Dateien und 3 Fehlgriffe fuer 'neuen Dienst anlegen'
 
-### niedrig (6)
+### niedrig (7)
 
 - [ ] `N-27-02` caddy-ratelimit durch nftables ersetzen
 - [ ] `N-29-04` /home/moritz/repos/mediNix-core/docs/agents/shared/scripts/scan_inconsistencies.py kennt ADR-0000 §14 nicht un…
@@ -79,6 +78,7 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T-28-03` Q-28-03 pruefen: nftables-Syntax mit nft -c gegen das generierte Ruleset verifizieren
 - [ ] `T-28-10` Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise)
 - [ ] `T-28-15` Magic Number pruefen: 1.1.1.1 als DoH-Upstream (515-blocky) und Route-Probe (50-core/wan-ip-provider.nix) uebe…
+- [ ] `T-30-02` mkManifestEntry ist definiert und exportiert, aber nirgends aufgerufen - nutzen oder entfernen?
 
 ## 2. Ledger — Befunde ohne Abschluss
 

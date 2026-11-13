@@ -201,6 +201,7 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | `ROADMAP.md` | Erzählung: Vision, Meilensteine, erledigte Punkte mit Hashes. **Keine offene Arbeit mehr** — die steht in `todo/tasks.json` |
 | `docs/AUDIT-LEDGER.md` | Befund-Gedächtnis mit Messung + Rollback je Zeile |
 | `docs/CONVENTIONS.md` | Ordner- und Root-Regeln |
+| `docs/NAVIGATION.md` | **Aufgabe → Lese-Reihenfolge**: neuer Dienst, Ingress, Credential, Debugging — inkl. Fallen mit Beleg |
 | `docs/RUNBOOK.md` | Betrieb & Triage — maschinenlesbare Playbooks (`medinix triage <id>`) |
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
 | `scripts/` | **`verify.sh`** (die eine lokale Leiter, 19 Prüfungen) · `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · **`check_tasks.py`** (Task-Validator) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_plan.py`/`gen_service_map.py`/`gen_runbook.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |

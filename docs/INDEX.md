@@ -19,6 +19,7 @@ Diese Dokumentation dient als Single Source of Truth (SSoT) für das mediNix-cor
 | Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
 | Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
 | Warum ist Dienst X so gebaut und nicht anders? | [`modules/`](modules/) — eine Seite je Dienst | Mensch |
+| Wie lege ich einen Dienst / Ingress / Credential an? | [`NAVIGATION.md`](NAVIGATION.md) — Aufgabe → Lese-Reihenfolge | Mensch |
 
 **Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/`.
 Die alte Wissensbank (`ARCH-50-*`) liegt vollständig in `docs/audit/2026-11-07/legacy-arch/`.
