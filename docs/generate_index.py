@@ -21,9 +21,9 @@ def parse_frontmatter(filepath):
 def generate_index(docs_dir):
     categories = {
         "concepts": "Concepts",
+        "modules": "Module (Semantik je Dienst)",
         "adr": "Architecture Decision Records",
         "arch": "Architecture Blueprints",
-        "patterns": "Patterns & Idioms",
         "guides": "Guides & Best Practices"
     }
 
@@ -36,7 +36,7 @@ def generate_index(docs_dir):
             
         generated_content += f"### {cat_name}\n\n"
         
-        files = [f for f in os.listdir(cat_path) if f.endswith('.md')]
+        files = [f for f in os.listdir(cat_path) if f.endswith('.md') and not f.startswith('_')]
         files.sort()
         
         if not files:

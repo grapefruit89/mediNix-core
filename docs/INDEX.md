@@ -18,9 +18,10 @@ Diese Dokumentation dient als Single Source of Truth (SSoT) für das mediNix-cor
 | Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
 | Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
 | Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
+| Warum ist Dienst X so gebaut und nicht anders? | [`modules/`](modules/) — eine Seite je Dienst | Mensch |
 
-**Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/` und die
-10 `ARCH-50-*`-Dateien (alte Wissensbank, wird in Stufe 2 archiviert).
+**Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/`.
+Die alte Wissensbank (`ARCH-50-*`) liegt vollständig in `docs/audit/2026-11-07/legacy-arch/`.
 
 <!-- SERVICE-MAP START -->
 ## 🗺 Service Map
@@ -78,6 +79,11 @@ Alle detaillierten Dokumente sind thematisch sortiert:
 - [Secrets Management](concepts/secrets-systemd.md)
 - [Storage & Mover](concepts/storage-mover.md)
 - [VPN & Killswitch](concepts/vpn-killswitch.md)
+
+### Module (Semantik je Dienst)
+
+- [582-gatus — Health-Dashboard (Manifest-Konsument)](modules/582-gatus.md)
+- [Module — Semantik je Dienst](modules/README.md)
 
 ### Architecture Decision Records
 

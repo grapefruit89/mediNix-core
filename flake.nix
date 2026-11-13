@@ -1444,7 +1444,11 @@
 
         # ── Linting (Priorität 2): kopiert aus devNIX mkCheck-Pattern ───────
         checks.nixfmt-check = mkCheck "nixfmt" (pkgs: [ pkgs.nixfmt-rfc-style ]) ''
-          nixfmt --check $(find . -name '*.nix' -not -path './.git/*') \
+          # -print0 | xargs -0: Pfade mit Leerzeichen (Batches/B01 - …) dürfen nicht
+          # am IFS zerfallen. Batches/ sind Symlinks auf Quellen — die werden am
+          # Originalschauplatz geprüft, nicht am Verweis.
+          find . -name '*.nix' -not -path './.git/*' -not -path './Batches/*' -print0 \
+            | xargs -0 -r nixfmt --check \
             || { echo ""; echo "Nicht formatiert. Beheben mit:  nix fmt"; exit 1; }
         '';
 

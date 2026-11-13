@@ -2673,6 +2673,56 @@
           "note": "exportarr --api-key-file"
         }
       ]
+    },
+    {
+      "id": "T-30-01",
+      "title": "Task-Navigation fehlt: 17 Dateien und 3 Fehlgriffe fuer 'neuen Dienst anlegen'",
+      "kind": "docs",
+      "status": "open",
+      "priority": "medium",
+      "legacy": false,
+      "source": {
+        "type": "review",
+        "ref": "docs/INDEX.md:9",
+        "date": "2026-11-13",
+        "evidence": [
+          "Navigationstest 2026-11-13: frischer Agent, Start nur docs/INDEX.md, Aufgabe '589-foo anlegen'",
+          "17 Dateien geoeffnet, davon 3 Fehlgriffe (588, 583, manifest.nix-Helper)",
+          "docs/INDEX.md nennt keinen Pfad 'neuen Dienst anlegen' - die Reihenfolge musste hergeleitet werden"
+        ]
+      },
+      "why": "Der Einstieg beantwortet 'welche Frage -> welcher Ort', aber nicht 'welche Aufgabe -> welche Reihenfolge'. Der Test zeigt den Preis: 17 Dateien, 1 grep, 3 Sackgassen, 6 Stellen mit Ratemoment. Eine Tabelle mit 4-5 Aufgaben (neuer Dienst, Ingress-Eintrag, Credential, Debugging) wuerde die Zahl senken und die Reihenfolge explizit machen.",
+      "steps_open": [
+        "Die 6 Ratestellen aus dem Testprotokoll am Code verifizieren (nicht uebernehmen)",
+        "docs/NAVIGATION.md mit Aufgabe -> Lese-Reihenfolge anlegen",
+        "In docs/INDEX.md aus der Routing-Tabelle darauf verweisen",
+        "Navigationstest mit derselben Aufgabe wiederholen und Dateizahl vergleichen"
+      ],
+      "steps_done": [
+        "Messung erhoben: 17 Dateien, 3 Fehlgriffe, 6 Ratestellen"
+      ],
+      "notes": "Aufwand S. Vorbild: android/map.md im Obsidian-Vault (Aufgabe -> Ort).",
+      "depends_on": [],
+      "links": [
+        "docs/modules/README.md"
+      ],
+      "wave": 2,
+      "effort": "S",
+      "acceptance": [
+        "docs/NAVIGATION.md existiert mit mindestens 4 Aufgaben und je einer geordneten Dateiliste",
+        "jede Zeile nennt die Datei mit absolutem Pfad",
+        "Navigationstest wiederholt: Dateizahl kleiner als 17, Fehlgriffe kleiner als 3"
+      ],
+      "research": [
+        {
+          "type": "internal",
+          "ref": "docs/INDEX.md"
+        },
+        {
+          "type": "internal",
+          "ref": "docs/modules/README.md"
+        }
+      ]
     }
   ]
 }

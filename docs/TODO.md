@@ -1,12 +1,12 @@
 # TODO — mediNix-core
 
-> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-07.
+> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-13.
 > Nicht von Hand pflegen — Inhalte gehören in die Quellen:
 > `todo/tasks.json` (offene Arbeit, validiert durch `scripts/check_tasks.py`),
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).
 > Neu erzeugen: `python3 scripts/gen_todo.py` · Prüfen: `python3 scripts/gen_todo.py --check`.
 
-## 1. Offene Arbeit — `todo/tasks.json` (60)
+## 1. Offene Arbeit — `todo/tasks.json` (61)
 
 _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln im Korridor: 53_
 
@@ -22,7 +22,7 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T-28-11` Roh-Chat-/Audit-Exporte mit Infra-Metadaten aus Git entfernen: todo/done/2026-10-25_*/input/chat.json, todo/do…
 - [ ] `T-28-13` Guard scripts/check_infra_leaks.py: verbietet echte WAN-Domain, LAN-Subnetze (RFC 1918) und oeffentliche IPv4…
 
-### mittel (45)
+### mittel (46)
 
 - [ ] `B-CA` `caddyClass` vs. `accessGroup`
 - [ ] `B-M4` 591 Options-Pfad-Assertion
@@ -69,6 +69,7 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] `T12` QEMU-Smoke-Test lokal freischalten (Stufe 3 der Prüf-Leiter)
 - [ ] `T14` 515 mDNS-Refresh umbauen. ⚠️ Der Punkt sagt selbst: `.path`-Trigger ist bereits systemd-nativ, „Umbau = latera…
 - [ ] `T9` Root-Dateien nach `docs/CONVENTIONS.md` konsolidieren (`ADMIN-HANDOFF.md`, `AGENTS.md`, `CLAUDE.md`, `opencode…
+- [ ] `T-30-01` Task-Navigation fehlt: 17 Dateien und 3 Fehlgriffe fuer 'neuen Dienst anlegen'
 
 ### niedrig (6)
 
@@ -84,6 +85,7 @@ _Eine Quelle. Validierung: `python3 scripts/check_tasks.py` · Blacklist-Regeln 
 - [ ] L-015 (OPT) unvollständiges Frontmatter: `complexity:` fehlt bei **15** von 44 (`status:` inzwischen überall gesetzt) → Index zeigt `-/5` — Status: OPEN
 - [ ] L-018 (OPT) fehlender Single-Entry (`medinixLib`; Meisterstück nutzt `inherit (medinixLib) …`) — Status: OPEN
 - [ ] L-050 (BUG) Erster echter Host-Build (q958, nixpkgs `e554fab`) deckte drei Integrationsfehler auf, die in der synthetischen Pruefkonfiguration unsichtbar sind: (1 — Status: "external"`; external setzt weder `enable` noch `ports` und haengt nur `customDNS` an (Attrset mergt). Default bleibt `managed`, Pruefkonfig baut unveraendert. (2) Notifier-Template hinter `lib.mkIf cfg.enable`. (3) Exporter laedt `LoadCredentialEncrypted = NAME-api-key:<sealed>` und uebergibt `--api-key-file /run/credentials/<unit>/...`. Deploy auf q958: Generation 9, sonarr `127.0.0.1:5320` aktiv, 0 failed Units.
+- [ ] L-052 (BUG) `nix flake check` bricht seit Commit `24768d9`: `nixfmt: Dezimalrahmen/501-decimal-engine.nix: openFile: does not exist`. Ursache: die unquotierte Com — Status: xargs -0 -r nixfmt --check` (leerzeichenfest, keine Doppelpruefung). `nix flake check --keep-going` danach exit 0.
 
 ## 3. Pflicht bei jeder Änderung
 

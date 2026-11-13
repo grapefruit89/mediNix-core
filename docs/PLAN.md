@@ -6,10 +6,10 @@
 > `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.
 > Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
 
-> **Generiert** am 2026-11-07 aus `todo/tasks.json` (93 Tasks, 60 offen).
+> **Generiert** am 2026-11-13 aus `todo/tasks.json` (94 Tasks, 61 offen).
 > Nicht von Hand pflegen. Quelle: `todo/tasks.json`. Prüfen: `python3 scripts/gen_plan.py --check`.
 
-**Richtwert Aufwand:** 193 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
+**Richtwert Aufwand:** 194 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.
 
 ## W0 — Abschluss & Hygiene (3 Punkte, ~3 h)
 
@@ -118,7 +118,7 @@ _Sicherheit vor Features: ein Host-Build-Blocker und Infra-Daten im Git-Repo._
 - `internal` · docs/AUDIT-LEDGER.md — L-044: Kante braucht einen Check
 - `internal` · docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json — Fundstelle T-28-11
 
-## W2 — Entscheidungen (15 Punkte, ~24 h)
+## W2 — Entscheidungen (16 Punkte, ~25 h)
 
 _Jede Frage einzeln billig, blockiert aber die Folgeschritte._
 
@@ -136,6 +136,7 @@ _Jede Frage einzeln billig, blockiert aber die Folgeschritte._
 | `Q-29-07` | S | decision | Zwei Kategorien ohne Skill: /home/moritz/repos/mediNix-core/docs/agents/08-mcp-second-brain (nur CONCEPT.md) u… | — | — |
 | `Q-29-08` | S | decision | ADR-0000 §11 und /home/moritz/repos/mediNix-core/docs/TERMINOLOGY.md beschreiben beide Semantic Anchors | — | — |
 | `T-28-10` | S | feature | Q-28-07 pruefen: 8 ADR-Slug-IDs auf numerische IDs umstellen (Dateiname + Ueberschrift + Index + Verweise) | — | — |
+| `T-30-01` | S | docs | Task-Navigation fehlt: 17 Dateien und 3 Fehlgriffe fuer 'neuen Dienst anlegen' | 3 | 2 |
 | `N-29-06` | M | feature | Q-29-04 entscheiden und danach die vier Merge-Paare abarbeiten: medinix-nix-idioms+nixos-idiom-audit, nixos-fl… | — | — |
 | `T-28-07` | M | feature | Q-28-04 pruefen: Blocky-customDNS-Mapping auf die LAN-IP des Hosts statt 127.0.0.1 (Verhalten fuer LAN-Clients… | — | — |
 | `T-28-08` | M | feature | Q-28-05 entscheiden: ARCHIVE-ADR-554 aus HEAD als Archivkopie zurueckholen ODER Loeschung in .agent-state.json… | — | — |

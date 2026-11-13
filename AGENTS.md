@@ -195,7 +195,7 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | `docs/adr/` | 47 Entscheidungen — `ADR-0000` ist die Verfassung, `ADR-00-nixmeta-v3` der Header-Standard |
 | `docs/agents/` | Skill-Tree (Ordner-`AGENTS.md` sind **generiert** aus den nixmeta-Headern!) |
 | `docs/audit/` | Altstände (`<jahr-monat>/`) — **nicht** aktuell |
-| `docs/{arch,patterns,guides,concepts,learn,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`) |
+| `docs/{arch,guides,concepts,modules,examples}/` | Wissensbasis (mkdocs-Paket `.#docs`); `modules/` = Semantik je Dienst |
 | `.agent-state.json` | **Korridor**: Whitelist, 53 Blacklist-Regeln, getroffene Entscheidungen, Sackgassen |
 | `todo/` | **`tasks.json`** = einzige Handquelle für offene Arbeit · `docs/TODO.md` + `docs/PLAN.md` sind **generiert** · `blocks/` + `decisions.json` = eingefrorene Provenienz · Altquellen im Archiv `docs/audit/2026-11-05/` |
 | `ROADMAP.md` | Erzählung: Vision, Meilensteine, erledigte Punkte mit Hashes. **Keine offene Arbeit mehr** — die steht in `todo/tasks.json` |
@@ -205,6 +205,9 @@ Die Karte enthält Referenz-Kategorien, Tooling-Tabelle und Session-Start-Regel.
 | `docs/TERMINOLOGY.md` | Etablierte Begriffe (Semantic Anchors): unser Konstrukt → Katalog-Anker + Link |
 | `scripts/` | **`verify.sh`** (die eine lokale Leiter, 19 Prüfungen) · `nixmeta_check.py` (Header-Ratsche + `nixmeta-baseline.txt`) · **`check_tasks.py`** (Task-Validator) · `check_adrs.py` · `check_skills.py` + `link-skills.sh` (+ `skills-exclude.txt`) · `check_banned_technologies.py` · `gen_todo.py`/`gen_plan.py`/`gen_service_map.py`/`gen_runbook.py` (generierte Sichten) · `medinix-seal-secret.*` · `migrate-uids.sh` |
 | `flake.nix` | Outputs + **41 Checks** (Voll-Stack-Ratsche, 15 Negativtests, Port-Riegel, Unit-Skripte) |
+
+**Modulseiten:** `docs/modules/<id>-<dienst>.md` beantwortet „warum so gebaut, welche Fallstricke" — Vorlage: `docs/modules/_TEMPLATE.md`.
+Der Eintrag dafür in `docs/INDEX.md` wird von `docs/generate_index.py` erzeugt, nicht von Hand gepflegt.
 
 **Einstieg in 4 Schritten:** 1. `.agent-state.json` (Korridor) → 2. `ROADMAP.md` (was als Nächstes) → 3. `docs/AUDIT-LEDGER.md` (was schon gefunden wurde) → 4. `docs/CONVENTIONS.md` (Regeln).
 

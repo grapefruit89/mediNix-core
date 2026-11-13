@@ -295,6 +295,11 @@
       "date": "2026-10-26",
       "action": "docs(todo): Regel 'Fundstellen sofort in die Todo-Liste' in AGENTS.md + Korridor verankert; T-28-08..10 aus offenen Hinweisen angelegt",
       "verified": true
+    },
+    {
+      "date": "2026-11-13",
+      "action": "fix(flake): nixfmt-Check zerlegte Pfade am Leerzeichen (Batches/B01 - Dezimalrahmen); jetzt -print0 | xargs -0, Batches/ ausgenommen",
+      "verified": true
     }
   ],
   "corridor": {
