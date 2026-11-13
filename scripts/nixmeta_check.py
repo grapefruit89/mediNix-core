@@ -103,7 +103,13 @@ def nix_files():
         dirnames[:] = [d for d in dirnames if d != ".git"]
         rel = os.path.relpath(dirpath, os.getcwd())
         # Eingelagertes (Ausgemustertes) wird NICHT gegated: docs/audit/, docs/archive/.
-        if rel.startswith("docs/audit") or rel.startswith("docs/archive"):
+        # Batches/ enthaelt nur Symlinks auf Quellen - deren Header werden am
+        # Originalschauplatz geprueft, nicht am Verweis.
+        if (
+            rel.startswith("docs/audit")
+            or rel.startswith("docs/archive")
+            or rel.startswith("Batches")
+        ):
             continue
         out += [
             os.path.relpath(os.path.join(dirpath, fn), os.getcwd())

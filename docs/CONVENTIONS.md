@@ -66,7 +66,7 @@ ist für mehrere Werkzeuge gedacht) oder entfernt.
 |---|---|---|
 | `5X-domain/NNN-dienst.nix` + generierte `AGENTS.md`/`README.md` | Module nach ADR-0000 | ja |
 | `50-core/` (Engine, Factory, Contract, Profiles, Registry, memory-policy, creds, repl.nix, **smoke-test.nix**, **vm-smoke-test.nix**) | geteilte Logik, Foundation & REPL. **Tests liegen hier**, neben dem Vertrag, den sie prüfen (Dezimalrahmen) — es gibt keinen eigenen `tests/`-Ordner mehr. | ja |
-| `reviews/<datum>-<thema>/` | Review-Scheiben: `prompt.md` + `files.txt` je Scheibe (Methode: `reviews/README.md`); `merge.txt` ist Build-Output und ignoriert | ja |
+| `Batches/B<NN> - <Thema>/` | Review-Scheiben: `prompt.md` + Symlinks je Batch (Methode: `Batches/README.md`); `merged.md` ist Build-Output und ignoriert | ja |
 | `packages/<name>/` | Nix-Derivationen und mitgelieferte Python-Pakete (Paket-Layout mit `default.nix`); ein Ordner mit `default.nix` ist von der 4-Dateien-Regel ausgenommen | ja |
 | `docs/adr/` `arch/` `guides/` `concepts/` `examples/` | Wissensbasis (Patterns: externe Resteküche) | ja |
 | `docs/agents/<kategorie>/<skill>/` (`SKILL.md` + `references/`/`templates/`/`scripts/`) | Agenten-Skills | ja |

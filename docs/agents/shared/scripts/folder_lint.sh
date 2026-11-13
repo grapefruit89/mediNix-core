@@ -14,7 +14,7 @@
 set -u
 
 base="$(realpath "${1:-.}")"
-allow='^(tests|scripts|references|templates|evals|audit|reviews|\.agents|\.git|__pycache__)$'
+allow='^(tests|scripts|references|templates|evals|audit|Batches|\.agents|\.git|__pycache__)$'
 hits=0
 
 while IFS= read -r d; do
@@ -33,7 +33,8 @@ while IFS= read -r d; do
   [ -f "$d/default.nix" ] && continue
   [ -f "$d/SKILL.md" ] && continue
 
-  n=$(find "$d" -maxdepth 1 -type f ! -name '.gitkeep' 2>/dev/null | wc -l)
+  # Symlinks zaehlen als Inhalt: Batches/ besteht absichtlich aus Verweisen.
+  n=$(find "$d" -maxdepth 1 \( -type f -o -type l \) ! -name '.gitkeep' 2>/dev/null | wc -l)
   sub=$(find "$d" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
   if [ "$n" -lt 3 ] && [ "$sub" -eq 0 ]; then
     rel="${d#"$base"/}"

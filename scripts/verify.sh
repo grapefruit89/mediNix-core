@@ -58,7 +58,8 @@ run() {
 }
 
 echo "== Stufe 1: Nix-Formalie ============================================="
-mapfile -t nixfiles < <(find . -name '*.nix' -not -path './.git/*' | sort)
+# Batches/ sind Symlinks auf Quellen - sonst formatiert nixfmt dieselbe Datei zweimal.
+mapfile -t nixfiles < <(find . -name '*.nix' -not -path './.git/*' -not -path './Batches/*' | sort)
 printf '  (%d .nix-Dateien)\n' "${#nixfiles[@]}"
 run "nixfmt --check" nix fmt -- --check "${nixfiles[@]}"
 

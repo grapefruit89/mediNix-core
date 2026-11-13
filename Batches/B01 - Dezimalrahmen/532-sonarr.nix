@@ -1,0 +1,1 @@
+../../53-acquisition/532-sonarr.nix

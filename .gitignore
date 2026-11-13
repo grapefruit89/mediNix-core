@@ -62,5 +62,5 @@ todo/_input/
 todo/_chunks*/
 todo/_chunks_v3
 
-# Review-Scheiben: Build-Output, nicht versionieren
-reviews/*/merge.txt
+# Batches: Build-Output, nicht versionieren
+Batches/*/merged.md

@@ -1,6 +1,6 @@
-# Review-Scheibe 1 — Kette Registry → Engine → Factory → Modul
+# B01 — Dezimalrahmen: Registry → Engine → Factory → Modul
 
-**Anhang:** `merge.txt` aus diesem Ordner (4 Dateien, SHA256-Tabelle am Ende).
+**Anhang:** `merged.md` aus diesem Ordner (4 Dateien, SHA256-Tabelle am Ende).
 **Frage in einem Satz:** Wo kann die Kette `registry.nix → 501-decimal-engine.nix → service-factory.nix → Dienstmodul` brechen, und welcher Nachweis fehlt dafür heute?
 
 ---
@@ -45,8 +45,9 @@ Container, kein `mkForce` als Abkürzung.
 2. **Herleitung:** Finde jede Stelle, an der ein Modul `port`, `uid` oder `stateDir` selbst
    bildet, statt sie aus der Registry zu lesen. Zähle sie. Nenne `datei:zeile`.
 3. **Fallbacks:** In `58-observability/586-vpn-selftest.nix` stehen `or 5810` und
-   `or 5260`. Belege, ob das echte Fallbacks auf Magic Numbers sind, und ob sie driften
-   können, wenn die Registry sich ändert.
+   `or 5260`. Belege, ob das echte Fallbacks auf Magic Numbers sind und ob sie driften
+   können, wenn die Registry sich ändert. *(Datei ist nicht im Anhang — beantworte nur,
+   was du aus dem Anhang ableiten kannst, sonst `ungeprüft`.)*
 4. **Engine:** Die Engine hat 9 Assertions. Nenne für **jede** in einem Satz, welche
    Invariante sie prüft und ob die Fabrik sie tatsächlich erzwingt — oder ob ein Modul sie
    umgehen kann, indem es die Fabrik nicht benutzt.
@@ -65,9 +66,8 @@ Container, kein `mkForce` als Abkürzung.
 Die Formel selbst (`50-core/derive.nix:39-45`): `port = num * 10`, `uid = num * 10`,
 `primaryGid = num * 10`, `stateDir = "/var/lib/<name>"`.
 
-**Zählweise-Hinweis:** Die 46 Module enthalten auch `510-ingress-SERVICE.md`-Nachbarn und
-reine `README`-Träger? Nein — das Muster verlangt `.nix`. Prüfe die 46 gegen die
-Registry-Abdeckung, nicht gegen die Zahl der Dienste.
+**Zählweise-Hinweis:** Das Muster verlangt `.nix`; `README`/`AGENTS`-Träger zählen nicht
+mit. Prüfe die 46 gegen die Registry-Abdeckung, nicht gegen die Zahl der Dienste.
 
 ## 6. Antwortform
 
