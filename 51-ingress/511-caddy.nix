@@ -70,9 +70,7 @@ let
   # Enabled public vhosts that carry an auth-bypass path list.
   publicBypassPaths = lib.filterAttrs (
     n: m:
-    accessGroupOf n m == "public"
-    && (m.unauthenticatedPaths or [ ]) != [ ]
-    && !allowUnauthenticatedOf n m
+    accessGroupOf n m == "public" && (unauthenticatedPathsOf m) != [ ] && !allowUnauthenticatedOf n m
   ) enabledServices;
 
   # Declared-but-unresolvable vhosts in ingress.vhosts (RT-5/F7 loud instead of silently dead)

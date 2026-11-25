@@ -91,8 +91,9 @@ let
       name = "firewall";
       on =
         (config.networking.firewall.enable or false)
+        || (config.networking.nftables.enable or false)
         || (config.medinix.hostIntegration.firewall or "managed") == "external";
-      hint = "the packet filter (managed or external)";
+      hint = "the packet filter (managed, nftables, or external)";
     }
   ];
 

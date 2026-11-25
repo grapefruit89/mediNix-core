@@ -160,5 +160,12 @@ in
       }
     );
 
+    # Split-DNS erfordert erreichbaren Port 53 für LAN-Clients bei geführter Firewall
+    networking.firewall.allowedTCPPorts = lib.mkIf (
+      cfg.hostIntegration.firewall == "managed" && managed
+    ) [ 53 ];
+    networking.firewall.allowedUDPPorts = lib.mkIf (
+      cfg.hostIntegration.firewall == "managed" && managed
+    ) [ 53 ];
   };
 }

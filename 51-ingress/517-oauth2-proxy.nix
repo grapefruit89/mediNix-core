@@ -159,8 +159,36 @@ in
       CapabilityBoundingSet = [ "" ];
     };
 
-    # ADR-0000: eine Quelle fuer Port/UID (Registry), nichts hartkodiert.
-    users.users.oauth2-proxy.uid = svc.uid;
+    # ADR-0000 / UPG: Manifest-Eintrag registrieren. Die Engine (501)
+    # leitet daraus automatisch users.users.oauth2-proxy (UID 5170) und
+    # users.groups.oauth2-proxy (GID 5170) ab.
+    medinix.manifest.oauth2-proxy = {
+      inherit (oa) enable;
+      num = 517;
+      accessGroup = "none";
+      hasDaemon = true;
+      role = "auth-proxy";
+      ui = {
+        title = "OAuth2-Proxy";
+        description = "Forward-Auth-Brücke";
+        icon = "oauth2-proxy";
+        group = "Security";
+        showOnLanding = false;
+      };
+      monitoring = {
+        enable = false;
+      };
+      ops = {
+        priority = "high";
+        ramBudget = "128M";
+        notes = "Forward-Auth-Proxy für Caddy (511) und Pocket-ID (512).";
+      };
+      sources = {
+        upstream = "https://oauth2-proxy.github.io/oauth2-proxy/";
+        repo = "https://github.com/oauth2-proxy/oauth2-proxy";
+        nixos = "https://search.nixos.org/options?query=services.oauth2-proxy";
+      };
+    };
 
     # F19: kein manueller Spiegel mehr. Wer 517 einschaltet, hat einen
     # Auth-Proxy, und 511 zeigt automatisch auf ihn - beides mkDefault, der Host

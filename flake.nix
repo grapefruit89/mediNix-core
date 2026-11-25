@@ -653,6 +653,61 @@
               fi
               echo "ok: DDNS prunes the canonical FQDN, not the zone-derived name" > $out
             '';
+
+        # K1-Ratsche: Speedport-Credential darf cf-ddns-token nicht ueberschreiben
+        checks.mediNix-ddns-speedport-multi-cred =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "home.example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.dns.mode = "standalone";
+                  medinix.dns.ddns.enable = true;
+                  medinix.dns.ddns.zone = "example.com";
+                  medinix.dns.ddns.cloudflareTokenCredential = "/var/lib/credstore.encrypted/cf-ddns.cred";
+                  medinix.dns.ddns.wanIp.provider = "speedport";
+                  medinix.dns.ddns.wanIp.speedportPasswordCredential = "/var/lib/credstore.encrypted/speedport.cred";
+                };
+              }).config;
+            creds = c.systemd.services.cloudflare-ddns.serviceConfig.LoadCredentialEncrypted;
+            hasCf = lib.any (x: lib.hasPrefix "cf-ddns-token:" x) creds;
+            hasSp = lib.any (x: lib.hasPrefix "speedport-password:" x) creds;
+          in
+          pkgs.runCommand "ddns-speedport-multi-cred-ok" { } ''
+            ${lib.optionalString (
+              !hasCf
+            ) "echo 'FAIL: cf-ddns-token missing from LoadCredentialEncrypted'; exit 1;"}
+            ${lib.optionalString (
+              !hasSp
+            ) "echo 'FAIL: speedport-password missing from LoadCredentialEncrypted'; exit 1;"}
+            echo "ok: cloudflare-ddns retains both cf-ddns-token and speedport-password" > $out
+          '';
+
+        # K2-Ratsche: oauth2-proxy besitzt UPG-Account (UID = GID = 5170)
+        checks.mediNix-oauth2-proxy-upg =
+          let
+            c =
+              (lib.nixosSystem {
+                inherit system;
+                modules = baseModules {
+                  medinix.domain = "example.com";
+                  medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+                  medinix.oauth2Proxy.enable = true;
+                  medinix.oauth2Proxy.oidcIssuerUrl = "https://id.example.com";
+                  medinix.oauth2Proxy.clientSecretCredential = "/var/lib/credstore.encrypted/client.cred";
+                  medinix.oauth2Proxy.cookieSecretCredential = "/var/lib/credstore.encrypted/cookie.cred";
+                };
+              }).config;
+            uid = c.users.users.oauth2-proxy.uid;
+            gid = c.users.groups.oauth2-proxy.gid;
+          in
+          pkgs.runCommand "oauth2-proxy-upg-ok" { } ''
+            test "${toString uid}" = "5170" || { echo "FAIL: oauth2-proxy uid != 5170 (${toString uid})"; exit 1; }
+            test "${toString gid}" = "5170" || { echo "FAIL: oauth2-proxy gid != 5170 (${toString gid})"; exit 1; }
+            echo "ok: oauth2-proxy conforms to UPG (UID=GID=5170)" > $out
+          '';
         # SSOT/F2: 511 (Rendering), 513 (DNS) und 518 (Tiles) muessen DIESELBE
         # effektive accessGroup sehen — der Vhost-Override gewinnt. Vorher lasen
         # 513/518 das Manifest direkt: `none` publizierte trotzdem einen

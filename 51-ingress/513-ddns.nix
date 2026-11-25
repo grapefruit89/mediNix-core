@@ -205,7 +205,7 @@ let
         local records
         records=$(cf GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$record_name&type=$stype")
         if echo "$records" | jq -e '.success' > /dev/null; then
-          for id in $(echo "$records" | jq -r '.result[].id'); do
+          for id in $(echo "$records" | jq -r '.result[] | select(.comment == "managed-by=mediNix-core/513") | .id'); do
             echo "  Deleting conflicting $stype $id"
             cf DELETE "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$id" > /dev/null
           done
@@ -338,21 +338,24 @@ in
           NoExecPaths = [ "/" ];
           ExecPaths = [ "/nix/store" ];
         }
-        // lib.optionalAttrs (credPath != null) {
-          LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
-        }
-        // lib.optionalAttrs (ddns.wanIp.provider == "speedport") (
-          if ddns.wanIp.speedportPasswordCredential != null then
+        //
+          lib.optionalAttrs
+            (
+              (credPath != null)
+              || (ddns.wanIp.provider == "speedport" && ddns.wanIp.speedportPasswordCredential != null)
+            )
             {
-              LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
+              LoadCredentialEncrypted =
+                (lib.optional (credPath != null) "cf-ddns-token:${credPath}")
+                ++ (lib.optional (
+                  ddns.wanIp.provider == "speedport" && ddns.wanIp.speedportPasswordCredential != null
+                ) "speedport-password:${ddns.wanIp.speedportPasswordCredential}");
             }
-          else if ddns.wanIp.speedportPasswordFile != null then
+        //
+          lib.optionalAttrs (ddns.wanIp.provider == "speedport" && ddns.wanIp.speedportPasswordFile != null)
             {
               LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
-            }
-          else
-            { }
-        );
+            };
       })
       {
         description = "mediNix 513 DDNS — drift check";
@@ -399,21 +402,16 @@ in
             # Kein Parallel-Check — sonst zwei CF-Calls mit evtl. verschiedenen IPs.
             Conflicts = [ "cloudflare-ddns.service" ];
           }
-          // lib.optionalAttrs (credPath != null) {
-            LoadCredentialEncrypted = [ "cf-ddns-token:${credPath}" ];
+          // lib.optionalAttrs ((credPath != null) || (ddns.wanIp.speedportPasswordCredential != null)) {
+            LoadCredentialEncrypted =
+              (lib.optional (credPath != null) "cf-ddns-token:${credPath}")
+              ++ (lib.optional (
+                ddns.wanIp.speedportPasswordCredential != null
+              ) "speedport-password:${ddns.wanIp.speedportPasswordCredential}");
           }
-          // (
-            if ddns.wanIp.speedportPasswordCredential != null then
-              {
-                LoadCredentialEncrypted = [ "speedport-password:${ddns.wanIp.speedportPasswordCredential}" ];
-              }
-            else if ddns.wanIp.speedportPasswordFile != null then
-              {
-                LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
-              }
-            else
-              { }
-          );
+          // lib.optionalAttrs (ddns.wanIp.speedportPasswordFile != null) {
+            LoadCredential = [ "speedport-password:${ddns.wanIp.speedportPasswordFile}" ];
+          };
         })
         {
           description = "mediNix 513 DDNS — forced reconnect at 05:00";
