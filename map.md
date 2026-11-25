@@ -9,7 +9,7 @@
 1. `.agent-state.json` — Korridor: `locked_invariants`, `dead_ends_and_failures`,
    `recent_refactorings`, `corridor` (Whitelist/Blacklist).
 2. `todo/tasks.json` — einzige Handquelle offener Arbeit (`status`, `priority`, `wave`, `source.ref`).
-   Sichten `docs/TODO.md`/`docs/PLAN.md` sind generiert.
+   Aufgaben liegen direkt in `todo/tasks.json` (SSoT), Abruf via `medinix`.
 3. `docs/adr/llm-index.json` — aktive ADRs, `start_here`, Namensregeln;
    Verfassung: `docs/adr/ADR-0000-dezimalrahmen-verfassung.md`.
 4. `scripts/verify.sh` — lokale Leiter; ausführen mit `bash scripts/verify.sh`.
@@ -28,10 +28,10 @@
 | `57-maintenance/` | Maintenance | 570 Storage/SetGID · 571 SQLite-WAL · 576 Backup · 577 Drift · 578 Orphan-Cleanup · 579 Backup-SSH |
 | `58-observability/` | Observability | 581 ntfy · 582 Gatus · 583 Runtime-Guard · 584 Boot-Watchdog · 585 Exporter · 586 VPN-Selftest · 587 Disk-Health · 588 Update-Notifier |
 | `59-guardrails/` | Guardrails | 591 Cross-Domain-Assertions |
-| `scripts/` | Werkzeuge | `verify.sh` (Leiter) · `check_*.py` (Gates) · `gen_*.py`/`medinix-meta.py` (Generatoren) · `nixmeta_check.py` · `link-skills.sh` |
+| `scripts/` | Werkzeuge | `verify.sh` (Leiter) · `check_*.py` (Gates) · `medinix-meta.py` · `nixmeta_check.py` · `link-skills.sh` |
 | `docs/adr/` | Entscheidungen | `ADR-0000` (Verfassung) · `ADR-00-nixmeta-v3` (Header) · Manifest `ADR-0003` · Index `llm-index.json` |
 | `docs/` | Wissensbasis | `NAVIGATION.md`, `RUNBOOK.md`, `CONVENTIONS.md`, `TERMINOLOGY.md`, `NIXOS-ANCHORS.md`, `modules/<id>-<dienst>.md`, `AUDIT-LEDGER.md` |
-| `todo/` | Arbeit | `tasks.json` (Handquelle) · `docs/TODO.md` + `docs/PLAN.md` (generiert) · Altstände in `docs/audit/` |
+| `todo/` | Arbeit | `tasks.json` (Handquelle) · Altstände in `docs/audit/` |
 | `flake.nix` | Outputs | Modul-/Paket-Exports + Checks (Port-Riegel, Negativtests, Unit-/VM-Skripte) |
 
 ## 3. Task-to-File-Matrix (Task → Datei zuerst)
@@ -50,7 +50,7 @@
 | Backup/Restore | `57-maintenance/576-backup.nix` | `docs/adr/ADR-576-backup.md`, `579-backup-ssh.nix` |
 | Monitoring/Health | `58-observability/582-gatus.nix` | `581-ntfy.nix`, `583-runtime-guard.nix` |
 | Domain-übergreifend prüfen | `59-guardrails/591-cross-domain.nix` | `docs/adr/ADR-0003-architektur-manifest.md` |
-| Offene Arbeit / Befund | `todo/tasks.json` | `gen_todo.py`, `gen_plan.py`, `check_tasks.py` |
+| Offene Arbeit / Befund | `todo/tasks.json` | `check_tasks.py`, `medinix` |
 | Architektur-Entscheidung | `docs/adr/llm-index.json` | passende `ADR-*.md`, `check_adrs.py` |
 | Konvention / Begriff | `docs/CONVENTIONS.md`, `docs/TERMINOLOGY.md` | `docs/NIXOS-ANCHORS.md`, `docs/anchors/` |
 | Betrieb / Triage | `docs/RUNBOOK.md` | `docs/AGENT-READINESS.md` |
@@ -59,7 +59,7 @@
 
 ## 4. Gates & Budgets
 
-- Verifikation: `bash scripts/verify.sh` (19 Prüfungen, mit Builds); `--fast` ist **nicht** commit-fähig.
-- Generierte Sichten: `docs/TODO.md`, `docs/PLAN.md`, `docs/INDEX.md`, `*/AGENTS.md` — nie von Hand editieren.
+- Verifikation: `bash scripts/verify.sh` (14 Prüfungen, mit Builds); `--fast` ist **nicht** commit-fähig.
+- Generierte Sichten: `*/AGENTS.md` (via medinix-meta) — nie von Hand editieren.
 - Cockpit-Budget: `AGENTS.md` ≤ 70 Z. / ≤ 500 W. / ≤ 4000 B., `map.md` ≤ 100 Z. / ≤ 700 W. / ≤ 5500 B. (`scripts/check_ai_cockpit.py`).
 - Verbindlich: reine lokale Entwicklung, Dezimalrahmen/UPG, systemd-first, Zero Docker, fail-closed.

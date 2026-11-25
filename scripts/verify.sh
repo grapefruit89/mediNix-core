@@ -87,13 +87,6 @@ run "check_banned_technologies" python3 scripts/check_banned_technologies.py
 run "nixos_idiom_audit --p0"   python3 scripts/nixos_idiom_audit.py --p0-only
 run "check_ai_cockpit"         python3 scripts/check_ai_cockpit.py
 
-echo "== Stufe 4: Generatoren aktuell? ====================================="
-run "gen_service_map --check"  python3 scripts/gen_service_map.py --check
-run "gen_runbook --check"      python3 scripts/gen_runbook.py --check
-run "nixos-resources --check"  python3 scripts/nixos-resources.py --check
-run "gen_plan --check"        python3 scripts/gen_plan.py --check
-run "gen_todo --check"        python3 scripts/gen_todo.py --check
-
 echo
 if [ "$fail" -eq 0 ]; then
   printf '\033[32mLeiter gruen: %d Pruefungen.\033[0m\n' "$pass"

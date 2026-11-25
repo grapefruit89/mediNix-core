@@ -22,7 +22,7 @@ Qualität ist maschinell: jeder Knoten der Kette hat einen **Check**
 | Code → Manifest | `scripts/check_manifest_edge.py` |
 | Code → ADR | `scripts/check_adrs.py` (Verweis auf Dateinamen = Fehler) |
 | ADR → Index | `scripts/check_adrs.py` + `docs/adr/llm-index.json` |
-| Docs → Generatoren | `gen_todo.py --check`, `gen_service_map.py --check`, `medinix-meta.py check-docs`, `docs/generate_index.py` |
+| Docs → Synchronisation | `medinix-meta.py check-docs` (Ordner-AGENTS.md) |
 | Skills → Sichtbarkeit | `scripts/link-skills.sh --dry-run` / `check_skills.py` |
 | Skills → MCP | `scripts/check_skills.py` (`mcp: [...]` + `scripts/mcp-servers.txt`) |
 | Korridor → Checks | `scripts/check_corridor.py` |

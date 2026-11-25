@@ -10,18 +10,17 @@
 - Kein `--impure`, keine unreinen Quellen. Kein Push/Deploy ohne Freigabe.
 
 ## 2. Single Source of Truth für Arbeit
-- **Offene Arbeit lebt nur in `todo/tasks.json`.**
-- `docs/TODO.md` und `docs/PLAN.md` sind generiert — nie von Hand editieren.
-- Befunde im selben Turn als Task erfassen (`id`, `title`, `kind`, `status`, `priority`,
-  `effort`, `wave`, `source.ref` + `why`/`steps_open`), danach Generatoren (`gen_todo.py`,
-  `gen_plan.py`, `check_tasks.py`).
+- **Scratchboard-Pflicht (R0):** Befunde immer zuerst in `SCRATCHBOARD.md` erfassen – kein ungefragtes Direkt-Patching.
+- **Offene Arbeit lebt in `todo/tasks.json` (SSoT).**
+- Befunde als Task erfassen (`id`, `title`, `kind`, `status`, `priority`, `effort`, `wave`, `source.ref` + `why`/`steps_open`), danach Validierung (`check_tasks.py`).
+- Aufgaben abrufen via `medinix` CLI oder direkt in `todo/tasks.json`.
 - Ideen/Erweiterungen gehören ins Feld `why` — nie spekulativ in den Code.
 
 ## 3. Lokale Verifikations-Leiter (vor jedem Commit)
-- `bash scripts/verify.sh` — 19 Prüfungen + Cockpit-Gate inkl. `nix flake check`
-  mit Builds. Muss grün sein vor jedem Commit (auch bei reiner Doku).
+- `bash scripts/verify.sh` — 14 Prüfungen inkl. `nix flake check` mit Builds.
+  Muss grün sein vor jedem Commit (auch bei reiner Doku).
 - `--fast` überspringt Builds und ist nicht commit-fähig; `--no-build` ersetzt es nicht.
-- Rotes Gate = Ursache beheben, nie umgehen. Generatoren im selben Commit ausführen.
+- Rotes Gate = Ursache beheben, nie umgehen.
 - CI-Beweis: `gh run list --limit 12 --json name,conclusion,headSha` prüfen.
 
 ## 4. Architektur-Invarianten (ADR-0000/0002/0003 — nicht verhandelbar)
