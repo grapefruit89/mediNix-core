@@ -14,7 +14,7 @@
 set -u
 
 base="$(realpath "${1:-.}")"
-allow='^(tests|scripts|references|templates|evals|audit|Batches|historie|\.agents|\.claude|\.git|__pycache__)$'
+allow='^(tests|scripts|references|templates|evals|audit|Batches|\.agents|\.claude|\.git|__pycache__)$'
 hits=0
 
 while IFS= read -r d; do

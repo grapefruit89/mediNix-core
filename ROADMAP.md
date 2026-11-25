@@ -4,7 +4,7 @@ Zukunftsorientierte Meilensteine und Entwicklungsphasen.
 
 > **Regel:** Offene Einzelaufgaben leben ausschließlich in `todo/tasks.json`
 > (Sichten `docs/TODO.md` / `docs/PLAN.md`). Erledigte Meilensteine und historische
-> Roadmaps sind archiviert in `historie/2026-Q4-roadmap-alt.md`.
+> Roadmaps sind archiviert in `docs/audit/2026-11-26/2026-Q4-roadmap-alt.md`.
 > Budget: ≤ 50 Zeilen (0x `[x]`).
 
 ---

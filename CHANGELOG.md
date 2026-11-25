@@ -5,7 +5,7 @@
 Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
 
 > **Historisches Archiv:** Vollständige Changelog-Einträge vor November 2026 (Phase 1 bis 15,
-> Ingress-Reviews) sind archiviert in `historie/2026-Q4-changelog-alt.md`.
+> Ingress-Reviews) sind archiviert in `docs/audit/2026-11-26/2026-Q4-changelog-alt.md`.
 
 ---
 
