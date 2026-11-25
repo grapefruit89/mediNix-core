@@ -14,7 +14,7 @@
 set -u
 
 base="$(realpath "${1:-.}")"
-allow='^(tests|scripts|references|templates|evals|audit|Batches|\.agents|\.git|__pycache__)$'
+allow='^(tests|scripts|references|templates|evals|audit|Batches|historie|\.agents|\.claude|\.git|__pycache__)$'
 hits=0
 
 while IFS= read -r d; do
@@ -29,7 +29,7 @@ while IFS= read -r d; do
   # todo/done/<datum>/ ist abgeschlossene Arbeit, also Archivstruktur wie oben.
   # Auch hier ist der Ordnername das Datum, nicht "done" - Pfad-Regel, nicht Basename.
   [[ "$d" == "$base"/todo/done/* ]] && continue
-  [[ "$d" == */.agents/* || "$d" == */.github/* || "$d" == */.git/* ]] && continue
+  [[ "$d" == */.agents/* || "$d" == */.claude/* || "$d" == */.github/* || "$d" == */.git/* ]] && continue
   [ -f "$d/default.nix" ] && continue
   [ -f "$d/SKILL.md" ] && continue
 

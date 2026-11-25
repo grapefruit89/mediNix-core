@@ -300,6 +300,11 @@
       "date": "2026-11-13",
       "action": "fix(flake): nixfmt-Check zerlegte Pfade am Leerzeichen (Batches/B01 - Dezimalrahmen); jetzt -print0 | xargs -0, Batches/ ausgenommen",
       "verified": true
+    },
+    {
+      "date": "2026-11-26",
+      "action": "refactor(cockpit): LLM-Ordnerstruktur Baustein B implementiert — AGENTS.md (53 Z. / 423 W. / 3421 B.), map.md (65 Z. / 614 W. / 5370 B.), CLAUDE.md/GEMINI.md als Zeiger, check_ai_cockpit.py als CI-Gate, historie/ fuer Ledger-Althistorie angelegt, AGENT-READINESS.md nach docs/ verschoben",
+      "verified": true
     }
   ],
   "corridor": {

@@ -1,6 +1,6 @@
 # TODO — mediNix-core
 
-> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-13.
+> **Generiert** aus tasks.json + Korridor + Ledger am 2026-11-26.
 > Nicht von Hand pflegen — Inhalte gehören in die Quellen:
 > `todo/tasks.json` (offene Arbeit, validiert durch `scripts/check_tasks.py`),
 > `.agent-state.json` (Entscheidungen), `docs/AUDIT-LEDGER.md` (Befunde).

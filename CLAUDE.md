@@ -1,15 +1,10 @@
-# mediNix-core — CLAUDE.md
+# mediNix-core — CLAUDE.md (Zeiger)
 
-> **Diese Datei ist ein Zeiger.** Die verbindliche Fassung der Agenten-Regeln steht in
-> [`AGENTS.md`](file:///home/moritz/repos/mediNix-core/AGENTS.md) — sie ist die **einzige** Quelle.
+> Diese Datei enthält **keine** eigenen Regeln. Sie ist ein 1-Schritt-Zeiger.
 
-Bis 2026-10-15 war der Inhalt hier byte-identisch zu `AGENTS.md` (nur die Titelzeile unterschied
-sich — `diff` bestätigte es). Zwei identische Dateien sind zwei Orte, an denen Regeln auseinander
-laufen können; deshalb steht der Text jetzt nur noch in `AGENTS.md`.
+## O(1)-Einstieg
+1. `/home/moritz/repos/mediNix-core/AGENTS.md` — Verhalten, Invarianten, No-Go's, Verifikations-Leiter.
+2. `/home/moritz/repos/mediNix-core/map.md` — Task-to-File-Matrix und Dekaden-Inventar.
 
-| Zweck | Datei |
-|---|---|
-| Agenten-Verfassung, Arbeitsregeln, Invarianten | [`AGENTS.md`](file:///home/moritz/repos/mediNix-core/AGENTS.md) |
-| Entscheidungs-Korridor (Whitelist/Blacklist) | [`.agent-state.json`](file:///home/moritz/repos/mediNix-core/.agent-state.json) |
-| Roadmap (die einzige) | [`ROADMAP.md`](file:///home/moritz/repos/mediNix-core/ROADMAP.md) |
-| Ordnungsregeln | [`docs/CONVENTIONS.md`](file:///home/moritz/repos/mediNix-core/docs/CONVENTIONS.md) |
+## Verifikation
+- `bash /home/moritz/repos/mediNix-core/scripts/verify.sh` (volle lokale Leiter, mit Builds).

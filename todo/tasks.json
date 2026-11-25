@@ -1495,7 +1495,7 @@
       "legacy": false,
       "source": {
         "type": "roadmap",
-        "ref": "ROADMAP.md:100",
+        "ref": "historie/2026-Q4-roadmap-alt.md:100",
         "date": "2026-11-05",
         "evidence": [
           "**Doc-Nit** (N): `docs/agents/07-patterns-misc/nixos-llm-first-workflow/SKILL.md:183` ist stale (`nix-env -iA nixpkgs.nixos-mcp` auf `mediahost@192.168.0.10`) → auf den lokalen `nixos`-MCP umstellen."
@@ -1625,7 +1625,7 @@
       "legacy": false,
       "source": {
         "type": "roadmap",
-        "ref": "ROADMAP.md:72",
+        "ref": "historie/2026-Q4-roadmap-alt.md:72",
         "date": "2026-11-05",
         "evidence": [
           "`50-core/gpu.nix` (Vendor-Abstraktion intel/amd/nvidia), `50-core/network-cidrs.nix`, `rebuild-guard.nix`. Quellen: UPGRADE-MATRIX A6/A7/A8."
@@ -1751,7 +1751,7 @@
       "legacy": false,
       "source": {
         "type": "roadmap",
-        "ref": "ROADMAP.md:88",
+        "ref": "historie/2026-Q4-roadmap-alt.md:88",
         "date": "2026-11-05",
         "evidence": [
           "`git branch -d refactor/decades-conformance` lokal und remote — ist in `audit-2026-10-15` gemergt."

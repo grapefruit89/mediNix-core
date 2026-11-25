@@ -6,7 +6,7 @@
 > `python3 /home/moritz/repos/mediNix-core/scripts/gen_plan.py`.
 > Leitfaden zur Orderstruktur: Kopf von `/home/moritz/repos/mediNix-core/AGENTS.md`.
 
-> **Generiert** am 2026-11-13 aus `todo/tasks.json` (95 Tasks, 61 offen).
+> **Generiert** am 2026-11-26 aus `todo/tasks.json` (95 Tasks, 61 offen).
 > Nicht von Hand pflegen. Quelle: `todo/tasks.json`. Prüfen: `python3 scripts/gen_plan.py --check`.
 
 **Richtwert Aufwand:** 194 h netto über alle offenen Punkte (S ≤ 1 h · M ≤ 4 h · L > 4 h). Ohne Recherche, Prüf-Leiter, CI-Wartezeit und Review — real liegt das bei Faktor 1,3–1,5.

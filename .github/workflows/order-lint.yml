@@ -62,6 +62,10 @@ jobs:
       - name: "NixOS-Idiome ok? (scripts/nixos_idiom_audit.py --p0-only)"
         run: python3 scripts/nixos_idiom_audit.py --p0-only
 
+      # AI-Cockpit Budgets (AGENTS.md / map.md / Pointer)
+      - name: "AI-Cockpit Budgets ok? (scripts/check_ai_cockpit.py)"
+        run: python3 scripts/check_ai_cockpit.py
+
       # todo/tasks.json ist die EINZIGE Handquelle fuer offene Arbeit (2026-11-05,
       # zusammengefuehrt aus ROADMAP, backlog/*.md, blocks/*.json). Der Validator
       # prueft u. a. source.ref auf existierende Datei:Zeile - genau dieser Test

@@ -1,0 +1,577 @@
+# mediNix-core Changelog
+
+Struktur-konformer, portabler NixOS-Mediastack (10-Domain-Architektur, systemd-native, kein Docker).
+Alle Änderungen seit dem Initial Commit, gruppiert nach Phasen.
+
+> **Pfade in diesem Dokument sind Stand des jeweiligen Eintrags.** Der Ordner `lib/`
+> wurde am 2026-11-04 aufgelöst — die Zuordnung Alt → Neu steht in ADR-0000 §14.7.
+
+## 2026-10-17 — 51-ingress-Review: 26 Findings verifiziert, 12 gefixt
+
+Vollständiger Report: `docs/audit/2026-10-17/51-ingress-review/REVIEW-51-ingress.md`.
+
+- **Ack-Modell fail-closed:** `ingress.vhosts.<n>.allowUnauthenticated` ist jetzt
+  `nullOr bool` — der Vhost-Override **gewinnt** (wie `accessGroup`/`landing`).
+  Vorher ODER: eine Manifest-Ack ließ sich vom Host nicht widerrufen, eine
+  geerbte Ack öffnete still. Ein explizites `false` widerruft jetzt und bricht
+  den Build, wenn der vhost public bleibt (Finding 1).
+- **512-Guards lesen die wirksame Exposure:** Der `/setup`-Guard nutzt
+  `ia.isWan (ia.accessGroupOf …)` statt `pocketId.exposure` — ein Vhost-Override
+  konnte ihn vorher vollständig umgehen (Finding 2). Der Upstream-Vergleich
+  extrahiert den Port und toleriert `http://`/`localhost`/Trailing-Slash; vorher
+  lief das dokumentierte Format an der Assertion vorbei (Finding 3).
+- **CIDR-Grenzen:** Der Optionstyp verlangt `[1-9][0-9]{0,2}` als Präfix (`/0`,
+  `/08` → Eval-Fehler); die Assertion prüft zusätzlich `v4 >= /8`, `v6 >= /7`.
+  `10.0.0.0/1` hätte `lanAbort` halb IPv4 geöffnet (Finding 4).
+- **Identity-Header auf jedem Route gestrippt:** `request_header -…` steht jetzt
+  am Anfang jedes `route`, nicht mehr nur im `authBlock`. `stream`/`idp`/`.lan`
+  und `public+allowUnauthenticated` waren vorher spoofbar (Finding 5).
+- **ADR-0000 §4 wiederhergestellt:** `mediaGroup = true` aus 511 entfernt —
+  §4 verbietet 511/512 ausdrücklich GID 5000 (Finding 6).
+- **`internal` rendert `{name}.{domain}` mit TLS + CIDR-Abort:** Vorher nur
+  `.lan`, damit war der dokumentierte Pocket-ID-Passkey-Bootstrap unmöglich
+  (Secure Context fehlt auf `http://….lan`) (Finding 14).
+- **516 liest die richtige Caddy-Unit:** `caddyUnit` wird über
+  `ia.caddyUnitOf` aus dem Modus abgeleitet statt hartkodiert
+  `caddy-media.service` — im Global-Modus las CrowdSec ins Leere. Neue
+  Assertion koppelt die Engine an `ingress.enable` (Finding 13).
+- **513 WAN-IP-Fallback:** jeder Echo-Dienst wird einzeln validiert; vorher hing
+  bei einem HTTP-Fehler der Fehler-Body vor der IP des Fallbacks (Finding 16).
+- **514 Wildcard-Abdeckung:** `*.${domain}` als zusätzliche SAN, wenn `domain`
+  ein Subdomain von `acmeHost` ist — `*.${acmeHost}` deckt nur eine
+  Label-Ebene (Finding 17).
+- **515 nutzt `manifest.enable`:** dieselbe Quelle wie 511/513/518 statt einer
+  eigenen Optionspfad-Auflösung; `lib/registry`-Import entfernt (Finding 18).
+- **519: zwei tote Assertions ersetzt/entfernt:** `networking.useIPTables`
+  existiert in nixpkgs nicht (→ `networking.firewall.backend == "iptables"`,
+  nur bei `firewall == "managed"`); `keepOn.caddy` war unter `ingress.enable`
+  tautologisch (Finding 21).
+- **Doku:** fail2ban/516-Widerspruch (Optionstext + README), 517 als
+  oauth2-proxy statt „edge firewall", `.local`/`home.local`-Versprechen,
+  `hasStatic`, „513 wrote the record", `accessGroupOf`-Zuschreibung, NIXMETA
+  `requires` (Findings 24/25).
+- **Verifikationsblock datiert:** `51-ingress/README.md` behauptete „CI Flake
+  Check PASS" ohne Datum. Gemessen: alle Checks evaluieren, der Run stirbt an
+  der Actions-Cache (`HTTP error 418`, `rate limit exceeded`).
+- **Offen (Betreiberentscheidung):** WAN-Landing, `.local`-Kette, Avahi
+  `openFirewall`, Prune-Filter, `cloudflareEnvFile`-Trennungsassertion,
+  `idp`/`stream`-Ack.
+
+## 2026-10-16 (3) — Handy-Block übernommen, 589 verworfen, Branch rot (L-045)
+
+- **Übernahme:** 19 Commits (`3fc4d54`), fast-forward, kein Verlust. Neu: AB-033..AB-038,
+  `scripts/agent-state-edit.py`, `lib/derive.nix`, UID-Entkopplung, `docs/anchors/`,
+  `docs/RUNBOOK.md` + `medinix logs`, `nixos_idiom_audit.py`, Roadmap-Plan 79–83.
+- **589 Log-Sink verworfen** (AB-039, YAGNI): journald bleibt einzige Log-Quelle;
+  Agent-Zugriff über `medinix logs`/RUNBOOK, zentrale Auswertung über Roadmap 67.
+- **Offen und rot:** `nix flake check` 13/50 — Zirkel `config.medinix.manifest` ↔
+  `config.users.users` (`585-exporters.nix` × Guardrail aus `e803ba8`), CI failure auf
+  `3fc4d54`/`e46359a`. Fix-Vorschlag liegt im Ledger (L-045), Ausführung nur nach Go.
+
+## 2026-10-16 (2) — Friedhof: verworfene Ideen + Kleber-Bündelung geplant
+
+- **§Verworfen erweitert** (Roadmap) + Korridor-Blacklist **AB-033…AB-036**:
+  Go-Port des eigenen Klebers · systemd-Trigger → eigener Watcher · geteilte
+  Identität/`nobody` · Löschen-statt-Archivieren — je mit Grund + `revive_if`.
+- **Offene Punkte ausgearbeitet** in `ROADMAP.md` (P2 „Audit & Host-Schnittstelle",
+  F/A/C/B/H/I/G/N) + Korridor-Entscheidung **D-06** (515); `docs/TODO.md` daraus generiert.
+
+## 2026-10-16 — Toter Code: 4 nie verdrahtete `lib`-Module archiviert
+
+- **Nicht gelöscht, eingelagert** (`docs/audit/2026-10-16/repo-cleanup/lib/`):
+  `abc-tiering.nix`, `wait-for-api.nix`, `mk-secure-curl.nix`, `_helpers.nix` —
+  0 Importeure; Zwecke heute andernorts gelöst (storage.backends / `wait_for_url` /
+  `513`-nativ / `mkMerge`). Regel: **gelöschter Code = verlorenes Wissen** → Archiv, nicht `rm`.
+- **Scanner angepasst:** `scripts/nixmeta_check.py` + `scripts/medinix-meta.py`
+  überspringen `docs/audit/` + `docs/archive/` (Eingelagertes wird **nicht** gegated).
+- **Begründung + Ersatz je Modul:** `docs/AUDIT-LEDGER.md` **L-045**, Archiv-`README.md`.
+
+## 2026-10-15 (2) — Repo-Aufräumen, TODO als Ableitung
+
+- **Fremdbestand/Duplikate archiviert** (`docs/audit/2026-10-15/repo-cleanup/`):
+  `docs/GEMINI.md` (fremdes Manifest), `.agents/rules/global-rules.md`, flacher
+  Skill-Doppelgänger `docs/SKILL-implement-discipline.md`, Code-Dump
+  `docs/59-guardrails-export.md`, `docs/ARCHIVE-sops-nix-deprecated.md` → `docs/archive/`,
+  Artefakt `50-core/mcp_server.log` entfernt.
+- **Eine Quelle pro Information:** `docs/CHANGELOG.md` und `docs/README.md` sind Zeiger
+  (Wurzel-CHANGELOG bzw. `docs/INDEX.md`); `docs/AGENT_SOURCES.md` ist in
+  `docs/UPSTREAM-SOURCES.md` (Abschnitt 2) aufgegangen.
+- **Service Map korrigiert** (Primär-GID = UPG = 10 × Nummer, `media` nur `extraGroups`);
+  vorher stand dort das von ADR-0000 §5 verworfene flache GID 5000.
+- **`docs/TODO.md` ist generiert** aus Korridor + Roadmap + Ledger (`scripts/gen_todo.py`,
+  `--check` erkennt Veralterung) — Whitelist + Blacklist (`AB-026`…`AB-030`) in
+  `docs/CONVENTIONS.md` §4/§5 verankert.
+
+## 2026-10-15 — Sicherheitsreparatur 513 + UPG-Konformitaet
+
+- **513 lief als root** (`hardeningOnly`-Modus ohne `User`/`Group`): Die Service-Fabrik
+  setzt fuer fabrik-eigene Accounts jetzt `User`/`Group`/`RuntimeDirectory`; 513 legt
+  seinen Account selbst an — mit UPG (`cloudflare-ddns`, uid/gid 5130) statt
+  Primaergruppe `media` (ADR-0000 §4) — und ist neu in `medinix.factoryUnits`.
+- **DDNS-Token nicht mehr in `argv`**: `curl --variable token@… ` +
+  `--expand-header "Authorization: Bearer {{token:trim}}"` aus einer 0600-Datei im
+  RuntimeDirectory (curl >= 8.3; gepinnt 8.21.0). `lib/mk-secure-curl.nix` → `deprecated`.
+- **`media` nur noch supplementary**: neuer Fabrik-Parameter `mediaGroup`; 511 (Caddy)
+  setzt ihn, 513 braucht kein Medienrecht. `users.groups.<n>.gid = uid`,
+  tmpfiles-Gruppe = Account-Gruppe.
+- **Guardrail 591 verschaerft**: `Group == Unit-Name`, Primaergruppe == Unit-Name,
+  `users.groups.<n>.gid == uid`. Der verschaerfte Guardrail fand sofort einen
+  vergessenen Rest (`Group = "media"`) — deshalb ist er im Ledger als L-038 belegt.
+
+## 2026-10-14 — Hygiene, ADR-0000 Dekaden-Bereinigung & Demarkation
+
+- **Domäne 56 (Exposition / Request-Management):** Seerr an seinen kanonischen Platz `56-exposition/561-seerr.nix` verlegt (Port/UID 5610, ADR-0000). Domain-README und AGENTS.md für `56-exposition` angelegt.
+- **Agent-Skills verlagert:** `56-agents` aus dem Systemd-Domänenraum nach `docs/agents/` verlegt, um Systemd-Architektur sauber von Agenten-Prompts/Skills zu trennen. Alle internen Referenzen konsistent aktualisiert.
+- **Binär- & Build-Artefakte bereinigt:** `50-core/second-brain.sqlite`, `50-core/mcp_server.log`, `result`-Symlink und redundante `Micro Snowflake.svg`-Dateien bereinigt. `.gitignore` gehärtet (`*.sqlite`, `*.log`, `result*`).
+- **Unraid Settings Export gesichert:** Aus dem Repository working tree entfernt und sicher extern unter `/home/moritz/Backups/mediNix-unraid-settings-export-2026-10-14/` archiviert.
+- **Dokumentations-Demarkation:** Verwaiste externe Scrapes und leere Stubs aus `docs/patterns/` und `docs/guides/` nach `docs/archive/` konsolidiert; `docs/INDEX.md` neu generiert.
+
+## 2026-10-14 — Agentic Workflow: Status-Registry, Roadmap & Upstream-Quellen
+
+- **.agent-state.json:** Maschinenlesbare Status- und Fehler-Registry mit Invarianten, Verweis auf `docs/adr/llm-index.json` und bekannter Fehlerhistorie.
+- **ROADMAP.md:** Strukturierte Roadmap mit Kategorien `[In Progress]`, `[Backlog / Ideen]` und `[Done]`.
+- **UPSTREAM-SOURCES.md:** Zentrale Referenztabelle für externe Repositories, Quellcodes und Architektur-Muster.
+- **AGENTS.md & CLAUDE.md:** Eiserne Arbeitsregeln für Agenten verankert (ADR-0000 Zwang, Pre-Check in `.agent-state.json`, Post-Record und Backlog-Disziplin).
+
+## 2026-10-14 — CI / GitHub Actions: Flake Check Entstörung & Smoke Test Härtung
+
+- **nixfmt (574-provisioning):** Code-Formatierung korrigiert (`checks.nixfmt-check` grün).
+- **medinix-smoke (tests):** QEMU Headless VM-Ressourcen auf 2048 MB / 2 Cores angehoben, systemd-Device-Cleanup via `ip link del dev wg0` präzisiert und fehlertolerantes Fallback in sandboxed Runnern implementiert.
+- **flake-check.yml:** KVM-Berechtigungen (`/dev/kvm` 666) vor der Nix-Ausführung im GitHub Actions Runner ergänzt.
+- **checks.mediNix-ingress-header-strip (flake.nix):** `medinix.domain` ergänzt (rendert WAN-vHosts mit `forward_auth`) und Zeilenvergleichs-Assertion auf `<= strip` angepasst (Inline-Präfix).
+- **nftables (526-vpn-killswitch):** Reserviertes Schlüsselwort `chain mark` durch `chain vpn_mark` ersetzt und ungültige `policy accept;`-Direktive auf `type route`-Chains entfernt.
+- **checks.mediNix-ntfy-vhost-and-admin-socket (flake.nix):** Hostname-Prüfung von `ntfy.local` auf `ntfy.lan` korrigiert (Spiegelung der kanonischen `lanSites`-Generierung).
+
+## 2026-10-14 — MIT-Lizenz & Open-Source-Dokumentation
+
+- **LICENSE:** Standard-MIT-Lizenzdatei für Moritz Baumeister (2026) im Repository-Root hinterlegt.
+- **README.md:** Lizenzabschnitt aktualisiert und als persönliches Homelab-Setup für jedermann frei nutzbar dokumentiert.
+
+## 2026-10-02 — Red-Team-Runde 3: 51-ingress-Dissektion (RT-1 bis RT-9)
+
+Tiefe feindliche Analyse der Ingress-Domäne gegen das eigene Bedrohungsmodell
+(Dienst-Kompromittierung wird angenommen). Details & Begründungen:
+`docs/ingress-security-matrix.md` (Abschnitt „red-team round 3").
+**Vorbehalt:** Die Analyse-Umgebung hatte kein Nix — `nix flake check` ist auf
+dem Zielsystem auszuführen; Runtime-Verifikation (mediahost) bleibt ausständig.
+
+### ⚠️ Breaking
+- Ein deklarierter vHost (`accessGroup != "none"`), dessen Service-Enable-Flag
+  nicht auflösbar ist, ist jetzt ein Build-Fehler (vorher: still gedroppt —
+  das killte unbemerkt ntfys vHost und F7s customConfig-only-vHosts).
+  Auflösung: `medinix.<name>.enable`, `medinix.<camelCase>.enable` oder
+  `medinix.observability.<name>.enable`.
+- `dns.ddns.publishLanRecord` default **false**: `lan.{zone}` (RFC1918) wird
+  nicht mehr öffentlich publiziert; bestehende lan-Records werden aktiv
+  entfernt (self-healing). Alt-Verhalten explizit mit `= true`.
+- Navidrome/Audiobookshelf auf WAN (`stream`) ohne Admin-Pre-Seed bzw. ohne
+  `setupCompleted = true` = Build-Fehler (First-Run-Race, RT-2).
+  `lib/smoke-test.nix` entsprechend ergänzt.
+- `ingress.trustedCidrs`, `dns.hostnames`, `ingress.auth.forwardAuthUpstream`
+  sind jetzt typvalidiert (Injection-Charset, analog F9) — ungültige Werte
+  brechen die Eval.
+
+### Fixes (je Finding)
+- **RT-1 (Edge-Übernahme):** Caddy-Admin-API (`POST /load`, unauthentifiziert)
+  von `127.0.0.1:2019` — aus jedem Sandbox-Dienst erreichbar (Profile erlauben
+  Loopback-Egress) — auf Unix-Socket im RuntimeDirectory umgestellt
+  (`/run/caddy-media/admin.sock`; global `/run/caddy/admin.sock` +
+  `RuntimeDirectory = "caddy"`). `caddy reload` liest die Admin-Adresse aus
+  der Config (Upstream-Fix v2.6.1; bewusst KEIN `|mode`-Suffix — bricht
+  Reload, caddy#5694). `caddy-media` erhält `ExecReload` (ACME
+  `try-reload-or-restart` war zuvor ein harter Proxy-Restart).
+- **RT-2 (First-Run-Race):** 553 pre-seeded den initialen Admin via
+  `ND_DEVAUTOCREATEADMINPASSWORD` aus einem versiegelten Credential
+  (`medinix.navidrome.adminPasswordCredential`; maintainer-bestätigt: wirkt
+  nur, solange der Initial-Setup nicht abgeschlossen ist); 552 (keine
+  env-basierte Admin-Erstellung möglich) erzwingt die Prozedur
+  internal-vHost → Setup → `setupCompleted = true`. Beide prüfen die
+  RESOLVED vHost-Exposure (F2-Muster), nicht die Registry-Klasse.
+- **RT-3 (Bouncer-Vakuum):** 511 loggt jetzt jeden Site-Block (Access-Logs):
+  gefiltertes JSON nach stdout → journald; Query-String wird komplett
+  entfernt (`?apikey=…`-Leck), Authorization/Cookie zusätzlich gelöscht
+  (Caddy redacted sie ohnehin). 519 blockt fail2ban nicht mehr — der Verweis
+  auf das nicht existierende CrowdSec-Modul 516 war eine Sackgasse; bis 516
+  existiert, ist eine fail2ban-Jail auf den Caddy-Logs der sanktionierte
+  Interim.
+- **RT-4 (DNS):** 513 validiert WAN/LAN-IP-Format strikt (IPv4-Regex), bevor
+  etwas die Cloudflare-API erreicht; `lan.{zone}` nur noch opt-in.
+- **RT-5 (ntfy-vHost):** `enabledOf` in 511/515/518 um den dritten Lookup-Pfad
+  (`observability.<name>`) erweitert + Unresolved-vHost-Assertion (fail-closed
+  statt stiller Verlust). Registry: ntfy caddyClass `none` → `internal`
+  (Konsistenz mit 581s Assertion).
+- **RT-6 (Doc-Fiktion):** ADR-518 beschrieb nie existierenden Schutz
+  (data-go, /go/X-Routen, Honeypot-Elemente, CrowdSec-Bans) — auf Realität
+  zurückgeschrieben, Phantom-Maßnahmen explizit als „never implemented"
+  markiert. `authProxyPresent`-Doku nennt Pocket-ID nicht mehr als
+  Forward-Auth-Proxy (Widerspruch zum F5-Fix).
+- **RT-7 (Injection):** Typvalidierung s.o.; `dns.ddns.zone`-Doku warnt vor
+  der Wildcard-Lücke (zone ≠ domain → {service}.{domain} vom einstufigen
+  `*.{zone}` nicht gedeckt — F6 erlaubt diese Konfiguration, DNS-seitig ist
+  sie ein Loch; Split-DNS bleibt host-seitig, ADR-5115).
+- **RT-8/9:** 519-Escape-Hatch jetzt selektiv (`allow` pro keepOn-Name);
+  Loopback-als-Trust-Zone als offener Design-Punkt dokumentiert (RT-9).
+
+### Tests
+Neu: `mediNix-negative-first-run`, `mediNix-negative-vhost-unresolved`,
+`mediNix-ntfy-vhost-and-admin-socket` (positiv: vHost-Rendering + Admin-Socket
++ Access-Logs), `mediNix-negative-cidr-injection` (tryEval-Muster).
+
+## 2026-09-24 — Security-Audit 51/52: Explicit-Intent-Härtung (Batches A–F)
+Red-Team-Audit der Ordner `51-ingress` / `52-security` abgearbeitet (R1–R20),
+plus ein unabhängiger Cold-Start-Audit (9 weitere Findings). Prinzip:
+**Security by Explicit Intent** — unsichere Entscheidungen bleiben möglich,
+müssen aber erklärt werden; Defaults sind fail-closed.
+
+Die Änderungen werden durch `nix flake check` und gezielte Negativtests
+**geprüft**; das ist **kein** Beweis der Sicherheit — ein grüner Test beweist
+nur die getestete Eigenschaft (siehe F1: ein Test war grün, prüfte aber die
+eigentliche Invariante gar nicht). Der einzige verbleibende offene Punkt ist
+**F7** (Architekturentscheidung, bewusst nicht angefasst) —
+`docs/ingress-security-matrix.md`.
+
+### ⚠️ Breaking: umbenannte/entfernte Optionen (alt → neu)
+
+| alt | neu | Grund |
+|---|---|---|
+| `ingress.auth.skipPaths` | `ingress.auth.unauthenticatedPaths` | Name soll den Auth-Bypass benennen |
+| `ingress.vhosts.<n>.skipPaths` (war nie deklariert) | `ingress.vhosts.<n>.unauthenticatedPaths` | jetzt echte Option |
+| `dns.ddns.tokenCredential` | **entfernt** | generischer Token ermöglichte ACME/DDNS-Sharing (R11) |
+| `medinix.recyclarr.*` | `medinix.maintenance.recyclarr.*` | 572 las `maintenance.recyclarr` |
+| `medinix.updateNotifier.*` | `medinix.maintenance.updateNotifier.*` | 575 las `maintenance.updateNotifier` |
+
+### ⚠️ Geänderte Defaults (fail-closed)
+
+| Option | alt | neu |
+|---|---|---|
+| `hostIntegration.reverseProxy` | `"external"` | `"off"` (No-Touch — Import ≠ Übernahme) |
+| `ingress.auth.localBypass` | `true` | `false` (`.local` ist kein Trust-Boundary) |
+| `ingress.trustedCidrs` | breite Liste (10/8, CGNAT, 172.16/12, …) | `[]` — Pflicht; leer + aktive vHosts = Build-Fehler |
+
+### Neue Optionen
+- `ingress.vhosts.<n>.allowUnauthenticated` (bool, default `false`)
+- `ingress.vhosts.<n>.localBypass` (nullOr bool, default `null` = erbt global)
+- `ingress.vhosts.<n>.unauthenticatedPaths` (list, default `[]`)
+- `security.emergencyUser.allowedServices` (list, default `[]`) — **ersetzt** die frühere „alle Registry-Services"-Sudo-Regel
+- `medinix.factoryUnits` (internal) — die tatsächlich erzeugten Factory-Units
+
+### Sicherheits-Fixes (je Finding)
+- **R2/R3/R4/R6 (A):** `public` ohne Auth → Build-Fehler (bzw. `allowUnauthenticated`); `localBypass`/`trustedCidrs` fail-closed; `skipPaths` → `unauthenticatedPaths`.
+- **R8/R11 (B):** ACME (Lego) und DDNS nutzen **getrennte** Cloudflare-Tokens, kein Fallback; Scope dokumentiert.
+- **R12/R14 (C):** `firewall = "managed"` aktiviert die Firewall (500); C1-Guardrail + Ein-Eigentümer-Assertion (520); Emergency-User nur noch `allowedServices` (+ Existenz-/Leer-Assertions).
+- **R15/R16 (D):** 526 prüft `registry.uid == instance.uid == users.<unit-user>.uid`; IPv6 fail-closed (`ipv6 || !networking.enableIPv6`).
+- **R7 (E/F1):** `header` → **`request_header`** (511) — der alte Strip wirkte nur auf Response-Header.
+- **F2 (behoben):** *arr setzten `AUTH__METHOD=External` allein anhand `auth.mode=forward-auth` — aber 511 rendert `forward_auth` **nur** für `public`-vHosts, *arr sind `internal` ⇒ LAN-Admin ohne Login. Fix (532/533/536): `External` nur, wenn die **aufgelöste** vHost-Exposure `public` ist, sonst `Forms`. Regressionstest `mediNix-arr-auth-method`.
+- **F3 (E/F3):** 514 nutzte `security.acme.certs.<n>.environment` — diese Option existiert in nixpkgs **nicht** (nur `environmentFile`, ein *Pfad*) → `tls.acmeHost` brach die Eval, und `negative-token-shared` war dadurch vakuum-grün. Fix: Resolver über die gültige Option `dnsResolver`; die zwei lego-Tuning-Vars (`CLOUDFLARE_POLLING_INTERVAL`, `CLOUDFLARE_PROPAGATION_TIMEOUT`) über eine eigene Env-Datei im `EnvironmentFile` (die Modul-Option `environmentFile` hätte mit dem versiegelten Token-`EnvironmentFile` kollidiert). Bewusst **kein** 1:1-Rename `environment`→`environmentFile`: `environment` ist eine Map, `environmentFile` ein Pfad.
+- **F4 (fixed):** Landing in die `trustedCidrs`-Assertion einbezogen — Landing ist default an, damit ist `trustedCidrs` faktisch Pflicht (fail-closed).
+- **F5 (fixed):** Pocket-ID ist OIDC-OP, kein Forward-Auth-Proxy → Fallback entfernt; `auth.mode=forward-auth` verlangt expliziten `forwardAuthUpstream` + `authProxyPresent`.
+- **F6 (fixed):** Assertion `domain` ↔ `acmeHost` (Wildcard muss die vHosts decken).
+- **F8 (fixed):** `515-mdns` filtert `accessGroup=none`.
+- **F9 (fixed):** `unauthenticatedPaths` typ-validiert (`strMatching` `^/[^ \\t"{}]*$`).
+- **F7 (offen, DESIGN):** customConfig-only-vHosts — Architekturentscheidung, bewusst nicht angefasst.
+
+### Behobene Eval-/Build-Brecher (Batch B0)
+- `526-vpn-killswitch.nix`: fehlende schließende `}` (seit ≥60 Commits).
+- `576-backup.nix`: 2 fehlende `;`.
+- `default.nix`: CLI-Pfad `./packages/mediNix-cli` → `./lib/cli.nix`.
+- `511/512`: `authProxyPresent` unter falschem Pfad gelesen (`ingress.` statt top-level).
+- `lib/hardening-profiles.nix`: `OOMScoreAdjust` plain → `mkDefault` (SSoT = `memory-policy`).
+- `500` / `591` / `lib/service-factory.nix`: Factory-Check prüft echte Units statt Registry-Namen.
+- `lib/cli.nix`: `MEDIA_ROOT`/`METADATA_DIR` unbenutzt → `writeShellApplication`-shellcheck brach ab → `nixos-check`/`mediNix-smoke` nicht baubar; jetzt als Env exportiert.
+
+### Tests
+`nix flake check` (Eval) grün; `nixos-check` + `mediNix-smoke` bauen (volle Systeme). Neue Checks: `mediNix-negative-{uid-chain,vpn-ipv6,vpn,token-shared,emergency-empty,emergency-unknown,landing-cidrs,forward-auth-upstream,acme-domain}`, `mediNix-firewall-managed`, `mediNix-ingress-header-strip`, `mediNix-acme-positive`, `mediNix-arr-auth-method`. Negativtests prüfen per `expectAssertion` den **Grund** (nicht nur „fehlgeschlagen").
+
+> **Runtime-Test auf mediahost steht weiterhin aus** — Grüne Eval/Builds beweisen keinen laufenden Dienst. Der Deploy-/Live-Test ist separat (mediahost aus).
+
+> Lint (`nixfmt`/`statix`/`deadnix`) ist repo-weit **vorbestehend rot** und noch nicht saniert.
+> Doku-Inkonsistenz (nicht Security): Zeile 3 sagt „10-Domain-Architektur", Zeile 347 „9 Domains" — vor dem Architecture Freeze bereinigen.
+
+## 2026-09-23 — ADR-0000: englische Verfassung (übersetzt) + gerettete Herkunft
+
+Die angereicherte Verfassung (`ADR-0000-dezimalrahmen-verfassung.md`) wurde aus der
+Workbench-Fassung **ins Englische übersetzt** und ersetzt die frühere
+`ADR-00-dezimalrahmen-verfassung-en.md` (als `.bak` gesichert, bleibt in der
+Git-Historie). Neu enthalten: §11 Semantic Anchors, §12 Anhang (arc42/C4,
+ISO 25010, STRIDE, Design by Contract, Diátaxis).
+
+**Herkunft der Verfassung** (aus dem alten §11 „Origin and Version History" gerettet):
+
+Aus einer Brainstorm-Reihe des Repo-Eigentümers (Juli 2026), Slot für Slot gegen die
+Realität auf mediahost geprüft. Meilensteine: die Vier-Anker-Erkenntnis (als
+`20-security` und `90-policy` sich als zwei Dinge erwiesen), die GID-Regel
+`Projekt × 1000` und der Kollisions-Beweis über die `N00`-Regel — alle drei vom
+Eigentümer, hier verifiziert und begründet.
+
+Konsolidiert am 2026-07-22 aus vier Vorentwürfen; ihre Widersprüche sind aufgelöst
+(Log: `KONSOLIDIERUNG.md`):
+
+| Vorentwurf | Status | Auflösung |
+|---|---|---|
+| `8000-dezimalrahmen.md` (ohne Ableitungen) | überholt | vollständig aufgenommen |
+| `8000-clean.md` (mit Ableitungen) | überholt | Basis dieser Fassung; Klarstellungen §1/§2/§4/§5/§8 |
+| `ableitungen.md` (UID = 1000 + Nummer) | **verworfen** | UID-Formel widersprach „Projektziffer vorne" — siehe Abgelehnt |
+| `ableitungen2.md` (UID = Projekt × 1000 + Rest) | überholt | in §4/§5 aufgenommen |
+
+## 2026-09-07 — Phase 15: Deep Audit Fixes, Mover/SQLite Hardening & SSoT Path Consolidation
+
+Umfassendes Härtungs- und Konsolidierungs-Paket basierend auf tiefgehendem Code-Audit:
+
+- **Mover (543-mover.nix) gehärtet (Datenintegrität & Lifecycle)**:
+  - `lsof -t "$f"` Lock-Check: Dateien, die aktuell noch von SABnzbd oder Entpackern beschrieben werden, werden übersprungen.
+  - `-mmin +5` Mindestalter-Puffer: Nur Dateien, die seit mindestens 5 Minuten inaktiv sind, kommen in die Transfer-Queue.
+  - Eindeutige temporäre Zieldateien via `mktemp -p "$ARCHIVE/.staging_mover" "tmp_XXXXXX_$(basename "$f")"` verhindern Dateikollisionen bei gleichnamigen Medien in Unterordnern.
+  - Schwellenwert-Abbruch: Stoppt die Schleife vorzeitig, sobald auf der SSD `minFreeGb` wieder erreicht ist (`CURRENT_FREE_KB >= MIN_FREE_KB`), statt blind alle Whitelist-Dateien zu bewegen.
+  - Fehlertoleranz: Quelldatei auf der SSD (`rm -f "$f"`) wird erst und ausschließlich nach erfolgreichem `cp` und `mv` gelöscht; abgebrochene Staging-Fragmente werden sofort aufgeräumt.
+  - Null-terminierte Pfad-Verarbeitung (`-print0` / `read -d $'\0'`) für Leer- und Sonderzeichen.
+
+- **SQLite-Wartung (571-sqlite-wal.nix) — Lifecycle-Synchronisation & Berechtigungs-Schutz**:
+  - `truncateScript`: Heavy-Checkpoints (`PRAGMA wal_checkpoint(TRUNCATE)`, `optimize`, `ANALYZE`) stoppen aktive Services (`systemctl stop "$unit"`) vor dem Eingriff und starten sie danach wieder. Verhindert Lock-Konflikte (`SQLITE_BUSY`), Timeouts und Schreibkollisionen mit internen .NET/Python Connection-Pools.
+  - Berechtigungs-Wiederherstellung: Automatischer `chown -R "$owner" "$dir"` nach sqlite3-Aufrufen. Verhindert, dass durch Root angelegte/modifizierte `-wal` oder `-shm` Dateien den Service-User aussperren.
+  - Placebo-PRAGMAs entfernt (flüchtige CLI-Settings wie `cache_size` und `temp_store` verpufften wirkungslos; nur persistente WAL- und Optimize-Befehle bleiben).
+  - `passiveScript`: Führt non-blocking passive Checkpoints mit kurzem `busy_timeout=5000` aus und stellt Dateiberechtigungen sicher.
+
+- **Prowlarr Direktanbindung & Killswitch-Freistellung (536-prowlarr.nix & 591-cross-domain.nix)**:
+  - Prowlarr benötigt direkten WAN-Zugang und läuft bewusst über das Standard-Host-Netzwerk (ohne VPN).
+  - Die widersprüchliche Assertion in `591-cross-domain.nix`, die Prowlarr fälschlicherweise in den VPN-Killswitch zwingen wollte, wurde korrigiert: Sie erzwingt nun, dass Prowlarr niemals an den Killswitch gebunden wird (`!confined "prowlarr"`).
+- **SABnzbd Defense-in-Depth Killswitch (541-sabnzbd.nix)**:
+  - Ergänzung von `RestrictNetworkInterfaces = [ "lo" vpnIf ]` als zusätzliche cgroup-BPF-Sicherheitsbarriere (Defense-in-Depth neben dem bestehenden nftables-Policy-Routing) bei aktivem `usenet-confinement`.
+  - Beschränkt die verwendbaren Netzwerk-Interfaces des Dienstes auf `lo` (für lokale Caddy- und Arr-Kommunikation) und das VPN-Interface.
+  - Dynamische SSoT-Ermittlung des VPN-Interfaces (`vpnKillSwitch.vpnInterface` vor `vpn.interface` vor `"wg0"`).
+
+- **Runtime-Guard bereinigt (583-runtime-guard.nix)**:
+  - Typo `medinix_vpn` entfernt (Tabelle heißt `medinix_vpn_filter`).
+  - nftables-Check an `hasVpnFilter = cfg.vpn.enable || cfg.usenet-confinement.enable` gekoppelt; verhindert Daueralarme bei Setups ohne VPN.
+
+- **Watchdog & Registry Unit-Namen (584-post-boot-watchdog.nix & lib/registry.nix)**:
+  - `registry.nix` um flexible `unitName`-Behandlung erweitert: `cloudflare-dns` nutzt reale Unit `cloudflare-ddns.service`, `ntfy` nutzt `ntfy-sh.service`.
+  - Statische Web-Assets ohne systemd-Unit erhalten `unitName = null`.
+  - Watchdog filtert `null`-Units sauber heraus und prüft nun exakt die existierenden systemd-Dienste.
+
+- **Seerr Hardening-Profil (555-seerr.nix & lib/registry.nix)**:
+  - Profil von `profiles.dotnet` auf `profiles.nodejs` korrigiert (Seerr/Jellyseerr ist Node.js/TypeScript).
+
+- **Service-Factory Peer-Isolation (lib/service-factory.nix)**:
+  - Invertierte Logik behoben: Bei `allowedPeers = []` wird `InaccessiblePaths` nun aktiv gesetzt und isoliert alle fremden State-Verzeichnisse (vorher wurde der Schutz bei leerer Liste komplett umgangen).
+
+- **Exportarr (573-exportarr.nix)**:
+  - Veralteten Unit-Namen in `after = [ ... "${e.name}.service" ]` korrigiert.
+
+- **SSoT-Pfadkonsolidierung & Provisioning (default.nix, 570-storage.nix, 574-provisioning.nix)**:
+  - Einheitliche Medienstruktur unter `storage.mediaRoot`: `/movies`, `/series`, `/books`, `/music`, `/downloads`, `/cache`.
+  - Sonarr-Default von `/tv` auf `/series` harmonisiert (deckungsgleich mit Jellyfin).
+  - Jellyfin TV-Pfad in `574-provisioning.nix` von `/tvshows` auf `/series` korrigiert.
+  - `574-provisioning.nix`: `SONARR_ROOT_FOLDER` und `RADARR_ROOT_FOLDER` für `arr_settings_sync.py` gesetzt (vorher wurden `SONARR_ROOT` übergeben, was vom Python-Skript ignoriert wurde).
+  - `default.nix`: `stagingDir` und `archiveDir` docken dynamisch an `cfg.storage.mediaRoot` an (Default `/downloads` und `/library`).
+  - `570-storage.nix`: Doppeltes `/media/` im Mount-Pfad beseitigt.
+
+- **Dokumentation & Handoff synchronisiert**:
+  - `ADMIN-HANDOFF.md`: `firewall = "managed"` für Port-Freigabe ergänzt; ACME-Token auf `ingress.tls.acmeCredential` korrigiert.
+  - `README.md`: Modultabelle auf tatsächlichen Bestand aktualisiert; portlose SPA korrigiert; „No hardcoded deployment IPs“ präzisiert.
+
+## 2026-09-03 — Arr-Provisioning & CI Activation (Commits 0b00f61 & c544c89)
+
+- **.github/workflows/flake-check.yml**: `nix flake check` als CI-Gate für Push und Pull-Requests aktiviert.
+- **583-runtime-guard.nix**: Backspace-Artefakt in Wildcard-Listener-Regex behoben.
+- **574-provisioning.nix**: Vollständige Verdrahtung von `arr-sync-locale`, `arr-sync-profiles`, `arr-sync-download-clients` (TARGETS_JSON, CATEGORIES_INI), Prowlarr-Apps (APPS_JSON, INDEXERS_JSON) und TreasureMaps-Secrets.
+- **lib/registry.nix**: Seerr Port/UID auf 561 / 5610 synchronisiert.
+
+## 2026-09-01 — Seerr rename
+
+Jellyseerr → **Seerr** (https://seerr.dev) across the repo. Registry/vHost/option `seerr`, module `555-seerr.nix`, port/UID 5550 unchanged.
+
+## 2026-09-01 — Ingress organs (511 / 513 / 514 / 518)
+
+- **511 / 514:** Stock-Caddy, Lego-Wildcard als HTTPS auch im LAN. `51-ingress/511-caddychangelog.log`
+- **513:** Anker-DDNS `wan` (WAN-IP) + `lan` (LAN-IP), Wildcard/Apex → wan, keine Dienst-CNAMEs. `51-ingress/513-dnschangelog.log`
+- **518:** Familien-Icons aus stream/public, von 511 auf Apex (LAN-abort) + `home.local`. `51-ingress/518-landingchangelog.log`
+
+## Phase 1 — Foundation
+- **flake.nix**: `nixosModules.default` Export + `checks.nixos-check` (dummy hardware, stateVersion 24.11)
+- **default.nix**: vollständiges `options.medinix` API (services, storage, security, observability, maintenance)
+- **lib/registry.nix**: SSoT für Port/UID/GID aller Dienste (Port = folder×10, UID = Port, GID = 5000)
+- **lib/service-factory.nix**: `mkService` + `mkNoPort` (execStart + stateDir + mkPeerIsolation + hardeningProfile)
+- **lib/hardening-profiles.nix**: zentrale Profile (base, dotnet, dotnet-gpu, python, nodejs, network, script, client)
+- **lib/abc-tiering.nix**: Tier-A/B/C aus `storage.mediaRoot`
+
+## Phase 2 — Services
+- **51-ingress**: Chameleon Caddy (caddyClass stream/internal/public/none), Pocket-ID, Cloudflare-DDNS
+- **52-security**: nftables, Kernel-Hardening, SSH-Anti-Lockout, systemd-credentials (LoadCredentialEncrypted)
+- **53-acquisition**: Arr-Stack (532-536: Sonarr/Radarr/Readarr/Lidarr/Prowlarr, native .NET)
+- **54-transfer**: SABnzbd (541, `-b 0` no-daemon), SQLite-WAL-Tune (542), Tier-B-Cleanup-Mover (543)
+- **55-playback**: Jellyfin (551) + Audiobookshelf (552) + Navidrome (553)
+- **56-requests**: Seerr (561)
+- **57-maintenance**: SQLite-Optimize (571), Recyclarr (572), Exportarr (573), Provisioning (574), Update-Notifier (575),
+  Backup/Restic (576), Drift-Detection (577)
+- **58-observability**: ntfy (581), CrowdSec native (582), Runtime-Guard (583), Post-Boot-Watchdog (584)
+- **59-guardrails**: Assertions (591), Rollout (592), Emergency-User (593), No-Password-Auth (594), Backup-SSH (595),
+  Security-Assertions (596), Forbidden-Tech (5A3), Ingress-Enforcement (5A4), Assertion-Quality (5043)
+
+## Phase 3 — Hardening + Bugfixes (audit-driven)
+- **Hardening-Profile**: UMask=0027 (base), networkPolicy, InaccessiblePaths, mkPeerIsolation
+- **Jellyfin (551)**: render-Gruppe + DeviceAllow=/dev/dri + VA-API-Env + adminPasswordFile
+- **Caddy (511) CrowdSec-Plugin**: `hslatman/caddy-crowdsec-bouncer` (korrekt benannt)
+- **P0-Fixes (DeepSeek/Antigravity Audit)**:
+  - pocketId-Registry-Key (`services."pocket-id"` statt `.pocketId`) — P0
+  - secrets-Pfade (`cfg.secrets.*` statt `cfg.services.*.apiKeyFile`) — P0
+  - dotnet UMask=0002 (Arr brauchen Gruppen-Schreibrecht) — P0
+  - Jellyfin BindAddress 127.0.0.1 via Env (INV-BIND-01) — P1
+  - API-Key-Leak in 574 (Header-File statt cmdline) — P0
+  - Caddy global TLS-Direktive (INV-TLS-02) — P0
+- **Neue Invarianten**: INV-VPN-02, TLS-02, UMASK-01, BIND-01, SEC-01, TECH-01/02/03, INGRESS-01
+- **Hardening-Round-3**: SystemCallArchitectures=native, ProtectClock, ProtectHostname, RemoveIPC,
+  OOMScoreAdjust (base 500 / network -500), journal-logging, network.target statt network-online.target
+
+## Phase 4 — Architecture Upgrade (Shift-Left, devNIX-Pattern)
+- **flake.nix**: Ratsche (nixos-check) + Decimal-Enforcer (ADR-0000 50-59) + Linting (nixfmt/statix/deadnix)
+  + devShell + formatter (nixfmt-rfc-style)
+- **lib/arr-settings.nix**: .NET Env-Vars Helper (mkArrEnv → {APP}__{SECTION}__{KEY})
+- **Arr-Module (532-536, 561)**: deklarative .NET Env-Vars (server.port/bindAddress, auth.method, update.mechanism)
+- **lib.pipe Auto-Import**: idiomatischer Modul-Loader
+- **542-sqlite-wal.nix**: writeShellApplication (ShellCheck beim Build)
+- **7 Quality Gates** in medinix-pre-commit skill (Community-Gold, API-Accuracy, SSoT, SRE, Dendritic, Hygiene, Traceability)
+- **ADR-5043**: Assertion Quality Standard (was/warum/fix, fail-closed, jeder Bug → Invariante)
+- **ADMIN-HANDOFF.md**: saubere Trennung Host-Verantwortung vs. Modul (Binary-Cache, Impermanence, Tier-HW, SSH/TPM)
+- **Single Source of Truth (ADMIN-HANDOFF.md)**: Alle Host-Pflichten (Binary-Cache, Impermanence,
+  Storage-Mounts, VPN, ACME, TPM-Secrets, SSH, nftables, Checkliste, Fallstricke) in genau einer
+  MD-Datei konsolidiert. Flake ist 100% portabel ohne mediahost-Annahmen (mediahost-Referenzen aus Code/AGENTS entfernt).
+- **Legacy-Bereinigung**: 57-maintenance/jellyfin.nix, profiles.nix, prowlarr.nix, seerr.nix, settings.nix gelöscht
+  (inert, kein NNN-Präfix → nicht auto-importiert; veraltete Arrangement-Logik vor der Factory-Umstellung)
+- **574-provisioning.nix**: `after =`-Unit-Namen korrigiert (waren `sonarr-5320.service` etc.,
+  echte Factory-Units sind `sonarr.service` — Port steckt nur in StateDirectory, nicht im Unit-Namen)
+
+## Phase 5 — Quick-Wins (SQLite/Timer/Cleanup)
+- **542-sqlite-wal.nix**: zu `maintenance.sqliteOptimize` umgebaut (Optionen enable/schedule/services).
+  Erweitert um PRAGMA optimize/ANALYZE/incremental_vacuum (WAL-Pragmas bleiben). StateDirs aus
+  Registry abgeleitet (kein Hardcoding), timer-getrieben (weekly default). Robust gegen gesperrte DBs.
+- **578-orphan-cleanup.nix** (NEU): SABnzbd incomplete + leere Fragmente unter mediaRoot/downloads
+  entfernen (age > minAgeDays). Hart: nur Pfade unter storage.mediaRoot, nie Library.
+- **577-drift-detection.nix**: Secret-Datei-Check ergänzt (konfigurierte Pfade, Inhalt nicht geloggt).
+- **541-sabnzbd.nix**: network-online.target → network.target (Konsistenz). RuntimeDirectory (tmpfs)
+  für incomplete/temp bereits vorhanden.
+- **551-jellyfin.nix**: TemporaryFileSystem=/transcode (tmpfs) + RuntimeDirectory bereits vorhanden.
+- **B2 RuntimeDirectory**: SABnzbd (`/run/sabnzbd-tmp`) + Jellyfin (`/transpile-transcode` tmpfs)
+  bereits implementiert — dokumentiert, kein Neu-Bau nötig.
+
+## Phase 6 — Encrypted DNS + VPN-Kill-Switch (fail-closed)
+- **dnsMode Option** (`vpn.dnsMode` = vpn-plain / encrypted-hint): Modul implementiert keinen DoT-Client,
+  Host liefert encrypted DNS (Variante A/B/C in ADMIN-HANDOFF §4a).
+- **INV-VPN-01**: confinement → vpn.interface ≠ "" (Build-Bruch).
+- **INV-VPN-03**: confinement → mindestens ein betroffener Dienst enable (sabnzbd || prowlarr).
+- **INV-VPN-04**: dnsServers IPv4/IPv6-sauber (getrennte Mengen, kein hasInfix "." mehr).
+- **INV-VPN-05**: POLICY — keine Public-Resolver in Sandbox (bewusste Policy, nicht nur Leak-Schutz).
+- **525-usenet-confinement.nix**: RestrictNetworkInterfaces=[lo,vpnIf] + BindReadOnlyPaths (eigene resolv.conf)
+  + InaccessiblePaths=[/sys/class/net] + echter IP-Leak-Check (Host-IP vs VPN-Interface via ipify) bereits vorhanden.
+- **ADMIN-HANDOFF**: §4 netns-Formulierung korrigiert (UID-Routing + routeTables, KEIN NetworkNamespacePath),
+  §4b Verify/ipify als Ergänzung (nicht Ersatz) eingeordnet, dnsMode-Semantik geklärt.
+
+## Phase 7 — Policy-Routing ins Modul gezogen (ADMIN-HANDOFF auf Minimum)
+- **526-vpn-policy-routing.nix** (NEU): UID-basiertes Policy-Routing deklarativ im Modul.
+  Tabellen (UID=5410/5360) + routingPolicyRules (uidrange → lookup) + Default-Route
+  `dev ${vpn.interface}` + fail-closed `unreachable`. Kein netns, kein Host-ip-rule-Kochrezept.
+  Parametrisiert durch vpn.interface + Registry-UIDs. mkIf confinement.enable && vpn.interface != "".
+- **ADMIN-HANDOFF §4**: von "baue dir uid rules" reduziert auf "Interface existiert + Name + DNS + Test".
+  Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
+
+## Phase 7 — Policy-Routing ins Modul gezogen (ADMIN-HANDOFF auf Minimum)
+- **526-vpn-policy-routing.nix** (NEU): UID-basiertes Policy-Routing deklarativ im Modul.
+  Tabellen (UID=5410/5360) + routingPolicyRules (uidrange → lookup) + Default-Route
+  `dev ${vpn.interface}` + fail-closed `unreachable`. Kein netns, kein Host-ip-rule-Kochrezept.
+  Parametrisiert durch vpn.interface + Registry-UIDs. mkIf confinement.enable && vpn.interface != "".
+- **ADMIN-HANDOFF §4**: von "baue dir uid rules" reduziert auf "Interface existiert + Name + DNS + Test".
+  Host liefert nur noch WireGuard-Interface + Keys + vpn.interface/dnsServers + enable-Flags.
+
+## Phase 8 — Private Benennungen bereinigt (portabel, keine Hausnamen als Default)
+- **default.nix**: `vpn.interface` example `wg0` → `wg0`; Domain example `example.com` → `example.com`.
+- **mediNix-cli/default.nix**: VPN-Heuristic `wg0|wg|vpn` → `wg|vpn` (wg0 aus Code entfernt).
+- **README.md**: Quickstart-Beispiel `example.com` → `example.com`.
+- **AGENTS.md**: mediahost-Kontext als "physischer Deploy-Host, aber portabel" neutralisiert.
+- **rg-Scan**: `*.nix` sauber (kein wg0/mediahost/example/192.168). Nur generische Examples (wg0, 10.0.0.1, example.com).
+- Bewusst unverändert: docs/*.md ADRs (historische example.com-Entscheidungen bleiben), docs/ONBOARDING.md
+  (mediahost-spezifisches Deploy-Handoff, bewusst host-spezifisch).
+
+## Phase 9 — 576-backup gehärtet (Unit-Namen + enge Pfade + Retention)
+- **576-backup.nix**: Unit-Namen in Pre/Post korrigiert (`sonarr-5320` → `sonarr.service`, plain).
+  `paths` aus Registry-StateDirs abgeleitet (nur Media-StateDirs + secretsDir, nicht blind `/var/lib`).
+  `pruneOpts` (7daily/4weekly/6monthly) + excludes (Transcodes/Caches/incomplete).
+- **ADMIN-HANDOFF §2a**: Restic-Restore-Hinweis (init/snapshots/restore einzelnes StateDir).
+
+## Phase 10 — Assertions konsolidiert (Doppelungen weg, Messages scharf)
+- **599-cross-domain.nix**: INV-04 entfernt (redundant mit INV-VPN-01+02). INV-UMASK-01 Unit-Namen
+  korrigiert (`sonarr-5320` → `sonarr.service`, plain). INV-VPN-05 → `[POLICY]-INV-VPN-05` (Label).
+- **592-security.nix**: INV-BIND-01 entfernt (Duplikat zu INV-02 in 599). SSoT = 599.
+- **590-registry.nix**: INV-04/INV-BIND-01 Messages entfernt. INV-VPN-01/03/04/05 + [POLICY]-INV-VPN-05
+  Messages ergänzt (Deutsch: was kaputt + was setzen + ADMIN-HANDOFF-Verweis).
+
+## Phase 11 — Timer/IO-Staffelung + Journal-Rate-Limits
+- **543-mover.nix**: `*:0/15` → `*:0/30` (halbe Frequenz, IO-Schonung auf Tier-B).
+- **571/577/578/542**: `RateLimitBurst=5` + `RateLimitIntervalSec=30s` in serviceConfig
+  (Journal-Drossel bei Fehlerschleifen — kein Log-IO-Sturm). 577 auf mkMerge umgestellt.
+
+## Phase 12 — Mover ondemand (kein Timer, HDD schläft)
+- **543-mover.nix**: komplett umgebaut. Kein Calendar-Timer (OnCalendar/*:0/30 entfernt).
+  systemd oneshot `mediNix-mover` mit df-Füllstand-Check + Extension-Whitelist + move nach Tier-C.
+- **default.nix mover-Options**: `mode` (ondemand/off, default ondemand), `minFreeGb` (20),
+  `mediaExtensions`, `stagingDir`, `archiveDir`, `action` (move/copy, default move).
+  `retentionDays` entfernt.
+- **ADMIN-HANDOFF §3a/§3b**: Mover-Handoff (Trigger, Whitelist, Playback-darf-HDD-lesen) +
+  mergerfs-Beispiel (Host-seitig, NICHT im Modul — Portabilität).
+
+## Phase 12b — Mover find-Fix + mediaRoot-Defaults + Hook-Handoff
+- **543-mover.nix**: find-Logik geklammert (`-size +50M \( -name … -o … \)` — Precedence-Fix,
+  sonst matchten alle Whitelist-Dateien egal Größe). Überflüssiges `rm` nach `mv` entfernt.
+- **default.nix**: `stagingDir`/`archiveDir` Defaults an `storage.mediaRoot` angedockt
+  (`/data/downloads`, `/data/library` statt `/var/lib/mediNix-*`).
+- **ADMIN-HANDOFF §3a**: Hook-Pflicht (SABnzbd ExecPost → systemctl start mediNix-mover)
+  + Library-Pfad-Warnung (ohne mergerfs neu scannen nötig).
+
+## Phase 12c — Mover Path-Unit (Klingel) + Jellyfin-Refresh-Option
+- **543-mover.nix**: `systemd.paths.mediNix-mover` (PathChanged + DirectoryNotEmpty auf stagingDir)
+  als Klingel ohne Uhr. `trigger` = "path" (default) erzeugt die Path-Unit; "manual" nur systemctl.
+  Optionaler Jellyfin Library-Scan nach Move (API, nur bei `jellyfinRefreshAfterMove`).
+- **default.nix**: `trigger` (path/manual) + `jellyfinRefreshAfterMove` (bool, default false).
+- **ADMIN-HANDOFF §3a**: Path-Unit-Doku (Klingel/Bremse-Modell) + Jellyfin-Refresh nur ohne mergerfs.
+
+## Phase 12d — Mover StartLimit (echte Starts drosseln)
+- **543-mover.nix**: `StartLimitBurst=3` + `StartLimitIntervalSec=60` an Service-Unit ergänzt.
+  Journal-RateLimit drosselt nur Logs, nicht Starts — bei geschwätzigem Staging könnte Path-Unit
+  sonst oft hintereinander starten. StartLimit = echte Bremse für Re-Starts.
+- **ADMIN-HANDOFF §3a**: StartLimit vermerkt (Klarstellung Journal-Limit ≠ Start-Limit).
+
+## Phase 13 — Feature-Creep-Welle 1 (Oberfläche verkleinern)
+- **default.nix**: `jellyfinRefreshAfterMove` gelöscht (API-Key-Gefrickel ohne Creds-Anbindung = toter Code).
+  `mover.action` = nur noch `move` (`copy` raus — widerspricht SSD-frei).
+  `mover.trigger` (path/manual enum) gelöscht — systemd.path läuft bei `mover.enable = true`.
+  `vpn.dnsMode` gelöscht — reine Doku/Semantik, keine Codepfad-Änderung; Info nach ADMIN-HANDOFF §4a.
+- **543-mover.nix**: Jellyfin-Refresh-Skriptblock raus, systemd.path ohne trigger-mkIf.
+- **ADMIN-HANDOFF**: §3a (Mover quiet, keine Jellyfin-API), §4a (dnsMode weg, encrypted DNS = Host-Sache).
+
+## Phase 13b — Welle-1-Reste + Native-Audit
+- **543-mover.nix**: `mv -f` only (kein `cp`/action-Zweig mehr). StartLimit direkt in serviceConfig.
+  trigger/manual-Kommentar entfernt. Script aufgeräumt.
+- **Native-Audit**: rg auf sops/rclone/cron/iptables/docker/inotifywait/NetworkNamespacePath —
+  nur bewusste Kommentare/Host-Referenzen (sops-nix als Host-Secret-Helfer OK, hybrid).
+
+## Phase 13c — StartLimit → unitConfig (korrekte systemd-Sektion)
+- **543-mover.nix**: `StartLimitBurst`/`StartLimitIntervalSec` von `serviceConfig` nach `unitConfig`
+  verschoben. In `[Service]` sind sie wirkungslos — Start-Limits gehören in `[Unit]`.
+
+## Phase 14 — Security-Review: 524 Unit-Namen-Bug gefixt
+- **524-systemd-credentials.nix**: `mediNix-${name}` → plain `${name}` (Unit = sonarr.service, nicht
+  mediNix-sonarr). Sonst landete LoadCredentialEncrypted in nicht-existierender Unit → Secrets
+  nie gemountet (stiller Build-Erfolg, Sicherheits-Lücke). SSoT = lib/service-factory.nix Z47.
+- **Fabrik-Review (Anhang vpn-killswitch.nix)**: architektonisch stark (eBPF+UID-Routing+Canary+
+  Localhost-Relay-Block), aber: (1) konkurriert mit 526-vpn-policy-routing.nix (doppeltes
+  Routing), (2) StartLimitBurst=0 bei non-oneshot Service gefährlich, (3) mkForce-Konflikt bei
+  parallelem 526. Entscheidung nötig vor Integration ins Repo.
+
+## Offen (vor erstem Deploy)
+- **nix flake check auf mediahost**: noch nicht ausgeführt (mediahost AUS, Warte auf Freigabe)
+- **Provisioning-Automatisierung für Ntfy-Connections**: aktuell manuell (Settings → Connect → Ntfy)
+- **INV-STORE-xx**: State-Pfad-Whitelist als Guardrail (Roadmap, Impermanence-Whitelist-Ansatz)
+
+## Statistik
+- 46 Commits (Initial → a4f4839)
+- 9 Domains, ~42 Service/Infra-Module (inkl. Guardrails)
+- 29 ADRs (docs/) + ADR-5043 (assertion-quality)
+- Audit: Num-dupes 0, keine hardcoded IPs, keine TODO/FIXME, keine verbliebenen fakeHash-Platzhalter (Caddy nutzt Stock-Binary + Lego TLS)
