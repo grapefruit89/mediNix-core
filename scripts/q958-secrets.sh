@@ -327,34 +327,23 @@ EOF
   echo ""
   gum style --foreground 212 "Ausrollen nach $SSH_HOST..."
 
-  # 1. PrivateKey versiegeln und .conf ablegen
-  gum spin --spinner dot --title "Schreibe WireGuard .conf und versiegele Key auf Q958..." -- \
+  # 1. PrivateKey per TPM2/systemd-creds versiegeln (ADR-521: 0 Plaintext auf Disk)
+  gum spin --spinner dot --title "Versiegele WireGuard PrivateKey via TPM auf Q958..." -- \
     ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
-      sudo install -d -m 0700 \"$REMOTE_VPN_DIR\"
       sudo install -d -m 0750 \"$REMOTE_SECRETS_DIR\"
+      sudo rm -f \"$REMOTE_VPN_DIR/wg-medinix.conf\" 2>/dev/null || true
 
-      cat << \"WGEOF\" | sudo tee \"$REMOTE_VPN_DIR/wg-medinix.conf\" > /dev/null
-$raw_conf
-WGEOF
-      sudo chown root:root \"$REMOTE_VPN_DIR/wg-medinix.conf\"
-      sudo chmod 0600 \"$REMOTE_VPN_DIR/wg-medinix.conf\"
-
-      echo -n \"$privkey\" | sudo systemd-creds encrypt --name=\"wg-private-key\" - \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
+      echo -n \"$privkey\" | sudo systemd-creds encrypt --name=\"wg-private-key\" --not-after=\"+365d\" - \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
       sudo chown root:medinix \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
       sudo chmod 0640 \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
     '"
 
-  # 2. SABnzbd stoppen & WireGuard anwenden
+  # 2. SABnzbd stoppen & WireGuard anwenden (deklarativ via systemd)
   gum spin --spinner dot --title "Stoppe SABnzbd und aktualisiere WireGuard Interface..." -- \
     ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
       sudo systemctl stop sabnzbd 2>/dev/null || true
-      if systemctl list-unit-files | grep -q "wireguard-wg-medinix.service"; then
+      if systemctl list-unit-files | grep -q \"wireguard-wg-medinix.service\"; then
         sudo systemctl restart wireguard-wg-medinix.service 2>/dev/null || true
-      elif systemctl list-unit-files | grep -q "wg-quick-wg-medinix.service"; then
-        sudo systemctl restart wg-quick-wg-medinix.service 2>/dev/null || true
-      else
-        sudo wg-quick down "$REMOTE_VPN_DIR/wg-medinix.conf" 2>/dev/null || true
-        sudo wg-quick up "$REMOTE_VPN_DIR/wg-medinix.conf" 2>/dev/null || true
       fi
     '"
 
@@ -399,8 +388,8 @@ NIX
   gum style --border rounded --padding "1 2" --border-foreground 10 \
     "🎉 AUSROLLEN ERFOLGREICH!" \
     "" \
-    "✓ WireGuard .conf atomar nach $REMOTE_VPN_DIR/wg-medinix.conf ausgerollt (0600 root:root)" \
-    "✓ PrivateKey via TPM als $REMOTE_SECRETS_DIR/wg-key.encrypted versiegelt" \
+    "✓ PrivateKey via TPM2 als $REMOTE_SECRETS_DIR/wg-key.encrypted versiegelt (--not-after=+365d)" \
+    "✓ 0 Plaintext-Schlüssel auf Platte (ADR-521 konform)" \
     "✓ SABnzbd geordnet gestoppt, Konfiguration aktualisiert und wieder gestartet" \
     "✓ Status: $remote_status" \
     "✓ VPN-Endpoint: $endpoint"

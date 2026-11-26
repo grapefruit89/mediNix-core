@@ -269,6 +269,8 @@ in
               "lo"
               vpnIf
             ];
+            # S-06 / S-07: Least-Privilege Socket-Binding (ausschließlich auf den SABnzbd-Port binden)
+            SocketBindAllow = [ "ipv4:tcp:${toString port}" ];
           })
           (lib.mkIf (svc.secrets.usenetEnvFile or null != null) {
             EnvironmentFile = [ svc.secrets.usenetEnvFile ];

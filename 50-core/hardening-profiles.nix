@@ -56,9 +56,6 @@ rec {
   # mkForce ist laut BANNED §2 verboten.
   networkPolicy.confined = {
     SocketBindDeny = [ "any" ];
-    SocketBindAllow = [
-      "1024-65535"
-    ];
   };
 
   base = {

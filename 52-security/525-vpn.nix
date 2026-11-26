@@ -85,6 +85,11 @@ in
               default = [ ];
               description = "Explicitly allowed LAN destinations for this service.";
             };
+            localAllow = lib.mkOption {
+              type = lib.types.listOf lib.types.port;
+              default = [ ];
+              description = "Explizit erlaubte ausgehende TCP-Zielports auf 127.0.0.1 (Loopback East-West). Default [] = Zero-Trust.";
+            };
           };
         }
       );
@@ -134,6 +139,7 @@ in
       networking.wireguard.interfaces.${ifName} = {
         ips = vpn.address;
         privateKeyFile = credMount;
+        allowedIPsAsRoutes = false;
 
         peers = lib.optional (vpn.peer.publicKey != "") {
           publicKey = vpn.peer.publicKey;
@@ -231,26 +237,64 @@ in
 
       networking.nftables.tables.medinix_vpn_filter = lib.mkIf config.networking.nftables.enable {
         family = "inet";
-        content = ''
-          chain killswitch {
-            type filter hook output priority 0; policy accept;
-            ${lib.concatMapStringsSep "\n" (name: ''
-              meta skuid ${toString activeInstances.${name}.uid} jump kill_${name}
-            '') (lib.attrNames activeInstances)}
-          }
-          ${lib.concatMapStringsSep "\n" (name: ''
-            chain kill_${name} {
-              oifname "lo" counter return
-              ip daddr 127.0.0.0/8 counter return
-              ip6 daddr ::1/128 counter return
-              ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != [ ]) ''
-                ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
-              ''}
-              meta mark ${mark} oifname "${vpnIf}" accept
-              counter drop
+        content =
+          let
+            v4Dns = lib.filter (d: !(lib.hasInfix ":" d)) ksCfg.dnsServers;
+            v6Dns = lib.filter (d: lib.hasInfix ":" d) ksCfg.dnsServers;
+            v4DnsSet = lib.concatStringsSep ", " v4Dns;
+            v6DnsSet = lib.concatStringsSep ", " v6Dns;
+          in
+          ''
+            chain killswitch {
+              type filter hook output priority 0; policy accept;
+              ${lib.concatMapStringsSep "\n" (name: ''
+                meta skuid ${toString activeInstances.${name}.uid} jump kill_${name}
+              '') (lib.attrNames activeInstances)}
             }
-          '') (lib.attrNames activeInstances)}
-        '';
+            ${lib.concatMapStringsSep "\n" (name: ''
+              chain kill_${name} {
+                # S-06: 1) Nur Antwortpakete auf eingehende Verbindungen (Caddy/*arr/Gatus -> 127.0.0.1)
+                oifname "lo" ct state established,related ct direction reply counter accept
+
+                # S-06: 2) Explizite East-West-Allowlist (nur 127.0.0.1 + definierter TCP-Zielport)
+                ${lib.optionalString (activeInstances.${name}.localAllow != [ ]) ''
+                  oifname "lo" ip daddr 127.0.0.1 tcp dport { ${
+                    lib.concatMapStringsSep ", " toString activeInstances.${name}.localAllow
+                  } } counter accept
+                ''}
+
+                # S-06: 3) Alle uebrigen lokalen Ziele (lo, 127/8, ::1) hart droppen
+                oifname "lo" counter drop
+                ip daddr 127.0.0.0/8 counter drop
+                ip6 daddr ::1/128 counter drop
+
+                # 4) Explizite LAN-CIDRs
+                ${lib.optionalString (activeInstances.${name}.allowedLanCidrs != [ ]) ''
+                  ip daddr { ${lib.concatStringsSep ", " activeInstances.${name}.allowedLanCidrs} } accept
+                ''}
+
+                # DNS-Leak-Schutz: Ausschließlich an konfigurierte VPN-DNS-Server durch den Tunnel
+                ${lib.optionalString (v4DnsSet != "") ''
+                  ip daddr { ${v4DnsSet} } udp dport 53 meta mark ${mark} oifname "${vpnIf}" accept
+                  ip daddr { ${v4DnsSet} } tcp dport 53 meta mark ${mark} oifname "${vpnIf}" accept
+                ''}
+                ${lib.optionalString (ksCfg.ipv6 && v6DnsSet != "") ''
+                  ip6 daddr { ${v6DnsSet} } udp dport 53 meta mark ${mark} oifname "${vpnIf}" accept
+                  ip6 daddr { ${v6DnsSet} } tcp dport 53 meta mark ${mark} oifname "${vpnIf}" accept
+                ''}
+                udp dport { 53, 853, 5353 } counter drop
+                tcp dport { 53, 853 } counter drop
+
+                # IPv6 bei IPv4-only VPN verwerfen
+                ${lib.optionalString (!ksCfg.ipv6) ''
+                  meta nfproto ipv6 counter drop
+                ''}
+
+                meta mark ${mark} oifname "${vpnIf}" accept
+                counter drop
+              }
+            '') (lib.attrNames activeInstances)}
+          '';
       };
 
       systemd.services =
@@ -281,8 +325,26 @@ in
                     ${pkgs.iproute2}/bin/ip rule add fwmark ${mark} table ${table} priority 1000
                   fi
 
+                  # S-08: Kernel-RPDB uidrange Regel fuer Fail-Closed selbst bei nftables-Stop
+                  ${lib.concatMapStringsSep "\n" (name: ''
+                    uidStr="${toString activeInstances.${name}.uid}"
+                    if ! ${pkgs.iproute2}/bin/ip rule show | grep -Eq "uidrange $uidStr-$uidStr lookup ${table}"; then
+                      ${pkgs.iproute2}/bin/ip rule add uidrange "$uidStr-$uidStr" table ${table} priority 900
+                    fi
+                    ${
+                      if ksCfg.ipv6 then
+                        ''
+                          if ! ${pkgs.iproute2}/bin/ip -6 rule show | grep -Eq "uidrange $uidStr-$uidStr lookup ${table}"; then
+                            ${pkgs.iproute2}/bin/ip -6 rule add uidrange "$uidStr-$uidStr" table ${table} priority 900
+                          fi
+                        ''
+                      else
+                        ""
+                    }
+                  '') (lib.attrNames activeInstances)}
+
                   ${pkgs.iproute2}/bin/ip route replace unreachable default table ${table} metric 100
-                  src_ip=$(${pkgs.iproute2}/bin/ip -4 addr show dev ${vpnIf} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+                  src_ip=$(${pkgs.iproute2}/bin/ip -4 addr show dev ${vpnIf} 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1 || true)
                   if [ -n "$src_ip" ]; then
                     ${pkgs.iproute2}/bin/ip route replace default dev ${vpnIf} table ${table} src $src_ip metric 10
                   else
@@ -302,7 +364,7 @@ in
                           ${pkgs.iproute2}/bin/ip -6 rule add fwmark ${mark} table ${table} priority 1000
                         fi
                         ${pkgs.iproute2}/bin/ip -6 route replace unreachable default table ${table} metric 100
-                        if ${pkgs.iproute2}/bin/ip -6 addr show dev ${vpnIf} | grep -q inet6; then
+                        if ${pkgs.iproute2}/bin/ip -6 addr show dev ${vpnIf} 2>/dev/null | grep -q inet6; then
                           ${pkgs.iproute2}/bin/ip -6 route replace default dev ${vpnIf} table ${table} metric 10
                         fi
                         ${pkgs.iproute2}/bin/ip -6 rule show | grep -Eq "fwmark (${mark}|$hexmark) lookup ${table}" || {
@@ -322,14 +384,35 @@ in
               requires = [ "medinix-vpn-route.service" ];
               after = [ "medinix-vpn-route.service" ];
               serviceConfig = {
-                BindReadOnlyPaths = [ "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf" ];
+                BindReadOnlyPaths = [
+                  "/etc/medinix-killswitch-resolv.conf:/etc/resolv.conf"
+                  "/etc/medinix-killswitch-nsswitch.conf:/etc/nsswitch.conf"
+                ];
+                InaccessiblePaths = [
+                  "-/run/nscd"
+                  "-/run/systemd/resolve"
+                  "-/run/dbus/system_bus_socket"
+                  "-/run/avahi-daemon"
+                  "-/run/caddy"
+                  "-/run/caddy-media"
+                  "-/run/pocket-id"
+                  "-/run/oauth2-proxy"
+                  "-/run/ntfy"
+                ];
               };
             }) activeInstances
           );
 
-      environment.etc."medinix-killswitch-resolv.conf".text = lib.concatMapStrings (
-        dns: "nameserver ${dns}\n"
-      ) ksCfg.dnsServers;
+      environment.etc."medinix-killswitch-resolv.conf".text =
+        lib.concatMapStrings (dns: "nameserver ${dns}\n") ksCfg.dnsServers
+        + "options timeout:2 attempts:2 single-request\n";
+
+      environment.etc."medinix-killswitch-nsswitch.conf".text = ''
+        passwd: files
+        group:  files
+        shadow: files
+        hosts:  files dns
+      '';
     })
   ];
 }
