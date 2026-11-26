@@ -37,7 +37,6 @@ Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
 | Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
 
 **Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/`.
-Die alte Wissensbank (`ARCH-50-*`) liegt vollständig in `docs/audit/2026-11-07/legacy-arch/`.
 
 ## 🗺 Service Map
 
