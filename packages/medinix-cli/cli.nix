@@ -225,7 +225,49 @@ pkgs.writeShellApplication {
     }
 
     cmd_secrets() {
-      ls -l /var/lib/medinix/secrets/*.encrypted 2>/dev/null || echo "none"
+      local sub="''${1:-list}"
+      local name="''${2:-}"
+      local dir="/var/lib/medinix/secrets"
+      case "$sub" in
+        list|ls)
+          printf '%-18s %-12s %s\n' "SECRET" "STATUS" "DATEI"
+          for key in cf-acme cf-ddns wg-key sabnzbd-apikey restic jellyfin-admin speedport; do
+            if [ -f "$dir/$key.encrypted" ]; then
+              printf '%-18s %-12s %s\n' "$key" "versiegelt" "$dir/$key.encrypted"
+            else
+              printf '%-18s %-12s %s\n' "$key" "fehlt" "-"
+            fi
+          done
+          ;;
+        show|view|decrypt)
+          [ -z "$name" ] && { echo "usage: medinix secrets show <name>" >&2; return 1; }
+          systemd-creds decrypt "$dir/$name.encrypted" -
+          ;;
+        set|seal|encrypt)
+          [ -z "$name" ] && { echo "usage: medinix secrets set <name> [wert]" >&2; return 1; }
+          local cred="$name"
+          case "$name" in
+            *-apikey) cred="''${name%-apikey}-api-key" ;;
+            speedport) cred="speedport-password" ;;
+          esac
+          install -d -m 0750 "$dir"
+          if [ -n "''${3:-}" ]; then
+            printf '%s' "$3" | systemd-creds encrypt --name="$cred" - "$dir/$name.encrypted"
+          else
+            systemd-creds encrypt --name="$cred" - "$dir/$name.encrypted"
+          fi
+          chmod 0640 "$dir/$name.encrypted"
+          echo "Secret '$name' versiegelt ($dir/$name.encrypted)"
+          ;;
+        rm|del|delete)
+          [ -z "$name" ] && { echo "usage: medinix secrets rm <name>" >&2; return 1; }
+          rm -f "$dir/$name.encrypted"
+          echo "Secret '$name' geloescht."
+          ;;
+        *)
+          echo "Usage: medinix secrets {list|show <name>|set <name> [wert]|rm <name>}" >&2
+          ;;
+      esac
     }
 
     cmd=help
@@ -235,12 +277,12 @@ pkgs.writeShellApplication {
     elif [ "$cmd" = repair ]; then cmd_repair
     elif [ "$cmd" = status ]; then cmd_status
     elif [ "$cmd" = vpn ]; then cmd_vpn
-    elif [ "$cmd" = secrets ]; then cmd_secrets
+    elif [ "$cmd" = secrets ]; then cmd_secrets "''${1:-}" "''${2:-}" "''${3:-}"
     elif [ "$cmd" = ids ]; then cmd_ids "''${1:-}"
     elif [ "$cmd" = show ]; then cmd_show "''${1:-}"
     elif [ "$cmd" = logs ]; then cmd_logs "''${1:-}" "''${2:-50}"
     elif [ "$cmd" = triage ]; then cmd_triage "''${1:-}"
-    else echo "Usage: medinix {ids [bereich]|show <svc>|logs <svc> [n]|triage <bereich|svc|symptom>|check|repair|status|vpn|secrets}"
+    else echo "Usage: medinix {ids [bereich]|show <svc>|logs <svc> [n]|triage <bereich|svc|symptom>|check|repair|status|vpn|secrets [action]}"
     fi
   '';
 }
