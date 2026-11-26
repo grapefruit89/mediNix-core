@@ -30,7 +30,12 @@ Auf klassischen Medienservern laufen mechanische Festplatten (HDDs) oft 24/7 ode
 4. **Schreiblast durch Transcoding:** Transcode-Segmente werden auf SSDs/Festplatten geschrieben und verbrennen I/O und TBW-Lebensdauer.
 
 ### Die Ziel-Metrik: „22+ Stunden Deep Sleep & Echte Plattenruhe“
-* **Festplatten-Zustand:** Mechanische HDDs verbleiben über 22 Stunden pro Tag im `standby`.
+* **Festplatten-Zustand:** Mechanische HDDs verbleiben über 22 Stunden pro Tag im `standby` (Standard-Spindown-Timeout: **120 Minuten** via `medinix.diskHealth.spindownDelayMinutes = 120` / `hdparm -S 244`).
+* **RAM-Directory-Cache:** `boot.kernel.sysctl."vm.vfs_cache_pressure" = 10` (`570-storage.nix`) hält Dentries/Inodes im RAM, damit Library-Browsing die HDDs nicht weckt.
+* **Spindown- & Spin-up-Telemetrie (`587-disk-health`):** Alle 60 Sekunden fragt `medinix-disk-power` lautlos per `hdparm -C` (0 Spin-up) den SATA-Controller ab und protokolliert Zustandswechsel ins Journal:
+  ```bash
+  journalctl -t medinix-disk-power
+  ```
 * **Aufwach-Bedingung 1:** Ein Benutzer drückt aktiv auf „Play“ für einen bestehenden Film auf dem HDD-Array.
 * **Aufwach-Bedingung 2:** Der nächtliche Mover schaufelt fertige Downloads von der SSD auf die HDDs.
 * **Niemals Aufwachen:** Reine Bibliotheks-Checks, Metadaten-Scans oder Intro-Analysen dürfen niemals eigenständig schlafende Festplatten starten!

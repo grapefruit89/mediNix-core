@@ -71,6 +71,9 @@ in
       # Ensure media group (sharedGid, SSoT: 50-core/derive.nix)
       users.groups.media = lib.mkDefault { gid = (import ../50-core/derive.nix).sharedGid; };
 
+      # Dentry/inode cache im RAM halten, damit Directory-Listings die HDD nicht wecken
+      boot.kernel.sysctl."vm.vfs_cache_pressure" = lib.mkDefault 10;
+
       medinix.recommended.mountOptions = {
         hdd = [
           "noatime"

@@ -65,10 +65,20 @@ let
         echo "Mover: archiveDir must be physical Tier-3 mount, not mergerfs"; exit 1;
       }
 
-      # Gate 2: SSD-Fuellstand + Arbeitsvorrat (0 HDD-Zugriff)
+      # Gate 2: SSD-Fuellstand + Video-Kandidaten (0 HDD-Zugriff; nur Videocontainer >= minFileSize)
       free_kb=$(df -Pk "$STAGING" | awk 'NR==2{print $4}')
       [ "$free_kb" -ge "$MIN_FREE_KB" ] && exit 0
-      mapfile -d $'\0' candidates < <(find "$STAGING" -mindepth 1 -type d -print0 | sort -z)
+      mapfile -d $'\0' candidates < <(
+        find "$STAGING" \
+          ${
+            lib.optionalString (
+              !cfg.moveAudiobooks
+            ) ''\( -path "$STAGING/audiobooks" -o -path "*/audiobooks" \) -prune -o''
+          } \
+          -type f -size "+${cfg.minFileSize}" ! -mmin -5 \
+          \( -iname '*.mkv' -o -iname '*.mp4' -o -iname '*.avi' -o -iname '*.m4v' -o -iname '*.ts' \) \
+          -print0 | sort -z
+      )
       [ "''${#candidates[@]}" -gt 0 ] || exit 0
 
       # Gate 3 + 4: Piggybacking & I/O-Contention-Schutz (HDD dreht, kein aktiver Stream)
@@ -121,7 +131,7 @@ let
         fi
       fi
 
-      # Arbeit: ganze Release-Ordner atomar verschieben (Temp ausserhalb der Union)
+      # Arbeit: ausschließlich gefilterte Videodateien atomar verschieben (Temp ausserhalb der Union)
       LOCK_FILE="/run/medinix-mover/mover.lock"
       exec 200>"$LOCK_FILE"
       flock -n 200 || exit 0
@@ -131,35 +141,33 @@ let
       find "$TMP" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 
       CURRENT_TMP=""
-      cleanup() { [ -n "$CURRENT_TMP" ] && rm -rf "$CURRENT_TMP" 2>/dev/null || true; }
+      cleanup() { [ -n "$CURRENT_TMP" ] && rm -f "$CURRENT_TMP" 2>/dev/null || true; }
       trap cleanup EXIT INT TERM
 
-      for dir in "''${candidates[@]}"; do
-        [ -d "$dir" ] || continue
+      for src_file in "''${candidates[@]}"; do
+        [ -f "$src_file" ] || continue
         [ "$(df -Pk "$STAGING" | awk 'NR==2{print $4}')" -ge "$MIN_FREE_KB" ] && break
-        find "$dir" -maxdepth 1 -type f -size +50M -print -quit | grep -q . || continue
-        find "$dir" -mmin -5 -print -quit | grep -q . && continue
 
-        rel="''${dir#"$STAGING"/}"
+        rel="''${src_file#"$STAGING"/}"
         dst="$ARCHIVE/$rel"
         [ -e "$dst" ] && { echo "Mover: collision $rel — skip"; continue; }
 
-        tmp_dst="$(mktemp -d -p "$TMP" 'rel_XXXXXX')"
-        CURRENT_TMP="$tmp_dst"
+        tmp_file="$(mktemp -p "$TMP" 'mov_XXXXXX')"
+        CURRENT_TMP="$tmp_file"
         mkdir -p "$(dirname "$dst")"
 
-        if ionice -c 3 cp -a --reflink=auto "$dir/." "$tmp_dst/" \
-           && sync -f "$tmp_dst" \
-           && mv -T "$tmp_dst" "$dst"; then
+        if ionice -c 3 cp -a --reflink=auto "$src_file" "$tmp_file" \
+           && sync -f "$tmp_file" \
+           && mv -T "$tmp_file" "$dst"; then
           CURRENT_TMP=""
-          rm -rf "$dir"
-          parent="$(dirname "$dir")"
+          rm -f "$src_file"
+          parent="$(dirname "$src_file")"
           while [ "$parent" != "$STAGING" ] && rmdir "$parent" 2>/dev/null; do
             parent="$(dirname "$parent")"
           done
           echo "Mover: moved $rel"
         else
-          rm -rf "$tmp_dst" 2>/dev/null || true
+          rm -f "$tmp_file" 2>/dev/null || true
           CURRENT_TMP=""
         fi
       done
@@ -203,6 +211,10 @@ in
         {
           assertion = !active || (cfg.criticalFreeGb >= 0 && cfg.criticalFreeGb < cfg.minFreeGb);
           message = "[mediNix/543-mover] criticalFreeGb muss >= 0 und strikt < minFreeGb sein.";
+        }
+        {
+          assertion = !active || cfg.moveAudiobooks || (builtins.baseNameOf stagingStr != "audiobooks");
+          message = "[mediNix/543-mover] Audiobooks verbleiben standardmaessig auf Tier-B (SSD). Setze moveAudiobooks = true fuer Tier-C.";
         }
       ];
     }

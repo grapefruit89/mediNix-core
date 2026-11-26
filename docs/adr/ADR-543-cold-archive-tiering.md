@@ -14,7 +14,7 @@ links:
 Der einzige legitime Grund für den Mover in einem Tiered-Setup ist **Write-Batching**: mehrere Importe am Tag bündeln und erst wegschreiben, wenn die Archiv-HDD ohnehin läuft und gerade nicht gestreamt wird. Ein naiver Mover weckt bei jedem Download-Event die HDD, zerreisst Releases in Einzeldateien (`.mkv` auf HDD, `.srt`/`.nfo` auf SSD) oder verursacht durch Vollgas-Writes Head-Thrashing während Jellyfin-Streams.
 
 ## Entscheidung
-- **Ganze Release-Ordner statt Einzeldateien:** Der Mover (`543-mover.nix`) verschiebt komplette Release-Verzeichnisse atomar (`.mkv`, `.nfo`, `.srt`, `.jpg`, `Subs/` bleiben zusammen).
+- **Strikte Video-Whitelist statt Junk-Transfer:** Der Mover (`543-mover.nix`) verschiebt ausschließlich große Videocontainer (`.mkv`, `.mp4`, `.avi`, `.m4v`, `.ts` mit `-size +100M`, konfigurierbar via `medinix.mover.minFileSize`) unter Beibehaltung der Verzeichnisstruktur. Klein- und Begleitdateien (`.nfo`, `.txt`, `.sfv`, `.srr`, `.jpg`, `.png`, `.log`, `.parts`, Samples `< 100M`) sowie **Audiobooks** (`moveAudiobooks = false` Default) verbleiben dauerhaft auf Tier-B (SSD); MergerFS vereint beide Tiers nahtlos in derselben Ordneransicht.
 - **4-Gate-Pipeline (strikte Reihenfolge gegen unnötige HDD-Wakes):**
   1. **Gate 1 (Pfade & Mount-Schutz):** `stagingDir != archiveDir`, Ziel-Mountpoint != `/`, Ziel ist physischer Mount (`!= fuse.mergerfs`). 0 HDD-I/O.
   2. **Gate 2 (Füllstand & Vorrat auf SSD):** `free >= minFreeGb` oder keine Kandidaten auf SSD -> sofort `exit 0`. 0 HDD-I/O.

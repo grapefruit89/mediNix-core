@@ -236,6 +236,22 @@ in
           `/sys/block/<dev>/stat`-Prüfung. null = automatische Ableitung aus archiveDir.
         '';
       };
+      minFileSize = lib.mkOption {
+        type = lib.types.str;
+        default = "100M";
+        description = ''
+          Mindestgröße für Videocontainer (find -size +...), die auf Tier-C (HDD)
+          verschoben werden dürfen. Verhindert Winzdateien, Samples und Junk auf HDDs.
+        '';
+      };
+      moveAudiobooks = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Ob Audiobooks (*/audiobooks/*) vom Mover auf Tier-C (HDD) verschoben werden dürfen.
+          Standard false: Audiobooks verbleiben auf dem SSD-Tier.
+        '';
+      };
       stagingDir = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
@@ -1090,6 +1106,27 @@ in
         type = lib.types.bool;
         default = true;
         description = "Send SMART failure alerts to internal ntfy (port 5810).";
+      };
+      spindownDelayMinutes = lib.mkOption {
+        type = lib.types.ints.between 0 330;
+        default = 120;
+        description = ''
+          ATA standby spindown delay in minutes applied to rotational disks via hdparm -S.
+          Default 120 minutes (hdparm -S 244). 0 disables setting spindown timeout.
+        '';
+      };
+      powerLogging = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Enable silent ATA standby/active transition logging to journald
+          (SYSLOG_IDENTIFIER=medinix-disk-power) using hdparm -C (0 spin-ups).
+        '';
+      };
+      powerCheckInterval = lib.mkOption {
+        type = lib.types.str;
+        default = "60s";
+        description = "Monotonic systemd timer interval for silent power-state checks.";
       };
     };
 

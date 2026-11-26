@@ -72,7 +72,8 @@ graph TD
   585_exporters["585-exporters"]
   586_vpn_selftest["586-vpn-selftest"] --> registry["50-core/registry"]
   586_vpn_selftest["586-vpn-selftest"] --> hardening_profiles["50-core/hardening-profiles"]
-  587_disk_health["587-disk-health"]
+  587_disk_health["587-disk-health"] --> hardening_profiles["50-core/hardening-profiles"]
+  587_disk_health["587-disk-health"] --> registry["50-core/registry"]
   588_update_notifier["588-update-notifier"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 

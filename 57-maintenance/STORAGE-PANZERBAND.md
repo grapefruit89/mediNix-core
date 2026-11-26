@@ -96,11 +96,32 @@ fileSystems."/srv/media" = {
 ## 4. Der intelligente Mover & die Filter-Regeln
 
 ### Filter-Regel (Keine Winz-Dateien auf die HDD!):
-* **Erlaubt auf HDD:** Große Mediendateien (`.mkv`, `.mp4`, `.avi`, `.m4v`, `.ts`).
-* **Verboten auf HDD:** Textdateien, NFOs, SFVs, Samples, Unrar-Reste (`.nfo`, `.txt`, `.sfv`, `.jpg`, `.png`, `.log`).
-* **Audiobooks:** Bleiben standardmäßig auf Tier 2 (SSD), es sei denn, sie werden explizit für Tier 3 freigegeben.
+* **Erlaubt auf HDD:** Ausschließlich Videocontainer (`.mkv`, `.mp4`, `.avi`, `.m4v`, `.ts`) ab Mindestgröße `>= 100M` (`medinix.mover.minFileSize = "100M"`).
+* **Verboten auf HDD:** Textdateien, NFOs, SFVs, SRRs, Bilder, Logs, Samples, Partial-Reste (`.nfo`, `.txt`, `.sfv`, `.srr`, `.jpg`, `.png`, `.log`, `.parts`) sowie Dateien `< 100M` verbleiben dauerhaft auf der SSD.
+* **Audiobooks:** Bleiben standardmäßig auf Tier 2 (SSD) (`medinix.mover.moveAudiobooks = false`), es sei denn, sie werden explizit für Tier 3 freigegeben.
 
 ### Das Piggybacking-Prinzip mit Contention-Schutz:
 1. **Schlaf-Check:** Schläft die HDD? $\rightarrow$ Mover macht GAR NICHTS (`exit 0`).
 2. **Streaming-Check:** Liest Jellyfin gerade aus der HDD? $\rightarrow$ Mover bricht ab (`defer`), um Ruckler zu verhindern!
 3. **Windschatten:** Erst wenn die Platte noch dreht, aber kein Lesezugriff stattfindet, schiebt der Mover mit `ionice -c 3` (niedrigste I/O-Priorität) die Dateien rüber.
+
+---
+
+## 5. Spindown-Timeout, RAM-Cache & Power-Event-Logging (`587-disk-health`)
+
+* **120-Minuten Spindown-Timeout:** `medinix.diskHealth.spindownDelayMinutes = 120` (Default) konfiguriert den ATA-Standby-Timer per `hdparm -S 244` auf allen überwachten Rotations-HDDs.
+* **Kernel Dentry/Inode Cache:** `570-storage.nix` setzt `boot.kernel.sysctl."vm.vfs_cache_pressure" = lib.mkDefault 10;`, damit Verzeichnisbäume maximal lange im RAM bleiben.
+* **Lautloses Power-Event-Logging (0 Spin-up):** Alle 60 Sekunden (`medinix-disk-power.timer`) prüft `hdparm -C` den SATA-Power-State und loggt ausschließlich echte Zustandswechsel ins Journal (`SYSLOG_IDENTIFIER=medinix-disk-power`):
+  ```bash
+  # Vollständige Spin-up-/Spindown-Historie anzeigen:
+  journalctl -t medinix-disk-power
+
+  # Live verfolgen / heutige Events prüfen:
+  journalctl -t medinix-disk-power -f
+  journalctl -t medinix-disk-power --since today
+  ```
+  Beispielausgaben:
+  ```text
+  [SPIN-UP] /dev/sda woke up after 14 hours 22 minutes in standby
+  [SPINDOWN] /dev/sda entered standby after 0 hours 45 minutes active runtime
+  ```
