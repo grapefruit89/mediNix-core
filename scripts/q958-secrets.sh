@@ -348,10 +348,13 @@ WGEOF
   gum spin --spinner dot --title "Stoppe SABnzbd und aktualisiere WireGuard Interface..." -- \
     ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
       sudo systemctl stop sabnzbd 2>/dev/null || true
-      if systemctl list-unit-files | grep -q \"wireguard-wg-medinix.service\"; then
+      if systemctl list-unit-files | grep -q "wireguard-wg-medinix.service"; then
         sudo systemctl restart wireguard-wg-medinix.service 2>/dev/null || true
-      elif systemctl list-unit-files | grep -q \"wg-quick-wg-medinix.service\"; then
+      elif systemctl list-unit-files | grep -q "wg-quick-wg-medinix.service"; then
         sudo systemctl restart wg-quick-wg-medinix.service 2>/dev/null || true
+      else
+        sudo wg-quick down "$REMOTE_VPN_DIR/wg-medinix.conf" 2>/dev/null || true
+        sudo wg-quick up "$REMOTE_VPN_DIR/wg-medinix.conf" 2>/dev/null || true
       fi
     '"
 
@@ -360,7 +363,11 @@ WGEOF
   remote_status=$(ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
     sudo systemctl start sabnzbd 2>/dev/null || true
     SAB_ACT=\$(systemctl is-active sabnzbd 2>/dev/null || echo \"inactive\")
-    WG_ACT=\$(systemctl is-active wireguard-wg-medinix 2>/dev/null || systemctl is-active wg-quick-wg-medinix 2>/dev/null || echo \"interface-configured\")
+    if sudo wg show wg-medinix >/dev/null 2>&1; then
+      WG_ACT=\"active\"
+    else
+      WG_ACT=\"inactive\"
+    fi
     HANDSHAKE=\$(sudo wg show wg-medinix latest-handshakes 2>/dev/null | awk \"{print \\\$2}\" || echo \"none\")
     echo \"SAB_ACT=\$SAB_ACT|WG_ACT=\$WG_ACT|HANDSHAKE=\$HANDSHAKE\"
   '")
