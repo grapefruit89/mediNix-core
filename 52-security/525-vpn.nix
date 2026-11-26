@@ -150,9 +150,13 @@ in
       };
 
       systemd.services."wireguard-${ifName}" = {
-        serviceConfig.LoadCredentialEncrypted = [
-          "wg-private-key:${vpn.privateKeyCredentialPath}"
-        ];
+        serviceConfig = {
+          LoadCredentialEncrypted = [
+            "wg-private-key:${vpn.privateKeyCredentialPath}"
+          ];
+          Restart = "always";
+          RestartSec = "5s";
+        };
       };
     })
 

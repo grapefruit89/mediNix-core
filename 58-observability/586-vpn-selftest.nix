@@ -50,6 +50,8 @@ let
       pkgs.curl
       pkgs.coreutils
       pkgs.gnugrep
+      pkgs.gawk
+      pkgs.wireguard-tools
     ];
     text = ''
       set -euo pipefail
@@ -78,7 +80,23 @@ let
         fi
       fi
 
-      # 3. Alerting bei Fehlschlag
+      # 3. Handshake-Check: Wenn Peers konfiguriert sind, pruefe auf frischen Handshake (max. 180s)
+      if [ "$FAILED" -eq 0 ]; then
+        PEER_COUNT="$(wg show "$VPN_IF" peers 2>/dev/null | wc -w || echo 0)"
+        if [ "$PEER_COUNT" -gt 0 ]; then
+          LATEST_HS="$(wg show "$VPN_IF" latest-handshakes 2>/dev/null | awk '{print $2}' | sort -nr | head -n1 || echo 0)"
+          NOW="$(date +%s)"
+          if [ "$LATEST_HS" -eq 0 ]; then
+            FAILED=1
+            ERR_MSG="VPN-Peer hat noch NIE einen Handshake aufgebaut!"
+          elif [ "$((NOW - LATEST_HS))" -gt 180 ]; then
+            FAILED=1
+            ERR_MSG="VPN-Handshake abgerissen (letzter vor $((NOW - LATEST_HS))s > 180s)! Tunnel ist tot."
+          fi
+        fi
+      fi
+
+      # 4. Alerting bei Fehlschlag
       if [ "$FAILED" -ne 0 ]; then
         echo "VPN-Selftest FEHLGESCHLAGEN: $ERR_MSG" >&2
         curl -s -d "VPN Killswitch Alarm: $ERR_MSG" \
@@ -89,7 +107,7 @@ let
         exit 1
       fi
 
-      echo "VPN-Selftest ERFOLGREICH: Killswitch und Interface $VPN_IF sind aktiv und konsistent."
+      echo "VPN-Selftest ERFOLGREICH: Killswitch, Interface $VPN_IF und Peer-Handshake sind aktiv und konsistent."
     '';
   };
 in
@@ -103,8 +121,8 @@ in
 
     interval = lib.mkOption {
       type = lib.types.str;
-      default = "hourly";
-      description = "systemd.timer-Intervall fuer den VPN-Selftest.";
+      default = "*:0/5";
+      description = "systemd.timer-Intervall fuer den VPN-Selftest (Watchdog alle 5 Minuten).";
     };
   };
 

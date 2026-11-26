@@ -74,6 +74,12 @@ in
         Erfordert: systemd-creds encrypt --with-key=tpm2+host (siehe ONBOARDING.md).
       '';
     };
+
+    allowUnconfinedEgress = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Expliziter Poka-Yoke-Override: Erlaubt SABnzbd ungeschuetzt ohne VPN zu laufen (Gefahr von IP-Leaks). Default false = Fail-Closed.";
+    };
   };
 
   config = lib.mkMerge [
@@ -122,6 +128,20 @@ in
     # ── 2. RUNTIME & SYSTEMD (Nur aktiv wenn cfg.enable = true) ─────────────
     (lib.mkIf cfg.enable {
       assertions = [
+        {
+          assertion = svc.usenet-confinement.enable || cfg.allowUnconfinedEgress;
+          message = ''
+            [mediNix/541-sabnzbd] POKA-YOKE: FEHLBEDIENUNGSSCHUTZ AKTIV!
+            SABnzbd ist aktiviert (medinix.sabnzbd.enable = true), aber 'medinix.usenet-confinement.enable' ist false!
+            Usenet-Traffic darf niemals ungeschuetzt ueber das LAN/WAN geleitet werden.
+
+            BEHEBUNG:
+            Aktiviere das VPN-Confinement in deiner Konfiguration:
+              medinix.usenet-confinement.enable = true;
+            Oder falls dieser unverschluesselte Egress wirklich beabsichtigt ist:
+              medinix.sabnzbd.allowUnconfinedEgress = true;
+          '';
+        }
         {
           assertion = config.services.sabnzbd.settings.misc.port == meta.port;
           message = "[mediNix/541-sabnzbd] Port-Konflikt: SABnzbd MUSS auf ${toString meta.port} laufen.";

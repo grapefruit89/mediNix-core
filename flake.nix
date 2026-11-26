@@ -191,6 +191,7 @@
           self.nixosModules.default
           {
             medinix.enable = true;
+            medinix.sabnzbd.allowUnconfinedEgress = lib.mkDefault true;
             boot.loader.grub.enable = false;
             fileSystems."/" = {
               device = "none";
@@ -975,6 +976,15 @@
           medinix.usenet-confinement.enable = true;
           medinix.sabnzbd.enable = true;
         };
+        # Poka-Yoke: SABnzbd ohne usenet-confinement und ohne allowUnconfinedEgress muss scheitern
+        checks.mediNix-negative-sabnzbd-unconfined =
+          expectAssertion "sabnzbd-unconfined" "POKA-YOKE: FEHLBEDIENUNGSSCHUTZ AKTIV"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.sabnzbd.enable = true;
+              medinix.sabnzbd.allowUnconfinedEgress = false;
+              medinix.usenet-confinement.enable = false;
+            };
         # F4: landing enabled + empty trustedCidrs must fail (landing must not
         # bypass the CIDR trust boundary).
         checks.mediNix-negative-landing-cidrs = expectAssertion "landing-cidrs" "trustedCidrs is empty" {
