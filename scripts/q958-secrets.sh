@@ -80,6 +80,7 @@ list_secrets_menu() {
   done <<< "$existing_raw"
 
   items+=("🚀 [WireGuard .conf 1:1 ausrollen & SABnzbd neu starten (z.B. Privado)]")
+  items+=("🛡️  [Systemd Live-Security-Audit vom Q958 ausführen]")
   items+=("➕ [Neues benutzerdefiniertes Secret anlegen]")
   items+=("🚪 [Beenden]")
 
@@ -334,6 +335,27 @@ NIX
   read -r -p "Enter drücken zum Fortfahren..."
 }
 
+audit_live_security() {
+  clear
+  gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
+    "🛡️  Systemd Live-Security-Audit (Q958)" \
+    "Führe systemd-analyze security für mediNix Units aus..."
+
+  local units="sabnzbd.service sonarr.service radarr.service prowlarr.service jellyfin.service caddy-media.service caddy.service pocket-id.service gatus.service"
+
+  local cmd="systemd-analyze security $units 2>/dev/null"
+  if [ "$IS_LOCAL" = true ]; then
+    bash -c "$cmd" || true
+  else
+    ssh -o BatchMode=yes "$SSH_HOST" "$cmd" || true
+  fi
+
+  echo ""
+  gum style --foreground 10 "Audit abgeschlossen. Die Scores zeigen das Härtungs-Level (<= 2.0 = OK/SAFE)."
+  echo ""
+  read -r -p "Enter drücken zum Fortfahren..."
+}
+
 create_new_secret() {
   clear
   gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
@@ -368,6 +390,9 @@ while true; do
       ;;
     *"[WireGuard .conf 1:1 ausrollen"*)
       deploy_wireguard_conf
+      ;;
+    *"[Systemd Live-Security-Audit"*)
+      audit_live_security
       ;;
     *"[Neues benutzerdefiniertes Secret anlegen]"*)
       create_new_secret
