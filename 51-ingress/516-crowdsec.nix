@@ -186,6 +186,8 @@ in
           ProtectControlGroups = "strict";
           ProtectHostname = "true:${config.services.crowdsec.name}";
           ProtectKernelLogs = false;
+          # S-07: CrowdSec LAPI lauscht auf Port 8080
+          SocketBindAllow = [ "ipv4:tcp:8080" ];
         };
       };
 

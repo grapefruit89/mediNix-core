@@ -135,6 +135,23 @@ let
       )
     ]) manifestDaemons
   );
+
+  # UDS-Ratsche: Kein Dienst mit uds_socket = true darf TCP-Ports in SocketBindAllow haben
+  udsServices = lib.filterAttrs (_: s: s.uds_socket or false) svcReg.services;
+  udsViolations = lib.flatten (
+    lib.mapAttrsToList (
+      n: s:
+      let
+        unit = s.unitName or n;
+        unitCfg = config.systemd.services.${unit}.serviceConfig or { };
+        bindAllow = unitCfg.SocketBindAllow or [ ];
+        hasTcpAllow = lib.any (
+          a: lib.hasPrefix "ipv4:tcp:" a || lib.hasPrefix "tcp:" a || a == "any" || a == "1024-65535"
+        ) bindAllow;
+      in
+      lib.optional ((enabledOf n) && hasTcpAllow) "${n} (unit: ${unit})"
+    ) udsServices
+  );
 in
 lib.mkIf cfg.enable {
   # Diese Assertions pruefen den VOLLZUG der Engine: sie lesen die abgeleiteten
@@ -144,6 +161,14 @@ lib.mkIf cfg.enable {
   # (Quelle -> Ableitung). Bedingung (c) jener Ausnahme ist genau dieser Kommentar.
   # Die Quellen-Pruefungen daneben (registry, derive, manifest) bleiben die Regel.
   assertions = [
+    {
+      assertion = udsViolations == [ ];
+      message = ''
+        [mediNix/591] UDS-Ratsche verletzt: Folgende Dienste sind in registry.nix als reiner Unix-Domain-Socket deklariert (uds_socket = true), haben aber TCP-Ports in SocketBindAllow freigegeben:
+        ${lib.concatStringsSep ", " udsViolations}
+        Ein UDS-Dienst darf NIEMALS auf TCP zurückfallen!
+      '';
+    }
     {
       assertion = cfg.usenet-confinement.enable -> confined "sabnzbd";
       message = ''

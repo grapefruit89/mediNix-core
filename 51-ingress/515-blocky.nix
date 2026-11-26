@@ -156,6 +156,8 @@ in
           # braucht die feste UID 5150 (ADR-0000 §4: UID = Port = Primär-GID,
           # UPG + Peer-Isolation), deshalb mkForce false. Siehe Todo 17.
           DynamicUser = lib.mkForce false;
+          # S-07: DNS-Resolver lauscht auf Port 53 (UDP und TCP)
+          SocketBindAllow = [ "53" ];
         };
       }
     );

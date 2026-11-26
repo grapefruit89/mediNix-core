@@ -34,19 +34,41 @@ let
     _: m: m.enable && m.monitoring.enable && m.monitoring.type != "none"
   ) config.medinix.manifest;
 
-  # 1. HTTP-Endpunkte generieren
-  httpEndpoints = lib.mapAttrsToList (_: m: {
-    name = m.ui.title;
-    group = m.ui.group;
-    url = "http://127.0.0.1:${toString m.port}${m.monitoring.healthPath}";
-    interval = "30s";
-    conditions = [
-      "[STATUS] == ${toString m.monitoring.expectedStatus}"
-    ];
-    alerts = lib.optional (svc.ntfy.enable or false) {
-      type = "ntfy";
-    };
-  }) (lib.filterAttrs (_: m: m.monitoring.type == "http") activeServices);
+  svcRegistry = (import ../50-core/registry.nix { inherit lib; }).services;
+
+  # 1. HTTP-Endpunkte generieren (S-13: UDS-Dienste wie Navidrome über Caddy-vHost mit Host-Header abfragen)
+  httpEndpoints = lib.mapAttrsToList (
+    name: m:
+    let
+      regEntry = svcRegistry.${name} or { };
+      isUds = regEntry.uds_socket or false;
+      domain = svc.host.domain;
+      hostHeader = if domain != null then "${name}.${domain}" else "${name}.lan";
+      url =
+        if isUds then
+          "http://127.0.0.1:80${m.monitoring.healthPath}"
+        else
+          "http://127.0.0.1:${toString m.port}${m.monitoring.healthPath}";
+      headers = lib.optionalAttrs isUds {
+        Host = hostHeader;
+      };
+    in
+    {
+      name = m.ui.title;
+      group = m.ui.group;
+      inherit url;
+      interval = "30s";
+      conditions = [
+        "[STATUS] == ${toString m.monitoring.expectedStatus}"
+      ];
+      alerts = lib.optional (svc.ntfy.enable or false) {
+        type = "ntfy";
+      };
+    }
+    // lib.optionalAttrs (headers != { }) {
+      inherit headers;
+    }
+  ) (lib.filterAttrs (_: m: m.monitoring.type == "http") activeServices);
 
   # 2. TCP-Socket-Pings generieren
   tcpEndpoints = lib.mapAttrsToList (_: m: {

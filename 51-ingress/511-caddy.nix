@@ -68,10 +68,16 @@ let
     n: m: accessGroupOf n m == "public" && !allowUnauthenticatedOf n m
   ) enabledServices;
 
+  vhostBypassPathsOf =
+    n: m: lib.unique ((m.unauthenticatedPaths or [ ]) ++ (ing.vhosts.${n}.unauthenticatedPaths or [ ]));
+
+  unauthenticatedPathsOf =
+    n: m: lib.unique ((ing.auth.unauthenticatedPaths or [ ]) ++ (vhostBypassPathsOf n m));
+
   # Enabled public vhosts that carry an auth-bypass path list.
   publicBypassPaths = lib.filterAttrs (
     n: m:
-    accessGroupOf n m == "public" && (unauthenticatedPathsOf m) != [ ] && !allowUnauthenticatedOf n m
+    accessGroupOf n m == "public" && (vhostBypassPathsOf n m) != [ ] && !allowUnauthenticatedOf n m
   ) enabledServices;
 
   # Declared-but-unresolvable vhosts in ingress.vhosts (RT-5/F7 loud instead of silently dead)
@@ -167,14 +173,6 @@ let
     }
   '';
 
-  unauthenticatedPathsOf =
-    m:
-    let
-      local = m.unauthenticatedPaths or [ ];
-      global = ing.auth.unauthenticatedPaths or [ ];
-    in
-    lib.unique (global ++ local);
-
   # Einheitlicher Handler-Generator für alle Service-Typen
   mkServiceBlock =
     name: m:
@@ -191,7 +189,7 @@ let
         && (ing.auth.mode == "forward-auth")
         && (accessGroupOf name m == "public")
         && !allowUnauthenticatedOf name m;
-      skipPaths = unauthenticatedPathsOf m;
+      skipPaths = unauthenticatedPathsOf name m;
       skipMatcher = lib.optionalString (needsAuth && skipPaths != [ ]) ''
         @needAuth not path ${lib.concatStringsSep " " skipPaths}
       '';
@@ -457,6 +455,35 @@ lib.mkMerge [
       {
         assertion = (enabledServices == { } && !landingOn) || trustedCidrs != [ ];
         message = "[mediNix] ingress.trustedCidrs is empty but vhosts/landing are enabled. Set your real LAN CIDR(s) — no implicit trust of RFC1918/CGNAT.";
+      }
+      {
+        # S-05 Superset-Invariante: Jeder deklarierte vHost-Bypass in ingress.vhosts.<n> muss in der wirksamen skipPaths-Menge enthalten sein
+        assertion = lib.all (
+          n:
+          let
+            vhostBypass = ing.vhosts.${n}.unauthenticatedPaths or [ ];
+            m = config.medinix.manifest.${n} or { };
+          in
+          lib.all (p: lib.elem p (unauthenticatedPathsOf n m)) vhostBypass
+        ) (lib.attrNames (ing.vhosts or { }));
+        message = "[mediNix/511] S-05 Superset-Invariante verletzt: Ein deklarierter Pfad in ingress.vhosts.<n>.unauthenticatedPaths ist nicht in den wirksamen SkipPaths enthalten!";
+      }
+      {
+        # UDS-Ratsche: Kein Dienst mit uds_socket = true darf jemals über TCP geroutet werden!
+        assertion = lib.all (
+          n:
+          let
+            m = enabledServices.${n};
+            svcEntry = registry.${n} or { };
+            up =
+              if (svcEntry.uds_socket or false) then
+                "unix/${svcEntry.uds_path}"
+              else
+                "http://127.0.0.1:${toString m.port}";
+          in
+          !(svcEntry.uds_socket or false) || lib.hasPrefix "unix/" up
+        ) (lib.attrNames enabledServices);
+        message = "[mediNix/511] UDS-Ratsche verletzt: Ein als reiner Unix-Domain-Socket deklarierter Dienst (uds_socket = true) wird über TCP geroutet!";
       }
     ]
     ++ (

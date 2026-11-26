@@ -157,6 +157,15 @@ in
       PrivateTmp = true;
       NoNewPrivileges = true;
       CapabilityBoundingSet = [ "" ];
+      # UDS-Ratsche: Reiner Unix Domain Socket, bind() auf TCP verboten
+      SocketBindDeny = [ "any" ];
+      # S-03: Dateisystem-Sandboxing (kein FUSE/MergerFS)
+      RestrictFileSystems = [
+        "@basic-api"
+        "@common-block"
+        "@temporary"
+        "@anonymous"
+      ];
     };
 
     # ADR-0000 / UPG: Manifest-Eintrag registrieren. Die Engine (501)

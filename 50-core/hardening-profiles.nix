@@ -27,9 +27,6 @@ rec {
       "::1"
     ];
     SocketBindDeny = [ "any" ];
-    SocketBindAllow = [
-      "1024-65535"
-    ];
   };
   # Connect anywhere; still bind only localhost. 526 is the WAN choke.
   networkPolicy.internet = {
@@ -41,9 +38,6 @@ rec {
       "::/0"
     ];
     SocketBindDeny = [ "any" ];
-    SocketBindAllow = [
-      "1024-65535"
-    ];
   };
   networkPolicy.proxy = {
     SocketBindAllow = [ "any" ];
@@ -187,8 +181,15 @@ rec {
       CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
       # mkDefault: 50-core/memory-policy.nix is the SSoT for OOMScoreAdjust.
       OOMScoreAdjust = lib.mkDefault (-500);
+      # S-03: Dateisystem-Sandboxing für Ingress & Security (kein FUSE/MergerFS)
+      RestrictFileSystems = [
+        "@basic-api"
+        "@common-block"
+        "@temporary"
+        "@anonymous"
+      ];
     }
-    // networkPolicy.proxy;
+    // networkPolicy.confined;
 
   client = base // {
     MemoryDenyWriteExecute = true;

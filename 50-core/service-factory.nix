@@ -64,6 +64,7 @@ in
 {
   name, # service name (kebab-case)
   uid ? null, # UID from registry
+  port ? null, # Port from registry or manifest
   execStart ? null, # the start command as string
   stateDir ? null, # z. B. "/var/lib/jellyfin" (ADR-0000 §4: ohne Port-Suffix)
   profile ? (registry.${name}.hardeningProfile or "base"), # SSoT: registry; override nur wo bedingt (541)
@@ -84,6 +85,30 @@ let
   # (Unit-Name). Vorher stand hier fest "media" (ADR-0000 §4: kein Peer darf ein
   # fremdes /var/lib/<name> lesen).
   stateDirGroup = if ownsAccount then name else "media";
+
+  # S-07: Präzises SocketBindAllow & UDS-Ratsche
+  svc = registry.${name} or { };
+  isUds = svc.uds_socket or false;
+  targetPort = if port != null then port else (svc.port or null);
+  socketBindConfig =
+    if isUds then
+      {
+        SocketBindDeny = [ "any" ];
+      }
+    else if name == "caddy" || name == "caddy-media" || profile == "proxy" then
+      {
+        SocketBindAllow = [ "any" ];
+      }
+    else if targetPort != null then
+      {
+        SocketBindDeny = [ "any" ];
+        SocketBindAllow = [
+          "ipv4:tcp:${toString targetPort}"
+        ]
+        ++ lib.optional (config.networking.enableIPv6 or false) "ipv6:tcp:${toString targetPort}";
+      }
+    else
+      { };
 in
 if hardeningOnly then
   {
@@ -94,6 +119,7 @@ if hardeningOnly then
         StandardError = "journal";
         SystemCallErrorNumber = "EPERM";
       }
+      socketBindConfig
       (lib.mapAttrs (_: asDefault) (profiles.${profile} or profiles.base))
       (memoryPolicy.${name} or memoryPolicy.default)
       (lib.optionalAttrs (stateDir != null) {
@@ -141,6 +167,7 @@ else
           StandardError = "journal";
           SystemCallErrorNumber = "EPERM";
         }
+        socketBindConfig
         # 1) Zentrales Hardening-Profil (ADR-5050) — nie per-Modul dupliziert
         (lib.mapAttrs (_: asDefault) (profiles.${profile} or profiles.base))
         # 1b) Zentrale Memory- & OOM-Policy (50-core/memory-policy.nix)
