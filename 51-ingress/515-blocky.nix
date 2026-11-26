@@ -143,24 +143,29 @@ in
       })
     ];
 
-    systemd.services.blocky = lib.mkIf managed (
-      (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
-        name = "blocky";
-        profile = "network";
-        ownsAccount = false;
-        hardeningOnly = true;
-        extraConfig = {
-          User = "blocky";
-          Group = "blocky";
-          # Upstream (nixpkgs blocky) setzt DynamicUser = true plain. mediNix
-          # braucht die feste UID 5150 (ADR-0000 §4: UID = Port = Primär-GID,
-          # UPG + Peer-Isolation), deshalb mkForce false. Siehe Todo 17.
-          DynamicUser = lib.mkForce false;
-          # S-07: DNS-Resolver lauscht auf Port 53 (UDP und TCP)
-          SocketBindAllow = [ "53" ];
-        };
-      }
-    );
+    systemd.services.blocky = lib.mkMerge [
+      (lib.mkIf managed (
+        (import ../50-core/service-factory.nix { inherit lib config pkgs; }) {
+          name = "blocky";
+          profile = "network";
+          ownsAccount = false;
+          hardeningOnly = true;
+          extraConfig = {
+            User = "blocky";
+            Group = "blocky";
+            # Upstream (nixpkgs blocky) setzt DynamicUser = true plain. mediNix
+            # braucht die feste UID 5150 (ADR-0000 §4: UID = Port = Primär-GID,
+            # UPG + Peer-Isolation), deshalb mkForce false. Siehe Todo 17.
+            DynamicUser = lib.mkForce false;
+            # S-07: DNS-Resolver lauscht auf Port 53 (UDP und TCP)
+            SocketBindAllow = [ "53" ];
+          };
+        }
+      ))
+      (lib.mkIf external {
+        serviceConfig.SystemCallErrorNumber = lib.mkDefault "EPERM";
+      })
+    ];
 
     # Split-DNS erfordert erreichbaren Port 53 für LAN-Clients bei geführter Firewall
     networking.firewall.allowedTCPPorts = lib.mkIf (
