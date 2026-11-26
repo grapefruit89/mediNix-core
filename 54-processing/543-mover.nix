@@ -1,11 +1,11 @@
 # ---
 # id: "543-mover"
-# title: "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)"
+# title: "Piggyback Tier-B→Tier-C Mover (write-batching release folders without HDD wake or stream contention)"
 # domain: 54
 # folder: 54-processing
 # status: active
-# complexity: 3
-# last_reviewed: 2026-08-13
+# complexity: 2
+# last_reviewed: 2026-11-26
 # links:
 #   adr: ADR-543, ADR-5000
 # provides: []
@@ -19,7 +19,6 @@
 # uds_socket: false
 # systemd_hardened: true
 # skill: medinix-implement-discipline
-# note: "No Calendar-Timer. HDD sleeps. systemd.path is the trigger, minFreeGb is the brake."
 # ---
 {
   config,
@@ -31,6 +30,11 @@
 let
   cfg = config.medinix.mover;
   svc = config.medinix;
+  active = svc.enable && cfg.enable && cfg.mode != "off";
+
+  stagingStr = lib.optionalString (cfg.stagingDir != null) (toString cfg.stagingDir);
+  archiveStr = lib.optionalString (cfg.archiveDir != null) (toString cfg.archiveDir);
+  metaStr = toString svc.storage.metadataDir;
 
   moverScript = pkgs.writeShellApplication {
     name = "mediNix-mover";
@@ -38,196 +42,215 @@ let
       pkgs.coreutils
       pkgs.findutils
       pkgs.gawk
+      pkgs.gnugrep
       pkgs.util-linux
-      pkgs.lsof
+      pkgs.hdparm
     ];
     text = ''
       set -euo pipefail
 
-      STAGING="${cfg.stagingDir}"
-      ARCHIVE="${cfg.archiveDir}"
+      STAGING="${stagingStr}"
+      ARCHIVE="${archiveStr}"
       MIN_FREE_KB=$(( ${toString cfg.minFreeGb} * 1024 * 1024 ))
+      CRIT_FREE_KB=$(( ${toString cfg.criticalFreeGb} * 1024 * 1024 ))
+      IDLE_READ_MAX_SECTORS=$(( ${toString cfg.idleReadThresholdKb} * 2 ))
+      STATE_FILE="/run/medinix-mover/last_read_sectors"
 
+      # Gate 1: Pfade & Mount-Schutz (0 HDD-Zugriff)
+      [ -d "$STAGING" ] && [ -d "$ARCHIVE" ] || { echo "Mover: mount missing"; exit 1; }
+      [ "$STAGING" != "$ARCHIVE" ]           || { echo "Mover: same path"; exit 1; }
+      ARCHIVE_MNT="$(stat -c %m "$ARCHIVE")"
+      [ "$ARCHIVE_MNT" != "/" ]              || { echo "Mover: archive on root"; exit 1; }
+      [ "$(findmnt -n -o FSTYPE --target "$ARCHIVE" 2>/dev/null || true)" != "fuse.mergerfs" ] || {
+        echo "Mover: archiveDir must be physical Tier-3 mount, not mergerfs"; exit 1;
+      }
 
-      # Validate staging and archive paths
-      if [ ! -d "$STAGING" ]; then
-        echo "Mover: stagingDir $STAGING not found — skip"
-        exit 0
-      fi
-      if [ ! -d "$ARCHIVE" ]; then
-        echo "Mover: archiveDir $ARCHIVE not found — aborting"
-        exit 1
-      fi
-      if [ "$STAGING" = "$ARCHIVE" ]; then
-        echo "Mover: STAGING and ARCHIVE are identical ($STAGING) — aborting to prevent self-moves."
-        exit 1
+      # Gate 2: SSD-Fuellstand + Arbeitsvorrat (0 HDD-Zugriff)
+      free_kb=$(df -Pk "$STAGING" | awk 'NR==2{print $4}')
+      [ "$free_kb" -ge "$MIN_FREE_KB" ] && exit 0
+      mapfile -d $'\0' candidates < <(find "$STAGING" -mindepth 1 -type d -print0 | sort -z)
+      [ "''${#candidates[@]}" -gt 0 ] || exit 0
+
+      # Gate 3 + 4: Piggybacking & I/O-Contention-Schutz (HDD dreht, kein aktiver Stream)
+      resolve_disk() {
+        local src dev pk
+        ${
+          if cfg.archiveDevice != null then
+            ''dev="$(readlink -f "${cfg.archiveDevice}")"''
+          else
+            ''
+              src="$(findmnt -n -o SOURCE --target "$ARCHIVE" 2>/dev/null || true)"
+              dev="$(readlink -f "$src" 2>/dev/null || true)"
+            ''
+        }
+        [ -b "$dev" ] || return 1
+        pk="$(lsblk -no PKNAME "$dev" 2>/dev/null | head -n1 || true)"
+        if [ -n "$pk" ] && [ -b "/dev/$pk" ]; then echo "/dev/$pk"; else echo "$dev"; fi
+      }
+
+      hdd_awake() {
+        local rot
+        rot="$(cat "/sys/block/''${1##*/}/queue/rotational" 2>/dev/null || echo 1)"
+        [ "$rot" = "0" ] && return 0
+        hdparm -C "$1" 2>/dev/null | grep -q 'active/idle'
+      }
+
+      hdd_busy_reading() {
+        local stat_file="/sys/block/''${1##*/}/stat"
+        [ -r "$stat_file" ] || return 1
+        local read_sectors in_flight prev_sectors delta
+        read -r _ _ read_sectors _ _ _ _ _ in_flight _ < "$stat_file"
+        [ "$in_flight" -gt 0 ] && return 0
+        if [ ! -r "$STATE_FILE" ]; then
+          printf '%s\n' "$read_sectors" > "$STATE_FILE"
+          return 0
+        fi
+        prev_sectors="$(cat "$STATE_FILE" 2>/dev/null || echo 0)"
+        printf '%s\n' "$read_sectors" > "$STATE_FILE"
+        delta=$(( read_sectors - prev_sectors ))
+        [ "$delta" -gt "$IDLE_READ_MAX_SECTORS" ]
+      }
+
+      DISK="$(resolve_disk || true)"
+      if [ -n "$DISK" ]; then
+        if [ "$free_kb" -ge "$CRIT_FREE_KB" ]; then
+          hdd_awake "$DISK" || { echo "Mover: defer — archive asleep ($((free_kb/1024)) MB free)"; exit 0; }
+          hdd_busy_reading "$DISK" && { echo "Mover: defer — archive serving active reads"; exit 0; }
+        elif ! hdd_awake "$DISK"; then
+          echo "Mover: WAKE — critical SSD space ($((free_kb/1024)) MB free < $((CRIT_FREE_KB/1024)) MB)"
+        fi
       fi
 
-      # Prevent writing to root SSD if mount fails
-      if [ "$(stat -c "%m" "$ARCHIVE" 2>/dev/null || echo "/")" = "/" ]; then
-        echo "Mover: ARCHIVE $ARCHIVE is on the root partition! Aborting to prevent SSD fill-up."
-        exit 1
-      fi
-
-      # Concurrency protection: prevent overlapping mover runs (manual, timer, or path trigger)
+      # Arbeit: ganze Release-Ordner atomar verschieben (Temp ausserhalb der Union)
       LOCK_FILE="/run/medinix-mover/mover.lock"
       exec 200>"$LOCK_FILE"
-      if ! flock -n 200; then
-        echo "Mover: another mover instance is already running — exiting"
-        exit 0
-      fi
+      flock -n 200 || exit 0
 
-      # Signal trap: immediately remove any in-flight temporary file if interrupted
-      CURRENT_STAGING_DEST=""
-      cleanup() {
-        if [ -n "$CURRENT_STAGING_DEST" ] && [ -f "$CURRENT_STAGING_DEST" ]; then
-          rm -f "$CURRENT_STAGING_DEST" 2>/dev/null || true
-        fi
-      }
+      TMP="$ARCHIVE_MNT/.mover-tmp"
+      mkdir -p "$TMP" 2>/dev/null || { TMP="$(dirname "$ARCHIVE")/.mover-tmp"; mkdir -p "$TMP"; }
+      find "$TMP" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+
+      CURRENT_TMP=""
+      cleanup() { [ -n "$CURRENT_TMP" ] && rm -rf "$CURRENT_TMP" 2>/dev/null || true; }
       trap cleanup EXIT INT TERM
 
-      # Fund 5: Cleanup stale staging files from previous interrupted runs (older than 24h)
-      if [ -d "$ARCHIVE/.staging_mover" ]; then
-        find "$ARCHIVE/.staging_mover" -type f -name 'tmp_*' -mtime +1 -delete
+      for dir in "''${candidates[@]}"; do
+        [ -d "$dir" ] || continue
+        [ "$(df -Pk "$STAGING" | awk 'NR==2{print $4}')" -ge "$MIN_FREE_KB" ] && break
+        find "$dir" -maxdepth 1 -type f -size +50M -print -quit | grep -q . || continue
+        find "$dir" -mmin -5 -print -quit | grep -q . && continue
+
+        rel="''${dir#"$STAGING"/}"
+        dst="$ARCHIVE/$rel"
+        [ -e "$dst" ] && { echo "Mover: collision $rel — skip"; continue; }
+
+        tmp_dst="$(mktemp -d -p "$TMP" 'rel_XXXXXX')"
+        CURRENT_TMP="$tmp_dst"
+        mkdir -p "$(dirname "$dst")"
+
+        if ionice -c 3 cp -a --reflink=auto "$dir/." "$tmp_dst/" \
+           && sync -f "$tmp_dst" \
+           && mv -T "$tmp_dst" "$dst"; then
+          CURRENT_TMP=""
+          rm -rf "$dir"
+          parent="$(dirname "$dir")"
+          while [ "$parent" != "$STAGING" ] && rmdir "$parent" 2>/dev/null; do
+            parent="$(dirname "$parent")"
+          done
+          echo "Mover: moved $rel"
+        else
+          rm -rf "$tmp_dst" 2>/dev/null || true
+          CURRENT_TMP=""
+        fi
+      done
+
+      if [ -n "$DISK" ] && [ -r "/sys/block/''${DISK##*/}/stat" ]; then
+        awk '{print $3}' "/sys/block/''${DISK##*/}/stat" > "$STATE_FILE" 2>/dev/null || true
       fi
-
-      # 1. Fill level check on Staging (Tier-B/SSD)
-      FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
-      if [ "$FREE_KB" -ge "$MIN_FREE_KB" ]; then
-        echo "Mover: enough free space ($(($FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — nothing to do"
-        exit 0
-      fi
-      echo "Mover: SSD is low ($(($FREE_KB/1024)) MB free) → moving media to $ARCHIVE"
-
-      # 2. Only whitelisted extensions AND >= 50MB, not modified in last 5 minutes (-mmin +5)
-      mkdir -p "$ARCHIVE/.staging_mover"
-      find "$STAGING" -type f -size +50M -mmin +5 \( ${
-        lib.concatMapStringsSep " -o " (e: "-name '*${e}'") cfg.mediaExtensions
-      } \) -print0 \
-        | while IFS= read -r -d $'\0' f; do
-          [ -f "$f" ] || continue
-
-          # Target reached check: stop once enough free space on SSD is achieved
-          CURRENT_FREE_KB=$(df -Pk "$STAGING" | awk 'NR==2 {print $4}')
-          if [ "$CURRENT_FREE_KB" -ge "$MIN_FREE_KB" ]; then
-            echo "Mover: reached target free space ($(($CURRENT_FREE_KB/1024)) MB >= $(($MIN_FREE_KB/1024)) MB) — stopping"
-            break
-          fi
-
-          # Lock check: skip if file is actively open by any process (e.g. SABnzbd download/unrar)
-          if lsof -t "$f" >/dev/null 2>&1; then
-            echo "Mover: file is currently in use, skipping: $f"
-            continue
-          fi
-
-          rel="''${f#"$STAGING"/}"
-          dest="$ARCHIVE/$rel"
-
-          # Target Collision Protection:
-          # If destination already exists:
-          # - Same size: file was already transferred (e.g. previous run interrupted before cleanup) -> remove staging file to free SSD
-          # - Different size: warn and skip to prevent accidental overwrite or data loss
-          if [ -e "$dest" ]; then
-            SRC_SIZE=$(stat -c "%s" "$f" 2>/dev/null || echo "1")
-            DEST_SIZE=$(stat -c "%s" "$dest" 2>/dev/null || echo "2")
-            if [ "$SRC_SIZE" = "$DEST_SIZE" ]; then
-              echo "Mover: destination already exists with identical size ($SRC_SIZE bytes) — removing duplicate from staging: $f"
-              rm -f "$f"
-              parent_dir="$(dirname "$f")"
-              if [ "$parent_dir" != "$STAGING" ]; then
-                rmdir "$parent_dir" 2>/dev/null || true
-              fi
-            else
-              echo "Mover: WARNING: destination $dest already exists with DIFFERENT size (source: $SRC_SIZE, dest: $DEST_SIZE) — skipping" >&2
-            fi
-            continue
-          fi
-
-          # Pre-flight HDD Capacity Check: Ensure archive has space for file + 1GB safety margin
-          FILE_SIZE_BYTES=$(stat -c "%s" "$f" 2>/dev/null || echo "0")
-          FILE_SIZE_KB=$(( FILE_SIZE_BYTES / 1024 ))
-          ARCHIVE_FREE_KB=$(df -Pk "$ARCHIVE" | awk 'NR==2 {print $4}')
-          REQUIRED_KB=$(( FILE_SIZE_KB + 1024 * 1024 ))
-          if [ "$ARCHIVE_FREE_KB" -lt "$REQUIRED_KB" ]; then
-            echo "Mover: ARCHIVE $ARCHIVE is nearly full ($(($ARCHIVE_FREE_KB/1024)) MB free, need $(($REQUIRED_KB/1024)) MB) — skipping $rel" >&2
-            continue
-          fi
-
-          # Atomic Publish Logic:
-          # 1. Copy to a collision-free temporary file on the SAME filesystem (HDD cold backend)
-          # 2. Atomic rename to the final destination so readers (Jellyfin via MergerFS) never see partial files
-          staging_dest=$(mktemp -p "$ARCHIVE/.staging_mover" 'tmp_XXXXXX')
-          CURRENT_STAGING_DEST="$staging_dest"
-          mkdir -p "$(dirname "$dest")"
-
-          echo "Mover: transferring $rel ..."
-          if cp -f "$f" "$staging_dest" && mv -f "$staging_dest" "$dest"; then
-            CURRENT_STAGING_DEST=""
-            rm -f "$f"
-            # Prune empty parent directory on staging (keep staging root intact)
-            parent_dir="$(dirname "$f")"
-            if [ "$parent_dir" != "$STAGING" ]; then
-              rmdir "$parent_dir" 2>/dev/null || true
-            fi
-            echo "Mover: successfully moved $rel"
-          else
-            echo "Mover: ERROR moving $f — preserving source file" >&2
-            rm -f "$staging_dest" 2>/dev/null || true
-            CURRENT_STAGING_DEST=""
-          fi
-        done
-
-      echo "Mover done"
     '';
   };
 in
-lib.mkIf (svc.enable && cfg.enable && cfg.mode != "off") {
-  # systemd.services with StartLimit + Hardening
-  systemd.services.mediNix-mover = {
-    description = "Ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
-    # StartLimit belongs in [Unit] (= unitConfig), not in [Service] (serviceConfig).
-    # Limits real service starts if staging is noisy.
-    unitConfig = {
-      RequiresMountsFor = [
-        cfg.stagingDir
-        cfg.archiveDir
+{
+  config = lib.mkMerge [
+    {
+      assertions = [
+        {
+          assertion = !active || (cfg.stagingDir != null && cfg.archiveDir != null);
+          message = "[mediNix/543-mover] stagingDir und archiveDir muessen explizit gesetzt sein (kein Fail-Open-Default).";
+        }
+        {
+          assertion = !active || stagingStr != archiveStr;
+          message = "[mediNix/543-mover] stagingDir und archiveDir duerfen nicht identisch sein.";
+        }
+        {
+          assertion = !active || !(svc.storage.backends ? hot) || stagingStr != svc.storage.backends.hot;
+          message = "[mediNix/543-mover] stagingDir darf nicht direkt auf backends.hot zeigen (enthaelt cache/metadata). Waehle einen Medien-Unterpfad.";
+        }
+        {
+          assertion = !active || !(svc.storage.backends ? cold) || archiveStr != svc.storage.backends.cold;
+          message = "[mediNix/543-mover] archiveDir darf nicht direkt auf backends.cold zeigen. Waehle einen Medien-Unterpfad.";
+        }
+        {
+          assertion =
+            !active
+            || (
+              stagingStr != metaStr
+              && !(lib.hasPrefix "${metaStr}/" stagingStr)
+              && !(lib.hasPrefix "${stagingStr}/" metaStr)
+            );
+          message = "[mediNix/543-mover] stagingDir darf nicht mit storage.metadataDir ueberlappen (Tier-1 Metadaten sind unantastbar).";
+        }
+        {
+          assertion = !active || (cfg.criticalFreeGb >= 0 && cfg.criticalFreeGb < cfg.minFreeGb);
+          message = "[mediNix/543-mover] criticalFreeGb muss >= 0 und strikt < minFreeGb sein.";
+        }
       ];
-      StartLimitBurst = 3;
-      StartLimitIntervalSec = "60";
-    };
-    serviceConfig = lib.mkMerge [
-      (import ../50-core/hardening-profiles.nix { inherit lib; }).script
-      {
-        Type = "oneshot";
-        User = "media";
-        Group = "media";
-        UMask = "002";
+    }
 
-        RuntimeDirectory = "medinix-mover";
-        ReadWritePaths = [
-          cfg.stagingDir
-          cfg.archiveDir
-        ];
-      }
-    ];
-    script = "${lib.getExe moverScript}";
-  };
+    (lib.mkIf active {
+      systemd.services.mediNix-mover = {
+        description = "Piggyback Tier-B→Tier-C Mover (write-batching release folders)";
+        unitConfig = {
+          RequiresMountsFor = lib.optionals (cfg.stagingDir != null && cfg.archiveDir != null) [
+            stagingStr
+            archiveStr
+          ];
+        };
+        serviceConfig = (import ../50-core/hardening-profiles.nix { inherit lib; }).script // {
+          Type = "oneshot";
+          User = "root";
+          Group = "root";
+          PrivateDevices = false;
+          CapabilityBoundingSet = [
+            "CAP_SYS_RAWIO"
+            "CAP_DAC_OVERRIDE"
+            "CAP_DAC_READ_SEARCH"
+            "CAP_CHOWN"
+            "CAP_FOWNER"
+          ];
+          IOSchedulingClass = "idle";
+          Nice = 19;
+          RuntimeDirectory = "medinix-mover";
+          ReadWritePaths = lib.unique (
+            lib.optionals (cfg.stagingDir != null) [ stagingStr ]
+            ++ lib.optionals (cfg.archiveDir != null) [
+              archiveStr
+              (builtins.dirOf archiveStr)
+            ]
+            ++ lib.optional (svc.storage.backends ? cold) svc.storage.backends.cold
+          );
+        };
+        script = "${lib.getExe moverScript}";
+      };
 
-  # Fund 2: Safety backstop timer because PathChanged isn't recursive
-  systemd.timers.mediNix-mover-safety = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnUnitInactiveSec = "8h";
-      Unit = "mediNix-mover.service";
-    };
-  };
-
-  # systemd.path as a trigger: fires on activity under stagingDir, not by clock.
-  systemd.paths.mediNix-mover = {
-    wantedBy = [ "paths.target" ];
-    pathConfig = {
-      PathChanged = cfg.stagingDir;
-      # DirectoryNotEmpty removed to prevent trigger loops
-    };
-  };
+      systemd.timers.mediNix-mover = {
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnUnitInactiveSec = cfg.piggybackInterval;
+          OnBootSec = cfg.piggybackInterval;
+          Unit = "mediNix-mover.service";
+        };
+      };
+    })
+  ];
 }

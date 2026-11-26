@@ -1,48 +1,44 @@
 ---
 id: "ADR-570"
-title: "Storage-Tiering: tmpfiles-Struktur + optionale MergerFS-Pools"
+title: "Storage-Tiering: 3-Tier-Modell, XFS-JBOD & MergerFS-Vertrag"
 status: active
 complexity: 3
-last_reviewed: 2026-10-16
+last_reviewed: 2026-11-26
 links:
   adr: ADR-0000 (Dezimalrahmen/UPG), ADR-543 (Cold-Archive-Mover)
 ---
 
-# ADR-570: Storage-Tiering - tmpfiles-Struktur + MergerFS-Pools
+# ADR-570: Storage-Tiering - 3-Tier-Modell, XFS-JBOD & MergerFS-Vertrag
 
 ## Kontext
-Zwei Ebenen: **physisch** (der Host mountet die Platten, `fileSystems."/mnt/ssd"` …) und
-**logisch** (die Medienablage, die alle Dienste gemeinsam nutzen: `/data/media`,
-`/data/metadata`).
+Zwei Ebenen: **physisch** (der Host mountet die Platten, `fileSystems."/mnt/hdd01"` …) und
+**logisch** (die Medienablage, die alle Dienste gemeinsam nutzen: `mediaRoot`, `downloadDir`, `metadataDir`).
 
 ## Entscheidung
-- Der **Host** besitzt die Mounts; das **Flake** erzeugt die logische Struktur ueber
-  `systemd.tmpfiles` - Deklaration statt Skript (ADR-0002).
-- Zwei Betriebsmodi:
-  - **Simple** (`storage.backends = {}`): flache Struktur unter `storage.mediaRoot`, kein Pool.
-  - **Tiered** (`backends.hot`/`backends.cold` gesetzt): **MergerFS**-Mounts je Medientyp -
-    ein Pfad, mehrere Platten.
-- Verzeichnisse: Modus **2775** (`SetGID`) mit Gruppe `media` (GID 5000, SSoT aus
-  `50-core/registry.nix`) - neue Dateien **und** neue Unterordner erben die Gruppe.
 
-## Begruendung
-- Seit der UPG-Umstellung (ADR-0000 §4) ist die **Primaergruppe** der Dienste ihr eigener Name.
-  Mit 0775 allein entstuenden Dateien als `<dienst>:<dienst>`, die Nachbardienste (Mitglied von
-  `media`) nicht mehr aendern koennten - das SetGID-Bit loest das an der Wurzel.
-- Nachtraegliche `d`-Regeln in tmpfiles korrigieren Modus und SetGID-Bit auch auf bereits
-  existierenden Verzeichnissen (lokal mit systemd 259 verifiziert).
-- MergerFS bleibt **optional**: ein einzelner Backend braucht keinen Pool (KISS).
+### 1. Dateisystem & JBOD (Tier 3)
+- **XFS** als Workhorse fuer mechanische Medienplatten: Extent-B-Trees fuer 2-70 GB sequentielle Dateien, O(1)-`statfs`, kein `resize2fs -M`-Bedarf.
+- **Kein RAID, kein ZFS, kein btrfs-COW:** Stirbt eine Platte im JBOD, sind ausschliesslich deren ganze Dateien weg; MergerFS liefert nahtlos den Restbestand.
+- **Verbindliche Host-Mount-Optionen (`recommended.mountOptions.hdd`):**
+  - `noatime`: verhindert atime-Schreibzugriffe beim Lesen nach 24h (kein unnoetiges Plattenaufwecken).
+  - `/dev/disk/by-label/...`: niemals flüchtige `/dev/sdX`-Namen.
+  - `nofail` + `x-systemd.device-timeout=10s`: ein fehlendes JBOD-Laufwerk blockiert niemals den Boot.
+
+### 2. Geschaerftes 3-Tier-Modell (lebensdauer- statt geraetebasiert)
+- **Tier 1 (NVMe — State):** OS, `/var/lib`, SQLite WAL, `metadataDir` (Jellyfin-Metadaten/Artwork mit `SaveArtworkIntoMovieFolders: false`, `*arr` MediaCover) -> **0 HDD-Wakes beim Browsen**.
+- **Tier 2 (SATA SSD — Transient Scratch):** `downloadDir` (SABnzbd PAR2/Entpacken) + temporäres Staging vor Write-Batching.
+- **Tier 3 (SATA HDD JBOD — Library):** Große MKVs (> 1-2 GB) **und statische Audiobooks** (`audiobooks` sind langlebige Bibliotheksdaten und gehoeren niemals in eine SSD-Drain-Zone).
+
+### 3. Vereinfachung `570-storage.nix` & Poka-Yoke
+- Zwei strikt gepruefte Modi per Compile-Time-Assertion: `backends = {}` (Simple) oder exakt `{ hot; cold; }` (Tiered). Ein Halbzustand (nur `hot` oder nur `cold`) bricht den Build.
+- Verzeichnisse (`movies`, `series`, `books`, `audiobooks`, `music`) mit Modus **2775** (`SetGID`, Gruppe `media` GID 5000).
+
+### 4. MergerFS-Politik (`recommended.mountOptions.mergerfs`, ersetzt `cache_dirs`)
+- `category.create=ff` (erste Branch = SSD zuerst; nicht `mfs`, sonst landen neue Downloads auf der schlafenden HDD).
+- `moveonenospc=mfs`, `minfreespace=50G` (XFS B-Tree-Fragmentierung vermeiden).
+- `cache.readdir=true`, `cache.entry=30`, `cache.negative_entry=30`, `cache.statfs=30`, `cache.symlinks=true`, `dropcacheonclose=true` ersetzen Userspace-`cache_dirs` im Kernel-Cache (ergänzt durch `EnableRealtimeMonitor: false` in Jellyfin und Ausschluss von `/mnt` in `updatedb`/`plocate`).
+- **Caveat:** Out-of-Band-Verschiebungen des Movers (`B -> C`) invalidieren `cache.readdir` nicht sofort; im Mediabox-Betrieb unkritisch, da Jellyfin über Event-Push statt inotify auf dem Union-Tree aktualisiert wird.
 
 ## Konsequenzen
-- Plattenwechsel oder Ausbau ist eine Host-Aenderung, kein Flake-Umbau.
-- Im Tiered-Modus entscheidet `backends`, welche Platte "hot" (schnell) und welche "cold"
-  (Archiv) ist - der Mover (543) kennt nur die Pfade, nicht die Platten.
-
-## Nachtrag (2026-11): Composition Boundary & Mover-Contract
-
-Gemäß der Konsolidierung aus `docs/concepts/storage-mover.md`:
-1. **Composition Boundary:**
-   - mediNix-core besitzt **keine** physischen Laufwerke oder Partitionstabellen. Das Partitionieren und Einhängen von Datenträgern obliegt der Host-Konfiguration.
-   - mediNix-core definiert den Speichervertrag: Tier A (`/var/lib`), Tier B (`/mnt/ssd`), Tier C (`/mnt/hdd`) und den MergerFS-Union-Pfad (`/srv/media`).
-2. **Ondemand-Mover (543):**
-   - Der Mover (`543-mover.nix`) agiert auf Dateipfaden, nicht auf physischen Geräten. Er überwacht SSD-Freispeicher via `minFreeGb` und verschiebt ruhende Mediendateien atomar von Tier B nach Tier C.
+- Composition Boundary bleibt strikt gewahrt: der Host besitzt die physischen Mounts und die FUSE-Union, das Flake prueft Konsistenz und legt die Verzeichnisstruktur an.
+- `cache.readdir`-Staleness nach Out-of-Band-Mover-Laeufen ist dokumentierter Trade-off.

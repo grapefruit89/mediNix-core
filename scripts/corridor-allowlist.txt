@@ -1,7 +1,6 @@
 # Bewusste Ausnahmen fuer Korridor-Muster (scripts/check_corridor.py).
 # Format: <muster> | <pfad> | <Begruendung>
 # Ein nicht eingetragener Treffer macht die CI rot; ein Eintrag ohne Treffer wird gemeldet.
-media-primaergruppe | 54-processing/543-mover.nix | Mover legt Dateien in der 2775-root:media-Ablage an; Gruppe media als Primaergruppe ist hier die Absicht (Erbe fuer neue Dateien).
 media-primaergruppe | 55-playback/551-jellyfin.nix | Jellyfin schreibt Medienmetadaten in die geteilte Ablage; media erbbar trotz UPG-Konto.
 media-primaergruppe | 55-playback/552-audiobookshelf.nix | wie 551: Schreibzugriff auf die geteilte Ablage.
 media-primaergruppe | 55-playback/553-navidrome.nix | wie 551: Schreibzugriff auf die geteilte Ablage.

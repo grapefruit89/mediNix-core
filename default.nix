@@ -180,7 +180,7 @@ in
     };
 
     mover = {
-      enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (move media to HDD when SSD low)";
+      enable = lib.mkEnableOption "ondemand Tier-B→Tier-C Mover (write-batching to HDD during idle piggyback windows)";
       mode = lib.mkOption {
         type = lib.types.enum [
           "ondemand"
@@ -188,8 +188,8 @@ in
         ];
         default = "ondemand";
         description = ''
-          "ondemand": Mover läuft nur bei Bedarf (Füllstand-Check im oneshot + systemd.path-Klingel).
-          Kein Calendar-Timer als Haupttaktgeber — HDD soll schlafen dürfen.
+          "ondemand": Mover läuft über den Piggyback-Ticker (nur bei Bedarf, kein HDD-Wake
+          unterhalb von criticalFreeGb und keine parallelen Writes bei aktivem Jellyfin-Stream).
           "off": Mover komplett inaktiv.
         '';
       };
@@ -197,48 +197,63 @@ in
         type = lib.types.int;
         default = 20;
         description = ''
-          Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover auslöst.
-          Nur relevant wenn mode = "ondemand".
+          Freier Platz auf stagingDir (Tier-B/SSD) in GB unterhalb dessen der Mover
+          auf ein Piggyback-Fenster (HDD bereits active/idle, keine Leselast) wartet.
         '';
       };
-      mediaExtensions = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [
-          ".mkv"
-          ".mp4"
-          ".m4b"
-          ".mp3"
-          ".flac"
-          ".webm"
-          ".ts"
-        ];
+      criticalFreeGb = lib.mkOption {
+        type = lib.types.int;
+        default = 5;
         description = ''
-          Whitelist: nur Dateien mit diesen Endungen werden nach archiveDir (Tier-C/HDD) verschoben.
-          Metadaten (NFO/JPG/Poster/DB) bleiben auf der SSD-Arbeitsseite.
+          Kritische Untergrenze auf stagingDir (Tier-B/SSD) in GB: fällt der freie
+          Platz darunter, darf der Mover die HDD fail-closed wecken (ENOSPC-Schutz).
+          Muss strikt kleiner als minFreeGb sein.
+        '';
+      };
+      idleReadThresholdKb = lib.mkOption {
+        type = lib.types.int;
+        default = 1024;
+        description = ''
+          Maximale Leseaktivität (KB seit letztem Tick) auf dem Archiv-Blockdevice,
+          bei der die HDD noch als lese-inaktiv für das Piggyback-Fenster gilt.
+          Schützt Jellyfin-Streams vor Head-Thrashing und Seek-Latenz.
+        '';
+      };
+      piggybackInterval = lib.mkOption {
+        type = lib.types.str;
+        default = "5m";
+        description = ''
+          Monotones systemd-Timer-Intervall (OnUnitInactiveSec) zur Prüfung auf ein
+          freies Piggyback-Fenster (0 HDD-Zugriffe solange SSD >= minFreeGb oder HDD schläft).
+        '';
+      };
+      archiveDevice = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "/dev/disk/by-label/media-01";
+        description = ''
+          Optionaler expliziter Blockdevice-Pfad für die `hdparm -C`- und
+          `/sys/block/<dev>/stat`-Prüfung. null = automatische Ableitung aus archiveDir.
         '';
       };
       stagingDir = lib.mkOption {
-        type = lib.types.path;
-        default = cfg.storage.backends.hot or (cfg.storage.mediaRoot + "/downloads");
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        example = "/mnt/ssd/movies";
         description = ''
-          Quell-Pfad auf Tier-B (SSD): physisches Hot-Backend oder Staging-Verzeichnis.
-          Wenn storage.backends.hot gesetzt ist, zeigt dies direkt auf das physische SSD-Backend,
-          um innerhalb von MergerFS transparent von HOT nach COLD zu tierieren.
+          Expliziter Quell-Pfad auf Tier-B (SSD), z. B. "/mnt/ssd/movies".
+          Fail-Closed (null Default): darf NICHT direkt auf backends.hot oder
+          storage.metadataDir zeigen (Poka-Yoke gegen versehentliches Verschieben von cache/).
         '';
       };
       archiveDir = lib.mkOption {
-        type = lib.types.path;
-        default = cfg.storage.backends.cold or (cfg.storage.mediaRoot + "/library");
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        example = "/mnt/hdd/movies";
         description = ''
-          Ziel-Pfad auf Tier-C (HDD): physisches Cold-Backend oder Archiv-Verzeichnis.
-          Wenn storage.backends.cold gesetzt ist, zeigt dies direkt auf das physische HDD-Backend.
-        '';
-      };
-      action = lib.mkOption {
-        type = lib.types.enum [ "move" ];
-        default = "move";
-        description = ''
-          "move": Datei nach HDD verschieben, SSD wird frei (Hardlink SSD↔HDD unmöglich — cross-device).
+          Expliziter physischer Ziel-Pfad auf Tier-C (HDD), z. B. "/mnt/hdd/movies".
+          Fail-Closed (null Default): muss ein physischer Mount (kein MergerFS-Union-Pfad)
+          sein und darf NICHT direkt auf backends.cold zeigen.
         '';
       };
     };
@@ -1040,12 +1055,13 @@ in
           cold = "/mnt/hdd";
         };
         description = ''
-          Storage-Backends für Multi-Tier-Betrieb (ADR-5710).
-          Leer (Default) = einfacher Modus: nur mediaRoot, kein MergerFS.
-          hot + cold: Flake erstellt MergerFS-Pools für jeden Medientyp automatisch.
-          Erwartete Schlüssel: hot (SSD/NVMe), cold (HDD). Optional: media (mittleres Tier).
+          Storage-Backends für das 3-Tier-Modell (ADR-570):
+          - Tier 1 (NVMe State): OS, /var/lib, SQLite WAL, storage.metadataDir (0 HDD-Wakes)
+          - Tier 2 (SATA SSD Scratch): downloadDir (SABnzbd PAR2/Unpack) + hot Staging
+          - Tier 3 (SATA HDD JBOD Library): große MKVs + statische Audiobooks (XFS, noatime, nofail)
+          Leer ({}, Default) = Simple-Modus: nur mediaRoot, keine Tiers.
+          Exakt { hot; cold; } = Tiered-Modus (Poka-Yoke-Assertion in 570-storage.nix).
           Host-Pflicht: Physische Mounts (fileSystems."/mnt/ssd" etc.) im Host anlegen.
-          Nur die Zuordnung hot=/mnt/ssd; cold=/mnt/hdd kommt hierher.
         '';
       };
     };

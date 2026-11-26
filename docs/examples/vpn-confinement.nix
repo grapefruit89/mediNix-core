@@ -33,8 +33,13 @@
     fsType = "ext4";
   };
   fileSystems."/mnt/hdd" = {
-    device = "/dev/disk/by-label/HDD";
-    fsType = "ext4";
+    device = "/dev/disk/by-label/media-01";
+    fsType = "xfs";
+    options = [
+      "noatime"
+      "nofail"
+      "x-systemd.device-timeout=10s"
+    ];
   };
 
   # ── Host-Voraussetzungen fuer den VPN-Killswitch (ADR-526) ─────────────

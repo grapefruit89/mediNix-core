@@ -1,11 +1,11 @@
 # ---
 # id: "570-storage"
-# title: "Storage Tiering — MergerFS + Directory Structure (57-maintenance)"
+# title: "Storage Tiering — Directory Structure + XFS/MergerFS Contract (57-maintenance)"
 # domain: 57
 # folder: 57-maintenance
 # status: active
-# complexity: 4
-# last_reviewed: 2026-08-18
+# complexity: 2
+# last_reviewed: 2026-11-26
 # links:
 #   adr: ADR-570
 # provides: []
@@ -19,15 +19,17 @@
 # uds_socket: false
 # systemd_hardened: true
 # ---
-# Creates the logical directory structure (systemd.tmpfiles) and optionally
-# MergerFS pools (if storage.backends is set).
+# Creates the logical directory structure (systemd.tmpfiles) and publishes
+# recommended XFS/JBOD + MergerFS mount options (ADR-570).
 #
-# Two operational modes:
-#   Simple (backends = {}): Flat structure under storage.mediaRoot. No MergerFS.
-#   Tiered (backends != {}): MergerFS mounts per media type (hot + cold backends).
+# Two strictly validated operational modes (Poka-Yoke assertion):
+#   Simple (backends = {}): Flat structure under storage.mediaRoot.
+#   Tiered (backends = { hot; cold; }): Per-mediaType dirs on both tiers.
 #
-# ADR-570: Host mounts physical disks (fileSystems."/mnt/ssd" etc.),
-#           flake creates the logical structure + pools.
+# 3-Tier Contract:
+#   Tier 1 (NVMe State): OS, /var/lib, SQLite WAL, metadataDir (0 HDD wakes)
+#   Tier 2 (SSD Scratch): SABnzbd downloadDir (PAR2/Unpack) + hot write-staging
+#   Tier 3 (HDD JBOD): XFS (noatime, by-label, nofail), MKVs + static Audiobooks
 {
   config,
   lib,
@@ -37,36 +39,69 @@
 let
   cfg = config.medinix;
   st = cfg.storage;
+  tiers = lib.optionals (st.backends ? hot && st.backends ? cold) [
+    st.backends.hot
+    st.backends.cold
+  ];
   mediaTypes = [
     "movies"
     "series"
     "books"
+    "audiobooks"
     "music"
   ];
-  standardDirs = mediaTypes;
-  backendsActive = (st.backends ? hot) && (st.backends ? cold);
-  hot = st.backends.hot or "";
-  cold = st.backends.cold or "";
-
-  allDirs = [
-    (toString st.metadataDir)
-    (toString st.downloadDir)
-  ]
-  ++ map (dir: "${st.mediaRoot}/${dir}") standardDirs
-  ++ lib.optionals backendsActive (
-    map (t: "${hot}/${t}") mediaTypes ++ map (t: "${cold}/${t}") mediaTypes
-  );
 in
-lib.mkIf (cfg.enable && st.enable) {
-  # Ensure media group (sharedGid, SSoT: 50-core/derive.nix)
-  users.groups.media = lib.mkDefault { gid = (import ../50-core/derive.nix).sharedGid; };
+{
+  config = lib.mkMerge [
+    {
+      assertions = [
+        {
+          assertion =
+            (!cfg.enable || !st.enable)
+            || st.backends == { }
+            || (
+              st.backends ? hot && st.backends ? cold && builtins.length (builtins.attrNames st.backends) == 2
+            );
+          message = "[mediNix/570-storage] storage.backends: entweder {} (Simple) oder exakt { hot; cold; } (Tiered, ADR-570).";
+        }
+      ];
+    }
 
-  # Directory structure + permissions.
-  # 2 vor 775 = SetGID: neue Dateien UND neue Unterordner erben die Gruppe media.
-  # Notwendig seit der UPG-Umstellung (ADR-0000 §4): Primaergruppe der Dienste ist
-  # jetzt ihr eigener Name, 0775 allein hinterlaesst Dateien als <dienst>:<dienst> —
-  # Nachbardienste (Mitglied von media) koennten sie dann nicht mehr aendern.
-  # Lokal verifiziert (systemd 259): eine spaetere d-Regel korrigiert Modus und
-  # SetGID-Bit auch an bereits existierenden Verzeichnissen.
-  systemd.tmpfiles.rules = map (d: "d '${d}' 2775 root media -") allDirs;
+    (lib.mkIf (cfg.enable && st.enable) {
+      # Ensure media group (sharedGid, SSoT: 50-core/derive.nix)
+      users.groups.media = lib.mkDefault { gid = (import ../50-core/derive.nix).sharedGid; };
+
+      medinix.recommended.mountOptions = {
+        hdd = [
+          "noatime"
+          "nofail"
+          "x-systemd.device-timeout=10s"
+        ];
+        mergerfs = [
+          "defaults"
+          "allow_other"
+          "use_ino"
+          "category.create=ff"
+          "moveonenospc=mfs"
+          "minfreespace=50G"
+          "cache.readdir=true"
+          "cache.entry=30"
+          "cache.negative_entry=30"
+          "cache.statfs=30"
+          "cache.symlinks=true"
+          "dropcacheonclose=true"
+        ];
+      };
+
+      # SetGID (2775 root:media): neue Dateien und Unterordner erben Gruppe media (ADR-0000 §4).
+      systemd.tmpfiles.rules = map (d: "d '${d}' 2775 root media -") (
+        [
+          (toString st.metadataDir)
+          (toString st.downloadDir)
+        ]
+        ++ lib.concatMap (t: map (m: "${t}/${m}") mediaTypes) tiers
+        ++ map (m: "${st.mediaRoot}/${m}") mediaTypes
+      );
+    })
+  ];
 }

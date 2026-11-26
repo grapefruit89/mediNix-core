@@ -33,9 +33,13 @@
   };
 
   fileSystems."/mnt/hdd" = {
-    device = "/dev/disk/by-label/HDD";
-    fsType = "ext4";
-    options = [ "nofail" ];
+    device = "/dev/disk/by-label/media-01";
+    fsType = "xfs";
+    options = [
+      "noatime"
+      "nofail"
+      "x-systemd.device-timeout=10s"
+    ];
   };
 
   # ── mediNix-core ────────────────────────────────────────────────────────

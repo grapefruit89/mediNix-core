@@ -42,7 +42,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 4/5 | - |
+| `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 2/5 | - |
 | `571-sqlite-wal` | [`571-sqlite-wal.nix`](571-sqlite-wal.nix) | active | 3/5 | - |
 | `576-backup` | [`576-backup.nix`](576-backup.nix) | active | 3/5 | - |
 | `577-drift-detection` | [`577-drift-detection.nix`](577-drift-detection.nix) | active | 3/5 | - |

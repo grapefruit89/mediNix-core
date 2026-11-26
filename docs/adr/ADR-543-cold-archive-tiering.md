@@ -1,39 +1,33 @@
 ---
 id: "ADR-543"
-title: "Cold-Archive-Tiering: On-Demand-Mover statt Cron"
+title: "Cold-Archive-Tiering: Piggyback-Mover mit I/O-Contention-Schutz"
 status: active
 complexity: 3
-last_reviewed: 2026-10-16
+last_reviewed: 2026-11-26
 links:
   adr: ADR-5000 (native services), ADR-570 (Storage-Tiering)
 ---
 
-# ADR-543: Cold-Archive-Tiering - On-Demand-Mover statt Cron
+# ADR-543: Cold-Archive-Tiering - Piggyback-Mover mit I/O-Contention-Schutz
 
 ## Kontext
-Medien liegen in Tier B (SSD, schnell) und Tier C (HDD, kalt). Laeuft die SSD voll, muss
-rechtzeitig verschoben werden - ohne dauerhaften Daemon und ohne `cron` (ADR-5000: native Dienste).
+Der einzige legitime Grund für den Mover in einem Tiered-Setup ist **Write-Batching**: mehrere Importe am Tag bündeln und erst wegschreiben, wenn die Archiv-HDD ohnehin läuft und gerade nicht gestreamt wird. Ein naiver Mover weckt bei jedem Download-Event die HDD, zerreisst Releases in Einzeldateien (`.mkv` auf HDD, `.srt`/`.nfo` auf SSD) oder verursacht durch Vollgas-Writes Head-Thrashing während Jellyfin-Streams.
 
 ## Entscheidung
-- Ein **On-Demand-Mover** als Unit `mediNix-mover`, ausgeloest von einem **systemd-Timer**
-  (Safety-Netz, `mediNix-mover-safety`) und optional per Path-Trigger - **kein** `cron`.
-- Der Mover arbeitet bedarfsgesteuert: Ziel ist "genug freier Platz auf der SSD", dann stoppt er
-  (Fill-Level-Check auf Tier B).
-- Es wandern nur **whitelisted Endungen**, Dateien **>= 50 MB**, die seit **mindestens 5 Minuten**
-  unveraendert sind (`-mmin +5`); aktiv geoeffnete Dateien werden uebersprungen (Lock-Check).
+- **Ganze Release-Ordner statt Einzeldateien:** Der Mover (`543-mover.nix`) verschiebt komplette Release-Verzeichnisse atomar (`.mkv`, `.nfo`, `.srt`, `.jpg`, `Subs/` bleiben zusammen).
+- **4-Gate-Pipeline (strikte Reihenfolge gegen unnötige HDD-Wakes):**
+  1. **Gate 1 (Pfade & Mount-Schutz):** `stagingDir != archiveDir`, Ziel-Mountpoint != `/`, Ziel ist physischer Mount (`!= fuse.mergerfs`). 0 HDD-I/O.
+  2. **Gate 2 (Füllstand & Vorrat auf SSD):** `free >= minFreeGb` oder keine Kandidaten auf SSD -> sofort `exit 0`. 0 HDD-I/O.
+  3. **Gate 3 (Piggybacking via `hdparm -C`):** Bei `free >= criticalFreeGb` wird die HDD **niemals** geweckt; nur wenn `active/idle` gemeldet wird, geht es weiter. Erst unterhalb `criticalFreeGb` (Fail-Closed ENOSPC-Schutz) erfolgt ein geloggter `WAKE`.
+  4. **Gate 4 (I/O-Contention / Playback-Schutz):** Prüft `/sys/block/<disk>/stat` (`in_flight > 0` oder Lese-Sektoren-Delta seit letztem Tick > `idleReadThresholdKb`). Dreht die HDD (`active/idle`), aber Jellyfin liest aktiv, verschiebt der Mover den Lauf auf das ruhige Spindown-/Pufferfenster nach dem Film.
+- **I/O-Priorisierung:** `IOSchedulingClass = "idle"` (`ionice -c 3`) + `Nice = 19`, damit Lesezugriffe im Kernel-Scheduler jederzeit Vorrang haben.
+- **Monotoner Piggyback-Ticker statt `PathChanged`:** `systemd.timers.mediNix-mover` (`OnUnitInactiveSec = piggybackInterval`, Default `5m`) ohne `cron` und ohne `systemd.path`-Sturm (`StartLimitBurst`-Ausfälle beim SABnzbd-Entpacken).
 
-## Datenintegritaet (die eigentlichen Regeln)
-- **Atomares Veroeffentlichen:** erst in eine kollisionsfreie Temp-Datei im Ziel kopieren, dann
-  umbenennen - nie direkt in den Zielpfad schreiben.
-- **Vorflug-Check:** die Ziel-HDD braucht Platz fuer die Datei **plus 1 GB** Reserve.
-- **Ziel existiert bereits:** gleiche Groesse -> Staging-Datei entfernen (voriger Lauf war
-  unterbrochen); andere Groesse -> warnen und **nicht** ueberschreiben.
-- **Nebenlaeufigkeit:** ein Lock verhindert ueberlappende Laeufe (manuell, Timer, Pfad-Trigger).
-- **Abbruch:** Signal-Trap entfernt sofort eine in Arbeit befindliche Temp-Datei.
-- **Aufraeumen:** Staging-Reste aus abgebrochenen Laeufen (> 24 h) werden entfernt.
-- **Fehl-Mount-Schutz:** niemals auf die Root-SSD schreiben, wenn der Ziel-Mount fehlt.
+## Datenintegritaet & Poka-Yoke
+- **Fail-Closed Optionen:** `stagingDir` und `archiveDir` haben `default = null` und Compile-Time-Assertions verbieten `backends.hot`/`.cold`-Wurzeln sowie Überlappung mit `storage.metadataDir`.
+- **Atomares Veroeffentlichen außerhalb der Union:** Kopie mit `cp -a --reflink=auto` in `$ARCHIVE_MNT/.mover-tmp` (gleiches XFS, außerhalb des MergerFS-Branches), `sync -f` vor `mv -T`, erst danach `rm -rf` der Quelle.
+- **Kein Subshell-Trap-Bug:** Iteration per Prozesssubstitution `< <(find ... | sort -z)`, sodass `trap cleanup EXIT INT TERM` die aktive Temp-Kopie im Parent sieht; Altlasten in `.mover-tmp` werden erst nach Passieren aller Gates abgeräumt (0 HDD-Wake).
 
 ## Konsequenzen
-- Kein "Cron feuert zur falschen Zeit"-Risiko; die Safety-Timer-Frequenz muss zur Erwartung passen.
-- Der Lauf ist idempotent und jederzeit erneut ausfuehrbar; jeder Abbruch hinterlaesst hoechstens
-  eine Temp-Datei, die beim naechsten Lauf aufgeraeumt wird.
+- Hauswirtschaft weckt die HDD im Normalbetrieb niemals (nur nutzerinitiierte Wiedergabe/Importe wecken; Ausnahme `criticalFreeGb`).
+- Während laufender Jellyfin-Wiedergabe bleibt der Mover still; das ideale Fenster ist das Spindown-Verzögerungsfenster nach Filmende.

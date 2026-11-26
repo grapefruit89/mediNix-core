@@ -309,6 +309,11 @@
           medinix.navidrome.setupCompleted = true;
           medinix.audiobookshelf.setupCompleted = true;
           medinix.manifest.seerr.allowUnauthenticated = true;
+          medinix.mover = {
+            enable = true;
+            stagingDir = "/var/tmp/medinix-staging/movies";
+            archiveDir = "/var/tmp/medinix-archive/movies";
+          };
         };
 
         stackNixos = lib.nixosSystem {
@@ -403,6 +408,47 @@
               medinix.crowdsec.enable = true;
               medinix.crowdsec.bouncer = true;
               medinix.hostIntegration.nftables = "external";
+            };
+
+        # 570/543 Storage & Mover Poka-Yoke Negativtests
+        checks.mediNix-negative-storage-half-backends =
+          expectAssertion "storage-half-backends" "[mediNix/570-storage]"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.backends = {
+                hot = "/mnt/ssd";
+              };
+            };
+        checks.mediNix-negative-mover-missing-dirs =
+          expectAssertion "mover-missing-dirs" "stagingDir und archiveDir muessen explizit gesetzt"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.mover.enable = true;
+            };
+        checks.mediNix-negative-mover-hot-root =
+          expectAssertion "mover-hot-root" "nicht direkt auf backends.hot"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.backends = {
+                hot = "/mnt/ssd";
+                cold = "/mnt/hdd";
+              };
+              medinix.mover = {
+                enable = true;
+                stagingDir = "/mnt/ssd";
+                archiveDir = "/mnt/hdd/movies";
+              };
+            };
+        checks.mediNix-negative-mover-metadata-overlap =
+          expectAssertion "mover-metadata-overlap" "storage.metadataDir ueberlappen"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.metadataDir = "/mnt/ssd/cache";
+              medinix.mover = {
+                enable = true;
+                stagingDir = "/mnt/ssd/cache";
+                archiveDir = "/mnt/hdd/movies";
+              };
             };
 
         # ── B1: Port-Verdrahtung (zweiter Riegel neben dem Zahlen-Check) ─────
