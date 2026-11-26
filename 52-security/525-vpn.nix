@@ -154,7 +154,7 @@ in
           LoadCredentialEncrypted = [
             "wg-private-key:${vpn.privateKeyCredentialPath}"
           ];
-          Restart = "always";
+          Restart = "on-failure";
           RestartSec = "5s";
         };
       };
