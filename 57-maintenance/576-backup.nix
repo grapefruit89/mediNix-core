@@ -1,16 +1,20 @@
 # ---
 # id: "576-backup"
-# title: "Restic backup of class-A2 state (registry paths, DB-safe stop)"
+# title: "Backup of class-A2 state (Restic & optional SSH-pull, DB-safe stop)"
 # domain: 57
 # folder: 57-maintenance
 # status: active
 # complexity: 3
-# last_reviewed: 2026-09-02
+# last_reviewed: 2026-11-26
 # provides: ["backup"]
 # requires: ["50-core/hardening-profiles", "50-core/registry"]
 # links:
 #   adr: ADR-576
 # ---
+# Kanonisches Backup-Modul (ADR-576):
+#   1. Restic-Backup der A2-State-Verzeichnisse mit DB-Safe Stop/Start
+#   2. Optionales Offsite-Copy (z. B. S3, SFTP via rclone) & wöchentlicher Check
+#   3. Optionaler SSH-Pull-User (backup) für externe Backups via rsync/Polkit
 {
   config,
   lib,
@@ -21,6 +25,7 @@
 let
   cfg = config.medinix;
   bkp = cfg.maintenance.backup;
+  sshCfg = cfg.security.backupSsh;
   profiles = import ../50-core/hardening-profiles.nix { inherit lib; };
   registry = import ../50-core/registry.nix { inherit lib; };
 
@@ -66,7 +71,6 @@ let
   };
 
   primaryPasswordFile = "/run/credentials/restic-backups-mediNix.service/restic-password";
-
   offsitePasswordFile = "/run/credentials/mediNix-backup-offsite-copy.service/restic-password-offsite";
 
   ntfyPort = registry.services.ntfy.port;
@@ -105,108 +109,141 @@ let
     ];
     text = ''
       set -euo pipefail
+      echo "mediNix-backup: checking repository integrity..."
       if ! restic -r "${bkp.repository}" --password-file "${primaryPasswordFile}" check; then
         ${lib.optionalString ntfyEnabled ''
-          curl -s -H "Title: mediNix Backup Integrity Check FAILED" -H "Tags: rotating_light,floppy_disk" -H "Priority: 5" \
-            -d "restic check failed on the primary repository." \
+          curl -s -H "Title: mediNix Backup Integrity FAILED" -H "Tags: skull,database" -H "Priority: 5" \
+            -d "Local restic repository check failed. Investigate immediately." \
             "${ntfyUrl}" || true
         ''}
         exit 1
       fi
     '';
   };
+
+  # SSH-Pull Units & Polkit
+  units = lib.mapAttrsToList (_: s: "${s.unitName}.service") stateful;
+  unitList = lib.concatMapStringsSep ", " (u: "\"${u}\"") units;
 in
-lib.mkIf (cfg.enable && bkp.enable) {
-  assertions = [
-    {
-      assertion = bkp.repository != "";
-      message = ''
-        [mediNix] maintenance.backup.repository is empty.
-        Host supplies the destination (local path, sftp:, rclone:...). Ref: ADR-576.
-      '';
-    }
-    {
-      assertion = bkp.passwordCredentialPath != null;
-      message = ''
-        [mediNix] set passwordCredentialPath (sealed systemd-creds).
-        passwordFile is not accepted. Ref: ADR-576.
-      '';
-    }
-    {
-      assertion = !bkp.offsite.enable || bkp.offsite.repository != "";
-      message = "[mediNix] offsite.enable requires offsite.repository (3-2-1).";
-    }
-    {
-      assertion = !bkp.offsite.enable || bkp.offsite.passwordCredentialPath != null;
-      message = "[mediNix] offsite.enable requires offsite.passwordCredentialPath.";
-    }
-  ];
+{
+  config = lib.mkMerge [
+    # ── Restic Backup Engine ─────────────────────────────────────────────────
+    (lib.mkIf bkp.enable {
+      assertions = [
+        {
+          assertion = bkp.repository != "";
+          message = "mediNix: maintenance.backup.repository must be set when backup is enabled.";
+        }
+        {
+          assertion = bkp.passwordCredentialPath != null || bkp.passwordFile != "";
+          message = "mediNix: maintenance.backup requires either passwordCredentialPath (preferred, systemd-creds) or passwordFile.";
+        }
+        {
+          assertion = !(bkp.offsite.enable && bkp.offsite.repository == "");
+          message = "mediNix: maintenance.backup.offsite.repository must be set when offsite backup is enabled.";
+        }
+        {
+          assertion = !(bkp.offsite.enable && bkp.offsite.passwordCredentialPath == null);
+          message = "mediNix: maintenance.backup.offsite.passwordCredentialPath must be set when offsite backup is enabled.";
+        }
+      ];
 
-  services.restic.backups.mediNix = {
-    paths = mediaStateDirs ++ [ cfg.secrets.secretsDir ];
-    inherit (bkp) repository;
-    passwordFile = primaryPasswordFile;
-    timerConfig.OnCalendar = bkp.schedule;
-    backupPrepareCommand = lib.getExe preCmd;
-    backupCleanupCommand = lib.getExe postCmd;
-    pruneOpts = [
-      "--keep-daily 7"
-      "--keep-weekly 4"
-      "--keep-monthly 6"
-    ];
-    extraBackupArgs = [
-      "--exclude=transcodes"
-      "--exclude=cache"
-      "--exclude=Cache"
-      "--exclude=incomplete"
-      "--exclude=Downloads"
-      "--exclude=logs"
-    ];
-  };
-
-  systemd.services."restic-backups-mediNix".serviceConfig = {
-    LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
-  };
-
-  systemd.services."restic-backups-mediNix".unitConfig.OnSuccess = lib.mkIf bkp.offsite.enable [
-    "mediNix-backup-offsite-copy.service"
-  ];
-
-  systemd.services."mediNix-backup-offsite-copy" = lib.mkIf bkp.offsite.enable {
-    description = "mediNix offsite restic copy";
-    serviceConfig = lib.mkMerge [
-      profiles.client
-      {
-        Type = "oneshot";
-        ExecStart = lib.getExe offsiteCopyCmd;
-        LoadCredentialEncrypted = lib.mkMerge [
-          [ "restic-password-offsite:${toString bkp.offsite.passwordCredentialPath}" ]
-          (lib.optional (
-            bkp.offsite.rcloneConfigFile != null
-          ) "rclone.conf:${toString bkp.offsite.rcloneConfigFile}")
+      services.restic.backups.mediNix = {
+        inherit (bkp) repository;
+        paths = mediaStateDirs ++ [ cfg.secrets.secretsDir ];
+        passwordFile = primaryPasswordFile;
+        timerConfig.OnCalendar = bkp.schedule;
+        backupPrepareCommand = lib.getExe preCmd;
+        backupCleanupCommand = lib.getExe postCmd;
+        pruneOpts = [
+          "--keep-daily 7"
+          "--keep-weekly 4"
+          "--keep-monthly 6"
         ];
-      }
-    ];
-    environment = lib.mkIf (bkp.offsite.rcloneConfigFile != null) {
-      RCLONE_CONFIG = "%d/rclone.conf";
-    };
-  };
+        extraBackupArgs = [
+          "--exclude=transcodes"
+          "--exclude=cache"
+          "--exclude=Cache"
+          "--exclude=incomplete"
+          "--exclude=Downloads"
+          "--exclude=logs"
+        ];
+      };
 
-  systemd.services."mediNix-backup-check" = {
-    description = "mediNix restic check";
-    serviceConfig = lib.mkMerge [
-      profiles.script
-      {
-        Type = "oneshot";
-        ExecStart = lib.getExe checkCmd;
+      systemd.services."restic-backups-mediNix".serviceConfig = {
         LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
-      }
-    ];
-  };
-  systemd.timers."mediNix-backup-check" = {
-    description = "Weekly restic check";
-    wantedBy = [ "timers.target" ];
-    timerConfig.OnCalendar = "weekly";
-    timerConfig.Persistent = true;
-  };
+      };
+
+      systemd.services."restic-backups-mediNix".unitConfig.OnSuccess = lib.mkIf bkp.offsite.enable [
+        "mediNix-backup-offsite-copy.service"
+      ];
+
+      systemd.services."mediNix-backup-offsite-copy" = lib.mkIf bkp.offsite.enable {
+        description = "mediNix offsite restic copy";
+        serviceConfig = lib.mkMerge [
+          profiles.client
+          {
+            Type = "oneshot";
+            ExecStart = lib.getExe offsiteCopyCmd;
+            LoadCredentialEncrypted = lib.mkMerge [
+              [ "restic-password-offsite:${toString bkp.offsite.passwordCredentialPath}" ]
+              (lib.optional (
+                bkp.offsite.rcloneConfigFile != null
+              ) "rclone.conf:${toString bkp.offsite.rcloneConfigFile}")
+            ];
+          }
+        ];
+        environment = lib.mkIf (bkp.offsite.rcloneConfigFile != null) {
+          RCLONE_CONFIG = "%d/rclone.conf";
+        };
+      };
+
+      systemd.services."mediNix-backup-check" = {
+        description = "mediNix restic check";
+        serviceConfig = lib.mkMerge [
+          profiles.script
+          {
+            Type = "oneshot";
+            ExecStart = lib.getExe checkCmd;
+            LoadCredentialEncrypted = "restic-password:${toString bkp.passwordCredentialPath}";
+          }
+        ];
+      };
+      systemd.timers."mediNix-backup-check" = {
+        description = "Weekly restic check";
+        wantedBy = [ "timers.target" ];
+        timerConfig.OnCalendar = "weekly";
+        timerConfig.Persistent = true;
+      };
+    })
+
+    # ── Optionaler SSH-Pull Backup User (ehemals 579-backup-ssh) ─────────────
+    (lib.mkIf sshCfg.enable {
+      users.users.backup = {
+        isNormalUser = true;
+        extraGroups = [ "media" ];
+        openssh.authorizedKeys.keys = sshCfg.sshKeys;
+      };
+
+      services.openssh.extraConfig = ''
+        Match User backup
+          AllowTcpForwarding no
+          X11Forwarding no
+          PermitTTY no
+          ForceCommand ${pkgs.rsync}/bin/rsync --server --sender -vlogDtprze.iLsfxCIvu . /var/lib/
+      '';
+
+      security.polkit.extraConfig = ''
+        polkit.addRule(function(action, subject) {
+          var allowedUnits = [ ${unitList} ];
+          if (action.id == "org.freedesktop.systemd1.manage-units" && subject.user == "backup") {
+            var unit = action.lookup("unit");
+            if (allowedUnits.indexOf(unit) !== -1) {
+              return polkit.Result.YES;
+            }
+          }
+        });
+      '';
+    })
+  ];
 }

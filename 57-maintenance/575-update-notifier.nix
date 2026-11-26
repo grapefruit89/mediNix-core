@@ -1,11 +1,11 @@
 # ---
-# id: "588-update-notifier"
+# id: "575-update-notifier"
 # title: "Update Notifier — checks mediNix-core flake for new version, notifies via ntfy"
-# domain: 58
-# folder: 58-observability
+# domain: 57
+# folder: 57-maintenance
 # status: active
 # complexity: 3
-# last_reviewed: 2026-08-11
+# last_reviewed: 2026-11-26
 # links:
 #   adr: ADR-5043
 # provides: []
@@ -20,10 +20,6 @@
 # systemd_hardened: true
 # skill: nixos-context7-gate
 # note: "NO auto-update. Only notifies. User decides when to rebuild."
-# context7:
-# - query: "systemd.timers OnCalendar daily example"
-# library: /websites/nixos_manual_nixos_unstable
-# snippet: "timerConfig.OnCalendar = \"daily\" for scheduled checks"
 # ---
 {
   config,
@@ -51,14 +47,11 @@ lib.mkIf cfg.enable {
   systemd.services.mediNix-update-notifier = {
     description = "Check mediNix-core flake for updates (notify only, no auto-update)";
     serviceConfig = lib.mkMerge [
-      # client profile: HTTP requests (flake metadata + ntfy), no port binding
       (import ../50-core/hardening-profiles.nix { inherit lib; }).client
       {
         Type = "oneshot";
         User = "media";
         Group = "media";
-        # nix flake metadata requires nix-daemon-socket (ProtectSystem=strict
-        # + PrivateTmp block /nix/var/nix/daemon-socket otherwise)
         BindReadOnlyPaths = [ "/nix/var/nix/daemon-socket" ];
       }
     ];
@@ -66,13 +59,11 @@ lib.mkIf cfg.enable {
       pkgs.nix
       pkgs.jq
       pkgs.curl
-    ]; # nix + jq + curl explicitly in PATH
+    ];
     script = ''
       set -euo pipefail
-      # Remote lastModified (GitHub HEAD of mediNix-core)
       current=$(nix flake metadata github:grapefruit89/mediNix-core --json 2>/dev/null \
         | jq -r '.locks.nodes."mediNix-core".locked.lastModified' || echo "0")
-      # Local lock lastModified
       local=$(nix flake metadata . --json 2>/dev/null \
         | jq -r '.locks.nodes."mediNix-core".locked.lastModified' || echo "0")
 

@@ -1,14 +1,17 @@
 # ---
-# id: "502-host-settings"
-# title: "Host Settings & Domain Baseline"
+# id: "502-host"
+# title: "Host Settings, Domain Baseline & Chameleon Host Integration (50-core)"
 # domain: 50
 # folder: 50-core
 # status: active
-# complexity: 1
-# last_reviewed: 2026-10-12
+# complexity: 2
+# last_reviewed: 2026-11-26
 # links:
-#   adr: ADR-0000
+#   adr: ADR-0000, ADR-0003
 # ---
+# Zentrale Host-Konfiguration fuer mediNix:
+#   1. Unicast-Base-Domain, FQDN, Admin-Email, RAM & LAN-IP Baseline
+#   2. Chamäleon Host-Integration (ReverseProxy, Firewall, nftables Ownership)
 {
   config,
   lib,
@@ -73,6 +76,17 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # ── Chamäleon Host-Integration ───────────────────────────────────────────
+    services.caddy.enable = lib.mkIf (cfg.hostIntegration.reverseProxy == "managed") true;
+    networking.firewall.enable = lib.mkIf (cfg.hostIntegration.firewall == "managed") (
+      lib.mkDefault true
+    );
+    networking.nftables.enable = lib.mkIf (cfg.hostIntegration.nftables == "managed") true;
+    networking.nftables.tables = lib.mkIf (
+      cfg.hostIntegration.nftables == "managed"
+    ) cfg.recommended.nftables;
+
+    # ── Host & Domain Assertions ─────────────────────────────────────────────
     assertions =
       let
         dom = cfg.host.domain;

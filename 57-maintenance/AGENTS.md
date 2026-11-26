@@ -42,12 +42,11 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
-| `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 2/5 | - |
+| `570-storage` | [`570-storage.nix`](570-storage.nix) | active | 3/5 | - |
 | `571-sqlite-wal` | [`571-sqlite-wal.nix`](571-sqlite-wal.nix) | active | 3/5 | - |
+| `575-update-notifier` | [`575-update-notifier.nix`](575-update-notifier.nix) | active | 3/5 | - |
 | `576-backup` | [`576-backup.nix`](576-backup.nix) | active | 3/5 | - |
-| `577-drift-detection` | [`577-drift-detection.nix`](577-drift-detection.nix) | active | 3/5 | - |
-| `578-orphan-cleanup` | [`578-orphan-cleanup.nix`](578-orphan-cleanup.nix) | active | 3/5 | - |
-| `579-backup-ssh` | [`579-backup-ssh.nix`](579-backup-ssh.nix) | active | 2/5 | - |
+| `577-hygiene` | [`577-hygiene.nix`](577-hygiene.nix) | active | 3/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -60,14 +59,13 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 ```mermaid
 graph TD
-  570_storage["570-storage"]
+  570_storage["570-storage"] --> hardening_profiles["50-core/hardening-profiles"]
   571_sqlite_wal["571-sqlite-wal"] --> hardening_profiles["50-core/hardening-profiles"]
   571_sqlite_wal["571-sqlite-wal"] --> registry["50-core/registry"]
+  575_update_notifier["575-update-notifier"] --> hardening_profiles["50-core/hardening-profiles"]
   576_backup["576-backup"] --> hardening_profiles["50-core/hardening-profiles"]
   576_backup["576-backup"] --> registry["50-core/registry"]
-  577_drift_detection["577-drift-detection"] --> hardening_profiles["50-core/hardening-profiles"]
-  578_orphan_cleanup["578-orphan-cleanup"]
-  579_backup_ssh["579-backup-ssh"] --> registry["50-core/registry"]
+  577_hygiene["577-hygiene"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 
 

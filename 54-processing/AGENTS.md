@@ -42,7 +42,6 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
 | `541-sabnzbd` | [`541-sabnzbd.nix`](541-sabnzbd.nix) | active | 2/5 | - |
-| `543-mover` | [`543-mover.nix`](543-mover.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
 
@@ -59,7 +58,6 @@ graph TD
   541_sabnzbd["541-sabnzbd"] --> hardening_profiles["50-core/hardening-profiles"]
   541_sabnzbd["541-sabnzbd"] --> memory_policy["50-core/memory-policy"]
   541_sabnzbd["541-sabnzbd"] --> creds["52-security/creds"]
-  543_mover["543-mover"] --> hardening_profiles["50-core/hardening-profiles"]
 ```
 
 
