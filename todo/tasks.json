@@ -493,8 +493,8 @@
         },
         {
           "type": "internal",
-          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
-          "note": "Fundstelle T-28-11"
+          "ref": "todo/tasks.json",
+          "note": "Fundstelle T-28-11 (Archiv in Obsidian/Nix Drama/audit-archive)"
         }
       ]
     },
@@ -1368,8 +1368,8 @@
       "research": [
         {
           "type": "internal",
-          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
-          "note": "Q-28-08: 19 committete Dateien"
+          "ref": "todo/tasks.json",
+          "note": "Q-28-08: 19 committete Dateien (Archiv in Obsidian/Nix Drama/audit-archive)"
         }
       ]
     },
@@ -2135,8 +2135,8 @@
       "research": [
         {
           "type": "internal",
-          "ref": "docs/audit/2026-11-05/todo-blocks/28-verify-open-points.json",
-          "note": "Fundstelle"
+          "ref": "todo/tasks.json",
+          "note": "Fundstelle (Archiv in Obsidian/Nix Drama/audit-archive)"
         },
         {
           "type": "resource",
