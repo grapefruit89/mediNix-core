@@ -65,5 +65,5 @@ legitim; ein „Fix", der es umbaut, zerstört die Funktion.
 
 ## Referenzen
 
-- `docs/concepts/nixos-eigenschaften.md` · `docs/adr/ADR-040-*.md`
+- `docs/NIXOS-ANCHORS.md` §D (Denkrahmen) · `docs/adr/ADR-040-*.md`
 - `scripts/nixos_idiom_audit.py` · `docs/RUNBOOK.md`

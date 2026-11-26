@@ -2,8 +2,8 @@
 # id: "5xx-service-template"
 # title: "Agent Blueprint — Kopiere diese Vorlage fuer jeden neuen Dienst"
 # domain: 55
-# folder: "docs/examples"
-# status: example
+# folder: "docs/agents/02-medinix-core/nixos-medinix-authoring/templates"
+# status: template
 # complexity: 1
 # last_reviewed: 2026-10-15
 # contract: schemaVersion = 1 (ADR-0010)

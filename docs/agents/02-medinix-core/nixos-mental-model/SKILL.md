@@ -39,7 +39,7 @@ Nach dem zweiten Fehlschlag: **Methode wechseln** und dem Menschen berichten.
 
 ## Referenzen
 
-- `docs/concepts/nixos-eigenschaften.md` — die vollständige Liste mit Belegen
+- `docs/NIXOS-ANCHORS.md` §D (Denkrahmen) — die vollständige Liste mit Belegen
 - `docs/adr/ADR-040-gerichtete-abhaengigkeiten.md`
 - `docs/adr/ADR-0000-dezimalrahmen-verfassung.md`
 - `.agent-state.json` → `corridor.blacklist`

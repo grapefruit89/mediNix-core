@@ -38,7 +38,7 @@
 
 | Aufgabe | Zuerst lesen | Dann / Aktion |
 |---|---|---|
-| Neuen Dienst aufnehmen | `docs/NAVIGATION.md` → `docs/modules/_TEMPLATE.md` | `50-core/registry.nix`, `50-core/service-factory.nix` |
+| Neuen Dienst aufnehmen | `docs/NAVIGATION.md` | `50-core/registry.nix`, `50-core/service-factory.nix` |
 | UID/Port/GID ableiten | `50-core/501-decimal-engine.nix`, `50-core/derive.nix` | `docs/adr/ADR-0000-…md` (UPG) |
 | Hardening ändern | `50-core/hardening-profiles.nix` | `docs/adr/ADR-5050-…md`, `systemd-analyze security` |
 | Ingress/Route/SSO | `51-ingress/511-caddy.nix` bzw. `517-oauth2-proxy.nix` | `docs/ingress-security-matrix.md`, 519-Guardrails |

@@ -57,4 +57,15 @@ No external KMS, no GPG/age keyring.
 
 *Quellen:* Chat-1-Block 04 (Entscheidung `D-04-03`) und `blocks/04-credentials-systemd-creds.json`.
 
+## Nachtrag (2026-11): Secret-Contract & Sealed Credentials Härtung
+
+Gemäß der Konsolidierung aus `docs/concepts/secrets-systemd.md`:
+1. **Übergabe-Contract (`LoadCredentialEncrypted`):**
+   - mediNix-Dienste laden versiegelte Secrets ausschließlich via `LoadCredentialEncrypted = [ "<key-name>:${cfg.secrets.<name>}" ];`.
+   - Der Pfad im Dateisystem ist deterministisch `/run/credentials/<unit-name>/<key-name>` (`0400`, owned by service UID).
+   - Kein Klartext-Speichern im Nix-Store (`/nix/store` ist world-readable!).
+2. **Trennung von Verantwortung:**
+   - mediNix-core definiert, *welche* Credentials ein Dienst benötigt und wie systemd sie isoliert.
+   - Der Host (bzw. Bereitstellungs-Mechanismus) ist dafür verantwortlich, versiegelte `.cred`-Dateien (mittels TPM2 oder Host-Key) abzulegen.
+
 ---

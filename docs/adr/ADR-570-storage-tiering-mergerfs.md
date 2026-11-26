@@ -37,3 +37,12 @@ Zwei Ebenen: **physisch** (der Host mountet die Platten, `fileSystems."/mnt/ssd"
 - Plattenwechsel oder Ausbau ist eine Host-Aenderung, kein Flake-Umbau.
 - Im Tiered-Modus entscheidet `backends`, welche Platte "hot" (schnell) und welche "cold"
   (Archiv) ist - der Mover (543) kennt nur die Pfade, nicht die Platten.
+
+## Nachtrag (2026-11): Composition Boundary & Mover-Contract
+
+Gemäß der Konsolidierung aus `docs/concepts/storage-mover.md`:
+1. **Composition Boundary:**
+   - mediNix-core besitzt **keine** physischen Laufwerke oder Partitionstabellen. Das Partitionieren und Einhängen von Datenträgern obliegt der Host-Konfiguration.
+   - mediNix-core definiert den Speichervertrag: Tier A (`/var/lib`), Tier B (`/mnt/ssd`), Tier C (`/mnt/hdd`) und den MergerFS-Union-Pfad (`/srv/media`).
+2. **Ondemand-Mover (543):**
+   - Der Mover (`543-mover.nix`) agiert auf Dateipfaden, nicht auf physischen Geräten. Er überwacht SSD-Freispeicher via `minFreeGb` und verschiebt ruhende Mediendateien atomar von Tier B nach Tier C.

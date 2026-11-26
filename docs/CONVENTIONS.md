@@ -68,7 +68,7 @@ ist für mehrere Werkzeuge gedacht) oder entfernt.
 | `50-core/` (Engine, Factory, Contract, Profiles, Registry, memory-policy, creds, repl.nix, **smoke-test.nix**, **vm-smoke-test.nix**) | geteilte Logik, Foundation & REPL. **Tests liegen hier**, neben dem Vertrag, den sie prüfen (Dezimalrahmen) — es gibt keinen eigenen `tests/`-Ordner mehr. | ja |
 | `Batches/B<NN> - <Thema>/` | Review-Scheiben: `prompt.md` + Symlinks je Batch (Methode: `Batches/README.md`); `merged.md` ist Build-Output und ignoriert | ja |
 | `packages/<name>/` | Nix-Derivationen und mitgelieferte Python-Pakete (Paket-Layout mit `default.nix`); ein Ordner mit `default.nix` ist von der 4-Dateien-Regel ausgenommen | ja |
-| `docs/adr/` `arch/` `guides/` `concepts/` `examples/` | Wissensbasis (Patterns: externe Resteküche) | ja |
+| `docs/adr/` `arch/` `modules/` `examples/` | Wissensbasis (ADRs, Architektur, Moduldoku, Beispiele) | ja |
 | `docs/agents/<kategorie>/<skill>/` (`SKILL.md` + `references/`/`templates/`/`scripts/`) | Agenten-Skills | ja |
 | `docs/audit/<jahr-monat>/` (+ `repo-cleanup/<original-pfad>/`) | **einziges** Archiv für Ausgemustertes | ja |
 | `docs/archive/` | thematische Alt-Doku (z. B. `ARCHIVE-sops-nix-deprecated.md`) | ja |
@@ -219,3 +219,21 @@ Dazu `flake-check.yml` (`nix flake check`) und `docs-index.yml` (INDEX aktuell).
 **Fail-closed:** Alle Guardrails sind `config.assertions` — eine Fehlkonfiguration bricht den **Build**, nicht den Betrieb.
 
 **Stand (verifiziert in `flake.nix`):** Die Flake-Inputs sind nur `nixpkgs` und `flake-utils`. Kein FlakeHub, kein Magic-Nix-Cache, kein flake-checker.
+
+## Recherche- & Verifikations-Hierarchie (Ground-Truth-Whitelist)
+
+Um Halluzinationen und veraltete Workarounds bei KI-Recherchen (Meister/Rechercheur-Muster) deterministisch auszuschließen, gilt für alle Analysen und Coding-Aufgaben eine verbindliche Quellen-Hierarchie:
+
+1. **Ebene 1 — Lokale Verfassung (Höchste Priorität):**
+   - `ADR-0000` (Dezimalrahmen-Verfassung), `ADR-0010` (Port-Deklaration), `50-core/BANNED_TECHNOLOGIES.md`, `50-core/hardening-profiles.nix`, `SCRATCHBOARD.md`.
+   - Jeder externe Vorschlag, der diesen Regeln widerspricht (z. B. SQLite-Schreibzugriffe, Docker-Container, `time.sleep`-Polling, imperativer State außerhalb von `/var/lib`), ist a priori ungültig und sofort abzuweisen.
+
+2. **Ebene 2 — Offizieller Upstream (Verbindliche Referenzen):**
+   - Offizielle NixOS-Optionen: `search.nixos.org` (Version 24.11+ / unstable).
+   - Nixpkgs Source Code: `nixos/modules/*` und `pkgs/*` im offiziellen Nixpkgs-Repository.
+   - Offizielle Dokumentation: NixOS Manual (`nixos.org/manual/nixos`), nix.dev, offizielle systemd-Manpages (`man systemd.exec`, `man systemd.service`).
+
+3. **Ebene 3 — Strikte Blacklist (Unzulässige Quellen):**
+   - Veraltete Medium-Blogs, Dev.to-Artikel oder Tutorials vor 2024.
+   - Ungeprüfte Reddit-Snippets (`r/NixOS`), GitHub-Gists ohne Flake-Kontext oder Chat-Zusammenfassungen.
+   - Drittanbieter-Flake-Generatoren oder Wrapper, die nicht im Projekt sanktioniert sind.

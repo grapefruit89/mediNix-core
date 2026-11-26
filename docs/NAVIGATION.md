@@ -49,6 +49,7 @@ Dekade hat, steht in ADR-0000 §3 und in der Repo-Landkarte der `AGENTS.md`.
 | `monitoring.enable` ist per Default `true`, `monitoring.type` per Default `"http"`. Ein Manifest-Eintrag ohne `healthPath` bricht deshalb den Build. | `50-core/service-contract.nix:140` (enable), `:152` (type), `:163-169` (healthPath) |
 | Die neue Datei wird automatisch geladen — aber nur, wenn sie `XX-domain/NNN-*.nix` heißt. | `default.nix:26-27` — „Auto-imports every XX-domain/NNN-*.nix module … No hardcoded import list" |
 | Eine Modulseite (`docs/modules/<id>-<dienst>.md`) ist **nicht** Pflicht — kein Check verlangt sie. | kein Treffer für `docs/modules` in `scripts/` und `.github/` |
+| `networkPolicy` muss bewusst gewählt werden (`loopback`, `internet`, `proxy`, `confined`). `confined` isoliert zwingend im VPN (UID 5410). | `50-core/hardening-profiles.nix` & `52-security/526-vpn-killswitch.nix` |
 
 **Nicht ableitbar, also Entscheidung:** welches Hardening-Profil (`base`, `network`, …) zu
 welchem Diensttyp passt. `50-core/hardening-profiles.nix` liefert die Sets, aber keine
@@ -104,6 +105,34 @@ mit dem versiegelten Wert antwortet 200.
 
 **Falle:** `medinix triage` ist der Knopf, nicht `journalctl -u` als erster Griff
 (`RUNBOOK.md:19-22`). Die Playbooks sind maschinenlesbar aus `runbook.json` generiert.
+
+### Uhren & Wächter (SRE-Taktung)
+
+| Unit | Takt / Trigger | Aufgabe |
+|---|---|---|
+| `583-runtime-guard` | Stündlich (Timer) | Port-Verdrahtung, nftables-Regeln, DNS-Auflösung & Zertifikate prüfen |
+| `584-boot-audit` | Einmalig nach Boot | Hardware- & Mount-Integrität, Root-Filesystem-Prüfung |
+| `587-smart-check` | Täglich (Timer) | SMART-Werte aller SATA-/NVMe-Laufwerke überwachen |
+
+### Hygiene-Jobs (57-maintenance)
+
+| Unit | Zweck |
+|---|---|
+| `571-tmp-hygiene` | Bereinigt transiente Dateien und Download-Caches |
+| `576-backup` | Verschlüsselte Borg-Backups der SQLite- und Appdata-Verzeichnisse |
+| `577-journal-vacuum` | Deckelt systemd-Journal-Wachstum auf Zielbudgets |
+| `578-nix-optimise` | Hardlink-Deduplizierung im Nix-Store (`nix-store --optimise`) |
+| `579-backup-verify` | Regelmäßige Probe-Entschlüsselung und Restore-Verifikation |
+
+---
+
+## 5. Deployment & Flake-Integrität
+
+**Reihenfolge:**
+
+1. `flake.nix` — Flake-Inputs prüfen (nur `nixpkgs` und `flake-utils`; keine externen Frameworks wie disko, nixos-anywhere oder srvos)
+2. `scripts/verify.sh` — 15-Stufen-Leiter lokal ausführen
+3. `git diff` & `git status` — auf saubere Git-Staging-Area achten (Nix Flakes ignorieren untracked Dateien hermetisch)
 
 ---
 

@@ -76,3 +76,12 @@ Unit `wireguard-<ifName>`): der oeffentliche Schluessel kommt ueber die Option `
 Interface laeuft ohne eigene Konten, die Schluessel liegen im Credential-Store (ADR-521). Dieses
 ADR ist damit der **eine** Ort fuer die VPN-Architektur - Modul 525 verweist hierher, statt ein
 eigenes (fast identisches) ADR zu fuehren.
+
+## Nachtrag (2026-11): Dual-Layer VPN Confinement & nftables Policy-Routing
+
+Gemäß der Konsolidierung aus `docs/concepts/vpn-killswitch.md`:
+1. **Dual-Layer Confinement:**
+   - Layer 1 (Enforcement): `526-vpn-killswitch.nix` markiert Pakete der VPN-UIDs via nftables (`meta skuid 5410 mark set 0x5410`) und routet sie strikt über die VPN-Routing-Table (Table 5410).
+   - Layer 2 (Hard Drop / Killswitch): Pakete mit dieser UID, die versuchen das Standard-Gateway oder Ethernet-Interfaces zu verlassen, werden verworfen (`drop`).
+2. **Klarstellung zu BPF / NetNS:**
+   - Die ursprüngliche historische Ablehnung („BPF-Monster") von 2026-08 bezog sich auf komplexe Custom-eBPF-Filterprogramme. Mit modernem `systemd` und `nftables` ist der UID-basierte nftables-Ansatz der kanonische Standard. Network Namespaces (`netns`) bleiben verboten, da sie Dateisystem- und IPC-Isolation künstlich erschweren.

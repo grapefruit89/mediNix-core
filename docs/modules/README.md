@@ -37,6 +37,4 @@ Modul-ID benennen (`582-gatus.md`).
 
 ## Pflege
 
-Der Index in [`../INDEX.md`](../INDEX.md) wird von `docs/generate_index.py` erzeugt —
-nicht von Hand eintragen. CI prüft das (`.github/workflows/docs-index.yml`:
-Generator laufen lassen, dann `git diff --exit-code`).
+Der Index in [`../INDEX.md`](../INDEX.md) wird als SSoT gepflegt (Zero Derivation: Handarbeit ohne abgeleitete Generatoren).

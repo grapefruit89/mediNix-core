@@ -13,8 +13,8 @@ Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
 | Frage | Ort | Gepflegt von |
 |---|---|---|
 | Wie lege ich einen Dienst / Ingress / Credential an? | [`NAVIGATION.md`](NAVIGATION.md) — Aufgabe → Lese-Reihenfolge | Mensch |
-| Was ist als Nächstes zu tun? | [`PLAN.md`](PLAN.md) · [`../todo/tasks.json`](../todo/tasks.json) | generiert / Mensch |
-| Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (generiert) | `scripts/gen_service_map.py` |
+| Was ist als Nächstes zu tun? | [`../todo/tasks.json`](../todo/tasks.json) — via `medinix` / SSoT | Mensch |
+| Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (aus `50-core/registry.nix`) | Mensch |
 | Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
 
 ### Regeln
@@ -29,7 +29,8 @@ Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
 | Frage | Ort | Gepflegt von |
 |---|---|---|
 | Wie greifen die Schichten 50–59 ineinander? | [`arch/`](arch/) — `ARCH-51-*.md`, `ARCH-0000-framework-appendix.md` | Mensch |
-| Was muss der Host liefern, was erzwingt das Modul? | [`concepts/`](concepts/) | Mensch |
+| Wie sehen vollständige Host-Konfigurationen aus? | [`examples/`](examples/) — simple, vpn-confinement, mergerfs-tiering | Code (Flake-Checks) |
+| Wo finde ich den NixOS-Denkrahmen & Vokabular? | [`NIXOS-ANCHORS.md`](NIXOS-ANCHORS.md) | Mensch |
 | Warum ist Dienst X so gebaut und nicht anders? | [`modules/`](modules/) — eine Seite je Dienst | Mensch |
 | Wie baue ich ein Modul / eine Unit? | `../50-core/service-factory.nix` | Code |
 | Wie debugge ich einen Dienst? | [`RUNBOOK.md`](RUNBOOK.md) §5 + `medinix triage <symptom>` | generiert aus `runbook.json` |
