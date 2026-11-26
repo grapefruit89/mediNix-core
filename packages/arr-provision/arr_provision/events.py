@@ -879,3 +879,11 @@ def wait_for_ready(
             detail=st.detail,
         )
     return results
+
+
+def check_ready(target: ReadinessTarget, timeout: float = 15.0, use_journal: bool = True) -> bool:
+    """Convenience helper to check readiness of a single target using the epoll event reactor."""
+    results = wait_for_ready([target], timeout=timeout, use_journal=use_journal)
+    res = results.get(target.name)
+    return bool(res and res.status == ReadinessStatus.READY)
+

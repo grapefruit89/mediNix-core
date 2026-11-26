@@ -6,7 +6,8 @@ import json
 import os
 import sys
 
-from arr_provision.common import arr_api_base, http_json, read_key_file, title_case_service, wait_for_url
+from arr_provision.common import arr_api_base, http_json, read_key_file, title_case_service
+from arr_provision.events import ReadinessTarget, check_ready
 
 
 def _payload(sab_host: str, sab_port: int, sab_key: str, category: str) -> dict:
@@ -40,8 +41,13 @@ def sync_download_clients() -> int:
         print(f"SABnzbd API key missing: {sab_key_file} — skipped", file=sys.stderr)
         return 0
 
-    sab_url = f"http://{sab_host}:{sab_port}/api?apikey={sab_key}&mode=version"
-    if not wait_for_url(sab_url, max_attempts=30):
+    sab_target = ReadinessTarget(
+        name="sabnzbd",
+        host=sab_host,
+        port=sab_port,
+        path=f"/api?apikey={sab_key}&mode=version",
+    )
+    if not check_ready(sab_target, timeout=15.0):
         print("SABnzbd not reachable — skipped", file=sys.stderr)
         return 0
 
@@ -56,7 +62,14 @@ def sync_download_clients() -> int:
 
         base = arr_api_base(host_bridge, int(target["port"]), target["apiVersion"])
         headers = {"X-Api-Key": api_key}
-        if not wait_for_url(f"{base}/system/status", headers=headers, max_attempts=15):
+        target_spec = ReadinessTarget(
+            name=name,
+            host=host_bridge,
+            port=int(target["port"]),
+            path=f"/api/{target['apiVersion']}/system/status",
+            headers=headers,
+        )
+        if not check_ready(target_spec, timeout=15.0):
             print(f"{impl}: not reachable — skipped")
             continue
 

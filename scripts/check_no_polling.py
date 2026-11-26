@@ -61,6 +61,10 @@ BUSY_POLL = re.compile(
     r"\b(?:while|until)\s+[^;]+(?:curl|nc|wget|netcat)[^;]*;\s*do\b",
     re.IGNORECASE,
 )
+BANNED_POLL_CALLS = re.compile(
+    r"\bwait_for_url\b|\b(?:def|function)\s+(?:poll|wait_for_url)\b",
+    re.IGNORECASE,
+)
 
 
 def check_python_file(path: Path) -> list[str]:
@@ -109,6 +113,8 @@ def check_script_or_nix(path: Path) -> list[str]:
             findings.append(f"{rel_path}:{idx}: [Shell sleep Befehl] -> '{line}'")
         if BUSY_POLL.search(line):
             findings.append(f"{rel_path}:{idx}: [Busy-Polling Schleife] -> '{line}'")
+        if BANNED_POLL_CALLS.search(line):
+            findings.append(f"{rel_path}:{idx}: [Gebannte Polling-Funktion] -> '{line}'")
 
     return findings
 
@@ -146,9 +152,12 @@ def main() -> int:
             all_findings.extend(findings)
 
     if all_findings:
-        print("❌ FEHLER: Unerlaubte Polling- / Sleep-Befehle im Produktivcode gefunden!\n")
-        print("   Polling ist in mediNix verboten (ADR-0010 / ADR-5000).")
-        print("   Nutze stattdessen Event-Reaktoren (events.py), Type=notify oder systemd.path.\n")
+        print("❌ FEHLER: In diesem Projekt ist keinerlei Polling erwünscht!\n")
+        print("   Nimm stattdessen [passende Funktion]:")
+        print("     • Für Python/Provisioning: arr_provision.events::check_ready / wait_for_ready (epoll + journald)")
+        print("     • Für Systemd-Dienste: Type=notify, systemctl stop (synchron), sd_notify")
+        print("     • Für Dateisystem-Warten: systemd.path (inotify)")
+        print("   oder prüfe, ob das Vorgehen an der Stelle überhaupt nötig und sinnvoll ist.\n")
         for f in all_findings:
             print(f"   • {f}")
         print(f"\nGesamt: {len(all_findings)} Verstoß/Verstöße in {checked_count} geprüften Dateien.")

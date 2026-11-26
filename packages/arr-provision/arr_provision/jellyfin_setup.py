@@ -10,7 +10,10 @@ import urllib.parse
 import urllib.request
 from typing import Any, Optional
 
-from arr_provision.common import http_json, read_key_file, wait_for_url
+import urllib.parse
+
+from arr_provision.common import http_json, read_key_file
+from arr_provision.events import ReadinessTarget, check_ready
 
 _EMBY_AUTH = (
     'MediaBrowser Client="arr-provision", Device="mediahost", DeviceId="mediahost-arr-provision", Version="1.0.0"'
@@ -347,7 +350,14 @@ def setup_jellyfin() -> int:
     username = os.environ.get("JELLYFIN_ADMIN_USER", "admin")
     password_file = os.environ["JELLYFIN_ADMIN_PASSWORD_FILE"]
 
-    if not wait_for_url(f"{base_url}/System/Info/Public"):
+    parsed = urllib.parse.urlsplit(base_url)
+    jf_target = ReadinessTarget(
+        name="jellyfin",
+        host=parsed.hostname or "127.0.0.1",
+        port=parsed.port or 5510,
+        path="/System/Info/Public",
+    )
+    if not check_ready(jf_target, timeout=15.0):
         print("Jellyfin not reachable — skipped", file=sys.stderr)
         return 0
 

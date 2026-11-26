@@ -9,7 +9,8 @@ import sys
 import urllib.request
 from typing import Any, Optional
 
-from arr_provision.common import http_json, read_key_file, wait_for_url
+from arr_provision.common import http_json, read_key_file
+from arr_provision.events import ReadinessTarget, check_ready
 
 DEFAULT_PROFILE = "German 1080p HEVC"
 FALLBACK_PROFILE = "English 1080p HEVC"
@@ -281,7 +282,13 @@ def sync_seerr() -> int:
     base_url = f"http://{host}:{port}"
     cfg = json.loads(os.environ["SEERR_CONFIG_JSON"])
 
-    if not wait_for_url(f"{base_url}/api/v1/status"):
+    seerr_target = ReadinessTarget(
+        name="seerr",
+        host=host,
+        port=port,
+        path="/api/v1/status",
+    )
+    if not check_ready(seerr_target, timeout=15.0):
         print("Seerr not reachable — skipped", file=sys.stderr)
         return 0
 

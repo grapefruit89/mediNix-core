@@ -6,7 +6,8 @@ import json
 import os
 import sys
 
-from arr_provision.common import http_json, read_key_file, title_case_service, wait_for_url
+from arr_provision.common import http_json, read_key_file, title_case_service
+from arr_provision.events import ReadinessTarget, check_ready
 
 
 
@@ -128,7 +129,14 @@ def _register_backup_indexer(app: dict, backup: dict) -> None:
 
     base = arr_api_base(app["host"], int(app["port"]), app["apiVersion"])
     headers = {"X-Api-Key": api_key}
-    if not wait_for_url(f"{base}/system/status", headers=headers, max_attempts=5):
+    target_spec = ReadinessTarget(
+        name=name,
+        host=app["host"],
+        port=int(app["port"]),
+        path=f"/api/{app['apiVersion']}/system/status",
+        headers=headers,
+    )
+    if not check_ready(target_spec, timeout=10.0):
         print(f"{impl}: not reachable — backup indexer skipped")
         return
 
@@ -183,7 +191,14 @@ def sync_prowlarr() -> int:
 
     api = f"http://{host}:{port}"
     headers = {"X-Api-Key": api_key}
-    if not wait_for_url(f"{api}/api/v1/system/status", headers=headers):
+    prowlarr_target = ReadinessTarget(
+        name="prowlarr",
+        host=host,
+        port=port,
+        path="/api/v1/system/status",
+        headers=headers,
+    )
+    if not check_ready(prowlarr_target, timeout=15.0):
         print("Prowlarr not reachable — skipped", file=sys.stderr)
         return 0
 

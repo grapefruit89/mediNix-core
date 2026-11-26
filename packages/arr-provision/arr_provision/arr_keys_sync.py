@@ -7,7 +7,7 @@ import re
 import sys
 from pathlib import Path
 
-from arr_provision.common import arr_api_base, http_json, read_key_file, wait_for_url, title_case_service
+from arr_provision.common import arr_api_base, http_json, read_key_file, title_case_service
 
 _ARR_SERVICES = ("sonarr", "radarr", "prowlarr")
 
