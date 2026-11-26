@@ -263,14 +263,16 @@ in
               "${svc.storage.mediaRoot}"
             ];
           }
+          # S-06 / S-07: Least-Privilege Socket-Binding (ausschließlich auf den SABnzbd-Port binden)
+          {
+            SocketBindAllow = [ "ipv4:tcp:${toString port}" ];
+          }
           # Defense-in-Depth: cgroup-BPF-Socketfilter im Linux-Kernel
           (lib.mkIf (svc.usenet-confinement.enable && vpnIf != "") {
             RestrictNetworkInterfaces = [
               "lo"
               vpnIf
             ];
-            # S-06 / S-07: Least-Privilege Socket-Binding (ausschließlich auf den SABnzbd-Port binden)
-            SocketBindAllow = [ "ipv4:tcp:${toString port}" ];
           })
           (lib.mkIf (svc.secrets.usenetEnvFile or null != null) {
             EnvironmentFile = [ svc.secrets.usenetEnvFile ];
