@@ -181,9 +181,11 @@ let
     }:
     let
       isStream = accessGroupOf name m == "stream";
+      # Auth-Entflechtung (ADR-511): needsAuth greift AUSSCHLIESSLICH bei
+      # accessGroup == "public" (ohne allowUnauthenticated). `stream` (Jellyfin,
+      # Audiobookshelf, Navidrome) wird NIEMALS mit forward_auth gewrappt.
       # .lan ist kein Trust-Boundary, wird aber nur per CIDR (lanAbort) gegated.
-      # forward_auth gilt fuer WAN-public — kein localBypass-Schalter mehr
-      # (er war nie verdrahtet, siehe docs/ingress-security-matrix.md R3).
+      # kein localBypass-Schalter mehr (war nie verdrahtet, siehe docs/ingress-security-matrix.md R3).
       needsAuth =
         !isLocal
         && (ing.auth.mode == "forward-auth")
@@ -212,13 +214,25 @@ let
           reverse_proxy ${ing.auth.forwardAuthUpstream}
         }
       '';
-      transportOpts = lib.optionalString isStream ''
-        flush_interval -1
-        transport http {
-          read_timeout 300s
-          write_timeout 300s
-        }
-      '';
+      transportOpts =
+        if isStream then
+          ''
+            flush_interval -1
+            stream_close_delay 5m
+            transport http {
+              dial_timeout 5s
+              response_header_timeout 30s
+              read_timeout 300s
+              write_timeout 300s
+            }
+          ''
+        else
+          ''
+            transport http {
+              dial_timeout 5s
+              response_header_timeout 60s
+            }
+          '';
       customConfig = m.customConfig or "";
       svc = registry.${name} or { };
       upstream =
@@ -387,8 +401,15 @@ let
     # CPU/IO/Memory stehen in 50-core/memory-policy.nix (SSoT). Hier nur, was NICHT
     # zur Memory-/Ressourcen-Policy gehoert.
     extraConfig = {
-      Type = lib.mkDefault "exec";
-      WatchdogSec = lib.mkDefault "60s";
+      Type = lib.mkDefault "notify";
+      # Kein WatchdogSec: Caddy 2.11 sendet READY=1/RELOADING=1/STOPPING=1 über
+      # NOTIFY_SOCKET, aber keine WATCHDOG=1-Keepalives (WatchdogSec würde zu
+      # periodischen SIGABRT-Restarts führen).
+      # Plain statt mkDefault, damit profiles.network (mkDefault "on-failure"/"5s")
+      # sauber überschrieben wird ohne Priority-1000-Kollision.
+      Restart = "always";
+      RestartSec = "2s";
+      LimitNOFILE = lib.mkDefault 1048576;
       RuntimeDirectoryMode = "0700";
       ExecReload = "${pkgs.caddy}/bin/caddy reload --config /etc/caddy-media/Caddyfile --adapter caddyfile --force";
     };
@@ -536,6 +557,8 @@ lib.mkMerge [
     # ist ebenfalls funktional (TLS kommt aus 514/ACME), siehe `ingress.mode`.
     systemd.services.caddy = lib.mkIf useGlobal {
       serviceConfig = {
+        Type = lib.mkDefault "notify";
+        LimitNOFILE = lib.mkDefault 1048576;
         OOMScoreAdjust = lib.mkDefault (-900);
         RuntimeDirectory = "caddy";
         RuntimeDirectoryMode = lib.mkDefault "0700";

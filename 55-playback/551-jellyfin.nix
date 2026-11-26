@@ -203,6 +203,12 @@ in
             lib.any (entry: lib.hasPrefix "/transcode" entry) (lib.toList tfs);
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Transcoding MUSS zwingend im RAM (TemporaryFileSystem = '/transcode:size=...') stattfinden!";
         }
+        {
+          assertion = lib.hasInfix "<EnableThrottling>true</EnableThrottling>" (
+            builtins.readFile ./data/jellyfin-encoding.xml
+          );
+          message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Deklaratives Transcode-Throttling (<EnableThrottling>true</EnableThrottling>) muss in 55-playback/data/jellyfin-encoding.xml aktiv bleiben!";
+        }
       ];
 
       # users.users.jellyfin besitzt die Engine (50-core/501-decimal-engine.nix, UPG).

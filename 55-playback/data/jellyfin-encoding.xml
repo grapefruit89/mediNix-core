@@ -3,8 +3,11 @@
   <EncodingThreadCount>-1</EncodingThreadCount>
   <!-- Transkodierungspfad: /transcode ist ein tmpfs (TemporaryFileSystem) — Segmente liegen im RAM, nie auf Disk -->
   <TranscodingTempPath>@TRANSCODE_DIR@</TranscodingTempPath>
+  <!-- Throttling + Segment-Cleanup schützen die 4G-RAM-Disk (/transcode) vor Überlauf -->
   <EnableThrottling>true</EnableThrottling>
   <ThrottleDelaySeconds>180</ThrottleDelaySeconds>
+  <EnableSegmentDeletion>true</EnableSegmentDeletion>
+  <SegmentKeepSeconds>720</SegmentKeepSeconds>
   <!-- Encoder wird beim ersten Start bestimmt: auto = verbaute GPU erkennen
        (Intel/AMD -> vaapi, NVIDIA -> nvenc). Siehe 551-jellyfin.nix preStart. -->
   <HardwareAccelerationType>@HWACCEL@</HardwareAccelerationType>
