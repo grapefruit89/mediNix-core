@@ -243,11 +243,11 @@ in
     (lib.mkIf cfg.enable {
       assertions = [
         {
-          assertion = adminCred != null;
+          assertion = adminCred != null || cfg.sso.enable;
           message = ''
             [mediNix] jellyfin is on the WAN stream vhost. Set
             medinix.jellyfin.adminPasswordCredential (or adminPasswordFile)
-            to a systemd-creds blob. No default admin. No Pocket-ID SSO.
+            to a systemd-creds blob or enable medinix.jellyfin.sso.enable.
           '';
         }
         {
