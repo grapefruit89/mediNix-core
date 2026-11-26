@@ -107,10 +107,65 @@ let
       ]
       (builtins.readFile ./data/jellyfin-encoding.xml)
   );
+
+  ssoPlugin = pkgs.fetchzip {
+    url = "https://github.com/K0lin/jellyfin-plugin-sso/releases/download/v5.1.1/sso-authentication_5.1.1.zip";
+    hash = "sha256-QYzyg8pJvsLvmJbgOujhms7vY7BmLlqgcndxqNGyJcI=";
+    stripRoot = false;
+  };
+
+  ssoXmlSeed = pkgs.writeText "jellyfin-sso-auth.xml" (
+    builtins.replaceStrings
+      [
+        "@OID_ENDPOINT@"
+        "@OID_CLIENT_ID@"
+        "@ADMIN_ROLE@"
+        "@USER_ROLE@"
+      ]
+      [
+        cfg.sso.oidcEndpoint
+        cfg.sso.clientId
+        cfg.sso.adminRole
+        cfg.sso.userRole
+      ]
+      (builtins.readFile ./data/jellyfin-sso-auth.xml)
+  );
 in
 {
   options.medinix.jellyfin = {
     enable = lib.mkEnableOption "Jellyfin Media Server";
+
+    sso = {
+      enable = lib.mkEnableOption "k0lin SSO-Auth OIDC Plugin fuer Jellyfin (Pocket-ID Integration)";
+
+      oidcEndpoint = lib.mkOption {
+        type = lib.types.str;
+        default =
+          if svc.domain != null then
+            "https://pocketid.${svc.domain}/.well-known/openid-configuration"
+          else
+            "http://pocketid.lan/.well-known/openid-configuration";
+        description = "OpenID Connect Discovery Endpoint (z.B. Pocket-ID).";
+      };
+
+      clientId = lib.mkOption {
+        type = lib.types.str;
+        default = "jellyfin";
+        description = "OIDC Client-ID.";
+      };
+
+      adminRole = lib.mkOption {
+        type = lib.types.str;
+        default = "jellyfin_admins";
+        description = "OIDC Group/Role Claim fuer Jellyfin Administratoren.";
+      };
+
+      userRole = lib.mkOption {
+        type = lib.types.str;
+        default = "jellyfin_users";
+        description = "OIDC Group/Role Claim fuer Standard Jellyfin Benutzer.";
+      };
+    };
 
     package = lib.mkOption {
       type = lib.types.nullOr lib.types.package;
@@ -219,6 +274,11 @@ in
         "d '${stateDir}' 0750 jellyfin media -"
         "d '${metadataDir}' 0775 jellyfin media -"
         "d '${jellyfinMetadataDir}' 0775 jellyfin media -"
+      ]
+      ++ lib.optionals cfg.sso.enable [
+        "d '${stateDir}/plugins' 0755 jellyfin media -"
+        "L+ '${stateDir}/plugins/SSO-Auth_5.1.1' - - - - ${ssoPlugin}"
+        "d '${stateDir}/plugins/configurations' 0755 jellyfin media -"
       ];
 
       systemd.services.jellyfin = {
@@ -278,6 +338,14 @@ in
             ${pkgs.gnused}/bin/sed "s|@HWACCEL@|$hw|" '${encodingXmlSeed}' > '${stateDir}/config/encoding.xml'
             ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/config/encoding.xml'
           fi
+
+          ${lib.optionalString cfg.sso.enable ''
+            ${pkgs.coreutils}/bin/mkdir -p '${stateDir}/plugins/configurations'
+            if [ ! -f '${stateDir}/plugins/configurations/SSO-Auth.xml' ]; then
+              ${pkgs.coreutils}/bin/cp '${ssoXmlSeed}' '${stateDir}/plugins/configurations/SSO-Auth.xml'
+              ${pkgs.coreutils}/bin/chmod 0640 '${stateDir}/plugins/configurations/SSO-Auth.xml'
+            fi
+          ''}
         '';
         serviceConfig = lib.mkMerge [
           profiles.dotnet-gpu

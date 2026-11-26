@@ -3,7 +3,7 @@ id: ADR-551
 title: Jellyfin media playback
 domain: 55
 status: active
-last_reviewed: 2026-09-02
+last_reviewed: 2026-11-26
 tags: [jellyfin, playback, 551]
 ---
 
@@ -22,7 +22,7 @@ Jellyfin is the primary video player. First-run state lives in `jellyfin.db`, no
 
 1. Native systemd unit, not the nixpkgs `services.jellyfin` module. UID 5510, group `media` (5000), extra groups `video` + `render`.
 2. Bind `127.0.0.1:5510` (`JELLYFIN_NetworkConfiguration__LocalNetworkAddresses`). Never `0.0.0.0`.
-3. **Ingress:** `accessGroup = "stream"`, `landing = true`, SVG on the vhost. Stream means no Caddy compression and **no forward-auth**. Pocket ID does not wrap Jellyfin; clients talk to Jellyfin's own accounts. That is deliberate — media players break behind OIDC walls.
+3. **Ingress & OIDC:** `accessGroup = "stream"`, `landing = true`, SVG on the vhost. Stream means no Caddy compression and **no forward-auth** (Pocket ID does not wrap the vhost with oauth2-proxy, preventing double-login and broken mobile apps). Instead, native OIDC integration is provided inside Jellyfin via the modern `k0lin/jellyfin-plugin-sso` plugin (`medinix.jellyfin.sso.enable = true`), which authenticates against Pocket-ID via standard OpenID Discovery and RBAC claims.
 4. Admin bootstrap password via `LoadCredentialEncrypted` (`medinix.jellyfin.adminPasswordFile` or `medinix.secrets.jellyfinAdminPasswordFile`). Must exist before first start; Jellyfin records setup in the DB.
 5. Transcode scratch: `TemporaryFileSystem=/transcode:size=4G`. VA-API via `profiles.dotnet-gpu` (`PrivateDevices=false`, `MemoryDenyWriteExecute=false`).
 6. Cache/data separation: `--datadir /var/lib/jellyfin`, `--cachedir {storage.metadataDir}/jellyfin`.

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SamlConfigs />
+  <OidConfigs>
+    <item>
+      <key>
+        <string>pocketid</string>
+      </key>
+      <value>
+        <PluginConfiguration>
+          <OidEndpoint>@OID_ENDPOINT@</OidEndpoint>
+          <OidClientId>@OID_CLIENT_ID@</OidClientId>
+          <OidSecret></OidSecret>
+          <Enabled>true</Enabled>
+          <EnableAuthorization>true</EnableAuthorization>
+          <EnableAllFolders>false</EnableAllFolders>
+          <EnabledFolders />
+          <EnableContentDownloading xsi:nil="true" />
+          <ApplyContentDownloadPermissionOnEveryLogin>false</ApplyContentDownloadPermissionOnEveryLogin>
+          <AdminRoles>
+            <string>@ADMIN_ROLE@</string>
+          </AdminRoles>
+          <PreserveAdminPermissions>true</PreserveAdminPermissions>
+          <Roles>
+            <string>@USER_ROLE@</string>
+          </Roles>
+          <EnableFolderRoles>false</EnableFolderRoles>
+          <EnableLiveTvRoles>false</EnableLiveTvRoles>
+          <EnableLiveTv>false</EnableLiveTv>
+          <EnableLiveTvManagement>false</EnableLiveTvManagement>
+          <FolderRoleMappings />
+          <RoleClaim>groups</RoleClaim>
+          <OidScopes>
+            <string>openid</string>
+            <string>profile</string>
+            <string>email</string>
+            <string>groups</string>
+          </OidScopes>
+          <OverrideDefaultScopes>false</OverrideDefaultScopes>
+          <SchemeOverride>https</SchemeOverride>
+          <PortOverride xsi:nil="true" />
+          <NewPath>true</NewPath>
+          <CanonicalLinks />
+          <DefaultUsernameClaim>preferred_username</DefaultUsernameClaim>
+          <AvatarUrlFormat>@{picture}</AvatarUrlFormat>
+          <DisableHttps>false</DisableHttps>
+          <DisablePushedAuthorization>false</DisablePushedAuthorization>
+          <DoNotValidateEndpoints>false</DoNotValidateEndpoints>
+          <DoNotValidateIssuerName>false</DoNotValidateIssuerName>
+          <DoNotLoadProfile>false</DoNotLoadProfile>
+        </PluginConfiguration>
+      </value>
+    </item>
+  </OidConfigs>
+</PluginConfiguration>
