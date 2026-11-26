@@ -331,6 +331,9 @@
         # Declarative API provisioning for the media stack (from old repo)
         packages.arr-provision = pkgs.callPackage ./packages/arr-provision/default.nix { };
 
+        # arr-provision Unittests (verifiziert API-Reactor und Provisioning-Logik)
+        checks.arr-provision = (pkgs.callPackage ./packages/arr-provision/default.nix { }).passthru.tests;
+
         # ── Ratsche: evaluiert das gesamte Modul mit allen Optionen ─────────
         # Fängt jeden attribute-missing / Typ-Fehler sofort (z.B. falscher
         # Registry-Key, falscher Options-Pfad) — vor dem ersten Deploy.

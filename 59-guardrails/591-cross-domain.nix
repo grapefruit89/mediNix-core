@@ -152,6 +152,18 @@ let
       lib.optional ((enabledOf n) && hasTcpAllow) "${n} (unit: ${unit})"
     ) udsServices
   );
+  medinixUnitNames = lib.mapAttrsToList (_: s: s.unitName) svcReg.services;
+  missingSyscallError = lib.filter (
+    svc:
+    let
+      sc = config.systemd.services.${svc}.serviceConfig or { };
+      scf = sc.SystemCallFilter or null;
+      scfEmpty = scf == null || scf == "" || scf == [ ];
+      scen = sc.SystemCallErrorNumber or null;
+      scenEmpty = scen == null || scen == "";
+    in
+    !scfEmpty && scenEmpty
+  ) (lib.filter (s: lib.elem s medinixUnitNames) (lib.attrNames (config.systemd.services or { })));
 in
 lib.mkIf cfg.enable {
   # Diese Assertions pruefen den VOLLZUG der Engine: sie lesen die abgeleiteten
@@ -257,6 +269,35 @@ lib.mkIf cfg.enable {
         lib.attrValues (config.medinix.manifest or { })
       );
       message = "[mediNix] enabledOf liest aus dem Manifest: jeder Eintrag in medinix.manifest muss `enable` definieren.";
+    }
+    {
+      assertion =
+        lib.all
+          (
+            svc:
+            let
+              sc = config.systemd.services.${svc}.serviceConfig or { };
+            in
+            !(sc.MemoryDenyWriteExecute or false)
+          )
+          (
+            lib.filter (
+              s:
+              (config.systemd.services.${s}.enable or false)
+              && (lib.elem s [
+                "sonarr"
+                "radarr"
+                "prowlarr"
+                "lidarr"
+                "readarr"
+              ])
+            ) (lib.attrNames (config.systemd.services or { }))
+          );
+      message = "[mediNix/591] .NET-Dienst (*arr) hat MemoryDenyWriteExecute = true gesetzt. .NET benötigt W+X für JIT-Kompilierung!";
+    }
+    {
+      assertion = missingSyscallError == [ ];
+      message = "[mediNix/591] Folgende Dienste haben SystemCallFilter ohne SystemCallErrorNumber: ${lib.concatStringsSep ", " missingSyscallError}. Ohne SystemCallErrorNumber = EPERM tötet SIGSYS den Dienst still!";
     }
   ];
 }

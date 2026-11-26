@@ -51,6 +51,7 @@ Die drei Dienste in `55-playback` (Jellyfin, Audiobookshelf, Navidrome) bilden d
 
 Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
+- [`50-core/gpu`](../50-core/gpu.nix)
 - [`50-core/hardening-profiles`](../50-core/hardening-profiles.nix)
 - [`50-core/memory-policy`](../50-core/memory-policy.nix)
 - [`50-core/registry`](../50-core/registry.nix)
@@ -66,6 +67,7 @@ graph TD
   551_jellyfin["551-jellyfin"] --> hardening_profiles["50-core/hardening-profiles"]
   551_jellyfin["551-jellyfin"] --> memory_policy["50-core/memory-policy"]
   551_jellyfin["551-jellyfin"] --> creds["52-security/creds"]
+  551_jellyfin["551-jellyfin"] --> gpu["50-core/gpu"]
   552_audiobookshelf["552-audiobookshelf"] --> creds["52-security/creds"]
   552_audiobookshelf["552-audiobookshelf"] --> registry["50-core/registry"]
   552_audiobookshelf["552-audiobookshelf"] --> hardening_profiles["50-core/hardening-profiles"]

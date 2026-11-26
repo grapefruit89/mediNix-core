@@ -11,7 +11,7 @@
 # links:
 #   adr: ADR-551
 # provides: ["jellyfin"]
-# requires: ["50-core/registry", "50-core/service-factory", "50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds"]
+# requires: ["50-core/registry", "50-core/service-factory", "50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds", "50-core/gpu"]
 # ports: [5510]
 # upstream_docs: ["https://jellyfin.org/docs/"]
 # upstream_github: "https://github.com/jellyfin/jellyfin"
@@ -53,6 +53,7 @@ let
     if svc.domain != null then "https://jellyfin.${svc.domain}" else "http://jellyfin.lan";
   jellyfinMetadataDir = "${metadataDir}/metadata";
 
+  gpuLib = import ../50-core/gpu.nix { inherit lib pkgs; };
   # "auto" = verbaute GPU erkennen (Intel ODER NVIDIA). Nix kann Hardware nicht
   # abfragen (kein --impure, Korridor-Verbot) — deshalb zwei Schichten:
   #   (B) Eval: die Host-Deklaration (`services.xserver.videoDrivers`) entscheidet
@@ -62,23 +63,22 @@ let
   #       den Encoder (siehe unten) — das ist das eigentliche "auto findet".
   hostGpu = if builtins.elem "nvidia" config.services.xserver.videoDrivers then "nvidia" else "intel";
   accelResolved = if svc.hardware.accel == "auto" then hostGpu else svc.hardware.accel;
+  gpuConfig = gpuLib.resolve accelResolved;
   hwAccel = accelResolved != "none";
-  hwEncoder =
-    {
-      "intel" = "vaapi";
-      "vaapi" = "vaapi";
-      "amd" = "vaapi";
-      "nvidia" = "nvenc";
-    }
-    .${accelResolved} or "none";
-  # Eingebaute GPU automatisch: ohne explizite Angabe das erste Render-Device.
+  hwEncoder = gpuConfig.hwaccel;
+  # Eingebaute GPU automatisch: ohne explizite Angabe das berechnete Render-Device.
   renderDevice =
     if svc.hardware.renderDevice != null then
       svc.hardware.renderDevice
-    else if hwAccel then
-      "/dev/dri/renderD128"
+    else if gpuConfig.renderDevice != "" then
+      gpuConfig.renderDevice
     else
       null;
+  deviceAllows =
+    if svc.hardware.renderDevice != null then
+      [ "${svc.hardware.renderDevice} rwm" ]
+    else
+      map (d: "${d} rwm") gpuConfig.devices;
   trickplayHwAccel = if hwAccel then "true" else "false";
 
   systemXmlSeed = pkgs.writeText "jellyfin-system.xml" (
@@ -264,6 +264,15 @@ in
           );
           message = "[mediNix/551-jellyfin] ARCHITEKTUR-VERLETZUNG: Deklaratives Transcode-Throttling (<EnableThrottling>true</EnableThrottling>) muss in 55-playback/data/jellyfin-encoding.xml aktiv bleiben!";
         }
+        {
+          assertion =
+            !(
+              accelResolved == "nvidia"
+              && svc.hardware.renderDevice != null
+              && lib.hasPrefix "/dev/dri" svc.hardware.renderDevice
+            );
+          message = "[mediNix/551-jellyfin] accel ist 'nvidia', aber renderDevice zeigt auf /dev/dri. NVENC benötigt /dev/nvidia*!";
+        }
       ];
 
       # users.users.jellyfin besitzt die Engine (50-core/501-decimal-engine.nix, UPG).
@@ -363,7 +372,7 @@ in
               "render"
               "media"
             ];
-            DeviceAllow = lib.mkIf (renderDevice != null) [ "${renderDevice} rwm" ];
+            DeviceAllow = lib.mkIf hwAccel deviceAllows;
             CacheDirectory = "jellyfin-cache";
             ReadWritePaths = [
               stateDir
