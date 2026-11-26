@@ -8,6 +8,7 @@
 # last_reviewed: 2026-10-13
 # provides: ["caddy", "ingress"]
 # requires: ["50-core/derive", "51-ingress/ingress-access", "50-core/service-factory"]
+# anchors: ["design-by-contract", "single-source-of-truth", "separation-of-concerns", "poka-yoke"]
 # links:
 #   adr: ADR-511
 # ---
