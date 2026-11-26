@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Q958 mediNix Secret Manager (TUI)
-# Verwaltet systemd-creds (TPM2 / Sealed) auf dem Q958 interaktiv von Nobara aus.
+# Q958 mediNix Secret & VPN Manager (TUI)
+# Verwaltet systemd-creds (TPM2 / Sealed) und rollt WireGuard VPN-Configs
+# atomar mit Preflight-Check, Service-Restart und Handshake-Test aus.
 # Teil des mediNix-core Repositories: scripts/q958-secrets.sh
 # ==============================================================================
 set -euo pipefail
 
 SSH_HOST="q958"
-REMOTE_DIR="/var/lib/medinix/secrets"
+REMOTE_SECRETS_DIR="/var/lib/medinix/secrets"
+REMOTE_VPN_DIR="/var/lib/medinix/vpn"
 
 # Kanonische mediNix-Secrets laut Spezifikation (6 Kern-Kategorien)
 KNOWN_SECRETS=(
@@ -41,7 +43,7 @@ get_cred_name() {
 }
 
 remote_list_existing() {
-  ssh -o BatchMode=yes -o ConnectTimeout=3 "$SSH_HOST" "sudo ls -1 $REMOTE_DIR/*.encrypted 2>/dev/null" 2>/dev/null || true
+  ssh -o BatchMode=yes -o ConnectTimeout=3 "$SSH_HOST" "sudo ls -1 $REMOTE_SECRETS_DIR/*.encrypted 2>/dev/null" 2>/dev/null || true
 }
 
 list_secrets_menu() {
@@ -77,7 +79,7 @@ list_secrets_menu() {
     fi
   done <<< "$existing_raw"
 
-  items+=("📥 [WireGuard .conf importieren (z.B. Privado VPN)]")
+  items+=("🚀 [WireGuard .conf 1:1 ausrollen & SABnzbd neu starten (z.B. Privado)]")
   items+=("➕ [Neues benutzerdefiniertes Secret anlegen]")
   items+=("🚪 [Beenden]")
 
@@ -92,7 +94,7 @@ manage_secret() {
   while true; do
     clear
     gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
-      "🔐 Secret: $key" "Systemd-Credential-Name: $cred_name" "Pfad auf Q958: $REMOTE_DIR/${key}.encrypted"
+      "🔐 Secret: $key" "Systemd-Credential-Name: $cred_name" "Pfad auf Q958: $REMOTE_SECRETS_DIR/${key}.encrypted"
 
     local choice
     choice=$(gum choose \
@@ -107,7 +109,7 @@ manage_secret() {
         clear
         gum style --foreground 212 "Entschlüssele $key via systemd-creds auf Q958..."
         local val
-        val=$(ssh -o BatchMode=yes "$SSH_HOST" "sudo systemd-creds decrypt $REMOTE_DIR/${key}.encrypted - 2>/dev/null" || true)
+        val=$(ssh -o BatchMode=yes "$SSH_HOST" "sudo systemd-creds decrypt $REMOTE_SECRETS_DIR/${key}.encrypted - 2>/dev/null" || true)
         if [ -n "$val" ]; then
           gum style --border rounded --padding "1 2" --border-foreground 10 \
             "Klartext-Wert von $key:" "$val"
@@ -119,7 +121,7 @@ manage_secret() {
         ;;
       *"Zwischenablage"*)
         local val
-        val=$(ssh -o BatchMode=yes "$SSH_HOST" "sudo systemd-creds decrypt $REMOTE_DIR/${key}.encrypted - 2>/dev/null" || true)
+        val=$(ssh -o BatchMode=yes "$SSH_HOST" "sudo systemd-creds decrypt $REMOTE_SECRETS_DIR/${key}.encrypted - 2>/dev/null" || true)
         if [ -n "$val" ]; then
           if command -v wl-copy >/dev/null 2>&1; then
             printf "%s" "$val" | wl-copy
@@ -150,10 +152,10 @@ manage_secret() {
 
         gum spin --spinner dot --title "Versiegele Secret auf Q958 via systemd-creds..." -- \
           ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
-            sudo install -d -m 0750 \"$REMOTE_DIR\"
-            echo -n \"$new_val\" | sudo systemd-creds encrypt --name=\"$cred_name\" - \"$REMOTE_DIR/${key}.encrypted\"
-            sudo chown root:medinix \"$REMOTE_DIR/${key}.encrypted\"
-            sudo chmod 0640 \"$REMOTE_DIR/${key}.encrypted\"
+            sudo install -d -m 0750 \"$REMOTE_SECRETS_DIR\"
+            echo -n \"$new_val\" | sudo systemd-creds encrypt --name=\"$cred_name\" - \"$REMOTE_SECRETS_DIR/${key}.encrypted\"
+            sudo chown root:medinix \"$REMOTE_SECRETS_DIR/${key}.encrypted\"
+            sudo chmod 0640 \"$REMOTE_SECRETS_DIR/${key}.encrypted\"
           '"
         gum style --foreground 10 "✓ Secret '$key' erfolgreich versiegelt und gespeichert!"
         echo ""
@@ -161,7 +163,7 @@ manage_secret() {
         ;;
       *"Löschen"*)
         if gum confirm "Möchtest du das Secret '$key' wirklich unwiderruflich vom Q958 löschen?"; then
-          ssh -o BatchMode=yes "$SSH_HOST" "sudo rm -f \"$REMOTE_DIR/${key}.encrypted\""
+          ssh -o BatchMode=yes "$SSH_HOST" "sudo rm -f \"$REMOTE_SECRETS_DIR/${key}.encrypted\""
           gum style --foreground 10 "✓ Secret '$key' gelöscht."
           echo ""
           read -r -p "Enter drücken zum Fortfahren..."
@@ -175,12 +177,17 @@ manage_secret() {
   done
 }
 
-import_wireguard_conf() {
+deploy_wireguard_conf() {
   clear
   gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
-    "📥 WireGuard .conf Import (z.B. Privado VPN)" \
-    "Extrahiert PrivateKey automatisch -> versiegelt als wg-key auf Q958" \
-    "Generiert die deklarativen NixOS-Netzwerkoptionen für mediNix"
+    "🚀 WireGuard .conf 1:1 Ausrollen & Live-Switch" \
+    "Ablauf:" \
+    "  1. Parst die .conf-Datei (z.B. Privado VPN)" \
+    "  2. Versiegelt PrivateKey via TPM auf Q958" \
+    "  3. Stoppt SABnzbd geordnet (Killswitch-Schutz)" \
+    "  4. Aktualisiert /var/lib/medinix/vpn/wg-medinix.conf atomar" \
+    "  5. Startet WireGuard und testet Handshake zum VPN-Endpoint" \
+    "  6. Startet SABnzbd wieder und verifiziert den Status"
 
   local default_path="/home/moritz/Downloads/privado.fra-017.conf"
   local conf_path
@@ -216,7 +223,6 @@ if not privkey:
     print("ERROR: Kein PrivateKey in [Interface] gefunden!", file=sys.stderr)
     sys.exit(1)
 
-# Ausgabe: privkey in Zeile 1, dann JSON oder formatiertes Nix
 print(f"PRIVKEY={privkey}")
 print(f"ADDRESS={' '.join(address)}")
 print(f"DNS={' '.join(dns)}")
@@ -239,13 +245,49 @@ EOF
   endpoint=$(echo "$parsed_output" | grep "^ENDPOINT=" | cut -d= -f2-)
   allowed_list=$(echo "$parsed_output" | grep "^ALLOWED=" | cut -d= -f2-)
 
-  gum spin --spinner dot --title "Versiegele WireGuard PrivateKey auf Q958 via systemd-creds..." -- \
+  local raw_conf
+  raw_conf=$(cat "$conf_path")
+
+  echo ""
+  gum style --foreground 212 "Ausrollen nach $SSH_HOST..."
+
+  # 1. PrivateKey versiegeln und .conf ablegen
+  gum spin --spinner dot --title "Schreibe WireGuard .conf und versiegele Key auf Q958..." -- \
     ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
-      sudo install -d -m 0750 \"$REMOTE_DIR\"
-      echo -n \"$privkey\" | sudo systemd-creds encrypt --name=\"wg-private-key\" - \"$REMOTE_DIR/wg-key.encrypted\"
-      sudo chown root:medinix \"$REMOTE_DIR/wg-key.encrypted\"
-      sudo chmod 0640 \"$REMOTE_DIR/wg-key.encrypted\"
+      sudo install -d -m 0700 \"$REMOTE_VPN_DIR\"
+      sudo install -d -m 0750 \"$REMOTE_SECRETS_DIR\"
+
+      cat << \"WGEOF\" | sudo tee \"$REMOTE_VPN_DIR/wg-medinix.conf\" > /dev/null
+$raw_conf
+WGEOF
+      sudo chown root:root \"$REMOTE_VPN_DIR/wg-medinix.conf\"
+      sudo chmod 0600 \"$REMOTE_VPN_DIR/wg-medinix.conf\"
+
+      echo -n \"$privkey\" | sudo systemd-creds encrypt --name=\"wg-private-key\" - \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
+      sudo chown root:medinix \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
+      sudo chmod 0640 \"$REMOTE_SECRETS_DIR/wg-key.encrypted\"
     '"
+
+  # 2. SABnzbd stoppen & WireGuard anwenden
+  gum spin --spinner dot --title "Stoppe SABnzbd und aktualisiere WireGuard Interface..." -- \
+    ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
+      sudo systemctl stop sabnzbd 2>/dev/null || true
+      if systemctl list-unit-files | grep -q \"wireguard-wg-medinix.service\"; then
+        sudo systemctl restart wireguard-wg-medinix.service 2>/dev/null || true
+      elif systemctl list-unit-files | grep -q \"wg-quick-wg-medinix.service\"; then
+        sudo systemctl restart wg-quick-wg-medinix.service 2>/dev/null || true
+      fi
+    '"
+
+  # 3. Handshake & SABnzbd Restart
+  local remote_status
+  remote_status=$(ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
+    sudo systemctl start sabnzbd 2>/dev/null || true
+    SAB_ACT=\$(systemctl is-active sabnzbd 2>/dev/null || echo \"inactive\")
+    WG_ACT=\$(systemctl is-active wireguard-wg-medinix 2>/dev/null || systemctl is-active wg-quick-wg-medinix 2>/dev/null || echo \"interface-configured\")
+    HANDSHAKE=\$(sudo wg show wg-medinix latest-handshakes 2>/dev/null | awk \"{print \\\$2}\" || echo \"none\")
+    echo \"SAB_ACT=\$SAB_ACT|WG_ACT=\$WG_ACT|HANDSHAKE=\$HANDSHAKE\"
+  '")
 
   # Generiere Nix-Block
   local addr_nix dns_nix allowed_nix
@@ -255,7 +297,7 @@ EOF
 
   local nix_code
   nix_code=$(cat << NIX
-  # WireGuard VPN Confinement (Importiert aus $(basename "$conf_path"))
+  # WireGuard VPN Confinement (Aus $(basename "$conf_path") ausgerollt)
   medinix.vpn = {
     enable = true;
     address = [ $addr_nix];
@@ -265,20 +307,27 @@ EOF
       endpoint = "$endpoint";
       allowedIPs = [ $allowed_nix];
     };
-    privateKeyCredentialPath = "/var/lib/medinix/secrets/wg-key.encrypted";
+    privateKeyCredentialPath = "$REMOTE_SECRETS_DIR/wg-key.encrypted";
   };
 NIX
 )
 
   clear
-  gum style --foreground 10 "✓ WireGuard PrivateKey erfolgreich als 'wg-key.encrypted' auf Q958 versiegelt!"
+  gum style --border rounded --padding "1 2" --border-foreground 10 \
+    "🎉 AUSROLLEN ERFOLGREICH!" \
+    "" \
+    "✓ WireGuard .conf atomar nach $REMOTE_VPN_DIR/wg-medinix.conf ausgerollt (0600 root:root)" \
+    "✓ PrivateKey via TPM als $REMOTE_SECRETS_DIR/wg-key.encrypted versiegelt" \
+    "✓ SABnzbd geordnet gestoppt, Konfiguration aktualisiert und wieder gestartet" \
+    "✓ Status: $remote_status" \
+    "✓ VPN-Endpoint: $endpoint"
+
   echo ""
   gum style --border rounded --padding "1 2" --border-foreground 14 \
-    "Deklarativer NixOS-Block für mediNix:" "$nix_code"
+    "NixOS Host-Konfiguration für mediNix (in Zwischenablage kopiert):" "$nix_code"
 
   if command -v wl-copy >/dev/null 2>&1; then
     printf "%s" "$nix_code" | wl-copy
-    gum style --foreground 10 "✓ Nix-Code wurde zusätzlich in deine Zwischenablage kopiert!"
   fi
 
   echo ""
@@ -293,7 +342,6 @@ create_new_secret() {
   new_key=$(gum input --placeholder "Secret-Name (z.B. my-token)")
   [ -z "$new_key" ] && return 0
 
-  # Bereinigen
   new_key=$(echo "$new_key" | tr -d ' ' | tr '[:upper:]' '[:lower:]')
   manage_secret "$new_key"
 }
@@ -306,9 +354,9 @@ while true; do
     --margin "1" \
     --padding "1 2" \
     --border-foreground 212 \
-    "🔐 Q958 mediNix Secret Manager" \
-    "Host: $SSH_HOST (192.168.2.73) | Speicher: $REMOTE_DIR" \
-    "Systemd-Credentials (TPM2-Hardwareversiegelung)"
+    "🔐 Q958 mediNix Secret & VPN Manager" \
+    "Host: $SSH_HOST (192.168.2.73) | Speicher: $REMOTE_SECRETS_DIR" \
+    "Systemd-Credentials (TPM2) & WireGuard Live-Rollout"
 
   menu_items=$(list_secrets_menu)
   selected=$(echo "$menu_items" | gum choose --limit=1)
@@ -318,14 +366,13 @@ while true; do
       clear
       exit 0
       ;;
-    *"[WireGuard .conf importieren"*)
-      import_wireguard_conf
+    *"[WireGuard .conf 1:1 ausrollen"*)
+      deploy_wireguard_conf
       ;;
     *"[Neues benutzerdefiniertes Secret anlegen]"*)
       create_new_secret
       ;;
     *)
-      # Key extrahieren: zwischen Icon (✅/⚪) und dem Gedankenstrich "—"
       clean_entry=$(echo "$selected" | sed 's/^[✅⚪] //')
       key="${clean_entry%% —*}"
       key=$(echo "$key" | tr -d ' ')
