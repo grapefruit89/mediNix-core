@@ -47,7 +47,11 @@ def _sync_arr_service(host: str, name: str, port: int, key_file: str) -> None:
 
 
 def _sync_sabnzbd_key(key_file: str) -> None:
-    sab_ini = Path(os.environ["SAB_INI_FILE"])
+    sab_ini_str = os.environ.get("SAB_INI_FILE")
+    if not sab_ini_str:
+        # ADR-0010: SABnzbd API-Key wird deklarativ im Service preStart verwaltet
+        return
+    sab_ini = Path(sab_ini_str)
     if not sab_ini.exists():
         print("SABnzbd: sabnzbd.ini not present — skipped", file=sys.stderr)
         return
@@ -93,7 +97,7 @@ def sync_arr_keys() -> int:
     if os.environ.get("SYNC_PROWLARR", "0") == "1":
         _sync_arr_service(host, "prowlarr", int(os.environ["PROWLARR_PORT"]), os.environ["PROWLARR_KEY_FILE"])
     if os.environ.get("SYNC_SABNZBD", "0") == "1":
-        _sync_sabnzbd_key(os.environ["SABNZBD_KEY_FILE"])
+        _sync_sabnzbd_key(os.environ.get("SABNZBD_KEY_FILE", os.environ.get("SAB_KEY_FILE", "")))
 
     print("Arr keys sync complete.")
     return 0
