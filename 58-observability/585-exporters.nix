@@ -63,6 +63,8 @@ let
           # network-Profile: Go binary, port binding via CAP_NET_BIND_SERVICE
           profiles.network
           {
+            SocketBindAllow = [ "ipv4:tcp:${toString exporterPort}" ];
+            SocketBindDeny = [ "any" ];
             ExecStart =
               "${pkgs.exportarr}/bin/exportarr ${name} --interface 127.0.0.1 --port ${toString exporterPort} --url http://127.0.0.1:${toString m.port}"
               + lib.optionalString (

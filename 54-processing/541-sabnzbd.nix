@@ -38,6 +38,13 @@ let
       svc.vpn.interface
     else
       "";
+
+  # Systemd escapes hyphens in device unit names (e.g. wg-medinix -> wg\x2dmedinix)
+  vpnDevUnit =
+    if vpnIf != "" then
+      "sys-subsystem-net-devices-${lib.replaceStrings [ "-" ] [ "\\x2d" ] vpnIf}.device"
+    else
+      "";
 in
 {
   options.medinix.sabnzbd = {
@@ -216,16 +223,18 @@ in
             svc.storage.downloadDir
           ];
         };
-        bindsTo = lib.optional (
-          svc.usenet-confinement.enable && vpnIf != ""
-        ) "sys-subsystem-net-devices-${vpnIf}.device";
+        bindsTo = lib.optionals (svc.usenet-confinement.enable && vpnIf != "") [
+          vpnDevUnit
+          "wireguard-${vpnIf}.service"
+        ];
         wants = [ "network-online.target" ];
         after = [
           "network-online.target"
         ]
-        ++ lib.optional (
-          svc.usenet-confinement.enable && vpnIf != ""
-        ) "sys-subsystem-net-devices-${vpnIf}.device";
+        ++ lib.optionals (svc.usenet-confinement.enable && vpnIf != "") [
+          vpnDevUnit
+          "wireguard-${vpnIf}.service"
+        ];
         wantedBy = [ "multi-user.target" ];
         onFailure = [ "alert-ntfy@%n.service" ];
         preStart = ''
