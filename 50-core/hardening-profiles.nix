@@ -90,7 +90,9 @@ rec {
       "AF_INET6"
       "AF_NETLINK"
     ];
-    PrivateUsers = true;
+    # mkDefault: spezifische Einheiten (z. B. 538-provisioning) duerfen fuer
+    # Journal-Stream-Leserechte PrivateUsers = false setzen, ohne Kollision.
+    PrivateUsers = lib.mkDefault true;
     CapabilityBoundingSet = [ "" ];
     AmbientCapabilities = [ "" ];
     # mkDefault (wie RestartSec unten): spezifische Module/Upstream-Module duerfen

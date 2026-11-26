@@ -1897,7 +1897,7 @@
       "id": "R98",
       "title": "`arr-provision` bündeln: 8 Einzel-CLIs (`arr-sync-*`) → ein `arr-provision <subcommand>` (weniger Entry-Points…",
       "kind": "feature",
-      "status": "open",
+      "status": "done",
       "priority": "medium",
       "legacy": false,
       "source": {
@@ -1911,7 +1911,11 @@
       },
       "why": "**`arr-provision` bündeln:** 8 Einzel-CLIs (`arr-sync-*`) → **ein** `arr-provision <subcommand>` (weniger Entry-Points, ein `--help`).",
       "steps_open": [],
-      "steps_done": [],
+      "steps_done": [
+        "Gebündelt in ein zentrales arr-provision CLI mit Subcommands und Symlink-Kompatibilität",
+        "Event-basierte Kernel-Readiness (events.py) integriert (Zero-Polling)",
+        "ADR-0010 Konformität hergestellt (keine direkten SQLite-Schreibzugriffe oder unberechtigte systemctl-Aufrufe)"
+      ],
       "notes": " · Aufwand: MITTEL · Charakter: Tooling",
       "depends_on": [],
       "links": [],

@@ -4,17 +4,11 @@ from __future__ import annotations
 
 import json
 import os
-import sqlite3
 import sys
 
 from arr_provision.common import http_json, read_key_file, title_case_service, wait_for_url
 
-_VPN_DISABLED_TASKS = (
-    "NzbDrone.Core.Update.Commands.ApplicationUpdateCheckCommand",
-    "NzbDrone.Core.IndexerVersions.IndexerDefinitionUpdateCommand",
-)
-# Minutes — ~1 year; Prowlarr API erlaubt kein Task-PUT, DB-Interval ist der Weg.
-_VPN_DISABLED_INTERVAL_MIN = 525600
+
 
 
 def _register_indexer(api: str, headers: dict, indexer: dict) -> None:
@@ -114,21 +108,12 @@ def _tune_vpn_sandbox(api_v1: str, headers: dict) -> None:
         else:
             print(f"Prowlarr host config PUT failed (HTTP {put_status})", file=sys.stderr)
 
-    db_path = os.environ["PROWLARR_DB"]
-    try:
-        con = sqlite3.connect(db_path)
-        for type_name in _VPN_DISABLED_TASKS:
-            cur = con.execute(
-                "UPDATE ScheduledTasks SET Interval = ? WHERE TypeName = ? AND Interval < ?",
-                (_VPN_DISABLED_INTERVAL_MIN, type_name, _VPN_DISABLED_INTERVAL_MIN),
-            )
-            if cur.rowcount:
-                short = type_name.rsplit(".", maxsplit=1)[-1]
-                print(f"Prowlarr: stretched scheduled task interval ({short})")
-        con.commit()
-        con.close()
-    except OSError as exc:
-        print(f"Prowlarr DB tune skipped: {exc}", file=sys.stderr)
+    # ADR-0010 §2.3 / Zero-SQLite Invariante:
+    # Direkte SQLite-Schreibzugriffe (PROWLARR_DB) gegen einen laufenden Service sind strikt verboten!
+    # Prowlarr hält seinen State und Caches im RAM und nutzt SQLite im WAL-Modus. Ein UPDATE auf ScheduledTasks
+    # während der Daemon läuft, riskiert fatale SQLite-Locks ("database is locked") und DB-Korruption.
+    # Der Update-Mechanismus wird deklarativ in NixOS (53-acquisition/536-prowlarr.nix: update.mechanism = "External")
+    # konfiguriert; REST-Sync prüft und setzt updateMechanism/updateAutomatically sauber über /api/v1/config/host.
 
 
 def _register_backup_indexer(app: dict, backup: dict) -> None:

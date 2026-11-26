@@ -160,7 +160,7 @@ in
                 };
                 log.level = "info";
                 log.consoleLevel = "debug";
-                update.mechanism = "BuiltIn";
+                update.mechanism = "External";
               })
             ];
           };

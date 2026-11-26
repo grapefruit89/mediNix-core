@@ -46,6 +46,12 @@ def read_key_file(path: str) -> Optional[str]:
     return None
 
 
+# ARCHITEKTUR-HINWEIS (ADR-0010 / Task R98):
+# Frühere Versionen nutzten serielles 'time.sleep()'-Polling ('wait_for_url').
+# Das blockierte den Thread, erzeugte Latenzen von mehreren Sekunden pro Service und war blind für
+# Service-Crashes. Die moderne Engine in 'arr_provision.events' (wait_for_ready) nutzt Kernel-epoll
+# und systemd-journald Event-Streaming (Zero-Polling / sofortiger Wakeup bei Kestrel 'Now listening on:'
+# oder Fail-Fast bei Unit-Crash). 'wait_for_url' verbleibt als Abwärtskompatibilitäts-Fallback.
 def wait_for_url(
     url: str,
     *,

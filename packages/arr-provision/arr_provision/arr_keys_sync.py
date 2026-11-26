@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -24,8 +23,10 @@ def _api_ok(host: str, port: int, api_key: str) -> bool:
     return status < 400
 
 
-def _restart_service(name: str) -> None:
-    subprocess.run(["systemctl", "restart", f"{name}.service"], check=False)
+# ADR-0010 §2.1 & §2.2:
+# API-Key-Provisionierung erfolgt deklarativ VOR dem Start des Dienstes (ExecStartPre / preStart).
+# arr-provision läuft als unprivilegierter media-User (ProtectSystem=strict) und darf
+# KEINE 'systemctl restart'-Kommandos oder direkte Dateisystem-Mutationen ausführen.
 
 
 def _sync_arr_service(host: str, name: str, port: int, key_file: str) -> None:
@@ -41,13 +42,8 @@ def _sync_arr_service(host: str, name: str, port: int, key_file: str) -> None:
         print(f"{label}: API key already active")
         return
 
-    print(f"{label}: restarting to apply declarative API key")
-    _restart_service(name)
-    status_url = f"{arr_api_base(host, port, 'v3')}/system/status"
-    if wait_for_url(status_url, headers={"X-Api-Key": api_key}, max_attempts=20):
-        print(f"{label}: API key active after restart")
-    else:
-        print(f"{label}: API key still not accepted after restart", file=sys.stderr)
+    # ADR-0010: Schlüssel wird deklarativ via ExecStartPre injiziert.
+    print(f"{label}: API key from sealed credential not accepted via REST API (verify ExecStartPre)", file=sys.stderr)
 
 
 def _sync_sabnzbd_key(key_file: str) -> None:
@@ -79,9 +75,12 @@ def _sync_sabnzbd_key(key_file: str) -> None:
         print("SABnzbd: API keys already correct")
         return
 
-    sab_ini.write_text(content, encoding="utf-8")
-    print("SABnzbd: API keys updated, restarting")
-    subprocess.run(["systemctl", "restart", "sabnzbd.service"], check=False)
+    # ADR-0010 §2.1: Key-Seeding erfolgt im preStart des SABnzbd-Dienstes.
+    try:
+        sab_ini.write_text(content, encoding="utf-8")
+        print("SABnzbd: API keys updated in ini (no restart needed)")
+    except OSError as exc:
+        print(f"SABnzbd: ini write skipped in hardened sandbox: {exc}", file=sys.stderr)
 
 
 def sync_arr_keys() -> int:

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import re
-import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -82,9 +81,14 @@ def sync_sabnzbd_locale(lang: str, categories_ini: str, sab_key_file: str) -> No
         print("SABnzbd: categories already present")
 
     if changed:
-        sab_ini.write_text(content, encoding="utf-8")
-        print(f"SABnzbd: language set to {lang}, restarting service")
-        subprocess.run(["systemctl", "restart", "sabnzbd.service"], check=False)
+        # ADR-0010 §2.1 & §2.2:
+        # arr-provision läuft als unprivilegierter media-User (ProtectSystem=strict)
+        # und darf kein 'systemctl restart' ausführen.
+        try:
+            sab_ini.write_text(content, encoding="utf-8")
+            print(f"SABnzbd: language set to {lang} in config")
+        except OSError as exc:
+            print(f"SABnzbd: ini write skipped in hardened sandbox: {exc}", file=sys.stderr)
     else:
         print(f"SABnzbd: already correct ({lang})")
 

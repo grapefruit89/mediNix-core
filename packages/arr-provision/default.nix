@@ -1,12 +1,12 @@
 # ---
 # id: "arr-provision"
-# title: "arr-provision — Python-CLIs fuer deklarative *arr/Seerr-API-Sync"
+# title: "arr-provision — Vereinheitlichte CLI fuer deklarative *arr/Seerr-API-Provisionierung"
 # domain: 50
 # folder: "packages/arr-provision"
 # status: active
 # kind: package
 # complexity: 3
-# last_reviewed: 2026-10-15
+# last_reviewed: 2026-11-26
 # links:
 #   adr: ADR-0010
 # tags: ["media", "arr", "provisioning"]
@@ -20,79 +20,67 @@
 let
   arrRoot = lib.cleanSource ./.;
 
-  mkCli =
-    name: module:
-    stdenv.mkDerivation {
-      pname = name;
-      version = "1.0.0";
-      dontUnpack = true;
-      installPhase = ''
-          mkdir -p "$out/bin"
-          cat > "$out/bin/${name}" <<EOF
-        #!${stdenv.shell}
-        export PYTHONPATH="${arrRoot}:$PYTHONPATH"
-        exec ${python3}/bin/python3 -c "from arr_provision.${module} import main; main()"
-        EOF
-          chmod +x "$out/bin/${name}"
-      '';
-    };
+  legacyEntrypoints = [
+    "arr-sync-keys"
+    "arr-sync-settings"
+    "arr-sync-download-clients"
+    "arr-sync-prowlarr"
+    "arr-sync-locale"
+    "arr-sync-profiles"
+    "arr-sync-jellyfin"
+    "arr-sync-seerr"
+  ];
+in
+stdenv.mkDerivation {
+  pname = "arr-provision";
+  version = "2.0.0";
+  src = arrRoot;
 
-  downloadClients = mkCli "arr-sync-download-clients" "download_clients";
-  prowlarrSync = mkCli "arr-sync-prowlarr" "prowlarr_sync";
-  localeSync = mkCli "arr-sync-locale" "locale_sync";
-  seerrSync = mkCli "arr-sync-seerr" "seerr_sync";
-  arrSettingsSync = mkCli "arr-sync-settings" "arr_settings_sync";
-  arrKeysSync = mkCli "arr-sync-keys" "arr_keys_sync";
-  jellyfinSetup = mkCli "arr-sync-jellyfin" "jellyfin_setup";
-  profileSync = mkCli "arr-sync-profiles" "profile_sync";
+  nativeBuildInputs = [ python3 ];
+  doCheck = true;
 
-  testRunner = stdenv.mkDerivation {
+  checkPhase = ''
+    runHook preCheck
+    PYTHONPATH="$PWD" ${python3}/bin/python3 -m unittest discover -s tests -q
+    runHook postCheck
+  '';
+
+  installPhase = ''
+    runHook preInstall
+    pkgDir="$out/lib/arr-provision"
+    mkdir -p "$out/bin" "$pkgDir"
+    cp -r arr_provision "$pkgDir/"
+
+    cat > "$out/bin/arr-provision" <<EOF
+    #!${stdenv.shell}
+    export PYTHONPATH="$pkgDir\''${PYTHONPATH:+:\$PYTHONPATH}"
+    exec -a "\$0" ${python3}/bin/python3 -m arr_provision "\$@"
+    EOF
+    chmod 0755 "$out/bin/arr-provision"
+
+    # Abwaertskompatible BusyBox-Symlinks (cli.py wertet argv[0] aus)
+    for alias in ${lib.concatStringsSep " " legacyEntrypoints}; do
+      ln -s arr-provision "$out/bin/$alias"
+    done
+    runHook postInstall
+  '';
+
+  passthru.tests = stdenv.mkDerivation {
     pname = "arr-provision-tests";
-    version = "1.0.0";
+    version = "2.0.0";
     src = arrRoot;
     nativeBuildInputs = [ python3 ];
     dontConfigure = true;
     installPhase = ''
-      export PYTHONPATH="${arrRoot}:$PYTHONPATH"
-      ${python3}/bin/python3 -m unittest discover -s ${arrRoot}/tests -q
+      PYTHONPATH="$PWD" ${python3}/bin/python3 -m unittest discover -s tests -q
       mkdir -p "$out"
       touch "$out/pass"
     '';
   };
-in
-stdenv.mkDerivation {
-  pname = "arr-provision";
-  version = "1.0.0";
-  dontUnpack = true;
-
-  installPhase = ''
-    mkdir -p "$out/bin"
-    cp -L ${downloadClients}/bin/arr-sync-download-clients "$out/bin/"
-    cp -L ${prowlarrSync}/bin/arr-sync-prowlarr "$out/bin/"
-    cp -L ${localeSync}/bin/arr-sync-locale "$out/bin/"
-    cp -L ${seerrSync}/bin/arr-sync-seerr "$out/bin/"
-    cp -L ${arrSettingsSync}/bin/arr-sync-settings "$out/bin/"
-    cp -L ${arrKeysSync}/bin/arr-sync-keys "$out/bin/"
-    cp -L ${jellyfinSetup}/bin/arr-sync-jellyfin "$out/bin/"
-    cp -L ${profileSync}/bin/arr-sync-profiles "$out/bin/"
-  '';
-
-  passthru = {
-    inherit
-      downloadClients
-      prowlarrSync
-      localeSync
-      seerrSync
-      arrSettingsSync
-      arrKeysSync
-      jellyfinSetup
-      profileSync
-      ;
-    tests = testRunner;
-  };
 
   meta = {
-    description = "Declarative API provisioning for the mediNix media stack";
+    description = "Unified event-driven API provisioning for the mediNix media stack";
+    mainProgram = "arr-provision";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;
   };

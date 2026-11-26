@@ -153,6 +153,9 @@ lib.mkIf cfg.maintenance.provisioning.enable {
         StateDirectory = "mediNix-state";
         StateDirectoryMode = "0750";
         ReadWritePaths = [ "/var/lib/mediNix-state" ];
+        # Journald-Stream lesbar machen fuer Kernel-/Journal-Event-Readiness (Zero-Polling)
+        PrivateUsers = false;
+        SupplementaryGroups = [ "systemd-journal" ];
         LoadCredentialEncrypted = lib.flatten [
           (lib.optional (
             (manifest.jellyfin.enable or false) && (cfg.jellyfin.adminPasswordFile or null) != null
@@ -172,22 +175,7 @@ lib.mkIf cfg.maintenance.provisioning.enable {
           ))
           (lib.optional (manifest.seerr.enable or false) (cred "seerr-apikey" cfg.secrets.seerrApiKeyFile))
         ];
-        ExecStart = pkgs.writeShellScript "run-arr-provision" ''
-          set -euo pipefail
-          ${arrProv}/bin/arr-sync-keys
-          ${arrProv}/bin/arr-sync-settings
-          ${arrProv}/bin/arr-sync-download-clients
-          ${arrProv}/bin/arr-sync-prowlarr
-          ${arrProv}/bin/arr-sync-locale
-          ${arrProv}/bin/arr-sync-profiles
-          if [ "$SYNC_JELLYFIN" = "1" ]; then
-            ${arrProv}/bin/arr-sync-jellyfin
-          fi
-          if [ "$SYNC_SEERR" = "1" ]; then
-            ${arrProv}/bin/arr-sync-seerr
-          fi
-          touch "$FLAG_FILE"
-        '';
+        ExecStart = "${arrProv}/bin/arr-provision all --debug";
       }
     ];
     environment = {
@@ -202,24 +190,13 @@ lib.mkIf cfg.maintenance.provisioning.enable {
       RADARR_PORT = toString (manifest.radarr.port or registry.radarr.port);
       PROWLARR_PORT = toString (manifest.prowlarr.port or registry.prowlarr.port);
       SAB_PORT = toString (manifest.sabnzbd.port or registry.sabnzbd.port);
-      # SSoT: SABnzbd-Konfigpfad aus der Registry ableiten (statt hartkodieren).
-      # Der Python liest ihn via $SAB_INI_FILE.
-      SAB_INI_FILE = "${registry.sabnzbd.stateDir}/sabnzbd.ini";
-      PROWLARR_DB = "${registry.prowlarr.stateDir}/prowlarr.db";
-      JELLYFIN_CONFIG = "${registry.jellyfin.stateDir}/config/system.xml";
       SONARR_KEY_FILE = credPath "sonarr-apikey";
       RADARR_KEY_FILE = credPath "radarr-apikey";
       PROWLARR_KEY_FILE = credPath "prowlarr-apikey";
       SABNZBD_KEY_FILE =
-        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
-          credPath "sabnzbd-apikey"
-        else
-          "${registry.sabnzbd.stateDir}/sabnzbd.ini";
+        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then credPath "sabnzbd-apikey" else "";
       SAB_KEY_FILE =
-        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then
-          credPath "sabnzbd-apikey"
-        else
-          "${registry.sabnzbd.stateDir}/sabnzbd.ini";
+        if (cfg.secrets.sabnzbdApiKeyFile or null) != null then credPath "sabnzbd-apikey" else "";
       TARGETS_JSON = builtins.toJSON downloadClientTargets;
       TARGET_LANG = cfg.locale.language;
       TARGET_LOCALE = cfg.locale.default;
