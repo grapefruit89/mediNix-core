@@ -2,6 +2,11 @@
 
 > **Zweck:** Processing — Usenet-Download und das Verschieben von Medien zwischen Speicher-Tiers.
 
+**Semantic Anchors:**
+- Storage Architecture: `Staging & Tiering` (Fast NVMe staging to HDD cold storage)
+- Network Isolation: `Bulkhead Pattern` · `Defense in Depth` (SABnzbd restricted to VPN killswitch namespace)
+- Execution Pipeline: `Pipes and Filters Pattern` (Fetch → Verify → Unpack → Move)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String

@@ -5,11 +5,18 @@ description: Notifications and runtime checks. Detection, not enforcement.
 domain: 58
 status: active
 last_reviewed: 2026-09-02
+anchors: [site-reliability-engineering, andon, poka-yoke, heartbeat-pattern]
 ---
 
 # 58-observability
 
 Detection and notification. The security boundary is Caddy, 526, and systemd profiles.
+
+## ⚓ Semantic Anchors
+
+- **`Site Reliability Engineering (SRE)`:** SLI/SLO measurement through live metrics and synthetic HTTP probing.
+- **`Andon`:** Direct notification pipeline (ntfy) alerting on degraded services before failure cascades occur.
+- **`Poka-Yoke` / `Heartbeat Pattern`:** Periodic automated invariant testing (VPN leak selftest, runtime guards).
 
 Three modules. There is no `582-crowdsec.nix`.
 

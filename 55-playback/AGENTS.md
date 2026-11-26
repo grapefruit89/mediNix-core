@@ -2,6 +2,10 @@
 
 > **Zweck:** Wiedergabe — Medienserver und ihre Weboberflächen.
 
+**Semantic Anchors:**
+- Architecture Role: `Consumer` · `Stateless Service` (Read-only media archive access, ephemeral transcode caches)
+- Data Boundary: `Separation of Concerns` · `Principle of Least Privilege` (Strict ReadOnlyPaths, isolated UPGs)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String

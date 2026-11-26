@@ -2,6 +2,12 @@
 
 > **Zweck:** Beschaffung — Indexer-Anbindung und die *arr-Suite (Suche, Überwachung, Download-Auftrag).
 
+**Semantic Anchors:**
+- Domain Role: `Ingestion Pipeline` · `Producer` (Release discovery, RSS monitoring, download order generation)
+- Configuration: `Twelve-Factor App` (Strict env-based service config)
+- Privilege Model: `Principle of Least Privilege` (Isomorphic UPG isolation)
+- Automation: `Poka-Yoke` · `Design by Contract` (epoll Event-Reactor, zero-sleep polling)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String

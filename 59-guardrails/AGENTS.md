@@ -2,6 +2,10 @@
 
 > **Zweck:** Domänenübergreifende Invarianten — die Assertions, die kein einzelnes Modul allein verantworten kann.
 
+**Semantic Anchors:**
+- Design Philosophy: `Shift-Left Security` · `Design by Contract` (Compile-time Nix evaluation assertions instead of runtime crashes)
+- Invariant Enforcement: `Poka-Yoke` · `Fail-Closed` (Impermissible architectural combinations abort `nixos-rebuild` immediately)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String

@@ -4,6 +4,7 @@ title: Maintenance Domain
 description: Cross-cutting background maintenance tasks, DB optimization, and backups.
 aliases: [Maintenance, Optimization]
 tags: [architecture, medinix, maintenance, sqlite, vacuum]
+anchors: [lifecycle-management, garbage-collection, defensive-programming, poka-yoke, single-source-of-truth]
 ---
 
 # 57-maintenance: Maintenance Domain
@@ -11,6 +12,12 @@ tags: [architecture, medinix, maintenance, sqlite, vacuum]
 The **Maintenance Domain** (Domain 57) acts as the janitor of mediNix-core. It hosts cross-cutting background jobs that ensure the system remains fast, clean, and reliable over long periods of uptime.
 
 These tasks typically do not serve users or acquire media directly; instead, they operate on the state left behind by other domains.
+
+## ⚓ Semantic Anchors
+
+- **`Lifecycle Management` / `Garbage Collection`:** Continuous cleaning of transient files, cache rot, and orphaned assets.
+- **`Defensive Programming` / `Poka-Yoke`:** Safe state flushing (WAL checkpoints) ensuring zero DB corruption on host power events.
+- **`Single Source of Truth`:** Declarative backup manifests and storage path contracts.
 
 ## 🎯 Core Responsibilities
 

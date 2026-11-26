@@ -2,6 +2,11 @@
 
 > **Zweck:** Wartung — Provisionierung, Backup, Drift-/Müll-Erkennung, Updates, Speicher-Tiering.
 
+**Semantic Anchors:**
+- Operational Pattern: `Lifecycle Management` · `Garbage Collection` (Drift detection, orphan cleanup, automated pruning)
+- Reliability: `Defensive Programming` · `Poka-Yoke` (SQLite WAL checkpointing before shutdown, fail-closed storage bounds)
+- Disaster Recovery: `Single Source of Truth` · `Least Privilege` (Restricted SSH pull keys, structured restic backups)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String

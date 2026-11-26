@@ -5,6 +5,7 @@ description: Cross-domain evaluation-time assertions. No runtime units.
 domain: 59
 status: active
 last_reviewed: 2026-09-02
+anchors: [shift-left-security, design-by-contract, poka-yoke, fail-closed]
 ---
 
 # 59-guardrails
@@ -12,6 +13,11 @@ last_reviewed: 2026-09-02
 Eval-time invariants across domains. **No systemd units. No runtime enforcement.**
 
 Invalid architecture must fail at `nixos-rebuild`, not on the running host.
+
+## ⚓ Semantic Anchors
+
+- **`Shift-Left Security` / `Design by Contract`:** Quality and security assertions checked at build time rather than runtime.
+- **`Poka-Yoke` / `Fail-Closed`:** Architectural invalidity is mechanically unbuildable; Nix evaluation aborts cleanly on violations.
 
 | ID | Module | Role |
 | --- | --- | --- |

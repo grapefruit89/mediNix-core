@@ -2,6 +2,10 @@
 
 > **Zweck:** Exposition, Request-Management & Medien-Entdeckung (Seerr / 561) nach ADR-0000.
 
+**Semantic Anchors:**
+- Architecture Pattern: `Facade Pattern` · `Backend for Frontend (BFF)` (User-facing request portal decoupled from backend *arr)
+- Security Boundary: `Separation of Concerns` · `Defense in Depth` (Zero direct access to media disks or download daemons)
+
 
 <!-- AUTO-GENERATED, DO NOT EDIT BELOW -->
 

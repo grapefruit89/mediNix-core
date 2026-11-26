@@ -4,11 +4,18 @@ title: Exposition Domain (Requests & API Gateways)
 description: Central request portal for media discovery and acquisition bridging.
 aliases: [Requests, Seerr, Exposition, Anfragen]
 tags: [architecture, medinix, requests, seerr, exposition]
+anchors: [facade-pattern, backend-for-frontend, separation-of-concerns, defense-in-depth]
 ---
 
 # 56-exposition: Exposition & Request Management Domain
 
 The **Request Management Domain** (Domain 56) provides the user-facing request and discovery portal for the media stack. It serves as the interactive bridge between users, the streaming services (Domain 55 Playback), and the automated acquisition pipeline (Domain 53 Acquisition).
+
+## ⚓ Semantic Anchors
+
+- **`Facade Pattern` / `Backend for Frontend (BFF)`:** Clean, unified user interface abstracting underlying daemon APIs.
+- **`Separation of Concerns`:** Interactive user requests strictly isolated from operational download daemons.
+- **`Defense in Depth`:** Protected by Caddy reverse proxy and forward authentication.
 
 ## 🎯 Core Responsibilities
 

@@ -4,6 +4,7 @@ title: Playback & Presentation Domain
 description: Manages media servers and frontends for user consumption.
 aliases: [Playback, Presentation, Jellyfin]
 tags: [architecture, medinix, playback, jellyfin, navidrome, audiobookshelf]
+anchors: [consumer, stateless-service, separation-of-concerns, least-privilege]
 ---
 
 # 55-playback: Playback & Presentation Domain
@@ -11,6 +12,12 @@ tags: [architecture, medinix, playback, jellyfin, navidrome, audiobookshelf]
 The **Playback & Presentation Domain** (Domain 55) is the "face" of mediNix-core. It hosts the media servers that index the final Tier-C storage and present it to the end users across various devices (Smart TVs, browsers, mobile apps). 
 
 This domain focuses heavily on performance (Hardware Transcoding), frontend routing, and strict read-only access to the media library to ensure the presentation layer can never accidentally delete or corrupt data.
+
+## ⚓ Semantic Anchors
+
+- **`Consumer` / `Read-Heavy Service`:** Serves data strictly read-only without modifying library trees.
+- **`Stateless Service` / `Ephemeral Cache`:** Transcoding and image caches reside in disposable storage.
+- **`Separation of Concerns`:** Direct decoupling of client rendering from acquisition and ingestion logic.
 
 ## 🎯 Core Responsibilities
 

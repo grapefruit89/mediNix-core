@@ -4,11 +4,18 @@ title: Processing & Storage Maintenance Domain
 description: Manages media downloading and storage tiering (SSD to HDD).
 aliases: [Processing, SABnzbd, Mover]
 tags: [architecture, medinix, download, sabnzbd, tiering]
+anchors: [staging-and-tiering, bulkhead, defense-in-depth, pipes-and-filters]
 ---
 
 # 54-processing: Processing & Storage Maintenance
 
 The **Processing & Storage Maintenance Domain** (Domain 54) handles the heavy lifting of moving data. It is responsible for downloading media securely via Usenet and managing the flow of data across different storage tiers (from high-speed SSD staging to high-capacity HDD cold storage).
+
+## ⚓ Semantic Anchors
+
+- **`Staging & Tiering`:** Temporary high-speed buffer on SSD decoupled from spinning cold storage.
+- **`Bulkhead Pattern` / `Defense in Depth`:** Downloader runs strictly in the VPN network namespace with automated leak-prevention.
+- **`Pipes and Filters Pattern`:** Discrete processing stages for ingest, validation, extraction, and relocation.
 
 ## 🎯 Core Responsibilities
 

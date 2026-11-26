@@ -4,6 +4,7 @@ title: Acquisition Domain (*arr Suite)
 description: Manages media acquisition services using the *arr stack.
 aliases: [Acquisition, arr-suite]
 tags: [architecture, medinix, acquisition, arr]
+anchors: [ingestion-pipeline, producer, twelve-factor-app, least-privilege, poka-yoke]
 ---
 
 # 53-acquisition: Media Acquisition
@@ -11,6 +12,13 @@ tags: [architecture, medinix, acquisition, arr]
 The **Acquisition Domain** (Domain 53) is the "brain" of media procurement in mediNix-core. It is responsible for searching for, monitoring, and delegating the download of new media (series, movies, music, books) to the appropriate download clients (which live in another domain, like `54-download`).
 
 This folder encapsulates the entire **\*arr suite** (Sonarr, Radarr, etc.) in strictly isolated Systemd services.
+
+## ⚓ Semantic Anchors
+
+- **`Ingestion Pipeline` / `Producer`:** Content discovery, RSS monitoring, download order creation.
+- **`Twelve-Factor App`:** Strict declarative configuration injection via environment variables.
+- **`Principle of Least Privilege`:** Isomorphic UPG isolation per daemon.
+- **`Poka-Yoke` / `Design by Contract`:** Kernel-epoll event reactor in `arr-provision` without serial sleep polling.
 
 ## 🎯 Core Responsibilities
 

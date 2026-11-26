@@ -2,6 +2,11 @@
 
 > **Zweck:** Beobachtbarkeit und Selbstheilung — Benachrichtigungen, Health-Übersicht, Exporters, Wachhunde.
 
+**Semantic Anchors:**
+- Methodology: `Site Reliability Engineering (SRE)` (Synthetic health probes, Prometheus exporters, runtime invariant auditing)
+- Incident Response: `Andon` (Immediate visual & push notification on unit failures via ntfy)
+- Fail-Fast: `Poka-Yoke` · `Heartbeat Pattern` (Post-boot watchdog, automated VPN leakage selftest)
+
 Alles **unterhalb der AUTO-GENERATED-Markierung** stammt aus den NIXMETA-Headern
 (`python3 scripts/medinix-meta.py generate-docs`) — **nie** von Hand ändern, sonst
 wird `check-docs` rot. Dieser manuelle Teil bleibt erhalten (den Marker-String
