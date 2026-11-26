@@ -141,6 +141,11 @@ BANS = [
         ),
         "oauth2-proxy (MIT, OIDC, 1 Binary; ADR-517) + Caddy-Direktive forward_auth",
     ),
+    (
+        "alejandra / nixpkgs-fmt (nicht-kanonische Formatter)",
+        re.compile(r"\bpkgs\.(?:alejandra|nixpkgs-fmt)\b|\bformatter\.[^=]+=\s*pkgs\.(?:alejandra|nixpkgs-fmt)\b"),
+        "nixfmt / nixfmt-rfc-style (offizieller Nixpkgs-Standard)",
+    ),
 ]
 
 

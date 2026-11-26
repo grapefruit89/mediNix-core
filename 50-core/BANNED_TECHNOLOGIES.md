@@ -51,6 +51,7 @@ Diese beiden Namen stehen bewusst **nicht** in den Mustern des Checks und werden
 | **`logrotate`** | `systemd-journald` (`SystemMaxUse=500M`) | Banned (ADR-500). mediNix relies 100% on native systemd journald log limits and automatic retention. Legacy logrotate scripts cause race conditions with service log streams and redundant log layers. |
 | **LLM Vector-DBs / RAG Plugins** | `AGENTS.md` & `grep` | Banned: `qmd`, `ChromaDB`, `FAISS`, heavy Python ML dependencies. Our codebase maps are deterministically generated (`medinix-meta.py generate-docs`). LLMs must use native `grep`/`fd` and read the `AGENTS.md` indexes instead of relying on fuzzy, bloated vector search. |
 | **Feishin** | **keine** (kein Ersatz) | Banned: Statische SPA ohne echten Mehrwert, pflegt sich nicht, verursacht Zahnschmerzen. |
+| **`alejandra` / `nixpkgs-fmt`** | `nixfmt` / `nixfmt-rfc-style` | Banned: Wir nutzen ausschließlich den offiziellen Upstream-Standard `nixfmt` (RFC 166). Alternative Formatter erzeugen Formatierungs-Kriege, Merge-Konflikte und unnötige Ablenkung. |
 
 ## 2. Identity Provider (IdP)
 
