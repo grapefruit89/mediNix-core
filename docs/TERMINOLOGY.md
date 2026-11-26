@@ -3,7 +3,7 @@
 > **Zweck:** Wir benutzen **etablierte Namen** statt Eigenschöpfungen. Referenz ist der
 > Semantic-Anchors-Katalog (<https://llm-coding.github.io/Semantic-Anchors/>). Jeder
 > Eintrag: **unser Konstrukt → Anker + Link**. Es stehen **nur** Namen aus dem Katalog
-> (237 Begriffe) hier — nichts Ausgedachtes.
+> hier — nichts Ausgedachtes.
 >
 > **Definitionen eingelagert:** englische Originale unter `docs/anchors/<id>.md`
 > (Apache-2.0, © LLM-Coding) — offline lesbar; erneuern mit `scripts/fetch_anchors.py`.
@@ -88,8 +88,57 @@
 | Kleine Module, schmale Schnittstelle, ein Zweck | [Deep Modules](anchors/deep-modules.md) + [Separation of Concerns](anchors/separation-of-concerns.md) |
 | 4 nie verdrahtete Module am 2026-10-16 archiviert (`docs/audit/`) | [YAGNI](anchors/yagni.md) + [Chesterton's Fence](anchors/chestertons-fence.md) |
 
-## Rollout
-- **Start:** 51-ingress + 52-security + 50-core/ (diese Datei).
-- **Nächste Ordner** (nach Bedarf): 58-observability · 53–56.
-- **Quelle der Namen:** <https://llm-coding.github.io/Semantic-Anchors/llms-index.txt> —
-  bei Zweifel dort prüfen, nicht aus dem Gedächtnis zitieren.
+## 53-acquisition (Arr-Stack & Provisioning)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| Konfiguration über Env-Variablen (`SONARR__*`) | [Twelve-Factor App](anchors/twelve-factor-app.md) | `532-sonarr.nix`..`536-prowlarr.nix` |
+| Isolierte UPG-Dienstkonten (`sonarr`, `radarr`, etc.) | [Principle of Least Privilege](anchors/least-privilege.md) | `532`..`536` |
+| Provisioning-Reactor via Kernel-epoll ohne Polling-Sleep | [Poka-Yoke](anchors/poka-yoke.md) + [Design by Contract](anchors/design-by-contract.md) | `538-provisioning.nix` |
+| Recyclarr deklarativer Trash-Guides-Sync | [Docs-as-Code](anchors/docs-as-code.md) + [SSOT](anchors/ssot-principle.md) | `537-recyclarr.nix` |
+
+## 54-processing (Downloader & Data Mover)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| SABnzbd strikt im VPN-Namespace isoliert | [Bulkhead Pattern](anchors/bulkhead.md) + [Defense in Depth](anchors/defense-in-depth.md) | `541-sabnzbd.nix` |
+| Speichertier-Entkopplung (Fast NVMe Ingestion vs. SATA Array) | [Separation of Concerns](anchors/separation-of-concerns.md) | `543-mover.nix` |
+| Mover Mount-Checks: Abbruch bei fehlendem Ziel (fail-closed) | [Defensive Programming](anchors/defensive-programming.md) + [Poka-Yoke](anchors/poka-yoke.md) | `543-mover.nix` |
+
+## 55-playback (Media Streaming)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| Jellyfin: Read-Only Medien-Mounts, flüchtiges Transcode-Tmpfs | [Principle of Least Privilege](anchors/least-privilege.md) + [Separation of Concerns](anchors/separation-of-concerns.md) | `551-jellyfin.nix` |
+| Navidrome / Audiobookshelf: Eigene UPG-UIDs, dedizierte Caches | [Bulkhead Pattern](anchors/bulkhead.md) + [Principle of Least Privilege](anchors/least-privilege.md) | `552`, `553` |
+
+## 56-exposition (Portal & Ingress Boundary)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| Seerr: Entkoppelte Anfrage-Schnittstelle ohne Direktzugriff aufs Array | [Separation of Concerns](anchors/separation-of-concerns.md) + [Defense in Depth](anchors/defense-in-depth.md) | `561-seerr.nix` |
+
+## 57-maintenance (Storage & Lifecycle Hygiene)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| Storage-Tiering-Hierarchie (NVMe-Cache, SATA-Array) | [SSOT](anchors/ssot-principle.md) + [Design by Contract](anchors/design-by-contract.md) | `570-storage.nix` |
+| SQLite WAL Checkpointing vor Shutdown | [Defensive Programming](anchors/defensive-programming.md) + [Poka-Yoke](anchors/poka-yoke.md) | `571-sqlite-wal.nix` |
+| SSH-Backup mit restriktivem Command-Key | [Principle of Least Privilege](anchors/least-privilege.md) + [Defense in Depth](anchors/defense-in-depth.md) | `576-backup.nix`, `579-backup-ssh.nix` |
+| Drift-Detection & Orphan-Cleanup (Verwaiste Artefakte entfernen) | [YAGNI](anchors/yagni.md) + [Design by Contract](anchors/design-by-contract.md) | `577`, `578` |
+
+## 58-observability (Telemetry & Health Gates)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| ntfy: Sofortige Push-Benachrichtigung bei Service-Fehlern | [Andon](anchors/andon.md) | `581-ntfy.nix` |
+| Gatus / Exporters: Synthetische Health-Checks & Prometheus-Metriken | [Site Reliability Engineering](anchors/site-reliability-engineering.md) | `582-gatus.nix`, `585-exporters.nix` |
+| Runtime-Guard & Post-Boot-Watchdog: Früherkennung von Systemdrift | [Poka-Yoke](anchors/poka-yoke.md) + [Andon](anchors/andon.md) | `583`, `584` |
+| VPN-Selftest: Regelmäßige Validierung der externen IP-Maskierung | [Defense in Depth](anchors/defense-in-depth.md) + [Poka-Yoke](anchors/poka-yoke.md) | `586-vpn-selftest.nix` |
+| SMART Disk Health mit HDD-Spindown-Erhalt | [Site Reliability Engineering](anchors/site-reliability-engineering.md) | `587-disk-health.nix` |
+
+## 59-guardrails (Compile-Time Assertions)
+
+| Modul / Konstrukt | Etablierter Anker | Datei |
+|---|---|---|
+| Cross-Domain Invarianten: Evaluierungsabbruch bei Regelbruch (fail-closed) | [Design by Contract](anchors/design-by-contract.md) + [Poka-Yoke](anchors/poka-yoke.md) | `591-cross-domain.nix` |

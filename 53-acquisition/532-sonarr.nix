@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-08-11
+# anchors: ["twelve-factor-app", "least-privilege"]
 # logo: https://cdn.jsdelivr.net/gh/grapefruit89/logorepo@main/logos/sonarr.svg
 # links:
 # provides: []

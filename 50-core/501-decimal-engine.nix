@@ -7,6 +7,7 @@
 # kind: engine
 # complexity: 2
 # last_reviewed: 2026-10-14
+# anchors: ["single-source-of-truth", "design-by-contract", "poka-yoke"]
 # links:
 #   adr: ADR-0000
 # ---

@@ -7,6 +7,7 @@
 # kind: library
 # complexity: 2
 # last_reviewed: 2026-09-02
+# anchors: ["single-source-of-truth", "dry", "least-privilege", "defense-in-depth"]
 # links:
 #   adr: ADR-5050
 # ---

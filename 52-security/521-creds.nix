@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
+# anchors: ["design-by-contract", "least-privilege", "defense-in-depth"]
 # provides: ["creds"]
 # requires: ["52-security/creds"]
 # links:

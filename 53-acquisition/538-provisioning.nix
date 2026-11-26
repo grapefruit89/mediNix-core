@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
+# anchors: ["poka-yoke", "design-by-contract"]
 # links:
 #   adr: ADR-538
 # ---

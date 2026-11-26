@@ -6,6 +6,7 @@
 # status: active
 # complexity: 5
 # last_reviewed: 2026-10-15
+# anchors: ["bulkhead", "poka-yoke", "defense-in-depth"]
 # provides: []
 # requires: []
 # ports: []

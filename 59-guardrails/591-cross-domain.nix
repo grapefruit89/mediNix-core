@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
+# anchors: ["design-by-contract", "poka-yoke"]
 # links:
 #   adr: ADR-5043
 # provides: ["guardrails"]

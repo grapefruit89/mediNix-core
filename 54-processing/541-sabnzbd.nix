@@ -6,6 +6,7 @@
 # status: active
 # complexity: 2
 # last_reviewed: 2026-09-07
+# anchors: ["bulkhead", "defense-in-depth", "least-privilege"]
 # links:
 #   adr: ADR-526
 # requires: ["50-core/hardening-profiles", "50-core/memory-policy", "52-security/creds"]

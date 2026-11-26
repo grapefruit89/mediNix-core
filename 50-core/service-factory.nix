@@ -7,6 +7,7 @@
 # kind: library
 # complexity: 4
 # last_reviewed: 2026-08-11
+# anchors: ["gof-factory-method-pattern", "dry", "least-privilege"]
 # links:
 #   adr: ADR-0000, ADR-5050
 # provides: ["mkService"]

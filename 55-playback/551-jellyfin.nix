@@ -6,6 +6,7 @@
 # status: active
 # complexity: 3
 # last_reviewed: 2026-09-02
+# anchors: ["least-privilege", "separation-of-concerns"]
 # sprite: 50-core/icons.svg#jellyfin
 # links:
 #   adr: ADR-551
