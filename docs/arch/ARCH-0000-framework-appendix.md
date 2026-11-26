@@ -45,7 +45,7 @@ chapter structure, while **C4** provides deterministic levels of diagram abstrac
 | **7. Deployment View** | Service map in `docs/INDEX.md`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-master-sources.md` | Infrastructure mapping, physical ports, file paths |
 | **8. Crosscutting Concepts** | `docs/concepts/*`, `docs/audit/2026-11-07/legacy-arch/ARCH-50-nixhome-layer.md` | Security, user isolation (UPG), persistence, logging |
 | **9. Architecture Decisions** | `docs/adr/` (ADR-0000 … ADR-577) | Log of architectural decision records (MADR format) |
-| **10. Quality Requirements** | `docs/arch/ARCH-58-sre-quality.md`, `docs/guides/GUIDE-58-seven-quality-gates.md` | Quality tree, scenarios, concrete verification metrics |
+| **10. Quality Requirements** | `docs/audit/2026-11/legacy-arch/ARCH-58-sre-quality.md`, `docs/audit/2026-11/docs-consolidation/GUIDE-58-seven-quality-gates.md` | Quality tree, scenarios, concrete verification metrics |
 | **11. Risks & Technical Debt** | `docs/arch/ARCH-57-impermanence-storage.md`, `ROADMAP.md` | Known technical debt, mitigations, migration roadmaps |
 | **12. Glossary** | `docs/INDEX.md`, `docs/repository.yaml` | Terminology, abbreviations, ubiquitous language |
 
