@@ -19,6 +19,11 @@ REGISTRY = ROOT / "50-core/registry.nix"
 ALLOWLIST = ROOT / "scripts/manifest-edge-allowlist.txt"
 ENTRY = re.compile(r"^\s{2,}([a-z][a-z0-9-]*)\s*=\s*mk([A-Za-z]+)\b", re.M)
 MANIFEST = re.compile(r"medinix\.manifest\.([a-zA-Z0-9_-]+)\s*=")
+COMMENT = re.compile(r"(?m)^\s*#.*$")
+ARR_FACTORY = ROOT / "53-acquisition/arr-module.nix"
+ARR_FACTORY_MANIFEST = re.compile(r'medinix\.manifest\.(?:\$\{name\}|"\$\{name\}")\s*=')
+ARR_FACTORY_CALL = re.compile(r"\./arr-module\.nix\b")
+ARR_NAME = re.compile(r'^\s*name\s*=\s*"([a-zA-Z0-9_-]+)"\s*;', re.M)
 
 
 def allowlist() -> dict[str, str]:
@@ -53,8 +58,19 @@ def main() -> int:
     # synthetische Dienste (medinix.manifest.probe) - die sind kein Registry-Dienst.
     declared = set()
     candidates = list(ROOT.glob("*/[0-9][0-9][0-9]-*.nix")) + list((ROOT / "lib").glob("**/*.nix"))
+    arr_factory_declares = (
+        ARR_FACTORY.is_file()
+        and ARR_FACTORY_MANIFEST.search(COMMENT.sub("", ARR_FACTORY.read_text(encoding="utf-8"))) is not None
+    )
     for nix in sorted(candidates):
-        declared |= set(MANIFEST.findall(nix.read_text(encoding="utf-8")))
+        text = COMMENT.sub("", nix.read_text(encoding="utf-8"))
+        declared |= set(MANIFEST.findall(text))
+        if arr_factory_declares:
+            call = ARR_FACTORY_CALL.search(text)
+            if call:
+                name_match = ARR_NAME.search(text, pos=call.end())
+                if name_match:
+                    declared.add(name_match.group(1))
 
     errors, hints, stale = [], [], []
     for name, has_port in sorted(registry.items()):

@@ -51,6 +51,7 @@ nicht wörtlich im Text nennen, sonst schneidet der Generator dort ab).
 | `537-recyclarr` | [`537-recyclarr.nix`](537-recyclarr.nix) | active | 3/5 | - |
 | `538-provisioning` | [`538-provisioning.nix`](538-provisioning.nix) | active | 3/5 | - |
 | `arr-key-sync` | [`arr-key-sync.nix`](arr-key-sync.nix) | active | 2/5 | - |
+| `arr-module` | [`arr-module.nix`](arr-module.nix) | active | 3/5 | - |
 | `arr-settings` | [`arr-settings.nix`](arr-settings.nix) | active | 2/5 | - |
 
 ## Interne Abhaengigkeiten (Requires)
@@ -62,43 +63,29 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 - [`50-core/registry`](../50-core/registry.nix)
 - [`50-core/service-factory`](../50-core/service-factory.nix)
 - [`51-ingress/ingress-access`](../51-ingress/ingress-access.nix)
+- [`53-acquisition/arr-key-sync`](../53-acquisition/arr-key-sync.nix)
+- [`53-acquisition/arr-module`](../53-acquisition/arr-module.nix)
 - [`53-acquisition/arr-settings`](../53-acquisition/arr-settings.nix)
 
 ## Dependency Graph
 
 ```mermaid
 graph TD
-  532_sonarr["532-sonarr"] --> arr_settings["53-acquisition/arr-settings"]
-  532_sonarr["532-sonarr"] --> ingress_access["51-ingress/ingress-access"]
-  532_sonarr["532-sonarr"] --> service_factory["50-core/service-factory"]
-  532_sonarr["532-sonarr"] --> registry["50-core/registry"]
-  532_sonarr["532-sonarr"] --> hardening_profiles["50-core/hardening-profiles"]
-  532_sonarr["532-sonarr"] --> memory_policy["50-core/memory-policy"]
-  533_radarr["533-radarr"] --> arr_settings["53-acquisition/arr-settings"]
-  533_radarr["533-radarr"] --> ingress_access["51-ingress/ingress-access"]
-  533_radarr["533-radarr"] --> service_factory["50-core/service-factory"]
-  533_radarr["533-radarr"] --> registry["50-core/registry"]
-  533_radarr["533-radarr"] --> hardening_profiles["50-core/hardening-profiles"]
-  533_radarr["533-radarr"] --> memory_policy["50-core/memory-policy"]
-  534_readarr["534-readarr"] --> arr_settings["53-acquisition/arr-settings"]
-  534_readarr["534-readarr"] --> service_factory["50-core/service-factory"]
-  534_readarr["534-readarr"] --> registry["50-core/registry"]
-  534_readarr["534-readarr"] --> hardening_profiles["50-core/hardening-profiles"]
-  534_readarr["534-readarr"] --> memory_policy["50-core/memory-policy"]
-  535_lidarr["535-lidarr"] --> arr_settings["53-acquisition/arr-settings"]
-  535_lidarr["535-lidarr"] --> service_factory["50-core/service-factory"]
-  535_lidarr["535-lidarr"] --> registry["50-core/registry"]
-  535_lidarr["535-lidarr"] --> hardening_profiles["50-core/hardening-profiles"]
-  535_lidarr["535-lidarr"] --> memory_policy["50-core/memory-policy"]
-  536_prowlarr["536-prowlarr"] --> arr_settings["53-acquisition/arr-settings"]
-  536_prowlarr["536-prowlarr"] --> ingress_access["51-ingress/ingress-access"]
-  536_prowlarr["536-prowlarr"] --> service_factory["50-core/service-factory"]
-  536_prowlarr["536-prowlarr"] --> registry["50-core/registry"]
-  536_prowlarr["536-prowlarr"] --> hardening_profiles["50-core/hardening-profiles"]
-  536_prowlarr["536-prowlarr"] --> memory_policy["50-core/memory-policy"]
+  532_sonarr["532-sonarr"] --> arr_module["53-acquisition/arr-module"]
+  533_radarr["533-radarr"] --> arr_module["53-acquisition/arr-module"]
+  534_readarr["534-readarr"] --> arr_module["53-acquisition/arr-module"]
+  535_lidarr["535-lidarr"] --> arr_module["53-acquisition/arr-module"]
+  536_prowlarr["536-prowlarr"] --> arr_module["53-acquisition/arr-module"]
   537_recyclarr["537-recyclarr"] --> registry["50-core/registry"]
   538_provisioning["538-provisioning"]
   arr_key_sync["arr-key-sync"]
+  arr_module["arr-module"] --> arr_settings["53-acquisition/arr-settings"]
+  arr_module["arr-module"] --> arr_key_sync["53-acquisition/arr-key-sync"]
+  arr_module["arr-module"] --> ingress_access["51-ingress/ingress-access"]
+  arr_module["arr-module"] --> service_factory["50-core/service-factory"]
+  arr_module["arr-module"] --> registry["50-core/registry"]
+  arr_module["arr-module"] --> hardening_profiles["50-core/hardening-profiles"]
+  arr_module["arr-module"] --> memory_policy["50-core/memory-policy"]
   arr_settings["arr-settings"]
 ```
 

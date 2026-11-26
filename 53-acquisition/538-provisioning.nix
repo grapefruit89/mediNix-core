@@ -126,7 +126,15 @@ let
     newzbin = special
   '';
 in
-lib.mkIf cfg.maintenance.provisioning.enable {
+lib.mkIf (cfg.enable && cfg.maintenance.provisioning.enable) {
+  assertions = [
+    {
+      assertion =
+        (cfg.sonarr.enable or false) && (cfg.radarr.enable or false) && (cfg.prowlarr.enable or false);
+      message = "[mediNix/53] Provisioning erfordert das Kern-Trio: Sonarr, Radarr und Prowlarr müssen aktiv sein.";
+    }
+  ];
+
   systemd.services.mediNix-provision = {
     description = "Register download clients / indexers / libraries via API";
     after = [
