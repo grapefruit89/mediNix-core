@@ -70,6 +70,8 @@ Nur mit `nix` (CI nutzt die flake-gepinnten Tools, nicht die PATH-Versionen):
 
 | ID | Modul-Datei | Status | Komplexitaet | Ports |
 |---|---|---|---|---|
+| `50-core-gpu` | [`gpu.nix`](gpu.nix) | active | 3/5 | - |
+| `50-core-on-demand-http` | [`on-demand-http.nix`](on-demand-http.nix) | active | 3/5 | - |
 | `500-host-baseline` | [`500-host-baseline.nix`](500-host-baseline.nix) | active | 1/5 | - |
 | `501-decimal-engine` | [`501-decimal-engine.nix`](501-decimal-engine.nix) | active | 2/5 | - |
 | `502-host` | [`502-host.nix`](502-host.nix) | active | 2/5 | - |
@@ -93,6 +95,8 @@ Die Module in diesem Ordner benoetigen folgende Bibliotheken/Dateien:
 
 ```mermaid
 graph TD
+  50_core_gpu["50-core-gpu"]
+  50_core_on_demand_http["50-core-on-demand-http"]
   500_host_baseline["500-host-baseline"]
   501_decimal_engine["501-decimal-engine"]
   502_host["502-host"]

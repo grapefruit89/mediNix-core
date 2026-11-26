@@ -1,0 +1,1266 @@
+[
+  {
+    "name": "Deutsch",
+    "upgradeAllowed": true,
+    "cutoff": 1002,
+    "items": [
+      {
+        "name": "Not wanted",
+        "items": [
+          {
+            "quality": {
+              "id": 16,
+              "name": "HDTV-2160p",
+              "source": "television",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 17,
+              "name": "WEBRip-2160p",
+              "source": "webRip",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 0,
+              "name": "Unknown",
+              "source": "unknown",
+              "resolution": 0
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 1,
+              "name": "SDTV",
+              "source": "television",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 21,
+              "name": "Bluray-2160p Remux",
+              "source": "blurayRaw",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 19,
+              "name": "Bluray-2160p",
+              "source": "bluray",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 18,
+              "name": "WEBDL-2160p",
+              "source": "web",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 20,
+              "name": "Bluray-1080p Remux",
+              "source": "blurayRaw",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 22,
+              "name": "Bluray-576p",
+              "source": "bluray",
+              "resolution": 576
+            },
+            "items": [],
+            "allowed": false
+          }
+        ],
+        "allowed": false,
+        "id": 1004
+      },
+      {
+        "quality": {
+          "id": 10,
+          "name": "Raw-HD",
+          "source": "televisionRaw",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 2,
+          "name": "DVD",
+          "source": "dvd",
+          "resolution": 480
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "name": "480p Gruppe",
+        "items": [
+          {
+            "quality": {
+              "id": 12,
+              "name": "WEBRip-480p",
+              "source": "webRip",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 8,
+              "name": "WEBDL-480p",
+              "source": "web",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 13,
+              "name": "Bluray-480p",
+              "source": "bluray",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1000
+      },
+      {
+        "name": "720p Gruppe",
+        "items": [
+          {
+            "quality": {
+              "id": 14,
+              "name": "WEBRip-720p",
+              "source": "webRip",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 4,
+              "name": "HDTV-720p",
+              "source": "television",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 5,
+              "name": "WEBDL-720p",
+              "source": "web",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 6,
+              "name": "Bluray-720p",
+              "source": "bluray",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1001
+      },
+      {
+        "name": "1080p",
+        "items": [
+          {
+            "quality": {
+              "id": 9,
+              "name": "HDTV-1080p",
+              "source": "television",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 15,
+              "name": "WEBRip-1080p",
+              "source": "webRip",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 7,
+              "name": "Bluray-1080p",
+              "source": "bluray",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 3,
+              "name": "WEBDL-1080p",
+              "source": "web",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1002
+      }
+    ],
+    "minFormatScore": 100000,
+    "cutoffFormatScore": 215010,
+    "minUpgradeFormatScore": 50000,
+    "formatItems": [
+      {
+        "format": 72,
+        "name": "MALUS: Weder DE noch EN noch JA",
+        "score": 0
+      },
+      {
+        "format": 71,
+        "name": "Anime: Japanisch Audio",
+        "score": 0
+      },
+      {
+        "format": 70,
+        "name": "Anime: English Dub",
+        "score": 0
+      },
+      {
+        "format": 69,
+        "name": "Anime: EngSub / Softsubs",
+        "score": 0
+      },
+      {
+        "format": 68,
+        "name": "Anime: Dual Audio",
+        "score": 0
+      },
+      {
+        "format": 67,
+        "name": "Anime: German Dub",
+        "score": 0
+      },
+      {
+        "format": 66,
+        "name": "Anime: GerSub / OmU",
+        "score": 0
+      },
+      {
+        "format": 65,
+        "name": "MALUS: Kein Englisch vorhanden",
+        "score": 0
+      },
+      {
+        "format": 64,
+        "name": "MALUS: Kein Deutsch vorhanden",
+        "score": -1000000
+      },
+      {
+        "format": 63,
+        "name": "MALUS: Unerwünschte Fremdsprache (ohne DE)",
+        "score": -1000000
+      },
+      {
+        "format": 62,
+        "name": "MALUS: Episode über 3,5 GB",
+        "score": -80000
+      },
+      {
+        "format": 61,
+        "name": "MALUS: Episode über 2,5 GB",
+        "score": -30000
+      },
+      {
+        "format": 60,
+        "name": "Language: Not German or English",
+        "score": -1000000
+      },
+      {
+        "format": 59,
+        "name": "MALUS: 4K / 2160p",
+        "score": -1000000
+      },
+      {
+        "format": 58,
+        "name": "MALUS: 10-Bit / HDR",
+        "score": -1000000
+      },
+      {
+        "format": 57,
+        "name": "MALUS: Absoluter Dreck",
+        "score": -1000000
+      },
+      {
+        "format": 55,
+        "name": "RESOLUTION: 720p",
+        "score": 5000
+      },
+      {
+        "format": 54,
+        "name": "RESOLUTION: 1080p",
+        "score": 55000
+      },
+      {
+        "format": 53,
+        "name": "MALUS: Episode über 12 GB",
+        "score": -600000
+      },
+      {
+        "format": 52,
+        "name": "MALUS: Episode über 9 GB",
+        "score": -400000
+      },
+      {
+        "format": 51,
+        "name": "MALUS: Episode über 7 GB",
+        "score": -250000
+      },
+      {
+        "format": 50,
+        "name": "SWEET SPOT: Episode x265 (1,1-3,0 GB)",
+        "score": 15000
+      },
+      {
+        "format": 49,
+        "name": "MALUS: Episode über 5 GB",
+        "score": -150000
+      },
+      {
+        "format": 44,
+        "name": "CODEC: x265 (HD)",
+        "score": 25000
+      },
+      {
+        "format": 33,
+        "name": "German",
+        "score": 120000
+      },
+      {
+        "format": 34,
+        "name": "German + DL",
+        "score": 120000
+      },
+      {
+        "format": 35,
+        "name": "Not German or English",
+        "score": 0
+      },
+      {
+        "format": 37,
+        "name": "Repack/Proper",
+        "score": 10
+      },
+      {
+        "format": 39,
+        "name": "English + DL",
+        "score": 0
+      },
+      {
+        "format": 40,
+        "name": "English Only",
+        "score": -100000
+      },
+      {
+        "format": 42,
+        "name": "German + Multi",
+        "score": 120000
+      },
+      {
+        "format": 43,
+        "name": "English + Multi",
+        "score": 0
+      },
+      {
+        "format": 47,
+        "name": "German Subbed",
+        "score": 0
+      }
+    ],
+    "id": 1
+  },
+  {
+    "name": "Englisch",
+    "upgradeAllowed": true,
+    "cutoff": 3,
+    "items": [
+      {
+        "quality": {
+          "id": 0,
+          "name": "Unknown",
+          "source": "unknown",
+          "resolution": 0
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 10,
+          "name": "Raw-HD",
+          "source": "televisionRaw",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "name": "4K viel zu groß",
+        "items": [
+          {
+            "quality": {
+              "id": 17,
+              "name": "WEBRip-2160p",
+              "source": "webRip",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 16,
+              "name": "HDTV-2160p",
+              "source": "television",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 19,
+              "name": "Bluray-2160p",
+              "source": "bluray",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 21,
+              "name": "Bluray-2160p Remux",
+              "source": "blurayRaw",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 18,
+              "name": "WEBDL-2160p",
+              "source": "web",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 22,
+              "name": "Bluray-576p",
+              "source": "bluray",
+              "resolution": 576
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 20,
+              "name": "Bluray-1080p Remux",
+              "source": "blurayRaw",
+              "resolution": 1080
+            },
+            "items": [],
+            "allowed": false
+          }
+        ],
+        "allowed": false,
+        "id": 1003
+      },
+      {
+        "name": "-->                       unter 720p",
+        "items": [
+          {
+            "quality": {
+              "id": 12,
+              "name": "WEBRip-480p",
+              "source": "webRip",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 13,
+              "name": "Bluray-480p",
+              "source": "bluray",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 2,
+              "name": "DVD",
+              "source": "dvd",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 1,
+              "name": "SDTV",
+              "source": "television",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 8,
+              "name": "WEBDL-480p",
+              "source": "web",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1000
+      },
+      {
+        "name": "720p Gruppe",
+        "items": [
+          {
+            "quality": {
+              "id": 4,
+              "name": "HDTV-720p",
+              "source": "television",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 14,
+              "name": "WEBRip-720p",
+              "source": "webRip",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 5,
+              "name": "WEBDL-720p",
+              "source": "web",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 6,
+              "name": "Bluray-720p",
+              "source": "bluray",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1001
+      },
+      {
+        "quality": {
+          "id": 9,
+          "name": "HDTV-1080p",
+          "source": "television",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 15,
+          "name": "WEBRip-1080p",
+          "source": "webRip",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 7,
+          "name": "Bluray-1080p",
+          "source": "bluray",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 3,
+          "name": "WEBDL-1080p",
+          "source": "web",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      }
+    ],
+    "minFormatScore": 100000,
+    "cutoffFormatScore": 120000,
+    "minUpgradeFormatScore": 50000,
+    "formatItems": [
+      {
+        "format": 72,
+        "name": "MALUS: Weder DE noch EN noch JA",
+        "score": 0
+      },
+      {
+        "format": 71,
+        "name": "Anime: Japanisch Audio",
+        "score": 0
+      },
+      {
+        "format": 70,
+        "name": "Anime: English Dub",
+        "score": 0
+      },
+      {
+        "format": 69,
+        "name": "Anime: EngSub / Softsubs",
+        "score": 0
+      },
+      {
+        "format": 68,
+        "name": "Anime: Dual Audio",
+        "score": 0
+      },
+      {
+        "format": 67,
+        "name": "Anime: German Dub",
+        "score": 0
+      },
+      {
+        "format": 66,
+        "name": "Anime: GerSub / OmU",
+        "score": 0
+      },
+      {
+        "format": 65,
+        "name": "MALUS: Kein Englisch vorhanden",
+        "score": -1000000
+      },
+      {
+        "format": 64,
+        "name": "MALUS: Kein Deutsch vorhanden",
+        "score": 0
+      },
+      {
+        "format": 63,
+        "name": "MALUS: Unerwünschte Fremdsprache (ohne DE)",
+        "score": 0
+      },
+      {
+        "format": 62,
+        "name": "MALUS: Episode über 3,5 GB",
+        "score": 0
+      },
+      {
+        "format": 61,
+        "name": "MALUS: Episode über 2,5 GB",
+        "score": 0
+      },
+      {
+        "format": 60,
+        "name": "Language: Not German or English",
+        "score": 0
+      },
+      {
+        "format": 59,
+        "name": "MALUS: 4K / 2160p",
+        "score": 0
+      },
+      {
+        "format": 58,
+        "name": "MALUS: 10-Bit / HDR",
+        "score": 0
+      },
+      {
+        "format": 57,
+        "name": "MALUS: Absoluter Dreck",
+        "score": 0
+      },
+      {
+        "format": 55,
+        "name": "RESOLUTION: 720p",
+        "score": 0
+      },
+      {
+        "format": 54,
+        "name": "RESOLUTION: 1080p",
+        "score": 0
+      },
+      {
+        "format": 53,
+        "name": "MALUS: Episode über 12 GB",
+        "score": 0
+      },
+      {
+        "format": 52,
+        "name": "MALUS: Episode über 9 GB",
+        "score": 0
+      },
+      {
+        "format": 51,
+        "name": "MALUS: Episode über 7 GB",
+        "score": 0
+      },
+      {
+        "format": 50,
+        "name": "SWEET SPOT: Episode x265 (1,1-3,0 GB)",
+        "score": 0
+      },
+      {
+        "format": 49,
+        "name": "MALUS: Episode über 5 GB",
+        "score": 0
+      },
+      {
+        "format": 47,
+        "name": "German Subbed",
+        "score": 0
+      },
+      {
+        "format": 44,
+        "name": "CODEC: x265 (HD)",
+        "score": 2000
+      },
+      {
+        "format": 33,
+        "name": "German",
+        "score": -100000
+      },
+      {
+        "format": 34,
+        "name": "German + DL",
+        "score": 0
+      },
+      {
+        "format": 35,
+        "name": "Not German or English",
+        "score": 0
+      },
+      {
+        "format": 37,
+        "name": "Repack/Proper",
+        "score": 10
+      },
+      {
+        "format": 39,
+        "name": "English + DL",
+        "score": 120000
+      },
+      {
+        "format": 40,
+        "name": "English Only",
+        "score": 110000
+      },
+      {
+        "format": 42,
+        "name": "German + Multi",
+        "score": 0
+      },
+      {
+        "format": 43,
+        "name": "English + Multi",
+        "score": 100000
+      }
+    ],
+    "id": 4
+  },
+  {
+    "name": "Anime",
+    "upgradeAllowed": true,
+    "cutoff": 3,
+    "items": [
+      {
+        "quality": {
+          "id": 0,
+          "name": "Unknown",
+          "source": "unknown",
+          "resolution": 0
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 1,
+          "name": "SDTV",
+          "source": "television",
+          "resolution": 480
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "name": "WEB 480p",
+        "items": [
+          {
+            "quality": {
+              "id": 12,
+              "name": "WEBRip-480p",
+              "source": "webRip",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 8,
+              "name": "WEBDL-480p",
+              "source": "web",
+              "resolution": 480
+            },
+            "items": [],
+            "allowed": false
+          }
+        ],
+        "allowed": false,
+        "id": 1000
+      },
+      {
+        "quality": {
+          "id": 2,
+          "name": "DVD",
+          "source": "dvd",
+          "resolution": 480
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 13,
+          "name": "Bluray-480p",
+          "source": "bluray",
+          "resolution": 480
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 22,
+          "name": "Bluray-576p",
+          "source": "bluray",
+          "resolution": 576
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 10,
+          "name": "Raw-HD",
+          "source": "televisionRaw",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "name": "720p Gruppe",
+        "items": [
+          {
+            "quality": {
+              "id": 4,
+              "name": "HDTV-720p",
+              "source": "television",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 14,
+              "name": "WEBRip-720p",
+              "source": "webRip",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 5,
+              "name": "WEBDL-720p",
+              "source": "web",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          },
+          {
+            "quality": {
+              "id": 6,
+              "name": "Bluray-720p",
+              "source": "bluray",
+              "resolution": 720
+            },
+            "items": [],
+            "allowed": true
+          }
+        ],
+        "allowed": true,
+        "id": 1001
+      },
+      {
+        "quality": {
+          "id": 9,
+          "name": "HDTV-1080p",
+          "source": "television",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 15,
+          "name": "WEBRip-1080p",
+          "source": "webRip",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 3,
+          "name": "WEBDL-1080p",
+          "source": "web",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 7,
+          "name": "Bluray-1080p",
+          "source": "bluray",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": true
+      },
+      {
+        "quality": {
+          "id": 20,
+          "name": "Bluray-1080p Remux",
+          "source": "blurayRaw",
+          "resolution": 1080
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 16,
+          "name": "HDTV-2160p",
+          "source": "television",
+          "resolution": 2160
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "name": "WEB 2160p",
+        "items": [
+          {
+            "quality": {
+              "id": 17,
+              "name": "WEBRip-2160p",
+              "source": "webRip",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          },
+          {
+            "quality": {
+              "id": 18,
+              "name": "WEBDL-2160p",
+              "source": "web",
+              "resolution": 2160
+            },
+            "items": [],
+            "allowed": false
+          }
+        ],
+        "allowed": false,
+        "id": 1003
+      },
+      {
+        "quality": {
+          "id": 19,
+          "name": "Bluray-2160p",
+          "source": "bluray",
+          "resolution": 2160
+        },
+        "items": [],
+        "allowed": false
+      },
+      {
+        "quality": {
+          "id": 21,
+          "name": "Bluray-2160p Remux",
+          "source": "blurayRaw",
+          "resolution": 2160
+        },
+        "items": [],
+        "allowed": false
+      }
+    ],
+    "minFormatScore": 85000,
+    "cutoffFormatScore": 150000,
+    "minUpgradeFormatScore": 5000,
+    "formatItems": [
+      {
+        "format": 33,
+        "name": "German",
+        "score": 0
+      },
+      {
+        "format": 34,
+        "name": "German + DL",
+        "score": 0
+      },
+      {
+        "format": 35,
+        "name": "Not German or English",
+        "score": 0
+      },
+      {
+        "format": 37,
+        "name": "Repack/Proper",
+        "score": 10
+      },
+      {
+        "format": 39,
+        "name": "English + DL",
+        "score": 0
+      },
+      {
+        "format": 40,
+        "name": "English Only",
+        "score": 0
+      },
+      {
+        "format": 42,
+        "name": "German + Multi",
+        "score": 0
+      },
+      {
+        "format": 43,
+        "name": "English + Multi",
+        "score": 0
+      },
+      {
+        "format": 44,
+        "name": "CODEC: x265 (HD)",
+        "score": 0
+      },
+      {
+        "format": 47,
+        "name": "German Subbed",
+        "score": 0
+      },
+      {
+        "format": 49,
+        "name": "MALUS: Episode über 5 GB",
+        "score": 0
+      },
+      {
+        "format": 50,
+        "name": "SWEET SPOT: Episode x265 (1,1-3,0 GB)",
+        "score": 0
+      },
+      {
+        "format": 51,
+        "name": "MALUS: Episode über 7 GB",
+        "score": 0
+      },
+      {
+        "format": 52,
+        "name": "MALUS: Episode über 9 GB",
+        "score": 0
+      },
+      {
+        "format": 53,
+        "name": "MALUS: Episode über 12 GB",
+        "score": 0
+      },
+      {
+        "format": 54,
+        "name": "RESOLUTION: 1080p",
+        "score": 0
+      },
+      {
+        "format": 55,
+        "name": "RESOLUTION: 720p",
+        "score": 0
+      },
+      {
+        "format": 57,
+        "name": "MALUS: Absoluter Dreck",
+        "score": -1000000
+      },
+      {
+        "format": 58,
+        "name": "MALUS: 10-Bit / HDR",
+        "score": 0
+      },
+      {
+        "format": 59,
+        "name": "MALUS: 4K / 2160p",
+        "score": -1000000
+      },
+      {
+        "format": 60,
+        "name": "Language: Not German or English",
+        "score": 0
+      },
+      {
+        "format": 61,
+        "name": "MALUS: Episode über 2,5 GB",
+        "score": 0
+      },
+      {
+        "format": 62,
+        "name": "MALUS: Episode über 3,5 GB",
+        "score": 0
+      },
+      {
+        "format": 63,
+        "name": "MALUS: Unerwünschte Fremdsprache (ohne DE)",
+        "score": 0
+      },
+      {
+        "format": 64,
+        "name": "MALUS: Kein Deutsch vorhanden",
+        "score": 0
+      },
+      {
+        "format": 65,
+        "name": "MALUS: Kein Englisch vorhanden",
+        "score": 0
+      },
+      {
+        "format": 66,
+        "name": "Anime: GerSub / OmU",
+        "score": 150000
+      },
+      {
+        "format": 67,
+        "name": "Anime: German Dub",
+        "score": 140000
+      },
+      {
+        "format": 68,
+        "name": "Anime: Dual Audio",
+        "score": 140000
+      },
+      {
+        "format": 69,
+        "name": "Anime: EngSub / Softsubs",
+        "score": 110000
+      },
+      {
+        "format": 70,
+        "name": "Anime: English Dub",
+        "score": 90000
+      },
+      {
+        "format": 71,
+        "name": "Anime: Japanisch Audio",
+        "score": 1000
+      },
+      {
+        "format": 72,
+        "name": "MALUS: Weder DE noch EN noch JA",
+        "score": -1000000
+      }
+    ],
+    "id": 11
+  }
+]

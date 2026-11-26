@@ -1,0 +1,7083 @@
+[
+  {
+    "id": 33,
+    "name": "German",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "German Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Dual Language/Multi",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(DL|MULTI|DUAL)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "name": "German + DL",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "German Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Dual Language Tag",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(DL|DUAL|Dual[-._ ]?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Multi",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\bMULTI\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Not German or English",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Language Not German or English",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 31,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": true,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Repack/Proper",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Repack",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(Repack)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Proper",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(Proper)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Rerip",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(Rerip)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "name": "English + DL",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "English Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Dual Language Tag",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(DL|DUAL|Dual[-._ ]?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Multi",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\bMULTI\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "name": "English Only",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "English Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Dual Language/Multi",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(DL|MULTI|DUAL)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "name": "German + Multi",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "German Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Multi Tag",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\bMULTI\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "name": "English + Multi",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "English Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Multi Tag",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\bMULTI\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "name": "CODEC: x265 (HD)",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "x265/HEVC",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "[xh][ ._-]?265|\\bHEVC(\\b|\\d)",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "name": "German Subbed",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "German Sub",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(?:ger(?:man)?[ ._-]*(?:eng[ ._-]*)?sub(?:bed)?)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "name": "MALUS: Episode über 5 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 2.5 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 5,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "name": "SWEET SPOT: Episode x265 (1,1-3,0 GB)",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Size 700MB - 2.0GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 1.1,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 3,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      },
+      {
+        "name": "x265 / HEVC",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "[xh][ ._-]?265|\\bHEVC(\\b|\\d)",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "name": "MALUS: Episode über 7 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 3.5 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 7,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "MALUS: Episode über 9 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 5.0 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 9,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "name": "MALUS: Episode über 12 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 7.0 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 12,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "name": "RESOLUTION: 1080p",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "RESOLUTION: 1080p",
+        "implementation": "ResolutionSpecification",
+        "implementationName": "Resolution",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Auflösung",
+            "value": 1080,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 360,
+                "name": "R360p",
+                "order": 360
+              },
+              {
+                "value": 480,
+                "name": "R480p",
+                "order": 480
+              },
+              {
+                "value": 540,
+                "name": "R540p",
+                "order": 540
+              },
+              {
+                "value": 576,
+                "name": "R576p",
+                "order": 576
+              },
+              {
+                "value": 720,
+                "name": "R720p",
+                "order": 720
+              },
+              {
+                "value": 1080,
+                "name": "R1080p",
+                "order": 1080
+              },
+              {
+                "value": 2160,
+                "name": "R2160p",
+                "order": 2160
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "name": "RESOLUTION: 720p",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "RESOLUTION: 720p",
+        "implementation": "ResolutionSpecification",
+        "implementationName": "Resolution",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Auflösung",
+            "value": 720,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 360,
+                "name": "R360p",
+                "order": 360
+              },
+              {
+                "value": 480,
+                "name": "R480p",
+                "order": 480
+              },
+              {
+                "value": 540,
+                "name": "R540p",
+                "order": 540
+              },
+              {
+                "value": 576,
+                "name": "R576p",
+                "order": 576
+              },
+              {
+                "value": 720,
+                "name": "R720p",
+                "order": 720
+              },
+              {
+                "value": 1080,
+                "name": "R1080p",
+                "order": 1080
+              },
+              {
+                "value": 2160,
+                "name": "R2160p",
+                "order": 2160
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "name": "MALUS: Absoluter Dreck",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "CAM",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bCAM\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "CAMRIP",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bCAM.?RIP\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "TELESYNC",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bTELESYNC\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "TS",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bTS\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "MD",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bMD\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "HDTS",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bHDTS\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "MIC",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bMIC\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "MICROHD",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bMICROHD\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "MHD",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\bMHD\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "LQ (RegEx)",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(LQ|LOW QUALITY)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "KINORIP",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(DC[.\\s_-]?RIP|HDCAM|TELECINE|WORKPRINT|DVDSCR|PDVD|VHSRIP)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Upscaled",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(Upscaled?|AI.?Upscaled?)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "MALUS: 10-Bit / HDR",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "10-Bit",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(10[ ._-]?bits?|hi10p?|main[ ._-]?10)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "HDR / DV",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(DV|DoVi|Dolby[ ._-]?Vision|HDR(10(\\+|plus)?)?|HLG)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "name": "MALUS: 4K / 2160p",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "2160p",
+        "implementation": "ResolutionSpecification",
+        "implementationName": "Resolution",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Auflösung",
+            "value": 2160,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 360,
+                "name": "R360p",
+                "order": 360
+              },
+              {
+                "value": 480,
+                "name": "R480p",
+                "order": 480
+              },
+              {
+                "value": 540,
+                "name": "R540p",
+                "order": 540
+              },
+              {
+                "value": 576,
+                "name": "R576p",
+                "order": 576
+              },
+              {
+                "value": 720,
+                "name": "R720p",
+                "order": 720
+              },
+              {
+                "value": 1080,
+                "name": "R1080p",
+                "order": 1080
+              },
+              {
+                "value": 2160,
+                "name": "R2160p",
+                "order": 2160
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "4K UHD Regex",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": false,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "\\b(4k|2160p|uhd)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Language: Not German or English",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "nicht Deutsch",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "nicht Englisch",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "name": "MALUS: Episode über 2,5 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 2.5 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 2.5,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "name": "MALUS: Episode über 3,5 GB",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Single Episode",
+        "implementation": "ReleaseTypeSpecification",
+        "implementationName": "Release Type",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Release-Typ",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "Single Episode",
+                "order": 9,
+                "hint": "(1)"
+              },
+              {
+                "value": 2,
+                "name": "Multi-Episode",
+                "order": 12,
+                "hint": "(2)"
+              },
+              {
+                "value": 3,
+                "name": "Season Pack",
+                "order": 15,
+                "hint": "(3)"
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Min 3.5 GB",
+        "implementation": "SizeSpecification",
+        "implementationName": "Size",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "min",
+            "label": "Mindestgröße",
+            "unit": "GB",
+            "helpText": "Das Release muss größer als diese Größe sein",
+            "value": 3.5,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          },
+          {
+            "order": 1,
+            "name": "max",
+            "label": "Maximale Größe",
+            "unit": "GB",
+            "helpText": "Das Release muss kleiner oder gleich Groß sein",
+            "value": 999,
+            "type": "number",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "name": "MALUS: Unerwünschte Fremdsprache (ohne DE)",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Fremdsprache im Titel",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(iTALiAN|FRENCH|TRUEFRENCH|VF[FI]|VOSTFR|SPANISH|CASTELLANO|LATINO|POLiSH|RUSSiAN|CZECH|HUNGARiAN|NORDiC|DUTCH|PORTUGUESE|HINDI|TAMIL|TELUGU|TURKiSH)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Kein Deutsch im Titel",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(GERMAN|DEUTSCH)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Keine deutsche Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "name": "MALUS: Kein Deutsch vorhanden",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Keine deutsche Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Kein Deutsch im Titel",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(GERMAN|DEUTSCH)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "name": "MALUS: Kein Englisch vorhanden",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Keine englische Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Kein Englisch im Titel",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(ENGLISH|ENG)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "name": "Anime: GerSub / OmU",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "GerSub / German Subbed / OmU",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Ger.?Sub(bed|s)?|German.?Sub(bed|s)?|OmU)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Anime: German Dub",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "German Audio Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not GerSub / OmU",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Ger.?Sub(bed|s)?|German.?Sub(bed|s)?|OmU)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Dual Audio",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Dual.?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "name": "Anime: Dual Audio",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Dual Audio",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Dual.?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not GerSub / OmU",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Ger.?Sub(bed|s)?|German.?Sub(bed|s)?|OmU)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "Anime: EngSub / Softsubs",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "EngSub / Softsubs",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Eng.?Sub(bed|s)?|English.?Sub(bed|s)?|Softsubs?)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not GerSub / OmU",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Ger.?Sub(bed|s)?|German.?Sub(bed|s)?|OmU)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Dual Audio",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Dual.?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "name": "Anime: English Dub",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "English Audio Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not EngSub / Softsubs",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Eng.?Sub(bed|s)?|English.?Sub(bed|s)?|Softsubs?)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not GerSub / OmU",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Ger.?Sub(bed|s)?|German.?Sub(bed|s)?|OmU)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not Dual Audio",
+        "implementation": "ReleaseTitleSpecification",
+        "implementationName": "Release Title",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Regulären Ausdruck",
+            "helpText": "Benutzerdefiniertes Format RegEx ist nicht groß-/kleinschreibungssensitiv",
+            "value": "(?i)\\b(Dual.?Audio)\\b",
+            "type": "textbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Not German Audio Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "name": "Anime: Japanisch Audio",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Japanese Audio Track",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": false,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 8,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "name": "MALUS: Weder DE noch EN noch JA",
+    "includeCustomFormatWhenRenaming": false,
+    "specifications": [
+      {
+        "name": "Keine deutsche Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 4,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Keine englische Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 1,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      },
+      {
+        "name": "Keine japanische Tonspur",
+        "implementation": "LanguageSpecification",
+        "implementationName": "Language",
+        "infoLink": "https://wiki.servarr.com/sonarr/settings#custom-formats-2",
+        "negate": true,
+        "required": true,
+        "fields": [
+          {
+            "order": 0,
+            "name": "value",
+            "label": "Sprache",
+            "value": 8,
+            "type": "select",
+            "advanced": false,
+            "selectOptions": [
+              {
+                "value": -2,
+                "name": "Original",
+                "order": 0
+              },
+              {
+                "value": 0,
+                "name": "Unknown",
+                "order": 0
+              },
+              {
+                "value": 26,
+                "name": "Arabic",
+                "order": 0
+              },
+              {
+                "value": 41,
+                "name": "Bosnian",
+                "order": 0
+              },
+              {
+                "value": 28,
+                "name": "Bulgarian",
+                "order": 0
+              },
+              {
+                "value": 38,
+                "name": "Catalan",
+                "order": 0
+              },
+              {
+                "value": 10,
+                "name": "Chinese",
+                "order": 0
+              },
+              {
+                "value": 39,
+                "name": "Croatian",
+                "order": 0
+              },
+              {
+                "value": 25,
+                "name": "Czech",
+                "order": 0
+              },
+              {
+                "value": 6,
+                "name": "Danish",
+                "order": 0
+              },
+              {
+                "value": 7,
+                "name": "Dutch",
+                "order": 0
+              },
+              {
+                "value": 1,
+                "name": "English",
+                "order": 0
+              },
+              {
+                "value": 42,
+                "name": "Estonian",
+                "order": 0
+              },
+              {
+                "value": 16,
+                "name": "Finnish",
+                "order": 0
+              },
+              {
+                "value": 19,
+                "name": "Flemish",
+                "order": 0
+              },
+              {
+                "value": 2,
+                "name": "French",
+                "order": 0
+              },
+              {
+                "value": 4,
+                "name": "German",
+                "order": 0
+              },
+              {
+                "value": 20,
+                "name": "Greek",
+                "order": 0
+              },
+              {
+                "value": 23,
+                "name": "Hebrew",
+                "order": 0
+              },
+              {
+                "value": 27,
+                "name": "Hindi",
+                "order": 0
+              },
+              {
+                "value": 22,
+                "name": "Hungarian",
+                "order": 0
+              },
+              {
+                "value": 9,
+                "name": "Icelandic",
+                "order": 0
+              },
+              {
+                "value": 44,
+                "name": "Indonesian",
+                "order": 0
+              },
+              {
+                "value": 5,
+                "name": "Italian",
+                "order": 0
+              },
+              {
+                "value": 8,
+                "name": "Japanese",
+                "order": 0
+              },
+              {
+                "value": 21,
+                "name": "Korean",
+                "order": 0
+              },
+              {
+                "value": 36,
+                "name": "Latvian",
+                "order": 0
+              },
+              {
+                "value": 24,
+                "name": "Lithuanian",
+                "order": 0
+              },
+              {
+                "value": 45,
+                "name": "Macedonian",
+                "order": 0
+              },
+              {
+                "value": 29,
+                "name": "Malayalam",
+                "order": 0
+              },
+              {
+                "value": 15,
+                "name": "Norwegian",
+                "order": 0
+              },
+              {
+                "value": 37,
+                "name": "Persian",
+                "order": 0
+              },
+              {
+                "value": 12,
+                "name": "Polish",
+                "order": 0
+              },
+              {
+                "value": 18,
+                "name": "Portuguese",
+                "order": 0
+              },
+              {
+                "value": 33,
+                "name": "Portuguese (Brazil)",
+                "order": 0
+              },
+              {
+                "value": 35,
+                "name": "Romanian",
+                "order": 0
+              },
+              {
+                "value": 11,
+                "name": "Russian",
+                "order": 0
+              },
+              {
+                "value": 40,
+                "name": "Serbian",
+                "order": 0
+              },
+              {
+                "value": 31,
+                "name": "Slovak",
+                "order": 0
+              },
+              {
+                "value": 46,
+                "name": "Slovenian",
+                "order": 0
+              },
+              {
+                "value": 3,
+                "name": "Spanish",
+                "order": 0
+              },
+              {
+                "value": 34,
+                "name": "Spanish (Latino)",
+                "order": 0
+              },
+              {
+                "value": 14,
+                "name": "Swedish",
+                "order": 0
+              },
+              {
+                "value": 43,
+                "name": "Tamil",
+                "order": 0
+              },
+              {
+                "value": 32,
+                "name": "Thai",
+                "order": 0
+              },
+              {
+                "value": 17,
+                "name": "Turkish",
+                "order": 0
+              },
+              {
+                "value": 30,
+                "name": "Ukrainian",
+                "order": 0
+              },
+              {
+                "value": 13,
+                "name": "Vietnamese",
+                "order": 0
+              }
+            ],
+            "privacy": "normal",
+            "isFloat": false
+          },
+          {
+            "order": 1,
+            "name": "exceptLanguage",
+            "label": "Ausgenommen Sprache",
+            "helpText": "Übereinstimmt, wenn eine andere Sprache als die ausgewählte Sprache vorhanden ist",
+            "value": false,
+            "type": "checkbox",
+            "advanced": false,
+            "privacy": "normal",
+            "isFloat": false
+          }
+        ]
+      }
+    ]
+  }
+]
