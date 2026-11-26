@@ -209,6 +209,7 @@ in
         settings.misc = {
           inherit port;
           host = "127.0.0.1";
+          host_whitelist = "${meta.ui.icon or "sabnzbd"}.lan,sabnzbd,*.lan,${config.medinix.host.lanIp}";
           language = svc.locale.language;
           download_dir = "${svc.storage.downloadDir}";
           temp_dir = tempDir;
@@ -310,6 +311,7 @@ in
       services.vpnKillSwitch.instances.sabnzbd = {
         enable = svc.usenet-confinement.enable;
         inherit uid;
+        localAllow = [ port ];
       };
     })
   ];
