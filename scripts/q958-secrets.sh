@@ -87,6 +87,32 @@ list_secrets_menu() {
   printf '%s\n' "${items[@]}"
 }
 
+pick_conf_file() {
+  local start_dir="/home/moritz/Downloads"
+  [ ! -d "$start_dir" ] && start_dir="$HOME"
+  local chosen=""
+
+  if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
+    if command -v kdialog >/dev/null 2>&1; then
+      chosen=$(kdialog --title "WireGuard .conf-Datei auswählen" \
+                       --getopenfilename "$start_dir" \
+                       "*.conf|WireGuard-Konfiguration (*.conf)\n*|Alle Dateien (*)" 2>/dev/null || true)
+    elif command -v zenity >/dev/null 2>&1; then
+      chosen=$(zenity --file-selection \
+                      --filename="$start_dir/" \
+                      --file-filter="*.conf" \
+                      --title="WireGuard .conf-Datei auswählen" 2>/dev/null || true)
+    fi
+  fi
+
+  # Fallback auf Terminal-Dateiwähler (gum file) falls GUI abgebrochen oder nicht verfügbar
+  if [ -z "$chosen" ] && command -v gum >/dev/null 2>&1; then
+    chosen=$(gum file "$start_dir" --height=12 --header="Wähle eine .conf-Datei aus ($start_dir):" 2>/dev/null || true)
+  fi
+
+  printf "%s" "$chosen"
+}
+
 manage_secret() {
   local key="$1"
   local cred_name
@@ -141,9 +167,53 @@ manage_secret() {
         ;;
       *"Neu setzen"*)
         clear
-        gum style --foreground 212 "Gib den neuen Wert für '$key' ein (oder füge ihn mit Strg+Shift+V ein):"
-        local new_val
-        new_val=$(gum input --password --placeholder "Secret hier eingeben...")
+        local new_val=""
+
+        if [ "$key" = "wg-key" ]; then
+          gum style --foreground 212 "Wie möchtest du das WireGuard-Secret setzen?"
+          local wg_method
+          wg_method=$(gum choose \
+            "🚀 WireGuard .conf auswählen & komplett ausrollen (Empfohlen)" \
+            "📁 PrivateKey aus .conf-Datei extrahieren und siegeln" \
+            "✏️ Manuell eintippen / einfügen")
+
+          case "$wg_method" in
+            *"komplett ausrollen"*)
+              deploy_wireguard_conf
+              continue
+              ;;
+            *"aus .conf-Datei extrahieren"*)
+              local selected_conf
+              selected_conf=$(pick_conf_file)
+              if [ -n "$selected_conf" ] && [ -f "$selected_conf" ]; then
+                local extracted
+                extracted=$(grep -m1 -E '^\s*PrivateKey\s*=' "$selected_conf" | cut -d= -f2- | tr -d ' \r\n')
+                if [ -n "$extracted" ]; then
+                  new_val="$extracted"
+                  gum style --foreground 10 "✓ PrivateKey aus $(basename "$selected_conf") extrahiert."
+                else
+                  gum style --foreground 1 "Fehler: Kein 'PrivateKey = ...' in '$selected_conf' gefunden."
+                  echo ""
+                  read -r -p "Enter drücken zum Fortfahren..."
+                  continue
+                fi
+              else
+                gum style --foreground 3 "Abgebrochen: Keine Datei ausgewählt."
+                echo ""
+                read -r -p "Enter drücken zum Fortfahren..."
+                continue
+              fi
+              ;;
+            *"Manuell"*)
+              gum style --foreground 212 "Gib den neuen Wert für '$key' ein (oder Strg+Shift+V):"
+              new_val=$(gum input --password --placeholder "Secret hier eingeben...")
+              ;;
+          esac
+        else
+          gum style --foreground 212 "Gib den neuen Wert für '$key' ein (oder füge ihn mit Strg+Shift+V ein):"
+          new_val=$(gum input --password --placeholder "Secret hier eingeben...")
+        fi
+
         if [ -z "$new_val" ]; then
           gum style --foreground 3 "Abgebrochen: Leere Eingabe."
           echo ""
@@ -190,12 +260,17 @@ deploy_wireguard_conf() {
     "  5. Startet WireGuard und testet Handshake zum VPN-Endpoint" \
     "  6. Startet SABnzbd wieder und verifiziert den Status"
 
-  local default_path="/home/moritz/Downloads/privado.fra-017.conf"
+  gum style --foreground 212 "Wähle deine WireGuard .conf-Datei aus (KDE-Dateidialog)..."
   local conf_path
-  if [ -f "$default_path" ]; then
-    conf_path=$(gum input --value "$default_path" --placeholder "Pfad zur .conf-Datei")
-  else
-    conf_path=$(gum input --placeholder "Pfad zur .conf-Datei (z.B. ~/Downloads/privado.conf)")
+  conf_path=$(pick_conf_file)
+
+  if [ -z "$conf_path" ]; then
+    local default_path="/home/moritz/Downloads/privado.fra-017.conf"
+    if [ -f "$default_path" ]; then
+      conf_path=$(gum input --value "$default_path" --placeholder "Pfad zur .conf-Datei")
+    else
+      conf_path=$(gum input --placeholder "Pfad zur .conf-Datei (z.B. ~/Downloads/privado.conf)")
+    fi
   fi
 
   if [ -z "$conf_path" ] || [ ! -f "$conf_path" ]; then
