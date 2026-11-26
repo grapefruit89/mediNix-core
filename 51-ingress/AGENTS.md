@@ -14,12 +14,11 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 - Auth-/OIDC-Integration (512)
 - DNS/DDNS (513)
 - ACME/TLS (514)
-- Split-DNS/Blocky (515)
-- CrowdSec-Bouncer (516)
-- Landingpage (518)
-- Ingress-Guardrails und Ownership-Konflikte (519)
-  - 517 oauth2-proxy: **ADR-517 ist entschieden, das Modul fehlt noch** — Slot 5170
-    ist reserviert; 511 reicht `/oauth2/*` bereits an den Forward-Auth-Upstream durch
+- Split-DNS/Blocky ([515-blocky.nix](515-blocky.nix))
+- CrowdSec-Bouncer ([516-crowdsec.nix](516-crowdsec.nix))
+- OAuth2-Proxy Forward-Auth Gateway ([517-oauth2-proxy.nix](517-oauth2-proxy.nix))
+- Landingpage ([518-landingpage.nix](518-landingpage.nix))
+- Ingress-Guardrails und Ownership-Konflikte ([519-ingress-guardrails.nix](519-ingress-guardrails.nix))
 
 **Nicht verantwortlich für:**
 - Host-Firewall und Host-Security → `52-security`
@@ -45,7 +44,7 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
 
 - **`accessGroup` hat EINEN Produzenten.** Die Auflösung lebt in
   `51-ingress/ingress-access.nix` (`accessGroupOf cfg n m`: Vhost-Override gewinnt,
-  sonst das Manifest) und wird von `511` (Rendering), `513` (DNS), `515` (mDNS)
+  sonst das Manifest) und wird von `511` (Rendering), `513` (DNS), `515` (Blocky)
   und `518` (Tiles) importiert — nicht in 511 selbst. Nie beide Stellen
   pflegen; die Divergenz war ein stiller Auth-Bypass (F1/F2,
   `docs/ingress-security-matrix.md`).
@@ -54,14 +53,13 @@ darf im Text nicht wörtlich vorkommen, sonst schneidet der Generator dort ab).
   Manifest-Ack. Vorher war es ein ODER — eine geerbte Ack öffnete still
   (Review 2026-10-17, Finding 1).
 - **Pocket-ID (512) kann kein forward-auth.** Sie ist OIDC-IdP **ohne**
-  forward-auth-Endpoint. `auth.mode = "forward-auth"` verlangt zusätzlich
-  `authProxyPresent = true` + `ingress.auth.forwardAuthUpstream`
-  (oauth2-proxy, ADR-517) — sonst bricht `511` per Assertion ab. Das Modul
-  `517-oauth2-proxy.nix` und `medinix.oauth2Proxy` gibt es noch nicht.
+  forward-auth-Endpoint. `auth.mode = "forward-auth"` nutzt das Modul
+  [`517-oauth2-proxy.nix`](517-oauth2-proxy.nix) (Port 5170, ADR-517) als transparentes
+  Forward-Auth-Gate vor Pocket-ID.
 - **`localBypass` existiert nicht mehr.** Er war nie verdrahtet (0 Leser).
   `.lan` ist **nur** CIDR-gegated (`lanAbort`); WAN-`public` erzwingt `forward_auth`.
-- **`.lan` ≠ `.local`.** `.lan` ist der Caddy-Vhost, `.local` ist mDNS (515) —
-  `511` rendert für `.local` **keine** Site.
+- **Split-DNS statt mDNS:** [`515-blocky.nix`](515-blocky.nix) löst `{name}.lan` und `{name}.{domain}`
+  im Heimnetz per DNS (Port 53) auf; mDNS (`.local`/Avahi) ist vollständig ausgemustert.
 - **`internal` ist mehr als `.lan`:** seit 2026-10-17 rendert `511` zusätzlich
   `{name}.{domain}` mit TLS + `lanAbort` (nur mit `tlsEnabled`) — ohne das ist der
   Passkey-Bootstrap von 512 nicht möglich (Review Finding 14).

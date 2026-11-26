@@ -21,8 +21,7 @@ Four modules. 528 and 529 were stubs; their leftovers live in 520. Do not recrea
 | --- | --- | --- |
 | **520** | [`520-core-security.nix`](520-core-security.nix) | GID 5000, optional `media-admin`, `medinix.recommended.*`, optional LUKS+TPM2 |
 | **521** | [`521-creds.nix`](521-creds.nix) | Sealed-only `systemd-creds` policy at eval time |
-| **525** | [`525-vpn-interface.nix`](525-vpn-interface.nix) | WireGuard interface + encrypted private key |
-| **526** | [`526-vpn-killswitch.nix`](526-vpn-killswitch.nix) | UID mark + policy routing + unreachable fallback |
+| **525** | [`525-vpn.nix`](525-vpn.nix) | WireGuard interface, encrypted private key & policy-routing killswitch |
 
 ## 2. Credentials
 

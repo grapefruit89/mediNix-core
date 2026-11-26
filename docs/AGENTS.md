@@ -5,8 +5,7 @@
 
 Diese Datei war bis 2026-10-15 eine eigenständige, **veraltete** Anleitung (sie nannte den Host
 `mediahost` mit `192.168.0.10` und das Arbeitsverzeichnis `/opt/data/50-mediNix`). Der damalige
-Inhalt liegt unverändert in
-[`docs/audit/2026-10-15/AGENTS-docs-veraltet.md`](audit/2026-10-15/AGENTS-docs-veraltet.md).
+Inhalt liegt im Obsidian-Archiv (`Obsidian/Nix Drama/audit-archive/2026-10-15/AGENTS-docs-veraltet.md`).
 
 Nützliche Einstiege:
 

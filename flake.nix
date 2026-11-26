@@ -450,6 +450,36 @@
                 archiveDir = "/mnt/hdd/movies";
               };
             };
+        checks.mediNix-negative-storage-cold-metadata =
+          expectAssertion "storage-cold-metadata" "storage.metadataDir darf niemals auf backends.cold"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.backends = {
+                hot = "/mnt/ssd";
+                cold = "/mnt/hdd";
+              };
+              medinix.storage.metadataDir = "/mnt/hdd/metadata";
+            };
+        checks.mediNix-negative-storage-cold-download =
+          expectAssertion "storage-cold-download" "storage.downloadDir darf niemals auf backends.cold"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.backends = {
+                hot = "/mnt/ssd";
+                cold = "/mnt/hdd";
+              };
+              medinix.storage.downloadDir = "/mnt/hdd/downloads";
+            };
+        checks.mediNix-negative-storage-mode-mismatch =
+          expectAssertion "storage-mode-mismatch" "storage.mode 'single-disk' inkonsistent"
+            {
+              medinix.ingress.trustedCidrs = [ "10.0.0.0/8" ];
+              medinix.storage.mode = "single-disk";
+              medinix.storage.backends = {
+                hot = "/mnt/ssd";
+                cold = "/mnt/hdd";
+              };
+            };
 
         # ── B1: Port-Verdrahtung (zweiter Riegel neben dem Zahlen-Check) ─────
         # Der Zahlen-Check prueft `port == num * 10`. Hier wird geprueft, dass

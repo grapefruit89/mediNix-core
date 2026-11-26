@@ -18,20 +18,20 @@
 
 | Ordner / Datei | Rolle | Kerninhalt |
 |---|---|---|
-| `50-core/` | Foundation | `501-decimal-engine.nix`+`derive.nix` (UID/GID/StateDirectory), `service-factory.nix`, `service-contract.nix`, `hardening-profiles.nix`, `registry.nix` (SSoT), `BANNED_TECHNOLOGIES.md` |
+| `50-core/` | Foundation | `501-decimal-engine.nix`+`derive.nix` (UID/GID/StateDirectory), `502-host.nix`, `service-factory.nix`, `service-contract.nix`, `hardening-profiles.nix`, `registry.nix` (SSoT), `BANNED_TECHNOLOGIES.md` |
 | `51-ingress/` | Access | 511 Caddy · 512 Pocket-ID · 513 DDNS/Speedport · 514 ACME · 515 Blocky · 516 CrowdSec · 517 OAuth2-Proxy · 518 Landingpage · 519 Guardrails |
-| `52-security/` | Security | 520 Baseline/nftables · 521 sealed Credentials · 525 WireGuard · 526 VPN-Killswitch |
-| `53-acquisition/` | Ingestion | 532 Sonarr · 533 Radarr · 534 Readarr · 535 Lidarr · 536 Prowlarr · 537 Recyclarr · 538 Provisioning |
-| `54-processing/` | Processing | 541 SABnzbd · 543 Mover |
+| `52-security/` | Security | 520 Baseline/nftables · 521 sealed Credentials · 525 WireGuard/Killswitch |
+| `53-acquisition/` | Ingestion | 532 Sonarr · 533 Radarr · 534 Readarr · 535 Lidarr · 536 Prowlarr · 537 Recyclarr · 538 Provisioning (arr-module Factory) |
+| `54-processing/` | Processing | 541 SABnzbd |
 | `55-playback/` | Core UI | 551 Jellyfin · 552 Audiobookshelf · 553 Navidrome (funktionaler Kern) |
 | `56-exposition/` | Exposition | 561 Seerr |
-| `57-maintenance/` | Maintenance | 570 Storage/SetGID · 571 SQLite-WAL · 576 Backup · 577 Drift · 578 Orphan-Cleanup · 579 Backup-SSH |
-| `58-observability/` | Observability | 581 ntfy · 582 Gatus · 583 Runtime-Guard · 584 Boot-Watchdog · 585 Exporter · 586 VPN-Selftest · 587 Disk-Health · 588 Update-Notifier |
+| `57-maintenance/` | Maintenance | 570 Storage/Tiering/Mover · 571 SQLite-WAL · 575 Update-Notifier · 576 Backup/SSH · 577 Hygiene |
+| `58-observability/` | Observability | 581 ntfy · 582 Gatus · 583 Runtime-Guard · 584 Boot-Watchdog · 585 Exporter · 586 VPN-Selftest · 587 Disk-Health |
 | `59-guardrails/` | Guardrails | 591 Cross-Domain-Assertions |
 | `scripts/` | Werkzeuge | `verify.sh` (Leiter) · `check_*.py` (Gates) · `medinix-meta.py` · `nixmeta_check.py` · `link-skills.sh` |
 | `docs/adr/` | Entscheidungen | `ADR-0000` (Verfassung) · `ADR-00-nixmeta-v3` (Header) · Manifest `ADR-0003` · Index `llm-index.json` |
 | `docs/` | Wissensbasis | `NAVIGATION.md`, `RUNBOOK.md`, `CONVENTIONS.md`, `TERMINOLOGY.md`, `NIXOS-ANCHORS.md`, `modules/<id>-<dienst>.md`, `AUDIT-LEDGER.md` |
-| `todo/` | Arbeit | `tasks.json` (Handquelle) · Altstände in `docs/audit/` |
+| `todo/` | Arbeit | `tasks.json` (Handquelle) · Altstände in Obsidian |
 | `flake.nix` | Outputs | Modul-/Paket-Exports + Checks (Port-Riegel, Negativtests, Unit-/VM-Skripte) |
 
 ## 3. Task-to-File-Matrix (Task → Datei zuerst)
@@ -44,10 +44,10 @@
 | Ingress/Route/SSO | `51-ingress/511-caddy.nix` bzw. `517-oauth2-proxy.nix` | `docs/ingress-security-matrix.md`, 519-Guardrails |
 | Firewall/Secrets | `52-security/520-core-security.nix`, `521-creds.nix` | `docs/adr/ADR-521-secret-management.md` |
 | *arr-Stack | `53-acquisition/532-…538-*.nix` | `50-core/arr-settings.nix`, `arr-key-sync.nix` |
-| Download/Mover | `54-processing/541-sabnzbd.nix`, `543-mover.nix` | `docs/adr/ADR-543-cold-archive-tiering.md` |
+| Download/Mover | `54-processing/541-sabnzbd.nix`, `57-maintenance/570-storage.nix` | `docs/adr/ADR-570-storage-tiering-mergerfs.md` |
 | Playback (Kern) | `55-playback/551-553-*.nix` | `docs/modules/`-Seite des Dienstes |
 | Medien-Anfragen | `56-exposition/561-seerr.nix` | `docs/adr/ADR-561-seerr.md` |
-| Backup/Restore | `57-maintenance/576-backup.nix` | `docs/adr/ADR-576-backup.md`, `579-backup-ssh.nix` |
+| Backup/Restore | `57-maintenance/576-backup.nix` | `docs/adr/ADR-576-backup.md` |
 | Monitoring/Health | `58-observability/582-gatus.nix` | `581-ntfy.nix`, `583-runtime-guard.nix` |
 | Domain-übergreifend prüfen | `59-guardrails/591-cross-domain.nix` | `docs/adr/ADR-0003-architektur-manifest.md` |
 | Offene Arbeit / Befund | `todo/tasks.json` | `check_tasks.py`, `medinix` |

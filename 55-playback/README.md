@@ -32,9 +32,9 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 
 | ID  | Service | UID / Port | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **551** | [Jellyfin](551-jellyfin.nix) <br> [[ADR-5510]] | `5510` | The primary video and general media server. Handles heavy lifting like GPU transcoding. |
-| **552** | [Audiobookshelf](552-audiobookshelf.nix) <br> [[ADR-5520]] | `5520` | Dedicated server for audiobooks and podcasts. (Note: Has limited write access to write cover art). |
-| **553** | [Navidrome](553-navidrome.nix) <br> [[ADR-5530]] | `5530` | Lightweight, lightning-fast music server compatible with the Subsonic API. |
+| **551** | [Jellyfin](551-jellyfin.nix) <br> [ADR-551](../docs/adr/ADR-551-jellyfin-media-playback.md) | `5510` | The primary video and general media server. Handles heavy lifting like GPU transcoding. |
+| **552** | [Audiobookshelf](552-audiobookshelf.nix) <br> [ADR-552](../docs/adr/ADR-552-audiobookshelf.md) | `5520` | Dedicated server for audiobooks and podcasts. (Note: Has limited write access to write cover art). |
+| **553** | [Navidrome](553-navidrome.nix) <br> [ADR-553](../docs/adr/ADR-553-navidrome.md) | `5530` | Lightweight, lightning-fast music server compatible with the Subsonic API. |
 
 ## 🛡️ Key Architecture Decisions
 

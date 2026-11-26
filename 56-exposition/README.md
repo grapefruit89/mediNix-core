@@ -30,7 +30,7 @@ Each module is strictly configured according to the mediNix Dezimalrahmen conven
 
 | ID  | Service | UID / Port | Status | Responsibility |
 | :--- | :--- | :--- | :--- | :--- |
-| **561** | [Seerr](561-seerr.nix) <br> [[ADR-5610]] | `5610` | active | **Seerr** — The central request portal (Jellyseerr/Overseerr) bridging users to Sonarr and Radarr. |
+| **561** | [Seerr](561-seerr.nix) <br> [ADR-561](../docs/adr/ADR-561-seerr.md) | `5610` | active | **Seerr** — The central request portal (Jellyseerr/Overseerr) bridging users to Sonarr and Radarr. |
 
 ## 🔗 Dependencies & Architecture Graph
 

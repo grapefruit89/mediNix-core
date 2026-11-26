@@ -30,7 +30,9 @@ Zwei Ebenen: **physisch** (der Host mountet die Platten, `fileSystems."/mnt/hdd0
 - **Tier 3 (SATA HDD JBOD — Library):** Große MKVs (> 1-2 GB) **und statische Audiobooks** (`audiobooks` sind langlebige Bibliotheksdaten und gehoeren niemals in eine SSD-Drain-Zone).
 
 ### 3. Vereinfachung `570-storage.nix` & Poka-Yoke
-- Zwei strikt gepruefte Modi per Compile-Time-Assertion: `backends = {}` (Simple) oder exakt `{ hot; cold; }` (Tiered). Ein Halbzustand (nur `hot` oder nur `cold`) bricht den Build.
+- **Zentraler Schalter `storage.mode`:** Explizite Umschaltung zwischen `"single-disk"` (`backends = {}`) und `"tiered"` (erfordert strikt `{ hot; cold; }`).
+- **Poka-Yoke-Riegel gegen HDD-Wakes:** `storage.metadataDir` und `storage.downloadDir` duerfen niemals auf `backends.cold` (Tier 3) zeigen (Compile-Time-Assertion).
+- **Runtime Pre-Flight Check:** `medinix-storage-preflight.service` prueft beim Booten ueber `/sys/block/.../queue/rotational`, ob Metadaten/Scratch versehentlich auf mechanischen HDDs gemountet sind.
 - Verzeichnisse (`movies`, `series`, `books`, `audiobooks`, `music`) mit Modus **2775** (`SetGID`, Gruppe `media` GID 5000).
 
 ### 4. MergerFS-Politik (`recommended.mountOptions.mergerfs`, ersetzt `cache_dirs`)

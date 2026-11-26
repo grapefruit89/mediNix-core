@@ -28,7 +28,11 @@ These tasks typically do not serve users or acquire media directly; instead, the
 
 | ID  | Module / Service | Port/UID | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **571** | [sqlite-wal](571-sqlite-wal.nix) <br> [[ADR-5700]] | N/A | **Database Optimizer**. A scheduled task that enforces Write-Ahead Logging (WAL) and periodically runs `VACUUM`/`ANALYZE` on the databases of dynamically discovered services (like the *arr suite and Jellyfin). |
+| **570** | [storage](570-storage.nix) <br> [ADR-570](../docs/adr/ADR-570-storage-tiering-mergerfs.md) | N/A | **Storage & Spindown Zentrum**. Tiering, SetGID, Spindown-Timer, Power-Logging & Piggyback-Mover. |
+| **571** | [sqlite-wal](571-sqlite-wal.nix) <br> [ADR-571](../docs/adr/ADR-571-sqlite-wal.md) | N/A | **Database Optimizer**. Enforces WAL and periodically runs `VACUUM`/`ANALYZE` on dynamic service DBs. |
+| **575** | [update-notifier](575-update-notifier.nix) | N/A | **Update-Benachrichtigung**. Informiert ueber anstehende Flake-Updates via ntfy. |
+| **576** | [backup](576-backup.nix) <br> [ADR-576](../docs/adr/ADR-576-backup.md) | N/A | **Kanonisches Backup**. Restic-Snapshots fuer State (Klasse A) mit DB-Safe Stop/Start & SSH-Pull. |
+| **577** | [hygiene](577-hygiene.nix) | N/A | **System-Hygiene**. Drift-Detection und naechtlicher Orphan-Cleanup verwaister Daten. |
 
 ## 🛡️ Key Architecture Decisions
 

@@ -1036,6 +1036,20 @@ in
         type = lib.types.bool;
         default = true;
       };
+      mode = lib.mkOption {
+        type = lib.types.enum [
+          "single-disk"
+          "tiered"
+        ];
+        default = if cfg.storage.backends != { } then "tiered" else "single-disk";
+        description = ''
+          Zentraler Betriebsmodus fuer die Speicherarchitektur (ADR-570):
+          - 'single-disk': Einfachmodus. Alles (State, Metadaten, Medien) laeuft logisch
+            getrennt in Unterordnern auf einer einzigen Platte (backends = {}).
+          - 'tiered': Mehrstufiger Modus (Dual-SSD/NVMe + HDD JBOD).
+            Erfordert strikt backends.hot (Scratch/MediaCover) und backends.cold (Library).
+        '';
+      };
       mediaRoot = lib.mkOption {
         type = lib.types.path;
         default = "/data";

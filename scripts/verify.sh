@@ -87,6 +87,7 @@ run "check_banned_technologies" python3 scripts/check_banned_technologies.py
 run "check_no_polling"         python3 scripts/check_no_polling.py
 run "nixos_idiom_audit --p0"   python3 scripts/nixos_idiom_audit.py --p0-only
 run "check_ai_cockpit"         python3 scripts/check_ai_cockpit.py
+run "check_markdown_links"     python3 scripts/check_markdown_links.py
 
 echo
 if [ "$fail" -eq 0 ]; then

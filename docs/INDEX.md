@@ -15,7 +15,7 @@ Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
 | Wie lege ich einen Dienst / Ingress / Credential an? | [`NAVIGATION.md`](NAVIGATION.md) — Aufgabe → Lese-Reihenfolge | Mensch |
 | Was ist als Nächstes zu tun? | [`../todo/tasks.json`](../todo/tasks.json) — via `medinix` / SSoT | Mensch |
 | Welcher Dienst hat welchen Port/UID? | `Service Map` weiter unten (aus `50-core/registry.nix`) | Mensch |
-| Was war der Befund vom `<Datum>`? | [`audit/`](audit/) — Archiv, nicht zum Bauen | Archiv |
+| Was war der Befund vom `<Datum>`? | [Obsidian-Archiv](file:///home/moritz/Obsidian/Nix%20Drama/audit-archive/) — Historischer Lernweg | Archiv |
 
 ### Regeln
 
@@ -71,23 +71,13 @@ Aus [`50-core/registry.nix`](../50-core/registry.nix) (SSoT) — live abrufbar v
 
 Alle detaillierten Dokumente sind thematisch sortiert:
 
-- **[Concepts (`concepts/`)](concepts/)**: Die wichtigsten Architektur-Synthesen (Agenten-Fokus).
 - **[Architecture Decision Records (`adr/`)](adr/)**: Historische und verbindliche Design-Entscheidungen.
-- **[Guides (`guides/`)](guides/)**: Anleitungen und Best-Practices.
-- **[Patterns]**: ausgelagert nach `/home/moritz/repos/Nix OS resteküche/patterns/` (Fremdwissen, nicht repo-spezifisch).
 - **[Architecture (`arch/`)](arch/)**: Tiefe Architekturdokumentation des Systems.
-
-*Tipp für Agenten: Die `ADR-5020` (Knowledge Extraction Pipeline) beschreibt, wie dieses Wiki aus Chats extrahiert wird.*
-
+- **[Module (`modules/`)](modules/)**: Semantik und Verträge einzelner Dienste.
+- **[Patterns]**: Ausgelagert nach `Nix OS resteküche/patterns/` (Fremdwissen, nicht repo-spezifisch).
+- **Alte Concepts/Guides**: Vollständig und verlustfrei archiviert in `Obsidian/Nix Drama/audit-archive/`.
 
 ## 📋 Vollständiger Index
-
-### Concepts
-
-- [NixOS-Eigenschaften — Denkrahmen (korrigiert, mit Belegen aus diesem Repo)](concepts/nixos-eigenschaften.md)
-- [Secrets Management](concepts/secrets-systemd.md)
-- [Storage & Mover](concepts/storage-mover.md)
-- [VPN & Killswitch](concepts/vpn-killswitch.md)
 
 ### Module (Semantik je Dienst)
 

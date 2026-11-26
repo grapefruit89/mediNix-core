@@ -2,9 +2,9 @@
 
 How-to for domain **51-ingress**. File id `510` is the service-attachment layer for the ingress modules in this domain.
 
-511, 513, 515 and 518 do not know program names. Everything a service needs lives in **its own** module plus one `50-core/registry.nix` entry.
+[`511-caddy.nix`](511-caddy.nix), [`513-ddns.nix`](513-ddns.nix), [`515-blocky.nix`](515-blocky.nix) and [`518-landingpage.nix`](518-landingpage.nix) do not know program names. Everything a service needs lives in **its own** module plus one [`50-core/registry.nix`](../50-core/registry.nix) entry.
 
-Template: [`5xx-service.example.nix`](../docs/examples/5xx-service.example.nix)
+Template: [`simple.nix`](../docs/examples/simple.nix)
 
 ## The access path (who gets in)
 
@@ -15,27 +15,27 @@ it is not a fixed pipeline.
 ```
 WAN
   ↓
-Caddy / 511
+Caddy / [511](511-caddy.nix)
   ↓
-forward_auth — only `public`  →  oauth2-proxy (517)  →  Pocket ID (512)
+forward_auth — only `public`  →  oauth2-proxy ([517](517-oauth2-proxy.nix))  →  Pocket ID ([512](512-pocket-id.nix))
   ↓
 service
 ```
 
-DNS, TLS/ACME, mDNS and the landing page are **separate ingress concerns**, not
+DNS, TLS/ACME, Split-DNS (Blocky) and the landing page are **separate ingress concerns**, not
 steps in the request chain:
 
 ```
-DNS (513) · TLS/ACME (514) · mDNS (515) · landing (518)
+DNS (513) · TLS/ACME (514) · Split-DNS (515) · landing (518)
 ```
 
 **Numbering rule:** the number is the service's **identity** (port/UID = num × 10),
-**not** its position in a chain. The numbers stay stable. Current slots: `511`
-caddy · `512` pocket-id · `513` cloudflare-dns · `514` acme · `515` mdns · `516`
-crowdsec · **`517` oauth2-proxy (forward-auth, ADR-517)** · `518` landingpage ·
-`519` guardrails. Port/UID of 517 = **5170** (num × 10).
+**not** its position in a chain. The numbers stay stable. Current slots:
+[`511` caddy](511-caddy.nix) · [`512` pocket-id](512-pocket-id.nix) · [`513` cloudflare-dns](513-ddns.nix) · [`514` acme](514-acme.nix) · [`515` blocky](515-blocky.nix) ·
+[`516` crowdsec](516-crowdsec.nix) · [`517` oauth2-proxy](517-oauth2-proxy.nix) · [`518` landingpage](518-landingpage.nix) ·
+[`519` guardrails](519-ingress-guardrails.nix). Port/UID of 517 = **5170** (num × 10).
 
-Domain guardrails: **`519`** — advisory assertions (no nginx/httpd/iptables; Caddy +
+Domain guardrails: **[`519-ingress-guardrails.nix`](519-ingress-guardrails.nix)** — advisory assertions (no nginx/httpd/iptables; Caddy +
 firewall stay on; fail2ban is now Legacy — RT-3 aufgelöst, CrowdSec 516 ist der
 Edge-Bouncer). Escape hatch: `medinix.ingress.guardrails`.
 ## Checklist
@@ -46,7 +46,7 @@ Edge-Bouncer). Escape hatch: `medinix.ingress.guardrails`.
    - bind the process to `127.0.0.1:<port>`
    - set `medinix.ingress.vhosts."<name>".accessGroup`
 4. On the host: `medinix.<name>.enable = true;`
-5. **Do not** edit 511, 513, 515 or 518.
+5. **Do not** edit [`511-caddy.nix`](511-caddy.nix), [`513-ddns.nix`](513-ddns.nix), [`515-blocky.nix`](515-blocky.nix) or [`518-landingpage.nix`](518-landingpage.nix).
 
 ## vHost — that is the whole contract
 
@@ -96,7 +96,7 @@ The sprite id resolves as **`ingress.vhosts."<name>".iconId` → `manifest.<name
 
 ## accessGroup detail
 
-| Group | HTTPS `{name}.{domain}` | Auth | `.local` |
+| Group | HTTPS `{name}.{domain}` | Auth | LAN (`{name}.lan`) |
 | --- | --- | --- | --- |
 | `stream` | yes, no compression | never | HTTP + CIDR abort |
 | `internal` | yes, abort outside `trustedCidrs` | never | same abort |

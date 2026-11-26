@@ -1,10 +1,10 @@
 ---
 id: 51-ingress
 title: Ingress & Edge Domain
-description: Manages reverse proxies, DNS, certificates, mDNS, and authentication boundaries.
+description: Manages reverse proxies, DNS, certificates, Split-DNS (Blocky), and authentication boundaries.
 aliases: [Ingress, Edge, Caddy]
 tags: [architecture, medinix, ingress, caddy, dns, acme, oidc, security]
-last_reviewed: 2026-09-24
+last_reviewed: 2026-11-26
 ---
 
 # 51-ingress: Ingress & Edge Domain
@@ -16,7 +16,7 @@ It owns the **access path into services**:
 * reverse-proxy routing
 * TLS termination
 * DNS anchors
-* mDNS aliases
+* Split-DNS (Blocky)
 * authentication integration
 * edge-level request filtering and protection
 
@@ -338,23 +338,13 @@ http://{name}.{domain}
     └── redirects to HTTPS when TLS is enabled
 
 
-http://{name}.local
-    └── mDNS A record only (515/avahi) — 511 renders NO Caddy site for `.local`
+http://{name}.lan
+    └── Split-DNS A record (515/blocky) — LAN-only Caddy site (.lan)
 ```
 
-`.local` is a **naming mechanism**, not a security boundary.
-
-Authentication and network access controls must therefore not rely on the `.local` suffix itself.
-
-`.local` names resolve to the LAN IP via mDNS, but Caddy only knows `.lan`
-(`{name}.lan`, `dashboard.lan`) and `{name}.{domain}`. Until a Caddy site block
-for `.local` exists, a request with `Host: {name}.local` matches no site. The
-landing page is served on `http://dashboard.lan` (CIDR-gated) — and on
-`https://{domain}` only with `ingress.landing.wanPublic = true` (default false,
-review 2026-10-17, Finding 10) — **not** on `home.local`; 515 publishes
-`home.local` only as an
-mDNS A record. (Corrected 2026-10-17; the text claimed HTTP + CIDR abort for
-`.local` and a `home.local` landing.)
+Blocky ([`515-blocky.nix`](515-blocky.nix)) acts as the internal Split-Horizon DNS resolver on Port 53,
+resolving `{name}.lan` and `{name}.{domain}` directly to the server's LAN IP. mDNS (Avahi/`.local`)
+has been fully decommissioned in favor of RFC-compliant unicast DNS resolution.
 
 ---
 
@@ -427,7 +417,7 @@ This is deliberate:
 
 > **One vhost declaration, multiple consumers.**
 
-The landing page therefore consumes the same service metadata that drives Caddy, DNS, and mDNS.
+The landing page therefore consumes the same service metadata that drives Caddy, DNS, and Blocky.
 
 ---
 
@@ -586,7 +576,7 @@ mediahost
  ├── Cloudflare DNS
  ├── authentication
  ├── VPN confinement
- └── mDNS
+ └── Split-DNS (Blocky)
 ```
 
 Therefore this README does **not** claim that the complete ingress stack has been runtime-verified.
@@ -693,7 +683,7 @@ Caddy live route matrix
 ACME issuance/renewal
 VPN killswitch behavior
 firewall behavior
-mDNS behavior
+Split-DNS (Blocky) behavior
 WAN/LAN/authentication matrix
 ```
 
@@ -741,7 +731,7 @@ The ingress domain follows six rules:
    Missing security configuration produces an assertion/error rather than silently weakening the boundary.
 
 4. **Separate ownership.**
-   DNS, certificates, mDNS, authentication, Caddy, and host security have distinct owners.
+   DNS, certificates, authentication, Caddy, and host security have distinct owners.
 
 5. **Data flow over imports.**
    Runtime/evaluation contracts are not artificially represented as Nix module imports.

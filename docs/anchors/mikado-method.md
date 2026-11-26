@@ -36,7 +36,7 @@
 * Making incremental improvements without blocking the team
 * Brownfield development with hidden dependencies
 
-[[mikado-method-recipe-canonical-form]]
+<a id="mikado-method-recipe-canonical-form"></a>
 [discrete]
 ## **Mikado Method Recipe (Canonical Form)**
 

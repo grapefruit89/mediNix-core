@@ -173,6 +173,53 @@ let
   stagingStr = lib.optionalString (mv.stagingDir != null) (toString mv.stagingDir);
   archiveStr = lib.optionalString (mv.archiveDir != null) (toString mv.archiveDir);
   metaStr = toString st.metadataDir;
+  downloadStr = toString st.downloadDir;
+
+  storagePreflightScript = pkgs.writeShellApplication {
+    name = "medinix-storage-preflight";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.util-linux
+    ];
+    text = ''
+      set -euo pipefail
+
+      check_target() {
+        local path="$1"
+        local name="$2"
+        [ -d "$path" ] || return 0
+
+        local dev
+        dev="$(df --output=source "$path" 2>/dev/null | tail -n 1 || true)"
+        [ -n "$dev" ] || return 0
+
+        case "$dev" in
+          tmpfs|ramfs|overlay|none|udev|shm) return 0 ;;
+        esac
+
+        local real
+        real="$(readlink -f "$dev" 2>/dev/null || echo "$dev")"
+        local base="''${real##*/}"
+
+        local blockdev="$base"
+        if [ -e "/sys/class/block/$base/partition" ]; then
+          blockdev="$(basename "$(readlink -f "/sys/class/block/$base/..")")"
+        fi
+
+        local rot
+        rot="$(cat "/sys/block/$blockdev/queue/rotational" 2>/dev/null || echo "0")"
+
+        if [ "$rot" = "1" ]; then
+          echo "WARNUNG: [mediNix-storage] $name ($path auf /dev/$blockdev) liegt auf einer ROTIERENDEN Festplatte (HDD)! Tier-1/2 Metadaten und Scratch gehoeren zur Vermeidung von HDD-Wakes und Latenz auf SSD/NVMe." >&2
+        else
+          echo "OK: [mediNix-storage] $name ($path) liegt auf Non-Rotational Storage (SSD/NVMe)."
+        fi
+      }
+
+      check_target "${metaStr}" "metadataDir"
+      check_target "${downloadStr}" "downloadDir"
+    '';
+  };
 
   moverScript = pkgs.writeShellApplication {
     name = "mediNix-mover";
@@ -330,6 +377,32 @@ in
           message = "[mediNix/570-storage] storage.backends: entweder {} (Simple) oder exakt { hot; cold; } (Tiered, ADR-570).";
         }
         {
+          assertion =
+            (!cfg.enable || !st.enable)
+            || (st.mode == "single-disk" && st.backends == { })
+            || (st.mode == "tiered" && st.backends ? hot && st.backends ? cold);
+          message = "[mediNix/570-storage] storage.mode '${st.mode}' inkonsistent mit storage.backends: 'single-disk' erfordert backends = {}, 'tiered' erfordert backends = { hot; cold; }.";
+        }
+        {
+          assertion =
+            (!cfg.enable || !st.enable)
+            || !(st.backends ? cold)
+            || (
+              metaStr != (toString st.backends.cold) && !(lib.hasPrefix "${toString st.backends.cold}/" metaStr)
+            );
+          message = "[mediNix/570-storage] storage.metadataDir darf niemals auf backends.cold (HDD) liegen (Spindown-Invariante: 0 HDD-Wakes beim Browsen!).";
+        }
+        {
+          assertion =
+            (!cfg.enable || !st.enable)
+            || !(st.backends ? cold)
+            || (
+              downloadStr != (toString st.backends.cold)
+              && !(lib.hasPrefix "${toString st.backends.cold}/" downloadStr)
+            );
+          message = "[mediNix/570-storage] storage.downloadDir darf niemals auf backends.cold (HDD) liegen (Scratch-Invariante: Entpacken/PAR2 niemals auf HDDs!).";
+        }
+        {
           assertion = !moverActive || (mv.stagingDir != null && mv.archiveDir != null);
           message = "[mediNix/570-storage] mover: stagingDir und archiveDir muessen explizit gesetzt sein (kein Fail-Open-Default).";
         }
@@ -402,6 +475,18 @@ in
         ++ lib.concatMap (t: map (m: "${t}/${m}") mediaTypes) tiers
         ++ map (m: "${st.mediaRoot}/${m}") mediaTypes
       );
+
+      systemd.services.medinix-storage-preflight = {
+        description = "Storage tier preflight check (validates non-rotational metadataDir & downloadDir)";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "local-fs.target" ];
+        serviceConfig = profiles.script // {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          SyslogIdentifier = "medinix-storage-preflight";
+        };
+        script = "${lib.getExe storagePreflightScript}";
+      };
     })
 
     # ── Spindown Timeout & Power Transition Logging ───────────────────────────
