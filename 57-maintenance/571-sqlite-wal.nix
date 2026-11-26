@@ -103,7 +103,6 @@ let
           WAS_ACTIVE=1
           echo "SQLite maintenance: stopping $unit for safe checkpoint..."
           systemctl stop "$unit" || true
-          sleep 1
         fi
 
         for db in "''${dbs[@]}"; do

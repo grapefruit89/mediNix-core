@@ -49,7 +49,6 @@ let
       echo "mediNix-backup: stopping writers for DB-safety..."
       ${lib.optionalString (mediaServices != [ ]) ''
         systemctl stop ${lib.concatStringsSep " " mediaServices} || true
-        sleep 2
       ''}
     '';
   };

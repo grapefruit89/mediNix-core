@@ -51,7 +51,7 @@ def read_key_file(path: str) -> Optional[str]:
 # Das blockierte den Thread, erzeugte Latenzen von mehreren Sekunden pro Service und war blind für
 # Service-Crashes. Die moderne Engine in 'arr_provision.events' (wait_for_ready) nutzt Kernel-epoll
 # und systemd-journald Event-Streaming (Zero-Polling / sofortiger Wakeup bei Kestrel 'Now listening on:'
-# oder Fail-Fast bei Unit-Crash). 'wait_for_url' verbleibt als Abwärtskompatibilitäts-Fallback.
+# oder Fail-Fast bei Unit-Crash). 'wait_for_url' delegiert nun direkt an den epoll-Event-Reaktor.
 def wait_for_url(
     url: str,
     *,
@@ -61,22 +61,38 @@ def wait_for_url(
     require_fail: bool = False,
     timeout: float = 5.0,
 ) -> bool:
-    hdrs = dict(headers or {})
-    for attempt in range(1, max_attempts + 1):
-        try:
-            request = urllib.request.Request(url, headers=hdrs)
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                if require_fail and response.status >= 400:
-                    raise urllib.error.HTTPError(url, response.status, "", hdrs, None)
-            safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
-            print(f"Service available at {safe_url} (attempt {attempt})")
-            return True
-        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-            if attempt == max_attempts:
-                safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
-                print(f"Service not available at {safe_url} after {max_attempts} attempts: {exc}", file=sys.stderr)
-                return False
-            time.sleep(sleep_seconds)
+    import urllib.parse
+    from arr_provision.events import ReadinessTarget, wait_for_ready
+
+    parsed = urllib.parse.urlsplit(url)
+    host = parsed.hostname or "127.0.0.1"
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    path = parsed.path or "/"
+    if parsed.query:
+        path = f"{path}?{parsed.query}"
+
+    total_timeout = max(timeout, float(max_attempts * sleep_seconds))
+    expected = frozenset() if require_fail else frozenset(range(200, 400))
+    fail_stat = frozenset(range(400, 600)) if require_fail else frozenset()
+
+    target = ReadinessTarget(
+        name=parsed.hostname or "service",
+        host=host,
+        port=port,
+        path=path,
+        headers=dict(headers or {}),
+        expected_statuses=expected if expected else frozenset(range(200, 600)),
+        fail_statuses=fail_stat,
+    )
+    statuses = wait_for_ready([target], timeout=total_timeout, use_journal=True)
+    safe_url = re.sub(r"apikey=[^&]+", "apikey=REDACTED", url)
+    if statuses and statuses[0].status.value == "ready":
+        print(f"Service available at {safe_url} (event-driven readiness)")
+        return True
+    print(
+        f"Service not available at {safe_url}: {statuses[0].detail if statuses else 'timeout'}",
+        file=sys.stderr,
+    )
     return False
 
 

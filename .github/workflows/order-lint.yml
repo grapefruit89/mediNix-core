@@ -58,6 +58,10 @@ jobs:
       - name: "Verbotene Technologien? (BANNED_TECHNOLOGIES.md)"
         run: python3 scripts/check_banned_technologies.py
 
+      # Zero-Polling & Anti-Sleep Invariante (ADR-0010 / ADR-5000)
+      - name: "Zero-Polling & Anti-Sleep? (scripts/check_no_polling.py)"
+        run: python3 scripts/check_no_polling.py
+
       # Schicht 0a: Klassische-Distro-Reflexe (P0) - Exit 1 bei Fund.
       - name: "NixOS-Idiome ok? (scripts/nixos_idiom_audit.py --p0-only)"
         run: python3 scripts/nixos_idiom_audit.py --p0-only

@@ -84,6 +84,7 @@ run "check_sources"            python3 scripts/check_sources.py
 run "check_corridor"           python3 scripts/check_corridor.py
 run "check_nixos_anchors"      python3 scripts/check_nixos_anchors.py
 run "check_banned_technologies" python3 scripts/check_banned_technologies.py
+run "check_no_polling"         python3 scripts/check_no_polling.py
 run "nixos_idiom_audit --p0"   python3 scripts/nixos_idiom_audit.py --p0-only
 run "check_ai_cockpit"         python3 scripts/check_ai_cockpit.py
 
