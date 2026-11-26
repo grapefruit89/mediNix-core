@@ -9,15 +9,18 @@ set -euo pipefail
 SSH_HOST="q958"
 REMOTE_DIR="/var/lib/medinix/secrets"
 
-# Kanonische mediNix-Secrets laut Spezifikation
+# Kanonische mediNix-Secrets laut Spezifikation (6 Kern-Kategorien)
 KNOWN_SECRETS=(
-  "cf-acme:Cloudflare ACME DNS-Token (Caddy TLS)"
-  "cf-ddns:Cloudflare Dynamic DNS-Token (Blocky / WAN)"
-  "wg-key:WireGuard Private Key (VPN Killswitch)"
-  "sabnzbd-apikey:SABnzbd API-Schlüssel"
-  "restic:Restic Backup-Passphrase"
-  "jellyfin-admin:Jellyfin Initial Admin-Passwort"
+  "cf-acme:Cloudflare ACME DNS-Token (Caddy Wildcard TLS *.m7c5.de)"
+  "cf-ddns:Cloudflare Dynamic DNS-Token (WAN-IP DNS Updater)"
+  "wg-key:WireGuard Private Key (VPN Killswitch / Usenet Confinement)"
+  "sabnzbd-apikey:SABnzbd API-Schlüssel (Usenet Client)"
+  "usenet-server:Usenet Provider Zugangsdaten (Host, Port, User, Passwort)"
+  "newznab-apikey:Usenet Indexer API-Schlüssel (Treasure Maps / Prowlarr)"
   "speedport:Speedport Router Admin-Passwort (WAN-IP Probe)"
+  "restic:Restic Backup-Passphrase (Lokal & Offsite)"
+  "rclone:Rclone Cloud-Storage Token (Offsite Sync)"
+  "jellyfin-admin:Jellyfin Initial Admin-Passwort"
 )
 
 # Prüfen ob gum verfügbar ist
@@ -32,6 +35,7 @@ get_cred_name() {
   case "$name" in
     *-apikey) echo "${name%-apikey}-api-key" ;;
     speedport) echo "speedport-password" ;;
+    wg-key) echo "wg-private-key" ;;
     *) echo "$name" ;;
   esac
 }
@@ -73,6 +77,7 @@ list_secrets_menu() {
     fi
   done <<< "$existing_raw"
 
+  items+=("📥 [WireGuard .conf importieren (z.B. Privado VPN)]")
   items+=("➕ [Neues benutzerdefiniertes Secret anlegen]")
   items+=("🚪 [Beenden]")
 
@@ -170,6 +175,116 @@ manage_secret() {
   done
 }
 
+import_wireguard_conf() {
+  clear
+  gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
+    "📥 WireGuard .conf Import (z.B. Privado VPN)" \
+    "Extrahiert PrivateKey automatisch -> versiegelt als wg-key auf Q958" \
+    "Generiert die deklarativen NixOS-Netzwerkoptionen für mediNix"
+
+  local default_path="/home/moritz/Downloads/privado.fra-017.conf"
+  local conf_path
+  if [ -f "$default_path" ]; then
+    conf_path=$(gum input --value "$default_path" --placeholder "Pfad zur .conf-Datei")
+  else
+    conf_path=$(gum input --placeholder "Pfad zur .conf-Datei (z.B. ~/Downloads/privado.conf)")
+  fi
+
+  if [ -z "$conf_path" ] || [ ! -f "$conf_path" ]; then
+    gum style --foreground 1 "Fehler: Datei '$conf_path' existiert nicht."
+    echo ""
+    read -r -p "Enter drücken zum Fortfahren..."
+    return 0
+  fi
+
+  # Parser via Python
+  local parsed_output
+  parsed_output=$(python3 - << EOF
+import sys, configparser
+
+cp = configparser.ConfigParser()
+cp.read("$conf_path")
+
+privkey = cp.get("Interface", "PrivateKey", fallback="").strip()
+address = [x.strip() for x in cp.get("Interface", "Address", fallback="").split(",") if x.strip()]
+dns = [x.strip() for x in cp.get("Interface", "DNS", fallback="").split(",") if x.strip()]
+pubkey = cp.get("Peer", "PublicKey", fallback="").strip()
+endpoint = cp.get("Peer", "Endpoint", fallback="").strip()
+allowed = [x.strip() for x in cp.get("Peer", "AllowedIPs", fallback="0.0.0.0/0").split(",") if x.strip()]
+
+if not privkey:
+    print("ERROR: Kein PrivateKey in [Interface] gefunden!", file=sys.stderr)
+    sys.exit(1)
+
+# Ausgabe: privkey in Zeile 1, dann JSON oder formatiertes Nix
+print(f"PRIVKEY={privkey}")
+print(f"ADDRESS={' '.join(address)}")
+print(f"DNS={' '.join(dns)}")
+print(f"PUBKEY={pubkey}")
+print(f"ENDPOINT={endpoint}")
+print(f"ALLOWED={' '.join(allowed)}")
+EOF
+) || {
+    gum style --foreground 1 "Fehler beim Parsen der WireGuard-Konfiguration."
+    echo ""
+    read -r -p "Enter drücken zum Fortfahren..."
+    return 0
+  }
+
+  local privkey address_list dns_list pubkey endpoint allowed_list
+  privkey=$(echo "$parsed_output" | grep "^PRIVKEY=" | cut -d= -f2-)
+  address_list=$(echo "$parsed_output" | grep "^ADDRESS=" | cut -d= -f2-)
+  dns_list=$(echo "$parsed_output" | grep "^DNS=" | cut -d= -f2-)
+  pubkey=$(echo "$parsed_output" | grep "^PUBKEY=" | cut -d= -f2-)
+  endpoint=$(echo "$parsed_output" | grep "^ENDPOINT=" | cut -d= -f2-)
+  allowed_list=$(echo "$parsed_output" | grep "^ALLOWED=" | cut -d= -f2-)
+
+  gum spin --spinner dot --title "Versiegele WireGuard PrivateKey auf Q958 via systemd-creds..." -- \
+    ssh -o BatchMode=yes "$SSH_HOST" "bash -c '
+      sudo install -d -m 0750 \"$REMOTE_DIR\"
+      echo -n \"$privkey\" | sudo systemd-creds encrypt --name=\"wg-private-key\" - \"$REMOTE_DIR/wg-key.encrypted\"
+      sudo chown root:medinix \"$REMOTE_DIR/wg-key.encrypted\"
+      sudo chmod 0640 \"$REMOTE_DIR/wg-key.encrypted\"
+    '"
+
+  # Generiere Nix-Block
+  local addr_nix dns_nix allowed_nix
+  addr_nix=$(for a in $address_list; do printf '"%s" ' "$a"; done)
+  dns_nix=$(for d in $dns_list; do printf '"%s" ' "$d"; done)
+  allowed_nix=$(for al in $allowed_list; do printf '"%s" ' "$al"; done)
+
+  local nix_code
+  nix_code=$(cat << NIX
+  # WireGuard VPN Confinement (Importiert aus $(basename "$conf_path"))
+  medinix.vpn = {
+    enable = true;
+    address = [ $addr_nix];
+    dns = [ $dns_nix];
+    peer = {
+      publicKey = "$pubkey";
+      endpoint = "$endpoint";
+      allowedIPs = [ $allowed_nix];
+    };
+    privateKeyCredentialPath = "/var/lib/medinix/secrets/wg-key.encrypted";
+  };
+NIX
+)
+
+  clear
+  gum style --foreground 10 "✓ WireGuard PrivateKey erfolgreich als 'wg-key.encrypted' auf Q958 versiegelt!"
+  echo ""
+  gum style --border rounded --padding "1 2" --border-foreground 14 \
+    "Deklarativer NixOS-Block für mediNix:" "$nix_code"
+
+  if command -v wl-copy >/dev/null 2>&1; then
+    printf "%s" "$nix_code" | wl-copy
+    gum style --foreground 10 "✓ Nix-Code wurde zusätzlich in deine Zwischenablage kopiert!"
+  fi
+
+  echo ""
+  read -r -p "Enter drücken zum Fortfahren..."
+}
+
 create_new_secret() {
   clear
   gum style --border double --margin "1" --padding "1 2" --border-foreground 212 \
@@ -202,6 +317,9 @@ while true; do
     *"[Beenden]"*)
       clear
       exit 0
+      ;;
+    *"[WireGuard .conf importieren"*)
+      import_wireguard_conf
       ;;
     *"[Neues benutzerdefiniertes Secret anlegen]"*)
       create_new_secret

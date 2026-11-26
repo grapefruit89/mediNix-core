@@ -231,7 +231,7 @@ pkgs.writeShellApplication {
       case "$sub" in
         list|ls)
           printf '%-18s %-12s %s\n' "SECRET" "STATUS" "DATEI"
-          for key in cf-acme cf-ddns wg-key sabnzbd-apikey restic jellyfin-admin speedport; do
+          for key in cf-acme cf-ddns wg-key sabnzbd-apikey usenet-server newznab-apikey speedport restic rclone jellyfin-admin; do
             if [ -f "$dir/$key.encrypted" ]; then
               printf '%-18s %-12s %s\n' "$key" "versiegelt" "$dir/$key.encrypted"
             else
@@ -249,6 +249,7 @@ pkgs.writeShellApplication {
           case "$name" in
             *-apikey) cred="''${name%-apikey}-api-key" ;;
             speedport) cred="speedport-password" ;;
+            wg-key) cred="wg-private-key" ;;
           esac
           install -d -m 0750 "$dir"
           if [ -n "''${3:-}" ]; then
