@@ -45,6 +45,14 @@
 | `A-39` | caddy-tarpit für Web-Scans einsetzen ('Wer scannt, fliegt raus') | Tarpit bindet Kernel-Sockets und Webserver-Ressourcen für bösartige Scans; Angreifer werden stattdessen sofort via CrowdSec + nftables kernel-nah auf Blocklist gesetzt. | `27-caddy-plugin-replacements` |
 | `A-40` | caddy-defender für verzögerte Bot-Responses nutzen | Verzögerte Responses binden Ressourcen. Klare 404-Codes triggern CrowdSec schneller und deterministischer. | `27-caddy-plugin-replacements` |
 | `A-41` | cerberus Caddy-Plugin zur Ratenbegrenzung kompilieren | Caddy-Plugin cerberus ist veraltet/unmaintained; nftables und CrowdSec auf Kernel-Ebene bieten robusteren Schutz ohne Caddy-Custom-Build-Risiken. | `27-caddy-plugin-replacements` |
+| `A-42` | Verbot eines Trust-Anchors vor verifiziertem Ersatz im Feld | Ein etabliertes Secret-Verfahren darf niemals verboten werden, solange der Nachfolger (z. B. TPM-Unseal) auf der echten Hardware nicht lauffähig ist. | `archive/sops-nix` |
+| `A-43` | Gemeinsames Secret-Verzeichnis (`/run/secrets`) für alle Dienste | Ein Sammelverzeichnis mit Gruppenberechtigung hebelt Least Privilege aus; Secrets gehören isoliert per-Unit (`$CREDENTIALS_DIRECTORY` 0400). | `archive/sops-nix` |
+| `A-44` | Unverschlüsselter SSH-Host-Key auf Platte als Trust-Anchor | Wer die Festplatte liest, hat alle Host-Secrets; ein Secret-System muss Hardware-Bindung oder Passphrase erzwingen. | `archive/sops-nix` |
+| `A-45` | Auto-Generierung von Trust-Anchors (`generateKey = true`) auf dem Ziel | Trust-Anchors müssen fail-loud reagieren; stilles Neuerzeugen maskiert Konfigurations- und Bereitstellungsfehler. | `archive/sops-nix` |
+| `A-46` | Installationsmethode als Doktrin vorschreiben ohne Verlust-Rechnung | „Native-First für HA" verschweigt den totalen Verlust des Add-on- und Supervisor-Ökosystems; Architektur erfordert vollständige Trade-off-Bilanzen. | `archive/home-assistant` |
+| `A-47` | Link-Sammlungen / Awesome-Lists als angebliche Architektur-Vorlagen ins Git-Archiv | Ungeprüfte URL-Listen verrotten in Monaten und bieten null Architekturentscheidung; verstopfen das Repo ohne Mehrwert. | `archive/home-assistant` |
+| `A-48` | Mehrere Lookup-Pfade / Aliase als Kompatibilitätsstrategie | Drei Namen für einen Dienst bedeuten drei Fehlerquellen; genau ein kanonischer Name im SSoT, Aliase nur generiert. | `archive/mdns-avahi` |
+| `A-49` | Leere Stub-Dateien mit `status: active` versehen | Statusfelder auf leeren Dateien oder TODO-Platzhaltern entwerten die maschinenlesbare Governance des gesamten Repos. | `archive/stubs` |
 
 ## Detaillierte Begründungen
 
@@ -207,4 +215,37 @@
 ## A-41: cerberus Caddy-Plugin zur Ratenbegrenzung kompilieren
 - **Warum verworfen:** Caddy-Plugin cerberus ist veraltet/unmaintained; nftables und CrowdSec auf Kernel-Ebene bieten robusteren Schutz ohne Caddy-Custom-Build-Risiken.
 - **Quelle:** `27-caddy-plugin-replacements`
+
+## A-42: Verbot eines Trust-Anchors vor verifiziertem Ersatz im Feld
+- **Warum verworfen:** Ein etabliertes Secret-Verfahren darf niemals pauschal verboten werden, solange der Nachfolger (z. B. TPM-Unseal) auf der Zielhardware nicht verifiziert läuft.
+- **Quelle:** `archive/sops-nix`
+
+## A-43: Gemeinsames Secret-Verzeichnis (`/run/secrets`) für alle Dienste
+- **Warum verworfen:** Ein Sammelverzeichnis mit Gruppenberechtigung hebelt Least Privilege aus; Secrets gehören isoliert per-Unit (`$CREDENTIALS_DIRECTORY` 0400).
+- **Quelle:** `archive/sops-nix`
+
+## A-44: Unverschlüsselter SSH-Host-Key auf Platte als Trust-Anchor
+- **Warum verworfen:** Wer die Festplatte liest, hat alle Host-Secrets; ein Secret-System muss Hardware-Bindung oder Passphrase erzwingen.
+- **Quelle:** `archive/sops-nix`
+
+## A-45: Auto-Generierung von Trust-Anchors (`generateKey = true`) auf dem Ziel
+- **Warum verworfen:** Trust-Anchors müssen fail-loud reagieren; stilles Neuerzeugen maskiert Konfigurations- und Bereitstellungsfehler.
+- **Quelle:** `archive/sops-nix`
+
+## A-46: Installationsmethode als Doktrin vorschreiben ohne Verlust-Rechnung
+- **Warum verworfen:** „Native-First für HA" verschweigt den totalen Verlust des Add-on- und Supervisor-Ökosystems; Architektur erfordert vollständige Trade-off-Bilanzen.
+- **Quelle:** `archive/home-assistant`
+
+## A-47: Link-Sammlungen / Awesome-Lists als angebliche Architektur-Vorlagen ins Git-Archiv
+- **Warum verworfen:** Ungeprüfte URL-Listen verrotten in Monaten und bieten null Architekturentscheidung; verstopfen das Repo ohne Mehrwert.
+- **Quelle:** `archive/home-assistant`
+
+## A-48: Mehrere Lookup-Pfade / Aliase als Kompatibilitätsstrategie
+- **Warum verworfen:** Drei Namen für einen Dienst bedeuten drei Fehlerquellen; genau ein kanonischer Name im SSoT, Aliase nur generiert.
+- **Quelle:** `archive/mdns-avahi`
+
+## A-49: Leere Stub-Dateien mit `status: active` versehen
+- **Warum verworfen:** Statusfelder auf leeren Dateien oder TODO-Platzhaltern entwerten die maschinenlesbare Governance des gesamten Repos.
+- **Quelle:** `archive/stubs`
+
 

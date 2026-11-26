@@ -17,7 +17,7 @@ links:
 # ADR-515: Blocky als Split-DNS im Ingress (ersetzt mDNS/Avahi)
 
 ## Status: accepted (2026-10-25)
-## Supersedes: archivierte ADR-515-mdns-avahi-aliases (`/home/moritz/repos/mediNix-core/docs/archive/ARCHIVE-ADR-515-mdns-avahi-aliases.md`)
+## Supersedes: ADR-515-mdns-avahi-aliases (historisch)
 
 ## Context
 - WAN-Dienste (`caddyClass` `stream`/`public`) sind ueber `{service}.{domain}` erreichbar. Aus dem LAN muss derselbe Name aufloesbar sein, sonst entsteht Hairpin-NAT (Paket geht zum Router und zurueck).

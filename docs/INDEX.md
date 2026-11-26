@@ -36,7 +36,7 @@ Drei Gruppen: **Einstieg** (womit fange ich an) · **Regeln** (was darf ich) ·
 | Wie debugge ich einen Dienst? | [`RUNBOOK.md`](RUNBOOK.md) §5 + `medinix triage <symptom>` | generiert aus `runbook.json` |
 | Wie mache ich X mit Nix? (Fremdwissen) | `/home/moritz/repos/Nix OS resteküche/patterns/` — **nicht repo-spezifisch** | extern, ungepflegt |
 
-**Nicht als Einstieg gedacht:** `docs/archive/`, `docs/audit/`, `docs/anchors/`.
+**Nicht als Einstieg gedacht:** `docs/audit/`, `docs/anchors/`.
 
 ## 🗺 Service Map
 
